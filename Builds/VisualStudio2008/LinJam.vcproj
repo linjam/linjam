@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<VisualStudioProject ProjectType="Visual C++"
+                     Version="9.00"
+                     Name="LinJam"
+                     ProjectGUID="{6EEEF2DD-3F47-D2EE-F28D-74236E657879}"
+                     TargetFrameworkVersion="131072">
+  <Platforms>
+    <Platform Name="Win32"/>
+  </Platforms>
+  <ToolFiles/>
+  <Configurations>
+    <Configuration Name="Debug|Win32"
+                   OutputDirectory=".\Debug"
+                   ConfigurationType="1"
+                   UseOfMFC="0"
+                   ATLMinimizesCRunTimeLibraryUsage="false"
+                   CharacterSet="2">
+      <Tool Name="VCPreBuildEventTool"/>
+      <Tool Name="VCCustomBuildTool"/>
+      <Tool Name="VCXMLDataGeneratorTool"/>
+      <Tool Name="VCWebServiceProxyGeneratorTool"/>
+      <Tool Name="VCMIDLTool"
+            PreprocessorDefinitions="_DEBUG"
+            MkTypLibCompatible="true"
+            SuppressStartupBanner="true"
+            TargetEnvironment="1"
+            TypeLibraryName="$(IntDir)\LinJam.tlb"
+            HeaderFileName=""/>
+      <Tool Name="VCCLCompilerTool"
+            Optimization="0"
+            BufferSecurityCheck=""
+            DebugInformationFormat="4"
+            AdditionalIncludeDirectories="..\..\JuceLibraryCode"
+            PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;JUCER_VS2008_78A5006=1;JUCE_APP_VERSION=1.0.0;JUCE_APP_VERSION_HEX=0x10000"
+            RuntimeLibrary="1"
+            RuntimeTypeInfo="true"
+            UsePrecompiledHeader="0"
+            PrecompiledHeaderFile="$(IntDir)\LinJam.pch"
+            AssemblerListingLocation="$(IntDir)\"
+            ObjectFile="$(IntDir)\"
+            ProgramDataBaseFileName="$(IntDir)\"
+            WarningLevel="4"
+            SuppressStartupBanner="true"/>
+      <Tool Name="VCManagedResourceCompilerTool"/>
+      <Tool Name="VCResourceCompilerTool"
+            PreprocessorDefinitions="_DEBUG"/>
+      <Tool Name="VCPreLinkEventTool"/>
+      <Tool Name="VCLinkerTool"
+            OutputFile="$(OutDir)\LinJam.exe"
+            SuppressStartupBanner="true"
+            IgnoreDefaultLibraryNames="libcmt.lib, msvcrt.lib"
+            GenerateDebugInformation="true"
+            ProgramDatabaseFile="$(IntDir)\LinJam.pdb"
+            SubSystem="2"
+            GenerateManifest="true"
+            TargetMachine="1"/>
+      <Tool Name="VCALinkTool"/>
+      <Tool Name="VCManifestTool"/>
+      <Tool Name="VCXDCMakeTool"/>
+      <Tool Name="VCBscMakeTool"
+            SuppressStartupBanner="true"
+            OutputFile="$(IntDir)\LinJam.bsc"/>
+      <Tool Name="VCFxCopTool"/>
+      <Tool Name="VCAppVerifierTool"/>
+      <Tool Name="VCPostBuildEventTool"/>
+    </Configuration>
+    <Configuration Name="Release|Win32"
+                   OutputDirectory=".\Release"
+                   ConfigurationType="1"
+                   UseOfMFC="0"
+                   ATLMinimizesCRunTimeLibraryUsage="false"
+                   CharacterSet="2"
+                   WholeProgramOptimization="1">
+      <Tool Name="VCPreBuildEventTool"/>
+      <Tool Name="VCCustomBuildTool"/>
+      <Tool Name="VCXMLDataGeneratorTool"/>
+      <Tool Name="VCWebServiceProxyGeneratorTool"/>
+      <Tool Name="VCMIDLTool"
+            PreprocessorDefinitions="NDEBUG"
+            MkTypLibCompatible="true"
+            SuppressStartupBanner="true"
+            TargetEnvironment="1"
+            TypeLibraryName="$(IntDir)\LinJam.tlb"
+            HeaderFileName=""/>
+      <Tool Name="VCCLCompilerTool"
+            Optimization="1"
+            InlineFunctionExpansion="1"
+            StringPooling="true"
+            AdditionalIncludeDirectories="..\..\JuceLibraryCode"
+            PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;JUCER_VS2008_78A5006=1;JUCE_APP_VERSION=1.0.0;JUCE_APP_VERSION_HEX=0x10000"
+            RuntimeLibrary="0"
+            RuntimeTypeInfo="true"
+            UsePrecompiledHeader="0"
+            PrecompiledHeaderFile="$(IntDir)\LinJam.pch"
+            AssemblerListingLocation="$(IntDir)\"
+            ObjectFile="$(IntDir)\"
+            ProgramDataBaseFileName="$(IntDir)\"
+            WarningLevel="4"
+            SuppressStartupBanner="true"/>
+      <Tool Name="VCManagedResourceCompilerTool"/>
+      <Tool Name="VCResourceCompilerTool"
+            PreprocessorDefinitions="NDEBUG"/>
+      <Tool Name="VCPreLinkEventTool"/>
+      <Tool Name="VCLinkerTool"
+            OutputFile="$(OutDir)\LinJam.exe"
+            SuppressStartupBanner="true"
+            IgnoreDefaultLibraryNames=""
+            GenerateDebugInformation="false"
+            ProgramDatabaseFile="$(IntDir)\LinJam.pdb"
+            SubSystem="2"
+            GenerateManifest="true"
+            OptimizeReferences="2"
+            EnableCOMDATFolding="2"
+            TargetMachine="1"/>
+      <Tool Name="VCALinkTool"/>
+      <Tool Name="VCManifestTool"/>
+      <Tool Name="VCXDCMakeTool"/>
+      <Tool Name="VCBscMakeTool"
+            SuppressStartupBanner="true"
+            OutputFile="$(IntDir)\LinJam.bsc"/>
+      <Tool Name="VCFxCopTool"/>
+      <Tool Name="VCAppVerifierTool"/>
+      <Tool Name="VCPostBuildEventTool"/>
+    </Configuration>
+  </Configurations>
+  <References/>
+  <Files>
+    <Filter Name="LinJam">
+      <Filter Name="Source">
+        <File RelativePath="..\..\Source\Linjam.cpp"/>
+        <File RelativePath="..\..\Source\Linjam.h"/>
+        <File RelativePath="..\..\Source\Trace.cpp"/>
+        <File RelativePath="..\..\Source\Trace.h"/>
+        <File RelativePath="..\..\Source\Constants.h"/>
+        <File RelativePath="..\..\Source\StatusBarComponent.cpp"/>
+        <File RelativePath="..\..\Source\StatusBarComponent.h"/>
+        <File RelativePath="..\..\Source\LoginComponent.cpp"/>
+        <File RelativePath="..\..\Source\LoginComponent.h"/>
+        <File RelativePath="..\..\Source\MainComponent.cpp"/>
+        <File RelativePath="..\..\Source\MainComponent.h"/>
+        <File RelativePath="..\..\Source\Main.cpp"/>
+      </Filter>
+    </Filter>
+    <Filter Name="Juce Library Code">
+      <File RelativePath="..\..\JuceLibraryCode\AppConfig.h"/>
+      <File RelativePath="..\..\JuceLibraryCode\JuceHeader.h"/>
+      <File RelativePath="resources.rc"/>
+    </Filter>
+  </Files>
+  <Globals/>
+</VisualStudioProject>

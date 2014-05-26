@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="V5yqRw" name="LinJam" projectType="guiapp" version="1.0.0"
+              bundleIdentifier="com.yourcompany.LinJam" includeBinaryInAppConfig="1"
+              jucerVersion="3.1.0">
+  <MAINGROUP id="dT83m5" name="LinJam">
+    <GROUP id="{F298109F-8531-F160-2BC9-F72C3764B7EF}" name="Source">
+      <FILE id="ZHvRfB" name="Linjam.cpp" compile="1" resource="0" file="Source/Linjam.cpp"/>
+      <FILE id="rS1R2S" name="Linjam.h" compile="0" resource="0" file="Source/Linjam.h"/>
+      <FILE id="yx0l5v" name="Trace.cpp" compile="1" resource="0" file="Source/Trace.cpp"/>
+      <FILE id="r3GyaJ" name="Trace.h" compile="0" resource="0" file="Source/Trace.h"/>
+      <FILE id="oLQgCw" name="Constants.h" compile="0" resource="0" file="Source/Constants.h"/>
+      <FILE id="XO5clN" name="StatusBarComponent.cpp" compile="1" resource="0"
+            file="Source/StatusBarComponent.cpp"/>
+      <FILE id="N6kt6x" name="StatusBarComponent.h" compile="0" resource="0"
+            file="Source/StatusBarComponent.h"/>
+      <FILE id="tNjNcS" name="LoginComponent.cpp" compile="1" resource="0"
+            file="Source/LoginComponent.cpp"/>
+      <FILE id="KfXKxz" name="LoginComponent.h" compile="0" resource="0"
+            file="Source/LoginComponent.h"/>
+      <FILE id="JelDpp" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+      <FILE id="sKUFRy" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="j4iSrP" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <LINUX_MAKE targetFolder="Builds/Linux" extraLinkerFlags="&#96;pkg-config ninjam --libs&#96;&#10;&#96;pkg-config ninjam-client --libs&#96;"
+                extraCompilerFlags="&#96;pkg-config ninjam --cflags&#96;">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
+                       targetName="LinJam"/>
+        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="2"
+                       targetName="LinJam"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../../../src/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../../../src/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../../../src/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../../../src/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../../../src/JUCE/modules"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+    <VS2008 targetFolder="Builds/VisualStudio2008">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" isDebug="1"
+                       optimisation="1" targetName="LinJam"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" isDebug="0"
+                       optimisation="2" targetName="LinJam"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_gui_basics" path="../../juce"/>
+        <MODULEPATH id="juce_graphics" path="../../juce"/>
+        <MODULEPATH id="juce_events" path="../../juce"/>
+        <MODULEPATH id="juce_data_structures" path="../../juce"/>
+        <MODULEPATH id="juce_core" path="../../juce"/>
+      </MODULEPATHS>
+    </VS2008>
+    <CODEBLOCKS targetFolder="Builds/CodeBlocks">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LinJam"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="2" targetName="LinJam"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_gui_basics" path="../../juce"/>
+        <MODULEPATH id="juce_graphics" path="../../juce"/>
+        <MODULEPATH id="juce_events" path="../../juce"/>
+        <MODULEPATH id="juce_data_structures" path="../../juce"/>
+        <MODULEPATH id="juce_core" path="../../juce"/>
+      </MODULEPATHS>
+    </CODEBLOCKS>
+    <XCODE_MAC targetFolder="Builds/MacOSX">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
+                       isDebug="1" optimisation="1" targetName="LinJam"/>
+        <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
+                       isDebug="0" optimisation="2" targetName="LinJam"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_gui_basics" path="../../juce"/>
+        <MODULEPATH id="juce_graphics" path="../../juce"/>
+        <MODULEPATH id="juce_events" path="../../juce"/>
+        <MODULEPATH id="juce_data_structures" path="../../juce"/>
+        <MODULEPATH id="juce_core" path="../../juce"/>
+      </MODULEPATHS>
+    </XCODE_MAC>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULES id="juce_core" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_events" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
+  </MODULES>
+  <JUCEOPTIONS/>
+</JUCERPROJECT>

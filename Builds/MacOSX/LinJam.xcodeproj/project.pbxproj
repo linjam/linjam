@@ -1,0 +1,158 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+		4D6C97F765C898A08D6BB116 = {isa = PBXBuildFile; fileRef = EA2568D9CBABA3D9195A0E17; };
+		854DC78927A7608727A83982 = {isa = PBXBuildFile; fileRef = 6F59F8257DAEB94F7F44E06C; };
+		596C62289B6F1BFDECD74AA9 = {isa = PBXBuildFile; fileRef = FCC7DFB40810E1572F0DD15F; };
+		DBCE97990C2CE9F8A56060E2 = {isa = PBXBuildFile; fileRef = A7960523F4C33EE7460A2FD9; };
+		D76433CBA7BBB5DC32D06185 = {isa = PBXBuildFile; fileRef = F796F4EF74FC712345D221CD; };
+		A0FB694D57E2A4262881D96A = {isa = PBXBuildFile; fileRef = 8666E306B65693035312B2B6; };
+		7EF92B7B80C75BC3EF4D857F = {isa = PBXBuildFile; fileRef = 683CCEC0D4FD3FDC3D5AC085; };
+		1621E6A8A7657936F3301EFB = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LinJam.app; sourceTree = "BUILT_PRODUCTS_DIR"; };
+		22D8814ACD51C41F8A48F544 = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = Info.plist; sourceTree = "SOURCE_ROOT"; };
+		349D3029D32AF2C85D94AEC1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Constants.h; path = ../../Source/Constants.h; sourceTree = "SOURCE_ROOT"; };
+		43DF9F97566160B7F983DBDE = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JuceHeader.h; path = ../../JuceLibraryCode/JuceHeader.h; sourceTree = "SOURCE_ROOT"; };
+		683CCEC0D4FD3FDC3D5AC085 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Main.cpp; path = ../../Source/Main.cpp; sourceTree = "SOURCE_ROOT"; };
+		6F59F8257DAEB94F7F44E06C = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Linjam.cpp; path = ../../Source/Linjam.cpp; sourceTree = "SOURCE_ROOT"; };
+		6F913BDBDEF190BF0C5C5D84 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = StatusBarComponent.h; path = ../../Source/StatusBarComponent.h; sourceTree = "SOURCE_ROOT"; };
+		8666E306B65693035312B2B6 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = MainComponent.cpp; path = ../../Source/MainComponent.cpp; sourceTree = "SOURCE_ROOT"; };
+		8FAC24209C22FB30596A16FE = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AppConfig.h; path = ../../JuceLibraryCode/AppConfig.h; sourceTree = "SOURCE_ROOT"; };
+		A7960523F4C33EE7460A2FD9 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = StatusBarComponent.cpp; path = ../../Source/StatusBarComponent.cpp; sourceTree = "SOURCE_ROOT"; };
+		D8AD48001F78B4ED2A02F124 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Trace.h; path = ../../Source/Trace.h; sourceTree = "SOURCE_ROOT"; };
+		EA2568D9CBABA3D9195A0E17 = {isa = PBXFileReference; lastKnownFileType = file.nib; name = RecentFilesMenuTemplate.nib; path = RecentFilesMenuTemplate.nib; sourceTree = "SOURCE_ROOT"; };
+		F46348780ED9ACD6C48D64F1 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MainComponent.h; path = ../../Source/MainComponent.h; sourceTree = "SOURCE_ROOT"; };
+		F7899F2143A7FB0AEB64FE8C = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Linjam.h; path = ../../Source/Linjam.h; sourceTree = "SOURCE_ROOT"; };
+		F796F4EF74FC712345D221CD = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = LoginComponent.cpp; path = ../../Source/LoginComponent.cpp; sourceTree = "SOURCE_ROOT"; };
+		F9D88E1C227FBE6897E4EDFB = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LoginComponent.h; path = ../../Source/LoginComponent.h; sourceTree = "SOURCE_ROOT"; };
+		FCC7DFB40810E1572F0DD15F = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Trace.cpp; path = ../../Source/Trace.cpp; sourceTree = "SOURCE_ROOT"; };
+		5EB3EB893CF6CF89C3D362E0 = {isa = PBXGroup; children = (
+					6F59F8257DAEB94F7F44E06C,
+					F7899F2143A7FB0AEB64FE8C,
+					FCC7DFB40810E1572F0DD15F,
+					D8AD48001F78B4ED2A02F124,
+					349D3029D32AF2C85D94AEC1,
+					A7960523F4C33EE7460A2FD9,
+					6F913BDBDEF190BF0C5C5D84,
+					F796F4EF74FC712345D221CD,
+					F9D88E1C227FBE6897E4EDFB,
+					8666E306B65693035312B2B6,
+					F46348780ED9ACD6C48D64F1,
+					683CCEC0D4FD3FDC3D5AC085, ); name = Source; sourceTree = "<group>"; };
+		88A3A9CE5BB9CCB47E9E244E = {isa = PBXGroup; children = (
+					5EB3EB893CF6CF89C3D362E0, ); name = LinJam; sourceTree = "<group>"; };
+		6CBE5DCDD443480799EA6E08 = {isa = PBXGroup; children = (
+					8FAC24209C22FB30596A16FE,
+					43DF9F97566160B7F983DBDE, ); name = "Juce Library Code"; sourceTree = "<group>"; };
+		5CB3A728089DA5B85416F869 = {isa = PBXGroup; children = (
+					22D8814ACD51C41F8A48F544,
+					EA2568D9CBABA3D9195A0E17, ); name = Resources; sourceTree = "<group>"; };
+		B13CC64E5B2BD402F5D52749 = {isa = PBXGroup; children = (  ); name = Frameworks; sourceTree = "<group>"; };
+		209F965AA868D902BF863598 = {isa = PBXGroup; children = (
+					1621E6A8A7657936F3301EFB, ); name = Products; sourceTree = "<group>"; };
+		66B6DCFFE9BB8A40FC07F2AA = {isa = PBXGroup; children = (
+					88A3A9CE5BB9CCB47E9E244E,
+					6CBE5DCDD443480799EA6E08,
+					5CB3A728089DA5B85416F869,
+					B13CC64E5B2BD402F5D52749,
+					209F965AA868D902BF863598, ); name = Source; sourceTree = "<group>"; };
+		01FCBDF691D14DE4D8F07D5E = {isa = XCBuildConfiguration; buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_DEBUG=1",
+					"DEBUG=1",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000", );
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				HEADER_SEARCH_PATHS = ("../../JuceLibraryCode", "$(inherited)");
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
+				SDKROOT_ppc = macosx10.5; }; name = Debug; };
+		E74514C7E9FC451C551329A3 = {isa = XCBuildConfiguration; buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				DEAD_CODE_STRIPPING = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_NDEBUG=1",
+					"NDEBUG=1",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=1.0.0",
+					"JUCE_APP_VERSION_HEX=0x10000", );
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				HEADER_SEARCH_PATHS = ("../../JuceLibraryCode", "$(inherited)");
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
+				SDKROOT_ppc = macosx10.5; }; name = Release; };
+		2F4862F01400B334DE7B880E = {isa = XCBuildConfiguration; buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "LinJam";
+				WARNING_CFLAGS = -Wreorder;
+				ZERO_LINK = NO; }; name = Debug; };
+		8EA92222482922E4F11B0407 = {isa = XCBuildConfiguration; buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PRODUCT_NAME = "LinJam";
+				WARNING_CFLAGS = -Wreorder;
+				ZERO_LINK = NO; }; name = Release; };
+		79BC11B3D2B86E4EDDF31C2B = {isa = XCConfigurationList; buildConfigurations = (
+					2F4862F01400B334DE7B880E,
+					8EA92222482922E4F11B0407, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Debug; };
+		ED8EC314482A8FFF558959E1 = {isa = XCConfigurationList; buildConfigurations = (
+					01FCBDF691D14DE4D8F07D5E,
+					E74514C7E9FC451C551329A3, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Debug; };
+		C0DA8AA589682456B16C5515 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (
+					4D6C97F765C898A08D6BB116, ); runOnlyForDeploymentPostprocessing = 0; };
+		AF1617AD5CA73E775C24D38C = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (
+					854DC78927A7608727A83982,
+					596C62289B6F1BFDECD74AA9,
+					DBCE97990C2CE9F8A56060E2,
+					D76433CBA7BBB5DC32D06185,
+					A0FB694D57E2A4262881D96A,
+					7EF92B7B80C75BC3EF4D857F, ); runOnlyForDeploymentPostprocessing = 0; };
+		883E59459B3D4E67DE269644 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (  ); runOnlyForDeploymentPostprocessing = 0; };
+		D1C2F56A2B6F33CB958E9DDB = {isa = PBXNativeTarget; buildConfigurationList = ED8EC314482A8FFF558959E1; buildPhases = (
+					C0DA8AA589682456B16C5515,
+					AF1617AD5CA73E775C24D38C,
+					883E59459B3D4E67DE269644, ); buildRules = ( ); dependencies = ( ); name = LinJam; productName = LinJam; productReference = 1621E6A8A7657936F3301EFB; productInstallPath = "$(HOME)/Applications"; productType = "com.apple.product-type.application"; };
+		5D2C486226396BEDDACC646D = {isa = PBXProject; buildConfigurationList = 79BC11B3D2B86E4EDDF31C2B; attributes = { LastUpgradeCheck = 0440; }; compatibilityVersion = "Xcode 3.2"; hasScannedForEncodings = 0; mainGroup = 66B6DCFFE9BB8A40FC07F2AA; projectDirPath = ""; projectRoot = ""; targets = ( D1C2F56A2B6F33CB958E9DDB ); };
+	};
+	rootObject = 5D2C486226396BEDDACC646D;
+}
