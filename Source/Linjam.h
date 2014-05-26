@@ -7,7 +7,6 @@
 
   ==============================================================================
 */
-
 #ifndef LINJAM_H_INCLUDED
 #define LINJAM_H_INCLUDED
 
@@ -16,75 +15,27 @@
 #include <ninjam/njclient.h>
 #include <ninjam/njmisc.h>
 
+#include "../JuceLibraryCode/JuceHeader.h"
+
+
 class LinJamClient
 {
 public:
 
-  static int initialise(NJClient* client) ;
-  static int on_license(int user32 , char* license_text) ;
-  static void on_samples(float** in_buffer , int in_n_channels ,
-                  float** out_buffer , int out_n_channels ,
-                  int len , int sample_rate) ;
-  static void on_chatmsg(int user32 , NJClient* instance , const char** parms , int nparms) ;
-  static void on_underflow() ;
-  static void on_overflow() ;
-} ;
-
-
-
-
-
-
-
-/* OK 1
-#include <ninjam/audiostream.h>
-#include <ninjam/njclient.h>
-#include <ninjam/njmisc.h>
-
-int linJamMain(NJClient* client) ;
-int on_license(int user32 , char* license_text) ;
-void on_samples(float** in_buffer , int in_n_channels ,
-                float** out_buffer , int out_n_channels ,
-                int len , int sample_rate) ;
-void on_chatmsg(int user32 , NJClient* instance , const char** parms , int nparms) ;
-void on_underflow() ;
-void on_overflow() ;
-*/
-
-
-
-
-
-
-/* 0 - thread experiment
-#include <ninjam/audiostream.h>
-#include <ninjam/njclient.h>
-
-
-class LinJamClient : public Thread
-{
-public:
-
-  LinJam() ;
-  ~LinJam() ;
-
-  void run() override ;
+  static int  Initialize( NJClient* client , const String& args) ;
+  static void Shutdown() ;
+  static int  OnLicense(  int user32 , char* license_text) ;
+  static void OnChatmsg(  int user32 , NJClient* instance ,
+                          const char** parms , int nparms) ;
+  static void OnSamples(  float** in_buffer , int in_n_channels ,
+                          float** out_buffer , int out_n_channels ,
+                          int len , int sample_rate) ;
+  static void OnUnderflow() ;
+  static void OnOverflow() ;
 
 private:
 
-  audioStreamer* audio ;
-  NJClient*      client ;
-  int            audio_enable ;
-  char*          audio_config_str ;
-
-  int  on_license(  int user32 , char* license_text) ;
-  void on_chatmsg(  int user32 , NJClient* instance , const char** parms , int nparms) ;
-  void on_samples(  float** in_buffer , int in_n_channels ,
-                    float** out_buffer , int out_n_channels ,
-                    int len , int sample_rate) ;
-  void on_underflow() ;
-  void on_overflow( ) ;
+  static const char* WIN_INI_FILE ;
 } ;
-*/
 
 #endif  // LINJAM_H_INCLUDED

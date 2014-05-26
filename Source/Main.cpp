@@ -30,13 +30,14 @@ public:
     {
         // This method is where you should put your application's initialisation code..
         mainWindow   = new MainWindow() ;
-        LinJamClient::initialise(this) ;
+        LinJamClient::Initialize(this , commandLine) ;
     }
 
     void shutdown() override
     {
         // Add your application's shutdown code here..
 
+        LinJamClient::Shutdown() ;
         mainWindow = nullptr; // (deletes our window)
     }
 

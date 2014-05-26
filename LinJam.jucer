@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="V5yqRw" name="LinJam" projectType="guiapp" version="1.0.0"
+<JUCERPROJECT id="V5yqRw" name="LinJam" projectType="guiapp" version="0.0.1"
               bundleIdentifier="com.yourcompany.LinJam" includeBinaryInAppConfig="1"
               jucerVersion="3.1.0">
   <MAINGROUP id="dT83m5" name="LinJam">
@@ -26,7 +26,7 @@
   </MAINGROUP>
   <EXPORTFORMATS>
     <LINUX_MAKE targetFolder="Builds/Linux" extraLinkerFlags="&#96;pkg-config ninjam --libs&#96;&#10;&#96;pkg-config ninjam-client --libs&#96;"
-                extraCompilerFlags="&#96;pkg-config ninjam --cflags&#96;">
+                extraCompilerFlags="&#96;pkg-config ninjam --cflags&#96;&#10;-Wno-write-strings">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
                        targetName="LinJam"/>
@@ -34,11 +34,11 @@
                        targetName="LinJam"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_core" path="../../../../src/JUCE/modules"/>
-        <MODULEPATH id="juce_events" path="../../../../src/JUCE/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../../../src/JUCE/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../../../src/JUCE/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../../../src/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="/home/me/src/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="/home/me/src/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="/home/me/src/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="/home/me/src/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="/home/me/src/JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
     <VS2008 targetFolder="Builds/VisualStudio2008">
