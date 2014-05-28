@@ -9,15 +9,30 @@
 */
 
 #include "Linjam.h"
+#include "Trace.h"
 
 
 /* NJClient globals */
 
-int (*licensecallback)(       int user32 , char *licensetext) ;
+int  (*licensecallback)(      int user32 , char* licensetext) ;
 void (*audiostream_onsamples)(float** in_buffer , int in_n_channels ,
                               float** out_buffer , int out_n_channels ,
                               int len , int sample_rate) ;
 void (*chatmsg_cb)(int user32 , NJClient* instance , const char** parms , int nparms) ;
+/*
+int licensecallback(int user32 , char* licensetext)
+{
+DBG("LinJam::licensecallback() license_text=\n" + String(licensetext)) ;
+}
+void audiostream_onsamples(float** in_buffer , int in_n_channels ,
+                              float** out_buffer , int out_n_channels ,
+                              int len , int sample_rate)
+{}
+void chatmsg_cb(int user32 , NJClient* instance , const char** parms , int nparms)
+{
+DBG("LinJam::chatmsg_cb()\n") ;
+}
+*/
 /*
 void (*audiostream_onunder)() ;
 void (*audiostream_onover)() ;
@@ -26,24 +41,27 @@ audioStreamer* Audio  ; // TODO: unused
 NJClient*      Client ; // TODO: unused
 
 
-/* LinJamClient constants */
+/* LinJam constants */
 
-static const char* WIN_INI_FILE = "linjam.ini" ;
+//static const char* WIN_INI_FILE = "linjam.ini" ;
 
 
-/* LinJamClient class methods */
+/* LinJam class variables */
 
-int LinJamClient::Initialize(NJClient* client , const String& args)
+String LinJam::Server      = "" ;
+String LinJam::Login       = "" ;
+String LinJam::Pass        = "" ;
+bool   LinJam::IsAnonymous = true ;
+
+
+/* LinJam class methods */
+
+int LinJam::Initialize(NJClient* client , const String& args)
 {
   Client = client ;
 
-  // login config defaults
-  String login                  = "anonymous:nobody" ;
-  String pass                   = "" ;
-  bool   is_anonymous           = true ;
-
   // audio config defaults
-  int    audio_enable           = 0 ;
+//  int    audio_enable           = 0 ;
   int    save_local_audio       = 0 ;
   int    mac_n_input_channels   = 2 ;
   int    mac_sample_rate        = 48000 ;
@@ -109,6 +127,10 @@ int nolog=0,nowav=1,writeogg=0,g_nssf=0;
 //   Client->ChatMessage_Callback     = chatmsg_cb      = (void (*)(int i, NJClient* n, const char** c, int ii))on_chatmsg ;
   Client->LicenseAgreementCallback = licensecallback = OnLicense ;
   Client->ChatMessage_Callback     = chatmsg_cb      = OnChatmsg ;
+/*
+Client->LicenseAgreementCallback = licensecallback ;
+Client->ChatMessage_Callback     = chatmsg_cb ;
+*/
   Client->config_savelocalaudio    = save_local_audio ;
   Client->config_debug_level       = debug_level ;
 /*
@@ -124,16 +146,19 @@ audiostream_onover    = OnOverflow ;
 #  ifdef _MAC
   Audio = create_audioStreamer_CoreAudio(&audio_config , mac_sample_rate ,
                                          mac_n_input_channels , mac_bit_depth , OnSamples) ;
+//                                          mac_n_input_channels , mac_bit_depth , audiostream_onsamples) ;
 #  else
   switch (nix_audio_driver == 0)
   {
     case 0: // JACK
       Audio = create_audioStreamer_JACK(jack_client_name.toRawUTF8() , jack_n_input_channels ,
                                         jack_n_output_channels , OnSamples , Client) ;
+//                                         jack_n_output_channels , audiostream_onsamples , Client) ;
       if (!Audio) printf("Error connecting to JACK - falling back to  ALSA\n") ;
       else break ;
     default:
       Audio = create_audioStreamer_ALSA(audio_config , OnSamples) ;
+//      Audio = create_audioStreamer_ALSA(audio_config , audiostream_onsamples) ;
   }
 #  endif
 #endif
@@ -172,21 +197,49 @@ audiostream_onover    = OnOverflow ;
   JNL::open_socketlib() ;
 }
 
-void LinJamClient::Shutdown() { delete Audio ; JNL::close_socketlib() ; }
+void LinJam::Connect()
+{
+DBG("LinJam::Connect()") ;
 
-int LinJamClient::OnLicense( int user32 , char* license_text)
+  String login = Login ;
+  if (IsAnonymous)
+  {
+    login = "anonymous:" + ((Login == "")? "nobody" : Login) ;
+    Pass  = "" ;
+  }
+
+Server = "ninbot.com:2050" ;
+DEBUG_TRACE_LOGIN
+
+//   Client->Disconnect() ;
+  Client->Connect(Server.toRawUTF8() , login.toRawUTF8() , Pass.toRawUTF8()) ;
+}
+
+void LinJam::Shutdown() { delete Audio ; JNL::close_socketlib() ; }
+
+int LinJam::OnLicense(int user32 , char* license_text)
+{
+DBG("LinJam::OnLicense()") ;// license_text=\n" + String(license_text)) ;
+
+#if DEBUG_BYPASS_LICENSE || 1
+return 1 ;
+#else
+return Client->prompt_licence(license_text) ;
+#endif
+}
+
+void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , int nparms)
+{
+String msg = "" ; for (;nparms--;) msg += "|" + String(parms[nparms]) ; DBG("LinJam::OnChatmsg()=" + msg) ;
+}
+
+void LinJam::OnSamples(float** in_buffer , int in_n_channels ,
+                       float** out_buffer , int out_n_channels ,
+                       int len , int sample_rate)
 {}
 
-void LinJamClient::OnChatmsg(int user32 , NJClient* instance ,
-                             const char** parms , int nparms)
-{}
-
-void LinJamClient::OnSamples(float** in_buffer , int in_n_channels ,
-                             float** out_buffer , int out_n_channels ,
-                             int len , int sample_rate)
-{}
 /*
-void LinJamClient::OnUnderflow() {}
+void LinJam::OnUnderflow() {}
 
-void LinJamClient::OnOverflow() {}
+void LinJam::OnOverflow() {}
 */

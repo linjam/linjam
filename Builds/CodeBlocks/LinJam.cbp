@@ -89,6 +89,7 @@
       <Add library="kernel32"/>
       <Add library="comctl32"/>
     </Linker>
+    <Unit filename="../../Source/Constants.cpp"/>
     <Unit filename="../../Source/Linjam.cpp"/>
     <Unit filename="../../Source/Linjam.h">
       <Option compile="0"/>

@@ -1,5 +1,6 @@
 
 #include "Trace.h"
+#include <ninjam/njclient.h>
 
 
 #if DEBUG_TRACE
@@ -20,9 +21,15 @@ bool Trace::TraceOut() { return (DEBUG_TRACE_OUT || !SanityCheck()) ; }
 /* public class methods */
 
 void Trace::TraceEvent(String msg)
-{ if (TraceEvs())       DBG(String("[EVENT]: "    + msg)) ; }
+{ if (TraceEvs()) DBG(String("[EVENT]: "    + msg)) ; }
 
 void Trace::TraceEventVerbose(String msg)
-{ if (Trace::TraceVb()) DBG(String("[EVENT_VB]: " + msg)) ; }
+{ if (TraceVb())  DBG(String("[EVENT_VB]: " + msg)) ; }
+
+void Trace::TraceStatus(String msg)
+{ if (TraceEvs()) DBG(String("[STATUS]: "   + msg)) ; }
+
+void Trace::TraceError(String msg)
+{ if (TraceEvs()) DBG(String("[ERROR]: "    + msg)) ; }
 
 #endif // #if DEBUG_TRACE

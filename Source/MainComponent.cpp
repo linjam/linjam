@@ -6,34 +6,34 @@
   ==============================================================================
 */
 
-#include "Trace.h"
-
 #include "Constants.h"
 #include "MainComponent.h"
+#include "Trace.h"
 
 
 //==============================================================================
 MainContentComponent::MainContentComponent()
 {
   // mainComponent
-  setName("MainContentComponent") ; //JUCEApplication::getInstance()->getApplicationName()
-  setSize(GUI::CONTAINER_W , GUI::CONTAINER_H) ;
+  this->setName("ContentComponent") ; //JUCEApplication::getInstance()->getApplicationName()
+  this->setSize(GUI::CONTAINER_W , GUI::CONTAINER_H) ;
 
   // loginComponent
-  loginComponent = new LoginComponent() ;
-  addAndMakeVisible(loginComponent) ;
+  this->addChildAndSetID((this->loginComponent = new LoginComponent()) , GUI::LOGIN_GUI_ID) ;
+  this->loginComponent->toFront(true) ;
 
   // statusComponent
-  statusComponent = new StatusBarComponent() ;
-  addAndMakeVisible(statusComponent) ;
+  this->addChildAndSetID((this->statusComponent = new StatusBarComponent()) , GUI::STATUS_GUI_ID) ;
+  this->statusComponent->setAlwaysOnTop(true) ;
+  this->statusComponent->setStatusL("Initializing") ;
 
-  resized() ;
+  this->resized() ;
 }
 
 MainContentComponent::~MainContentComponent()
 {
-  loginComponent  = nullptr ;
-  statusComponent = nullptr ;
+  this->loginComponent  = nullptr ;
+  this->statusComponent = nullptr ;
 }
 
 void MainContentComponent::paint(Graphics& g)
@@ -58,16 +58,16 @@ void MainContentComponent::resized()
   int loginT = 0 ;
   int loginW = getWidth() ;
   int loginH = getHeight() ;
-  if (loginComponent != nullptr)
-    loginComponent->setBounds(loginL , loginT , loginW , loginH) ;
+  if (this->loginComponent != nullptr)
+    this->loginComponent->setBounds(loginL , loginT , loginW , loginH) ;
 
   // statusComponent
   int statusL = GUI::PAD ;
   int statusT = getHeight() - GUI::PAD - GUI::STATUSBAR_H ;
   int statusW = getWidth() - (2 * GUI::PAD) ;
   int statusH = GUI::STATUSBAR_H ;
-  if (statusComponent != nullptr)
-    statusComponent->setBounds(statusL , statusT , statusW , statusH) ;
+  if (this->statusComponent != nullptr)
+    this->statusComponent->setBounds(statusL , statusT , statusW , statusH) ;
 
 DEBUG_TRACE_MAIN_RESIZED
 }

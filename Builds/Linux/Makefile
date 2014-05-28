@@ -51,6 +51,7 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
+  $(OBJDIR)/Constants_e698e730.o \
   $(OBJDIR)/Linjam_3e2e46ee.o \
   $(OBJDIR)/Trace_c9579226.o \
   $(OBJDIR)/StatusBarComponent_a32bf2c5.o \
@@ -79,6 +80,11 @@ clean:
 strip:
 	@echo Stripping LinJam
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
+
+$(OBJDIR)/Constants_e698e730.o: ../../Source/Constants.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Constants.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Linjam_3e2e46ee.o: ../../Source/Linjam.cpp
 	-@mkdir -p $(OBJDIR)

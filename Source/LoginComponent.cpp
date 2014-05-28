@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "Linjam.h"
 #include "Trace.h"
 //[/Headers]
 
@@ -30,66 +31,64 @@
 //==============================================================================
 LoginComponent::LoginComponent ()
 {
-    setName ("LoginComponent");
-    addAndMakeVisible (loginLabel = new Label ("loginLabel",
-                                               TRANS("Username:")));
-    loginLabel->setFont (Font (15.00f, Font::plain));
-    loginLabel->setJustificationType (Justification::centredLeft);
-    loginLabel->setEditable (false, false, false);
-    loginLabel->setColour (Label::textColourId, Colours::grey);
-    loginLabel->setColour (TextEditor::textColourId, Colours::black);
-    loginLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    this->setName("LoginComponent") ;
+    this->addAndMakeVisible(this->loginLabel = new Label ("loginLabel" , TRANS("Username:"))) ;
+    this->loginLabel->setFont(Font(15.00f, Font::plain)) ;
+    this->loginLabel->setJustificationType(Justification::centredLeft) ;
+    this->loginLabel->setEditable(false, false, false) ;
+    this->loginLabel->setColour(Label::textColourId , Colours::grey) ;
+    this->loginLabel->setColour(TextEditor::textColourId , Colours::black) ;
+    this->loginLabel->setColour(TextEditor::backgroundColourId , Colour(0x00000000)) ;
 
-    addAndMakeVisible (loginText = new TextEditor ("loginText"));
-    loginText->setMultiLine (false);
-    loginText->setReturnKeyStartsNewLine (false);
-    loginText->setReadOnly (false);
-    loginText->setScrollbarsShown (false);
-    loginText->setCaretVisible (true);
-    loginText->setPopupMenuEnabled (true);
-    loginText->setColour (TextEditor::textColourId, Colours::grey);
-    loginText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    loginText->setColour (TextEditor::outlineColourId, Colours::white);
-    loginText->setText (String::empty);
+    this->addAndMakeVisible(this->loginText = new TextEditor("loginText")) ;
+    this->loginText->setMultiLine(false) ;
+    this->loginText->setReturnKeyStartsNewLine(false) ;
+    this->loginText->setReadOnly(false) ;
+    this->loginText->setScrollbarsShown(false) ;
+    this->loginText->setCaretVisible(true) ;
+    this->loginText->setPopupMenuEnabled(true) ;
+    this->loginText->setColour(TextEditor::textColourId , Colours::grey) ;
+    this->loginText->setColour(TextEditor::backgroundColourId , Colour(0x00000000)) ;
+    this->loginText->setColour(TextEditor::outlineColourId , Colours::white) ;
+    this->loginText->setText(String::empty) ;
 
-    addAndMakeVisible (passLabel = new Label ("passLabel",
-                                              TRANS("Password:")));
-    passLabel->setFont (Font (15.00f, Font::plain));
-    passLabel->setJustificationType (Justification::centredLeft);
-    passLabel->setEditable (false, false, false);
-    passLabel->setColour (Label::textColourId, Colours::grey);
-    passLabel->setColour (TextEditor::textColourId, Colours::black);
-    passLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    this->addAndMakeVisible (this->passLabel = new Label("passLabel" , TRANS("Password:"))) ;
+    this->passLabel->setFont(Font(15.00f , Font::plain)) ;
+    this->passLabel->setJustificationType(Justification::centredLeft) ;
+    this->passLabel->setEditable(false, false, false) ;
+    this->passLabel->setColour(Label::textColourId , Colours::grey) ;
+    this->passLabel->setColour(TextEditor::textColourId , Colours::black) ;
+    this->passLabel->setColour(TextEditor::backgroundColourId , Colour(0x00000000)) ;
 
-    addAndMakeVisible (passText = new TextEditor ("passText"));
-    passText->setExplicitFocusOrder (2);
-    passText->setMultiLine (false);
-    passText->setReturnKeyStartsNewLine (false);
-    passText->setReadOnly (false);
-    passText->setScrollbarsShown (false);
-    passText->setCaretVisible (true);
-    passText->setPopupMenuEnabled (true);
-    passText->setColour (TextEditor::textColourId, Colours::grey);
-    passText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    passText->setColour (TextEditor::outlineColourId, Colours::white);
-    passText->setText (String::empty);
+    this->addAndMakeVisible(this->passText = new TextEditor("passText")) ;
+    this->passText->setExplicitFocusOrder(2) ;
+    this->passText->setMultiLine(false) ;
+    this->passText->setReturnKeyStartsNewLine(false) ;
+    this->passText->setReadOnly(false) ;
+    this->passText->setScrollbarsShown(false) ;
+    this->passText->setCaretVisible(true) ;
+    this->passText->setPopupMenuEnabled(true) ;
+    this->passText->setColour(TextEditor::textColourId , Colours::grey) ;
+    this->passText->setColour(TextEditor::backgroundColourId , Colour (0x00000000)) ;
+    this->passText->setColour(TextEditor::outlineColourId , Colours::white) ;
+    this->passText->setText(String::empty) ;
 
-    addAndMakeVisible (loginButton = new TextButton ("loginButton"));
-    loginButton->setButtonText (TRANS("Connect"));
-    loginButton->addListener (this);
+    this->addAndMakeVisible(this->loginButton = new TextButton("loginButton")) ;
+    this->loginButton->setButtonText(TRANS("Connect")) ;
+    this->loginButton->addListener(this) ;
 
-    addAndMakeVisible (anonButton = new ToggleButton ("anonButton"));
-    anonButton->setExplicitFocusOrder (1);
-    anonButton->setButtonText (TRANS("anonymous"));
-    anonButton->addListener (this);
-    anonButton->setToggleState (true, dontSendNotification);
-    anonButton->setColour (ToggleButton::textColourId, Colours::grey);
+    this->addAndMakeVisible(this->anonButton = new ToggleButton("anonButton")) ;
+    this->anonButton->setExplicitFocusOrder(1) ;
+    this->anonButton->setButtonText(TRANS("anonymous")) ;
+    this->anonButton->addListener(this) ;
+    this->anonButton->setToggleState(true, dontSendNotification) ;
+    this->anonButton->setColour(ToggleButton::textColourId , Colours::grey) ;
 
 
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (630, 446);
+    this->setSize (630, 446);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -101,12 +100,12 @@ LoginComponent::~LoginComponent()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    loginLabel = nullptr;
-    loginText = nullptr;
-    passLabel = nullptr;
-    passText = nullptr;
-    loginButton = nullptr;
-    anonButton = nullptr;
+    this->loginLabel  = nullptr ;
+    this->loginText   = nullptr ;
+    this->passLabel   = nullptr ;
+    this->passText    = nullptr ;
+    this->loginButton = nullptr ;
+    this->anonButton  = nullptr ;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -114,12 +113,12 @@ LoginComponent::~LoginComponent()
 }
 
 //==============================================================================
-void LoginComponent::paint (Graphics& g)
+void LoginComponent::paint(Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colours::black);
+    g.fillAll (Colours::black) ;
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -127,34 +126,31 @@ void LoginComponent::paint (Graphics& g)
 
 void LoginComponent::resized()
 {
-    loginLabel->setBounds (96, 72, 72, 24);
-    loginText->setBounds (184, 72, 160, 24);
-    passLabel->setBounds (96, 104, 72, 24);
-    passText->setBounds (184, 104, 160, 24);
-    loginButton->setBounds (368, 72, 96, 24);
-    anonButton->setBounds (368, 104, 96, 24);
+    this->loginLabel ->setBounds( 96 ,  72 ,  72 , 24) ;
+    this->loginText  ->setBounds(184 ,  72 , 160 , 24) ;
+    this->passLabel  ->setBounds( 96 , 104 ,  72 , 24) ;
+    this->passText   ->setBounds(184 , 104 , 160 , 24) ;
+    this->loginButton->setBounds(368 ,  72 ,  96 , 24) ;
+    this->anonButton ->setBounds(368 , 104 ,  96 , 24) ;
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
 
-void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
+void LoginComponent::buttonClicked(Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == loginButton)
+    if (buttonThatWasClicked == this->loginButton)
     {
       //[UserButtonCode_loginButton] -- add your button handler code here..
-//        this->getTopLevelComponent()->debugText = "buttonThatWasClicked == loginButton" ;
 DEBUG_TRACE_LOGIN_LOGINCLICKED
 
-DBG(String("LoginComponent::buttonClicked() " + this->getTopLevelComponent()->getName())) ;
-DBG(String("LoginComponent::buttonClicked() " + this->getParentComponent()->getName())) ;
-
       this->setVisible(false) ;
+      LinJam::Connect() ;
       //[/UserButtonCode_loginButton]
     }
-    else if (buttonThatWasClicked == anonButton)
+    else if (buttonThatWasClicked == this->anonButton)
     {
         //[UserButtonCode_anonButton] -- add your button handler code here..
 //        this->getTopLevelComponent ()->debugText = "buttonThatWasClicked == anonButton" ;
