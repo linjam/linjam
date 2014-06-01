@@ -22,6 +22,10 @@ MainContentComponent::MainContentComponent()
   this->addChildAndSetID((this->loginComponent = new LoginComponent()) , GUI::LOGIN_GUI_ID) ;
   this->loginComponent->toFront(true) ;
 
+  // licenseComponent
+  this->addChildAndSetID((this->licenseComponent = new LicenseComponent()) , GUI::LICENSE_GUI_ID) ;
+  this->licenseComponent->toBack() ;
+
   // statusComponent
   this->addChildAndSetID((this->statusComponent = new StatusBarComponent()) , GUI::STATUS_GUI_ID) ;
   this->statusComponent->setAlwaysOnTop(true) ;
@@ -32,8 +36,9 @@ MainContentComponent::MainContentComponent()
 
 MainContentComponent::~MainContentComponent()
 {
-  this->loginComponent  = nullptr ;
-  this->statusComponent = nullptr ;
+  this->loginComponent   = nullptr ;
+  this->licenseComponent = nullptr ;
+  this->statusComponent  = nullptr ;
 }
 
 void MainContentComponent::paint(Graphics& g)
@@ -61,6 +66,14 @@ void MainContentComponent::resized()
   if (this->loginComponent != nullptr)
     this->loginComponent->setBounds(loginL , loginT , loginW , loginH) ;
 
+  // licenseComponent
+  int licenseL = 0 ;
+  int licenseT = 0 ;
+  int licenseW = getWidth() ;
+  int licenseH = getHeight() ;
+  if (this->licenseComponent != nullptr)
+    this->licenseComponent->setBounds(licenseL , licenseT , licenseW , licenseH) ;
+
   // statusComponent
   int statusL = GUI::PAD ;
   int statusT = getHeight() - GUI::PAD - GUI::STATUSBAR_H ;
@@ -71,3 +84,20 @@ void MainContentComponent::resized()
 
 DEBUG_TRACE_MAIN_RESIZED
 }
+/*
+bool MainContentComponent::prompt_license(String license_text)
+{
+DBG("MainContentComponent::prompt_license()") ; // license_text=\n" + license_text) ;
+#if DEBUG_BYPASS_LICENSE_PROMPT
+return 1 ;
+#else
+//this->licenseComponent->state = GUI::LICENCE_PENDING_STATE ;
+//this->licenseComponent->setLabel
+this->licenseComponent->toFront(true) ;
+// while (this->licenseComponent->state == GUI::LICENCE_PENDING_STATE) Sleep(100) ; ;
+this->licenseComponent->agreeEvent->wait() ;
+
+return (this->licenseComponent->getIsAgreed()) ;
+#endif
+}
+*/

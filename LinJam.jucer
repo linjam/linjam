@@ -5,6 +5,10 @@
               jucerVersion="3.1.0">
   <MAINGROUP id="dT83m5" name="LinJam">
     <GROUP id="{F298109F-8531-F160-2BC9-F72C3764B7EF}" name="Source">
+      <FILE id="HugMKb" name="LicenseComponent.cpp" compile="1" resource="0"
+            file="Source/LicenseComponent.cpp"/>
+      <FILE id="xqc9VC" name="LicenseComponent.h" compile="0" resource="0"
+            file="Source/LicenseComponent.h"/>
       <FILE id="kbS1jT" name="Constants.cpp" compile="1" resource="0" file="Source/Constants.cpp"/>
       <FILE id="ZHvRfB" name="Linjam.cpp" compile="1" resource="0" file="Source/Linjam.cpp"/>
       <FILE id="rS1R2S" name="Linjam.h" compile="0" resource="0" file="Source/Linjam.h"/>
@@ -85,6 +89,21 @@
         <MODULEPATH id="juce_core" path="../../juce"/>
       </MODULEPATHS>
     </XCODE_MAC>
+    <VS2013 targetFolder="Builds/VisualStudio2013">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="LinJam"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="2" targetName="LinJam"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_gui_basics" path="../../juce"/>
+        <MODULEPATH id="juce_graphics" path="../../juce"/>
+        <MODULEPATH id="juce_events" path="../../juce"/>
+        <MODULEPATH id="juce_data_structures" path="../../juce"/>
+        <MODULEPATH id="juce_core" path="../../juce"/>
+      </MODULEPATHS>
+    </VS2013>
   </EXPORTFORMATS>
   <MODULES>
     <MODULES id="juce_core" showAllCode="1" useLocalCopy="1"/>

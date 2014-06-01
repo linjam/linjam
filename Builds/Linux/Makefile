@@ -51,6 +51,7 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
+  $(OBJDIR)/LicenseComponent_b99bda45.o \
   $(OBJDIR)/Constants_e698e730.o \
   $(OBJDIR)/Linjam_3e2e46ee.o \
   $(OBJDIR)/Trace_c9579226.o \
@@ -80,6 +81,11 @@ clean:
 strip:
 	@echo Stripping LinJam
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
+
+$(OBJDIR)/LicenseComponent_b99bda45.o: ../../Source/LicenseComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LicenseComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Constants_e698e730.o: ../../Source/Constants.cpp
 	-@mkdir -p $(OBJDIR)

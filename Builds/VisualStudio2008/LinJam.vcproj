@@ -128,6 +128,8 @@
   <Files>
     <Filter Name="LinJam">
       <Filter Name="Source">
+        <File RelativePath="..\..\Source\LicenseComponent.cpp"/>
+        <File RelativePath="..\..\Source\LicenseComponent.h"/>
         <File RelativePath="..\..\Source\Constants.cpp"/>
         <File RelativePath="..\..\Source\Linjam.cpp"/>
         <File RelativePath="..\..\Source\Linjam.h"/>

@@ -89,6 +89,11 @@
       <Add library="kernel32"/>
       <Add library="comctl32"/>
     </Linker>
+    <Unit filename="../../Source/LicenseComponent.cpp"/>
+    <Unit filename="../../Source/LicenseComponent.h">
+      <Option compile="0"/>
+      <Option link="0"/>
+    </Unit>
     <Unit filename="../../Source/Constants.cpp"/>
     <Unit filename="../../Source/Linjam.cpp"/>
     <Unit filename="../../Source/Linjam.h">

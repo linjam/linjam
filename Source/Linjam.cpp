@@ -8,6 +8,7 @@
   ==============================================================================
 */
 
+#include "Constants.h"
 #include "Linjam.h"
 #include "Trace.h"
 
@@ -37,28 +38,38 @@ DBG("LinJam::chatmsg_cb()\n") ;
 void (*audiostream_onunder)() ;
 void (*audiostream_onover)() ;
 */
-audioStreamer* Audio  ; // TODO: unused
-NJClient*      Client ; // TODO: unused
+// audioStreamer* Audio  ; // TODO: unused
+// NJClient*      Client ; // TODO: unused
 
 
-/* LinJam constants */
+/* LinJam public class variables */
 
-//static const char* WIN_INI_FILE = "linjam.ini" ;
-
-
-/* LinJam class variables */
-
-String LinJam::Server      = "" ;
-String LinJam::Login       = "" ;
-String LinJam::Pass        = "" ;
-bool   LinJam::IsAnonymous = true ;
+bool LinJam::IsAgreed = false ;
 
 
-/* LinJam class methods */
+/* LinJam private class variables */
 
-int LinJam::Initialize(NJClient* client , const String& args)
+audioStreamer*        LinJam::Audio  = nullptr ; // Initialize()
+NJClient*             LinJam::Client = nullptr ; // Initialize()
+MainContentComponent* LinJam::Gui    = nullptr ; // Initialize()
+
+bool   LinJam::ShouldAutoJoin = false ; // TODO: persistent config
+String LinJam::Server         = "" ;    // TODO: persistent config
+String LinJam::Login          = "" ;    // TODO: persistent config per Server
+String LinJam::Pass           = ""  ;   // TODO: persistent config per Server
+bool   LinJam::IsAnonymous    = true ;  // TODO: persistent config per Server
+bool   LinJam::ShouldAgree    = false ; // TODO: persistent config per Server
+
+
+/* LinJam public class methods */
+
+int LinJam::Initialize(NJClient* client , MainContentComponent* contentComponent ,
+                       const String& args)
 {
+DEBUG_TRACE_LINJAM_INIT
+
   Client = client ;
+  Gui    = contentComponent ;
 
   // audio config defaults
 //  int    audio_enable           = 0 ;
@@ -78,13 +89,13 @@ int LinJam::Initialize(NJClient* client , const String& args)
 */
 #ifdef _WIN32
   char* audio_config          = "" ; // TODO: what is the form ? - can be empty ?
-#else
+#else // _WIN32
 #  ifdef _MAC
   char* audio_config          = "" ; // TODO: what is the form ? - can be empty ?
-#  else
+#  else // _MAC
   char* audio_config          = "" ; // TODO: what is the form ? - can be empty - yes
-#  endif
-#endif
+#  endif // _MAC
+#endif // _WIN32
 
   // master channels config defaults
   float master_vol  = 1.0 ;
@@ -95,7 +106,7 @@ int LinJam::Initialize(NJClient* client , const String& args)
   int   metro_mute  = 1 ;
 
   // input channels config defaults
-  const int    MAX_INPUT_CHANNELS = Client->GetMaxLocalChannels() ;
+  const int     MAX_INPUT_CHANNELS = Client->GetMaxLocalChannels() ;
   Array<String> channel_names ;   String channel_name    = String("unnamed channel") ;
   Array<int>    channel_sources ; int    channel_source  = 0 ;
   Array<int>    channel_xmits ;   int    channel_xmit    = 0 ;
@@ -142,29 +153,32 @@ audiostream_onover    = OnOverflow ;
   // initialize audio
 #ifdef _WIN32
   Audio = CreateConfiguredStreamer(WIN_INI_FILE , !audio_config , NULL) ;
-#else
+#else // _WIN32
 #  ifdef _MAC
   Audio = create_audioStreamer_CoreAudio(&audio_config , mac_sample_rate ,
                                          mac_n_input_channels , mac_bit_depth , OnSamples) ;
 //                                          mac_n_input_channels , mac_bit_depth , audiostream_onsamples) ;
-#  else
+#  else // _MAC
   switch (nix_audio_driver == 0)
   {
     case 0: // JACK
       Audio = create_audioStreamer_JACK(jack_client_name.toRawUTF8() , jack_n_input_channels ,
                                         jack_n_output_channels , OnSamples , Client) ;
 //                                         jack_n_output_channels , audiostream_onsamples , Client) ;
-      if (!Audio) printf("Error connecting to JACK - falling back to  ALSA\n") ;
-      else break ;
+
+DEBUG_TRACE_JACK_INIT
+
+      if (Audio) break ;
     default:
       Audio = create_audioStreamer_ALSA(audio_config , OnSamples) ;
 //      Audio = create_audioStreamer_ALSA(audio_config , audiostream_onsamples) ;
   }
-#  endif
-#endif
-  if (Audio) printf("Opened audio at %dHz %d->%dch %dbps\n" ,
-                    Audio->m_srate , Audio->m_innch , Audio->m_outnch , Audio->m_bps) ;
-  else { printf("Error opening audio!\n") ; return 0 ; }
+#  endif // _MAC
+#endif // _WIN32
+
+DEBUG_TRACE_AUDIO_INIT
+
+  if (!Audio) return 0 ;
 
   // configure master channels
   Client->config_mastervolume   = master_vol ;
@@ -199,8 +213,7 @@ audiostream_onover    = OnOverflow ;
 
 void LinJam::Connect()
 {
-DBG("LinJam::Connect()") ;
-
+  Client->Disconnect() ;
   String login = Login ;
   if (IsAnonymous)
   {
@@ -208,29 +221,54 @@ DBG("LinJam::Connect()") ;
     Pass  = "" ;
   }
 
-Server = "ninbot.com:2050" ;
-DEBUG_TRACE_LOGIN
+Server = "ninbot.com:2050" ; // TODO: get Server Login Pass IsAnonymous from config
+#if DEBUG_BYPASS_LICENSE
+  IsAgreed = true ;
+#endif
+DEBUG_TRACE_CONNECT
 
-//   Client->Disconnect() ;
   Client->Connect(Server.toRawUTF8() , login.toRawUTF8() , Pass.toRawUTF8()) ;
 }
 
+void LinJam::Disconnect() { Client->Disconnect() ; }
+
 void LinJam::Shutdown() { delete Audio ; JNL::close_socketlib() ; }
+
+
+/* getters/setters */
+
+// TODO: get/set persistent config
+bool   LinJam::GetShouldAutoJoin() { return ShouldAutoJoin ; }
+String LinJam::GetServer() { return Server ; }
+String LinJam::GetLogin() { return Login ; }
+String LinJam::GetPass() { return Pass ; }
+bool   LinJam::GetIsAnonymous() { return IsAnonymous; }
+bool   LinJam::GetShouldAgree() { return ShouldAgree ; }
+bool   LinJam::SetShouldAgree(bool shouldAgree) { ShouldAgree = shouldAgree ; }
+bool   LinJam::SetIsAgreed(bool isAgreed) { IsAgreed = isAgreed ; }
+
+
+/* NJClient callbacks */
 
 int LinJam::OnLicense(int user32 , char* license_text)
 {
-DBG("LinJam::OnLicense()") ;// license_text=\n" + String(license_text)) ;
-
-#if DEBUG_BYPASS_LICENSE || 1
-return 1 ;
+#if DEBUG_LICENSE_MULTITHREADED
+return Gui->prompt_license(String(license_text)) ;
+Gui->licenseComponent->toFront(true) ;
+Gui->licenseComponent->agreeEvent->wait() ;
+IsAgreed = (licenseComponent->getIsAgreed()) ;
 #else
-return Client->prompt_licence(license_text) ;
+  if (!(IsAgreed = (IsAgreed || GetShouldAgree())))
+    Gui->licenseComponent->setLicenseText(license_text) ;
 #endif
+DEBUG_TRACE_LICENSE
+
+  return IsAgreed ;
 }
 
 void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , int nparms)
 {
-String msg = "" ; for (;nparms--;) msg += "|" + String(parms[nparms]) ; DBG("LinJam::OnChatmsg()=" + msg) ;
+DEBUG_TRACE_CHAT_IN
 }
 
 void LinJam::OnSamples(float** in_buffer , int in_n_channels ,

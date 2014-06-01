@@ -29,24 +29,26 @@
 //==============================================================================
 StatusBarComponent::StatusBarComponent ()
 {
-    this->setName("StatusBarComponent") ;
-    this->addAndMakeVisible(this->statusLLabel = new Label ("statusLLabel" , TRANS("connection status"))) ;
-    this->statusLLabel->setFont(Font(15.00f , Font::plain)) ;
-    this->statusLLabel->setJustificationType (Justification::centredLeft) ;
-    this->statusLLabel->setEditable(false , false , false) ;
-    this->statusLLabel->setColour(Label::textColourId , Colours::grey) ;
-    this->statusLLabel->setColour(Label::outlineColourId , Colours::white) ;
-    this->statusLLabel->setColour(TextEditor::textColourId , Colours::black) ;
-    this->statusLLabel->setColour(TextEditor::backgroundColourId, Colour(0x00000000)) ;
+    setName ("StatusBarComponent");
+    addAndMakeVisible (statusLLabel = new Label ("statusLLabel",
+                                                 TRANS("connection status")));
+    statusLLabel->setFont (Font (15.00f, Font::plain));
+    statusLLabel->setJustificationType (Justification::centredLeft);
+    statusLLabel->setEditable (false, false, false);
+    statusLLabel->setColour (Label::textColourId, Colours::grey);
+    statusLLabel->setColour (Label::outlineColourId, Colours::white);
+    statusLLabel->setColour (TextEditor::textColourId, Colours::black);
+    statusLLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    this->addAndMakeVisible(this->statusRLabel = new Label ("statusRLabel" , TRANS("bpi-bpm"))) ;
-    this->statusRLabel->setFont(Font(16.60f , Font::plain)) ;
-    this->statusRLabel->setJustificationType(Justification::centredLeft) ;
-    this->statusRLabel->setEditable(false , false , false) ;
-    this->statusRLabel->setColour(Label::textColourId , Colours::grey) ;
-    this->statusRLabel->setColour(Label::outlineColourId , Colours::white) ;
-    this->statusRLabel->setColour(TextEditor::textColourId , Colours::black) ;
-    this->statusRLabel->setColour(TextEditor::backgroundColourId , Colour(0x00000000)) ;
+    addAndMakeVisible (statusRLabel = new Label ("statusRLabel",
+                                                 TRANS("bpi-bpm")));
+    statusRLabel->setFont (Font (16.60f, Font::plain));
+    statusRLabel->setJustificationType (Justification::centredLeft);
+    statusRLabel->setEditable (false, false, false);
+    statusRLabel->setColour (Label::textColourId, Colours::grey);
+    statusRLabel->setColour (Label::outlineColourId, Colours::white);
+    statusRLabel->setColour (TextEditor::textColourId, Colours::black);
+    statusRLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
 
     //[UserPreSize]
@@ -54,7 +56,7 @@ StatusBarComponent::StatusBarComponent ()
     this->statusRLabel->setText("" , dontSendNotification) ;
     //[/UserPreSize]
 
-    this->setSize(622 , 24) ;
+    setSize (622, 24);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -66,8 +68,8 @@ StatusBarComponent::~StatusBarComponent()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    this->statusLLabel = nullptr;
-    this->statusRLabel = nullptr;
+    statusLLabel = nullptr;
+    statusRLabel = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -80,16 +82,16 @@ void StatusBarComponent::paint (Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll(Colour(0xff101010)) ;
+    g.fillAll (Colour (0xff101010));
 
-    g.setColour(Colour(0xff202020)) ;
-    g.fillRoundedRectangle(0.0f , 0.0f , static_cast<float>(this->getWidth() - 0) , static_cast<float>(this->getHeight() - 0) , 10.000f) ;
+    g.setColour (Colour (0xff202020));
+    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
 
-    g.setColour(Colours::white) ;
-    g.drawRoundedRectangle(0.0f , 0.0f , static_cast<float>(this->getWidth() - 0) , static_cast<float>(this->getHeight() - 0) , 10.000f , 1.000f) ;
+    g.setColour (Colours::white);
+    g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f, 1.000f);
 
-    g.setColour(Colours::white) ;
-    g.drawRect(128 , 4 , this->getWidth() - 256 , 16 , 1) ;
+    g.setColour (Colours::white);
+    g.drawRect (128, 4, getWidth() - 256, 16, 1);
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -97,8 +99,8 @@ void StatusBarComponent::paint (Graphics& g)
 
 void StatusBarComponent::resized()
 {
-    this->statusLLabel->setBounds(4 , 4 , 120 , 16) ;
-    this->statusRLabel->setBounds(this->getWidth() - 4 - 120 , 4 , 120 , 16) ;
+    statusLLabel->setBounds (4, 4, 120, 16);
+    statusRLabel->setBounds (getWidth() - 4 - 120, 4, 120, 16);
     //[UserResized] Add your own custom resize handling here..
 /*
   statusLLabel->setBounds(GUI::STATUS_PAD_X , GUI::STATUS_PAD_Y ,

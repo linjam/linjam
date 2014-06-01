@@ -37,42 +37,11 @@ public:
       this->contentComponent   = (MainContentComponent*)this->mainWindow->findChildWithID(contentGuiId) ;
       this->statusbarComponent = (StatusBarComponent*)this->contentComponent->findChildWithID(statusbarGuiId) ;
 
-      LinJam::Initialize(this , commandLine) ;
+      LinJam::Initialize(this , contentComponent , commandLine) ;
 
       this->prev_status = NJClient::NJC_STATUS_PRECONNECT ;
       this->startTimer(CLIENT::CLIENT_DRIVER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
       this->startTimer(CLIENT::STATUS_POLL_ID ,   CLIENT::STATUS_POLL_IVL) ;
-    }
-
-    void timerCallback(int timerId) override
-    {
-      int status = this->GetStatus() ;
-      switch (timerId)
-      {
-        case CLIENT::CLIENT_DRIVER_ID: if (status >= 0) this->Run() ; break ;
-        case CLIENT::STATUS_POLL_ID:   this->handleStatus(status) ;   break ;
-        default: break ;
-      }
-    }
-
-    void handleStatus(int status)
-    {
-      if (status != this->prev_status) this->prev_status = status ; else return ;
-
-DEBUG_TRACE_CONNECT_STATUS
-
-      String status_text ; String server = "TODO: GetHostName()" ;
-
-      switch (status)
-      {
-        case NJC_STATUS_DISCONNECTED: status_text = "ERROR: disconnected" ;       break ;
-        case NJC_STATUS_INVALIDAUTH:  status_text = "ERROR: invalid login/pass" ; break ;
-        case NJC_STATUS_CANTCONNECT:  status_text = "ERROR: connection failed" ;  break ;
-        case NJC_STATUS_OK:           status_text = "Connected to " + server ;    break ;
-        case NJC_STATUS_PRECONNECT:   status_text = "Idle" ;                      break ;
-        default:                      status_text = "Status: " + status ;         break ;
-      }
-      this->statusbarComponent->setStatusL(status_text) ;
     }
 
     void shutdown() override
@@ -135,6 +104,38 @@ DEBUG_TRACE_CONNECT_STATUS
     private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
     };
+
+    void timerCallback(int timerId) override
+    {
+      int status = this->GetStatus() ;
+      switch (timerId)
+      {
+        case CLIENT::CLIENT_DRIVER_ID: if (status >= 0) this->Run() ; break ;
+        case CLIENT::STATUS_POLL_ID:   this->handleStatus(status) ;   break ;
+        default: break ;
+      }
+    }
+
+    void handleStatus(int status)
+    {
+      if (status != this->prev_status) this->prev_status = status ; else return ;
+
+DEBUG_TRACE_CONNECT_STATUS
+
+      String status_text ; String server = "TODO: GetHostName()" ;
+
+      switch (status)
+      {
+        case NJC_STATUS_DISCONNECTED: status_text = "Disconnected" ;               break ;
+        case NJC_STATUS_INVALIDAUTH:  status_text = (LinJam::IsAgreed)?
+                                        "Invalid login/pass" : "Pending license" ; break ;
+        case NJC_STATUS_CANTCONNECT:  status_text = "Connection failed" ;          break ;
+        case NJC_STATUS_OK:           status_text = "Connected to " + server ;     break ;
+        case NJC_STATUS_PRECONNECT:   status_text = "Idle" ;                       break ;
+        default:                      status_text = "Status: " + status ;          break ;
+      }
+      this->statusbarComponent->setStatusL(status_text) ;
+    }
 
 private:
     ScopedPointer<MainWindow> mainWindow ;

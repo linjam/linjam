@@ -12,6 +12,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 #include "LoginComponent.h"
+#include "LicenseComponent.h"
 #include "StatusBarComponent.h"
 
 
@@ -22,6 +23,8 @@
 */
 class MainContentComponent : public Component
 {
+  friend class LinJam ;
+
 public:
   //==============================================================================
   MainContentComponent() ;
@@ -30,9 +33,12 @@ public:
   void paint(Graphics&) ;
   void resized() ;
 
+//   bool prompt_license(String license_text) ;
+
 private:
 
   ScopedPointer<LoginComponent>     loginComponent ;
+  ScopedPointer<LicenseComponent>   licenseComponent ;
   ScopedPointer<StatusBarComponent> statusComponent ;
 
   //==============================================================================

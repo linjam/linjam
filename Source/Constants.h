@@ -22,6 +22,13 @@ public:
   // main
   static const int CLIENT_DRIVER_ID = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
   static const int STATUS_POLL_ID   = 1 ; static const int STATUS_POLL_IVL   = 500 ;
+
+  // audio
+  static const char* WIN_INI_FILE ;
+
+  // NJClient
+  static const uint8 CHATMSG_TYPE_IDX = 0 ;
+  static const uint8 CHATMSG_MSG_IDX  = 2 ;
 } ;
 
 
@@ -39,6 +46,9 @@ public:
 
   // LoginComponent
   static const String LOGIN_GUI_ID ;
+
+  // licenseComponent
+  static const String LICENSE_GUI_ID ;
 
   // statusComponent
   static const String STATUS_GUI_ID ;
