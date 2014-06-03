@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    Linjam.h
+    LinJam.h
     Created: 24 May 2014 5:03:01pm
     Author:  me
 
@@ -27,7 +27,7 @@ class LinJam
 public:
 
 //   static int  Initialize( NJClient* client , const String& args) ;
-  static int  Initialize(NJClient* client , MainContentComponent* mainGUI ,
+  static bool Initialize(NJClient* client , MainContentComponent* mainGUI ,
                          const String& args) ;
   static void Connect() ;
   static void Disconnect() ;
@@ -40,8 +40,8 @@ public:
   static String GetPass() ;                        // TODO: persistent config per Server
   static bool   GetIsAnonymous() ;                 // TODO: persistent config per Server
   static bool   GetShouldAgree() ;                 // TODO: persistent config per Server
-  static bool   SetShouldAgree(bool shouldAgree) ; // TODO: persistent config per Server
-  static bool   SetIsAgreed(   bool isAgreed) ;
+  static void   SetShouldAgree(bool shouldAgree) ; // TODO: persistent config per Server
+  static void   SetIsAgreed(   bool isAgreed) ;
 
   // NJClient callbacks
   static int  OnLicense(int user32 , char* license_text) ;

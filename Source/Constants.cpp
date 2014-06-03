@@ -2,7 +2,10 @@
 #include "Constants.h"
 
 // audio
-const char* CLIENT::WIN_INI_FILE = "linjam.ini" ;
+char* CLIENT::WIN_INI_FILE = "linjam.ini" ;
+
+// main
+const String CLIENT::AUDIO_INIT_ERROR_MSG = "audio device error" ;
 
 // licenseComponent
 const String GUI::LICENSE_GUI_ID = "license-gui" ;

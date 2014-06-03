@@ -8,10 +8,11 @@
   ==============================================================================
 */
 
-#include "../JuceLibraryCode/JuceHeader.h"
+// NOTE: arrange that "windows.h" be included before "JuceHeader.h" in all contexts
+//         and arrange to include "JuceHeader.h" before any "*Component.h"
+#include "LinJam.h" // includes "windows.h" and "JuceHeader.h"
 
 #include "Constants.h"
-#include "Linjam.h"
 #include "MainComponent.h"
 #include "Trace.h"
 
@@ -28,7 +29,7 @@ public:
     bool moreThanOneInstanceAllowed() override       { return false ; }
 
     //==============================================================================
-    void initialise (const String& commandLine) override
+    void initialise (const String& args) override
     {
       StringRef contentGuiId   = StringRef(GUI::CONTENT_GUI_ID) ;
       StringRef statusbarGuiId = StringRef(GUI::STATUS_GUI_ID) ;
@@ -37,12 +38,17 @@ public:
       this->contentComponent   = (MainContentComponent*)this->mainWindow->findChildWithID(contentGuiId) ;
       this->statusbarComponent = (StatusBarComponent*)this->contentComponent->findChildWithID(statusbarGuiId) ;
 
-      LinJam::Initialize(this , contentComponent , commandLine) ;
+      if (!LinJam::Initialize(this , contentComponent , args)) initError() ;
 
       this->prev_status = NJClient::NJC_STATUS_PRECONNECT ;
       this->startTimer(CLIENT::CLIENT_DRIVER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
       this->startTimer(CLIENT::STATUS_POLL_ID ,   CLIENT::STATUS_POLL_IVL) ;
     }
+
+    void initError()
+    {
+      this->statusbarComponent->setStatusL(CLIENT::AUDIO_INIT_ERROR_MSG) ;
+    } // TODO: MB , prompt cfg ??
 
     void shutdown() override
     {

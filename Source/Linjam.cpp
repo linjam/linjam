@@ -8,8 +8,8 @@
   ==============================================================================
 */
 
+#include "LinJam.h"
 #include "Constants.h"
-#include "Linjam.h"
 #include "Trace.h"
 
 
@@ -20,6 +20,9 @@ void (*audiostream_onsamples)(float** in_buffer , int in_n_channels ,
                               float** out_buffer , int out_n_channels ,
                               int len , int sample_rate) ;
 void (*chatmsg_cb)(int user32 , NJClient* instance , const char** parms , int nparms) ;
+#ifdef _WIN32
+audioStreamer *CreateConfiguredStreamer(char *inifile , int showcfg , HWND hwndParent , SPLPROC audiostream_onsamples) ;
+#endif
 /*
 int licensecallback(int user32 , char* licensetext)
 {
@@ -63,7 +66,7 @@ bool   LinJam::ShouldAgree    = false ; // TODO: persistent config per Server
 
 /* LinJam public class methods */
 
-int LinJam::Initialize(NJClient* client , MainContentComponent* contentComponent ,
+bool LinJam::Initialize(NJClient* client , MainContentComponent* contentComponent ,
                        const String& args)
 {
 DEBUG_TRACE_LINJAM_INIT
@@ -74,28 +77,28 @@ DEBUG_TRACE_LINJAM_INIT
   // audio config defaults
 //  int    audio_enable           = 0 ;
   int    save_local_audio       = 0 ;
+#ifdef _WIN32
+  char* audio_config          = "" ; // TODO: what is the form ? - can be empty ?
+#else // _WIN32
+#  ifdef _MAC
   int    mac_n_input_channels   = 2 ;
   int    mac_sample_rate        = 48000 ;
   int    mac_bit_depth          = 16 ;
+  char* audio_config          = "" ; // TODO: what is the form ? - can be empty ?
+#  else // _MAC
   int    nix_audio_driver       = 0 ;
   String jack_client_name       = "linjam" ;
   int    jack_n_input_channels  = 2 ;
   int    jack_n_output_channels = 2 ;
+  char* audio_config          = "" ; // TODO: what is the form ? - can be empty - yes
+#  endif // _MAC
+#endif // _WIN32
 /* TODO:
   audio_config =>
     win => "an_int?"
     mac => "input device name"
     nix => "alsa_config_string"
 */
-#ifdef _WIN32
-  char* audio_config          = "" ; // TODO: what is the form ? - can be empty ?
-#else // _WIN32
-#  ifdef _MAC
-  char* audio_config          = "" ; // TODO: what is the form ? - can be empty ?
-#  else // _MAC
-  char* audio_config          = "" ; // TODO: what is the form ? - can be empty - yes
-#  endif // _MAC
-#endif // _WIN32
 
   // master channels config defaults
   float master_vol  = 1.0 ;
@@ -152,7 +155,8 @@ audiostream_onover    = OnOverflow ;
 
   // initialize audio
 #ifdef _WIN32
-  Audio = CreateConfiguredStreamer(WIN_INI_FILE , !audio_config , NULL) ;
+//  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , !audio_config , NULL) ;
+  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , !audio_config , NULL , OnSamples) ;
 #else // _WIN32
 #  ifdef _MAC
   Audio = create_audioStreamer_CoreAudio(&audio_config , mac_sample_rate ,
@@ -178,7 +182,7 @@ DEBUG_TRACE_JACK_INIT
 
 DEBUG_TRACE_AUDIO_INIT
 
-  if (!Audio) return 0 ;
+  if (!Audio) return false ;
 
   // configure master channels
   Client->config_mastervolume   = master_vol ;
@@ -209,6 +213,8 @@ DEBUG_TRACE_AUDIO_INIT
 
   // initialize networking
   JNL::open_socketlib() ;
+
+  return true ;
 }
 
 void LinJam::Connect()
@@ -244,8 +250,8 @@ String LinJam::GetLogin() { return Login ; }
 String LinJam::GetPass() { return Pass ; }
 bool   LinJam::GetIsAnonymous() { return IsAnonymous; }
 bool   LinJam::GetShouldAgree() { return ShouldAgree ; }
-bool   LinJam::SetShouldAgree(bool shouldAgree) { ShouldAgree = shouldAgree ; }
-bool   LinJam::SetIsAgreed(bool isAgreed) { IsAgreed = isAgreed ; }
+void   LinJam::SetShouldAgree(bool shouldAgree) { ShouldAgree = shouldAgree ; }
+void   LinJam::SetIsAgreed(bool isAgreed) { IsAgreed = isAgreed ; }
 
 
 /* NJClient callbacks */
@@ -257,10 +263,10 @@ return Gui->prompt_license(String(license_text)) ;
 Gui->licenseComponent->toFront(true) ;
 Gui->licenseComponent->agreeEvent->wait() ;
 IsAgreed = (licenseComponent->getIsAgreed()) ;
-#else
-  if (!(IsAgreed = (IsAgreed || GetShouldAgree())))
-    Gui->licenseComponent->setLicenseText(license_text) ;
-#endif
+#else // DEBUG_LICENSE_MULTITHREADED
+  IsAgreed = (IsAgreed || GetShouldAgree()) ;
+  if (!IsAgreed) Gui->licenseComponent->setLicenseText(license_text) ;
+#endif // DEBUG_LICENSE_MULTITHREADED
 DEBUG_TRACE_LICENSE
 
   return IsAgreed ;

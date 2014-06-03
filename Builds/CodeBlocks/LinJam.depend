@@ -1,0 +1,2572 @@
+# depslib dependency file v1.0
+1397498722 source:c:\src\linjam\jucelibrarycode\modules\juce_core\juce_core.cpp
+	"AppConfig.h"
+	"native/juce_BasicNativeHeaders.h"
+	"juce_core.h"
+	<locale>
+	<cctype>
+	<sys/timeb.h>
+	<cwctype>
+	<ctime>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<Dbghelp.h>
+	<ws2spi.h>
+	<sys/types.h>
+	<sys/socket.h>
+	<sys/errno.h>
+	<unistd.h>
+	<netinet/in.h>
+	<langinfo.h>
+	<pwd.h>
+	<fcntl.h>
+	<netdb.h>
+	<arpa/inet.h>
+	<netinet/tcp.h>
+	<sys/time.h>
+	<net/if.h>
+	<sys/ioctl.h>
+	<execinfo.h>
+	<xlocale.h>
+	<mach/mach.h>
+	<android/log.h>
+	"containers/juce_AbstractFifo.cpp"
+	"containers/juce_NamedValueSet.cpp"
+	"containers/juce_PropertySet.cpp"
+	"containers/juce_Variant.cpp"
+	"files/juce_DirectoryIterator.cpp"
+	"files/juce_File.cpp"
+	"files/juce_FileInputStream.cpp"
+	"files/juce_FileOutputStream.cpp"
+	"files/juce_FileSearchPath.cpp"
+	"files/juce_TemporaryFile.cpp"
+	"javascript/juce_JSON.cpp"
+	"javascript/juce_Javascript.cpp"
+	"containers/juce_DynamicObject.cpp"
+	"logging/juce_FileLogger.cpp"
+	"logging/juce_Logger.cpp"
+	"maths/juce_BigInteger.cpp"
+	"maths/juce_Expression.cpp"
+	"maths/juce_Random.cpp"
+	"memory/juce_MemoryBlock.cpp"
+	"misc/juce_Result.cpp"
+	"misc/juce_Uuid.cpp"
+	"network/juce_MACAddress.cpp"
+	"network/juce_NamedPipe.cpp"
+	"network/juce_Socket.cpp"
+	"network/juce_IPAddress.cpp"
+	"streams/juce_BufferedInputStream.cpp"
+	"streams/juce_FileInputSource.cpp"
+	"streams/juce_InputStream.cpp"
+	"streams/juce_MemoryInputStream.cpp"
+	"streams/juce_MemoryOutputStream.cpp"
+	"streams/juce_SubregionStream.cpp"
+	"system/juce_SystemStats.cpp"
+	"text/juce_CharacterFunctions.cpp"
+	"text/juce_Identifier.cpp"
+	"text/juce_LocalisedStrings.cpp"
+	"text/juce_String.cpp"
+	"streams/juce_OutputStream.cpp"
+	"text/juce_StringArray.cpp"
+	"text/juce_StringPairArray.cpp"
+	"text/juce_StringPool.cpp"
+	"text/juce_TextDiff.cpp"
+	"threads/juce_ReadWriteLock.cpp"
+	"threads/juce_Thread.cpp"
+	"threads/juce_ThreadPool.cpp"
+	"threads/juce_TimeSliceThread.cpp"
+	"time/juce_PerformanceCounter.cpp"
+	"time/juce_RelativeTime.cpp"
+	"time/juce_Time.cpp"
+	"unit_tests/juce_UnitTest.cpp"
+	"xml/juce_XmlDocument.cpp"
+	"xml/juce_XmlElement.cpp"
+	"zip/juce_GZIPDecompressorInputStream.cpp"
+	"zip/juce_GZIPCompressorOutputStream.cpp"
+	"zip/juce_ZipFile.cpp"
+	"files/juce_FileFilter.cpp"
+	"files/juce_WildcardFileFilter.cpp"
+	"native/juce_osx_ObjCHelpers.h"
+	"native/juce_android_JNIHelpers.h"
+	"native/juce_posix_SharedCode.h"
+	"native/juce_posix_NamedPipe.cpp"
+	"native/juce_mac_Files.mm"
+	"native/juce_mac_Network.mm"
+	"native/juce_mac_Strings.mm"
+	"native/juce_mac_SystemStats.mm"
+	"native/juce_mac_Threads.mm"
+	"native/juce_win32_ComSmartPtr.h"
+	"native/juce_win32_Files.cpp"
+	"native/juce_win32_Network.cpp"
+	"native/juce_win32_Registry.cpp"
+	"native/juce_win32_SystemStats.cpp"
+	"native/juce_win32_Threads.cpp"
+	"native/juce_linux_CommonFile.cpp"
+	"native/juce_linux_Files.cpp"
+	"native/juce_linux_Network.cpp"
+	"native/juce_linux_SystemStats.cpp"
+	"native/juce_linux_Threads.cpp"
+	"native/juce_linux_CommonFile.cpp"
+	"native/juce_android_Files.cpp"
+	"native/juce_android_Misc.cpp"
+	"native/juce_android_Network.cpp"
+	"native/juce_android_SystemStats.cpp"
+	"native/juce_android_Threads.cpp"
+	"threads/juce_ChildProcess.cpp"
+	"threads/juce_HighResolutionTimer.cpp"
+	"network/juce_URL.cpp"
+
+1401683746 c:\src\linjam\jucelibrarycode\appconfig.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_basicnativeheaders.h
+	"../system/juce_TargetPlatform.h"
+	<sys/fcntl.h>
+	<sys/dir.h>
+	<sys/socket.h>
+	<sys/sysctl.h>
+	<sys/stat.h>
+	<sys/param.h>
+	<sys/mount.h>
+	<sys/utsname.h>
+	<sys/mman.h>
+	<fnmatch.h>
+	<utime.h>
+	<dlfcn.h>
+	<ifaddrs.h>
+	<net/if_dl.h>
+	<mach/mach_time.h>
+	<mach-o/dyld.h>
+	<objc/runtime.h>
+	<objc/objc.h>
+	<objc/message.h>
+	<windows.h>
+	<shellapi.h>
+	<tchar.h>
+	<stddef.h>
+	<ctime>
+	<wininet.h>
+	<nb30.h>
+	<iphlpapi.h>
+	<mapi.h>
+	<float.h>
+	<process.h>
+	<shlobj.h>
+	<shlwapi.h>
+	<mmsystem.h>
+	<basetyps.h>
+	<crtdbg.h>
+	<comutil.h>
+	<sched.h>
+	<pthread.h>
+	<sys/time.h>
+	<errno.h>
+	<sys/stat.h>
+	<sys/dir.h>
+	<sys/ptrace.h>
+	<sys/vfs.h>
+	<sys/wait.h>
+	<sys/mman.h>
+	<fnmatch.h>
+	<utime.h>
+	<pwd.h>
+	<fcntl.h>
+	<dlfcn.h>
+	<netdb.h>
+	<arpa/inet.h>
+	<netinet/in.h>
+	<sys/types.h>
+	<sys/ioctl.h>
+	<sys/socket.h>
+	<net/if.h>
+	<sys/sysinfo.h>
+	<sys/file.h>
+	<sys/prctl.h>
+	<signal.h>
+	<stddef.h>
+	<jni.h>
+	<pthread.h>
+	<sched.h>
+	<sys/time.h>
+	<utime.h>
+	<errno.h>
+	<fcntl.h>
+	<dlfcn.h>
+	<sys/stat.h>
+	<sys/statfs.h>
+	<sys/ptrace.h>
+	<sys/sysinfo.h>
+	<sys/mman.h>
+	<pwd.h>
+	<dirent.h>
+	<fnmatch.h>
+	<sys/wait.h>
+
+1401729802 c:\src\linjam\jucelibrarycode\modules\juce_core\system\juce_targetplatform.h
+	<CoreFoundation/CoreFoundation.h>
+
+1401459026 c:\src\linjam\jucelibrarycode\modules\juce_core\juce_core.h
+	"system/juce_TargetPlatform.h"
+	"system/juce_StandardHeader.h"
+	"memory/juce_Memory.h"
+	"maths/juce_MathsFunctions.h"
+	"memory/juce_ByteOrder.h"
+	"memory/juce_Atomic.h"
+	"text/juce_CharacterFunctions.h"
+	"text/juce_CharPointer_UTF8.h"
+	"text/juce_CharPointer_UTF16.h"
+	"text/juce_CharPointer_UTF32.h"
+	"text/juce_CharPointer_ASCII.h"
+	"text/juce_String.h"
+	"text/juce_StringRef.h"
+	"logging/juce_Logger.h"
+	"memory/juce_LeakedObjectDetector.h"
+	"memory/juce_ContainerDeletePolicy.h"
+	"memory/juce_HeapBlock.h"
+	"memory/juce_MemoryBlock.h"
+	"memory/juce_ReferenceCountedObject.h"
+	"memory/juce_ScopedPointer.h"
+	"memory/juce_OptionalScopedPointer.h"
+	"memory/juce_Singleton.h"
+	"memory/juce_WeakReference.h"
+	"threads/juce_ScopedLock.h"
+	"threads/juce_CriticalSection.h"
+	"maths/juce_Range.h"
+	"containers/juce_ElementComparator.h"
+	"containers/juce_ArrayAllocationBase.h"
+	"containers/juce_Array.h"
+	"containers/juce_LinkedListPointer.h"
+	"containers/juce_OwnedArray.h"
+	"containers/juce_ReferenceCountedArray.h"
+	"containers/juce_ScopedValueSetter.h"
+	"containers/juce_SortedSet.h"
+	"containers/juce_SparseSet.h"
+	"containers/juce_AbstractFifo.h"
+	"text/juce_NewLine.h"
+	"text/juce_StringPool.h"
+	"text/juce_Identifier.h"
+	"text/juce_StringArray.h"
+	"text/juce_StringPairArray.h"
+	"text/juce_TextDiff.h"
+	"text/juce_LocalisedStrings.h"
+	"misc/juce_Result.h"
+	"containers/juce_Variant.h"
+	"containers/juce_NamedValueSet.h"
+	"containers/juce_DynamicObject.h"
+	"containers/juce_HashMap.h"
+	"time/juce_RelativeTime.h"
+	"time/juce_Time.h"
+	"streams/juce_InputStream.h"
+	"streams/juce_OutputStream.h"
+	"streams/juce_BufferedInputStream.h"
+	"streams/juce_MemoryInputStream.h"
+	"streams/juce_MemoryOutputStream.h"
+	"streams/juce_SubregionStream.h"
+	"streams/juce_InputSource.h"
+	"files/juce_File.h"
+	"files/juce_DirectoryIterator.h"
+	"files/juce_FileInputStream.h"
+	"files/juce_FileOutputStream.h"
+	"files/juce_FileSearchPath.h"
+	"files/juce_MemoryMappedFile.h"
+	"files/juce_TemporaryFile.h"
+	"files/juce_FileFilter.h"
+	"files/juce_WildcardFileFilter.h"
+	"streams/juce_FileInputSource.h"
+	"logging/juce_FileLogger.h"
+	"javascript/juce_JSON.h"
+	"javascript/juce_Javascript.h"
+	"maths/juce_BigInteger.h"
+	"maths/juce_Expression.h"
+	"maths/juce_Random.h"
+	"misc/juce_Uuid.h"
+	"misc/juce_WindowsRegistry.h"
+	"system/juce_PlatformDefs.h"
+	"system/juce_SystemStats.h"
+	"threads/juce_ChildProcess.h"
+	"threads/juce_DynamicLibrary.h"
+	"threads/juce_HighResolutionTimer.h"
+	"threads/juce_InterProcessLock.h"
+	"threads/juce_Process.h"
+	"threads/juce_SpinLock.h"
+	"threads/juce_WaitableEvent.h"
+	"threads/juce_Thread.h"
+	"threads/juce_ThreadLocalValue.h"
+	"threads/juce_ThreadPool.h"
+	"threads/juce_TimeSliceThread.h"
+	"threads/juce_ReadWriteLock.h"
+	"threads/juce_ScopedReadLock.h"
+	"threads/juce_ScopedWriteLock.h"
+	"network/juce_IPAddress.h"
+	"network/juce_MACAddress.h"
+	"network/juce_NamedPipe.h"
+	"network/juce_Socket.h"
+	"network/juce_URL.h"
+	"time/juce_PerformanceCounter.h"
+	"unit_tests/juce_UnitTest.h"
+	"xml/juce_XmlDocument.h"
+	"xml/juce_XmlElement.h"
+	"zip/juce_GZIPCompressorOutputStream.h"
+	"zip/juce_GZIPDecompressorInputStream.h"
+	"zip/juce_ZipFile.h"
+	"containers/juce_PropertySet.h"
+	"memory/juce_SharedResourcePointer.h"
+
+1401668778 c:\src\linjam\jucelibrarycode\modules\juce_core\system\juce_standardheader.h
+	"juce_PlatformDefs.h"
+	<cstdlib>
+	<cstdarg>
+	<climits>
+	<limits>
+	<cmath>
+	<cwchar>
+	<stdexcept>
+	<typeinfo>
+	<cstring>
+	<cstdio>
+	<iostream>
+	<vector>
+	<algorithm>
+	<intrin.h>
+	<libkern/OSAtomic.h>
+	<signal.h>
+	<ia64intrin.h>
+	<ia32intrin.h>
+	<crtdbg.h>
+	<sys/atomics.h>
+	<byteswap.h>
+
+1401212702 c:\src\linjam\jucelibrarycode\modules\juce_core\system\juce_platformdefs.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_memory.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\maths\juce_mathsfunctions.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_byteorder.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_atomic.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_characterfunctions.h
+
+1401458806 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_charpointer_utf8.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_charpointer_utf16.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_charpointer_utf32.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_charpointer_ascii.h
+
+1401208936 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_string.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_stringref.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\logging\juce_logger.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_leakedobjectdetector.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_containerdeletepolicy.h
+
+1400201310 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_heapblock.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_memoryblock.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_referencecountedobject.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_scopedpointer.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_optionalscopedpointer.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_singleton.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_weakreference.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_scopedlock.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_criticalsection.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\maths\juce_range.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_elementcomparator.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_arrayallocationbase.h
+
+1398795812 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_array.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_linkedlistpointer.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_ownedarray.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_referencecountedarray.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_scopedvaluesetter.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_sortedset.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_sparseset.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_abstractfifo.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_newline.h
+
+1401458848 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_stringpool.h
+
+1401209760 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_identifier.h
+
+1398795818 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_stringarray.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_stringpairarray.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_textdiff.h
+
+1400508772 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_localisedstrings.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\misc\juce_result.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_variant.h
+
+1401218682 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_namedvalueset.h
+
+1401242684 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_dynamicobject.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_hashmap.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\time\juce_relativetime.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\time\juce_time.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_inputstream.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_outputstream.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_bufferedinputstream.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_memoryinputstream.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_memoryoutputstream.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_subregionstream.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_inputsource.h
+
+1398894434 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_file.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_directoryiterator.h
+
+1400966936 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_fileinputstream.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_fileoutputstream.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_filesearchpath.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_memorymappedfile.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_temporaryfile.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_filefilter.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_wildcardfilefilter.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_fileinputsource.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\logging\juce_filelogger.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\javascript\juce_json.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\javascript\juce_javascript.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\maths\juce_biginteger.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\maths\juce_expression.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\maths\juce_random.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\misc\juce_uuid.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\misc\juce_windowsregistry.h
+
+1399648116 c:\src\linjam\jucelibrarycode\modules\juce_core\system\juce_systemstats.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_childprocess.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_dynamiclibrary.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_highresolutiontimer.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_interprocesslock.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_process.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_spinlock.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_waitableevent.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_thread.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_threadlocalvalue.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_threadpool.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_timeslicethread.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_readwritelock.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_scopedreadlock.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_scopedwritelock.h
+
+1398795520 c:\src\linjam\jucelibrarycode\modules\juce_core\network\juce_ipaddress.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\network\juce_macaddress.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\network\juce_namedpipe.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\network\juce_socket.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\network\juce_url.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\time\juce_performancecounter.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\unit_tests\juce_unittest.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\xml\juce_xmldocument.h
+
+1401410976 c:\src\linjam\jucelibrarycode\modules\juce_core\xml\juce_xmlelement.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\juce_gzipcompressoroutputstream.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\juce_gzipdecompressorinputstream.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\juce_zipfile.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_propertyset.h
+
+1398005506 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_sharedresourcepointer.h
+
+1399924888 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_abstractfifo.cpp
+
+1401224474 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_namedvalueset.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_propertyset.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_variant.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_directoryiterator.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_file.cpp
+
+1400966788 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_fileinputstream.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_fileoutputstream.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_filesearchpath.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_temporaryfile.cpp
+
+1401227932 c:\src\linjam\jucelibrarycode\modules\juce_core\javascript\juce_json.cpp
+
+1398625136 c:\src\linjam\jucelibrarycode\modules\juce_core\javascript\juce_javascript.cpp
+
+1401212410 c:\src\linjam\jucelibrarycode\modules\juce_core\containers\juce_dynamicobject.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\logging\juce_filelogger.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\logging\juce_logger.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\maths\juce_biginteger.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\maths\juce_expression.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\maths\juce_random.cpp
+
+1400202604 c:\src\linjam\jucelibrarycode\modules\juce_core\memory\juce_memoryblock.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\misc\juce_result.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\misc\juce_uuid.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\network\juce_macaddress.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\network\juce_namedpipe.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\network\juce_socket.cpp
+
+1398795520 c:\src\linjam\jucelibrarycode\modules\juce_core\network\juce_ipaddress.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_bufferedinputstream.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_fileinputsource.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_inputstream.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_memoryinputstream.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_memoryoutputstream.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_subregionstream.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\system\juce_systemstats.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_characterfunctions.cpp
+
+1401209870 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_identifier.cpp
+
+1400508778 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_localisedstrings.cpp
+
+1401205240 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_string.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\streams\juce_outputstream.cpp
+
+1398782832 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_stringarray.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_stringpairarray.cpp
+
+1401458964 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_stringpool.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\text\juce_textdiff.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_readwritelock.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_thread.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_threadpool.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_timeslicethread.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\time\juce_performancecounter.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\time\juce_relativetime.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\time\juce_time.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\unit_tests\juce_unittest.cpp
+
+1401216728 c:\src\linjam\jucelibrarycode\modules\juce_core\xml\juce_xmldocument.cpp
+
+1401458924 c:\src\linjam\jucelibrarycode\modules\juce_core\xml\juce_xmlelement.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\juce_gzipdecompressorinputstream.cpp
+	"zlib/zlib.h"
+	"zlib/adler32.c"
+	"zlib/compress.c"
+	"zlib/crc32.c"
+	"zlib/deflate.c"
+	"zlib/inffast.c"
+	"zlib/inflate.c"
+	"zlib/inftrees.c"
+	"zlib/trees.c"
+	"zlib/zutil.c"
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\zlib.h
+	"zconf.h"
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\zconf.h
+	<windows.h>
+	<sys/types.h>
+	<unistd.h>
+	<unixio.h>
+
+1333485300 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\adler32.c
+	"zlib.h"
+
+1333485300 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\compress.c
+	"zlib.h"
+
+1383518346 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\crc32.c
+	<stdio.h>
+	"zutil.h"
+	<limits.h>
+	"crc32.h"
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\zutil.h
+	"zlib.h"
+	<stddef.h>
+	<string.h>
+	<stdlib.h>
+	<errno.h>
+	<alloc.h>
+	<malloc.h>
+	<malloc.h>
+	<unix.h>
+	<stdio.h>
+
+1354661972 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\crc32.h
+
+1363393218 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\deflate.c
+	"deflate.h"
+
+1354661972 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\deflate.h
+	"zutil.h"
+
+1333485300 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\inffast.c
+	"zutil.h"
+	"inftrees.h"
+	"inflate.h"
+	"inffast.h"
+
+1354661972 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\inftrees.h
+
+1354661972 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\inflate.h
+
+1354661972 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\inffast.h
+
+1383518880 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\inflate.c
+	"zutil.h"
+	"inftrees.h"
+	"inflate.h"
+	"inffast.h"
+	"inffixed.h"
+	<stdio.h>
+
+1354661972 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\inffixed.h
+
+1333485300 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\inftrees.c
+	"zutil.h"
+	"inftrees.h"
+
+1383519030 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\trees.c
+	"deflate.h"
+	<ctype.h>
+	"trees.h"
+	<stdio.h>
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\trees.h
+
+1333485300 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\zlib\zutil.c
+	"zutil.h"
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\juce_gzipcompressoroutputstream.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\zip\juce_zipfile.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_filefilter.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\files\juce_wildcardfilefilter.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_osx_objchelpers.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_android_jnihelpers.h
+
+1401458744 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_posix_sharedcode.h
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_posix_namedpipe.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_mac_files.mm
+
+1398878622 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_mac_network.mm
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_mac_strings.mm
+
+1401223322 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_mac_systemstats.mm
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_mac_threads.mm
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_win32_comsmartptr.h
+
+1400966776 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_win32_files.cpp
+
+1398878602 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_win32_network.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_win32_registry.cpp
+
+1399647964 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_win32_systemstats.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_win32_threads.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_linux_commonfile.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_linux_files.cpp
+
+1398878612 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_linux_network.cpp
+
+1399989240 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_linux_systemstats.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_linux_threads.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_android_files.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_android_misc.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_android_network.cpp
+
+1399989182 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_android_systemstats.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\native\juce_android_threads.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_childprocess.cpp
+
+1397498722 c:\src\linjam\jucelibrarycode\modules\juce_core\threads\juce_highresolutiontimer.cpp
+
+1400516046 c:\src\linjam\jucelibrarycode\modules\juce_core\network\juce_url.cpp
+
+1377972408 source:c:\src\linjam\jucelibrarycode\modules\juce_data_structures\juce_data_structures.cpp
+	"AppConfig.h"
+	"juce_data_structures.h"
+	"values/juce_Value.cpp"
+	"values/juce_ValueTree.cpp"
+	"undomanager/juce_UndoManager.cpp"
+	"app_properties/juce_ApplicationProperties.cpp"
+	"app_properties/juce_PropertiesFile.cpp"
+
+1377284902 c:\src\linjam\jucelibrarycode\modules\juce_data_structures\juce_data_structures.h
+	"../juce_events/juce_events.h"
+	"undomanager/juce_UndoableAction.h"
+	"undomanager/juce_UndoManager.h"
+	"values/juce_Value.h"
+	"values/juce_ValueTree.h"
+	"app_properties/juce_PropertiesFile.h"
+	"app_properties/juce_ApplicationProperties.h"
+
+1391899286 c:\src\linjam\jucelibrarycode\modules\juce_events\juce_events.h
+	"../juce_core/juce_core.h"
+	"messages/juce_MessageManager.h"
+	"messages/juce_Message.h"
+	"messages/juce_MessageListener.h"
+	"messages/juce_CallbackMessage.h"
+	"messages/juce_DeletedAtShutdown.h"
+	"messages/juce_NotificationType.h"
+	"messages/juce_ApplicationBase.h"
+	"messages/juce_Initialisation.h"
+	"broadcasters/juce_ListenerList.h"
+	"broadcasters/juce_ActionBroadcaster.h"
+	"broadcasters/juce_ActionListener.h"
+	"broadcasters/juce_AsyncUpdater.h"
+	"broadcasters/juce_ChangeListener.h"
+	"broadcasters/juce_ChangeBroadcaster.h"
+	"timers/juce_Timer.h"
+	"timers/juce_MultiTimer.h"
+	"interprocess/juce_InterprocessConnection.h"
+	"interprocess/juce_InterprocessConnectionServer.h"
+	"interprocess/juce_ConnectedChildProcess.h"
+	"native/juce_ScopedXLock.h"
+
+1394851660 c:\src\linjam\jucelibrarycode\modules\juce_events\messages\juce_messagemanager.h
+
+1374095712 c:\src\linjam\jucelibrarycode\modules\juce_events\messages\juce_message.h
+
+1377285042 c:\src\linjam\jucelibrarycode\modules\juce_events\messages\juce_messagelistener.h
+
+1377285042 c:\src\linjam\jucelibrarycode\modules\juce_events\messages\juce_callbackmessage.h
+
+1378525312 c:\src\linjam\jucelibrarycode\modules\juce_events\messages\juce_deletedatshutdown.h
+
+1393604740 c:\src\linjam\jucelibrarycode\modules\juce_events\messages\juce_notificationtype.h
+
+1401317776 c:\src\linjam\jucelibrarycode\modules\juce_events\messages\juce_applicationbase.h
+
+1401728556 c:\src\linjam\jucelibrarycode\modules\juce_events\messages\juce_initialisation.h
+
+1379605578 c:\src\linjam\jucelibrarycode\modules\juce_events\broadcasters\juce_listenerlist.h
+
+1393106214 c:\src\linjam\jucelibrarycode\modules\juce_events\broadcasters\juce_actionbroadcaster.h
+
+1393106104 c:\src\linjam\jucelibrarycode\modules\juce_events\broadcasters\juce_actionlistener.h
+
+1400900208 c:\src\linjam\jucelibrarycode\modules\juce_events\broadcasters\juce_asyncupdater.h
+
+1374095712 c:\src\linjam\jucelibrarycode\modules\juce_events\broadcasters\juce_changelistener.h
+
+1377285042 c:\src\linjam\jucelibrarycode\modules\juce_events\broadcasters\juce_changebroadcaster.h
+
+1374095712 c:\src\linjam\jucelibrarycode\modules\juce_events\timers\juce_timer.h
+
+1380550856 c:\src\linjam\jucelibrarycode\modules\juce_events\timers\juce_multitimer.h
+
+1391891386 c:\src\linjam\jucelibrarycode\modules\juce_events\interprocess\juce_interprocessconnection.h
+
+1377284964 c:\src\linjam\jucelibrarycode\modules\juce_events\interprocess\juce_interprocessconnectionserver.h
+
+1391962180 c:\src\linjam\jucelibrarycode\modules\juce_events\interprocess\juce_connectedchildprocess.h
+
+1374095712 c:\src\linjam\jucelibrarycode\modules\juce_events\native\juce_scopedxlock.h
+
+1374095712 c:\src\linjam\jucelibrarycode\modules\juce_data_structures\undomanager\juce_undoableaction.h
+
+1385957506 c:\src\linjam\jucelibrarycode\modules\juce_data_structures\undomanager\juce_undomanager.h
+
+1400686418 c:\src\linjam\jucelibrarycode\modules\juce_data_structures\values\juce_value.h
+
+1385771806 c:\src\linjam\jucelibrarycode\modules\juce_data_structures\values\juce_valuetree.h
+
+1398697742 c:\src\linjam\jucelibrarycode\modules\juce_data_structures\app_properties\juce_propertiesfile.h
+
+1381550082 c:\src\linjam\jucelibrarycode\modules\juce_data_structures\app_properties\juce_applicationproperties.h
+
+1400686556 c:\src\linjam\jucelibrarycode\modules\juce_data_structures\values\juce_value.cpp
+
+1401217696 c:\src\linjam\jucelibrarycode\modules\juce_data_structures\values\juce_valuetree.cpp
+
+1385957484 c:\src\linjam\jucelibrarycode\modules\juce_data_structures\undomanager\juce_undomanager.cpp
+
+1372035978 c:\src\linjam\jucelibrarycode\modules\juce_data_structures\app_properties\juce_applicationproperties.cpp
+
+1398697810 c:\src\linjam\jucelibrarycode\modules\juce_data_structures\app_properties\juce_propertiesfile.cpp
+
+1391899274 source:c:\src\linjam\jucelibrarycode\modules\juce_events\juce_events.cpp
+	"AppConfig.h"
+	"../juce_core/native/juce_BasicNativeHeaders.h"
+	"juce_events.h"
+	"../juce_gui_basics/juce_gui_basics.h"
+	<X11/Xlib.h>
+	<X11/Xresource.h>
+	<X11/Xutil.h>
+	<unistd.h>
+	"messages/juce_ApplicationBase.cpp"
+	"messages/juce_DeletedAtShutdown.cpp"
+	"messages/juce_MessageListener.cpp"
+	"messages/juce_MessageManager.cpp"
+	"broadcasters/juce_ActionBroadcaster.cpp"
+	"broadcasters/juce_AsyncUpdater.cpp"
+	"broadcasters/juce_ChangeBroadcaster.cpp"
+	"timers/juce_MultiTimer.cpp"
+	"timers/juce_Timer.cpp"
+	"interprocess/juce_InterprocessConnection.cpp"
+	"interprocess/juce_InterprocessConnectionServer.cpp"
+	"interprocess/juce_ConnectedChildProcess.cpp"
+	"../juce_core/native/juce_osx_ObjCHelpers.h"
+	"native/juce_osx_MessageQueue.h"
+	"native/juce_mac_MessageManager.mm"
+	"../juce_core/native/juce_osx_ObjCHelpers.h"
+	"native/juce_osx_MessageQueue.h"
+	"native/juce_ios_MessageManager.mm"
+	"native/juce_win32_HiddenMessageWindow.h"
+	"native/juce_win32_Messaging.cpp"
+	"native/juce_ScopedXLock.h"
+	"native/juce_linux_Messaging.cpp"
+	"../juce_core/native/juce_android_JNIHelpers.h"
+	"native/juce_android_Messaging.cpp"
+
+1390682914 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\juce_gui_basics.h
+	"../juce_graphics/juce_graphics.h"
+	"../juce_data_structures/juce_data_structures.h"
+	"mouse/juce_MouseCursor.h"
+	"mouse/juce_MouseListener.h"
+	"keyboard/juce_ModifierKeys.h"
+	"mouse/juce_MouseInputSource.h"
+	"mouse/juce_MouseEvent.h"
+	"keyboard/juce_KeyPress.h"
+	"keyboard/juce_KeyListener.h"
+	"keyboard/juce_KeyboardFocusTraverser.h"
+	"components/juce_ModalComponentManager.h"
+	"components/juce_ComponentListener.h"
+	"components/juce_CachedComponentImage.h"
+	"components/juce_Component.h"
+	"layout/juce_ComponentAnimator.h"
+	"components/juce_Desktop.h"
+	"layout/juce_ComponentBoundsConstrainer.h"
+	"mouse/juce_ComponentDragger.h"
+	"mouse/juce_DragAndDropTarget.h"
+	"mouse/juce_DragAndDropContainer.h"
+	"mouse/juce_FileDragAndDropTarget.h"
+	"mouse/juce_SelectedItemSet.h"
+	"mouse/juce_LassoComponent.h"
+	"mouse/juce_MouseInactivityDetector.h"
+	"mouse/juce_TextDragAndDropTarget.h"
+	"mouse/juce_TooltipClient.h"
+	"keyboard/juce_CaretComponent.h"
+	"keyboard/juce_SystemClipboard.h"
+	"keyboard/juce_TextEditorKeyMapper.h"
+	"keyboard/juce_TextInputTarget.h"
+	"commands/juce_ApplicationCommandID.h"
+	"commands/juce_ApplicationCommandInfo.h"
+	"commands/juce_ApplicationCommandTarget.h"
+	"commands/juce_ApplicationCommandManager.h"
+	"commands/juce_KeyPressMappingSet.h"
+	"buttons/juce_Button.h"
+	"buttons/juce_ArrowButton.h"
+	"buttons/juce_DrawableButton.h"
+	"buttons/juce_HyperlinkButton.h"
+	"buttons/juce_ImageButton.h"
+	"buttons/juce_ShapeButton.h"
+	"buttons/juce_TextButton.h"
+	"buttons/juce_ToggleButton.h"
+	"layout/juce_AnimatedPosition.h"
+	"layout/juce_AnimatedPositionBehaviours.h"
+	"layout/juce_ComponentBuilder.h"
+	"layout/juce_ComponentMovementWatcher.h"
+	"layout/juce_ConcertinaPanel.h"
+	"layout/juce_GroupComponent.h"
+	"layout/juce_ResizableBorderComponent.h"
+	"layout/juce_ResizableCornerComponent.h"
+	"layout/juce_ResizableEdgeComponent.h"
+	"layout/juce_ScrollBar.h"
+	"layout/juce_StretchableLayoutManager.h"
+	"layout/juce_StretchableLayoutResizerBar.h"
+	"layout/juce_StretchableObjectResizer.h"
+	"layout/juce_TabbedButtonBar.h"
+	"layout/juce_TabbedComponent.h"
+	"layout/juce_Viewport.h"
+	"menus/juce_PopupMenu.h"
+	"menus/juce_MenuBarModel.h"
+	"menus/juce_MenuBarComponent.h"
+	"positioning/juce_RelativeCoordinate.h"
+	"positioning/juce_MarkerList.h"
+	"positioning/juce_RelativePoint.h"
+	"positioning/juce_RelativeRectangle.h"
+	"positioning/juce_RelativeCoordinatePositioner.h"
+	"positioning/juce_RelativeParallelogram.h"
+	"positioning/juce_RelativePointPath.h"
+	"drawables/juce_Drawable.h"
+	"drawables/juce_DrawableShape.h"
+	"drawables/juce_DrawableComposite.h"
+	"drawables/juce_DrawableImage.h"
+	"drawables/juce_DrawablePath.h"
+	"drawables/juce_DrawableRectangle.h"
+	"drawables/juce_DrawableText.h"
+	"widgets/juce_TextEditor.h"
+	"widgets/juce_Label.h"
+	"widgets/juce_ComboBox.h"
+	"widgets/juce_ImageComponent.h"
+	"widgets/juce_ListBox.h"
+	"widgets/juce_ProgressBar.h"
+	"widgets/juce_Slider.h"
+	"widgets/juce_TableHeaderComponent.h"
+	"widgets/juce_TableListBox.h"
+	"widgets/juce_Toolbar.h"
+	"widgets/juce_ToolbarItemComponent.h"
+	"widgets/juce_ToolbarItemFactory.h"
+	"widgets/juce_ToolbarItemPalette.h"
+	"buttons/juce_ToolbarButton.h"
+	"misc/juce_DropShadower.h"
+	"widgets/juce_TreeView.h"
+	"windows/juce_TopLevelWindow.h"
+	"windows/juce_AlertWindow.h"
+	"windows/juce_CallOutBox.h"
+	"windows/juce_ComponentPeer.h"
+	"windows/juce_ResizableWindow.h"
+	"windows/juce_DocumentWindow.h"
+	"windows/juce_DialogWindow.h"
+	"windows/juce_NativeMessageBox.h"
+	"windows/juce_ThreadWithProgressWindow.h"
+	"windows/juce_TooltipWindow.h"
+	"layout/juce_MultiDocumentPanel.h"
+	"filebrowser/juce_FileBrowserListener.h"
+	"filebrowser/juce_DirectoryContentsList.h"
+	"filebrowser/juce_DirectoryContentsDisplayComponent.h"
+	"filebrowser/juce_FileBrowserComponent.h"
+	"filebrowser/juce_FileChooser.h"
+	"filebrowser/juce_FileChooserDialogBox.h"
+	"filebrowser/juce_FileListComponent.h"
+	"filebrowser/juce_FilenameComponent.h"
+	"filebrowser/juce_FilePreviewComponent.h"
+	"filebrowser/juce_FileSearchPathListComponent.h"
+	"filebrowser/juce_FileTreeComponent.h"
+	"filebrowser/juce_ImagePreviewComponent.h"
+	"properties/juce_PropertyComponent.h"
+	"properties/juce_BooleanPropertyComponent.h"
+	"properties/juce_ButtonPropertyComponent.h"
+	"properties/juce_ChoicePropertyComponent.h"
+	"properties/juce_PropertyPanel.h"
+	"properties/juce_SliderPropertyComponent.h"
+	"properties/juce_TextPropertyComponent.h"
+	"application/juce_Application.h"
+	"misc/juce_BubbleComponent.h"
+	"lookandfeel/juce_LookAndFeel.h"
+	"lookandfeel/juce_LookAndFeel_V2.h"
+	"lookandfeel/juce_LookAndFeel_V1.h"
+	"lookandfeel/juce_LookAndFeel_V3.h"
+
+1392497928 c:\src\linjam\jucelibrarycode\modules\juce_graphics\juce_graphics.h
+	"../juce_core/juce_core.h"
+	"../juce_events/juce_events.h"
+	"geometry/juce_AffineTransform.h"
+	"geometry/juce_Point.h"
+	"geometry/juce_Line.h"
+	"geometry/juce_Rectangle.h"
+	"placement/juce_Justification.h"
+	"geometry/juce_Path.h"
+	"geometry/juce_RectangleList.h"
+	"colour/juce_PixelFormats.h"
+	"colour/juce_Colour.h"
+	"colour/juce_ColourGradient.h"
+	"colour/juce_Colours.h"
+	"geometry/juce_BorderSize.h"
+	"geometry/juce_EdgeTable.h"
+	"geometry/juce_PathIterator.h"
+	"geometry/juce_PathStrokeType.h"
+	"placement/juce_RectanglePlacement.h"
+	"images/juce_ImageCache.h"
+	"images/juce_ImageConvolutionKernel.h"
+	"images/juce_ImageFileFormat.h"
+	"fonts/juce_AttributedString.h"
+	"fonts/juce_Typeface.h"
+	"fonts/juce_Font.h"
+	"fonts/juce_GlyphArrangement.h"
+	"fonts/juce_TextLayout.h"
+	"fonts/juce_CustomTypeface.h"
+	"contexts/juce_GraphicsContext.h"
+	"contexts/juce_LowLevelGraphicsContext.h"
+	"images/juce_Image.h"
+	"colour/juce_FillType.h"
+	"native/juce_RenderingHelpers.h"
+	"contexts/juce_LowLevelGraphicsSoftwareRenderer.h"
+	"contexts/juce_LowLevelGraphicsPostScriptRenderer.h"
+	"effects/juce_ImageEffectFilter.h"
+	"effects/juce_DropShadowEffect.h"
+	"effects/juce_GlowEffect.h"
+
+1376499208 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_affinetransform.h
+
+1392846378 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_point.h
+
+1384356122 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_line.h
+
+1393002244 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_rectangle.h
+
+1377358974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\placement\juce_justification.h
+
+1400279776 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_path.h
+
+1384530548 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_rectanglelist.h
+
+1392670472 c:\src\linjam\jucelibrarycode\modules\juce_graphics\colour\juce_pixelformats.h
+
+1396917510 c:\src\linjam\jucelibrarycode\modules\juce_graphics\colour\juce_colour.h
+
+1389565854 c:\src\linjam\jucelibrarycode\modules\juce_graphics\colour\juce_colourgradient.h
+
+1377358522 c:\src\linjam\jucelibrarycode\modules\juce_graphics\colour\juce_colours.h
+
+1377358974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_bordersize.h
+
+1389567610 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_edgetable.h
+
+1377358974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_pathiterator.h
+
+1389457562 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_pathstroketype.h
+
+1389565842 c:\src\linjam\jucelibrarycode\modules\juce_graphics\placement\juce_rectangleplacement.h
+
+1377358974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\images\juce_imagecache.h
+
+1377358974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\images\juce_imageconvolutionkernel.h
+
+1377358974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\images\juce_imagefileformat.h
+
+1374095712 c:\src\linjam\jucelibrarycode\modules\juce_graphics\fonts\juce_attributedstring.h
+
+1388968512 c:\src\linjam\jucelibrarycode\modules\juce_graphics\fonts\juce_typeface.h
+
+1399818844 c:\src\linjam\jucelibrarycode\modules\juce_graphics\fonts\juce_font.h
+
+1389567676 c:\src\linjam\jucelibrarycode\modules\juce_graphics\fonts\juce_glypharrangement.h
+
+1377358974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\fonts\juce_textlayout.h
+
+1400251984 c:\src\linjam\jucelibrarycode\modules\juce_graphics\fonts\juce_customtypeface.h
+
+1391815536 c:\src\linjam\jucelibrarycode\modules\juce_graphics\contexts\juce_graphicscontext.h
+
+1378314798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\contexts\juce_lowlevelgraphicscontext.h
+
+1392922958 c:\src\linjam\jucelibrarycode\modules\juce_graphics\images\juce_image.h
+
+1389567654 c:\src\linjam\jucelibrarycode\modules\juce_graphics\colour\juce_filltype.h
+
+1397410498 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_renderinghelpers.h
+
+1377358824 c:\src\linjam\jucelibrarycode\modules\juce_graphics\contexts\juce_lowlevelgraphicssoftwarerenderer.h
+
+1380234390 c:\src\linjam\jucelibrarycode\modules\juce_graphics\contexts\juce_lowlevelgraphicspostscriptrenderer.h
+
+1377358974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\effects\juce_imageeffectfilter.h
+
+1377358974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\effects\juce_dropshadoweffect.h
+
+1377358974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\effects\juce_gloweffect.h
+
+1377359720 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_mousecursor.h
+
+1377359868 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_mouselistener.h
+
+1378747400 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_modifierkeys.h
+
+1378745310 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_mouseinputsource.h
+
+1378220030 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_mouseevent.h
+
+1377359954 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_keypress.h
+
+1377359894 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_keylistener.h
+
+1385771750 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_keyboardfocustraverser.h
+
+1398367224 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\components\juce_modalcomponentmanager.h
+
+1377359668 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\components\juce_componentlistener.h
+
+1377359490 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\components\juce_cachedcomponentimage.h
+
+1393455928 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\components\juce_component.h
+
+1377360106 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_componentanimator.h
+
+1395862560 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\components\juce_desktop.h
+
+1377360106 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_componentboundsconstrainer.h
+
+1388611160 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_componentdragger.h
+
+1377359720 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_draganddroptarget.h
+
+1385596748 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_draganddropcontainer.h
+
+1374095712 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_filedraganddroptarget.h
+
+1378590326 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_selecteditemset.h
+
+1382908096 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_lassocomponent.h
+
+1377359840 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_mouseinactivitydetector.h
+
+1377359878 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_textdraganddroptarget.h
+
+1374095712 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_tooltipclient.h
+
+1377359894 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_caretcomponent.h
+
+1374095712 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_systemclipboard.h
+
+1377359954 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_texteditorkeymapper.h
+
+1398303292 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_textinputtarget.h
+
+1379460814 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\commands\juce_applicationcommandid.h
+
+1378596876 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\commands\juce_applicationcommandinfo.h
+
+1398795798 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\commands\juce_applicationcommandtarget.h
+
+1393604700 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\commands\juce_applicationcommandmanager.h
+
+1393604724 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\commands\juce_keypressmappingset.h
+
+1401654988 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_button.h
+
+1377361368 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_arrowbutton.h
+
+1377361650 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_drawablebutton.h
+
+1377361448 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_hyperlinkbutton.h
+
+1382911050 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_imagebutton.h
+
+1391357528 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_shapebutton.h
+
+1401655184 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_textbutton.h
+
+1377361448 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_togglebutton.h
+
+1377361168 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_animatedposition.h
+
+1391200368 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_animatedpositionbehaviours.h
+
+1377360106 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_componentbuilder.h
+
+1393343256 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_componentmovementwatcher.h
+
+1382910112 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_concertinapanel.h
+
+1382907772 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_groupcomponent.h
+
+1377361146 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_resizablebordercomponent.h
+
+1377361178 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_resizablecornercomponent.h
+
+1377361202 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_resizableedgecomponent.h
+
+1382921254 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_scrollbar.h
+
+1377360106 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_stretchablelayoutmanager.h
+
+1382910042 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_stretchablelayoutresizerbar.h
+
+1374095712 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_stretchableobjectresizer.h
+
+1389203908 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_tabbedbuttonbar.h
+
+1377361326 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_tabbedcomponent.h
+
+1397355550 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_viewport.h
+
+1385329704 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\menus\juce_popupmenu.h
+
+1377361120 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\menus\juce_menubarmodel.h
+
+1377361110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\menus\juce_menubarcomponent.h
+
+1389565830 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_relativecoordinate.h
+
+1389567702 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_markerlist.h
+
+1389565860 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_relativepoint.h
+
+1389565904 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_relativerectangle.h
+
+1377361482 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_relativecoordinatepositioner.h
+
+1389565842 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_relativeparallelogram.h
+
+1389565894 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_relativepointpath.h
+
+1394593950 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawable.h
+
+1392234104 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawableshape.h
+
+1389567566 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawablecomposite.h
+
+1389567572 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawableimage.h
+
+1389567578 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawablepath.h
+
+1389567584 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawablerectangle.h
+
+1389567590 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawabletext.h
+
+1400964558 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_texteditor.h
+
+1400900856 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_label.h
+
+1399497386 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_combobox.h
+
+1377360304 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_imagecomponent.h
+
+1384120510 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_listbox.h
+
+1382911902 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_progressbar.h
+
+1396200682 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_slider.h
+
+1382907814 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_tableheadercomponent.h
+
+1385771782 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_tablelistbox.h
+
+1382907900 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_toolbar.h
+
+1377360606 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_toolbaritemcomponent.h
+
+1377360706 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_toolbaritemfactory.h
+
+1377360676 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_toolbaritempalette.h
+
+1377360690 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_toolbarbutton.h
+
+1377360106 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\misc\juce_dropshadower.h
+
+1401226058 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_treeview.h
+
+1400514630 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_toplevelwindow.h
+
+1382921254 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_alertwindow.h
+
+1394904582 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_calloutbox.h
+
+1398302924 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_componentpeer.h
+
+1389306198 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_resizablewindow.h
+
+1382907856 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_documentwindow.h
+
+1377360744 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_dialogwindow.h
+
+1377360986 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_nativemessagebox.h
+
+1392829310 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_threadwithprogresswindow.h
+
+1382907856 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_tooltipwindow.h
+
+1377360858 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_multidocumentpanel.h
+
+1377361926 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filebrowserlistener.h
+
+1385053974 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_directorycontentslist.h
+
+1377361926 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_directorycontentsdisplaycomponent.h
+
+1395762938 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filebrowsercomponent.h
+
+1398740414 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filechooser.h
+
+1398740414 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filechooserdialogbox.h
+
+1377361926 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filelistcomponent.h
+
+1399830012 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filenamecomponent.h
+
+1377360106 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filepreviewcomponent.h
+
+1377362090 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filesearchpathlistcomponent.h
+
+1377362090 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filetreecomponent.h
+
+1377362090 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_imagepreviewcomponent.h
+
+1392677538 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_propertycomponent.h
+
+1377361858 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_booleanpropertycomponent.h
+
+1377361858 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_buttonpropertycomponent.h
+
+1398795944 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_choicepropertycomponent.h
+
+1386009168 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_propertypanel.h
+
+1377361858 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_sliderpropertycomponent.h
+
+1377361854 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_textpropertycomponent.h
+
+1389565672 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\application\juce_application.h
+
+1382902128 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\misc\juce_bubblecomponent.h
+
+1382928352 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\lookandfeel\juce_lookandfeel.h
+
+1401655008 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\lookandfeel\juce_lookandfeel_v2.h
+
+1386088304 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\lookandfeel\juce_lookandfeel_v1.h
+
+1386088304 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\lookandfeel\juce_lookandfeel_v3.h
+
+1401317776 c:\src\linjam\jucelibrarycode\modules\juce_events\messages\juce_applicationbase.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_events\messages\juce_deletedatshutdown.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_events\messages\juce_messagelistener.cpp
+
+1401288840 c:\src\linjam\jucelibrarycode\modules\juce_events\messages\juce_messagemanager.cpp
+
+1373327806 c:\src\linjam\jucelibrarycode\modules\juce_events\broadcasters\juce_actionbroadcaster.cpp
+
+1400708634 c:\src\linjam\jucelibrarycode\modules\juce_events\broadcasters\juce_asyncupdater.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_events\broadcasters\juce_changebroadcaster.cpp
+
+1380550926 c:\src\linjam\jucelibrarycode\modules\juce_events\timers\juce_multitimer.cpp
+
+1394837520 c:\src\linjam\jucelibrarycode\modules\juce_events\timers\juce_timer.cpp
+
+1391891462 c:\src\linjam\jucelibrarycode\modules\juce_events\interprocess\juce_interprocessconnection.cpp
+
+1380206628 c:\src\linjam\jucelibrarycode\modules\juce_events\interprocess\juce_interprocessconnectionserver.cpp
+
+1395065294 c:\src\linjam\jucelibrarycode\modules\juce_events\interprocess\juce_connectedchildprocess.cpp
+
+1380643174 c:\src\linjam\jucelibrarycode\modules\juce_events\native\juce_osx_messagequeue.h
+
+1385650644 c:\src\linjam\jucelibrarycode\modules\juce_events\native\juce_mac_messagemanager.mm
+
+1380649230 c:\src\linjam\jucelibrarycode\modules\juce_events\native\juce_ios_messagemanager.mm
+
+1374095712 c:\src\linjam\jucelibrarycode\modules\juce_events\native\juce_win32_hiddenmessagewindow.h
+
+1400258116 c:\src\linjam\jucelibrarycode\modules\juce_events\native\juce_win32_messaging.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_events\native\juce_linux_messaging.cpp
+
+1373327806 c:\src\linjam\jucelibrarycode\modules\juce_events\native\juce_android_messaging.cpp
+
+1377036546 source:c:\src\linjam\jucelibrarycode\modules\juce_graphics\juce_graphics.cpp
+	"AppConfig.h"
+	"../juce_core/native/juce_BasicNativeHeaders.h"
+	"juce_graphics.h"
+	<d2d1.h>
+	<dwrite.h>
+	<malloc.h>
+	<ft2build.h>
+	"native/freetype/FreeTypeAmalgam.h"
+	"colour/juce_Colour.cpp"
+	"colour/juce_ColourGradient.cpp"
+	"colour/juce_Colours.cpp"
+	"colour/juce_FillType.cpp"
+	"geometry/juce_AffineTransform.cpp"
+	"geometry/juce_EdgeTable.cpp"
+	"geometry/juce_Path.cpp"
+	"geometry/juce_PathIterator.cpp"
+	"geometry/juce_PathStrokeType.cpp"
+	"placement/juce_RectanglePlacement.cpp"
+	"contexts/juce_GraphicsContext.cpp"
+	"contexts/juce_LowLevelGraphicsPostScriptRenderer.cpp"
+	"contexts/juce_LowLevelGraphicsSoftwareRenderer.cpp"
+	"images/juce_Image.cpp"
+	"images/juce_ImageCache.cpp"
+	"images/juce_ImageConvolutionKernel.cpp"
+	"images/juce_ImageFileFormat.cpp"
+	"image_formats/juce_GIFLoader.cpp"
+	"image_formats/juce_JPEGLoader.cpp"
+	"image_formats/juce_PNGLoader.cpp"
+	"fonts/juce_AttributedString.cpp"
+	"fonts/juce_Typeface.cpp"
+	"fonts/juce_CustomTypeface.cpp"
+	"fonts/juce_Font.cpp"
+	"fonts/juce_GlyphArrangement.cpp"
+	"fonts/juce_TextLayout.cpp"
+	"effects/juce_DropShadowEffect.cpp"
+	"effects/juce_GlowEffect.cpp"
+	"native/juce_freetype_Fonts.cpp"
+	"../juce_core/native/juce_osx_ObjCHelpers.h"
+	"native/juce_mac_CoreGraphicsHelpers.h"
+	"native/juce_mac_Fonts.mm"
+	"native/juce_mac_CoreGraphicsContext.mm"
+	"../juce_core/native/juce_win32_ComSmartPtr.h"
+	"native/juce_win32_DirectWriteTypeface.cpp"
+	"native/juce_win32_DirectWriteTypeLayout.cpp"
+	"native/juce_win32_Fonts.cpp"
+	"native/juce_win32_Direct2DGraphicsContext.cpp"
+	"native/juce_linux_Fonts.cpp"
+	"../juce_core/native/juce_android_JNIHelpers.h"
+	"native/juce_android_GraphicsContext.cpp"
+	"native/juce_android_Fonts.cpp"
+	"native/freetype/FreeTypeAmalgam.c"
+
+1397011318 c:\src\linjam\jucelibrarycode\modules\juce_graphics\colour\juce_colour.cpp
+
+1374516446 c:\src\linjam\jucelibrarycode\modules\juce_graphics\colour\juce_colourgradient.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_graphics\colour\juce_colours.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_graphics\colour\juce_filltype.cpp
+
+1376499212 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_affinetransform.cpp
+
+1390098892 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_edgetable.cpp
+
+1400279972 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_path.cpp
+
+1382983664 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_pathiterator.cpp
+
+1392241606 c:\src\linjam\jucelibrarycode\modules\juce_graphics\geometry\juce_pathstroketype.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_graphics\placement\juce_rectangleplacement.cpp
+
+1400280012 c:\src\linjam\jucelibrarycode\modules\juce_graphics\contexts\juce_graphicscontext.cpp
+
+1392664708 c:\src\linjam\jucelibrarycode\modules\juce_graphics\contexts\juce_lowlevelgraphicspostscriptrenderer.cpp
+
+1376423112 c:\src\linjam\jucelibrarycode\modules\juce_graphics\contexts\juce_lowlevelgraphicssoftwarerenderer.cpp
+
+1392930532 c:\src\linjam\jucelibrarycode\modules\juce_graphics\images\juce_image.cpp
+
+1372044984 c:\src\linjam\jucelibrarycode\modules\juce_graphics\images\juce_imagecache.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_graphics\images\juce_imageconvolutionkernel.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_graphics\images\juce_imagefileformat.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\juce_gifloader.cpp
+
+1396209400 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\juce_jpegloader.cpp
+	"jpglib/jpeglib.h"
+	"jpglib/jcapimin.c"
+	"jpglib/jcapistd.c"
+	"jpglib/jccoefct.c"
+	"jpglib/jccolor.c"
+	"jpglib/jcdctmgr.c"
+	"jpglib/jchuff.c"
+	"jpglib/jcinit.c"
+	"jpglib/jcmainct.c"
+	"jpglib/jcmarker.c"
+	"jpglib/jcmaster.c"
+	"jpglib/jcomapi.c"
+	"jpglib/jcparam.c"
+	"jpglib/jcphuff.c"
+	"jpglib/jcprepct.c"
+	"jpglib/jcsample.c"
+	"jpglib/jctrans.c"
+	"jpglib/jdapistd.c"
+	"jpglib/jdapimin.c"
+	"jpglib/jdatasrc.c"
+	"jpglib/jdcoefct.c"
+	"jpglib/jdcolor.c"
+	"jpglib/jddctmgr.c"
+	"jpglib/jdhuff.c"
+	"jpglib/jdinput.c"
+	"jpglib/jdmainct.c"
+	"jpglib/jdmarker.c"
+	"jpglib/jdmaster.c"
+	"jpglib/jdmerge.c"
+	"jpglib/jdphuff.c"
+	"jpglib/jdpostct.c"
+	"jpglib/jdsample.c"
+	"jpglib/jdtrans.c"
+	"jpglib/jfdctflt.c"
+	"jpglib/jfdctint.c"
+	"jpglib/jfdctfst.c"
+	"jpglib/jidctflt.c"
+	"jpglib/jidctfst.c"
+	"jpglib/jidctint.c"
+	"jpglib/jidctred.c"
+	"jpglib/jmemmgr.c"
+	"jpglib/jmemnobs.c"
+	"jpglib/jquant1.c"
+	"jpglib/jquant2.c"
+	"jpglib/jutils.c"
+	"jpglib/transupp.c"
+	<jpeglib.h>
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jpeglib.h
+	"jconfig.h"
+	"jmorecfg.h"
+	"jpegint.h"
+	"jerror.h"
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jconfig.h
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jmorecfg.h
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jpegint.h
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jerror.h
+
+1365108036 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jcapimin.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jinclude.h
+	"jconfig.h"
+	<stddef.h>
+	<stdlib.h>
+	<sys/types.h>
+	<stdio.h>
+	<strings.h>
+	<string.h>
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jcapistd.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jccoefct.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jccolor.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jcdctmgr.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jdct.h"
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdct.h
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jchuff.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jchuff.h"
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jchuff.h
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jcinit.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jcmainct.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jcmarker.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jcmaster.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jcomapi.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1363393214 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jcparam.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jcphuff.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jchuff.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jcprepct.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jcsample.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jctrans.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdapistd.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdapimin.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdatasrc.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jerror.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdcoefct.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdcolor.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jddctmgr.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jdct.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdhuff.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jdhuff.h"
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdhuff.h
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdinput.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdmainct.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdmarker.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdmaster.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdmerge.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdphuff.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jdhuff.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdpostct.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdsample.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jdtrans.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jfdctflt.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jdct.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jfdctint.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jdct.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jfdctfst.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jdct.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jidctflt.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jdct.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jidctfst.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jdct.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jidctint.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jdct.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jidctred.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jdct.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jmemmgr.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jmemsys.h"
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jmemsys.h
+	<Files.h>
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jmemnobs.c
+	"jinclude.h"
+	"jpeglib.h"
+	"jmemsys.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jquant1.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jquant2.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\jutils.c
+	"jinclude.h"
+	"jpeglib.h"
+
+1336591798 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\transupp.c
+	"jinclude.h"
+	"jpeglib.h"
+	"transupp.h"
+
+1354661974 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\jpglib\transupp.h
+
+1379374064 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\juce_pngloader.cpp
+	"../../juce_core/zip/zlib/zlib.h"
+	"pnglib/png.h"
+	"pnglib/pngconf.h"
+	"pnglib/png.c"
+	"pnglib/pngerror.c"
+	"pnglib/pngget.c"
+	"pnglib/pngmem.c"
+	"pnglib/pngread.c"
+	"pnglib/pngpread.c"
+	"pnglib/pngrio.c"
+	"pnglib/pngrtran.c"
+	"pnglib/pngrutil.c"
+	"pnglib/pngset.c"
+	"pnglib/pngtrans.c"
+	"pnglib/pngwio.c"
+	"pnglib/pngwrite.c"
+	"pnglib/pngwtran.c"
+	"pnglib/pngwutil.c"
+	<png.h>
+	<pngconf.h>
+
+1372799048 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\png.h
+	"pnglibconf.h"
+	"pngconf.h"
+
+1364430724 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngconf.h
+	<limits.h>
+	<stddef.h>
+	<stdio.h>
+	<setjmp.h>
+	<time.h>
+
+1372521344 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\png.c
+	"pngpriv.h"
+
+1397438512 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngpriv.h
+	<stdlib.h>
+	<string.h>
+	<config.h>
+	"pnglibconf.h"
+	"pngprefix.h"
+	"pngusr.h"
+	"png.h"
+	<float.h>
+	<fp.h>
+	<math.h>
+	<m68881.h>
+	<mem.h>
+	<alloc.h>
+	<windows.h>
+	"pngstruct.h"
+	"pnginfo.h"
+
+1365021102 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngstruct.h
+	"../../../juce_core/zip/zlib/zlib.h"
+
+1365022360 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pnginfo.h
+
+1365020920 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngerror.c
+	"pngpriv.h"
+
+1364430724 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngget.c
+	"pngpriv.h"
+
+1365020914 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngmem.c
+	"pngpriv.h"
+
+1364430724 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngread.c
+	"pngpriv.h"
+	<errno.h>
+
+1364430724 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngpread.c
+	"pngpriv.h"
+
+1364430724 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngrio.c
+	"pngpriv.h"
+
+1364430724 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngrtran.c
+	"pngpriv.h"
+
+1373579874 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngrutil.c
+	"pngpriv.h"
+
+1364430724 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngset.c
+	"pngpriv.h"
+
+1364430724 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngtrans.c
+	"pngpriv.h"
+
+1364430724 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngwio.c
+	"pngpriv.h"
+
+1364430724 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngwrite.c
+	"pngpriv.h"
+	<errno.h>
+
+1364430724 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngwtran.c
+	"pngpriv.h"
+
+1364430724 c:\src\linjam\jucelibrarycode\modules\juce_graphics\image_formats\pnglib\pngwutil.c
+	"pngpriv.h"
+
+1385915196 c:\src\linjam\jucelibrarycode\modules\juce_graphics\fonts\juce_attributedstring.cpp
+
+1391037800 c:\src\linjam\jucelibrarycode\modules\juce_graphics\fonts\juce_typeface.cpp
+
+1388965060 c:\src\linjam\jucelibrarycode\modules\juce_graphics\fonts\juce_customtypeface.cpp
+
+1396736492 c:\src\linjam\jucelibrarycode\modules\juce_graphics\fonts\juce_font.cpp
+
+1387315182 c:\src\linjam\jucelibrarycode\modules\juce_graphics\fonts\juce_glypharrangement.cpp
+
+1381546544 c:\src\linjam\jucelibrarycode\modules\juce_graphics\fonts\juce_textlayout.cpp
+
+1384030788 c:\src\linjam\jucelibrarycode\modules\juce_graphics\effects\juce_dropshadoweffect.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_graphics\effects\juce_gloweffect.cpp
+
+1387485046 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_freetype_fonts.cpp
+
+1379344106 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_mac_coregraphicshelpers.h
+
+1400282400 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_mac_fonts.mm
+
+1400085166 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_mac_coregraphicscontext.mm
+	"juce_mac_CoreGraphicsContext.h"
+
+1389567662 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_mac_coregraphicscontext.h
+
+1397492162 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_win32_directwritetypeface.cpp
+
+1397492066 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_win32_directwritetypelayout.cpp
+
+1397492100 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_win32_fonts.cpp
+
+1397492048 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_win32_direct2dgraphicscontext.cpp
+
+1387470604 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_linux_fonts.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_android_graphicscontext.cpp
+
+1388969036 c:\src\linjam\jucelibrarycode\modules\juce_graphics\native\juce_android_fonts.cpp
+
+1390683050 source:c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\juce_gui_basics.cpp
+	"AppConfig.h"
+	"../juce_core/native/juce_BasicNativeHeaders.h"
+	"juce_gui_basics.h"
+	"../juce_opengl/juce_opengl.h"
+	<windowsx.h>
+	<vfw.h>
+	<commdlg.h>
+	<exdisp.h>
+	<exdispid.h>
+	<imm.h>
+	<X11/Xlib.h>
+	<X11/Xatom.h>
+	<X11/Xresource.h>
+	<X11/Xutil.h>
+	<X11/Xmd.h>
+	<X11/keysym.h>
+	<X11/XKBlib.h>
+	<X11/cursorfont.h>
+	<unistd.h>
+	<X11/extensions/Xinerama.h>
+	<X11/extensions/XShm.h>
+	<sys/shm.h>
+	<sys/ipc.h>
+	<X11/extensions/Xrender.h>
+	<X11/extensions/Xcomposite.h>
+	<X11/Xcursor/Xcursor.h>
+	"components/juce_Component.cpp"
+	"components/juce_ComponentListener.cpp"
+	"mouse/juce_MouseInputSource.cpp"
+	"components/juce_Desktop.cpp"
+	"components/juce_ModalComponentManager.cpp"
+	"mouse/juce_ComponentDragger.cpp"
+	"mouse/juce_DragAndDropContainer.cpp"
+	"mouse/juce_MouseCursor.cpp"
+	"mouse/juce_MouseEvent.cpp"
+	"mouse/juce_MouseInactivityDetector.cpp"
+	"mouse/juce_MouseListener.cpp"
+	"keyboard/juce_CaretComponent.cpp"
+	"keyboard/juce_KeyboardFocusTraverser.cpp"
+	"keyboard/juce_KeyListener.cpp"
+	"keyboard/juce_KeyPress.cpp"
+	"keyboard/juce_ModifierKeys.cpp"
+	"buttons/juce_ArrowButton.cpp"
+	"buttons/juce_Button.cpp"
+	"buttons/juce_DrawableButton.cpp"
+	"buttons/juce_HyperlinkButton.cpp"
+	"buttons/juce_ImageButton.cpp"
+	"buttons/juce_ShapeButton.cpp"
+	"buttons/juce_TextButton.cpp"
+	"buttons/juce_ToggleButton.cpp"
+	"buttons/juce_ToolbarButton.cpp"
+	"drawables/juce_Drawable.cpp"
+	"drawables/juce_DrawableComposite.cpp"
+	"drawables/juce_DrawableImage.cpp"
+	"drawables/juce_DrawablePath.cpp"
+	"drawables/juce_DrawableRectangle.cpp"
+	"drawables/juce_DrawableShape.cpp"
+	"drawables/juce_DrawableText.cpp"
+	"drawables/juce_SVGParser.cpp"
+	"filebrowser/juce_DirectoryContentsDisplayComponent.cpp"
+	"filebrowser/juce_DirectoryContentsList.cpp"
+	"filebrowser/juce_FileBrowserComponent.cpp"
+	"filebrowser/juce_FileChooser.cpp"
+	"filebrowser/juce_FileChooserDialogBox.cpp"
+	"filebrowser/juce_FileListComponent.cpp"
+	"filebrowser/juce_FilenameComponent.cpp"
+	"filebrowser/juce_FileSearchPathListComponent.cpp"
+	"filebrowser/juce_FileTreeComponent.cpp"
+	"filebrowser/juce_ImagePreviewComponent.cpp"
+	"layout/juce_ComponentAnimator.cpp"
+	"layout/juce_ComponentBoundsConstrainer.cpp"
+	"layout/juce_ComponentBuilder.cpp"
+	"layout/juce_ComponentMovementWatcher.cpp"
+	"layout/juce_ConcertinaPanel.cpp"
+	"layout/juce_GroupComponent.cpp"
+	"layout/juce_MultiDocumentPanel.cpp"
+	"layout/juce_ResizableBorderComponent.cpp"
+	"layout/juce_ResizableCornerComponent.cpp"
+	"layout/juce_ResizableEdgeComponent.cpp"
+	"layout/juce_ScrollBar.cpp"
+	"layout/juce_StretchableLayoutManager.cpp"
+	"layout/juce_StretchableLayoutResizerBar.cpp"
+	"layout/juce_StretchableObjectResizer.cpp"
+	"layout/juce_TabbedButtonBar.cpp"
+	"layout/juce_TabbedComponent.cpp"
+	"layout/juce_Viewport.cpp"
+	"lookandfeel/juce_LookAndFeel.cpp"
+	"lookandfeel/juce_LookAndFeel_V2.cpp"
+	"lookandfeel/juce_LookAndFeel_V1.cpp"
+	"lookandfeel/juce_LookAndFeel_V3.cpp"
+	"menus/juce_MenuBarComponent.cpp"
+	"menus/juce_MenuBarModel.cpp"
+	"menus/juce_PopupMenu.cpp"
+	"positioning/juce_MarkerList.cpp"
+	"positioning/juce_RelativeCoordinate.cpp"
+	"positioning/juce_RelativeCoordinatePositioner.cpp"
+	"positioning/juce_RelativeParallelogram.cpp"
+	"positioning/juce_RelativePoint.cpp"
+	"positioning/juce_RelativePointPath.cpp"
+	"positioning/juce_RelativeRectangle.cpp"
+	"properties/juce_BooleanPropertyComponent.cpp"
+	"properties/juce_ButtonPropertyComponent.cpp"
+	"properties/juce_ChoicePropertyComponent.cpp"
+	"properties/juce_PropertyComponent.cpp"
+	"properties/juce_PropertyPanel.cpp"
+	"properties/juce_SliderPropertyComponent.cpp"
+	"properties/juce_TextPropertyComponent.cpp"
+	"widgets/juce_ComboBox.cpp"
+	"widgets/juce_ImageComponent.cpp"
+	"widgets/juce_Label.cpp"
+	"widgets/juce_ListBox.cpp"
+	"widgets/juce_ProgressBar.cpp"
+	"widgets/juce_Slider.cpp"
+	"widgets/juce_TableHeaderComponent.cpp"
+	"widgets/juce_TableListBox.cpp"
+	"widgets/juce_TextEditor.cpp"
+	"widgets/juce_ToolbarItemComponent.cpp"
+	"widgets/juce_Toolbar.cpp"
+	"widgets/juce_ToolbarItemPalette.cpp"
+	"widgets/juce_TreeView.cpp"
+	"windows/juce_AlertWindow.cpp"
+	"windows/juce_CallOutBox.cpp"
+	"windows/juce_ComponentPeer.cpp"
+	"windows/juce_DialogWindow.cpp"
+	"windows/juce_DocumentWindow.cpp"
+	"windows/juce_ResizableWindow.cpp"
+	"windows/juce_ThreadWithProgressWindow.cpp"
+	"windows/juce_TooltipWindow.cpp"
+	"windows/juce_TopLevelWindow.cpp"
+	"commands/juce_ApplicationCommandInfo.cpp"
+	"commands/juce_ApplicationCommandManager.cpp"
+	"commands/juce_ApplicationCommandTarget.cpp"
+	"commands/juce_KeyPressMappingSet.cpp"
+	"application/juce_Application.cpp"
+	"misc/juce_BubbleComponent.cpp"
+	"misc/juce_DropShadower.cpp"
+	"native/juce_MultiTouchMapper.h"
+	"../juce_core/native/juce_osx_ObjCHelpers.h"
+	"../juce_graphics/native/juce_mac_CoreGraphicsHelpers.h"
+	"../juce_graphics/native/juce_mac_CoreGraphicsContext.h"
+	"native/juce_ios_UIViewComponentPeer.mm"
+	"native/juce_ios_Windowing.mm"
+	"native/juce_mac_NSViewComponentPeer.mm"
+	"native/juce_mac_Windowing.mm"
+	"native/juce_mac_MainMenu.mm"
+	"native/juce_mac_MouseCursor.mm"
+	"native/juce_mac_FileChooser.mm"
+	"../juce_core/native/juce_win32_ComSmartPtr.h"
+	"../juce_events/native/juce_win32_HiddenMessageWindow.h"
+	"native/juce_win32_Windowing.cpp"
+	"native/juce_win32_DragAndDrop.cpp"
+	"native/juce_win32_FileChooser.cpp"
+	"native/juce_linux_Clipboard.cpp"
+	"native/juce_linux_Windowing.cpp"
+	"native/juce_linux_FileChooser.cpp"
+	"../juce_core/native/juce_android_JNIHelpers.h"
+	"native/juce_android_Windowing.cpp"
+	"native/juce_android_FileChooser.cpp"
+
+1401414360 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\components\juce_component.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\components\juce_componentlistener.cpp
+
+1398870558 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_mouseinputsource.cpp
+
+1396374420 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\components\juce_desktop.cpp
+
+1398366664 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\components\juce_modalcomponentmanager.cpp
+
+1378747026 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_componentdragger.cpp
+
+1385598842 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_draganddropcontainer.cpp
+
+1374809604 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_mousecursor.cpp
+
+1378220004 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_mouseevent.cpp
+
+1373310828 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_mouseinactivitydetector.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\mouse\juce_mouselistener.cpp
+
+1375824198 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_caretcomponent.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_keyboardfocustraverser.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_keylistener.cpp
+
+1376359772 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_keypress.cpp
+
+1376360040 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\keyboard\juce_modifierkeys.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_arrowbutton.cpp
+
+1390401462 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_button.cpp
+
+1394466162 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_drawablebutton.cpp
+
+1395611266 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_hyperlinkbutton.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_imagebutton.cpp
+
+1391357528 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_shapebutton.cpp
+
+1401655140 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_textbutton.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_togglebutton.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\buttons\juce_toolbarbutton.cpp
+
+1392234644 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawable.cpp
+
+1374786840 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawablecomposite.cpp
+
+1372692892 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawableimage.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawablepath.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawablerectangle.cpp
+
+1392234240 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawableshape.cpp
+
+1380061532 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_drawabletext.cpp
+
+1398373814 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\drawables\juce_svgparser.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_directorycontentsdisplaycomponent.cpp
+
+1385994352 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_directorycontentslist.cpp
+
+1387824112 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filebrowsercomponent.cpp
+
+1398740414 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filechooser.cpp
+
+1398740414 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filechooserdialogbox.cpp
+
+1390231560 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filelistcomponent.cpp
+
+1399834012 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filenamecomponent.cpp
+
+1387824112 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filesearchpathlistcomponent.cpp
+
+1383680010 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_filetreecomponent.cpp
+
+1385915252 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\filebrowser\juce_imagepreviewcomponent.cpp
+
+1388502874 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_componentanimator.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_componentboundsconstrainer.cpp
+
+1377136748 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_componentbuilder.cpp
+
+1393343256 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_componentmovementwatcher.cpp
+
+1383257170 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_concertinapanel.cpp
+
+1382907790 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_groupcomponent.cpp
+
+1377274906 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_multidocumentpanel.cpp
+
+1374809642 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_resizablebordercomponent.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_resizablecornercomponent.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_resizableedgecomponent.cpp
+
+1382397458 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_scrollbar.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_stretchablelayoutmanager.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_stretchablelayoutresizerbar.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_stretchableobjectresizer.cpp
+
+1385957428 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_tabbedbuttonbar.cpp
+
+1375050558 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_tabbedcomponent.cpp
+
+1397357734 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\layout\juce_viewport.cpp
+
+1383151104 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\lookandfeel\juce_lookandfeel.cpp
+
+1401655002 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\lookandfeel\juce_lookandfeel_v2.cpp
+
+1384124896 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\lookandfeel\juce_lookandfeel_v1.cpp
+
+1397860526 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\lookandfeel\juce_lookandfeel_v3.cpp
+
+1378313292 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\menus\juce_menubarcomponent.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\menus\juce_menubarmodel.cpp
+
+1385329728 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\menus\juce_popupmenu.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_markerlist.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_relativecoordinate.cpp
+
+1388688538 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_relativecoordinatepositioner.cpp
+
+1378057574 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_relativeparallelogram.cpp
+
+1378848728 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_relativepoint.cpp
+
+1375027098 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_relativepointpath.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\positioning\juce_relativerectangle.cpp
+
+1387824112 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_booleanpropertycomponent.cpp
+
+1387824112 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_buttonpropertycomponent.cpp
+
+1398795934 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_choicepropertycomponent.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_propertycomponent.cpp
+
+1387824112 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_propertypanel.cpp
+
+1387824112 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_sliderpropertycomponent.cpp
+
+1373327632 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\properties\juce_textpropertycomponent.cpp
+
+1401295400 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_combobox.cpp
+
+1373422540 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_imagecomponent.cpp
+
+1400900796 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_label.cpp
+
+1385995062 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_listbox.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_progressbar.cpp
+
+1394670388 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_slider.cpp
+
+1399475568 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_tableheadercomponent.cpp
+
+1385994904 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_tablelistbox.cpp
+
+1398302966 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_texteditor.cpp
+
+1378313150 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_toolbaritemcomponent.cpp
+
+1387824112 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_toolbar.cpp
+
+1387824112 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_toolbaritempalette.cpp
+
+1393633468 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\widgets\juce_treeview.cpp
+
+1379460618 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_alertwindow.cpp
+
+1394904580 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_calloutbox.cpp
+
+1389304458 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_componentpeer.cpp
+
+1374793766 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_dialogwindow.cpp
+
+1390862440 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_documentwindow.cpp
+
+1390862440 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_resizablewindow.cpp
+
+1392846378 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_threadwithprogresswindow.cpp
+
+1385915376 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_tooltipwindow.cpp
+
+1400515424 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\windows\juce_toplevelwindow.cpp
+
+1379454992 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\commands\juce_applicationcommandinfo.cpp
+
+1385956834 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\commands\juce_applicationcommandmanager.cpp
+
+1398795850 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\commands\juce_applicationcommandtarget.cpp
+
+1379460842 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\commands\juce_keypressmappingset.cpp
+
+1389565634 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\application\juce_application.cpp
+
+1384030292 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\misc\juce_bubblecomponent.cpp
+
+1390669764 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\misc\juce_dropshadower.cpp
+
+1374095712 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_multitouchmapper.h
+
+1398303292 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_ios_uiviewcomponentpeer.mm
+
+1401317702 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_ios_windowing.mm
+
+1400513886 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_mac_nsviewcomponentpeer.mm
+
+1385957222 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_mac_windowing.mm
+
+1400017714 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_mac_mainmenu.mm
+
+1387413786 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_mac_mousecursor.mm
+
+1395786234 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_mac_filechooser.mm
+
+1400257998 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_win32_windowing.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_win32_draganddrop.cpp
+
+1395786244 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_win32_filechooser.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_linux_clipboard.cpp
+
+1398302974 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_linux_windowing.cpp
+
+1396995200 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_linux_filechooser.cpp
+
+1401317730 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_android_windowing.cpp
+
+1371147110 c:\src\linjam\jucelibrarycode\modules\juce_gui_basics\native\juce_android_filechooser.cpp
+
+1401673419 source:c:\src\linjam\source\constants.cpp
+	"Constants.h"
+
+1401673419 c:\src\linjam\source\constants.h
+	"../JuceLibraryCode/JuceHeader.h"
+
+1401683749 c:\src\linjam\jucelibrarycode\juceheader.h
+	"AppConfig.h"
+	"modules/juce_core/juce_core.h"
+	"modules/juce_data_structures/juce_data_structures.h"
+	"modules/juce_events/juce_events.h"
+	"modules/juce_graphics/juce_graphics.h"
+	"modules/juce_gui_basics/juce_gui_basics.h"
+
+1401670405 source:c:\src\linjam\source\licensecomponent.cpp
+	"LinJam.h"
+	"Trace.h"
+	"LicenseComponent.h"
+
+1401670405 c:\src\linjam\source\linjam.h
+	<ninjam/audiostream.h>
+	<ninjam/njclient.h>
+	<ninjam/njmisc.h>
+	"../JuceLibraryCode/JuceHeader.h"
+	"MainComponent.h"
+
+1401313286 c:\src\linjam\include\ninjam\audiostream.h
+
+1401725504 c:\src\linjam\include\ninjam\njclient.h
+	<windows.h>
+	<stdlib.h>
+	<memory.h>
+	<stdio.h>
+	<time.h>
+	"C:\src\ninjam-0.06+svn121\WDL\string.h"
+	"C:\src\ninjam-0.06+svn121\WDL\ptrlist.h"
+	"C:\src\ninjam-0.06+svn121\WDL\jnetlib\jnetlib.h"
+	"C:\src\ninjam-0.06+svn121\WDL\sha.h"
+	"C:\src\ninjam-0.06+svn121\WDL\rng.h"
+	"C:\src\ninjam-0.06+svn121\WDL\mutex.h"
+	"C:\src\ninjam-0.06+svn121\WDL\wavwrite.h"
+	<WDL/string.h>
+	<WDL/ptrlist.h>
+	<WDL/jnetlib/jnetlib.h>
+	<WDL/sha.h>
+	<WDL/rng.h>
+	<WDL/mutex.h>
+	<WDL/wavwrite.h>
+	<set>
+	<string>
+	"netmsg.h"
+
+1274214515 c:\src\linjam\include\wdl\string.h
+	"heapbuf.h"
+
+1274214515 c:\src\linjam\include\wdl\heapbuf.h
+	<cstring>
+
+1274214515 c:\src\linjam\include\wdl\ptrlist.h
+	"heapbuf.h"
+
+1274214515 c:\src\linjam\include\wdl\jnetlib\jnetlib.h
+	"netinc.h"
+	"util.h"
+	"asyncdns.h"
+	"connection.h"
+	"httpget.h"
+	"httpserv.h"
+	"listen.h"
+
+1274214515 c:\src\linjam\include\wdl\jnetlib\netinc.h
+	<windows.h>
+	<stdio.h>
+	<time.h>
+	<pthread.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<sys/time.h>
+	<arpa/inet.h>
+	<netdb.h>
+	<stdarg.h>
+	<stdio.h>
+	<fcntl.h>
+	<unistd.h>
+	<signal.h>
+	<stdlib.h>
+	<errno.h>
+	<string.h>
+
+1274214515 c:\src\linjam\include\wdl\jnetlib\util.h
+
+1274214515 c:\src\linjam\include\wdl\jnetlib\asyncdns.h
+
+1274214515 c:\src\linjam\include\wdl\jnetlib\connection.h
+	"asyncdns.h"
+
+1274214515 c:\src\linjam\include\wdl\jnetlib\httpget.h
+	"connection.h"
+
+1274214515 c:\src\linjam\include\wdl\jnetlib\httpserv.h
+	"connection.h"
+
+1274214515 c:\src\linjam\include\wdl\jnetlib\listen.h
+	"connection.h"
+
+1274214515 c:\src\linjam\include\wdl\sha.h
+
+1274214515 c:\src\linjam\include\wdl\rng.h
+
+1274214515 c:\src\linjam\include\wdl\mutex.h
+	<windows.h>
+	<pthread.h>
+
+1274214515 c:\src\linjam\include\wdl\wavwrite.h
+	<stdio.h>
+	"pcmfmtcvt.h"
+
+1274214515 c:\src\linjam\include\wdl\pcmfmtcvt.h
+
+1401726493 c:\src\linjam\include\ninjam\netmsg.h
+	"C:\src\ninjam-0.06+svn121\WDL\queue.h"
+	"C:\src\ninjam-0.06+svn121\WDL\jnetlib\jnetlib.h"
+	<WDL/queue.h>
+	<WDL/jnetlib/jnetlib.h>
+
+1274214515 c:\src\linjam\include\wdl\queue.h
+	"heapbuf.h"
+
+1401726562 c:\src\linjam\include\ninjam\njmisc.h
+	<math.h>
+	"C:\src\ninjam-0.06+svn121\WDL\string.h"
+	<WDL/string.h>
+	<jesusonic/jesusonic_dll.h>
+
+1401670405 c:\src\linjam\source\maincomponent.h
+	"../JuceLibraryCode/JuceHeader.h"
+	"LoginComponent.h"
+	"LicenseComponent.h"
+	"StatusBarComponent.h"
+
+1401670405 c:\src\linjam\source\logincomponent.h
+	"JuceHeader.h"
+
+1401673202 c:\src\linjam\source\licensecomponent.h
+	"JuceHeader.h"
+
+1401670405 c:\src\linjam\source\statusbarcomponent.h
+	"JuceHeader.h"
+
+1401670405 c:\src\linjam\source\trace.h
+	"JuceHeader.h"
+
+1401676320 source:c:\src\linjam\source\linjam.cpp
+	"LinJam.h"
+	"Constants.h"
+	"Trace.h"
+
+1401670405 source:c:\src\linjam\source\logincomponent.cpp
+	"LinJam.h"
+	"Trace.h"
+	"LoginComponent.h"
+
+1401670405 source:c:\src\linjam\source\maincomponent.cpp
+	"Constants.h"
+	"MainComponent.h"
+	"Trace.h"
+
+1401670405 source:c:\src\linjam\source\statusbarcomponent.cpp
+	"StatusBarComponent.h"
+
+1401727843 source:c:\src\linjam\source\main.cpp
+	"LinJam.h"
+	"Constants.h"
+	"MainComponent.h"
+	"Trace.h"
+
+1401727556 source:c:\src\linjam\source\trace.cpp
+	"LinJam.h"
+	"Trace.h"
+

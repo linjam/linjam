@@ -1,6 +1,8 @@
 
+//#include <ninjam/njclient.h>
+#include "LinJam.h"
 #include "Trace.h"
-#include <ninjam/njclient.h>
+
 
 
 #if DEBUG_TRACE

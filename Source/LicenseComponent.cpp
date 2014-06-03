@@ -18,7 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
-#include "Linjam.h" // TODO: use persistent config instead
+#include "LinJam.h" // TODO: use persistent config instead
 #include "Trace.h"
 //[/Headers]
 
@@ -113,35 +113,35 @@ void LicenseComponent::resized()
 
 void LicenseComponent::buttonClicked (Button* buttonThatWasClicked)
 {
-  //[UserbuttonClicked_Pre]
+    //[UserbuttonClicked_Pre]
 DEBUG_TRACE_LICENSE_CLICKED
 
   this->setVisible(false) ;
-  //[/UserbuttonClicked_Pre]
+    //[/UserbuttonClicked_Pre]
 
-  if (buttonThatWasClicked == cancelButton)
-  {
-    //[UserButtonCode_cancelButton] -- add your button handler code here..
+    if (buttonThatWasClicked == cancelButton)
+    {
+        //[UserButtonCode_cancelButton] -- add your button handler code here..
     LinJam::IsAgreed = false ;
-    //[/UserButtonCode_cancelButton]
-  }
-  else if (buttonThatWasClicked == agreeButton)
-  {
-    //[UserButtonCode_agreeButton] -- add your button handler code here..
+        //[/UserButtonCode_cancelButton]
+    }
+    else if (buttonThatWasClicked == agreeButton)
+    {
+        //[UserButtonCode_agreeButton] -- add your button handler code here..
     LinJam::IsAgreed = true ;
-    //[/UserButtonCode_agreeButton]
-  }
-  else if (buttonThatWasClicked == alwaysButton)
-  {
-    //[UserButtonCode_alwaysButton] -- add your button handler code here..
+        //[/UserButtonCode_agreeButton]
+    }
+    else if (buttonThatWasClicked == alwaysButton)
+    {
+        //[UserButtonCode_alwaysButton] -- add your button handler code here..
     LinJam::IsAgreed = true ;
     LinJam::SetShouldAgree(true) ;
-    //[/UserButtonCode_alwaysButton]
-  }
+        //[/UserButtonCode_alwaysButton]
+    }
 
-  //[UserbuttonClicked_Post]
+    //[UserbuttonClicked_Post]
   LinJam::Disconnect() ; if (LinJam::IsAgreed) LinJam::Connect() ;
-  //[/UserbuttonClicked_Post]
+    //[/UserbuttonClicked_Post]
 }
 
 

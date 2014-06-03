@@ -10,8 +10,8 @@
       <FILE id="xqc9VC" name="LicenseComponent.h" compile="0" resource="0"
             file="Source/LicenseComponent.h"/>
       <FILE id="kbS1jT" name="Constants.cpp" compile="1" resource="0" file="Source/Constants.cpp"/>
-      <FILE id="ZHvRfB" name="Linjam.cpp" compile="1" resource="0" file="Source/Linjam.cpp"/>
-      <FILE id="rS1R2S" name="Linjam.h" compile="0" resource="0" file="Source/Linjam.h"/>
+      <FILE id="ZHvRfB" name="LinJam.cpp" compile="1" resource="0" file="Source/LinJam.cpp"/>
+      <FILE id="rS1R2S" name="LinJam.h" compile="0" resource="0" file="Source/LinJam.h"/>
       <FILE id="yx0l5v" name="Trace.cpp" compile="1" resource="0" file="Source/Trace.cpp"/>
       <FILE id="r3GyaJ" name="Trace.h" compile="0" resource="0" file="Source/Trace.h"/>
       <FILE id="oLQgCw" name="Constants.h" compile="0" resource="0" file="Source/Constants.h"/>
@@ -39,41 +39,13 @@
                        targetName="LinJam"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_core" path="/home/me/src/JUCE/modules"/>
         <MODULEPATH id="juce_events" path="/home/me/src/JUCE/modules"/>
         <MODULEPATH id="juce_graphics" path="/home/me/src/JUCE/modules"/>
         <MODULEPATH id="juce_data_structures" path="/home/me/src/JUCE/modules"/>
         <MODULEPATH id="juce_gui_basics" path="/home/me/src/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="/home/me/src/JUCE/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
-    <VS2008 targetFolder="Builds/VisualStudio2008">
-      <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" isDebug="1"
-                       optimisation="1" targetName="LinJam"/>
-        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" isDebug="0"
-                       optimisation="2" targetName="LinJam"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_gui_basics" path="../../juce"/>
-        <MODULEPATH id="juce_graphics" path="../../juce"/>
-        <MODULEPATH id="juce_events" path="../../juce"/>
-        <MODULEPATH id="juce_data_structures" path="../../juce"/>
-        <MODULEPATH id="juce_core" path="../../juce"/>
-      </MODULEPATHS>
-    </VS2008>
-    <CODEBLOCKS targetFolder="Builds/CodeBlocks">
-      <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LinJam"/>
-        <CONFIGURATION name="Release" isDebug="0" optimisation="2" targetName="LinJam"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_gui_basics" path="../../juce"/>
-        <MODULEPATH id="juce_graphics" path="../../juce"/>
-        <MODULEPATH id="juce_events" path="../../juce"/>
-        <MODULEPATH id="juce_data_structures" path="../../juce"/>
-        <MODULEPATH id="juce_core" path="../../juce"/>
-      </MODULEPATHS>
-    </CODEBLOCKS>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
@@ -82,13 +54,45 @@
                        isDebug="0" optimisation="2" targetName="LinJam"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_basics" path="../../juce"/>
-        <MODULEPATH id="juce_graphics" path="../../juce"/>
-        <MODULEPATH id="juce_events" path="../../juce"/>
-        <MODULEPATH id="juce_data_structures" path="../../juce"/>
-        <MODULEPATH id="juce_core" path="../../juce"/>
+        <MODULEPATH id="juce_gui_basics" path="../../juce/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../juce/modules"/>
+        <MODULEPATH id="juce_events" path="../../juce/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../juce/modules"/>
+        <MODULEPATH id="juce_core" path="../../juce/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
+    <VS2008 targetFolder="Builds/VisualStudio2008" externalLibraries="${LIBNINJAM_STATIC_LIB}"
+            extraCompilerFlags="-I ${LIBNINJAM_INCLUDE}&#10;-I ${LIBOGG_INCLUDE}&#10;-I ${LIBVORBIS_INCLUDE}&#10;"
+            extraDefs="LIBNINJAM_INCLUDE=include&#10;LIBOGG_INCLUDE=include&#10;LIBVORBIS_INCLUDE=include&#10;">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" isDebug="1"
+                       optimisation="1" targetName="LinJam" defines="LIBNINJAM_STATIC_LIB=lib\libninjam-static.dbg.lib"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" isDebug="0"
+                       optimisation="3" targetName="LinJam" defines="LIBNINJAM_STATIC_LIB=lib\libninjam-static.lib"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_gui_basics" path="../../juce/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../juce/modules"/>
+        <MODULEPATH id="juce_events" path="../../juce/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../juce/modules"/>
+        <MODULEPATH id="juce_core" path="../../juce/modules"/>
+      </MODULEPATHS>
+    </VS2008>
+    <VS2010 targetFolder="Builds/VisualStudio2010">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="LinJam"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="2" targetName="LinJam"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_gui_basics" path="../../juce/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../juce/modules"/>
+        <MODULEPATH id="juce_events" path="../../juce/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../juce/modules"/>
+        <MODULEPATH id="juce_core" path="../../juce/modules"/>
+      </MODULEPATHS>
+    </VS2010>
     <VS2013 targetFolder="Builds/VisualStudio2013">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
@@ -97,11 +101,11 @@
                        isDebug="0" optimisation="2" targetName="LinJam"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_basics" path="../../juce"/>
-        <MODULEPATH id="juce_graphics" path="../../juce"/>
-        <MODULEPATH id="juce_events" path="../../juce"/>
-        <MODULEPATH id="juce_data_structures" path="../../juce"/>
-        <MODULEPATH id="juce_core" path="../../juce"/>
+        <MODULEPATH id="juce_gui_basics" path="../../juce/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../juce/modules"/>
+        <MODULEPATH id="juce_events" path="../../juce/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../juce/modules"/>
+        <MODULEPATH id="juce_core" path="../../juce/modules"/>
       </MODULEPATHS>
     </VS2013>
   </EXPORTFORMATS>

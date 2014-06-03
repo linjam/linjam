@@ -133,7 +133,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\LicenseComponent.cpp"/>
     <ClCompile Include="..\..\Source\Constants.cpp"/>
-    <ClCompile Include="..\..\Source\Linjam.cpp"/>
+    <ClCompile Include="..\..\Source\LinJam.cpp"/>
     <ClCompile Include="..\..\Source\Trace.cpp"/>
     <ClCompile Include="..\..\Source\StatusBarComponent.cpp"/>
     <ClCompile Include="..\..\Source\LoginComponent.cpp"/>
@@ -894,7 +894,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\LicenseComponent.h"/>
-    <ClInclude Include="..\..\Source\Linjam.h"/>
+    <ClInclude Include="..\..\Source\LinJam.h"/>
     <ClInclude Include="..\..\Source\Trace.h"/>
     <ClInclude Include="..\..\Source\Constants.h"/>
     <ClInclude Include="..\..\Source\StatusBarComponent.h"/>
@@ -1010,14 +1010,14 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\native\juce_osx_ObjCHelpers.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\native\juce_posix_SharedCode.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\native\juce_win32_ComSmartPtr.h"/>
-    <ClInclude Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_core\juce_core.h"/>
+    <ClInclude Include="..\..\..\..\juce\modules\juce_core\juce_core.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_data_structures\values\juce_Value.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_data_structures\values\juce_ValueTree.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_data_structures\undomanager\juce_UndoableAction.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_data_structures\undomanager\juce_UndoManager.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_data_structures\app_properties\juce_ApplicationProperties.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_data_structures\app_properties\juce_PropertiesFile.h"/>
-    <ClInclude Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_data_structures\juce_data_structures.h"/>
+    <ClInclude Include="..\..\..\..\juce\modules\juce_data_structures\juce_data_structures.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\messages\juce_ApplicationBase.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\messages\juce_CallbackMessage.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\messages\juce_DeletedAtShutdown.h"/>
@@ -1040,7 +1040,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\native\juce_osx_MessageQueue.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\native\juce_ScopedXLock.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\native\juce_win32_HiddenMessageWindow.h"/>
-    <ClInclude Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_events\juce_events.h"/>
+    <ClInclude Include="..\..\..\..\juce\modules\juce_events\juce_events.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_graphics\colour\juce_Colour.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_graphics\colour\juce_ColourGradient.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_graphics\colour\juce_Colours.h"/>
@@ -1078,7 +1078,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_mac_CoreGraphicsContext.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_mac_CoreGraphicsHelpers.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_RenderingHelpers.h"/>
-    <ClInclude Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_graphics\juce_graphics.h"/>
+    <ClInclude Include="..\..\..\..\juce\modules\juce_graphics\juce_graphics.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_gui_basics\components\juce_CachedComponentImage.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_gui_basics\components\juce_Component.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_gui_basics\components\juce_ComponentListener.h"/>
@@ -1206,16 +1206,16 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_gui_basics\misc\juce_DropShadower.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_gui_basics\application\juce_Application.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_MultiTouchMapper.h"/>
-    <ClInclude Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_gui_basics\juce_gui_basics.h"/>
+    <ClInclude Include="..\..\..\..\juce\modules\juce_gui_basics\juce_gui_basics.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\AppConfig.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\JuceHeader.h"/>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_core\juce_module_info"/>
-    <None Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_data_structures\juce_module_info"/>
-    <None Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_events\juce_module_info"/>
-    <None Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_graphics\juce_module_info"/>
-    <None Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_gui_basics\juce_module_info"/>
+    <None Include="..\..\..\..\juce\modules\juce_core\juce_module_info"/>
+    <None Include="..\..\..\..\juce\modules\juce_data_structures\juce_module_info"/>
+    <None Include="..\..\..\..\juce\modules\juce_events\juce_module_info"/>
+    <None Include="..\..\..\..\juce\modules\juce_graphics\juce_module_info"/>
+    <None Include="..\..\..\..\juce\modules\juce_gui_basics\juce_module_info"/>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include=".\resources.rc"/>

@@ -53,7 +53,7 @@ endif
 OBJECTS := \
   $(OBJDIR)/LicenseComponent_b99bda45.o \
   $(OBJDIR)/Constants_e698e730.o \
-  $(OBJDIR)/Linjam_3e2e46ee.o \
+  $(OBJDIR)/LinJam_a166dece.o \
   $(OBJDIR)/Trace_c9579226.o \
   $(OBJDIR)/StatusBarComponent_a32bf2c5.o \
   $(OBJDIR)/LoginComponent_e898b51d.o \
@@ -92,9 +92,9 @@ $(OBJDIR)/Constants_e698e730.o: ../../Source/Constants.cpp
 	@echo "Compiling Constants.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/Linjam_3e2e46ee.o: ../../Source/Linjam.cpp
+$(OBJDIR)/LinJam_a166dece.o: ../../Source/LinJam.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Linjam.cpp"
+	@echo "Compiling LinJam.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Trace_c9579226.o: ../../Source/Trace.cpp

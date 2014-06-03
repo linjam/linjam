@@ -38,6 +38,7 @@
 #define DEBUG_TRACE_LICENSE if (IsAgreed)                                               \
                                  Trace::TraceState("agreeing to license") ;             \
                             else Trace::TraceState("prompting for license agreement") ;
+
 #define DEBUG_TRACE_CONNECT_STATUS                                            \
     switch (this->GetStatus())                                                \
     {                                                                         \
@@ -50,9 +51,11 @@
       default:  break ;                                                       \
     }                                                                         \
     //if (this->GetErrorStr()[0]) Trace::TraceError(this->GetErrorStr()) ; // TODO: segfault - we probably dont need this anyway
+
 #define DEBUG_TRACE_CHAT_IN            Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 //#define DEBUG_TRACE_CHATIN String msg = "|" ; for (;nparms--;) msg += String(parms[nparms]) + "|" ; Trace::TraceEvent("LinJam::OnChatmsg()=\n\"" + msg + "\"") ;
 //#define DEBUG_TRACE_CHATIN Trace::TraceEvent("LinJam::OnChatmsg()=\n") ; for (;nparms--;) Trace::TraceEvent("\tnparms[" + String(nparms) + "]='" + String(parms[nparms]) + "'\n") ;
+
 #define DEBUG_TRACE_MAIN_RESIZED       Trace::TraceEventVerbose("statusW=" + String(statusW) + " statusH=" + String(statusH) + " statusL=" + String(statusL) + " statusT=" + String(statusT)) ;
 
 #else // #if DEBUG_TRACE

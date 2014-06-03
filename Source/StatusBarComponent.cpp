@@ -152,7 +152,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="4Rr 4 120 16" textCol="ff808080"
          outlineCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="bpi-bpm"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="16.600000000000001421" bold="0"
+         fontname="Default font" fontsize="16.600000000000001" bold="0"
          italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
