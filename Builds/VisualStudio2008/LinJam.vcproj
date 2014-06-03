@@ -48,7 +48,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-I include -I include -I include"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\include;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;&quot;C:\Program Files\Microsoft SDKs\Windows\v7.0A\Include&quot;"
+				AdditionalIncludeDirectories="..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;C:\src\libninjam;&quot;C:\Program Files\Microsoft SDKs\Windows\v7.0A\Include&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;LIBNINJAM_STATIC_LIB=lib\libninjam-static.dbg.lib;LIBNINJAM_INCLUDE=include;LIBOGG_INCLUDE=include;LIBVORBIS_INCLUDE=include;JUCER_VS2008_78A5006=1;JUCE_APP_VERSION=0.0.1;JUCE_APP_VERSION_HEX=0x1"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="true"
@@ -73,7 +73,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\lib\libninjam_static.dbg.lib ..\..\lib\libogg_static.dbg.lib ..\..\lib\libvorbis_static.dbg.lib"
+				AdditionalDependencies="C:\src\libninjam\Win32\Debug\libninjam_static.lib C:\src\libninjam\Win32\Debug\libogg_static.lib C:\src\libninjam\Win32\Debug\libvorbis_static.lib"
 				OutputFile="$(OutDir)\LinJam.exe"
 				SuppressStartupBanner="true"
 				GenerateManifest="true"
@@ -143,7 +143,7 @@
 				AdditionalOptions="-I include -I include -I include"
 				Optimization="3"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\include;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;&quot;C:\Program Files\Microsoft SDKs\Windows\v7.0A\Include&quot;"
+				AdditionalIncludeDirectories="..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;C:\src\libninjam;&quot;C:\Program Files\Microsoft SDKs\Windows\v7.0A\Include&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;LIBNINJAM_STATIC_LIB=lib\libninjam-static.lib;LIBNINJAM_INCLUDE=include;LIBOGG_INCLUDE=include;LIBVORBIS_INCLUDE=include;JUCER_VS2008_78A5006=1;JUCE_APP_VERSION=0.0.1;JUCE_APP_VERSION_HEX=0x1"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -168,7 +168,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\lib\libninjam_static.lib ..\..\lib\libogg_static.lib ..\..\lib\libvorbis_static.lib"
+				AdditionalDependencies="C:\src\libninjam\Win32\Release\libninjam_static.lib C:\src\libninjam\Win32\Release\libogg_static.lib C:\src\libninjam\Win32\Release\libvorbis_static.lib"
 				OutputFile="$(OutDir)\LinJam.exe"
 				SuppressStartupBanner="true"
 				GenerateManifest="true"

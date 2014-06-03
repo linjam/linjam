@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C++ Express 2008
-Project("{EC98C0D8-7612-FD43-4E30-9777D2156EAA}") = "LinJam", "LinJam.vcproj", "{6EEEF2DD-3F47-D2EE-F28D-74236E657879}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LinJam", "LinJam.vcproj", "{6EEEF2DD-3F47-D2EE-F28D-74236E657879}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

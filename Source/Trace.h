@@ -50,7 +50,7 @@
       case  1 : Trace::TraceConnection("NJC_STATUS_PRECONNECT") ;     break ; \
       default:  break ;                                                       \
     }                                                                         \
-    //if (this->GetErrorStr()[0]) Trace::TraceError(this->GetErrorStr()) ; // TODO: segfault - we probably dont need this anyway
+    if (this->GetErrorStr()[0]) Trace::TraceServer(this->GetErrorStr()) ;
 
 #define DEBUG_TRACE_CHAT_IN            Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 //#define DEBUG_TRACE_CHATIN String msg = "|" ; for (;nparms--;) msg += String(parms[nparms]) + "|" ; Trace::TraceEvent("LinJam::OnChatmsg()=\n\"" + msg + "\"") ;
@@ -76,14 +76,6 @@
 
 class Trace
 {
-private:
-
-  static bool SanityCheck() ;
-
-  static bool TraceEvs() ;
-  static bool TraceVb() ;
-  static bool TraceState() ;
-
 public:
 
   static void Dbg(String type , String msg) ;
@@ -93,6 +85,15 @@ public:
   static void TraceState(       String msg) ;
   static void TraceConnection(  String msg) ;
   static void TraceError(       String msg) ;
+  static void TraceServer(      String msg) ;
+
+private:
+
+  static bool SanityCheck() ;
+
+  static bool TraceEvs() ;
+  static bool TraceVb() ;
+  static bool TraceState() ;
 } ;
 
 #endif // TRACE_H_INCLUDED

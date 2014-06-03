@@ -21,7 +21,8 @@ void (*audiostream_onsamples)(float** in_buffer , int in_n_channels ,
                               int len , int sample_rate) ;
 void (*chatmsg_cb)(int user32 , NJClient* instance , const char** parms , int nparms) ;
 #ifdef _WIN32
-audioStreamer *CreateConfiguredStreamer(char *inifile , int showcfg , HWND hwndParent , SPLPROC audiostream_onsamples) ;
+//audioStreamer *CreateConfiguredStreamer(char *inifile , int showcfg , HWND hwndParent , SPLPROC audiostream_onsamples) ;
+audioStreamer* CreateConfiguredStreamer(char *ini_file , audioStreamer::WinAudioIf audio_if_n , SPLPROC audiostream_onsamples) ;
 #endif
 /*
 int licensecallback(int user32 , char* licensetext)
@@ -75,22 +76,28 @@ DEBUG_TRACE_LINJAM_INIT
   Gui    = contentComponent ;
 
   // audio config defaults
-//  int    audio_enable           = 0 ;
-  int    save_local_audio       = 0 ;
+//  int                     audio_enable           = 0 ;
+  int                       save_local_audio       = 0 ;
 #ifdef _WIN32
-  char* audio_config          = "" ; // TODO: what is the form ? - can be empty ?
+/*
+#  define WINDOWS_AUDIO_KS 0 // TODO: enum in audioconfig.h
+#  define WINDOWS_AUDIO_DS 1
+#  define WINDOWS_AUDIO_WAVE 2
+#  define WINDOWS_AUDIO_ASIO 3
+*/
+  audioStreamer::WinAudioIf win_audio_if_n         = audioStreamer::WINDOWS_AUDIO_WAVE ;
 #else // _WIN32
 #  ifdef _MAC
-  int    mac_n_input_channels   = 2 ;
-  int    mac_sample_rate        = 48000 ;
-  int    mac_bit_depth          = 16 ;
-  char* audio_config          = "" ; // TODO: what is the form ? - can be empty ?
+  int                       mac_n_input_channels   = 2 ;
+  int                       mac_sample_rate        = 48000 ;
+  int                       mac_bit_depth          = 16 ;
+  char*                     audio_config           = "" ; // TODO: what is the form ? - can be empty ?
 #  else // _MAC
-  int    nix_audio_driver       = 0 ;
-  String jack_client_name       = "linjam" ;
-  int    jack_n_input_channels  = 2 ;
-  int    jack_n_output_channels = 2 ;
-  char* audio_config          = "" ; // TODO: what is the form ? - can be empty - yes
+  int                       nix_audio_driver       = 0 ;
+  String                    jack_client_name       = "linjam" ;
+  int                       jack_n_input_channels  = 2 ;
+  int                       jack_n_output_channels = 2 ;
+  char*                     audio_config           = "" ; // TODO: what is the form ? - can be empty - yes
 #  endif // _MAC
 #endif // _WIN32
 /* TODO:
@@ -156,7 +163,8 @@ audiostream_onover    = OnOverflow ;
   // initialize audio
 #ifdef _WIN32
 //  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , !audio_config , NULL) ;
-  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , !audio_config , NULL , OnSamples) ;
+//  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , !audio_config , NULL , OnSamples) ;
+  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , win_audio_if_n , OnSamples) ;
 #else // _WIN32
 #  ifdef _MAC
   Audio = create_audioStreamer_CoreAudio(&audio_config , mac_sample_rate ,
