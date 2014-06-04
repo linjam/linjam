@@ -125,6 +125,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ChatComponent.cpp"/>
     <ClCompile Include="..\..\Source\LicenseComponent.cpp"/>
     <ClCompile Include="..\..\Source\Constants.cpp"/>
     <ClCompile Include="..\..\Source\LinJam.cpp"/>
@@ -887,6 +888,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\juce_gui_basics.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ChatComponent.h"/>
     <ClInclude Include="..\..\Source\LicenseComponent.h"/>
     <ClInclude Include="..\..\Source\LinJam.h"/>
     <ClInclude Include="..\..\Source\Trace.h"/>

@@ -146,7 +146,7 @@ void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == loginButton)
     {
         //[UserButtonCode_loginButton] -- add your button handler code here..
-      this->setVisible(false) ; LinJam::Connect() ;
+      this->toBack() ; LinJam::Connect() ;
         //[/UserButtonCode_loginButton]
     }
     else if (buttonThatWasClicked == anonButton)

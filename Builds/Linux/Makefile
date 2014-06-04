@@ -51,6 +51,7 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
+  $(OBJDIR)/ChatComponent_27b18166.o \
   $(OBJDIR)/LicenseComponent_b99bda45.o \
   $(OBJDIR)/Constants_e698e730.o \
   $(OBJDIR)/LinJam_a166dece.o \
@@ -81,6 +82,11 @@ clean:
 strip:
 	@echo Stripping LinJam
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
+
+$(OBJDIR)/ChatComponent_27b18166.o: ../../Source/ChatComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ChatComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/LicenseComponent_b99bda45.o: ../../Source/LicenseComponent.cpp
 	-@mkdir -p $(OBJDIR)

@@ -15,99 +15,6 @@
 	</ToolFiles>
 	<Configurations>
 		<Configuration
-			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName="$(IntDir)\LinJam.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalOptions="-I include -I include -I include"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;C:\src\libninjam;&quot;C:\Program Files\Microsoft SDKs\Windows\v7.0A\Include&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;LIBNINJAM_STATIC_LIB=lib\libninjam-static.dbg.lib;LIBNINJAM_INCLUDE=include;LIBOGG_INCLUDE=include;LIBVORBIS_INCLUDE=include;JUCER_VS2008_78A5006=1;JUCE_APP_VERSION=0.0.1;JUCE_APP_VERSION_HEX=0x1"
-				RuntimeLibrary="1"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile="$(IntDir)\LinJam.pch"
-				AssemblerListingLocation="$(IntDir)\"
-				ObjectFile="$(IntDir)\"
-				ProgramDataBaseFileName="$(IntDir)\"
-				WarningLevel="4"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="C:\src\libninjam\Win32\Debug\libninjam_static.lib C:\src\libninjam\Win32\Debug\libogg_static.lib C:\src\libninjam\Win32\Debug\libvorbis_static.lib"
-				OutputFile="$(OutDir)\LinJam.exe"
-				SuppressStartupBanner="true"
-				GenerateManifest="true"
-				IgnoreDefaultLibraryNames=""
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(IntDir)\LinJam.pdb"
-				SubSystem="2"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile="$(IntDir)\LinJam.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
 			IntermediateDirectory="$(ConfigurationName)"
@@ -140,11 +47,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="-I include -I include -I include"
+				AdditionalOptions="/I &quot;$(LIBNINJAM)&quot; /I &quot;$(LIBOGG)\include&quot; /I &quot;$(LIBVORBIS)\include&quot; /I &quot;$(DXSDK_DIR)include&quot; /I &quot;$(MSSDK)\include&quot;"
 				Optimization="3"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;C:\src\libninjam;&quot;C:\Program Files\Microsoft SDKs\Windows\v7.0A\Include&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;LIBNINJAM_STATIC_LIB=lib\libninjam-static.lib;LIBNINJAM_INCLUDE=include;LIBOGG_INCLUDE=include;LIBVORBIS_INCLUDE=include;JUCER_VS2008_78A5006=1;JUCE_APP_VERSION=0.0.1;JUCE_APP_VERSION_HEX=0x1"
+				AdditionalIncludeDirectories="..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;JUCER_VS2008_78A5006=1;JUCE_APP_VERSION=0.0.1;JUCE_APP_VERSION_HEX=0x1"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				RuntimeTypeInfo="true"
@@ -168,9 +75,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="C:\src\libninjam\Win32\Release\libninjam_static.lib C:\src\libninjam\Win32\Release\libogg_static.lib C:\src\libninjam\Win32\Release\libvorbis_static.lib"
+				AdditionalOptions="/L libninjam_static.lib /L libogg_static.lib /L libvorbis_static.lib /L dsound.lib"
 				OutputFile="$(OutDir)\LinJam.exe"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="&quot;$(LIBNINJAM)\Win32\Release\&quot;;&quot;$(DXSDK_DIR)Lib\x86\&quot;"
 				GenerateManifest="true"
 				IgnoreDefaultLibraryNames=""
 				GenerateDebugInformation="false"
@@ -178,6 +86,100 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+				SuppressStartupBanner="true"
+				OutputFile="$(IntDir)\LinJam.bsc"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory=".\Debug"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName="$(IntDir)\LinJam.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalOptions="/I &quot;$(LIBNINJAM)&quot; /I &quot;$(LIBOGG)\include&quot; /I &quot;$(LIBVORBIS)\include&quot; /I &quot;$(DXSDK_DIR)include&quot; /I &quot;$(MSSDK)\include&quot;"
+				Optimization="0"
+				AdditionalIncludeDirectories="..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules"
+				PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;JUCER_VS2008_78A5006=1;JUCE_APP_VERSION=0.0.1;JUCE_APP_VERSION_HEX=0x1"
+				RuntimeLibrary="1"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile="$(IntDir)\LinJam.pch"
+				AssemblerListingLocation="$(IntDir)\"
+				ObjectFile="$(IntDir)\"
+				ProgramDataBaseFileName="$(IntDir)\"
+				WarningLevel="4"
+				SuppressStartupBanner="true"
+				DebugInformationFormat="4"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/L libninjam_static.lib /L libogg_static.lib /L libvorbis_static.lib /L dsound.lib"
+				OutputFile="$(OutDir)\LinJam.exe"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="&quot;$(LIBNINJAM)\Win32\Debug\&quot;;&quot;$(DXSDK_DIR)Lib\x86\&quot;"
+				GenerateManifest="true"
+				IgnoreDefaultLibraryNames="libcmt.lib, msvcrt.lib"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(IntDir)\LinJam.pdb"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -214,6 +216,14 @@
 			<Filter
 				Name="Source"
 				>
+				<File
+					RelativePath="..\..\Source\ChatComponent.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\ChatComponent.h"
+					>
+				</File>
 				<File
 					RelativePath="..\..\Source\Constants.cpp"
 					>
@@ -290,7 +300,7 @@
 					RelativePath="..\..\..\..\juce\modules\juce_core\juce_module_info"
 					>
 					<FileConfiguration
-						Name="Debug|Win32"
+						Name="Release|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -298,7 +308,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32"
+						Name="Debug|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -313,7 +323,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharacterFunctions.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -321,7 +331,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -353,7 +363,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\text\juce_Identifier.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -361,7 +371,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -377,7 +387,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\text\juce_LocalisedStrings.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -385,7 +395,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -405,7 +415,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\text\juce_String.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -413,7 +423,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -429,7 +439,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\text\juce_StringArray.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -437,7 +447,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -453,7 +463,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\text\juce_StringPairArray.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -461,7 +471,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -477,7 +487,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\text\juce_StringPool.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -485,7 +495,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -505,7 +515,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\text\juce_TextDiff.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -513,7 +523,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -533,7 +543,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\maths\juce_BigInteger.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -541,7 +551,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -557,7 +567,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\maths\juce_Expression.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -565,7 +575,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -585,7 +595,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\maths\juce_Random.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -593,7 +603,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -641,7 +651,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\memory\juce_MemoryBlock.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -649,7 +659,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -693,7 +703,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\containers\juce_AbstractFifo.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -701,7 +711,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -725,7 +735,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\containers\juce_DynamicObject.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -733,7 +743,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -761,7 +771,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\containers\juce_NamedValueSet.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -769,7 +779,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -789,7 +799,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\containers\juce_PropertySet.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -797,7 +807,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -829,7 +839,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\containers\juce_Variant.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -837,7 +847,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -857,7 +867,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\threads\juce_ChildProcess.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -865,7 +875,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -889,7 +899,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\threads\juce_HighResolutionTimer.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -897,7 +907,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -921,7 +931,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\threads\juce_ReadWriteLock.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -929,7 +939,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -961,7 +971,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\threads\juce_Thread.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -969,7 +979,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -989,7 +999,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\threads\juce_ThreadPool.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -997,7 +1007,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1013,7 +1023,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\threads\juce_TimeSliceThread.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1021,7 +1031,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1045,7 +1055,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\time\juce_PerformanceCounter.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1053,7 +1063,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1069,7 +1079,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\time\juce_RelativeTime.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1077,7 +1087,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1093,7 +1103,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\time\juce_Time.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1101,7 +1111,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1121,7 +1131,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\files\juce_DirectoryIterator.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1129,7 +1139,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1145,7 +1155,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\files\juce_File.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1153,7 +1163,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1169,7 +1179,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\files\juce_FileFilter.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1177,7 +1187,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1193,7 +1203,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\files\juce_FileInputStream.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1201,7 +1211,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1217,7 +1227,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\files\juce_FileOutputStream.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1225,7 +1235,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1241,7 +1251,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\files\juce_FileSearchPath.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1249,7 +1259,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1269,7 +1279,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\files\juce_TemporaryFile.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1277,7 +1287,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1293,7 +1303,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\files\juce_WildcardFileFilter.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1301,7 +1311,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1321,7 +1331,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\network\juce_IPAddress.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1329,7 +1339,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1345,7 +1355,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\network\juce_MACAddress.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1353,7 +1363,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1369,7 +1379,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\network\juce_NamedPipe.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1377,7 +1387,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1393,7 +1403,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\network\juce_Socket.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1401,7 +1411,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1417,7 +1427,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\network\juce_URL.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1425,7 +1435,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1445,7 +1455,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\streams\juce_BufferedInputStream.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1453,7 +1463,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1469,7 +1479,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\streams\juce_FileInputSource.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1477,7 +1487,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1497,7 +1507,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\streams\juce_InputStream.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1505,7 +1515,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1521,7 +1531,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\streams\juce_MemoryInputStream.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1529,7 +1539,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1545,7 +1555,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\streams\juce_MemoryOutputStream.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1553,7 +1563,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1569,7 +1579,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\streams\juce_OutputStream.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1577,7 +1587,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1593,7 +1603,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\streams\juce_SubregionStream.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1601,7 +1611,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1621,7 +1631,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\logging\juce_FileLogger.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1629,7 +1639,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1645,7 +1655,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\logging\juce_Logger.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1653,7 +1663,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1681,7 +1691,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\system\juce_SystemStats.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1689,7 +1699,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1713,7 +1723,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\xml\juce_XmlDocument.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1721,7 +1731,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1737,7 +1747,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\xml\juce_XmlElement.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1745,7 +1755,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1765,7 +1775,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\javascript\juce_Javascript.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1773,7 +1783,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1789,7 +1799,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\javascript\juce_JSON.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1797,7 +1807,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1817,7 +1827,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\zip\juce_GZIPCompressorOutputStream.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1825,7 +1835,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1841,7 +1851,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\zip\juce_GZIPDecompressorInputStream.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1849,7 +1859,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1865,7 +1875,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\zip\juce_ZipFile.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1873,7 +1883,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1893,7 +1903,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\unit_tests\juce_UnitTest.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1901,7 +1911,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1921,7 +1931,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\misc\juce_Result.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1929,7 +1939,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1945,7 +1955,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\misc\juce_Uuid.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1953,7 +1963,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1977,7 +1987,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_android_Files.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -1985,7 +1995,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2001,7 +2011,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_android_Misc.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2009,7 +2019,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2021,7 +2031,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_android_Network.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2029,7 +2039,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2041,7 +2051,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_android_SystemStats.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2049,7 +2059,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2061,7 +2071,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_android_Threads.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2069,7 +2079,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2085,7 +2095,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_linux_CommonFile.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2093,7 +2103,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2105,7 +2115,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_linux_Files.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2113,7 +2123,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2125,7 +2135,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_linux_Network.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2133,7 +2143,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2145,7 +2155,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_linux_SystemStats.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2153,7 +2163,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2165,7 +2175,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_linux_Threads.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2173,7 +2183,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2209,7 +2219,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_posix_NamedPipe.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2217,7 +2227,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2237,7 +2247,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_win32_Files.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2245,7 +2255,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2257,7 +2267,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_win32_Network.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2265,7 +2275,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2277,7 +2287,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_win32_Registry.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2285,7 +2295,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2297,7 +2307,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_win32_SystemStats.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2305,7 +2315,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2317,7 +2327,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\native\juce_win32_Threads.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2325,7 +2335,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2346,7 +2356,7 @@
 					RelativePath="..\..\..\..\juce\modules\juce_data_structures\juce_module_info"
 					>
 					<FileConfiguration
-						Name="Debug|Win32"
+						Name="Release|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -2354,7 +2364,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32"
+						Name="Debug|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -2369,7 +2379,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_data_structures\values\juce_Value.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2377,7 +2387,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2393,7 +2403,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_data_structures\values\juce_ValueTree.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2401,7 +2411,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2425,7 +2435,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_data_structures\undomanager\juce_UndoManager.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2433,7 +2443,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2453,7 +2463,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_data_structures\app_properties\juce_ApplicationProperties.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2461,7 +2471,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2477,7 +2487,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_data_structures\app_properties\juce_PropertiesFile.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2485,7 +2495,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2510,7 +2520,7 @@
 					RelativePath="..\..\..\..\juce\modules\juce_events\juce_module_info"
 					>
 					<FileConfiguration
-						Name="Debug|Win32"
+						Name="Release|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -2518,7 +2528,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32"
+						Name="Debug|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -2533,7 +2543,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\messages\juce_ApplicationBase.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2541,7 +2551,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2561,7 +2571,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\messages\juce_DeletedAtShutdown.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2569,7 +2579,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2593,7 +2603,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\messages\juce_MessageListener.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2601,7 +2611,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2617,7 +2627,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\messages\juce_MessageManager.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2625,7 +2635,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2649,7 +2659,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\timers\juce_MultiTimer.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2657,7 +2667,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2673,7 +2683,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\timers\juce_Timer.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2681,7 +2691,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2701,7 +2711,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\broadcasters\juce_ActionBroadcaster.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2709,7 +2719,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2729,7 +2739,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\broadcasters\juce_AsyncUpdater.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2737,7 +2747,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2753,7 +2763,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\broadcasters\juce_ChangeBroadcaster.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2761,7 +2771,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2789,7 +2799,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\interprocess\juce_ConnectedChildProcess.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2797,7 +2807,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2813,7 +2823,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\interprocess\juce_InterprocessConnection.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2821,7 +2831,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2837,7 +2847,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\interprocess\juce_InterprocessConnectionServer.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2845,7 +2855,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2865,7 +2875,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\native\juce_android_Messaging.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2873,7 +2883,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2889,7 +2899,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\native\juce_linux_Messaging.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2897,7 +2907,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2925,7 +2935,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\native\juce_win32_Messaging.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2933,7 +2943,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2954,7 +2964,7 @@
 					RelativePath="..\..\..\..\juce\modules\juce_graphics\juce_module_info"
 					>
 					<FileConfiguration
-						Name="Debug|Win32"
+						Name="Release|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -2962,7 +2972,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32"
+						Name="Debug|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -2977,7 +2987,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\colour\juce_Colour.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -2985,7 +2995,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3001,7 +3011,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\colour\juce_ColourGradient.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3009,7 +3019,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3025,7 +3035,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\colour\juce_Colours.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3033,7 +3043,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3049,7 +3059,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\colour\juce_FillType.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3057,7 +3067,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3081,7 +3091,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\contexts\juce_GraphicsContext.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3089,7 +3099,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3109,7 +3119,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\contexts\juce_LowLevelGraphicsPostScriptRenderer.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3117,7 +3127,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3133,7 +3143,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\contexts\juce_LowLevelGraphicsSoftwareRenderer.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3141,7 +3151,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3161,7 +3171,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\images\juce_Image.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3169,7 +3179,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3185,7 +3195,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\images\juce_ImageCache.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3193,7 +3203,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3209,7 +3219,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\images\juce_ImageConvolutionKernel.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3217,7 +3227,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3233,7 +3243,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\images\juce_ImageFileFormat.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3241,7 +3251,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3261,7 +3271,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\image_formats\juce_GIFLoader.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3269,7 +3279,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3281,7 +3291,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\image_formats\juce_JPEGLoader.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3289,7 +3299,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3301,7 +3311,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\image_formats\juce_PNGLoader.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3309,7 +3319,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3325,7 +3335,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\geometry\juce_AffineTransform.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3333,7 +3343,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3353,7 +3363,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\geometry\juce_EdgeTable.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3361,7 +3371,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3381,7 +3391,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\geometry\juce_Path.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3389,7 +3399,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3405,7 +3415,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\geometry\juce_PathIterator.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3413,7 +3423,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3429,7 +3439,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\geometry\juce_PathStrokeType.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3437,7 +3447,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3473,7 +3483,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\placement\juce_RectanglePlacement.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3481,7 +3491,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3501,7 +3511,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\fonts\juce_AttributedString.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3509,7 +3519,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3525,7 +3535,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\fonts\juce_CustomTypeface.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3533,7 +3543,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3549,7 +3559,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\fonts\juce_Font.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3557,7 +3567,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3573,7 +3583,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\fonts\juce_GlyphArrangement.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3581,7 +3591,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3597,7 +3607,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\fonts\juce_TextLayout.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3605,7 +3615,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3621,7 +3631,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\fonts\juce_Typeface.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3629,7 +3639,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3649,7 +3659,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\effects\juce_DropShadowEffect.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3657,7 +3667,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3673,7 +3683,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\effects\juce_GlowEffect.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3681,7 +3691,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3705,7 +3715,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_android_Fonts.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3713,7 +3723,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3725,7 +3735,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_android_GraphicsContext.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3733,7 +3743,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3745,7 +3755,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_freetype_Fonts.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3753,7 +3763,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3765,7 +3775,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_linux_Fonts.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3773,7 +3783,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3805,7 +3815,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_win32_Direct2DGraphicsContext.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3813,7 +3823,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3825,7 +3835,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_win32_DirectWriteTypeface.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3833,7 +3843,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3845,7 +3855,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_win32_DirectWriteTypeLayout.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3853,7 +3863,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3865,7 +3875,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_win32_Fonts.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3873,7 +3883,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3894,7 +3904,7 @@
 					RelativePath="..\..\..\..\juce\modules\juce_gui_basics\juce_module_info"
 					>
 					<FileConfiguration
-						Name="Debug|Win32"
+						Name="Release|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -3902,7 +3912,7 @@
 						/>
 					</FileConfiguration>
 					<FileConfiguration
-						Name="Release|Win32"
+						Name="Debug|Win32"
 						ExcludedFromBuild="true"
 						>
 						<Tool
@@ -3921,7 +3931,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\components\juce_Component.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3929,7 +3939,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3945,7 +3955,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\components\juce_ComponentListener.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3953,7 +3963,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3969,7 +3979,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\components\juce_Desktop.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3977,7 +3987,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -3993,7 +4003,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\components\juce_ModalComponentManager.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4001,7 +4011,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4021,7 +4031,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\mouse\juce_ComponentDragger.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4029,7 +4039,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4045,7 +4055,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\mouse\juce_DragAndDropContainer.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4053,7 +4063,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4081,7 +4091,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\mouse\juce_MouseCursor.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4089,7 +4099,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4105,7 +4115,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\mouse\juce_MouseEvent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4113,7 +4123,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4129,7 +4139,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\mouse\juce_MouseInactivityDetector.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4137,7 +4147,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4153,7 +4163,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\mouse\juce_MouseInputSource.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4161,7 +4171,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4177,7 +4187,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\mouse\juce_MouseListener.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4185,7 +4195,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4217,7 +4227,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\keyboard\juce_CaretComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4225,7 +4235,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4241,7 +4251,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\keyboard\juce_KeyboardFocusTraverser.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4249,7 +4259,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4265,7 +4275,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\keyboard\juce_KeyListener.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4273,7 +4283,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4289,7 +4299,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\keyboard\juce_KeyPress.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4297,7 +4307,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4313,7 +4323,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\keyboard\juce_ModifierKeys.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4321,7 +4331,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4353,7 +4363,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_ComboBox.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4361,7 +4371,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4377,7 +4387,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_ImageComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4385,7 +4395,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4401,7 +4411,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_Label.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4409,7 +4419,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4425,7 +4435,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_ListBox.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4433,7 +4443,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4449,7 +4459,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_ProgressBar.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4457,7 +4467,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4473,7 +4483,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_Slider.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4481,7 +4491,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4497,7 +4507,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_TableHeaderComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4505,7 +4515,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4521,7 +4531,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_TableListBox.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4529,7 +4539,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4545,7 +4555,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_TextEditor.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4553,7 +4563,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4569,7 +4579,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_Toolbar.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4577,7 +4587,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4593,7 +4603,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_ToolbarItemComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4601,7 +4611,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4621,7 +4631,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_ToolbarItemPalette.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4629,7 +4639,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4645,7 +4655,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\widgets\juce_TreeView.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4653,7 +4663,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4673,7 +4683,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\windows\juce_AlertWindow.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4681,7 +4691,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4697,7 +4707,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\windows\juce_CallOutBox.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4705,7 +4715,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4721,7 +4731,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\windows\juce_ComponentPeer.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4729,7 +4739,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4745,7 +4755,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\windows\juce_DialogWindow.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4753,7 +4763,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4769,7 +4779,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\windows\juce_DocumentWindow.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4777,7 +4787,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4797,7 +4807,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\windows\juce_ResizableWindow.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4805,7 +4815,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4821,7 +4831,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\windows\juce_ThreadWithProgressWindow.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4829,7 +4839,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4845,7 +4855,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\windows\juce_TooltipWindow.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4853,7 +4863,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4869,7 +4879,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\windows\juce_TopLevelWindow.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4877,7 +4887,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4897,7 +4907,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\menus\juce_MenuBarComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4905,7 +4915,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4921,7 +4931,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\menus\juce_MenuBarModel.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4929,7 +4939,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4945,7 +4955,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\menus\juce_PopupMenu.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4953,7 +4963,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4981,7 +4991,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_ComponentAnimator.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -4989,7 +4999,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5005,7 +5015,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_ComponentBoundsConstrainer.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5013,7 +5023,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5029,7 +5039,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_ComponentBuilder.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5037,7 +5047,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5053,7 +5063,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_ComponentMovementWatcher.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5061,7 +5071,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5077,7 +5087,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_ConcertinaPanel.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5085,7 +5095,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5101,7 +5111,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_GroupComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5109,7 +5119,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5125,7 +5135,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_MultiDocumentPanel.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5133,7 +5143,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5149,7 +5159,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_ResizableBorderComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5157,7 +5167,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5173,7 +5183,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_ResizableCornerComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5181,7 +5191,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5197,7 +5207,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_ResizableEdgeComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5205,7 +5215,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5221,7 +5231,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_ScrollBar.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5229,7 +5239,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5245,7 +5255,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_StretchableLayoutManager.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5253,7 +5263,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5269,7 +5279,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_StretchableLayoutResizerBar.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5277,7 +5287,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5293,7 +5303,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_StretchableObjectResizer.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5301,7 +5311,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5317,7 +5327,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_TabbedButtonBar.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5325,7 +5335,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5341,7 +5351,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_TabbedComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5349,7 +5359,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5365,7 +5375,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\layout\juce_Viewport.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5373,7 +5383,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5393,7 +5403,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\buttons\juce_ArrowButton.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5401,7 +5411,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5417,7 +5427,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\buttons\juce_Button.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5425,7 +5435,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5441,7 +5451,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\buttons\juce_DrawableButton.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5449,7 +5459,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5465,7 +5475,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\buttons\juce_HyperlinkButton.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5473,7 +5483,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5489,7 +5499,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\buttons\juce_ImageButton.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5497,7 +5507,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5513,7 +5523,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\buttons\juce_ShapeButton.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5521,7 +5531,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5537,7 +5547,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\buttons\juce_TextButton.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5545,7 +5555,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5561,7 +5571,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\buttons\juce_ToggleButton.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5569,7 +5579,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5585,7 +5595,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\buttons\juce_ToolbarButton.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5593,7 +5603,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5613,7 +5623,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\positioning\juce_MarkerList.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5621,7 +5631,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5637,7 +5647,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\positioning\juce_RelativeCoordinate.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5645,7 +5655,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5661,7 +5671,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\positioning\juce_RelativeCoordinatePositioner.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5669,7 +5679,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5685,7 +5695,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\positioning\juce_RelativeParallelogram.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5693,7 +5703,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5709,7 +5719,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\positioning\juce_RelativePoint.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5717,7 +5727,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5733,7 +5743,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\positioning\juce_RelativePointPath.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5741,7 +5751,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5757,7 +5767,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\positioning\juce_RelativeRectangle.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5765,7 +5775,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5785,7 +5795,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\drawables\juce_Drawable.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5793,7 +5803,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5809,7 +5819,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\drawables\juce_DrawableComposite.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5817,7 +5827,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5833,7 +5843,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\drawables\juce_DrawableImage.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5841,7 +5851,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5857,7 +5867,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\drawables\juce_DrawablePath.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5865,7 +5875,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5881,7 +5891,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\drawables\juce_DrawableRectangle.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5889,7 +5899,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5905,7 +5915,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\drawables\juce_DrawableShape.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5913,7 +5923,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5929,7 +5939,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\drawables\juce_DrawableText.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5937,7 +5947,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5953,7 +5963,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\drawables\juce_SVGParser.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5961,7 +5971,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5977,7 +5987,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\properties\juce_BooleanPropertyComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -5985,7 +5995,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6001,7 +6011,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\properties\juce_ButtonPropertyComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6009,7 +6019,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6025,7 +6035,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\properties\juce_ChoicePropertyComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6033,7 +6043,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6049,7 +6059,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\properties\juce_PropertyComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6057,7 +6067,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6073,7 +6083,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\properties\juce_PropertyPanel.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6081,7 +6091,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6097,7 +6107,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\properties\juce_SliderPropertyComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6105,7 +6115,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6121,7 +6131,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\properties\juce_TextPropertyComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6129,7 +6139,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6149,7 +6159,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\lookandfeel\juce_LookAndFeel.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6157,7 +6167,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6173,7 +6183,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\lookandfeel\juce_LookAndFeel_V1.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6181,7 +6191,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6197,7 +6207,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\lookandfeel\juce_LookAndFeel_V2.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6205,7 +6215,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6221,7 +6231,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\lookandfeel\juce_LookAndFeel_V3.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6229,7 +6239,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6249,7 +6259,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\filebrowser\juce_DirectoryContentsDisplayComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6257,7 +6267,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6273,7 +6283,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\filebrowser\juce_DirectoryContentsList.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6281,7 +6291,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6297,7 +6307,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\filebrowser\juce_FileBrowserComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6305,7 +6315,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6325,7 +6335,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\filebrowser\juce_FileChooser.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6333,7 +6343,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6349,7 +6359,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\filebrowser\juce_FileChooserDialogBox.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6357,7 +6367,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6373,7 +6383,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\filebrowser\juce_FileListComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6381,7 +6391,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6397,7 +6407,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\filebrowser\juce_FilenameComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6405,7 +6415,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6425,7 +6435,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\filebrowser\juce_FileSearchPathListComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6433,7 +6443,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6449,7 +6459,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\filebrowser\juce_FileTreeComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6457,7 +6467,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6473,7 +6483,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\filebrowser\juce_ImagePreviewComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6481,7 +6491,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6505,7 +6515,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\commands\juce_ApplicationCommandInfo.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6513,7 +6523,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6529,7 +6539,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\commands\juce_ApplicationCommandManager.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6537,7 +6547,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6553,7 +6563,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\commands\juce_ApplicationCommandTarget.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6561,7 +6571,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6577,7 +6587,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\commands\juce_KeyPressMappingSet.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6585,7 +6595,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6605,7 +6615,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\misc\juce_BubbleComponent.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6613,7 +6623,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6629,7 +6639,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\misc\juce_DropShadower.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6637,7 +6647,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6657,7 +6667,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\application\juce_Application.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6665,7 +6675,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6685,7 +6695,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_android_FileChooser.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6693,7 +6703,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6705,7 +6715,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_android_Windowing.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6713,7 +6723,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6733,7 +6743,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_linux_Clipboard.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6741,7 +6751,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6753,7 +6763,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_linux_FileChooser.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6761,7 +6771,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6773,7 +6783,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_linux_Windowing.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6781,7 +6791,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6817,7 +6827,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_win32_DragAndDrop.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6825,7 +6835,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6837,7 +6847,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_win32_FileChooser.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6845,7 +6855,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6857,7 +6867,7 @@
 						RelativePath="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_win32_Windowing.cpp"
 						>
 						<FileConfiguration
-							Name="Debug|Win32"
+							Name="Release|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool
@@ -6865,7 +6875,7 @@
 							/>
 						</FileConfiguration>
 						<FileConfiguration
-							Name="Release|Win32"
+							Name="Debug|Win32"
 							ExcludedFromBuild="true"
 							>
 							<Tool

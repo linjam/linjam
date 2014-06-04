@@ -13,39 +13,6 @@
 #include "Trace.h"
 
 
-/* NJClient globals */
-
-int  (*licensecallback)(      int user32 , char* licensetext) ;
-void (*audiostream_onsamples)(float** in_buffer , int in_n_channels ,
-                              float** out_buffer , int out_n_channels ,
-                              int len , int sample_rate) ;
-void (*chatmsg_cb)(int user32 , NJClient* instance , const char** parms , int nparms) ;
-#ifdef _WIN32
-//audioStreamer *CreateConfiguredStreamer(char *inifile , int showcfg , HWND hwndParent , SPLPROC audiostream_onsamples) ;
-audioStreamer* CreateConfiguredStreamer(char *ini_file , audioStreamer::WinAudioIf audio_if_n , SPLPROC audiostream_onsamples) ;
-#endif
-/*
-int licensecallback(int user32 , char* licensetext)
-{
-DBG("LinJam::licensecallback() license_text=\n" + String(licensetext)) ;
-}
-void audiostream_onsamples(float** in_buffer , int in_n_channels ,
-                              float** out_buffer , int out_n_channels ,
-                              int len , int sample_rate)
-{}
-void chatmsg_cb(int user32 , NJClient* instance , const char** parms , int nparms)
-{
-DBG("LinJam::chatmsg_cb()\n") ;
-}
-*/
-/*
-void (*audiostream_onunder)() ;
-void (*audiostream_onover)() ;
-*/
-// audioStreamer* Audio  ; // TODO: unused
-// NJClient*      Client ; // TODO: unused
-
-
 /* LinJam public class variables */
 
 bool LinJam::IsAgreed = false ;
@@ -146,8 +113,8 @@ int nolog=0,nowav=1,writeogg=0,g_nssf=0;
   // initialize NINJAM client
 //   Client->LicenseAgreementCallback = licensecallback = (int (*)(int i, char* c))on_license ;
 //   Client->ChatMessage_Callback     = chatmsg_cb      = (void (*)(int i, NJClient* n, const char** c, int ii))on_chatmsg ;
-  Client->LicenseAgreementCallback = licensecallback = OnLicense ;
-  Client->ChatMessage_Callback     = chatmsg_cb      = OnChatmsg ;
+  Client->LicenseAgreementCallback = OnLicense ;
+  Client->ChatMessage_Callback     = OnChatmsg ;
 /*
 Client->LicenseAgreementCallback = licensecallback ;
 Client->ChatMessage_Callback     = chatmsg_cb ;
@@ -218,7 +185,13 @@ DEBUG_TRACE_AUDIO_INIT
 #  endif
 #endif
   }
-
+/* from cursesclient
+    else // set up defaults
+    {
+      g_client->SetLocalChannelInfo(0,"channel0",true,0,false,0,true,true);
+      g_client->SetLocalChannelMonitoring(0,false,0.0f,false,0.0f,false,false,false,false);
+    }
+*/
   // initialize networking
   JNL::open_socketlib() ;
 
@@ -266,7 +239,7 @@ void   LinJam::SetIsAgreed(bool isAgreed) { IsAgreed = isAgreed ; }
 
 int LinJam::OnLicense(int user32 , char* license_text)
 {
-#if DEBUG_LICENSE_MULTITHREADED
+#ifdef DEBUG_LICENSE_MULTITHREADED
 return Gui->prompt_license(String(license_text)) ;
 Gui->licenseComponent->toFront(true) ;
 Gui->licenseComponent->agreeEvent->wait() ;
@@ -283,15 +256,132 @@ DEBUG_TRACE_LICENSE
 void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , int nparms)
 {
 DEBUG_TRACE_CHAT_IN
+
+  if (!parms[0]) return ;
+
+  String chat_type = String(parms[CLIENT::CHATMSG_TYPE_IDX]) ;
+  String chat_user = String(parms[CLIENT::CHATMSG_USER_IDX]).upToFirstOccurrenceOf("@", false , false) ;
+  String chat_text = String(parms[CLIENT::CHATMSG_MSG_IDX]) ;
+  bool is_topic_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_TOPIC)) ;
+  bool is_bcast_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_MSG)) ;
+  bool is_priv_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PRIVMSG)) ;
+  bool is_join_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_JOIN)) ;
+  bool is_part_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PART)) ;  
+
+  if (is_topic_msg)
+  {
+    if (chat_text.isEmpty()) return ;
+
+    if (chat_user.isEmpty()) chat_text = "Topic is: "                   + chat_text ;
+    else                     chat_text = chat_user + " sets topic to: " + chat_text ;
+    chat_user = GUI::SERVER_NICK.text ;
+
+    Gui->chatComponent->setTopic(chat_text) ;
+  }
+  else if (is_bcast_msg)
+    { if (chat_user.isEmpty() || chat_text.isEmpty()) return ; }
+  else if (is_priv_msg)
+  {
+    if (chat_user.isEmpty() || chat_text.isEmpty()) return ;
+
+    chat_user += " (whispers)" ;
+  } 
+  else if (is_join_msg || is_part_msg)
+  {
+    if (chat_user.isEmpty()) return ;
+
+    chat_text = chat_user + " has " + ((is_join_msg)? "joined" : "left") + " the jam" ;
+    chat_user = GUI::SERVER_NICK.text ;
+  } 
+  Gui->chatComponent->addChatLine(chat_user , chat_text) ;
 }
 
 void LinJam::OnSamples(float** in_buffer , int in_n_channels ,
                        float** out_buffer , int out_n_channels ,
                        int len , int sample_rate)
-{}
+{
+/* from cursesclient
+void audiostream_onsamples(float **inbuf, int innch, float **outbuf, int outnch, int len, int srate) 
+{ 
+  if (!g_audio_enable) 
+  {
+    int x;
+    // clear all output buffers
+    for (x = 0; x < outnch; x ++) memset(outbuf[x],0,sizeof(float)*len);
+    return;
+  }
+  g_client->AudioProc(inbuf,innch, outbuf, outnch, len,srate);
+}
+
+
+*/
+}
 
 /*
 void LinJam::OnUnderflow() {}
 
 void LinJam::OnOverflow() {}
 */
+
+
+/* chat helpers */
+void LinJam::SendChat(String chat_text)
+{
+DBG("LinJam::SendChat() =" + chat_text) ;
+
+  if ((chat_text = chat_text.trim()).isEmpty()) return ;
+
+  if (chat_text[0] == '/') HandleChatCommand(chat_text) ;
+  else Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_MSG , chat_text.toRawUTF8()) ;
+}
+
+void LinJam::HandleChatCommand(String chat_text)
+{
+/* from cursesclient
+                      if (!strncasecmp(m_chatinput_str,"/me ",4))
+                      {
+                        g_client->ChatMessage_Send("MSG",m_chatinput_str);
+                      }
+                      else if (!strncasecmp(m_chatinput_str,"/topic ",7)||
+                               !strncasecmp(m_chatinput_str,"/kick ",6) ||                        
+                               !strncasecmp(m_chatinput_str,"/bpm ",5) ||
+                               !strncasecmp(m_chatinput_str,"/bpi ",5)
+                        ) // alias to /admin *
+                      {
+                        g_client->ChatMessage_Send("ADMIN",m_chatinput_str+1);
+                      }
+                      else if (!strncasecmp(m_chatinput_str,"/admin ",7))
+                      {
+                        char *p=m_chatinput_str+7;
+                        while (*p == ' ') p++;
+                        g_client->ChatMessage_Send("ADMIN",p);
+                      }
+                      else if (!strncasecmp(m_chatinput_str,"/msg ",5))
+                      {
+                        char *p=m_chatinput_str+5;
+                        while (*p == ' ') p++;
+                        char *n=p;
+                        while (*p && *p != ' ') p++;
+                        if (*p == ' ') *p++=0;
+                        while (*p == ' ') p++;
+                        if (*p)
+                        {
+                          g_client->ChatMessage_Send("PRIVMSG",n,p);
+                          WDL_String tmp;
+                          tmp.Set("-> *");
+                          tmp.Append(n);
+                          tmp.Append("* ");
+                          tmp.Append(p);
+                          addChatLine(NULL,tmp.Get());
+                        }
+                        else
+                        {
+                          addChatLine("","error: /msg requires a username and a message.");
+                        }
+                      }
+                      else
+                      {
+                        addChatLine("","error: unknown command.");
+                      }
+*/
+}

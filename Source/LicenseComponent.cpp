@@ -64,7 +64,7 @@ LicenseComponent::LicenseComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
-#if DEBUG_LICENSE_MULTITHREADED
+#ifdef DEBUG_LICENSE_MULTITHREADED
     agreeEvent = new WaitableEvent(false) ; isAgreed = false ;
 #endif // DEBUG_LICENSE_MULTITHREADED
     //[/Constructor]
@@ -82,7 +82,7 @@ LicenseComponent::~LicenseComponent()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-#if DEBUG_LICENSE_MULTITHREADED
+#ifdef DEBUG_LICENSE_MULTITHREADED
     agreeEvent = nullptr ;
 //     delete (agreeEvent) ;
 #endif // DEBUG_LICENSE_MULTITHREADED
@@ -103,10 +103,10 @@ void LicenseComponent::paint (Graphics& g)
 
 void LicenseComponent::resized()
 {
-    licenseTextEditor->setBounds (4, 4, 628, 410);
-    cancelButton->setBounds (184, getHeight() - 28 - 24, 64, 24);
-    agreeButton->setBounds (312, getHeight() - 28 - 24, 64, 24);
-    alwaysButton->setBounds (432, getHeight() - 28 - 24, 64, 24);
+    licenseTextEditor->setBounds (4, 4, getWidth() - 8, getHeight() - 32);
+    cancelButton->setBounds (getWidth() - 140 - 64, getHeight() - 4 - 24, 64, 24);
+    agreeButton->setBounds (getWidth() - 72 - 64, getHeight() - 4 - 24, 64, 24);
+    alwaysButton->setBounds (getWidth() - 4 - 64, getHeight() - 4 - 24, 64, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -116,7 +116,7 @@ void LicenseComponent::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
 DEBUG_TRACE_LICENSE_CLICKED
 
-  this->setVisible(false) ;
+  this->toBack() ;
     //[/UserbuttonClicked_Pre]
 
     if (buttonThatWasClicked == cancelButton)
@@ -149,7 +149,7 @@ DEBUG_TRACE_LICENSE_CLICKED
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 // bool LicenseComponent::getIsAgreed() { return this->isAgreed ; }//isAgreed = false ;
 void LicenseComponent::setLicenseText(String license_text)
-{ this->licenseTextEditor->setText(TRANS(license_text)) ; this->toFront(true) ; }
+{ this->licenseTextEditor->setText(TRANS(license_text)) ; }
 //[/MiscUserCode]
 
 
@@ -168,17 +168,17 @@ BEGIN_JUCER_METADATA
                  fixedSize="0" initialWidth="630" initialHeight="446">
   <BACKGROUND backgroundColour="ff101010"/>
   <TEXTEDITOR name="licenseTextEditor" id="ba11ad8bfe4752c1" memberName="licenseTextEditor"
-              virtualName="" explicitFocusOrder="0" pos="4 4 628 410" textcol="ff808080"
+              virtualName="" explicitFocusOrder="0" pos="4 4 8M 32M" textcol="ff808080"
               bkgcol="ff000000" initialText="" multiline="1" retKeyStartsLine="0"
               readonly="1" scrollbars="1" caret="0" popupmenu="0"/>
   <TEXTBUTTON name="cancelButton" id="e40ccd6a36998aa2" memberName="cancelButton"
-              virtualName="" explicitFocusOrder="0" pos="184 28Rr 64 24" buttonText="Cancel"
+              virtualName="" explicitFocusOrder="0" pos="140Rr 4Rr 64 24" buttonText="Cancel"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="agreeButton" id="1c12b4600196bad4" memberName="agreeButton"
-              virtualName="" explicitFocusOrder="1" pos="312 28Rr 64 24" buttonText="Agree"
+              virtualName="" explicitFocusOrder="1" pos="72Rr 4Rr 64 24" buttonText="Agree"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="alwaysButton" id="fee5be226ba0b7b5" memberName="alwaysButton"
-              virtualName="" explicitFocusOrder="2" pos="432 28Rr 64 24" buttonText="Always"
+              virtualName="" explicitFocusOrder="2" pos="4Rr 4Rr 64 24" buttonText="Always"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 

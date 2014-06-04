@@ -184,6 +184,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ChatComponent.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\LicenseComponent.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
@@ -1020,6 +1023,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ChatComponent.h">
+      <Filter>LinJam\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\LicenseComponent.h">
       <Filter>LinJam\Source</Filter>
     </ClInclude>

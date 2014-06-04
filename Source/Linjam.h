@@ -20,13 +20,11 @@
 #include "MainComponent.h"
 
 
+
 class LinJam
 {
-  friend class ClientTimer ;
-
 public:
 
-//   static int  Initialize( NJClient* client , const String& args) ;
   static bool Initialize(NJClient* client , MainContentComponent* mainGUI ,
                          const String& args) ;
   static void Connect() ;
@@ -50,18 +48,22 @@ public:
   static void OnSamples(float** in_buffer , int in_n_channels ,
                         float** out_buffer , int out_n_channels ,
                         int len , int sample_rate) ;
-/*
-  static void OnUnderflow() ;
-  static void OnOverflow() ;
-*/
+//  static void OnUnderflow() ; // unused
+//  static void OnOverflow() ;  // unused
 
-  static bool IsAgreed ;
+  // chat helpers
+  static void SendChat(String chat_text) ;
+  static void HandleChatCommand(String chat_text) ;
+
+
+  static bool IsAgreed ; // TODO: ?? this exists only so we dont block waiting for user
 
 private:
 
   static audioStreamer*        Audio  ;
-  static NJClient*             Client ;
   static MainContentComponent* Gui ;
+  static NJClient*             Client ;
+
 
   static bool   ShouldAutoJoin ; // TODO: persistent config
   static String Server ;         // TODO: persistent config

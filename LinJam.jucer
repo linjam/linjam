@@ -5,6 +5,9 @@
               jucerVersion="3.1.0">
   <MAINGROUP id="dT83m5" name="LinJam">
     <GROUP id="{F298109F-8531-F160-2BC9-F72C3764B7EF}" name="Source">
+      <FILE id="CywiEf" name="ChatComponent.cpp" compile="1" resource="0"
+            file="Source/ChatComponent.cpp"/>
+      <FILE id="pNseOT" name="ChatComponent.h" compile="0" resource="0" file="Source/ChatComponent.h"/>
       <FILE id="HugMKb" name="LicenseComponent.cpp" compile="1" resource="0"
             file="Source/LicenseComponent.cpp"/>
       <FILE id="xqc9VC" name="LicenseComponent.h" compile="0" resource="0"
@@ -61,51 +64,40 @@
         <MODULEPATH id="juce_core" path="../../juce/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2008 targetFolder="Builds/VisualStudio2008" externalLibraries="${LIBNINJAM_STATIC_LIB}"
-            extraCompilerFlags="-I ${LIBNINJAM_INCLUDE}&#10;-I ${LIBOGG_INCLUDE}&#10;-I ${LIBVORBIS_INCLUDE}&#10;"
-            extraDefs="LIBNINJAM_INCLUDE=include&#10;LIBOGG_INCLUDE=include&#10;LIBVORBIS_INCLUDE=include&#10;">
+    <VS2008 targetFolder="Builds/VisualStudio2008" externalLibraries="" extraCompilerFlags="/I &quot;$(LIBNINJAM)&quot;&#10;/I &quot;$(LIBOGG)\include&quot;&#10;/I &quot;$(LIBVORBIS)\include&quot;&#10;/I &quot;$(DXSDK_DIR)include&quot;&#10;/I &quot;$(MSSDK)\include&quot;"
+            extraDefs="" extraLinkerFlags="/L libninjam_static.lib&#10;/L libogg_static.lib&#10;/L libvorbis_static.lib&#10;/L dsound.lib">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" isDebug="1"
-                       optimisation="1" targetName="LinJam" defines="LIBNINJAM_STATIC_LIB=lib\libninjam-static.dbg.lib"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" isDebug="0"
-                       optimisation="3" targetName="LinJam" defines="LIBNINJAM_STATIC_LIB=lib\libninjam-static.lib"/>
+                       optimisation="3" targetName="LinJam" defines="" libraryPath="&quot;$(LIBNINJAM)\Win32\Release\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"
+                       headerPath=""/>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" isDebug="1"
+                       optimisation="1" targetName="LinJam" defines="" libraryPath="&quot;$(LIBNINJAM)\Win32\Debug\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"
+                       headerPath=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_basics" path="../../juce/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../juce/modules"/>
-        <MODULEPATH id="juce_events" path="../../juce/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../juce/modules"/>
-        <MODULEPATH id="juce_core" path="../../juce/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="C:\juce\modules"/>
+        <MODULEPATH id="juce_graphics" path="C:\juce\modules"/>
+        <MODULEPATH id="juce_events" path="C:\juce\modules"/>
+        <MODULEPATH id="juce_data_structures" path="C:\juce\modules"/>
+        <MODULEPATH id="juce_core" path="C:\juce\modules"/>
       </MODULEPATHS>
     </VS2008>
-    <VS2010 targetFolder="Builds/VisualStudio2010">
+    <VS2013 targetFolder="Builds/VisualStudio2013" externalLibraries="" extraCompilerFlags="/I &quot;$(LIBNINJAM)&quot;&#10;/I &quot;$(LIBOGG)\include&quot;&#10;/I &quot;$(LIBVORBIS)\include&quot;&#10;/I &quot;$(DXSDK_DIR)include&quot;&#10;/I &quot;$(MSSDK)\include&quot;"
+            extraDefs="" extraLinkerFlags="/L libninjam_static.lib&#10;/L libogg_static.lib&#10;/L libvorbis_static.lib&#10;/L dsound.lib">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="LinJam"/>
+                       isDebug="1" optimisation="1" targetName="LinJam" headerPath=""
+                       libraryPath="&quot;$(LIBNINJAM)\Win32\Debug\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="2" targetName="LinJam"/>
+                       isDebug="0" optimisation="2" targetName="LinJam" headerPath=""
+                       libraryPath="&quot;$(LIBNINJAM)\Win32\Release\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_basics" path="../../juce/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../juce/modules"/>
-        <MODULEPATH id="juce_events" path="../../juce/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../juce/modules"/>
-        <MODULEPATH id="juce_core" path="../../juce/modules"/>
-      </MODULEPATHS>
-    </VS2010>
-    <VS2013 targetFolder="Builds/VisualStudio2013">
-      <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="LinJam"/>
-        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="2" targetName="LinJam"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_gui_basics" path="../../juce/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../juce/modules"/>
-        <MODULEPATH id="juce_events" path="../../juce/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../juce/modules"/>
-        <MODULEPATH id="juce_core" path="../../juce/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="C:\juce\modules"/>
+        <MODULEPATH id="juce_graphics" path="C:\juce\modules"/>
+        <MODULEPATH id="juce_events" path="C:\juce\modules"/>
+        <MODULEPATH id="juce_data_structures" path="C:\juce\modules"/>
+        <MODULEPATH id="juce_core" path="C:\juce\modules"/>
       </MODULEPATHS>
     </VS2013>
   </EXPORTFORMATS>

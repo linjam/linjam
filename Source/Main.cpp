@@ -31,12 +31,12 @@ public:
     //==============================================================================
     void initialise (const String& args) override
     {
-      StringRef contentGuiId   = StringRef(GUI::CONTENT_GUI_ID) ;
-      StringRef statusbarGuiId = StringRef(GUI::STATUS_GUI_ID) ;
-
       this->mainWindow         = new MainWindow() ;
-      this->contentComponent   = (MainContentComponent*)this->mainWindow->findChildWithID(contentGuiId) ;
-      this->statusbarComponent = (StatusBarComponent*)this->contentComponent->findChildWithID(statusbarGuiId) ;
+      this->contentComponent   = (MainContentComponent*)this->mainWindow      ->findChildWithID(GUI::CONTENT_GUI_ID) ;
+      this->loginComponent     = (LoginComponent*)      this->contentComponent->findChildWithID(GUI::LOGIN_GUI_ID) ;
+      this->licenseComponent   = (LicenseComponent*)    this->contentComponent->findChildWithID(GUI::LICENSE_GUI_ID) ;
+      this->chatComponent      = (ChatComponent*)       this->contentComponent->findChildWithID(GUI::CHAT_GUI_ID) ;
+      this->statusbarComponent = (StatusBarComponent*)  this->contentComponent->findChildWithID(GUI::STATUS_GUI_ID) ;
 
       if (!LinJam::Initialize(this , contentComponent , args)) initError() ;
 
@@ -47,7 +47,7 @@ public:
 
     void initError()
     {
-      this->statusbarComponent->setStatusL(CLIENT::AUDIO_INIT_ERROR_MSG) ;
+      this->statusbarComponent->setStatusL(CLIENT::AUDIO_INIT_ERROR_MSG.text) ;
     } // TODO: MB , prompt cfg ??
 
     void shutdown() override
@@ -81,13 +81,13 @@ public:
     class MainWindow    : public DocumentWindow
     {
     public:
-        MainWindow()  : DocumentWindow ("MainWindow" ,
+        MainWindow()  : DocumentWindow (JUCEApplication::getInstance()->getApplicationName() ,
                                         Colours::lightgrey ,
                                         DocumentWindow::allButtons)
         {
             MainContentComponent* mainContentComponent = new MainContentComponent() ;
             setContentOwned(mainContentComponent , true) ;
-            mainContentComponent->setComponentID(GUI::CONTENT_GUI_ID) ;
+            mainContentComponent->setComponentID(GUI::CONTENT_GUI_ID.text) ;
             centreWithSize(getWidth() , getHeight()) ;
             setVisible(true) ;
         }
@@ -130,6 +130,19 @@ DEBUG_TRACE_CONNECT_STATUS
 
       String status_text ; String server = "TODO: GetHostName()" ;
 
+      // GUI state
+      switch (status)
+      {
+        case NJC_STATUS_DISCONNECTED: this->loginComponent->toFront(true) ;        break ;
+        case NJC_STATUS_INVALIDAUTH:  (LinJam::IsAgreed)?
+                                          this->loginComponent  ->toFront(true) :
+                                          this->licenseComponent->toFront(true) ;  break ;
+        case NJC_STATUS_CANTCONNECT:  this->loginComponent->toFront(true) ;        break ;
+        case NJC_STATUS_OK:           this->chatComponent ->toFront(true) ;        break ;
+        case NJC_STATUS_PRECONNECT:   this->loginComponent->toFront(true) ;        break ;
+      }
+
+      // status indicator
       switch (status)
       {
         case NJC_STATUS_DISCONNECTED: status_text = "Disconnected" ;               break ;
@@ -146,6 +159,9 @@ DEBUG_TRACE_CONNECT_STATUS
 private:
     ScopedPointer<MainWindow> mainWindow ;
     MainContentComponent*     contentComponent ;
+    LoginComponent*           loginComponent ;
+    LicenseComponent*         licenseComponent ;
+    ChatComponent*            chatComponent ;
     StatusBarComponent*       statusbarComponent ;
 
     int prev_status ;
