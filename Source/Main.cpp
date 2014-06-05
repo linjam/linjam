@@ -47,7 +47,7 @@ public:
 
     void initError()
     {
-      this->statusbarComponent->setStatusL(CLIENT::AUDIO_INIT_ERROR_MSG.text) ;
+      this->statusbarComponent->setStatusL(GUI::AUDIO_INIT_ERROR_MSG.text) ;
     } // TODO: MB , prompt cfg ??
 
     void shutdown() override
@@ -116,9 +116,9 @@ public:
       int status = this->GetStatus() ;
       switch (timerId)
       {
-        case CLIENT::CLIENT_DRIVER_ID: if (status >= 0) this->Run() ; break ;
-        case CLIENT::STATUS_POLL_ID:   this->handleStatus(status) ;   break ;
-        default: break ;
+        case CLIENT::CLIENT_DRIVER_ID: if (status >= 0) while (this->Run() && false) ; break ;
+        case CLIENT::STATUS_POLL_ID:   this->handleStatus(status) ;           break ;
+        default:                                                              break ;
       }
     }
 
@@ -128,30 +128,38 @@ public:
 
 DEBUG_TRACE_CONNECT_STATUS
 
-      String status_text ; String server = "TODO: GetHostName()" ;
-
       // GUI state
       switch (status)
       {
-        case NJC_STATUS_DISCONNECTED: this->loginComponent->toFront(true) ;        break ;
+        case NJC_STATUS_DISCONNECTED: this->loginComponent  ->toFront(true) ; break ;
         case NJC_STATUS_INVALIDAUTH:  (LinJam::IsAgreed)?
-                                          this->loginComponent  ->toFront(true) :
-                                          this->licenseComponent->toFront(true) ;  break ;
-        case NJC_STATUS_CANTCONNECT:  this->loginComponent->toFront(true) ;        break ;
-        case NJC_STATUS_OK:           this->chatComponent ->toFront(true) ;        break ;
-        case NJC_STATUS_PRECONNECT:   this->loginComponent->toFront(true) ;        break ;
+                                      this->loginComponent  ->toFront(true) :
+                                      this->licenseComponent->toFront(true) ; break ;
+        case NJC_STATUS_CANTCONNECT:  this->loginComponent  ->toFront(true) ; break ;
+        case NJC_STATUS_OK:           this->chatComponent   ->toFront(true) ; break ;
+        case NJC_STATUS_PRECONNECT:   this->loginComponent  ->toFront(true) ; break ;
+        default:                                                              break ;
       }
 
       // status indicator
+      String status_text ;
+      String disconnectedText  = GUI::DISCONNECTED_STATUS_TEXT ;
+      String invalidAuthText   = (LinJam::IsAgreed)?
+                                 GUI::INVALID_AUTH_STATUS_TEXT :
+                                 GUI::PENDING_LICENSE_STATUS_TEXT ;
+      String cantConnectText   = GUI::FAILED_CONNECTION_STATUS_TEXT ;
+      String okText            = (status != NJC_STATUS_OK)? "" :
+                                 GUI::CONNECTED_STATUS_TEXT + String(this->GetHostName()) ;
+      String preConnectedText  = GUI::IDLE_STATUS_TEXT ;
+      String unknownStatusText = GUI::UNKNOWN_STATUS_TEXT + String(status) ;
       switch (status)
       {
-        case NJC_STATUS_DISCONNECTED: status_text = "Disconnected" ;               break ;
-        case NJC_STATUS_INVALIDAUTH:  status_text = (LinJam::IsAgreed)?
-                                        "Invalid login/pass" : "Pending license" ; break ;
-        case NJC_STATUS_CANTCONNECT:  status_text = "Connection failed" ;          break ;
-        case NJC_STATUS_OK:           status_text = "Connected to " + server ;     break ;
-        case NJC_STATUS_PRECONNECT:   status_text = "Idle" ;                       break ;
-        default:                      status_text = "Status: " + status ;          break ;
+        case NJC_STATUS_DISCONNECTED: status_text = disconnectedText ;  break ;
+        case NJC_STATUS_INVALIDAUTH:  status_text = invalidAuthText ;   break ;
+        case NJC_STATUS_CANTCONNECT:  status_text = cantConnectText ;   break ;
+        case NJC_STATUS_OK:           status_text = okText ;            break ;
+        case NJC_STATUS_PRECONNECT:   status_text = preConnectedText ;  break ;
+        default:                      status_text = unknownStatusText ; break ;
       }
       this->statusbarComponent->setStatusL(status_text) ;
     }

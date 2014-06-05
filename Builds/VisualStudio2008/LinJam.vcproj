@@ -173,6 +173,7 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/L libninjam_static.lib /L libogg_static.lib /L libvorbis_static.lib /L dsound.lib"
 				OutputFile="$(OutDir)\LinJam.exe"
+				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="&quot;$(LIBNINJAM)\Win32\Debug\&quot;;&quot;$(DXSDK_DIR)Lib\x86\&quot;"
 				GenerateManifest="true"

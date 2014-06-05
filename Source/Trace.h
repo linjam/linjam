@@ -39,22 +39,59 @@
                                  Trace::TraceState("agreeing to license") ;             \
                             else Trace::TraceState("prompting for license agreement") ;
 
-#define DEBUG_TRACE_CONNECT_STATUS                                            \
-    switch (this->GetStatus())                                                \
-    {                                                                         \
-      case -3 : Trace::TraceConnection("NJC_STATUS_DISCONNECTED") ;   break ; \
-      case -2 : Trace::TraceConnection((LinJam::IsAgreed)?                    \
-                  "NJC_STATUS_INVALIDAUTH" : "LICENSE_PENDING") ;     break ; \
-      case -1 : Trace::TraceConnection("NJC_STATUS_CANTCONNECT") ;    break ; \
-      case  0 : Trace::TraceConnection("NJC_STATUS_OK") ;             break ; \
-      case  1 : Trace::TraceConnection("NJC_STATUS_PRECONNECT") ;     break ; \
-      default:  break ;                                                       \
-    }                                                                         \
-    if (this->GetErrorStr()[0]) Trace::TraceServer(this->GetErrorStr()) ;
+#define DEBUG_TRACE_CONNECT_STATUS                                         \
+    switch (this->GetStatus())                                             \
+    {                                                                      \
+      case -3: Trace::TraceConnection("NJC_STATUS_DISCONNECTED") ; break ; \
+      case -2: Trace::TraceConnection((LinJam::IsAgreed)?                  \
+                   "NJC_STATUS_INVALIDAUTH" : "LICENSE_PENDING") ; break ; \
+      case -1: Trace::TraceConnection("NJC_STATUS_CANTCONNECT") ;  break ; \
+      case  0: Trace::TraceConnection("NJC_STATUS_OK") ;           break ; \
+      case  1: Trace::TraceConnection("NJC_STATUS_PRECONNECT") ;   break ; \
+      default:                                                     break ; \
+    }                                                                      \
+    if (status == 0)                                                       \
+      Trace::TraceServer("connected to host: " + String(GetHostName())) ;  \
+    if (this->GetErrorStr()[0])                                            \
+      Trace::TraceServer("Error: " + String(this->GetErrorStr())) ;
 
 #define DEBUG_TRACE_CHAT_IN            Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 //#define DEBUG_TRACE_CHATIN String msg = "|" ; for (;nparms--;) msg += String(parms[nparms]) + "|" ; Trace::TraceEvent("LinJam::OnChatmsg()=\n\"" + msg + "\"") ;
 //#define DEBUG_TRACE_CHATIN Trace::TraceEvent("LinJam::OnChatmsg()=\n") ; for (;nparms--;) Trace::TraceEvent("\tnparms[" + String(nparms) + "]='" + String(parms[nparms]) + "'\n") ;
+
+#define DEBUG_AUDIO_STATE if (is_topic_msg)                                     \
+  {                                                                             \
+    String dbg = "master mastervol " + String(Client->config_mastervolume) +    \
+                " masterpan " + String(Client->config_masterpan) +              \
+                " metrovol " + String(Client->config_metronome) +               \
+                " metropan " + String(Client->config_metronome_pan) +           \
+                " mastermute " + String(Client->config_mastermute) +            \
+                " metromute " + String(Client->config_metronome_mute) ;         \
+    Gui->chatComponent->addChatLine("DEBUG" , dbg) ;                            \
+                                                                                \
+    for (int x = 0;;x++)                                                        \
+    {                                                                           \
+      int a=Client->EnumLocalChannels(x) ; if (a < 0) break ;                   \
+                                                                                \
+      int sch = 0 ; bool bc = 0 ; void *has_jesus = 0 ;                         \
+      char *lcn ; float v = 0.0f , p = 0.0f ; bool m=0 , s=0 ;                  \
+      lcn = Client->GetLocalChannelInfo(a , &sch , NULL , &bc) ;                \
+      Client->GetLocalChannelMonitoring(a , &v , &p , &m , &s) ;                \
+      Client->GetLocalChannelProcessor(a , NULL , &has_jesus) ;                 \
+                                                                                \
+      char *ptr = lcn ; while (*ptr) { if (*ptr == '`') *ptr = '\'' ; ptr++ ; } \
+      dbg = "local " + String(a) +                                              \
+            " source " + String(sch) +                                          \
+            " bc " + String(bc) +                                               \
+            " mute " + String(m) +                                              \
+            " solo " + String(s) +                                              \
+            " volume " + String(v) +                                            \
+            " pan " + String(p) +                                               \
+            " jesus " + String(!!has_jesus) +                                   \
+            " name " + String(lcn) ;                                            \
+      Gui->chatComponent->addChatLine("DEBUG" , dbg) ;                          \
+    }                                                                           \
+  }
 
 #define DEBUG_TRACE_MAIN_RESIZED       Trace::TraceEventVerbose("statusW=" + String(statusW) + " statusH=" + String(statusH) + " statusL=" + String(statusL) + " statusT=" + String(statusT)) ;
 

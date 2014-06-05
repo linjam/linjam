@@ -42,14 +42,12 @@ public:
   static void   SetIsAgreed(   bool isAgreed) ;
 
   // NJClient callbacks
-  static int  OnLicense(int user32 , char* license_text) ;
-  static void OnChatmsg(int user32 , NJClient* instance ,
-                        const char** parms , int nparms) ;
-  static void OnSamples(float** in_buffer , int in_n_channels ,
-                        float** out_buffer , int out_n_channels ,
-                        int len , int sample_rate) ;
-//  static void OnUnderflow() ; // unused
-//  static void OnOverflow() ;  // unused
+  static int  OnLicense(int user32            , char* license_text) ;
+  static void OnChatmsg(int user32            , NJClient* instance ,
+                        const char** parms    , int nparms)        ;
+  static void OnSamples(float** input_buffer  , int n_input_channels  ,
+                        float** output_buffer , int n_output_channels ,
+                        int n_samples         , int sample_rate)      ;
 
   // chat helpers
   static void SendChat(String chat_text) ;
@@ -60,10 +58,10 @@ public:
 
 private:
 
-  static audioStreamer*        Audio  ;
+  static audioStreamer*        Audio ;
   static MainContentComponent* Gui ;
   static NJClient*             Client ;
-
+  static bool                  IsAudioEnabled ;
 
   static bool   ShouldAutoJoin ; // TODO: persistent config
   static String Server ;         // TODO: persistent config

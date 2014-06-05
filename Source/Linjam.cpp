@@ -20,9 +20,10 @@ bool LinJam::IsAgreed = false ;
 
 /* LinJam private class variables */
 
-audioStreamer*        LinJam::Audio  = nullptr ; // Initialize()
-NJClient*             LinJam::Client = nullptr ; // Initialize()
-MainContentComponent* LinJam::Gui    = nullptr ; // Initialize()
+audioStreamer*        LinJam::Audio          = nullptr ; // Initialize()
+NJClient*             LinJam::Client         = nullptr ; // Initialize()
+MainContentComponent* LinJam::Gui            = nullptr ; // Initialize()
+bool                  LinJam::IsAudioEnabled = false ; // TODO: use Client->>m_audio_enable instead ??
 
 bool   LinJam::ShouldAutoJoin = false ; // TODO: persistent config
 String LinJam::Server         = "" ;    // TODO: persistent config
@@ -43,114 +44,102 @@ DEBUG_TRACE_LINJAM_INIT
   Gui    = contentComponent ;
 
   // audio config defaults
-//  int                     audio_enable           = 0 ;
-  int                       save_local_audio       = 0 ;
+  int                       save_local_audio       = -1 ;
 #ifdef _WIN32
-/*
-#  define WINDOWS_AUDIO_KS 0 // TODO: enum in audioconfig.h
-#  define WINDOWS_AUDIO_DS 1
-#  define WINDOWS_AUDIO_WAVE 2
-#  define WINDOWS_AUDIO_ASIO 3
-*/
   audioStreamer::WinAudioIf win_audio_if_n         = audioStreamer::WINDOWS_AUDIO_WAVE ;
 #else // _WIN32
 #  ifdef _MAC
   int                       mac_n_input_channels   = 2 ;
   int                       mac_sample_rate        = 48000 ;
   int                       mac_bit_depth          = 16 ;
-  char*                     audio_config           = "" ; // TODO: what is the form ? - can be empty ?
+  char*                     audio_config           = "" ;
 #  else // _MAC
   int                       nix_audio_driver       = 0 ;
   String                    jack_client_name       = "linjam" ;
   int                       jack_n_input_channels  = 2 ;
   int                       jack_n_output_channels = 2 ;
-  char*                     audio_config           = "" ; // TODO: what is the form ? - can be empty - yes
+  char*                     audio_config           = "" ;
 #  endif // _MAC
 #endif // _WIN32
 /* TODO:
   audio_config =>
-    win => "an_int?"
-    mac => "input device name"
-    nix => "alsa_config_string"
+    win =>
+      -noaudiocfg
+      -jesusonic <path to jesusonic root dir>
+    mac =>
+      -audiostr device_name[,output_device_name]
+    nix =>
+      -audiostr "option value [option value ...]"
+        ALSA audio options are:
+          in hw:0,0    -- set input device
+          out hw:0,0   -- set output device
+          srate 48000  -- set samplerate
+          nch 2        -- set channels
+          bps 16       -- set bits/sample
+          bsize 2048   -- set blocksize (bytes)
+          nblock 16    -- set number of blocks
 */
 
   // master channels config defaults
-  float master_vol  = 1.0 ;
-  float master_pan  = 1.0 ;
-  int   master_mute = 1 ;
-  float metro_vol   = 1.0 ;
-  float metro_pan   = 1.0 ;
-  int   metro_mute  = 1 ;
+  float master_vol  = 0.0f ; // DB2VAL(-120.0) .. DB2VAL(20.0) db gain
+  float master_pan  = 0.0f ; // -1.0 .. 1.0
+  bool  master_mute = false ;
+  float metro_vol   = DB2VAL(-18.0f) ;
+  float metro_pan   = 0.0f ;
+  bool  metro_mute  = false ;
 
   // input channels config defaults
   const int     MAX_INPUT_CHANNELS = Client->GetMaxLocalChannels() ;
-  Array<String> channel_names ;   String channel_name    = String("unnamed channel") ;
-  Array<int>    channel_sources ; int    channel_source  = 0 ;
-  Array<int>    channel_xmits ;   int    channel_xmit    = 0 ;
-  Array<int>    channel_mutes ;   int    channel_mute    = 0 ;
-  Array<int>    channel_solos ;   int    channel_solo    = 0 ;
-  Array<float>  channel_volumes ; float  channel_volume  = 0 ;
-  Array<float>  channel_pans ;    float  channel_pan     = 0 ;
-  channel_names  .insertMultiple(0 , channel_name   , MAX_INPUT_CHANNELS) ;
-  channel_sources.insertMultiple(0 , channel_source , MAX_INPUT_CHANNELS) ; // TODO: check this
+  Array<String> channel_names ;     String channel_name   = String("unnamed channel ") ;
+  Array<int   > channel_source_ns ;
+  Array<bool  > channel_xmits ;     bool   channel_xmit   = true ;
+  Array<bool  > channel_mutes ;     bool   channel_mute   = false ;
+  Array<bool  > channel_solos ;     bool   channel_solo   = false ;
+  Array<float > channel_volumes ;   float  channel_volume = 0.0f ;
+  Array<float > channel_pans ;      float  channel_pan    = 0.0f ;
+  for (int ch_n = 0 ; ch_n < MAX_INPUT_CHANNELS ; ++ch_n)
+  {
+    channel_names.add(channel_name + String(ch_n)) ;
+    channel_source_ns.add(ch_n) ;
+  }
   channel_xmits  .insertMultiple(0 , channel_xmit   , MAX_INPUT_CHANNELS) ;
   channel_mutes  .insertMultiple(0 , channel_mute   , MAX_INPUT_CHANNELS) ;
   channel_solos  .insertMultiple(0 , channel_solo   , MAX_INPUT_CHANNELS) ;
-  channel_volumes.insertMultiple(0 , channel_volume , MAX_INPUT_CHANNELS) ; // TODO: check this
-  channel_pans   .insertMultiple(0 , channel_pan    , MAX_INPUT_CHANNELS) ; // TODO: check this
+  channel_volumes.insertMultiple(0 , channel_volume , MAX_INPUT_CHANNELS) ;
+  channel_pans   .insertMultiple(0 , channel_pan    , MAX_INPUT_CHANNELS) ;
 
   // misc config defaults
-  int debug_level            = 0 ; // TODO: what are the accepted values
-/* cursesclient
-WDL_String sessiondir;
-int sessionspec=0;
-int nolog=0,nowav=1,writeogg=0,g_nssf=0;
-*/
+  int debug_level = 0 ; // TODO: what are the accepted values
 
 // TODO: read persistent config
 // TODO: parse command line args (autojoin)
 
   // initialize NINJAM client
-//   Client->LicenseAgreementCallback = licensecallback = (int (*)(int i, char* c))on_license ;
-//   Client->ChatMessage_Callback     = chatmsg_cb      = (void (*)(int i, NJClient* n, const char** c, int ii))on_chatmsg ;
   Client->LicenseAgreementCallback = OnLicense ;
   Client->ChatMessage_Callback     = OnChatmsg ;
-/*
-Client->LicenseAgreementCallback = licensecallback ;
-Client->ChatMessage_Callback     = chatmsg_cb ;
-*/
   Client->config_savelocalaudio    = save_local_audio ;
   Client->config_debug_level       = debug_level ;
-/*
-audiostream_onsamples = OnSamples ; // TODO:
-audiostream_onunder   = OnUnderflow ;
-audiostream_onover    = OnOverflow ;
-*/
 
   // initialize audio
 #ifdef _WIN32
-//  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , !audio_config , NULL) ;
-//  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , !audio_config , NULL , OnSamples) ;
   Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , win_audio_if_n , OnSamples) ;
 #else // _WIN32
 #  ifdef _MAC
   Audio = create_audioStreamer_CoreAudio(&audio_config , mac_sample_rate ,
                                          mac_n_input_channels , mac_bit_depth , OnSamples) ;
-//                                          mac_n_input_channels , mac_bit_depth , audiostream_onsamples) ;
 #  else // _MAC
-  switch (nix_audio_driver == 0)
+  switch (nix_audio_driver)
   {
     case 0: // JACK
       Audio = create_audioStreamer_JACK(jack_client_name.toRawUTF8() , jack_n_input_channels ,
                                         jack_n_output_channels , OnSamples , Client) ;
-//                                         jack_n_output_channels , audiostream_onsamples , Client) ;
 
 DEBUG_TRACE_JACK_INIT
 
       if (Audio) break ;
+    case 1: // ALSA
     default:
       Audio = create_audioStreamer_ALSA(audio_config , OnSamples) ;
-//      Audio = create_audioStreamer_ALSA(audio_config , audiostream_onsamples) ;
   }
 #  endif // _MAC
 #endif // _WIN32
@@ -162,22 +151,27 @@ DEBUG_TRACE_AUDIO_INIT
   // configure master channels
   Client->config_mastervolume   = master_vol ;
   Client->config_masterpan      = master_pan ;
-  Client->config_mastermute     = !!master_mute ;
+  Client->config_mastermute     = master_mute ;
   Client->config_metronome      = metro_vol ;
   Client->config_metronome_pan  = metro_pan ;
-  Client->config_metronome_mute = !!metro_mute ;
+  Client->config_metronome_mute = metro_mute ;
 
   // configure input channels
   int n_input_channels = Audio->m_innch ;
-  for (int ch = 0 ; ch < n_input_channels ; ++ch)
+  for (int ch_n = 0 ; ch_n < n_input_channels ; ++ch_n)
   {
-    Client->SetLocalChannelInfo(ch , channel_names[ch].toRawUTF8() , false , false , false , 0 , false , false) ;
-    Client->SetLocalChannelInfo(ch , NULL , true , channel_sources[ch] , false , 0 , false , false) ;
-    Client->SetLocalChannelInfo(ch , NULL , false , false , false , 0 , true , !!channel_xmits[ch]) ;
-    Client->SetLocalChannelMonitoring(ch , false , false , false , false , true , !!channel_mutes[ch] , false , false) ;
-    Client->SetLocalChannelMonitoring(ch , false , false , false , false , false , false , true , !!channel_solos[ch]) ;
-    Client->SetLocalChannelMonitoring(ch , true , channel_volumes[ch] , false , false , false , false , false , false) ;
-    Client->SetLocalChannelMonitoring(ch , false , false , true , channel_pans[ch] , false , false , false , false) ;
+// NJClient::SetLocalChannelInfo(int ch, const char *name, bool setsrcch, int srcch,
+//                                   bool setbitrate, int bitrate, bool setbcast, bool broadcast)
+//  g_client->SetLocalChannelInfo(0  , "channel0"                      , true  , 0                       , false , 0 , true  , true);// from cursesclient
+    Client->SetLocalChannelInfo(ch_n , channel_names[ch_n].toRawUTF8() , false , false                   , false , 0 , false , false) ;
+    Client->SetLocalChannelInfo(ch_n , NULL                            , true  , channel_source_ns[ch_n] , false , 0 , false , false) ;
+    Client->SetLocalChannelInfo(ch_n , NULL                            , false , false                   , false , 0 , true  , channel_xmits[ch_n]) ;
+//d NJClient::SetLocalChannelMonitoring(int ch, bool setvol, float vol, bool setpan, float pan, bool setmute, bool mute, bool setsolo, bool solo)
+//  g_client->SetLocalChannelMonitoring(0  , false , 0.0f                  , false , 0.0f               , false , false               , false ,false);// from cursesclient
+    Client->SetLocalChannelMonitoring(ch_n , false , false                 , false , false              , true  , channel_mutes[ch_n] , false , false) ;
+    Client->SetLocalChannelMonitoring(ch_n , false , false                 , false , false              , false , false               , true  , channel_solos[ch_n]) ;
+    Client->SetLocalChannelMonitoring(ch_n , true  , channel_volumes[ch_n] , false , false              , false , false               , false , false) ;
+    Client->SetLocalChannelMonitoring(ch_n , false , false                 , true  , channel_pans[ch_n] , false , false               , false , false) ;
 #ifdef INPUT_FX
 #  ifdef _WIN32
     void *p=CreateJesusInstance(ch,"",Audio->m_srate);
@@ -185,13 +179,7 @@ DEBUG_TRACE_AUDIO_INIT
 #  endif
 #endif
   }
-/* from cursesclient
-    else // set up defaults
-    {
-      g_client->SetLocalChannelInfo(0,"channel0",true,0,false,0,true,true);
-      g_client->SetLocalChannelMonitoring(0,false,0.0f,false,0.0f,false,false,false,false);
-    }
-*/
+
   // initialize networking
   JNL::open_socketlib() ;
 
@@ -208,16 +196,17 @@ void LinJam::Connect()
     Pass  = "" ;
   }
 
-Server = "ninbot.com:2050" ; // TODO: get Server Login Pass IsAnonymous from config
+Server = "ninbot.com:2049" ; // TODO: get Server Login Pass IsAnonymous from config
 #if DEBUG_BYPASS_LICENSE
   IsAgreed = true ;
 #endif
 DEBUG_TRACE_CONNECT
 
   Client->Connect(Server.toRawUTF8() , login.toRawUTF8() , Pass.toRawUTF8()) ;
+  IsAudioEnabled = true ;
 }
 
-void LinJam::Disconnect() { Client->Disconnect() ; }
+void LinJam::Disconnect() { IsAudioEnabled = false ; Client->Disconnect() ; }
 
 void LinJam::Shutdown() { delete Audio ; JNL::close_socketlib() ; }
 
@@ -294,34 +283,26 @@ DEBUG_TRACE_CHAT_IN
     chat_user = GUI::SERVER_NICK.text ;
   } 
   Gui->chatComponent->addChatLine(chat_user , chat_text) ;
+
+DEBUG_AUDIO_STATE
 }
 
-void LinJam::OnSamples(float** in_buffer , int in_n_channels ,
-                       float** out_buffer , int out_n_channels ,
-                       int len , int sample_rate)
+void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
+                       float** output_buffer , int n_output_channels ,
+                       int     n_samples     , int sample_rate)
 {
-/* from cursesclient
-void audiostream_onsamples(float **inbuf, int innch, float **outbuf, int outnch, int len, int srate) 
-{ 
-  if (!g_audio_enable) 
+  if (!IsAudioEnabled)
   {
-    int x;
     // clear all output buffers
-    for (x = 0; x < outnch; x ++) memset(outbuf[x],0,sizeof(float)*len);
-    return;
+    uint8 n_bytes = n_samples * sizeof(float) ;
+    for (int ch_n = 0 ; ch_n < n_output_channels ; ++ch_n)
+      memset(output_buffer[ch_n] , 0 , n_bytes) ;
   }
-  g_client->AudioProc(inbuf,innch, outbuf, outnch, len,srate);
+  else 
+    Client->AudioProc(input_buffer  , n_input_channels  ,
+                         output_buffer , n_output_channels ,
+                         n_samples     , sample_rate       ) ;
 }
-
-
-*/
-}
-
-/*
-void LinJam::OnUnderflow() {}
-
-void LinJam::OnOverflow() {}
-*/
 
 
 /* chat helpers */
@@ -335,53 +316,44 @@ DBG("LinJam::SendChat() =" + chat_text) ;
   else Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_MSG , chat_text.toRawUTF8()) ;
 }
 
-void LinJam::HandleChatCommand(String chat_text)
+void LinJam::HandleChatCommand(String chat_command)
 {
-/* from cursesclient
-                      if (!strncasecmp(m_chatinput_str,"/me ",4))
-                      {
-                        g_client->ChatMessage_Send("MSG",m_chatinput_str);
-                      }
-                      else if (!strncasecmp(m_chatinput_str,"/topic ",7)||
-                               !strncasecmp(m_chatinput_str,"/kick ",6) ||                        
-                               !strncasecmp(m_chatinput_str,"/bpm ",5) ||
-                               !strncasecmp(m_chatinput_str,"/bpi ",5)
-                        ) // alias to /admin *
-                      {
-                        g_client->ChatMessage_Send("ADMIN",m_chatinput_str+1);
-                      }
-                      else if (!strncasecmp(m_chatinput_str,"/admin ",7))
-                      {
-                        char *p=m_chatinput_str+7;
-                        while (*p == ' ') p++;
-                        g_client->ChatMessage_Send("ADMIN",p);
-                      }
-                      else if (!strncasecmp(m_chatinput_str,"/msg ",5))
-                      {
-                        char *p=m_chatinput_str+5;
-                        while (*p == ' ') p++;
-                        char *n=p;
-                        while (*p && *p != ' ') p++;
-                        if (*p == ' ') *p++=0;
-                        while (*p == ' ') p++;
-                        if (*p)
-                        {
-                          g_client->ChatMessage_Send("PRIVMSG",n,p);
-                          WDL_String tmp;
-                          tmp.Set("-> *");
-                          tmp.Append(n);
-                          tmp.Append("* ");
-                          tmp.Append(p);
-                          addChatLine(NULL,tmp.Get());
-                        }
-                        else
-                        {
-                          addChatLine("","error: /msg requires a username and a message.");
-                        }
-                      }
-                      else
-                      {
-                        addChatLine("","error: unknown command.");
-                      }
-*/
+  bool is_me_command    = (!chat_command.startsWith(CLIENT::CHATMSG_CMD_ME)) ;
+  bool is_pm_command    = (!chat_command.startsWith(CLIENT::CHATMSG_CMD_MSG)) ;
+  bool is_admin_command = (!chat_command.startsWith(CLIENT::CHATMSG_CMD_ADMIN)) ;
+  bool is_user_command  = (!chat_command.startsWith(CLIENT::CHATMSG_CMD_TOPIC) ||
+                           !chat_command.startsWith(CLIENT::CHATMSG_CMD_KICK)  ||
+                           !chat_command.startsWith(CLIENT::CHATMSG_CMD_BPM)   ||
+                           !chat_command.startsWith(CLIENT::CHATMSG_CMD_BPI)    ) ;
+
+  if      (is_me_command)
+  {
+    String msg = String(Client->GetUserName()) + " " + chat_command ;
+    Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_MSG , msg.toRawUTF8()) ;
+  }
+  else if (is_user_command)
+  {
+    String msg = chat_command.substring(1) ;
+    Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_ADMIN , msg.toRawUTF8()) ;
+  }
+  else if (is_admin_command)
+  {
+    String msg = chat_command.substring(6).trim() ;
+    Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_ADMIN , msg.toRawUTF8()) ;
+  }
+  else if (is_pm_command)
+  {
+    String to_user = chat_command.substring(4).trim() ;
+    to_user        = to_user.upToFirstOccurrenceOf(StringRef(" ") , false , false) ;
+    String msg     = to_user.fromFirstOccurrenceOf(StringRef(" ") , false , false).trim() ;
+
+    if (to_user.isEmpty() || msg.isEmpty())
+      Gui->chatComponent->addChatLine(GUI::SERVER_NICK.text , GUI::INVALID_PM_MSG) ;
+    else // if (does_user_exist(to_user)) // TODO:
+    {
+      Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_PRIVMSG , msg.toRawUTF8()) ;
+      Gui->chatComponent->addChatLine("(PM -> " + to_user + ")" , msg) ;
+    }
+  }
+  else Gui->chatComponent->addChatLine(GUI::SERVER_NICK.text , GUI::UNKNOWN_COMMAND_MSG) ;
 }
