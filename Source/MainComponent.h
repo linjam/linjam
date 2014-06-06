@@ -13,6 +13,7 @@
 
 #include "LoginComponent.h"
 #include "LicenseComponent.h"
+#include "ChatComponent.h"
 #include "StatusBarComponent.h"
 
 
@@ -40,6 +41,7 @@ private:
   ScopedPointer<LoginComponent>     loginComponent ;
   ScopedPointer<LicenseComponent>   licenseComponent ;
   ScopedPointer<StatusBarComponent> statusComponent ;
+  ScopedPointer<ChatComponent>      chatComponent ;
 
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContentComponent)

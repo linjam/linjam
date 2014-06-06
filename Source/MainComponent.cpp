@@ -15,19 +15,27 @@
 MainContentComponent::MainContentComponent()
 {
   // mainComponent
-  this->setName("ContentComponent") ; //JUCEApplication::getInstance()->getApplicationName()
+  this->setName("ContentComponent") ;
   this->setSize(GUI::CONTAINER_W , GUI::CONTAINER_H) ;
 
   // loginComponent
-  this->addChildAndSetID((this->loginComponent = new LoginComponent()) , GUI::LOGIN_GUI_ID) ;
+  this->loginComponent = new LoginComponent() ;
+  this->addChildAndSetID(this->loginComponent , GUI::LOGIN_GUI_ID.text) ;
   this->loginComponent->toFront(true) ;
 
+  // chatComponent
+  this->chatComponent = new ChatComponent() ;
+  this->addChildAndSetID(this->chatComponent , GUI::CHAT_GUI_ID.text) ;
+  this->chatComponent->toBack() ;
+
   // licenseComponent
-  this->addChildAndSetID((this->licenseComponent = new LicenseComponent()) , GUI::LICENSE_GUI_ID) ;
+  this->licenseComponent = new LicenseComponent() ;
+  this->addChildAndSetID(this->licenseComponent , GUI::LICENSE_GUI_ID.text) ;
   this->licenseComponent->toBack() ;
 
   // statusComponent
-  this->addChildAndSetID((this->statusComponent = new StatusBarComponent()) , GUI::STATUS_GUI_ID) ;
+  this->statusComponent = new StatusBarComponent() ;
+  this->addChildAndSetID(this->statusComponent , GUI::STATUS_GUI_ID.text) ;
   this->statusComponent->setAlwaysOnTop(true) ;
   this->statusComponent->setStatusL("Initializing") ;
 
@@ -38,6 +46,7 @@ MainContentComponent::~MainContentComponent()
 {
   this->loginComponent   = nullptr ;
   this->licenseComponent = nullptr ;
+  this->chatComponent    = nullptr ;
   this->statusComponent  = nullptr ;
 }
 
@@ -58,27 +67,42 @@ void MainContentComponent::resized()
   // If you add any child components, this is where you should
   // update their positions.
 
+  // loginComponent , licenseComponent , chatComponent
+  int contentL = 0 ;
+  int contentT = 0 ;
+  int contentW = getWidth() ;
+  int contentH = getHeight() - GUI::PAD2 - GUI::STATUSBAR_H ;
+
+  int statusL = GUI::PAD ;
+  int statusT = getHeight() - GUI::PAD - GUI::STATUSBAR_H ;
+  int statusW = getWidth() - GUI::PAD2 ;
+  int statusH = GUI::STATUSBAR_H ;
+
   // loginComponent
-  int loginL = 0 ;
-  int loginT = 0 ;
-  int loginW = getWidth() ;
-  int loginH = getHeight() ;
+  int loginL = contentL ;
+  int loginT = contentT ;
+  int loginW = contentW ;
+  int loginH = contentH ;
   if (this->loginComponent != nullptr)
     this->loginComponent->setBounds(loginL , loginT , loginW , loginH) ;
 
   // licenseComponent
-  int licenseL = 0 ;
-  int licenseT = 0 ;
-  int licenseW = getWidth() ;
-  int licenseH = getHeight() ;
+  int licenseL = contentL ;
+  int licenseT = contentT ;
+  int licenseW = contentW ;
+  int licenseH = contentH ;
   if (this->licenseComponent != nullptr)
     this->licenseComponent->setBounds(licenseL , licenseT , licenseW , licenseH) ;
 
+  // chatComponent
+  int chatL = contentL ;
+  int chatT = contentT ;
+  int chatW = contentW ;
+  int chatH = contentH ;
+  if (this->chatComponent != nullptr)
+    this->chatComponent->setBounds(chatL , chatT , chatW , chatH) ;
+
   // statusComponent
-  int statusL = GUI::PAD ;
-  int statusT = getHeight() - GUI::PAD - GUI::STATUSBAR_H ;
-  int statusW = getWidth() - (2 * GUI::PAD) ;
-  int statusH = GUI::STATUSBAR_H ;
   if (this->statusComponent != nullptr)
     this->statusComponent->setBounds(statusL , statusT , statusW , statusH) ;
 

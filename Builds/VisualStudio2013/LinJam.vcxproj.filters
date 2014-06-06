@@ -184,13 +184,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\ChatComponent.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\LicenseComponent.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Constants.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Linjam.cpp">
+    <ClCompile Include="..\..\Source\LinJam.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Trace.cpp">
@@ -1020,10 +1023,13 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\ChatComponent.h">
+      <Filter>LinJam\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\LicenseComponent.h">
       <Filter>LinJam\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Linjam.h">
+    <ClInclude Include="..\..\Source\LinJam.h">
       <Filter>LinJam\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Trace.h">
@@ -1371,7 +1377,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\native\juce_win32_ComSmartPtr.h">
       <Filter>Juce Modules\juce_core\native</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_core\juce_core.h">
+    <ClInclude Include="..\..\..\..\juce\modules\juce_core\juce_core.h">
       <Filter>Juce Modules\juce_core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_data_structures\values\juce_Value.h">
@@ -1392,7 +1398,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_data_structures\app_properties\juce_PropertiesFile.h">
       <Filter>Juce Modules\juce_data_structures\app_properties</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_data_structures\juce_data_structures.h">
+    <ClInclude Include="..\..\..\..\juce\modules\juce_data_structures\juce_data_structures.h">
       <Filter>Juce Modules\juce_data_structures</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\messages\juce_ApplicationBase.h">
@@ -1461,7 +1467,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\native\juce_win32_HiddenMessageWindow.h">
       <Filter>Juce Modules\juce_events\native</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_events\juce_events.h">
+    <ClInclude Include="..\..\..\..\juce\modules\juce_events\juce_events.h">
       <Filter>Juce Modules\juce_events</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_graphics\colour\juce_Colour.h">
@@ -1575,7 +1581,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_graphics\native\juce_RenderingHelpers.h">
       <Filter>Juce Modules\juce_graphics\native</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_graphics\juce_graphics.h">
+    <ClInclude Include="..\..\..\..\juce\modules\juce_graphics\juce_graphics.h">
       <Filter>Juce Modules\juce_graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_gui_basics\components\juce_CachedComponentImage.h">
@@ -1959,7 +1965,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_gui_basics\native\juce_MultiTouchMapper.h">
       <Filter>Juce Modules\juce_gui_basics\native</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_gui_basics\juce_gui_basics.h">
+    <ClInclude Include="..\..\..\..\juce\modules\juce_gui_basics\juce_gui_basics.h">
       <Filter>Juce Modules\juce_gui_basics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\AppConfig.h">
@@ -1970,19 +1976,19 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_core\juce_module_info">
+    <None Include="..\..\..\..\juce\modules\juce_core\juce_module_info">
       <Filter>Juce Modules\juce_core</Filter>
     </None>
-    <None Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_data_structures\juce_module_info">
+    <None Include="..\..\..\..\juce\modules\juce_data_structures\juce_module_info">
       <Filter>Juce Modules\juce_data_structures</Filter>
     </None>
-    <None Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_events\juce_module_info">
+    <None Include="..\..\..\..\juce\modules\juce_events\juce_module_info">
       <Filter>Juce Modules\juce_events</Filter>
     </None>
-    <None Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_graphics\juce_module_info">
+    <None Include="..\..\..\..\juce\modules\juce_graphics\juce_module_info">
       <Filter>Juce Modules\juce_graphics</Filter>
     </None>
-    <None Include="..\..\..\..\..\..\..\src\JUCE\modules\juce_gui_basics\juce_module_info">
+    <None Include="..\..\..\..\juce\modules\juce_gui_basics\juce_module_info">
       <Filter>Juce Modules\juce_gui_basics</Filter>
     </None>
   </ItemGroup>

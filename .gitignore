@@ -1,2 +1,17 @@
 
+
+# nix
 Builds/Linux/build
+
+
+# win
+*Debug
+*Release
+lib
+
+[Tt]humbs.db
+*.DS_Store
+
+*.ncb
+*.suo
+*.user

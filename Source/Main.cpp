@@ -8,10 +8,11 @@
   ==============================================================================
 */
 
-#include "../JuceLibraryCode/JuceHeader.h"
+// NOTE: arrange that "windows.h" be included before "JuceHeader.h" in all contexts
+//         and arrange to include "JuceHeader.h" before any "*Component.h"
+#include "LinJam.h" // includes "windows.h" and "JuceHeader.h"
 
 #include "Constants.h"
-#include "Linjam.h"
 #include "MainComponent.h"
 #include "Trace.h"
 
@@ -28,21 +29,26 @@ public:
     bool moreThanOneInstanceAllowed() override       { return false ; }
 
     //==============================================================================
-    void initialise (const String& commandLine) override
+    void initialise (const String& args) override
     {
-      StringRef contentGuiId   = StringRef(GUI::CONTENT_GUI_ID) ;
-      StringRef statusbarGuiId = StringRef(GUI::STATUS_GUI_ID) ;
-
       this->mainWindow         = new MainWindow() ;
-      this->contentComponent   = (MainContentComponent*)this->mainWindow->findChildWithID(contentGuiId) ;
-      this->statusbarComponent = (StatusBarComponent*)this->contentComponent->findChildWithID(statusbarGuiId) ;
+      this->contentComponent   = (MainContentComponent*)this->mainWindow      ->findChildWithID(GUI::CONTENT_GUI_ID) ;
+      this->loginComponent     = (LoginComponent*)      this->contentComponent->findChildWithID(GUI::LOGIN_GUI_ID) ;
+      this->licenseComponent   = (LicenseComponent*)    this->contentComponent->findChildWithID(GUI::LICENSE_GUI_ID) ;
+      this->chatComponent      = (ChatComponent*)       this->contentComponent->findChildWithID(GUI::CHAT_GUI_ID) ;
+      this->statusbarComponent = (StatusBarComponent*)  this->contentComponent->findChildWithID(GUI::STATUS_GUI_ID) ;
 
-      LinJam::Initialize(this , contentComponent , commandLine) ;
+      if (!LinJam::Initialize(this , contentComponent , args)) initError() ;
 
       this->prev_status = NJClient::NJC_STATUS_PRECONNECT ;
       this->startTimer(CLIENT::CLIENT_DRIVER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
-      this->startTimer(CLIENT::STATUS_POLL_ID ,   CLIENT::STATUS_POLL_IVL) ;
+//      this->startTimer(CLIENT::STATUS_POLL_ID ,   CLIENT::STATUS_POLL_IVL) ;
     }
+
+    void initError()
+    {
+      this->statusbarComponent->setStatusL(GUI::AUDIO_INIT_ERROR_MSG.text) ;
+    } // TODO: MB , prompt cfg ??
 
     void shutdown() override
     {
@@ -75,13 +81,13 @@ public:
     class MainWindow    : public DocumentWindow
     {
     public:
-        MainWindow()  : DocumentWindow ("MainWindow" ,
+        MainWindow()  : DocumentWindow (JUCEApplication::getInstance()->getApplicationName() ,
                                         Colours::lightgrey ,
                                         DocumentWindow::allButtons)
         {
             MainContentComponent* mainContentComponent = new MainContentComponent() ;
             setContentOwned(mainContentComponent , true) ;
-            mainContentComponent->setComponentID(GUI::CONTENT_GUI_ID) ;
+            mainContentComponent->setComponentID(GUI::CONTENT_GUI_ID.text) ;
             centreWithSize(getWidth() , getHeight()) ;
             setVisible(true) ;
         }
@@ -107,43 +113,142 @@ public:
 
     void timerCallback(int timerId) override
     {
-      int status = this->GetStatus() ;
       switch (timerId)
       {
-        case CLIENT::CLIENT_DRIVER_ID: if (status >= 0) this->Run() ; break ;
-        case CLIENT::STATUS_POLL_ID:   this->handleStatus(status) ;   break ;
-        default: break ;
+        case CLIENT::CLIENT_DRIVER_ID: driveClient() ;  break ;
+//        case CLIENT::STATUS_POLL_ID:   handleStatus(status) ; break ;
+        default:                                              break ;
       }
+    }
+
+    void driveClient()
+    {
+      int status = GetStatus() ;
+      if (status != this->prev_status) handleStatus(this->prev_status = status) ;
+      if (status < NJC_STATUS_OK || !this->Run()) return ;
+
+//      while (this->Run()) ;
+      if (status == NJC_STATUS_OK && HasUserInfoChanged()) handleUserInfoChanged() ;
     }
 
     void handleStatus(int status)
     {
-      if (status != this->prev_status) this->prev_status = status ; else return ;
+//      if (status != this->prev_status) this->prev_status = status ; else return ;
 
 DEBUG_TRACE_CONNECT_STATUS
 
-      String status_text ; String server = "TODO: GetHostName()" ;
-
+      // GUI state
       switch (status)
       {
-        case NJC_STATUS_DISCONNECTED: status_text = "Disconnected" ;               break ;
-        case NJC_STATUS_INVALIDAUTH:  status_text = (LinJam::IsAgreed)?
-                                        "Invalid login/pass" : "Pending license" ; break ;
-        case NJC_STATUS_CANTCONNECT:  status_text = "Connection failed" ;          break ;
-        case NJC_STATUS_OK:           status_text = "Connected to " + server ;     break ;
-        case NJC_STATUS_PRECONNECT:   status_text = "Idle" ;                       break ;
-        default:                      status_text = "Status: " + status ;          break ;
+        case NJC_STATUS_DISCONNECTED: this->loginComponent  ->toFront(true) ; break ;
+        case NJC_STATUS_INVALIDAUTH:  (LinJam::IsAgreed)?
+                                      this->loginComponent  ->toFront(true) :
+                                      this->licenseComponent->toFront(true) ; break ;
+        case NJC_STATUS_CANTCONNECT:  this->loginComponent  ->toFront(true) ; break ;
+        case NJC_STATUS_OK:           this->chatComponent   ->toFront(true) ; break ;
+        case NJC_STATUS_PRECONNECT:   this->loginComponent  ->toFront(true) ; break ;
+        default:                                                              break ;
+      }
+
+      // status indicator
+      String status_text ;
+      String disconnectedText  = GUI::DISCONNECTED_STATUS_TEXT ;
+      String invalidAuthText   = (LinJam::IsAgreed)? ((isRoomFull())?
+                                 GUI::ROOM_FULL_STATUS_TEXT :
+                                 GUI::INVALID_AUTH_STATUS_TEXT) :
+                                 GUI::PENDING_LICENSE_STATUS_TEXT ;
+      String cantConnectText   = GUI::FAILED_CONNECTION_STATUS_TEXT ;
+      String okText            = (status != NJC_STATUS_OK)? "" :
+                                 GUI::CONNECTED_STATUS_TEXT + String(GetHostName()) ;
+      String preConnectedText  = GUI::IDLE_STATUS_TEXT ;
+      String unknownStatusText = GUI::UNKNOWN_STATUS_TEXT + String(status) ;
+      switch (status)
+      {
+        case NJC_STATUS_DISCONNECTED: status_text = disconnectedText ;  break ;
+        case NJC_STATUS_INVALIDAUTH:  status_text = invalidAuthText ;   break ;
+        case NJC_STATUS_CANTCONNECT:  status_text = cantConnectText ;   break ;
+        case NJC_STATUS_OK:           status_text = okText ;            break ;
+        case NJC_STATUS_PRECONNECT:   status_text = preConnectedText ;  break ;
+        default:                      status_text = unknownStatusText ; break ;
       }
       this->statusbarComponent->setStatusL(status_text) ;
     }
 
+    void handleUserInfoChanged()
+    {
+DEBUG_CHANNELS
+    }
+
+
 private:
     ScopedPointer<MainWindow> mainWindow ;
     MainContentComponent*     contentComponent ;
+    LoginComponent*           loginComponent ;
+    LicenseComponent*         licenseComponent ;
+    ChatComponent*            chatComponent ;
     StatusBarComponent*       statusbarComponent ;
 
     int prev_status ;
-};
+
+
+    bool isRoomFull()
+    {
+      String err = String(GetErrorStr()) ;
+      return (err[0] && !err.compare(String(CLIENT::SERVER_FULL_STATUS))) ;
+    }
+
+
+/*
+void rampEachRemoteUser()
+{
+  // remote users                                                              
+  int user_n = -1 ; int ch_n = -1 ; int n_users = m_remoteusers.GetSize() ;           
+  while (++user_n < n_users)                                                      
+  {                                                                               
+    float vol = 0.0f , pan = 0.0f ; bool mute = 0 ;                               
+    String name = CharPointer_UTF8(GetUserState(user_n , &vol , &pan , &mute)) ;                     
+    this->chatComponent->addChatLine("" , "") ;                                   
+    this->chatComponent->addChatLine(                                             
+        String("remote user ") + String(user_n) + String(":\n") ,                 
+        String("name=")        + String(name)   +                                 
+        String(" volume=")     + String(vol)    +                                 
+        String(" pan=")        + String(pan)    +                                 
+        String(" mute=")       + String(mute)                   ) ;               
+    SetUserState(user_n , true , vol + 10.0f , true , 0.0f , true , false) ;
+
+    // remote user channels                                                     
+    int ch_idx ; ch_n = -1 ;                                                                   
+    while ((ch_idx = EnumUserChannels(user_n , ++ch_n)) >= 0)                     
+    {                                                                             
+      float vol = 0.0f , pan = 0.0f ; bool sub = 0 , mute = 0 , solo = 0 ;        
+      int out_ch = 0 ; bool stereo = 0 ;                                          
+      String name = CharPointer_UTF8(GetUserChannelState(user_n , ch_idx  , &sub    ,               
+                                                         &vol   , &pan    , &mute   ,               
+                                                         &solo  , &out_ch , &stereo)) ;             
+      this->chatComponent->addChatLine(                                           
+          String("    remote channel ") + String(ch_n)     +                      
+              String(" (")              + String(ch_idx)   + String("):\n") ,     
+          String("    name=")           + String(name)     +                      
+          String(" subscribed=")        + String(sub)      +                      
+          String(" volume=")            + String(vol)      +                      
+          String(" pan=")               + String(pan)      +                      
+          String(" mute=")              + String(mute)     +                      
+          String(" solo=")              + String(solo)     +                      
+          String(" out_ch=")            + String(out_ch)   +                      
+          String(" stereo=")            + String(stereo)                    ) ;   
+      SetUserChannelState(user_n , ch_idx ,
+			     true , true ,
+			     true , vol + 10.0f ,
+			     true , 0.0f ,
+			     true , false ,
+			     true , false ,
+			     true , 0 ,
+			     true , false) ;
+    }
+  }
+}
+*/
+} ;
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.

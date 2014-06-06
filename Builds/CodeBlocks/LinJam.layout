@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="..\..\JuceLibraryCode\modules\juce_core\files\juce_File.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2456" topLine="75" />
+		</Cursor>
+	</File>
+	<File name="..\..\JuceLibraryCode\modules\juce_events\messages\juce_Initialisation.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3708" topLine="12" />
+		</Cursor>
+	</File>
+	<File name="..\..\Source\Main.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4410" topLine="2" />
+		</Cursor>
+	</File>
+	<File name="..\..\JuceLibraryCode\modules\juce_core\system\juce_TargetPlatform.h" open="1" top="1" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2062" topLine="35" />
+		</Cursor>
+	</File>
+	<File name="..\..\JuceLibraryCode\modules\juce_core\memory\juce_Atomic.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="14990" topLine="316" />
+		</Cursor>
+	</File>
+</CodeBlocks_layout_file>

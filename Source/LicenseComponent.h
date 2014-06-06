@@ -37,8 +37,6 @@
 class LicenseComponent  : public Component,
                           public ButtonListener
 {
-  friend class LinJam ;
-
 public:
     //==============================================================================
     LicenseComponent ();
@@ -46,6 +44,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+  friend class LinJam ;
 //onvisibility set agreeState = pending
 //   bool getIsAgreed() ; // TODO: config
 

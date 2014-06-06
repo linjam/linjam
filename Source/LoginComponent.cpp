@@ -18,7 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
-#include "Linjam.h"
+#include "LinJam.h"
 #include "Trace.h"
 //[/Headers]
 
@@ -140,22 +140,20 @@ void LoginComponent::resized()
 
 void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
 {
-DEBUG_TRACE_LOGIN_CLICKED
-
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
     if (buttonThatWasClicked == loginButton)
     {
-      //[UserButtonCode_loginButton] -- add your button handler code here..
-      this->setVisible(false) ; LinJam::Connect() ;
-      //[/UserButtonCode_loginButton]
+        //[UserButtonCode_loginButton] -- add your button handler code here..
+      this->toBack() ; LinJam::Connect() ;
+        //[/UserButtonCode_loginButton]
     }
     else if (buttonThatWasClicked == anonButton)
     {
-      //[UserButtonCode_anonButton] -- add your button handler code here..
+        //[UserButtonCode_anonButton] -- add your button handler code here..
 //    this->getTopLevelComponent ()->debugText = "buttonThatWasClicked == anonButton" ;
-      //[/UserButtonCode_anonButton]
+        //[/UserButtonCode_anonButton]
     }
 
     //[UserbuttonClicked_Post]
