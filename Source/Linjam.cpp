@@ -244,8 +244,8 @@ String LinJam::GetLogin() { return Login ; }
 String LinJam::GetPass() { return Pass ; }
 bool   LinJam::GetIsAnonymous() { return IsAnonymous; }
 bool   LinJam::GetShouldAgree() { return ShouldAgree ; }
-bool   LinJam::SetShouldAgree(bool shouldAgree) { ShouldAgree = shouldAgree ; }
-bool   LinJam::SetIsAgreed(bool isAgreed) { IsAgreed = isAgreed ; }
+void   LinJam::SetShouldAgree(bool shouldAgree) { ShouldAgree = shouldAgree ; }
+void   LinJam::SetIsAgreed(bool isAgreed) { IsAgreed = isAgreed ; }
 
 
 /* NJClient callbacks */

@@ -40,8 +40,8 @@ public:
   static String GetPass() ;                        // TODO: persistent config per Server
   static bool   GetIsAnonymous() ;                 // TODO: persistent config per Server
   static bool   GetShouldAgree() ;                 // TODO: persistent config per Server
-  static bool   SetShouldAgree(bool shouldAgree) ; // TODO: persistent config per Server
-  static bool   SetIsAgreed(   bool isAgreed) ;
+  static void   SetShouldAgree(bool shouldAgree) ; // TODO: persistent config per Server
+  static void   SetIsAgreed(   bool isAgreed) ;
 
   // NJClient callbacks
   static int  OnLicense(int user32 , char* license_text) ;
