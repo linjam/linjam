@@ -8,6 +8,10 @@
   ==============================================================================
 */
 
+
+#define DEBUG_SERVER "ninbot.com:2052"
+
+
 #include "LinJam.h"
 #include "Constants.h"
 #include "Trace.h"
@@ -23,7 +27,8 @@ bool LinJam::IsAgreed = false ;
 audioStreamer*        LinJam::Audio          = nullptr ; // Initialize()
 NJClient*             LinJam::Client         = nullptr ; // Initialize()
 MainContentComponent* LinJam::Gui            = nullptr ; // Initialize()
-bool                  LinJam::IsAudioEnabled = false ; // TODO: use Client->>m_audio_enable instead ??
+bool                  LinJam::IsAudioEnabled = false ;   // TODO: ?? use Client->>m_audio_enable instead ??
+File                  LinJam::SessionDir ;               // Initialize()
 
 bool   LinJam::ShouldAutoJoin = false ; // TODO: persistent config
 String LinJam::Server         = "" ;    // TODO: persistent config
@@ -44,21 +49,21 @@ DEBUG_TRACE_LINJAM_INIT
   Gui    = contentComponent ;
 
   // audio config defaults
-  int                       save_local_audio       = -1 ;
+  int                       should_save_local_audio = 0 ;
 #ifdef _WIN32
-  audioStreamer::WinAudioIf win_audio_if_n         = audioStreamer::WINDOWS_AUDIO_WAVE ;
+  audioStreamer::WinAudioIf win_audio_if_n          = audioStreamer::WINDOWS_AUDIO_WAVE ;
 #else // _WIN32
 #  ifdef _MAC
-  int                       mac_n_input_channels   = 2 ;
-  int                       mac_sample_rate        = 48000 ;
-  int                       mac_bit_depth          = 16 ;
-  char*                     audio_config           = "" ;
+  int                       mac_n_input_channels    = 2 ;
+  int                       mac_sample_rate         = 48000 ;
+  int                       mac_bit_depth           = 16 ;
+  char*                     audio_config            = "" ;
 #  else // _MAC
-  int                       nix_audio_driver       = 0 ;
-  String                    jack_client_name       = "linjam" ;
-  int                       jack_n_input_channels  = 2 ;
-  int                       jack_n_output_channels = 2 ;
-  char*                     audio_config           = "" ;
+  int                       nix_audio_driver        = 0 ;
+  String                    jack_client_name        = "linjam" ;
+  int                       jack_n_input_channels   = 2 ;
+  int                       jack_n_output_channels  = 2 ;
+  char*                     audio_config            = "" ;
 #  endif // _MAC
 #endif // _WIN32
 /* TODO:
@@ -81,18 +86,20 @@ DEBUG_TRACE_LINJAM_INIT
 */
 
   // master channels config defaults
-  float master_vol  = 0.0f ; // DB2VAL(-120.0) .. DB2VAL(20.0) db gain
-  float master_pan  = 0.0f ; // -1.0 .. 1.0
-  bool  master_mute = false ;
-  float metro_vol   = DB2VAL(-18.0f) ;
-  float metro_pan   = 0.0f ;
-  bool  metro_mute  = false ;
+  float master_volume = 1.0f ; // DB2VAL(-120.0) .. DB2VAL(20.0) db gain
+  float master_pan    = 0.0f ; // -1.0 .. 1.0
+  bool  master_mute   = false ;
+  float metro_volume  = DB2VAL(-36.0f) ;
+  float metro_pan     = 0.0f ;
+  bool  metro_mute    = false ;
+  int   metro_channel = 0 ;
+  bool  metro_stereo  = true ;
 
   // input channels config defaults
   const int     MAX_INPUT_CHANNELS = Client->GetMaxLocalChannels() ;
   Array<String> channel_names ;     String channel_name   = String("unnamed channel ") ;
   Array<int   > channel_source_ns ;
-  Array<bool  > channel_xmits ;     bool   channel_xmit   = true ;
+  Array<bool  > channel_xmits ;     bool   channel_xmit   = false ;
   Array<bool  > channel_mutes ;     bool   channel_mute   = false ;
   Array<bool  > channel_solos ;     bool   channel_solo   = false ;
   Array<float > channel_volumes ;   float  channel_volume = 0.0f ;
@@ -109,16 +116,16 @@ DEBUG_TRACE_LINJAM_INIT
   channel_pans   .insertMultiple(0 , channel_pan    , MAX_INPUT_CHANNELS) ;
 
   // misc config defaults
-  int debug_level = 0 ; // TODO: what are the accepted values
+  String session_dirname     = "/.linjam/session" ;
+  bool   should_save_log     = true ;
+  String log_filename        = "clipsort.log" ;
+  int    debug_level         = 0 ; // TODO: what are the accepted values
+  bool should_auto_subscribe = true ;
+  Array<String> auto_subscribe_users ;
 
-// TODO: read persistent config
 // TODO: parse command line args (autojoin)
-
-  // initialize NINJAM client
-  Client->LicenseAgreementCallback = OnLicense ;
-  Client->ChatMessage_Callback     = OnChatmsg ;
-  Client->config_savelocalaudio    = save_local_audio ;
-  Client->config_debug_level       = debug_level ;
+// TODO: read persistent config
+//       int user_n = n_config_users ; while (user_n--) auto_subscribe_users.add(name) ;
 
   // initialize audio
 #ifdef _WIN32
@@ -149,12 +156,14 @@ DEBUG_TRACE_AUDIO_INIT
   if (!Audio) return false ;
 
   // configure master channels
-  Client->config_mastervolume   = master_vol ;
-  Client->config_masterpan      = master_pan ;
-  Client->config_mastermute     = master_mute ;
-  Client->config_metronome      = metro_vol ;
-  Client->config_metronome_pan  = metro_pan ;
-  Client->config_metronome_mute = metro_mute ;
+  Client->config_mastervolume        = master_volume ;
+  Client->config_masterpan           = master_pan ;
+  Client->config_mastermute          = master_mute ;
+  Client->config_metronome           = metro_volume ;
+  Client->config_metronome_pan       = metro_pan ;
+  Client->config_metronome_mute      = metro_mute ;
+  Client->config_metronome_channel   = metro_channel ;
+  Client->config_metronome_stereoout = metro_stereo ;
 
   // configure input channels
   int n_input_channels = Audio->m_innch ;
@@ -180,10 +189,34 @@ DEBUG_TRACE_AUDIO_INIT
 #endif
   }
 
+  // prepare session directory
+  File home_dir = File::getSpecialLocation(File::userApplicationDataDirectory) ;
+  if (home_dir.isDirectory())
+  {
+    session_dirname = (session_dirname.startsWith("/"))?
+        home_dir.getFullPathName() + session_dirname :
+        home_dir.getFullPathName() + String("/") + session_dirname ;
+    SessionDir = File(session_dirname) ;
+    SessionDir.createDirectory() ; CleanSessionDir() ;
+  }
+  bool does_session_dir_exist = SessionDir.isDirectory() ;
+  if (does_session_dir_exist) Client->SetWorkDir(session_dirname.toRawUTF8()) ;
+
+  // configure NINJAM client
+  Client->LicenseAgreementCallback = OnLicense ;
+  Client->ChatMessage_Callback     = OnChatmsg ;
+  Client->config_savelocalaudio    = should_save_local_audio ;
+  Client->config_debug_level       = debug_level ;
+  Client->config_autosubscribe     = should_auto_subscribe ;
+  if (should_save_log && does_session_dir_exist)
+    Client->SetLogFile((session_dirname + log_filename).toRawUTF8()) ;
+  for (int user_n = 0 ; user_n < auto_subscribe_users.size() ; ++user_n)
+    Client->config_autosubscribe_userlist.insert(auto_subscribe_users[user_n].toRawUTF8()) ;
+
   // initialize networking
   JNL::open_socketlib() ;
 
-  return true ;
+  return does_session_dir_exist ;
 }
 
 void LinJam::Connect()
@@ -196,7 +229,9 @@ void LinJam::Connect()
     Pass  = "" ;
   }
 
-Server = "ninbot.com:2049" ; // TODO: get Server Login Pass IsAnonymous from config
+#if DEBUG_STATIC_SERVER
+Server = DEBUG_SERVER ; // TODO: get Server Login Pass IsAnonymous from config
+#endif // DEBUG_STATIC_SERVER
 #if DEBUG_BYPASS_LICENSE
   IsAgreed = true ;
 #endif
@@ -208,20 +243,7 @@ DEBUG_TRACE_CONNECT
 
 void LinJam::Disconnect() { IsAudioEnabled = false ; Client->Disconnect() ; }
 
-void LinJam::Shutdown() { delete Audio ; JNL::close_socketlib() ; }
-
-
-/* getters/setters */
-
-// TODO: get/set persistent config
-bool   LinJam::GetShouldAutoJoin() { return ShouldAutoJoin ; }
-String LinJam::GetServer() { return Server ; }
-String LinJam::GetLogin() { return Login ; }
-String LinJam::GetPass() { return Pass ; }
-bool   LinJam::GetIsAnonymous() { return IsAnonymous; }
-bool   LinJam::GetShouldAgree() { return ShouldAgree ; }
-void   LinJam::SetShouldAgree(bool shouldAgree) { ShouldAgree = shouldAgree ; }
-void   LinJam::SetIsAgreed(bool isAgreed) { IsAgreed = isAgreed ; }
+void LinJam::Shutdown() { delete Audio ; JNL::close_socketlib() ; CleanSessionDir() ; }
 
 
 /* NJClient callbacks */
@@ -235,7 +257,7 @@ Gui->licenseComponent->agreeEvent->wait() ;
 IsAgreed = (licenseComponent->getIsAgreed()) ;
 #else // DEBUG_LICENSE_MULTITHREADED
   IsAgreed = (IsAgreed || GetShouldAgree()) ;
-  if (!IsAgreed) Gui->licenseComponent->setLicenseText(license_text) ;
+  if (!IsAgreed) Gui->licenseComponent->setLicenseText(CharPointer_UTF8(license_text)) ;
 #endif // DEBUG_LICENSE_MULTITHREADED
 DEBUG_TRACE_LICENSE
 
@@ -248,9 +270,9 @@ DEBUG_TRACE_CHAT_IN
 
   if (!parms[0]) return ;
 
-  String chat_type = String(parms[CLIENT::CHATMSG_TYPE_IDX]) ;
-  String chat_user = String(parms[CLIENT::CHATMSG_USER_IDX]).upToFirstOccurrenceOf("@", false , false) ;
-  String chat_text = String(parms[CLIENT::CHATMSG_MSG_IDX]) ;
+  String chat_type = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
+  String chat_user = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_USER_IDX])).upToFirstOccurrenceOf("@", false , false) ;
+  String chat_text = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_MSG_IDX])) ;
   bool is_topic_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_TOPIC)) ;
   bool is_bcast_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_MSG)) ;
   bool is_priv_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PRIVMSG)) ;
@@ -283,8 +305,6 @@ DEBUG_TRACE_CHAT_IN
     chat_user = GUI::SERVER_NICK.text ;
   } 
   Gui->chatComponent->addChatLine(chat_user , chat_text) ;
-
-DEBUG_AUDIO_STATE
 }
 
 void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
@@ -298,14 +318,27 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
     for (int ch_n = 0 ; ch_n < n_output_channels ; ++ch_n)
       memset(output_buffer[ch_n] , 0 , n_bytes) ;
   }
-  else 
-    Client->AudioProc(input_buffer  , n_input_channels  ,
+  else Client->AudioProc(input_buffer  , n_input_channels  ,
                          output_buffer , n_output_channels ,
                          n_samples     , sample_rate       ) ;
 }
 
 
+/* getters/setters */
+
+// TODO: get/set persistent config
+bool   LinJam::GetShouldAutoJoin() { return ShouldAutoJoin ; }
+String LinJam::GetServer() { return Server ; }
+String LinJam::GetLogin() { return Login ; }
+String LinJam::GetPass() { return Pass ; }
+bool   LinJam::GetIsAnonymous() { return IsAnonymous; }
+bool   LinJam::GetShouldAgree() { return ShouldAgree ; }
+void   LinJam::SetShouldAgree(bool shouldAgree) { ShouldAgree = shouldAgree ; }
+void   LinJam::SetIsAgreed(bool isAgreed) { IsAgreed = isAgreed ; }
+
+
 /* chat helpers */
+
 void LinJam::SendChat(String chat_text)
 {
 DBG("LinJam::SendChat() =" + chat_text) ;
@@ -356,4 +389,15 @@ void LinJam::HandleChatCommand(String chat_command)
     }
   }
   else Gui->chatComponent->addChatLine(GUI::SERVER_NICK.text , GUI::UNKNOWN_COMMAND_MSG) ;
+}
+
+
+/* misc helpers */
+
+void LinJam::CleanSessionDir()
+{
+  if (!SessionDir.isDirectory()) return ;
+
+  DirectoryIterator session_dir_iter (SessionDir , false , "*.*" , File::findFilesAndDirectories) ;
+  while (session_dir_iter.next()) session_dir_iter.getFile().deleteRecursively() ;
 }

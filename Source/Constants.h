@@ -23,6 +23,7 @@ public:
   static char* WIN_INI_FILE ;
 
   // NJClient
+  static const String    SERVER_FULL_STATUS ;
   static const uint8     CHATMSG_TYPE_IDX = 0 ;
   static const uint8     CHATMSG_USER_IDX = 1 ;
   static const uint8     CHATMSG_MSG_IDX  = 2 ;
@@ -42,7 +43,7 @@ public:
 
   // main
   static const int CLIENT_DRIVER_ID = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
-  static const int STATUS_POLL_ID   = 1 ; static const int STATUS_POLL_IVL   = 500 ;
+//  static const int STATUS_POLL_ID   = 1 ; static const int STATUS_POLL_IVL   = 500 ;
 } ;
 
 
@@ -57,6 +58,7 @@ public:
   // main
   static const StringRef AUDIO_INIT_ERROR_MSG ;
   static const String    DISCONNECTED_STATUS_TEXT ;
+  static const String    ROOM_FULL_STATUS_TEXT ;
   static const String    INVALID_AUTH_STATUS_TEXT ;
   static const String    PENDING_LICENSE_STATUS_TEXT ;
   static const String    FAILED_CONNECTION_STATUS_TEXT ;

@@ -2,6 +2,7 @@
 #include "Constants.h"
 
 // client
+const String     CLIENT::SERVER_FULL_STATUS  = "server full" ;
 const StringRef CLIENT::CHATMSG_TYPE_TOPIC   = "TOPIC" ;
 const StringRef CLIENT::CHATMSG_TYPE_MSG     = "MSG" ;
 const StringRef CLIENT::CHATMSG_TYPE_PRIVMSG = "PRIVMSG" ;
@@ -22,6 +23,7 @@ char* CLIENT::WIN_INI_FILE = "linjam.ini" ;
 // main
 const StringRef GUI::AUDIO_INIT_ERROR_MSG          = "audio device error" ;
 const String    GUI::DISCONNECTED_STATUS_TEXT      = "Disconnected" ;
+const String    GUI::ROOM_FULL_STATUS_TEXT         = "Jam room full" ;
 const String    GUI::INVALID_AUTH_STATUS_TEXT      = "Invalid login/pass" ;
 const String    GUI::PENDING_LICENSE_STATUS_TEXT   = "Pending license" ;
 const String    GUI::FAILED_CONNECTION_STATUS_TEXT = "Connection failed" ;
