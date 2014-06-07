@@ -118,7 +118,7 @@ void StatusBarComponent::resized()
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
   void StatusBarComponent::setStatusL(String statusText)
   { this->statusLLabel->setText(statusText , juce::dontSendNotification) ; }
-//  void StatusBarComponent::setStatusC(TODO: list of btns) {;}
+//  void StatusBarComponent::setStatusC(TODO: list of btns) {;} (issue #8)
   void StatusBarComponent::setStatusR(String statusText)
   { this->statusRLabel->setText(statusText , juce::dontSendNotification) ; }
 //[/MiscUserCode]

@@ -40,13 +40,13 @@ public:
                         int n_samples         , int sample_rate)      ;
 
   // getters/setters
-  static bool   GetShouldAutoJoin() ;              // TODO: persistent config
-  static String GetServer() ;                      // TODO: persistent config
-  static String GetLogin() ;                       // TODO: persistent config per Server
-  static String GetPass() ;                        // TODO: persistent config per Server
-  static bool   GetIsAnonymous() ;                 // TODO: persistent config per Server
-  static bool   GetShouldAgree() ;                 // TODO: persistent config per Server
-  static void   SetShouldAgree(bool shouldAgree) ; // TODO: persistent config per Server
+  static bool   GetShouldAutoJoin() ;              // TODO: persistent config            (issue #6)
+  static String GetServer() ;                      // TODO: persistent config            (issue #6)
+  static String GetLogin() ;                       // TODO: persistent config per Server (issue #6)
+  static String GetPass() ;                        // TODO: persistent config per Server (issue #6)
+  static bool   GetIsAnonymous() ;                 // TODO: persistent config per Server (issue #6)
+  static bool   GetShouldAgree() ;                 // TODO: persistent config per Server (issue #6)
+  static void   SetShouldAgree(bool shouldAgree) ; // TODO: persistent config per Server (issue #6)
   static void   SetIsAgreed(   bool isAgreed) ;
 
   // chat helpers
@@ -57,9 +57,7 @@ public:
   static void CleanSessionDir() ;
 
 
-  static bool IsAgreed ; // TODO: ?? this exists only so we dont block waiting for user
-                         //       but we must instead attempt login in twice
-                         //       once to get the license and again after agreed
+  static bool IsAgreed ; // TODO: ?? this exists only so OnLicense doesnt block (issue #14)
 
 
 private:
@@ -70,12 +68,12 @@ private:
   static bool                  IsAudioEnabled ;
   static File                  SessionDir ;
 
-  static bool   ShouldAutoJoin ; // TODO: persistent config
-  static String Server ;         // TODO: persistent config
-  static String Login ;          // TODO: persistent config per Server
-  static String Pass ;           // TODO: persistent config per Server
-  static bool   IsAnonymous ;    // TODO: persistent config per Server
-  static bool   ShouldAgree ;    // TODO: persistent config per Server
+  static bool   ShouldAutoJoin ; // TODO: persistent config            (issue #6)
+  static String Server ;         // TODO: persistent config            (issue #6)
+  static String Login ;          // TODO: persistent config per Server (issue #6)
+  static String Pass ;           // TODO: persistent config per Server (issue #6)
+  static bool   IsAnonymous ;    // TODO: persistent config per Server (issue #6)
+  static bool   ShouldAgree ;    // TODO: persistent config per Server (issue #6)
 } ;
 
 #endif  // LINJAM_H_INCLUDED

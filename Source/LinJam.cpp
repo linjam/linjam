@@ -9,7 +9,7 @@
 */
 
 
-#define DEBUG_SERVER "ninbot.com:2052"
+#define DEBUG_SERVER "ninbot.com:2049"
 
 
 #include "LinJam.h"
@@ -27,15 +27,15 @@ bool LinJam::IsAgreed = false ;
 audioStreamer*        LinJam::Audio          = nullptr ; // Initialize()
 NJClient*             LinJam::Client         = nullptr ; // Initialize()
 MainContentComponent* LinJam::Gui            = nullptr ; // Initialize()
-bool                  LinJam::IsAudioEnabled = false ;   // TODO: ?? use Client->>m_audio_enable instead ??
+bool                  LinJam::IsAudioEnabled = false ;   // TODO: use Client->>m_audio_enable instead ?? (issue #11)
 File                  LinJam::SessionDir ;               // Initialize()
 
-bool   LinJam::ShouldAutoJoin = false ; // TODO: persistent config
-String LinJam::Server         = "" ;    // TODO: persistent config
-String LinJam::Login          = "" ;    // TODO: persistent config per Server
-String LinJam::Pass           = ""  ;   // TODO: persistent config per Server
-bool   LinJam::IsAnonymous    = true ;  // TODO: persistent config per Server
-bool   LinJam::ShouldAgree    = false ; // TODO: persistent config per Server
+bool   LinJam::ShouldAutoJoin = false ; // TODO: persistent config            (issue #6)
+String LinJam::Server         = "" ;    // TODO: persistent config            (issue #6)
+String LinJam::Login          = "" ;    // TODO: persistent config per Server (issue #6)
+String LinJam::Pass           = ""  ;   // TODO: persistent config per Server (issue #6)
+bool   LinJam::IsAnonymous    = true ;  // TODO: persistent config per Server (issue #6)
+bool   LinJam::ShouldAgree    = false ; // TODO: persistent config per Server (issue #6)
 
 
 /* LinJam public class methods */
@@ -66,7 +66,7 @@ DEBUG_TRACE_LINJAM_INIT
   char*                     audio_config            = "" ;
 #  endif // _MAC
 #endif // _WIN32
-/* TODO:
+/* TODO:  (issue #19)
   audio_config =>
     win =>
       -noaudiocfg
@@ -99,7 +99,7 @@ DEBUG_TRACE_LINJAM_INIT
   const int     MAX_INPUT_CHANNELS = Client->GetMaxLocalChannels() ;
   Array<String> channel_names ;     String channel_name   = String("unnamed channel ") ;
   Array<int   > channel_source_ns ;
-  Array<bool  > channel_xmits ;     bool   channel_xmit   = false ;
+  Array<bool  > channel_xmits ;     bool   channel_xmit   = true ;
   Array<bool  > channel_mutes ;     bool   channel_mute   = false ;
   Array<bool  > channel_solos ;     bool   channel_solo   = false ;
   Array<float > channel_volumes ;   float  channel_volume = 0.0f ;
@@ -123,8 +123,8 @@ DEBUG_TRACE_LINJAM_INIT
   bool should_auto_subscribe = true ;
   Array<String> auto_subscribe_users ;
 
-// TODO: parse command line args (autojoin)
-// TODO: read persistent config
+// TODO: parse command line args for autojoin (issue #9)
+// TODO: read persistent config (issue #6)
 //       int user_n = n_config_users ; while (user_n--) auto_subscribe_users.add(name) ;
 
   // initialize audio
@@ -230,7 +230,7 @@ void LinJam::Connect()
   }
 
 #if DEBUG_STATIC_SERVER
-Server = DEBUG_SERVER ; // TODO: get Server Login Pass IsAnonymous from config
+Server = DEBUG_SERVER ; // TODO: get Server Login Pass IsAnonymous from config (issue #6)
 #endif // DEBUG_STATIC_SERVER
 #if DEBUG_BYPASS_LICENSE
   IsAgreed = true ;
@@ -326,7 +326,7 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 
 /* getters/setters */
 
-// TODO: get/set persistent config
+// TODO: get/set persistent config (issue #6)
 bool   LinJam::GetShouldAutoJoin() { return ShouldAutoJoin ; }
 String LinJam::GetServer() { return Server ; }
 String LinJam::GetLogin() { return Login ; }
@@ -382,7 +382,7 @@ void LinJam::HandleChatCommand(String chat_command)
 
     if (to_user.isEmpty() || msg.isEmpty())
       Gui->chatComponent->addChatLine(GUI::SERVER_NICK.text , GUI::INVALID_PM_MSG) ;
-    else // if (does_user_exist(to_user)) // TODO:
+    else // if (does_user_exist(to_user)) // TODO: this safe yea ?
     {
       Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_PRIVMSG , msg.toRawUTF8()) ;
       Gui->chatComponent->addChatLine("(PM -> " + to_user + ")" , msg) ;

@@ -18,7 +18,7 @@
 
 
 //==============================================================================
-class LinJamApplication  : public JUCEApplication , public NJClient , MultiTimer
+class LinJamApplication : public JUCEApplication , public NJClient , MultiTimer
 {
 public:
     //==============================================================================
@@ -128,14 +128,14 @@ public:
       if (status < NJC_STATUS_OK || !this->Run()) return ;
 
 //      while (this->Run()) ;
-      if (status == NJC_STATUS_OK && HasUserInfoChanged()) handleUserInfoChanged() ;
+      if (status == NJC_STATUS_OK && HasUserInfoChanged()) ;//handleUserInfoChanged() ;// TODO: this fires repeatedly
     }
 
     void handleStatus(int status)
     {
 //      if (status != this->prev_status) this->prev_status = status ; else return ;
 
-DEBUG_TRACE_CONNECT_STATUS
+//DEBUG_TRACE_CONNECT_STATUS // linux segfault
 
       // GUI state
       switch (status)
@@ -152,24 +152,27 @@ DEBUG_TRACE_CONNECT_STATUS
 
       // status indicator
       String status_text ;
-      String disconnectedText  = GUI::DISCONNECTED_STATUS_TEXT ;
-      String invalidAuthText   = (LinJam::IsAgreed)? ((isRoomFull())?
-                                 GUI::ROOM_FULL_STATUS_TEXT :
-                                 GUI::INVALID_AUTH_STATUS_TEXT) :
-                                 GUI::PENDING_LICENSE_STATUS_TEXT ;
-      String cantConnectText   = GUI::FAILED_CONNECTION_STATUS_TEXT ;
-      String okText            = (status != NJC_STATUS_OK)? "" :
-                                 GUI::CONNECTED_STATUS_TEXT + String(GetHostName()) ;
-      String preConnectedText  = GUI::IDLE_STATUS_TEXT ;
-      String unknownStatusText = GUI::UNKNOWN_STATUS_TEXT + String(status) ;
       switch (status)
       {
-        case NJC_STATUS_DISCONNECTED: status_text = disconnectedText ;  break ;
-        case NJC_STATUS_INVALIDAUTH:  status_text = invalidAuthText ;   break ;
-        case NJC_STATUS_CANTCONNECT:  status_text = cantConnectText ;   break ;
-        case NJC_STATUS_OK:           status_text = okText ;            break ;
-        case NJC_STATUS_PRECONNECT:   status_text = preConnectedText ;  break ;
-        default:                      status_text = unknownStatusText ; break ;
+        case NJC_STATUS_DISCONNECTED:
+          status_text = GUI::DISCONNECTED_STATUS_TEXT ;              break ;
+        case NJC_STATUS_INVALIDAUTH:
+          status_text = (LinJam::IsAgreed)? ((isRoomFull())?
+                        GUI::ROOM_FULL_STATUS_TEXT :
+                        GUI::INVALID_AUTH_STATUS_TEXT) :
+                        GUI::PENDING_LICENSE_STATUS_TEXT ;           break ;
+        case NJC_STATUS_CANTCONNECT:
+          status_text = GUI::FAILED_CONNECTION_STATUS_TEXT ;         break ;
+        case NJC_STATUS_OK:
+#ifdef WIN32 // TODO: GetHostName() linux .so segfault (issue #15)
+          status_text = GUI::CONNECTED_STATUS_TEXT + GetHostName() ; break ;
+#else // WIN32
+          status_text = GUI::CONNECTED_STATUS_TEXT ;                 break ;
+#endif // WIN32
+        case NJC_STATUS_PRECONNECT:
+          status_text = GUI::IDLE_STATUS_TEXT ;                      break ;
+        default:
+          status_text = GUI::UNKNOWN_STATUS_TEXT + String(status) ;  break ;
       }
       this->statusbarComponent->setStatusL(status_text) ;
     }
@@ -193,8 +196,18 @@ private:
 
     bool isRoomFull()
     {
-      String err = String(GetErrorStr()) ;
-      return (err[0] && !err.compare(String(CLIENT::SERVER_FULL_STATUS))) ;
+#ifdef WIN32 // TODO: GetErrorStr() linux .so segfault (issue #15)
+      String err = String(CharPointer_UTF8(GetErrorStr())) ;
+      return (err.isNotEmpty() && !err.compare(CLIENT::SERVER_FULL_STATUS)) ;
+#else // WIN32
+      return true ;
+/*
+      if (GetErrorStr()[0]) // <-- segfault here
+        return (!strcmp(GetErrorStr() , "room full")) ;
+      else
+        return false ;
+*/
+#endif
     }
 
 

@@ -44,7 +44,7 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     void setStatusL(String statusText) ;
-//    void setStatusC(TODO: list of btns) ;
+//    void setStatusC(list of btns) ; // TODO: (issue #8)
     void setStatusR(String statusText) ;
     //[/UserMethods]
 

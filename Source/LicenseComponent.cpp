@@ -18,7 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
-#include "LinJam.h" // TODO: use persistent config instead
+#include "LinJam.h" // TODO: use persistent config instead (issue #6)
 #include "Trace.h"
 //[/Headers]
 

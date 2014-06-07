@@ -105,12 +105,10 @@ void ChatComponent::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 void ChatComponent::setTopic(String topic_text)
-{}// TODO: this->topicLabel->setText(String("TOPIC: " + topic_text)) ; }
+{}// TODO: this->topicLabel->setText(String("TOPIC: " + topic_text)) ; } (issue #13)
 
 void ChatComponent::addChatLine(String chat_user , String chat_text)
 {
-DBG("ChatComponent::addChatLine() chat_user=" + chat_user + " chat_text=" + chat_text) ;
-
   this->chatTextEditor->moveCaretToEnd() ;
   this->chatTextEditor->insertTextAtCaret(chat_user + ": " + chat_text + "\n") ;
   this->chatTextEditor->moveCaretToEnd() ;
