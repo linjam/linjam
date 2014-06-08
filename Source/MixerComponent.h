@@ -17,11 +17,12 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_B81C54EA15619A42__
-#define __JUCE_HEADER_B81C54EA15619A42__
+#ifndef __JUCE_HEADER_CAE02453DB8909B0__
+#define __JUCE_HEADER_CAE02453DB8909B0__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
+#include "MixerGroupComponent.h"
 //[/Headers]
 
 
@@ -34,20 +35,21 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class ChatComponent  : public Component,
-                       public TextEditor::Listener
+class MixerComponent  : public Component
 {
 public:
     //==============================================================================
-    ChatComponent ();
-    ~ChatComponent();
+    MixerComponent ();
+    ~MixerComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-  void setTopic(   String topic_text) ;
-  void addChatLine(String chat_user , String chat_text) ;
 
-  void textEditorReturnKeyPressed(TextEditor& a_text_editor) override ;
+  void addRemoteMixerComponent(  String gui_id) ;
+  void addLocalChannelComponent( String gui_id) ;
+  void addRemoteChannelComponent(String gui_id , String user_gui_id) ;
+  void addMasterChannelComponent(String gui_id) ;
+
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -57,18 +59,23 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+  MixerGroupComponent* localMixerGroupComponent ;
+  MixerGroupComponent* masterMixerGroupComponent ;
+
+  MixerGroupComponent* addMixerSectionComponent(String gui_id) ;
+  void                 addChannelComponent(     String gui_id , MixerGroupComponent* mixer) ;
+
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TextEditor> chatTextEditor;
-    ScopedPointer<TextEditor> chatEntryTextEditor;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChatComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MixerComponent)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_B81C54EA15619A42__
+#endif   // __JUCE_HEADER_CAE02453DB8909B0__

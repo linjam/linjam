@@ -397,10 +397,13 @@ void FileInputStream::openHandle()
         status = getResultForErrno();
 }
 
-FileInputStream::~FileInputStream()
+void FileInputStream::closeHandle()
 {
     if (fileHandle != 0)
+    {
         close (getFD (fileHandle));
+        fileHandle = 0;
+    }
 }
 
 size_t FileInputStream::readInternal (void* const buffer, const size_t numBytes)
@@ -1035,7 +1038,7 @@ public:
                 Array<char*> argv;
                 for (int i = 0; i < arguments.size(); ++i)
                     if (arguments[i].isNotEmpty())
-                        argv.add (const_cast<char*> (arguments[i].toUTF8().getAddress()));
+                        argv.add (arguments[i].toUTF8().getAddress());
 
                 argv.add (nullptr);
 

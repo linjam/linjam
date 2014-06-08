@@ -17,11 +17,12 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_B81C54EA15619A42__
-#define __JUCE_HEADER_B81C54EA15619A42__
+#ifndef __JUCE_HEADER_ACDD14AF75BBA576__
+#define __JUCE_HEADER_ACDD14AF75BBA576__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
+#include "ChannelComponent.h"
 //[/Headers]
 
 
@@ -34,20 +35,18 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class ChatComponent  : public Component,
-                       public TextEditor::Listener
+class MixerGroupComponent  : public Component
 {
 public:
     //==============================================================================
-    ChatComponent ();
-    ~ChatComponent();
+    MixerGroupComponent (String gui_id);
+    ~MixerGroupComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-  void setTopic(   String topic_text) ;
-  void addChatLine(String chat_user , String chat_text) ;
 
-  void textEditorReturnKeyPressed(TextEditor& a_text_editor) override ;
+  void addChannelComponent(String gui_id) ;
+
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -60,15 +59,14 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TextEditor> chatTextEditor;
-    ScopedPointer<TextEditor> chatEntryTextEditor;
+    ScopedPointer<Label> mixerSectionLabel;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChatComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MixerGroupComponent)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_B81C54EA15619A42__
+#endif   // __JUCE_HEADER_ACDD14AF75BBA576__

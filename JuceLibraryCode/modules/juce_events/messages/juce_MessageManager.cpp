@@ -334,7 +334,5 @@ JUCE_API void JUCE_CALLTYPE shutdownJuce_GUI()
     }
 }
 
-static int numScopedInitInstances = 0;
-
-ScopedJuceInitialiser_GUI::ScopedJuceInitialiser_GUI()  { if (numScopedInitInstances++ == 0) initialiseJuce_GUI(); }
-ScopedJuceInitialiser_GUI::~ScopedJuceInitialiser_GUI() { if (--numScopedInitInstances == 0) shutdownJuce_GUI(); }
+ScopedJuceInitialiser_GUI::ScopedJuceInitialiser_GUI()  { initialiseJuce_GUI(); }
+ScopedJuceInitialiser_GUI::~ScopedJuceInitialiser_GUI() { shutdownJuce_GUI(); }

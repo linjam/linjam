@@ -39,14 +39,16 @@ public:
     ~LookAndFeel_V2();
 
     //==============================================================================
-    void drawButtonBackground (Graphics&, Button&, const Colour& backgroundColour,
+    void drawButtonBackground (Graphics&, Button& button, const Colour& backgroundColour,
                                bool isMouseOverButton, bool isButtonDown) override;
-    Font getTextButtonFont (TextButton&, int buttonHeight) override;
 
-    void drawButtonText (Graphics&, TextButton&, bool isMouseOverButton, bool isButtonDown) override;
-    int getTextButtonWidthToFitText (TextButton&, int buttonHeight) override;
+    Font getTextButtonFont (TextButton&) override;
 
-    void drawToggleButton (Graphics&, ToggleButton&, bool isMouseOverButton, bool isButtonDown) override;
+    void drawButtonText (Graphics&, TextButton& button,
+                         bool isMouseOverButton, bool isButtonDown) override;
+    void changeTextButtonWidthToFitText (TextButton&, int newHeight) override;
+
+    void drawToggleButton (Graphics&, ToggleButton& button, bool isMouseOverButton, bool isButtonDown) override;
 
     void changeToggleButtonWidthToFitText (ToggleButton&) override;
 
@@ -76,17 +78,17 @@ public:
 
     //==============================================================================
     bool areScrollbarButtonsVisible() override;
-    void drawScrollbarButton (Graphics&, ScrollBar&, int width, int height, int buttonDirection,
+    void drawScrollbarButton (Graphics& g, ScrollBar&, int width, int height, int buttonDirection,
                               bool isScrollbarVertical, bool isMouseOverButton, bool isButtonDown) override;
 
-    void drawScrollbar (Graphics&, ScrollBar&, int x, int y, int width, int height,
+    void drawScrollbar (Graphics& g, ScrollBar&, int x, int y, int width, int height,
                         bool isScrollbarVertical, int thumbStartPosition, int thumbSize,
                         bool isMouseOver, bool isMouseDown) override;
 
     ImageEffectFilter* getScrollbarEffect() override;
     int getMinimumScrollbarThumbSize (ScrollBar&) override;
     int getDefaultScrollbarWidth() override;
-    int getScrollbarButtonSize (ScrollBar&) override;
+    int getScrollbarButtonSize (ScrollBar& scrollbar) override;
 
     //==============================================================================
     Path getTickShape (float height) override;
@@ -197,7 +199,7 @@ public:
 
     //==============================================================================
     Button* createFilenameComponentBrowseButton (const String& text) override;
-    void layoutFilenameComponent (FilenameComponent&, ComboBox* filenameBox, Button* browseButton) override;
+    void layoutFilenameComponent (FilenameComponent& filenameComp, ComboBox* filenameBox, Button* browseButton) override;
 
     //==============================================================================
     void drawConcertinaPanelHeader (Graphics&, const Rectangle<int>& area,
@@ -248,8 +250,8 @@ public:
     void drawTabbedButtonBarBackground (TabbedButtonBar&, Graphics&) override;
     void drawTabAreaBehindFrontButton (TabbedButtonBar&, Graphics&, int w, int h) override;
 
-    void createTabButtonShape (TabBarButton&, Path&,  bool isMouseOver, bool isMouseDown) override;
-    void fillTabButtonShape (TabBarButton&, Graphics&, const Path&, bool isMouseOver, bool isMouseDown) override;
+    void createTabButtonShape (TabBarButton&, Path& path,  bool isMouseOver, bool isMouseDown) override;
+    void fillTabButtonShape (TabBarButton&, Graphics&, const Path& path, bool isMouseOver, bool isMouseDown) override;
 
     Button* createTabBarExtrasButton() override;
 
@@ -289,7 +291,7 @@ public:
     //==============================================================================
     void drawLevelMeter (Graphics&, int width, int height, float level) override;
 
-    void drawKeymapChangeButton (Graphics&, int width, int height, Button&, const String& keyDescription) override;
+    void drawKeymapChangeButton (Graphics&, int width, int height, Button& button, const String& keyDescription) override;
 
     //==============================================================================
     /** Draws a 3D raised (or indented) bevel using two colours.
@@ -316,15 +318,15 @@ public:
 
     /** Utility function to draw a shiny, glassy circle (for round LED-type buttons). */
     static void drawGlassSphere (Graphics&, float x, float y, float diameter,
-                                 const Colour&, float outlineThickness) noexcept;
+                                 const Colour& colour, float outlineThickness) noexcept;
 
     static void drawGlassPointer (Graphics&, float x, float y, float diameter,
-                                  const Colour&, float outlineThickness, int direction) noexcept;
+                                  const Colour& colour, float outlineThickness, int direction) noexcept;
 
     /** Utility function to draw a shiny, glassy oblong (for text buttons). */
     static void drawGlassLozenge (Graphics&,
                                   float x, float y, float width, float height,
-                                  const Colour&, float outlineThickness, float cornerSize,
+                                  const Colour& colour, float outlineThickness, float cornerSize,
                                   bool flatOnLeft, bool flatOnRight, bool flatOnTop, bool flatOnBottom) noexcept;
 
 private:
@@ -333,7 +335,7 @@ private:
 
     void drawShinyButtonShape (Graphics&,
                                float x, float y, float w, float h, float maxCornerSize,
-                               const Colour&, float strokeWidth,
+                               const Colour& baseColour, float strokeWidth,
                                bool flatOnLeft, bool flatOnRight, bool flatOnTop, bool flatOnBottom) noexcept;
 
     class GlassWindowButton;

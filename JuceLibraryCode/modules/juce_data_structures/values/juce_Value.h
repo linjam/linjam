@@ -167,8 +167,7 @@ public:
         of a ValueSource object. If you're feeling adventurous, you can create your own custom
         ValueSource classes to allow Value objects to represent your own custom data items.
     */
-    class JUCE_API  ValueSource   : public ReferenceCountedObject,
-                                    private AsyncUpdater
+    class JUCE_API  ValueSource   : public SingleThreadedReferenceCountedObject
     {
     public:
         ValueSource();
@@ -196,7 +195,10 @@ public:
         SortedSet<Value*> valuesWithListeners;
 
     private:
-        void handleAsyncUpdate() override;
+        struct Pimpl;
+        friend struct Pimpl;
+        friend struct ContainerDeletePolicy<Pimpl>;
+        ScopedPointer<Pimpl> pimpl;
 
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ValueSource)
     };

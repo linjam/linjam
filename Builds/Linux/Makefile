@@ -51,15 +51,18 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
+  $(OBJDIR)/ChannelComponent_5726acc3.o \
   $(OBJDIR)/ChatComponent_27b18166.o \
-  $(OBJDIR)/LicenseComponent_b99bda45.o \
   $(OBJDIR)/Constants_e698e730.o \
+  $(OBJDIR)/LicenseComponent_b99bda45.o \
   $(OBJDIR)/LinJam_a166dece.o \
-  $(OBJDIR)/Trace_c9579226.o \
-  $(OBJDIR)/StatusBarComponent_a32bf2c5.o \
   $(OBJDIR)/LoginComponent_e898b51d.o \
-  $(OBJDIR)/MainComponent_a6ffb4a5.o \
   $(OBJDIR)/Main_90ebc5c2.o \
+  $(OBJDIR)/MainComponent_a6ffb4a5.o \
+  $(OBJDIR)/MixerComponent_e3e89c7d.o \
+  $(OBJDIR)/MixerGroupComponent_71123c88.o \
+  $(OBJDIR)/StatusBarComponent_a32bf2c5.o \
+  $(OBJDIR)/Trace_c9579226.o \
   $(OBJDIR)/juce_core_aff681cc.o \
   $(OBJDIR)/juce_data_structures_bdd6d488.o \
   $(OBJDIR)/juce_events_79b2840.o \
@@ -83,14 +86,14 @@ strip:
 	@echo Stripping LinJam
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
 
+$(OBJDIR)/ChannelComponent_5726acc3.o: ../../Source/ChannelComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ChannelComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/ChatComponent_27b18166.o: ../../Source/ChatComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ChatComponent.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/LicenseComponent_b99bda45.o: ../../Source/LicenseComponent.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LicenseComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Constants_e698e730.o: ../../Source/Constants.cpp
@@ -98,19 +101,14 @@ $(OBJDIR)/Constants_e698e730.o: ../../Source/Constants.cpp
 	@echo "Compiling Constants.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/LicenseComponent_b99bda45.o: ../../Source/LicenseComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LicenseComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/LinJam_a166dece.o: ../../Source/LinJam.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling LinJam.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Trace_c9579226.o: ../../Source/Trace.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Trace.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/StatusBarComponent_a32bf2c5.o: ../../Source/StatusBarComponent.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling StatusBarComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/LoginComponent_e898b51d.o: ../../Source/LoginComponent.cpp
@@ -118,14 +116,34 @@ $(OBJDIR)/LoginComponent_e898b51d.o: ../../Source/LoginComponent.cpp
 	@echo "Compiling LoginComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Main.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/MainComponent_a6ffb4a5.o: ../../Source/MainComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling MainComponent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
+$(OBJDIR)/MixerComponent_e3e89c7d.o: ../../Source/MixerComponent.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Main.cpp"
+	@echo "Compiling MixerComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/MixerGroupComponent_71123c88.o: ../../Source/MixerGroupComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling MixerGroupComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/StatusBarComponent_a32bf2c5.o: ../../Source/StatusBarComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling StatusBarComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Trace_c9579226.o: ../../Source/Trace.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Trace.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/juce_core_aff681cc.o: ../../JuceLibraryCode/modules/juce_core/juce_core.cpp

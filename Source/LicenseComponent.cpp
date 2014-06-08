@@ -39,7 +39,7 @@ LicenseComponent::LicenseComponent ()
     licenseTextEditor->setCaretVisible (false);
     licenseTextEditor->setPopupMenuEnabled (false);
     licenseTextEditor->setColour (TextEditor::textColourId, Colours::grey);
-    licenseTextEditor->setColour (TextEditor::backgroundColourId, Colours::black);
+    licenseTextEditor->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
     licenseTextEditor->setText (String::empty);
 
     addAndMakeVisible (cancelButton = new TextButton ("cancelButton"));
@@ -60,7 +60,7 @@ LicenseComponent::LicenseComponent ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (630, 446);
+    setSize (622, 442);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -95,7 +95,17 @@ void LicenseComponent::paint (Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xff101010));
+    g.setColour (Colour (0xff101010));
+    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
+
+    g.setColour (Colours::white);
+    g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f, 1.000f);
+
+    g.setColour (Colours::black);
+    g.fillRoundedRectangle (4.0f, 4.0f, static_cast<float> (getWidth() - 8), static_cast<float> (getHeight() - 36), 10.000f);
+
+    g.setColour (Colours::grey);
+    g.drawRoundedRectangle (4.0f, 4.0f, static_cast<float> (getWidth() - 8), static_cast<float> (getHeight() - 36), 10.000f, 1.000f);
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -103,7 +113,7 @@ void LicenseComponent::paint (Graphics& g)
 
 void LicenseComponent::resized()
 {
-    licenseTextEditor->setBounds (4, 4, getWidth() - 8, getHeight() - 32);
+    licenseTextEditor->setBounds (4, 4, getWidth() - 8, getHeight() - 36);
     cancelButton->setBounds (getWidth() - 140 - 64, getHeight() - 4 - 24, 64, 24);
     agreeButton->setBounds (getWidth() - 72 - 64, getHeight() - 4 - 24, 64, 24);
     alwaysButton->setBounds (getWidth() - 4 - 64, getHeight() - 4 - 24, 64, 24);
@@ -165,11 +175,16 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="LicenseComponent" componentName=""
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="630" initialHeight="446">
-  <BACKGROUND backgroundColour="ff101010"/>
+                 fixedSize="0" initialWidth="622" initialHeight="442">
+  <BACKGROUND backgroundColour="0">
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
+               stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
+    <ROUNDRECT pos="4 4 8M 36M" cornerSize="10" fill="solid: ff000000" hasStroke="1"
+               stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
+  </BACKGROUND>
   <TEXTEDITOR name="licenseTextEditor" id="ba11ad8bfe4752c1" memberName="licenseTextEditor"
-              virtualName="" explicitFocusOrder="0" pos="4 4 8M 32M" textcol="ff808080"
-              bkgcol="ff000000" initialText="" multiline="1" retKeyStartsLine="0"
+              virtualName="" explicitFocusOrder="0" pos="4 4 8M 36M" textcol="ff808080"
+              bkgcol="0" initialText="" multiline="1" retKeyStartsLine="0"
               readonly="1" scrollbars="1" caret="0" popupmenu="0"/>
   <TEXTBUTTON name="cancelButton" id="e40ccd6a36998aa2" memberName="cancelButton"
               virtualName="" explicitFocusOrder="0" pos="140Rr 4Rr 64 24" buttonText="Cancel"

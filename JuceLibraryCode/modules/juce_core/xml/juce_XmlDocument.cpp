@@ -408,7 +408,7 @@ XmlElement* XmlDocument::readNextElement (const bool alsoParseSubElements)
             }
         }
 
-        node = new XmlElement (input, endOfToken);
+        node = new XmlElement (String (input, endOfToken));
         input = endOfToken;
         LinkedListPointer<XmlElement::XmlAttributeNode>::Appender attributeAppender (node->attributes);
 
@@ -458,7 +458,8 @@ XmlElement* XmlDocument::readNextElement (const bool alsoParseSubElements)
                         if (nextChar == '"' || nextChar == '\'')
                         {
                             XmlElement::XmlAttributeNode* const newAtt
-                                = new XmlElement::XmlAttributeNode (attNameStart, attNameEnd);
+                                = new XmlElement::XmlAttributeNode (String (attNameStart, attNameEnd),
+                                                                    String::empty);
 
                             readQuotedString (newAtt->value);
                             attributeAppender.append (newAtt);

@@ -85,9 +85,16 @@ void DynamicObject::clear()
 
 void DynamicObject::cloneAllProperties()
 {
-    for (int i = properties.size(); --i >= 0;)
-        if (var* v = properties.getVarPointerAt (i))
-            *v = v->clone();
+    for (LinkedListPointer<NamedValueSet::NamedValue>* i = &(properties.values);;)
+    {
+        if (NamedValueSet::NamedValue* const v = i->get())
+        {
+            v->value = v->value.clone();
+            i = &(v->nextListItem);
+        }
+        else
+            break;
+    }
 }
 
 DynamicObject::Ptr DynamicObject::clone()
@@ -103,27 +110,32 @@ void DynamicObject::writeAsJSON (OutputStream& out, const int indentLevel, const
     if (! allOnOneLine)
         out << newLine;
 
-    const int numValues = properties.size();
-
-    for (int i = 0; i < numValues; ++i)
+    for (LinkedListPointer<NamedValueSet::NamedValue>* i = &(properties.values);;)
     {
-        if (! allOnOneLine)
-            JSONFormatter::writeSpaces (out, indentLevel + JSONFormatter::indentSize);
-
-        out << '"';
-        JSONFormatter::writeString (out, properties.getName (i));
-        out << "\": ";
-        JSONFormatter::write (out, properties.getValueAt (i), indentLevel + JSONFormatter::indentSize, allOnOneLine);
-
-        if (i < numValues - 1)
+        if (NamedValueSet::NamedValue* const v = i->get())
         {
-            if (allOnOneLine)
-                out << ", ";
-            else
-                out << ',' << newLine;
+            if (! allOnOneLine)
+                JSONFormatter::writeSpaces (out, indentLevel + JSONFormatter::indentSize);
+
+            out << '"';
+            JSONFormatter::writeString (out, v->name);
+            out << "\": ";
+            JSONFormatter::write (out, v->value, indentLevel + JSONFormatter::indentSize, allOnOneLine);
+
+            if (v->nextListItem.get() != nullptr)
+            {
+                if (allOnOneLine)
+                    out << ", ";
+                else
+                    out << ',' << newLine;
+            }
+            else if (! allOnOneLine)
+                out << newLine;
+
+            i = &(v->nextListItem);
         }
-        else if (! allOnOneLine)
-            out << newLine;
+        else
+            break;
     }
 
     if (! allOnOneLine)

@@ -35,6 +35,7 @@ StatusBarComponent::StatusBarComponent ()
     statusLLabel->setFont (Font (15.00f, Font::plain));
     statusLLabel->setJustificationType (Justification::centredLeft);
     statusLLabel->setEditable (false, false, false);
+    statusLLabel->setColour (Label::backgroundColourId, Colours::black);
     statusLLabel->setColour (Label::textColourId, Colours::grey);
     statusLLabel->setColour (Label::outlineColourId, Colours::white);
     statusLLabel->setColour (TextEditor::textColourId, Colours::black);
@@ -42,9 +43,10 @@ StatusBarComponent::StatusBarComponent ()
 
     addAndMakeVisible (statusRLabel = new Label ("statusRLabel",
                                                  TRANS("bpi-bpm")));
-    statusRLabel->setFont (Font (16.60f, Font::plain));
+    statusRLabel->setFont (Font (15.00f, Font::plain));
     statusRLabel->setJustificationType (Justification::centredLeft);
     statusRLabel->setEditable (false, false, false);
+    statusRLabel->setColour (Label::backgroundColourId, Colours::black);
     statusRLabel->setColour (Label::textColourId, Colours::grey);
     statusRLabel->setColour (Label::outlineColourId, Colours::white);
     statusRLabel->setColour (TextEditor::textColourId, Colours::black);
@@ -82,13 +84,14 @@ void StatusBarComponent::paint (Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xff101010));
-
-    g.setColour (Colour (0xff202020));
+    g.setColour (Colour (0xff101010));
     g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
 
     g.setColour (Colours::white);
     g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f, 1.000f);
+
+    g.setColour (Colours::black);
+    g.fillRect (128, 4, getWidth() - 256, 16);
 
     g.setColour (Colours::white);
     g.drawRect (128, 4, getWidth() - 256, 16, 1);
@@ -137,23 +140,24 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="24">
-  <BACKGROUND backgroundColour="ff101010">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff202020" hasStroke="1"
+  <BACKGROUND backgroundColour="0">
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
-    <RECT pos="128 4 256M 16" fill="solid: 0" hasStroke="1" stroke="1, mitered, butt"
+    <RECT pos="128 4 256M 16" fill="solid: ff000000" hasStroke="1" stroke="1, mitered, butt"
           strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <LABEL name="statusLLabel" id="2b89e84fd708c8e0" memberName="statusLLabel"
-         virtualName="" explicitFocusOrder="0" pos="4 4 120 16" textCol="ff808080"
-         outlineCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="connection status"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+         virtualName="" explicitFocusOrder="0" pos="4 4 120 16" bkgCol="ff000000"
+         textCol="ff808080" outlineCol="ffffffff" edTextCol="ff000000"
+         edBkgCol="0" labelText="connection status" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="15" bold="0" italic="0" justification="33"/>
   <LABEL name="statusRLabel" id="d9ab2c99c74ba401" memberName="statusRLabel"
-         virtualName="" explicitFocusOrder="0" pos="4Rr 4 120 16" textCol="ff808080"
-         outlineCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="bpi-bpm"
-         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="16.600000000000001" bold="0"
-         italic="0" justification="33"/>
+         virtualName="" explicitFocusOrder="0" pos="4Rr 4 120 16" bkgCol="ff000000"
+         textCol="ff808080" outlineCol="ffffffff" edTextCol="ff000000"
+         edBkgCol="0" labelText="bpi-bpm" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

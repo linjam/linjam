@@ -14,6 +14,7 @@
 #include "LoginComponent.h"
 #include "LicenseComponent.h"
 #include "ChatComponent.h"
+#include "MixerComponent.h"
 #include "StatusBarComponent.h"
 
 
@@ -34,14 +35,17 @@ public:
   void paint(Graphics&) ;
   void resized() ;
 
-//   bool prompt_license(String license_text) ;
+#ifdef DEBUG_LICENSE_MULTITHREADED
+  bool prompt_license(String license_text) ;
+#endif // DEBUG_LICENSE_MULTITHREADED
 
 private:
 
   ScopedPointer<LoginComponent>     loginComponent ;
   ScopedPointer<LicenseComponent>   licenseComponent ;
-  ScopedPointer<StatusBarComponent> statusComponent ;
   ScopedPointer<ChatComponent>      chatComponent ;
+  ScopedPointer<MixerComponent>     mixerComponent ;
+  ScopedPointer<StatusBarComponent> statusbarComponent ;
 
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContentComponent)

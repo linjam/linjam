@@ -26,37 +26,53 @@
   ==============================================================================
 */
 
-struct NamedValueSet::NamedValue
+NamedValueSet::NamedValue::NamedValue() noexcept
 {
-    NamedValue() noexcept {}
-    NamedValue (Identifier n, const var& v)  : name (n), value (v) {}
-    NamedValue (const NamedValue& other) : name (other.name), value (other.value) {}
+}
 
-   #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
-    NamedValue (NamedValue&& other) noexcept
-        : name (static_cast<Identifier&&> (other.name)),
-          value (static_cast<var&&> (other.value))
-    {
-    }
+inline NamedValueSet::NamedValue::NamedValue (Identifier n, const var& v)
+    : name (n), value (v)
+{
+}
 
-    NamedValue (Identifier n, var&& v)  : name (n), value (static_cast<var&&> (v))
-    {
-    }
+NamedValueSet::NamedValue::NamedValue (const NamedValue& other)
+    : name (other.name), value (other.value)
+{
+}
 
-    NamedValue& operator= (NamedValue&& other) noexcept
-    {
-        name = static_cast<Identifier&&> (other.name);
-        value = static_cast<var&&> (other.value);
-        return *this;
-    }
-   #endif
+NamedValueSet::NamedValue& NamedValueSet::NamedValue::operator= (const NamedValueSet::NamedValue& other)
+{
+    name = other.name;
+    value = other.value;
+    return *this;
+}
 
-    bool operator== (const NamedValue& other) const noexcept   { return name == other.name && value == other.value; }
-    bool operator!= (const NamedValue& other) const noexcept   { return ! operator== (other); }
+#if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
+NamedValueSet::NamedValue::NamedValue (NamedValue&& other) noexcept
+    : nextListItem (static_cast<LinkedListPointer<NamedValue>&&> (other.nextListItem)),
+      name (static_cast<Identifier&&> (other.name)),
+      value (static_cast<var&&> (other.value))
+{
+}
 
-    Identifier name;
-    var value;
-};
+inline NamedValueSet::NamedValue::NamedValue (Identifier n, var&& v)
+    : name (n), value (static_cast<var&&> (v))
+{
+}
+
+NamedValueSet::NamedValue& NamedValueSet::NamedValue::operator= (NamedValue&& other) noexcept
+{
+    nextListItem = static_cast<LinkedListPointer<NamedValue>&&> (other.nextListItem);
+    name = static_cast<Identifier&&> (other.name);
+    value = static_cast<var&&> (other.value);
+    return *this;
+}
+#endif
+
+bool NamedValueSet::NamedValue::operator== (const NamedValueSet::NamedValue& other) const noexcept
+{
+    return name == other.name && value == other.value;
+}
 
 //==============================================================================
 NamedValueSet::NamedValueSet() noexcept
@@ -64,20 +80,20 @@ NamedValueSet::NamedValueSet() noexcept
 }
 
 NamedValueSet::NamedValueSet (const NamedValueSet& other)
-   : values (other.values)
 {
+    values.addCopyOfList (other.values);
 }
 
 NamedValueSet& NamedValueSet::operator= (const NamedValueSet& other)
 {
     clear();
-    values = other.values;
+    values.addCopyOfList (other.values);
     return *this;
 }
 
 #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
 NamedValueSet::NamedValueSet (NamedValueSet&& other) noexcept
-    : values (static_cast <Array<NamedValue>&&> (other.values))
+    : values (static_cast <LinkedListPointer<NamedValue>&&> (other.values))
 {
 }
 
@@ -95,12 +111,24 @@ NamedValueSet::~NamedValueSet()
 
 void NamedValueSet::clear()
 {
-    values.clear();
+    values.deleteAll();
 }
 
 bool NamedValueSet::operator== (const NamedValueSet& other) const
 {
-    return values == other.values;
+    const NamedValue* i1 = values;
+    const NamedValue* i2 = other.values;
+
+    while (i1 != nullptr && i2 != nullptr)
+    {
+        if (! (*i1 == *i2))
+            return false;
+
+        i1 = i1->nextListItem;
+        i2 = i2->nextListItem;
+    }
+
+    return true;
 }
 
 bool NamedValueSet::operator!= (const NamedValueSet& other) const
@@ -113,15 +141,16 @@ int NamedValueSet::size() const noexcept
     return values.size();
 }
 
-const var& NamedValueSet::operator[] (const Identifier& name) const
+const var& NamedValueSet::operator[] (Identifier name) const
 {
-    if (const var* v = getVarPointer (name))
-        return *v;
+    for (NamedValue* i = values; i != nullptr; i = i->nextListItem)
+        if (i->name == name)
+            return i->value;
 
     return var::null;
 }
 
-var NamedValueSet::getWithDefault (const Identifier& name, const var& defaultReturnValue) const
+var NamedValueSet::getWithDefault (Identifier name, const var& defaultReturnValue) const
 {
     if (const var* const v = getVarPointer (name))
         return *v;
@@ -129,9 +158,9 @@ var NamedValueSet::getWithDefault (const Identifier& name, const var& defaultRet
     return defaultReturnValue;
 }
 
-var* NamedValueSet::getVarPointer (const Identifier& name) const noexcept
+var* NamedValueSet::getVarPointer (Identifier name) const noexcept
 {
-    for (NamedValue* e = values.end(), *i = values.begin(); i != e; ++i)
+    for (NamedValue* i = values; i != nullptr; i = i->nextListItem)
         if (i->name == name)
             return &(i->value);
 
@@ -141,121 +170,145 @@ var* NamedValueSet::getVarPointer (const Identifier& name) const noexcept
 #if JUCE_COMPILER_SUPPORTS_MOVE_SEMANTICS
 bool NamedValueSet::set (Identifier name, var&& newValue)
 {
-    if (var* const v = getVarPointer (name))
-    {
-        if (v->equalsWithSameType (newValue))
-            return false;
+    LinkedListPointer<NamedValue>* i = &values;
 
-        *v = static_cast<var&&> (newValue);
-        return true;
+    while (i->get() != nullptr)
+    {
+        NamedValue* const v = i->get();
+
+        if (v->name == name)
+        {
+            if (v->value.equalsWithSameType (newValue))
+                return false;
+
+            v->value = static_cast <var&&> (newValue);
+            return true;
+        }
+
+        i = &(v->nextListItem);
     }
 
-    values.add (NamedValue (name, static_cast<var&&> (newValue)));
+    i->insertNext (new NamedValue (name, static_cast <var&&> (newValue)));
     return true;
 }
 #endif
 
 bool NamedValueSet::set (Identifier name, const var& newValue)
 {
-    if (var* const v = getVarPointer (name))
-    {
-        if (v->equalsWithSameType (newValue))
-            return false;
+    LinkedListPointer<NamedValue>* i = &values;
 
-        *v = newValue;
-        return true;
+    while (i->get() != nullptr)
+    {
+        NamedValue* const v = i->get();
+
+        if (v->name == name)
+        {
+            if (v->value.equalsWithSameType (newValue))
+                return false;
+
+            v->value = newValue;
+            return true;
+        }
+
+        i = &(v->nextListItem);
     }
 
-    values.add (NamedValue (name, newValue));
+    i->insertNext (new NamedValue (name, newValue));
     return true;
 }
 
-bool NamedValueSet::contains (const Identifier& name) const
+bool NamedValueSet::contains (Identifier name) const
 {
     return getVarPointer (name) != nullptr;
 }
 
-int NamedValueSet::indexOf (const Identifier& name) const noexcept
+int NamedValueSet::indexOf (Identifier name) const noexcept
 {
-    const int numValues = values.size();
+    int index = 0;
 
-    for (int i = 0; i < numValues; ++i)
-        if (values.getReference(i).name == name)
-            return i;
+    for (NamedValue* i = values; i != nullptr; i = i->nextListItem)
+    {
+        if (i->name == name)
+            return index;
+
+        ++index;
+    }
 
     return -1;
 }
 
-bool NamedValueSet::remove (const Identifier& name)
+bool NamedValueSet::remove (Identifier name)
 {
-    const int numValues = values.size();
+    LinkedListPointer<NamedValue>* i = &values;
 
-    for (int i = 0; i < numValues; ++i)
+    for (;;)
     {
-        if (values.getReference(i).name == name)
+        NamedValue* const v = i->get();
+
+        if (v == nullptr)
+            break;
+
+        if (v->name == name)
         {
-            values.remove (i);
+            delete i->removeNext();
             return true;
         }
+
+        i = &(v->nextListItem);
     }
 
     return false;
 }
 
-Identifier NamedValueSet::getName (const int index) const noexcept
+Identifier NamedValueSet::getName (const int index) const
 {
-    if (isPositiveAndBelow (index, values.size()))
-        return values.getReference (index).name;
-
-    jassertfalse;
-    return Identifier();
+    const NamedValue* const v = values[index];
+    jassert (v != nullptr);
+    return v->name;
 }
 
-const var& NamedValueSet::getValueAt (const int index) const noexcept
+const var& NamedValueSet::getValueAt (const int index) const
 {
-    if (isPositiveAndBelow (index, values.size()))
-        return values.getReference (index).value;
-
-    jassertfalse;
-    return var::null;
-}
-
-var* NamedValueSet::getVarPointerAt (int index) const noexcept
-{
-    if (isPositiveAndBelow (index, values.size()))
-        return &(values.getReference (index).value);
-
-    return nullptr;
+    const NamedValue* const v = values[index];
+    jassert (v != nullptr);
+    return v->value;
 }
 
 void NamedValueSet::setFromXmlAttributes (const XmlElement& xml)
 {
-    values.clearQuick();
+    clear();
+    LinkedListPointer<NamedValue>::Appender appender (values);
 
-    for (const XmlElement::XmlAttributeNode* att = xml.attributes; att != nullptr; att = att->nextListItem)
+    const int numAtts = xml.getNumAttributes(); // xxx inefficient - should write an att iterator..
+
+    for (int i = 0; i < numAtts; ++i)
     {
-        if (att->name.toString().startsWith ("base64:"))
+        const String& name  = xml.getAttributeName (i);
+        const String& value = xml.getAttributeValue (i);
+
+        if (name.startsWith ("base64:"))
         {
             MemoryBlock mb;
 
-            if (mb.fromBase64Encoding (att->value))
+            if (mb.fromBase64Encoding (value))
             {
-                values.add (NamedValue (att->name.toString().substring (7), var (mb)));
+                appender.append (new NamedValue (name.substring (7), var (mb)));
                 continue;
             }
         }
 
-        values.add (NamedValue (att->name, var (att->value)));
+        appender.append (new NamedValue (name, var (value)));
     }
 }
 
 void NamedValueSet::copyToXmlAttributes (XmlElement& xml) const
 {
-    for (NamedValue* e = values.end(), *i = values.begin(); i != e; ++i)
+    for (NamedValue* i = values; i != nullptr; i = i->nextListItem)
     {
         if (const MemoryBlock* mb = i->value.getBinaryData())
         {
-            xml.setAttribute ("base64:" + i->name.toString(), mb->toBase64Encoding());
+            xml.setAttribute ("base64:" + i->name.toString(),
+                              mb->toBase64Encoding());
         }
         else
         {

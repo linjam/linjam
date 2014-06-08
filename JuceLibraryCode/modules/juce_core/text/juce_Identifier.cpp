@@ -26,10 +26,21 @@
   ==============================================================================
 */
 
-Identifier::Identifier() noexcept {}
-Identifier::~Identifier() noexcept {}
+StringPool& Identifier::getPool()
+{
+    static StringPool pool;
+    return pool;
+}
 
-Identifier::Identifier (const Identifier& other) noexcept  : name (other.name) {}
+Identifier::Identifier() noexcept
+    : name (nullptr)
+{
+}
+
+Identifier::Identifier (const Identifier& other) noexcept
+    : name (other.name)
+{
+}
 
 Identifier& Identifier::operator= (const Identifier other) noexcept
 {
@@ -38,27 +49,20 @@ Identifier& Identifier::operator= (const Identifier other) noexcept
 }
 
 Identifier::Identifier (const String& nm)
-    : name (StringPool::getGlobalPool().getPooledString (nm))
+    : name (Identifier::getPool().getPooledString (nm))
+{
+}
+
+Identifier::Identifier (const char* const nm)
+    : name (Identifier::getPool().getPooledString (nm))
 {
     /* An Identifier string must be suitable for use as a script variable or XML
        attribute, so it can only contain this limited set of characters.. */
     jassert (isValidIdentifier (toString()));
 }
 
-Identifier::Identifier (const char* nm)
-    : name (StringPool::getGlobalPool().getPooledString (nm))
+Identifier::~Identifier()
 {
-    /* An Identifier string must be suitable for use as a script variable or XML
-       attribute, so it can only contain this limited set of characters.. */
-    jassert (isValidIdentifier (toString()));
-}
-
-Identifier::Identifier (String::CharPointerType start, String::CharPointerType end)
-    : name (StringPool::getGlobalPool().getPooledString (start, end))
-{
-    /* An Identifier string must be suitable for use as a script variable or XML
-       attribute, so it can only contain this limited set of characters.. */
-    jassert (isValidIdentifier (toString()));
 }
 
 Identifier Identifier::null;

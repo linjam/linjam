@@ -34,9 +34,9 @@
 /**
     Represents a string identifier, designed for accessing properties by name.
 
-    Comparing two Identifier objects is very fast (an O(1) operation), but creating
-    them can be slower than just using a String directly, so the optimal way to use them
-    is to keep some static Identifier objects for the things you use often.
+    Identifier objects are very light and fast to copy, but slower to initialise
+    from a string, so it's much faster to keep a static identifier object to refer
+    to frequently-used names, rather than constructing them each time you need it.
 
     @see NamedValueSet, ValueTree
 */
@@ -58,12 +58,6 @@ public:
     */
     Identifier (const String& name);
 
-    /** Creates an identifier with a specified name.
-        Because this name may need to be used in contexts such as script variables or XML
-        tags, it must only contain ascii letters and digits, or the underscore character.
-    */
-    Identifier (String::CharPointerType nameStart, String::CharPointerType nameEnd);
-
     /** Creates a copy of another identifier. */
     Identifier (const Identifier& other) noexcept;
 
@@ -71,37 +65,37 @@ public:
     Identifier& operator= (const Identifier other) noexcept;
 
     /** Destructor */
-    ~Identifier() noexcept;
+    ~Identifier();
 
     /** Compares two identifiers. This is a very fast operation. */
-    inline bool operator== (Identifier other) const noexcept            { return name.getCharPointer() == other.name.getCharPointer(); }
+    inline bool operator== (Identifier other) const noexcept            { return name == other.name; }
 
     /** Compares two identifiers. This is a very fast operation. */
-    inline bool operator!= (Identifier other) const noexcept            { return name.getCharPointer() != other.name.getCharPointer(); }
+    inline bool operator!= (Identifier other) const noexcept            { return name != other.name; }
 
     /** Compares the identifier with a string. */
-    inline bool operator== (StringRef other) const noexcept             { return name == other; }
+    inline bool operator== (StringRef other) const noexcept             { return name.compare (other.text) == 0; }
 
     /** Compares the identifier with a string. */
-    inline bool operator!= (StringRef other) const noexcept             { return name != other; }
+    inline bool operator!= (StringRef other) const noexcept             { return name.compare (other.text) != 0; }
 
     /** Returns this identifier as a string. */
-    const String& toString() const noexcept                             { return name; }
+    String toString() const                                             { return name; }
 
     /** Returns this identifier's raw string pointer. */
-    operator String::CharPointerType() const noexcept                   { return name.getCharPointer(); }
+    operator String::CharPointerType() const noexcept                   { return name; }
 
     /** Returns this identifier's raw string pointer. */
-    String::CharPointerType getCharPointer() const noexcept             { return name.getCharPointer(); }
+    String::CharPointerType getCharPointer() const noexcept             { return name; }
 
     /** Returns this identifier as a StringRef. */
     operator StringRef() const noexcept                                 { return name; }
 
     /** Returns true if this Identifier is not null */
-    bool isValid() const noexcept                                       { return name.isNotEmpty(); }
+    bool isValid() const noexcept                                       { return name.getAddress() != nullptr; }
 
     /** Returns true if this Identifier is null */
-    bool isNull() const noexcept                                        { return name.isEmpty(); }
+    bool isNull() const noexcept                                        { return name.getAddress() == nullptr; }
 
     /** A null identifier. */
     static Identifier null;
@@ -112,8 +106,12 @@ public:
     */
     static bool isValidIdentifier (const String& possibleIdentifier) noexcept;
 
+
 private:
-    String name;
+    //==============================================================================
+    String::CharPointerType name;
+
+    static StringPool& getPool();
 };
 
 

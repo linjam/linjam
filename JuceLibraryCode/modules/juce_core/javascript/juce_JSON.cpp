@@ -243,9 +243,9 @@ private:
                 if (r.failed())
                     return r;
 
-                const Identifier propertyName (propertyNameVar.toString());
+                const String propertyName (propertyNameVar.toString());
 
-                if (propertyName.isValid())
+                if (propertyName.isNotEmpty())
                 {
                     t = t.findEndOfWhitespace();
                     oldT = t;

@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_B81C54EA15619A42__
-#define __JUCE_HEADER_B81C54EA15619A42__
+#ifndef __JUCE_HEADER_2B00F310AD58FBC0__
+#define __JUCE_HEADER_2B00F310AD58FBC0__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
@@ -34,24 +34,23 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class ChatComponent  : public Component,
-                       public TextEditor::Listener
+class ChannelComponent  : public Component,
+                          public ButtonListener,
+                          public SliderListener
 {
 public:
     //==============================================================================
-    ChatComponent ();
-    ~ChatComponent();
+    ChannelComponent ();
+    ~ChannelComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-  void setTopic(   String topic_text) ;
-  void addChatLine(String chat_user , String chat_text) ;
-
-  void textEditorReturnKeyPressed(TextEditor& a_text_editor) override ;
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
+    void buttonClicked (Button* buttonThatWasClicked);
+    void sliderValueChanged (Slider* sliderThatWasMoved);
 
 
 
@@ -60,15 +59,22 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TextEditor> chatTextEditor;
-    ScopedPointer<TextEditor> chatEntryTextEditor;
+    ScopedPointer<ToggleButton> xmitButton;
+    ScopedPointer<ToggleButton> muteButton;
+    ScopedPointer<ToggleButton> soloButton;
+    ScopedPointer<Slider> panSlider;
+    ScopedPointer<Slider> vuSlider;
+    ScopedPointer<Slider> gainSlider;
+    ScopedPointer<Label> vuLabel;
+    ScopedPointer<Label> gainLabel;
+    ScopedPointer<Label> nameLabel;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChatComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelComponent)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_B81C54EA15619A42__
+#endif   // __JUCE_HEADER_2B00F310AD58FBC0__

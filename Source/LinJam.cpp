@@ -9,7 +9,8 @@
 */
 
 
-#define DEBUG_SERVER "ninbot.com:2049"
+//#define DEBUG_SERVER "ninbot.com:2049"
+#define DEBUG_SERVER "ninbot.com:2050"
 
 
 #include "LinJam.h"
@@ -99,7 +100,7 @@ DEBUG_TRACE_LINJAM_INIT
   const int     MAX_INPUT_CHANNELS = Client->GetMaxLocalChannels() ;
   Array<String> channel_names ;     String channel_name   = String("unnamed channel ") ;
   Array<int   > channel_source_ns ;
-  Array<bool  > channel_xmits ;     bool   channel_xmit   = true ;
+  Array<bool  > channel_xmits ;     bool   channel_xmit   = false ;
   Array<bool  > channel_mutes ;     bool   channel_mute   = false ;
   Array<bool  > channel_solos ;     bool   channel_solo   = false ;
   Array<float > channel_volumes ;   float  channel_volume = 0.0f ;
@@ -164,29 +165,28 @@ DEBUG_TRACE_AUDIO_INIT
   Client->config_metronome_mute      = metro_mute ;
   Client->config_metronome_channel   = metro_channel ;
   Client->config_metronome_stereoout = metro_stereo ;
+  Gui->mixerComponent->addMasterChannelComponent(GUI::MASTER_CHANNEL_GUI_ID) ;
+  Gui->mixerComponent->addMasterChannelComponent(GUI::METRO_CHANNEL_GUI_ID) ;
 
   // configure input channels
   int n_input_channels = Audio->m_innch ;
   for (int ch_n = 0 ; ch_n < n_input_channels ; ++ch_n)
   {
-// NJClient::SetLocalChannelInfo(int ch, const char *name, bool setsrcch, int srcch,
-//                                   bool setbitrate, int bitrate, bool setbcast, bool broadcast)
-//  g_client->SetLocalChannelInfo(0  , "channel0"                      , true  , 0                       , false , 0 , true  , true);// from cursesclient
-    Client->SetLocalChannelInfo(ch_n , channel_names[ch_n].toRawUTF8() , false , false                   , false , 0 , false , false) ;
-    Client->SetLocalChannelInfo(ch_n , NULL                            , true  , channel_source_ns[ch_n] , false , 0 , false , false) ;
-    Client->SetLocalChannelInfo(ch_n , NULL                            , false , false                   , false , 0 , true  , channel_xmits[ch_n]) ;
-//d NJClient::SetLocalChannelMonitoring(int ch, bool setvol, float vol, bool setpan, float pan, bool setmute, bool mute, bool setsolo, bool solo)
-//  g_client->SetLocalChannelMonitoring(0  , false , 0.0f                  , false , 0.0f               , false , false               , false ,false);// from cursesclient
-    Client->SetLocalChannelMonitoring(ch_n , false , false                 , false , false              , true  , channel_mutes[ch_n] , false , false) ;
-    Client->SetLocalChannelMonitoring(ch_n , false , false                 , false , false              , false , false               , true  , channel_solos[ch_n]) ;
-    Client->SetLocalChannelMonitoring(ch_n , true  , channel_volumes[ch_n] , false , false              , false , false               , false , false) ;
-    Client->SetLocalChannelMonitoring(ch_n , false , false                 , true  , channel_pans[ch_n] , false , false               , false , false) ;
+// NJClient::SetLocalChannelInfo(int ch, const char *name, bool setsrcch, int srcch, bool setbitrate, int bitrate, bool setbcast, bool broadcast)
+//g_client->SetLocalChannelInfo(0  , "channel0"                      , true  , 0                       , false , 0 , true  , true);// from cursesclient
+    Client->SetLocalChannelInfo(ch_n , channel_names[ch_n].toRawUTF8() , true  , channel_source_ns[ch_n] , false , 0 , true  , channel_xmits[ch_n]) ;
+//NJClient::SetLocalChannelMonitoring(int ch, bool setvol, float vol, bool setpan, float pan, bool setmute, bool mute, bool setsolo, bool solo)
+//g_client->SetLocalChannelMonitoring(0  , false , 0.0f                  , false , 0.0f               , false , false               , false ,false);// from cursesclient
+    Client->SetLocalChannelMonitoring(ch_n , true  , channel_volumes[ch_n] , true  , channel_pans[ch_n] , true  , channel_mutes[ch_n] , true  , channel_solos[ch_n]) ;
+
 #ifdef INPUT_FX
 #  ifdef _WIN32
     void *p=CreateJesusInstance(ch,"",Audio->m_srate);
     if (p) Client->SetLocalChannelProcessor(ch,jesusonic_processor,p);
 #  endif
 #endif
+
+    Gui->mixerComponent->addLocalChannelComponent(GUI::LOCAL_CHANNEL_GUI_ID + String(ch_n)) ;
   }
 
   // prepare session directory
@@ -266,8 +266,6 @@ DEBUG_TRACE_LICENSE
 
 void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , int nparms)
 {
-DEBUG_TRACE_CHAT_IN
-
   if (!parms[0]) return ;
 
   String chat_type = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
@@ -279,13 +277,15 @@ DEBUG_TRACE_CHAT_IN
   bool is_join_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_JOIN)) ;
   bool is_part_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PART)) ;  
 
+DEBUG_TRACE_CHAT_IN
+
   if (is_topic_msg)
   {
     if (chat_text.isEmpty()) return ;
 
     if (chat_user.isEmpty()) chat_text = "Topic is: "                   + chat_text ;
     else                     chat_text = chat_user + " sets topic to: " + chat_text ;
-    chat_user = GUI::SERVER_NICK.text ;
+    chat_user = GUI::SERVER_NICK ;
 
     Gui->chatComponent->setTopic(chat_text) ;
   }
@@ -302,7 +302,7 @@ DEBUG_TRACE_CHAT_IN
     if (chat_user.isEmpty()) return ;
 
     chat_text = chat_user + " has " + ((is_join_msg)? "joined" : "left") + " the jam" ;
-    chat_user = GUI::SERVER_NICK.text ;
+    chat_user = GUI::SERVER_NICK ;
   } 
   Gui->chatComponent->addChatLine(chat_user , chat_text) ;
 }
@@ -341,54 +341,61 @@ void   LinJam::SetIsAgreed(bool isAgreed) { IsAgreed = isAgreed ; }
 
 void LinJam::SendChat(String chat_text)
 {
-DBG("LinJam::SendChat() =" + chat_text) ;
+DEBUG_TRACE_CHAT_OUT
 
   if ((chat_text = chat_text.trim()).isEmpty()) return ;
 
-  if (chat_text[0] == '/') HandleChatCommand(chat_text) ;
-  else Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_MSG , chat_text.toRawUTF8()) ;
+  if (chat_text.startsWith("/")) HandleChatCommand(chat_text) ;
+  else Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_MSG.toRawUTF8() , chat_text.toRawUTF8()) ;
 }
 
-void LinJam::HandleChatCommand(String chat_command)
+void LinJam::HandleChatCommand(String chat_text)
 {
-  bool is_me_command    = (!chat_command.startsWith(CLIENT::CHATMSG_CMD_ME)) ;
-  bool is_pm_command    = (!chat_command.startsWith(CLIENT::CHATMSG_CMD_MSG)) ;
-  bool is_admin_command = (!chat_command.startsWith(CLIENT::CHATMSG_CMD_ADMIN)) ;
-  bool is_user_command  = (!chat_command.startsWith(CLIENT::CHATMSG_CMD_TOPIC) ||
-                           !chat_command.startsWith(CLIENT::CHATMSG_CMD_KICK)  ||
-                           !chat_command.startsWith(CLIENT::CHATMSG_CMD_BPM)   ||
-                           !chat_command.startsWith(CLIENT::CHATMSG_CMD_BPI)    ) ;
+  String command        = chat_text.upToFirstOccurrenceOf(" " , false , false) ;
+  bool is_me_command    = (!command.compare(CLIENT::CHATMSG_CMD_ME)) ;
+  bool is_pm_command    = (!command.compare(CLIENT::CHATMSG_CMD_MSG)) ;
+  bool is_admin_command = (!command.compare(CLIENT::CHATMSG_CMD_ADMIN)) ;
+  bool is_user_command  = (!command.compare(CLIENT::CHATMSG_CMD_TOPIC) ||
+                           !command.compare(CLIENT::CHATMSG_CMD_KICK)  ||
+                           !command.compare(CLIENT::CHATMSG_CMD_BPM)   ||
+                           !command.compare(CLIENT::CHATMSG_CMD_BPI)    ) ;
+
+#ifdef CHAT_COMMANDS_BUGGY
+  Gui->chatComponent->addChatLine(GUI::SERVER_NICK , "commands disabled") ;
+#else // CHAT_COMMANDS_BUGGY
 
   if      (is_me_command)
   {
-    String msg = String(Client->GetUserName()) + " " + chat_command ;
-    Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_MSG , msg.toRawUTF8()) ;
+    String msg = String(Client->GetUserName()) + " " + chat_text ;
+    Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_MSG.toRawUTF8() , msg.toRawUTF8()) ;
   }
   else if (is_user_command)
   {
-    String msg = chat_command.substring(1) ;
-    Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_ADMIN , msg.toRawUTF8()) ;
+    String msg = chat_text.substring(1) ;
+    Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_ADMIN.toRawUTF8() , msg.toRawUTF8()) ;
   }
   else if (is_admin_command)
   {
-    String msg = chat_command.substring(6).trim() ;
-    Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_ADMIN , msg.toRawUTF8()) ;
+    String msg = chat_text.substring(6).trim() ;
+    Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_ADMIN.toRawUTF8() , msg.toRawUTF8()) ;
   }
   else if (is_pm_command)
   {
-    String to_user = chat_command.substring(4).trim() ;
+    String to_user = chat_text.substring(4).trim() ;
     to_user        = to_user.upToFirstOccurrenceOf(StringRef(" ") , false , false) ;
     String msg     = to_user.fromFirstOccurrenceOf(StringRef(" ") , false , false).trim() ;
 
     if (to_user.isEmpty() || msg.isEmpty())
-      Gui->chatComponent->addChatLine(GUI::SERVER_NICK.text , GUI::INVALID_PM_MSG) ;
+      Gui->chatComponent->addChatLine(GUI::SERVER_NICK , GUI::INVALID_PM_MSG) ;
     else // if (does_user_exist(to_user)) // TODO: this safe yea ?
     {
-      Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_PRIVMSG , msg.toRawUTF8()) ;
+      Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_PRIVMSG.toRawUTF8() , msg.toRawUTF8()) ;
       Gui->chatComponent->addChatLine("(PM -> " + to_user + ")" , msg) ;
     }
   }
-  else Gui->chatComponent->addChatLine(GUI::SERVER_NICK.text , GUI::UNKNOWN_COMMAND_MSG) ;
+  else Gui->chatComponent->addChatLine(GUI::SERVER_NICK , GUI::UNKNOWN_COMMAND_MSG) ;
+
+#endif // CHAT_COMMANDS_BUGGY
 }
 
 

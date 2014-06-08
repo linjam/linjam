@@ -30,6 +30,7 @@
 //==============================================================================
 ChatComponent::ChatComponent ()
 {
+    setName ("ChatComponent");
     addAndMakeVisible (chatTextEditor = new TextEditor ("chatTextEditor"));
     chatTextEditor->setMultiLine (true);
     chatTextEditor->setReturnKeyStartsNewLine (false);
@@ -39,6 +40,8 @@ ChatComponent::ChatComponent ()
     chatTextEditor->setPopupMenuEnabled (false);
     chatTextEditor->setColour (TextEditor::textColourId, Colours::grey);
     chatTextEditor->setColour (TextEditor::backgroundColourId, Colours::black);
+    chatTextEditor->setColour (TextEditor::highlightColourId, Colour (0x00000000));
+    chatTextEditor->setColour (TextEditor::outlineColourId, Colour (0x00000000));
     chatTextEditor->setText (String::empty);
 
     addAndMakeVisible (chatEntryTextEditor = new TextEditor ("chatEntryTextEditor"));
@@ -50,8 +53,8 @@ ChatComponent::ChatComponent ()
     chatEntryTextEditor->setPopupMenuEnabled (false);
     chatEntryTextEditor->setColour (TextEditor::textColourId, Colours::grey);
     chatEntryTextEditor->setColour (TextEditor::backgroundColourId, Colours::black);
-    chatEntryTextEditor->setColour (TextEditor::highlightColourId, Colour (0x40000020));
-    chatEntryTextEditor->setColour (TextEditor::outlineColourId, Colours::grey);
+    chatEntryTextEditor->setColour (TextEditor::highlightColourId, Colour (0x00000000));
+    chatEntryTextEditor->setColour (TextEditor::outlineColourId, Colour (0x00000000));
     chatEntryTextEditor->setColour (CaretComponent::caretColourId, Colours::white);
     chatEntryTextEditor->setText (String::empty);
 
@@ -59,12 +62,14 @@ ChatComponent::ChatComponent ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (630, 446);
+    setSize (622, 162);
 
 
     //[Constructor] You can add your own custom stuff here..
   this->chatEntryTextEditor->setInputRestrictions(1024) ;
   this->chatEntryTextEditor->addListener(this) ;
+  this->chatTextEditor->setWantsKeyboardFocus(false) ;
+  this->chatEntryTextEditor->setWantsKeyboardFocus(true) ;
     //[/Constructor]
 }
 
@@ -87,7 +92,23 @@ void ChatComponent::paint (Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xff101010));
+    g.setColour (Colour (0xff101010));
+    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
+
+    g.setColour (Colours::white);
+    g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f, 1.000f);
+
+    g.setColour (Colours::black);
+    g.fillRoundedRectangle (4.0f, 4.0f, static_cast<float> (getWidth() - 8), static_cast<float> (getHeight() - 36), 10.000f);
+
+    g.setColour (Colours::grey);
+    g.drawRoundedRectangle (4.0f, 4.0f, static_cast<float> (getWidth() - 8), static_cast<float> (getHeight() - 36), 10.000f, 1.000f);
+
+    g.setColour (Colours::black);
+    g.fillRoundedRectangle (4.0f, static_cast<float> (getHeight() - 28), static_cast<float> (getWidth() - 8), 24.0f, 10.000f);
+
+    g.setColour (Colours::grey);
+    g.drawRoundedRectangle (4.0f, static_cast<float> (getHeight() - 28), static_cast<float> (getWidth() - 8), 24.0f, 10.000f, 1.000f);
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -95,8 +116,8 @@ void ChatComponent::paint (Graphics& g)
 
 void ChatComponent::resized()
 {
-    chatTextEditor->setBounds (4, 4, getWidth() - 8, getHeight() - 36);
-    chatEntryTextEditor->setBounds (4, getHeight() - 4 - 24, getWidth() - 8, 24);
+    chatTextEditor->setBounds (8, 8, getWidth() - 16, getHeight() - 44);
+    chatEntryTextEditor->setBounds (8, getHeight() - 8 - 16, getWidth() - 16, 16);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -132,21 +153,29 @@ void ChatComponent::textEditorReturnKeyPressed(TextEditor& a_text_editor)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="ChatComponent" componentName=""
+<JUCER_COMPONENT documentType="Component" className="ChatComponent" componentName="ChatComponent"
                  parentClasses="public Component, public TextEditor::Listener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="630"
-                 initialHeight="446">
-  <BACKGROUND backgroundColour="ff101010"/>
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="622"
+                 initialHeight="162">
+  <BACKGROUND backgroundColour="0">
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
+               stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
+    <ROUNDRECT pos="4 4 8M 36M" cornerSize="10" fill="solid: ff000000" hasStroke="1"
+               stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
+    <ROUNDRECT pos="4 28R 8M 24" cornerSize="10" fill="solid: ff000000" hasStroke="1"
+               stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
+  </BACKGROUND>
   <TEXTEDITOR name="chatTextEditor" id="ba11ad8bfe4752c1" memberName="chatTextEditor"
-              virtualName="" explicitFocusOrder="0" pos="4 4 8M 36M" textcol="ff808080"
-              bkgcol="ff000000" initialText="" multiline="1" retKeyStartsLine="0"
-              readonly="1" scrollbars="1" caret="0" popupmenu="0"/>
+              virtualName="" explicitFocusOrder="0" pos="8 8 16M 44M" textcol="ff808080"
+              bkgcol="ff000000" hilitecol="0" outlinecol="0" initialText=""
+              multiline="1" retKeyStartsLine="0" readonly="1" scrollbars="1"
+              caret="0" popupmenu="0"/>
   <TEXTEDITOR name="chatEntryTextEditor" id="412133d948ede027" memberName="chatEntryTextEditor"
-              virtualName="" explicitFocusOrder="0" pos="4 4Rr 8M 24" textcol="ff808080"
-              bkgcol="ff000000" hilitecol="40000020" outlinecol="ff808080"
-              caretcol="ffffffff" initialText="" multiline="0" retKeyStartsLine="0"
-              readonly="0" scrollbars="0" caret="1" popupmenu="0"/>
+              virtualName="" explicitFocusOrder="0" pos="8 8Rr 16M 16" textcol="ff808080"
+              bkgcol="ff000000" hilitecol="0" outlinecol="0" caretcol="ffffffff"
+              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
+              scrollbars="0" caret="1" popupmenu="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

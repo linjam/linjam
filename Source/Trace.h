@@ -11,6 +11,7 @@
 
 #define DEBUG_STATIC_SERVER 1 // DEBUG_SERVER defined in LinJam.cpp
 
+#define CHAT_COMMANDS_BUGGY
 
 #include "JuceHeader.h"
 
@@ -129,11 +130,15 @@
       }                                                                             \
     }
 
-#  define DEBUG_TRACE_CHAT_IN            Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
+#  define DEBUG_TRACE_CHAT_IN            if (chat_user.compare(Login)) Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 //#  define DEBUG_TRACE_CHATIN String msg = "|" ; for (;nparms--;) msg += String(parms[nparms]) + "|" ; Trace::TraceEvent("LinJam::OnChatmsg()=\n\"" + msg + "\"") ;
 //#  define DEBUG_TRACE_CHATIN Trace::TraceEvent("LinJam::OnChatmsg()=\n") ; for (;nparms--;) Trace::TraceEvent("\tnparms[" + String(nparms) + "]='" + String(parms[nparms]) + "'\n") ;
 
-#  define DEBUG_TRACE_MAIN_RESIZED       Trace::TraceEventVerbose("statusW=" + String(statusW) + " statusH=" + String(statusH) + " statusL=" + String(statusL) + " statusT=" + String(statusT)) ;
+#define DEBUG_TRACE_CHAT_OUT                                                \
+    if ((chat_text = chat_text.trim()).isNotEmpty())                        \
+      Trace::TraceEvent("outgoing chat: " + ((chat_text[0] == '/')?         \
+          chat_text.upToFirstOccurrenceOf(" " , false , false) : CLIENT::CHATMSG_TYPE_MSG)) ;
+// DBG("LinJam::SendChat() =" + chat_text) ;
 
 #else // #if DEBUG_TRACE
 

@@ -32,11 +32,12 @@ public:
     void initialise (const String& args) override
     {
       this->mainWindow         = new MainWindow() ;
-      this->contentComponent   = (MainContentComponent*)this->mainWindow      ->findChildWithID(GUI::CONTENT_GUI_ID) ;
-      this->loginComponent     = (LoginComponent*)      this->contentComponent->findChildWithID(GUI::LOGIN_GUI_ID) ;
-      this->licenseComponent   = (LicenseComponent*)    this->contentComponent->findChildWithID(GUI::LICENSE_GUI_ID) ;
-      this->chatComponent      = (ChatComponent*)       this->contentComponent->findChildWithID(GUI::CHAT_GUI_ID) ;
-      this->statusbarComponent = (StatusBarComponent*)  this->contentComponent->findChildWithID(GUI::STATUS_GUI_ID) ;
+      this->contentComponent   = (MainContentComponent*)getContainerComponent(GUI::CONTENT_GUI_ID) ;
+      this->loginComponent     = (LoginComponent*)      getChildComponent(GUI::LOGIN_GUI_ID) ;
+      this->licenseComponent   = (LicenseComponent*)    getChildComponent(GUI::LICENSE_GUI_ID) ;
+      this->chatComponent      = (ChatComponent*)       getChildComponent(GUI::CHAT_GUI_ID) ;
+      this->mixerComponent     = (MixerComponent*)      getChildComponent(GUI::MIXER_GUI_ID) ;
+      this->statusbarComponent = (StatusBarComponent*)  getChildComponent(GUI::STATUS_GUI_ID) ;
 
       if (!LinJam::Initialize(this , contentComponent , args)) initError() ;
 
@@ -45,10 +46,14 @@ public:
 //      this->startTimer(CLIENT::STATUS_POLL_ID ,   CLIENT::STATUS_POLL_IVL) ;
     }
 
+    Component* getContainerComponent(String id)
+    { return this->mainWindow->findChildWithID(StringRef(id)) ; }
+
+    Component* getChildComponent(String id)
+    { return this->contentComponent->findChildWithID(StringRef(id)) ; }
+
     void initError()
-    {
-      this->statusbarComponent->setStatusL(GUI::AUDIO_INIT_ERROR_MSG.text) ;
-    } // TODO: MB , prompt cfg ??
+    { this->statusbarComponent->setStatusL(GUI::AUDIO_INIT_ERROR_MSG) ; } // TODO: MB , prompt cfg ?? (issue #12)
 
     void shutdown() override
     {
@@ -78,20 +83,23 @@ public:
         This class implements the desktop window that contains an instance of
         our MainContentComponent class.
     */
-    class MainWindow    : public DocumentWindow
+    class MainWindow : public DocumentWindow
     {
     public:
-        MainWindow()  : DocumentWindow (JUCEApplication::getInstance()->getApplicationName() ,
-                                        Colours::lightgrey ,
-                                        DocumentWindow::allButtons)
+        MainWindow() : DocumentWindow (JUCEApplication::getInstance()->getApplicationName() ,
+                                       Colours::lightgrey ,
+                                       DocumentWindow::allButtons)
         {
-            MainContentComponent* mainContentComponent = new MainContentComponent() ;
+            mainContentComponent = new MainContentComponent() ;
             setContentOwned(mainContentComponent , true) ;
-            mainContentComponent->setComponentID(GUI::CONTENT_GUI_ID.text) ;
+            mainContentComponent->setComponentID(GUI::CONTENT_GUI_ID) ;
             centreWithSize(getWidth() , getHeight()) ;
             setVisible(true) ;
         }
-
+~MainWindow()
+{
+  this->mainContentComponent = nullptr ;
+}
         void closeButtonPressed()
         {
             // This is called when the user tries to close this window. Here, we'll just
@@ -109,6 +117,8 @@ public:
 
     private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
+
+        ScopedPointer<MainContentComponent> mainContentComponent ;
     };
 
     void timerCallback(int timerId) override
@@ -138,18 +148,32 @@ public:
 //DEBUG_TRACE_CONNECT_STATUS // linux segfault
 
       // GUI state
+      int visibility_mask = 0 ;
       switch (status)
       {
-        case NJC_STATUS_DISCONNECTED: this->loginComponent  ->toFront(true) ; break ;
+        case NJC_STATUS_DISCONNECTED: this->loginComponent  ->toFront(true) ;  break ;
         case NJC_STATUS_INVALIDAUTH:  (LinJam::IsAgreed)?
                                       this->loginComponent  ->toFront(true) :
-                                      this->licenseComponent->toFront(true) ; break ;
-        case NJC_STATUS_CANTCONNECT:  this->loginComponent  ->toFront(true) ; break ;
-        case NJC_STATUS_OK:           this->chatComponent   ->toFront(true) ; break ;
-        case NJC_STATUS_PRECONNECT:   this->loginComponent  ->toFront(true) ; break ;
-        default:                                                              break ;
+                                      this->licenseComponent->toFront(true) ;  break ;
+        case NJC_STATUS_CANTCONNECT:  this->loginComponent  ->toFront(true) ;  break ;
+        case NJC_STATUS_OK:           this->chatComponent   ->toFront(true) ;
+        this->loginComponent  -> setVisible(false) ;
+this->licenseComponent  -> setVisible(false) ;
+                                      this->mixerComponent  ->toFront(false) ; break ;
+        case NJC_STATUS_PRECONNECT:   this->loginComponent  ->toFront(true) ;  break ;
+        default:                                                               break ;
       }
+/*
+      this->loginComponent  -> setVisible(visibility_mask & GUI::LOGIN_VISIBILITY_MASK_BIT) ;
+      this->licenseComponent-> setVisible(visibility_mask & GUI::LICENSE_VISIBILITY_MASK_BIT) ;
+      this->chatComponent   -> setVisible(visibility_mask & GUI::CHAT_VISIBILITY_MASK_BIT) ;
+      this->mixerComponent  -> setVisible(visibility_mask & GUI::MIXER_VISIBILITY_MASK_BIT) ;
 
+GUI::LOGIN_VISIBILITY_MASK_BIT) ;
+GUI::LICENSE_VISIBILITY_MASK_BIT) ;
+GUI::CHAT_VISIBILITY_MASK_BIT) ;
+GUI::MIXER_VISIBILITY_MASK_BIT) ;
+*/
       // status indicator
       String status_text ;
       switch (status)
@@ -184,11 +208,13 @@ DEBUG_CHANNELS
 
 
 private:
+
     ScopedPointer<MainWindow> mainWindow ;
     MainContentComponent*     contentComponent ;
     LoginComponent*           loginComponent ;
     LicenseComponent*         licenseComponent ;
     ChatComponent*            chatComponent ;
+    MixerComponent*           mixerComponent ;
     StatusBarComponent*       statusbarComponent ;
 
     int prev_status ;
