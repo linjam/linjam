@@ -144,8 +144,14 @@ DEBUG_TRACE_LICENSE_CLICKED
     else if (buttonThatWasClicked == alwaysButton)
     {
         //[UserButtonCode_alwaysButton] -- add your button handler code here..
+
     LinJam::IsAgreed = true ;
+#if ! PERSISTENCE_TRANSITION
     LinJam::SetShouldAgree(true) ;
+#else // PERSISTENCE_TRANSITION
+//    LinJam::Config->ShouldAlwaysAgree = true ;
+#endif // PERSISTENCE_TRANSITION
+
         //[/UserButtonCode_alwaysButton]
     }
 

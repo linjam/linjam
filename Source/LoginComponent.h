@@ -35,6 +35,7 @@
                                                                     //[/Comments]
 */
 class LoginComponent  : public Component,
+                        public Value::Listener,
                         public ButtonListener
 {
 public:
@@ -54,14 +55,21 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+  void broughtToFront() override ;
+  void valueChanged(Value &login_value) override ;
+
     //[/UserVariables]
 
     //==============================================================================
+    ScopedPointer<Label> hostLabel;
     ScopedPointer<Label> loginLabel;
-    ScopedPointer<TextEditor> loginText;
     ScopedPointer<Label> passLabel;
+    ScopedPointer<TextEditor> hostText;
+    ScopedPointer<TextEditor> loginText;
     ScopedPointer<TextEditor> passText;
     ScopedPointer<TextButton> loginButton;
+    ScopedPointer<TextButton> serverButton;
     ScopedPointer<ToggleButton> anonButton;
 
 

@@ -9,6 +9,7 @@
 
 /* public class methods */
 
+void Trace::TraceConfig(String msg)       { if (TraceState())  Dbg("CONFIG"     , msg) ; }
 void Trace::TraceEvent(String msg)        { if (TraceEvs())    Dbg("EVENT"      , msg) ; }
 void Trace::TraceEventVerbose(String msg) { if (TraceVb())     Dbg("EVENT"      , msg) ; }
 void Trace::TraceState(String msg)        { if (TraceState())  Dbg("STATE"      , msg) ; }
