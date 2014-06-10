@@ -61,6 +61,8 @@ public:
 
         LinJam::Shutdown() ;
         this->mainWindow = nullptr ; // (deletes our window)
+
+DEBUG_TRACE_SHUTDOWN
     }
 
     //==============================================================================
@@ -96,10 +98,12 @@ public:
             centreWithSize(getWidth() , getHeight()) ;
             setVisible(true) ;
         }
-~MainWindow()
-{
-  this->mainContentComponent = nullptr ;
-}
+
+        ~MainWindow()
+        {
+          this->mainContentComponent = nullptr ;
+        }
+
         void closeButtonPressed()
         {
             // This is called when the user tries to close this window. Here, we'll just
@@ -123,6 +127,10 @@ public:
 
     void timerCallback(int timerId) override
     {
+#if EXIT_IMMEDIAYELY
+DBG("[DEBUG]: EXIT_IMMEDIAYELY defined - bailing") ; this->quit() ;
+#endif // EXIT_IMMEDIAYELY
+
       switch (timerId)
       {
         case CLIENT::CLIENT_DRIVER_ID: driveClient() ;  break ;
@@ -145,7 +153,7 @@ public:
     {
 //      if (status != this->prev_status) this->prev_status = status ; else return ;
 
-//DEBUG_TRACE_CONNECT_STATUS // linux segfault
+//DEBUG_TRACE_CONNECT_STATUS // linux .so segfault (issue #15)
 
       // GUI state
       int visibility_mask = 0 ;
@@ -157,8 +165,6 @@ public:
                                       this->licenseComponent->toFront(true) ;  break ;
         case NJC_STATUS_CANTCONNECT:  this->loginComponent  ->toFront(true) ;  break ;
         case NJC_STATUS_OK:           this->chatComponent   ->toFront(true) ;
-        this->loginComponent  -> setVisible(false) ;
-this->licenseComponent  -> setVisible(false) ;
                                       this->mixerComponent  ->toFront(false) ; break ;
         case NJC_STATUS_PRECONNECT:   this->loginComponent  ->toFront(true) ;  break ;
         default:                                                               break ;
@@ -235,58 +241,6 @@ private:
 */
 #endif
     }
-
-
-/*
-void rampEachRemoteUser()
-{
-  // remote users                                                              
-  int user_n = -1 ; int ch_n = -1 ; int n_users = m_remoteusers.GetSize() ;           
-  while (++user_n < n_users)                                                      
-  {                                                                               
-    float vol = 0.0f , pan = 0.0f ; bool mute = 0 ;                               
-    String name = CharPointer_UTF8(GetUserState(user_n , &vol , &pan , &mute)) ;                     
-    this->chatComponent->addChatLine("" , "") ;                                   
-    this->chatComponent->addChatLine(                                             
-        String("remote user ") + String(user_n) + String(":\n") ,                 
-        String("name=")        + String(name)   +                                 
-        String(" volume=")     + String(vol)    +                                 
-        String(" pan=")        + String(pan)    +                                 
-        String(" mute=")       + String(mute)                   ) ;               
-    SetUserState(user_n , true , vol + 10.0f , true , 0.0f , true , false) ;
-
-    // remote user channels                                                     
-    int ch_idx ; ch_n = -1 ;                                                                   
-    while ((ch_idx = EnumUserChannels(user_n , ++ch_n)) >= 0)                     
-    {                                                                             
-      float vol = 0.0f , pan = 0.0f ; bool sub = 0 , mute = 0 , solo = 0 ;        
-      int out_ch = 0 ; bool stereo = 0 ;                                          
-      String name = CharPointer_UTF8(GetUserChannelState(user_n , ch_idx  , &sub    ,               
-                                                         &vol   , &pan    , &mute   ,               
-                                                         &solo  , &out_ch , &stereo)) ;             
-      this->chatComponent->addChatLine(                                           
-          String("    remote channel ") + String(ch_n)     +                      
-              String(" (")              + String(ch_idx)   + String("):\n") ,     
-          String("    name=")           + String(name)     +                      
-          String(" subscribed=")        + String(sub)      +                      
-          String(" volume=")            + String(vol)      +                      
-          String(" pan=")               + String(pan)      +                      
-          String(" mute=")              + String(mute)     +                      
-          String(" solo=")              + String(solo)     +                      
-          String(" out_ch=")            + String(out_ch)   +                      
-          String(" stereo=")            + String(stereo)                    ) ;   
-      SetUserChannelState(user_n , ch_idx ,
-			     true , true ,
-			     true , vol + 10.0f ,
-			     true , 0.0f ,
-			     true , false ,
-			     true , false ,
-			     true , 0 ,
-			     true , false) ;
-    }
-  }
-}
-*/
 } ;
 
 //==============================================================================

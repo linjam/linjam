@@ -114,4 +114,53 @@ public:
   static const int    STATUS_PAD_Y = 2 ;
 } ;
 
+
+class STORAGE
+{
+public:
+
+  static const String     PERSISTENCE_FILENAME ;
+  static const String     PERSISTENCE_KEY ;
+  static const Identifier PERSISTENCE_IDENTIFIER ;
+
+  static const String     MASTER_KEY ;
+  static const Identifier MASTER_IDENTIFIER ;
+  static const String     MASTER_VOLUME_KEY ;
+  static const Identifier MASTER_VOLUME_IDENTIFIER ;
+  static const String     MASTER_PAN_KEY ;
+  static const Identifier MASTER_PAN_IDENTIFIER ;
+  static const String     MASTER_MUTE_KEY ;
+  static const Identifier MASTER_MUTE_IDENTIFIER ;
+  static const String     METRO_VOLUME_KEY ;
+  static const Identifier METRO_VOLUME_IDENTIFIER ;
+  static const String     METRO_PAN_KEY ;
+  static const Identifier METRO_PAN_IDENTIFIER ;
+  static const String     METRO_MUTE_KEY ;
+  static const Identifier METRO_MUTE_IDENTIFIER ;
+  static const String     METRO_CHANNEL_KEY ;
+  static const Identifier METRO_CHANNEL_IDENTIFIER ;
+  static const String     METRO_STEREO_KEY ;
+  static const Identifier METRO_STEREO_IDENTIFIER ;
+
+  static const String     HOST_KEY ;
+  static const Identifier HOST_IDENTIFIER ;
+  static const String     LOGIN_KEY ;
+  static const Identifier LOGIN_IDENTIFIER ;
+  static const String     PASS_KEY ;
+  static const Identifier PASS_IDENTIFIER ;
+  static const String     ANON_KEY ;
+  static const Identifier ANON_IDENTIFIER ;
+  static const String     AGREE_KEY ;
+  static const Identifier AGREE_IDENTIFIER ;
+
+  static const String     MISC_KEY ;
+  static const Identifier MISC_IDENTIFIER ;
+  static const String     SERVER_KEY ;
+  static const Identifier SERVER_IDENTIFIER ;
+
+  static const Identifier SERVERS_IDENTIFIER ;
+
+  static const String     DEFAULT_CONFIG_XML ;
+} ;
+
 #endif // CONSTANTS_H_INCLUDED

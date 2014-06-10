@@ -19,6 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "LinJam.h"
+#include "Constants.h"
 #include "Trace.h"
 //[/Headers]
 
@@ -32,6 +33,15 @@
 LoginComponent::LoginComponent ()
 {
     setName ("LoginComponent");
+    addAndMakeVisible (hostLabel = new Label ("hostLabel",
+                                              TRANS("Server:")));
+    hostLabel->setFont (Font (15.00f, Font::plain));
+    hostLabel->setJustificationType (Justification::centredLeft);
+    hostLabel->setEditable (false, false, false);
+    hostLabel->setColour (Label::textColourId, Colours::grey);
+    hostLabel->setColour (TextEditor::textColourId, Colours::black);
+    hostLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
     addAndMakeVisible (loginLabel = new Label ("loginLabel",
                                                TRANS("Username:")));
     loginLabel->setFont (Font (15.00f, Font::plain));
@@ -40,6 +50,27 @@ LoginComponent::LoginComponent ()
     loginLabel->setColour (Label::textColourId, Colours::grey);
     loginLabel->setColour (TextEditor::textColourId, Colours::black);
     loginLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (passLabel = new Label ("passLabel",
+                                              TRANS("Password:")));
+    passLabel->setFont (Font (15.00f, Font::plain));
+    passLabel->setJustificationType (Justification::centredLeft);
+    passLabel->setEditable (false, false, false);
+    passLabel->setColour (Label::textColourId, Colours::grey);
+    passLabel->setColour (TextEditor::textColourId, Colours::black);
+    passLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (hostText = new TextEditor ("hostText"));
+    hostText->setMultiLine (false);
+    hostText->setReturnKeyStartsNewLine (false);
+    hostText->setReadOnly (false);
+    hostText->setScrollbarsShown (false);
+    hostText->setCaretVisible (true);
+    hostText->setPopupMenuEnabled (true);
+    hostText->setColour (TextEditor::textColourId, Colours::grey);
+    hostText->setColour (TextEditor::backgroundColourId, Colours::black);
+    hostText->setColour (TextEditor::outlineColourId, Colours::white);
+    hostText->setText (String::empty);
 
     addAndMakeVisible (loginText = new TextEditor ("loginText"));
     loginText->setMultiLine (false);
@@ -52,15 +83,6 @@ LoginComponent::LoginComponent ()
     loginText->setColour (TextEditor::backgroundColourId, Colours::black);
     loginText->setColour (TextEditor::outlineColourId, Colours::white);
     loginText->setText (String::empty);
-
-    addAndMakeVisible (passLabel = new Label ("passLabel",
-                                              TRANS("Password:")));
-    passLabel->setFont (Font (15.00f, Font::plain));
-    passLabel->setJustificationType (Justification::centredLeft);
-    passLabel->setEditable (false, false, false);
-    passLabel->setColour (Label::textColourId, Colours::grey);
-    passLabel->setColour (TextEditor::textColourId, Colours::black);
-    passLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (passText = new TextEditor ("passText"));
     passText->setExplicitFocusOrder (2);
@@ -79,6 +101,10 @@ LoginComponent::LoginComponent ()
     loginButton->setButtonText (TRANS("Connect"));
     loginButton->addListener (this);
 
+    addAndMakeVisible (serverButton = new TextButton ("serverButton"));
+    serverButton->setButtonText (TRANS("Custom Server"));
+    serverButton->addListener (this);
+
     addAndMakeVisible (anonButton = new ToggleButton ("anonButton"));
     anonButton->setExplicitFocusOrder (1);
     anonButton->setButtonText (TRANS("anonymous"));
@@ -88,6 +114,9 @@ LoginComponent::LoginComponent ()
 
 
     //[UserPreSize]
+  hostLabel  ->setVisible(false) ;
+  hostText   ->setVisible(false) ;
+  loginButton->setVisible(false) ;
     //[/UserPreSize]
 
     setSize (622, 442);
@@ -102,11 +131,14 @@ LoginComponent::~LoginComponent()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
+    hostLabel = nullptr;
     loginLabel = nullptr;
-    loginText = nullptr;
     passLabel = nullptr;
+    hostText = nullptr;
+    loginText = nullptr;
     passText = nullptr;
     loginButton = nullptr;
+    serverButton = nullptr;
     anonButton = nullptr;
 
 
@@ -132,12 +164,15 @@ void LoginComponent::paint (Graphics& g)
 
 void LoginComponent::resized()
 {
-    loginLabel->setBounds (96, 72, 72, 24);
-    loginText->setBounds (184, 72, 160, 24);
-    passLabel->setBounds (96, 104, 72, 24);
-    passText->setBounds (184, 104, 160, 24);
-    loginButton->setBounds (368, 72, 96, 24);
-    anonButton->setBounds (368, 104, 96, 24);
+    hostLabel->setBounds ((getWidth() / 2) + -190, getHeight() - 112, 72, 24);
+    loginLabel->setBounds ((getWidth() / 2) + -190, getHeight() - 80, 72, 24);
+    passLabel->setBounds ((getWidth() / 2) + -190, getHeight() - 48, 72, 24);
+    hostText->setBounds ((getWidth() / 2) + -100, getHeight() - 112, 160, 24);
+    loginText->setBounds ((getWidth() / 2) + -100, getHeight() - 80, 160, 24);
+    passText->setBounds ((getWidth() / 2) + -100, getHeight() - 48, 160, 24);
+    loginButton->setBounds ((getWidth() / 2) + 85, getHeight() - 112, 96, 24);
+    serverButton->setBounds ((getWidth() / 2) + 85, getHeight() - 80, 96, 24);
+    anonButton->setBounds ((getWidth() / 2) + 85, getHeight() - 48, 96, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -150,13 +185,34 @@ void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == loginButton)
     {
         //[UserButtonCode_loginButton] -- add your button handler code here..
-      this->toBack() ; LinJam::Connect() ;
+
+      LinJam::Connect() ;
+
         //[/UserButtonCode_loginButton]
+    }
+    else if (buttonThatWasClicked == serverButton)
+    {
+        //[UserButtonCode_serverButton] -- add your button handler code here..
+
+      bool customHostToggleState = !this->hostText->isVisible() ;
+      if (customHostToggleState) this->hostText->setText("") ;
+
+      this->hostLabel  ->setVisible(customHostToggleState) ;
+      this->hostText   ->setVisible(customHostToggleState) ;
+      this->loginButton->setVisible(customHostToggleState) ;
+
+        //[/UserButtonCode_serverButton]
     }
     else if (buttonThatWasClicked == anonButton)
     {
         //[UserButtonCode_anonButton] -- add your button handler code here..
-//    this->getTopLevelComponent ()->debugText = "buttonThatWasClicked == anonButton" ;
+
+      bool anonymousToggleState = this->anonButton->getToggleState() ;
+      if (!anonymousToggleState) this->passText->setText("") ;
+
+      this->passLabel->setVisible(anonymousToggleState) ;
+      this->passText ->setVisible(anonymousToggleState) ;
+
         //[/UserButtonCode_anonButton]
     }
 
@@ -167,6 +223,33 @@ void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void LoginComponent::broughtToFront()
+{
+// TODO: set textboxes from per host config
+  if (LinJam::Config == nullptr) return ;
+
+DBG("LoginComponent::broughtToFront() last Server=" + LinJam::Config->Server.toString()) ;
+
+  ValueTree server = LinJam::Config->getServerConfig(hostText->getText()) ;
+  String login     = server.getProperty(STORAGE::LOGIN_IDENTIFIER) ;//.toString()
+  String pass      = server.getProperty(STORAGE::PASS_IDENTIFIER) ;
+  bool   anon      = server.getProperty(STORAGE::ANON_IDENTIFIER) ;
+  bool   agree     = server.getProperty(STORAGE::AGREE_IDENTIFIER) ;
+
+DBG("LoginComponent::broughtToFront() login=" + login) ;
+DBG("LoginComponent::broughtToFront() pass=" + pass) ;
+DBG("LoginComponent::broughtToFront() anon=" + String(anon)) ;
+DBG("LoginComponent::broughtToFront() agree=" + String(agree)) ;
+}
+
+void LoginComponent::valueChanged(Value &login_value)
+{
+// TODO: probably all this wants to respond to is server status for quick-login buttons
+DBG("LoginComponent::valueChanged()=" + login_value.getValue().toString()) ;
+this->loginText->setText(login_value.getValue().toString()) ;
+}
+
 //[/MiscUserCode]
 
 
@@ -180,36 +263,49 @@ void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="LoginComponent" componentName="LoginComponent"
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="622" initialHeight="442">
+                 parentClasses="public Component, public Value::Listener" constructorParams=""
+                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
+                 overlayOpacity="0.330" fixedSize="0" initialWidth="622" initialHeight="442">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
+  <LABEL name="hostLabel" id="916aefc37fc4e730" memberName="hostLabel"
+         virtualName="" explicitFocusOrder="0" pos="-190C 112R 72 24"
+         textCol="ff808080" edTextCol="ff000000" edBkgCol="0" labelText="Server:"
+         editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
+         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <LABEL name="loginLabel" id="96b0f56176f33f63" memberName="loginLabel"
-         virtualName="" explicitFocusOrder="0" pos="96 72 72 24" textCol="ff808080"
+         virtualName="" explicitFocusOrder="0" pos="-190C 80R 72 24" textCol="ff808080"
          edTextCol="ff000000" edBkgCol="0" labelText="Username:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
-  <TEXTEDITOR name="loginText" id="5490b33873f48ebc" memberName="loginText"
-              virtualName="" explicitFocusOrder="0" pos="184 72 160 24" textcol="ff808080"
-              bkgcol="ff000000" outlinecol="ffffffff" initialText="" multiline="0"
-              retKeyStartsLine="0" readonly="0" scrollbars="0" caret="1" popupmenu="1"/>
   <LABEL name="passLabel" id="14f83e5255766a2c" memberName="passLabel"
-         virtualName="" explicitFocusOrder="0" pos="96 104 72 24" textCol="ff808080"
+         virtualName="" explicitFocusOrder="0" pos="-190C 48R 72 24" textCol="ff808080"
          edTextCol="ff000000" edBkgCol="0" labelText="Password:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
-  <TEXTEDITOR name="passText" id="3962fd184843da61" memberName="passText" virtualName=""
-              explicitFocusOrder="2" pos="184 104 160 24" textcol="ff808080"
+  <TEXTEDITOR name="hostText" id="d540c830b7e8d52f" memberName="hostText" virtualName=""
+              explicitFocusOrder="0" pos="-100C 112R 160 24" textcol="ff808080"
               bkgcol="ff000000" outlinecol="ffffffff" initialText="" multiline="0"
               retKeyStartsLine="0" readonly="0" scrollbars="0" caret="1" popupmenu="1"/>
-  <TEXTBUTTON name="loginButton" id="2353714d1f249baf" memberName="loginButton"
-              virtualName="" explicitFocusOrder="0" pos="368 72 96 24" buttonText="Connect"
+  <TEXTEDITOR name="loginText" id="5490b33873f48ebc" memberName="loginText"
+              virtualName="" explicitFocusOrder="0" pos="-100C 80R 160 24"
+              textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" initialText=""
+              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
+              caret="1" popupmenu="1"/>
+  <TEXTEDITOR name="passText" id="3962fd184843da61" memberName="passText" virtualName=""
+              explicitFocusOrder="2" pos="-100C 48R 160 24" textcol="ff808080"
+              bkgcol="ff000000" outlinecol="ffffffff" initialText="" multiline="0"
+              retKeyStartsLine="0" readonly="0" scrollbars="0" caret="1" popupmenu="1"/>
+  <TEXTBUTTON name="loginButton" id="7db8d8f23fee0f6a" memberName="loginButton"
+              virtualName="" explicitFocusOrder="0" pos="85C 112R 96 24" buttonText="Connect"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <TEXTBUTTON name="serverButton" id="2353714d1f249baf" memberName="serverButton"
+              virtualName="" explicitFocusOrder="0" pos="85C 80R 96 24" buttonText="Custom Server"
               connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TOGGLEBUTTON name="anonButton" id="42b61bb43a881103" memberName="anonButton"
-                virtualName="" explicitFocusOrder="1" pos="368 104 96 24" txtcol="ff808080"
+                virtualName="" explicitFocusOrder="1" pos="85C 48R 96 24" txtcol="ff808080"
                 buttonText="anonymous" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="1"/>
 </JUCER_COMPONENT>

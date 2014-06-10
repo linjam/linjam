@@ -20,7 +20,8 @@
 
 /* LinJam public class variables */
 
-bool LinJam::IsAgreed = false ;
+bool          LinJam::IsAgreed = false ;
+LinJamConfig* LinJam::Config ;
 
 
 /* LinJam private class variables */
@@ -31,12 +32,15 @@ MainContentComponent* LinJam::Gui            = nullptr ; // Initialize()
 bool                  LinJam::IsAudioEnabled = false ;   // TODO: use Client->>m_audio_enable instead ?? (issue #11)
 File                  LinJam::SessionDir ;               // Initialize()
 
+#if ! PERSISTENCE_TRANSITION
 bool   LinJam::ShouldAutoJoin = false ; // TODO: persistent config            (issue #6)
 String LinJam::Server         = "" ;    // TODO: persistent config            (issue #6)
 String LinJam::Login          = "" ;    // TODO: persistent config per Server (issue #6)
 String LinJam::Pass           = ""  ;   // TODO: persistent config per Server (issue #6)
 bool   LinJam::IsAnonymous    = true ;  // TODO: persistent config per Server (issue #6)
 bool   LinJam::ShouldAgree    = false ; // TODO: persistent config per Server (issue #6)
+
+#endif // PERSISTENCE_TRANSITION
 
 
 /* LinJam public class methods */
@@ -86,8 +90,13 @@ DEBUG_TRACE_LINJAM_INIT
           nblock 16    -- set number of blocks
 */
 
+#if ! PERSISTENCE_TRANSITION
+// XML_DEFAULTS begin
+// DEFAULTS_DONE begin
   // master channels config defaults
   float master_volume = 1.0f ; // DB2VAL(-120.0) .. DB2VAL(20.0) db gain
+// DEFAULTS_DONE end
+#endif // PERSISTENCE_TRANSITION
   float master_pan    = 0.0f ; // -1.0 .. 1.0
   bool  master_mute   = false ;
   float metro_volume  = DB2VAL(-36.0f) ;
@@ -95,6 +104,7 @@ DEBUG_TRACE_LINJAM_INIT
   bool  metro_mute    = false ;
   int   metro_channel = 0 ;
   bool  metro_stereo  = true ;
+// XML_DEFAULTS end
 
   // input channels config defaults
   const int     MAX_INPUT_CHANNELS = Client->GetMaxLocalChannels() ;
@@ -125,8 +135,17 @@ DEBUG_TRACE_LINJAM_INIT
   Array<String> auto_subscribe_users ;
 
 // TODO: parse command line args for autojoin (issue #9)
+
+
 // TODO: read persistent config (issue #6)
-//       int user_n = n_config_users ; while (user_n--) auto_subscribe_users.add(name) ;
+  Config = new LinJamConfig() ;
+
+Config->MasterVolume.addListener(Gui->loginComponent) ; // leaky
+Config->MasterVolume = 42.0 ;
+//DBG("Server=" + Config->Server.getValue().toString()) ;
+
+
+
 
   // initialize audio
 #ifdef _WIN32
@@ -157,7 +176,7 @@ DEBUG_TRACE_AUDIO_INIT
   if (!Audio) return false ;
 
   // configure master channels
-  Client->config_mastervolume        = master_volume ;
+  Client->config_mastervolume        = 1.0;//float(MasterVolume.getValue()) ;
   Client->config_masterpan           = master_pan ;
   Client->config_mastermute          = master_mute ;
   Client->config_metronome           = metro_volume ;
@@ -221,6 +240,10 @@ DEBUG_TRACE_AUDIO_INIT
 
 void LinJam::Connect()
 {
+#if PERSISTENCE_TRANSITION
+String Server = "" ; String Login = "" ; String Pass = "" ; bool IsAnonymous = true ;
+#endif // PERSISTENCE_TRANSITION
+
   Client->Disconnect() ;
   String login = Login ;
   if (IsAnonymous)
@@ -243,7 +266,11 @@ DEBUG_TRACE_CONNECT
 
 void LinJam::Disconnect() { IsAudioEnabled = false ; Client->Disconnect() ; }
 
-void LinJam::Shutdown() { delete Audio ; JNL::close_socketlib() ; CleanSessionDir() ; }
+void LinJam::Shutdown()
+{
+  delete Audio ; delete Config ;
+  JNL::close_socketlib() ; CleanSessionDir() ;
+}
 
 
 /* NJClient callbacks */
@@ -256,7 +283,13 @@ Gui->licenseComponent->toFront(true) ;
 Gui->licenseComponent->agreeEvent->wait() ;
 IsAgreed = (licenseComponent->getIsAgreed()) ;
 #else // DEBUG_LICENSE_MULTITHREADED
+
+#  if PERSISTENCE_TRANSITION
+  //IsAgreed = (IsAgreed || bool(Config->ShouldAlwaysAgree.getValue())) ;
+#  else // PERSISTENCE_TRANSITION
   IsAgreed = (IsAgreed || GetShouldAgree()) ;
+#  endif // PERSISTENCE_TRANSITION
+
   if (!IsAgreed) Gui->licenseComponent->setLicenseText(CharPointer_UTF8(license_text)) ;
 #endif // DEBUG_LICENSE_MULTITHREADED
 DEBUG_TRACE_LICENSE
@@ -277,7 +310,9 @@ void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , in
   bool is_join_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_JOIN)) ;
   bool is_part_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PART)) ;  
 
+#if ! PERSISTENCE_TRANSITION
 DEBUG_TRACE_CHAT_IN
+#endif //PERSISTENCE_TRANSITION
 
   if (is_topic_msg)
   {
@@ -327,13 +362,14 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 /* getters/setters */
 
 // TODO: get/set persistent config (issue #6)
-bool   LinJam::GetShouldAutoJoin() { return ShouldAutoJoin ; }
+#if ! PERSISTENCE_TRANSITION
 String LinJam::GetServer() { return Server ; }
 String LinJam::GetLogin() { return Login ; }
 String LinJam::GetPass() { return Pass ; }
 bool   LinJam::GetIsAnonymous() { return IsAnonymous; }
 bool   LinJam::GetShouldAgree() { return ShouldAgree ; }
 void   LinJam::SetShouldAgree(bool shouldAgree) { ShouldAgree = shouldAgree ; }
+#endif // PERSISTENCE_TRANSITION
 void   LinJam::SetIsAgreed(bool isAgreed) { IsAgreed = isAgreed ; }
 
 
@@ -407,4 +443,130 @@ void LinJam::CleanSessionDir()
 
   DirectoryIterator session_dir_iter (SessionDir , false , "*.*" , File::findFilesAndDirectories) ;
   while (session_dir_iter.next()) session_dir_iter.getFile().deleteRecursively() ;
+}
+
+
+/* LinJamConfig public class methods */
+
+LinJamConfig::LinJamConfig()
+{
+  // load config
+  File this_binary = File::getSpecialLocation(File::currentExecutableFile) ;
+  ConfigXmlFile    = this_binary.getSiblingFile(STORAGE::PERSISTENCE_FILENAME) ;
+  XmlElement* config_xml        = XmlDocument::parse(STORAGE::DEFAULT_CONFIG_XML) ;
+  XmlElement* stored_config_xml = XmlDocument::parse(ConfigXmlFile) ;
+
+DEBUG_TRACE_LOAD_CONFIG
+
+// TODO: load in Servers
+
+  // ensure config is sane
+  if (stored_config_xml != nullptr &&
+      stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))
+  {
+DEBUG_TRACE_PARSE_CONFIG
+
+    forEachXmlChildElement(*config_xml , an_element) // macro
+    {
+      StringRef   tag_name         = an_element->getTagName() ;
+      int         n_attributes     = an_element->getNumAttributes() ;
+      XmlElement* a_stored_element = stored_config_xml->getChildByName(tag_name) ;
+      if (!a_stored_element) continue ;
+
+      for (int attribute_n = 0 ; attribute_n < n_attributes ; ++attribute_n)
+      {
+        StringRef key        = an_element->getAttributeName(attribute_n) ;
+        String default_value = an_element->getAttributeValue(attribute_n) ;
+        String use_value     = a_stored_element->getStringAttribute(key , default_value) ;
+        an_element->setAttribute(key.text , use_value) ;
+      }
+    }
+  }
+
+  // create static config ValueTree
+  LinjamValueTree = ValueTree::fromXml(*config_xml) ;
+  storeConfig(config_xml) ; delete config_xml ; delete stored_config_xml ;
+
+  // instantiate shared value holders
+  MasterVolume.referTo(getConfigValueObj(STORAGE::MASTER_IDENTIFIER , STORAGE::MASTER_VOLUME_IDENTIFIER)) ;
+  Server      .referTo(getConfigValueObj(STORAGE::MISC_IDENTIFIER   , STORAGE::SERVER_IDENTIFIER)) ;
+  Servers = LinjamValueTree.getOrCreateChildWithName(STORAGE::SERVERS_IDENTIFIER , nullptr) ;
+}
+
+LinJamConfig::~LinJamConfig()
+{
+  XmlElement* config = LinjamValueTree.createXml() ; storeConfig(config) ; delete config ;
+}
+
+
+/* LinJamConfig public instance methods */
+
+void LinJamConfig::setServerConfig(String host , String login , String pass ,
+                                   bool anon , bool agree)
+{
+//   ValueTree servers = LinjamValueTree.getOrCreateChildWithName(STORAGE::SERVERS_IDENTIFIER , nullptr) ;
+//   ValueTree server = servers.getChildWithProperty(STORAGE::HOST_IDENTIFIER , var(host)) ;
+//   if (!server.isValid()) server = ValueTree(STORAGE::SERVER_IDENTIFIER) ;
+  ValueTree server = getServerConfig(host) ;
+  server.setProperty(STORAGE::HOST_IDENTIFIER  , host  , nullptr) ;
+  server.setProperty(STORAGE::LOGIN_IDENTIFIER , login , nullptr) ;
+  server.setProperty(STORAGE::PASS_IDENTIFIER  , pass  , nullptr) ;
+  server.setProperty(STORAGE::ANON_IDENTIFIER  , anon  , nullptr) ;
+  server.setProperty(STORAGE::AGREE_IDENTIFIER , agree , nullptr) ;
+}
+
+ValueTree LinJamConfig::getServerConfig(String host)
+{
+  ValueTree server = Servers.getChildWithProperty(STORAGE::HOST_IDENTIFIER , var(host)) ;
+  if (!server.isValid())
+  {
+    server = ValueTree(STORAGE::SERVER_IDENTIFIER) ;
+    server.setProperty(STORAGE::HOST_IDENTIFIER  , ""    , nullptr) ;
+    server.setProperty(STORAGE::LOGIN_IDENTIFIER , ""    , nullptr) ;
+    server.setProperty(STORAGE::PASS_IDENTIFIER  , ""    , nullptr) ;
+    server.setProperty(STORAGE::ANON_IDENTIFIER  , true  , nullptr) ;
+    server.setProperty(STORAGE::AGREE_IDENTIFIER , false , nullptr) ;
+  }
+  Servers        .addChild(server  , -1 , nullptr) ;
+  LinjamValueTree.addChild(Servers , -1 , nullptr) ;
+
+  return server ;
+}
+
+
+/* LinJamConfig private instance methods */
+
+void LinJamConfig::storeConfig(XmlElement* config_xml)
+{
+DEBUG_TRACE_STORE_CONFIG
+
+  config_xml->writeToFile(ConfigXmlFile , StringRef() , StringRef("UTF-8") , 0) ;
+}
+
+Value LinJamConfig::getConfigValueObj(Identifier node_id , Identifier key)
+{
+  ValueTree a_node = LinjamValueTree.getChildWithName(node_id) ;
+
+DEBUG_TRACE_CONFIG_VALUE
+
+  return (a_node.isValid() && a_node.hasProperty(key))?
+    a_node.getPropertyAsValue(key , &ConfigUndoManager) : DummyValue ;
+}
+
+// DEBUG
+void LinJamConfig::DBGConfigValueType(String val_name , Value a_value)
+{
+  var a_var = a_value.getValue() ; String dynamic_type ;
+  if      (a_var.isVoid())       dynamic_type = "Void" ;
+  else if (a_var.isUndefined())  dynamic_type = "Undefined" ;
+  else if (a_var.isInt())        dynamic_type = "Int" ;
+  else if (a_var.isInt64())      dynamic_type = "Int64" ;
+  else if (a_var.isBool())       dynamic_type = "Bool" ;
+  else if (a_var.isDouble())     dynamic_type = "Double" ;
+  else if (a_var.isString())     dynamic_type = "String" ;
+  else if (a_var.isObject())     dynamic_type = "Object" ;
+  else if (a_var.isArray())      dynamic_type = "Array" ;
+  else if (a_var.isBinaryData()) dynamic_type = "Binary" ;
+  else if (a_var.isMethod())     dynamic_type = "Method" ;
+  DBG(val_name + " type is " + dynamic_type) ;
 }

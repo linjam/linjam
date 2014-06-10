@@ -22,8 +22,8 @@ MainContentComponent::MainContentComponent()
   // loginComponent
   this->loginComponent = new LoginComponent() ;
   this->addChildAndSetID(this->loginComponent , GUI::LOGIN_GUI_ID) ;
-//   this->loginComponent->toFront(true) ;
-this->loginComponent->toBack() ;
+  this->loginComponent->toFront(true) ;
+
   // licenseComponent
   this->licenseComponent = new LicenseComponent() ;
   this->addChildAndSetID(this->licenseComponent , GUI::LICENSE_GUI_ID) ;
@@ -37,8 +37,7 @@ this->loginComponent->toBack() ;
   // mixerComponent
   this->mixerComponent = new MixerComponent() ;
   this->addChildAndSetID(this->mixerComponent , GUI::MIXER_GUI_ID) ;
-//   this->mixerComponent->toBack() ;
-  this->mixerComponent->toFront(true) ;
+  this->mixerComponent->toBack() ;
 
   // statusbarComponent
   this->statusbarComponent = new StatusBarComponent() ;
