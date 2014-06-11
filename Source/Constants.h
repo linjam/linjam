@@ -142,6 +142,10 @@ public:
   static const String     METRO_STEREO_KEY ;
   static const Identifier METRO_STEREO_IDENTIFIER ;
 
+  static const String     SERVERS_KEY ;
+  static const Identifier SERVERS_IDENTIFIER ;
+  static const String     SERVER_KEY ;
+  static const Identifier SERVER_IDENTIFIER ;
   static const String     HOST_KEY ;
   static const Identifier HOST_IDENTIFIER ;
   static const String     LOGIN_KEY ;
@@ -152,13 +156,6 @@ public:
   static const Identifier ANON_IDENTIFIER ;
   static const String     AGREE_KEY ;
   static const Identifier AGREE_IDENTIFIER ;
-
-  static const String     MISC_KEY ;
-  static const Identifier MISC_IDENTIFIER ;
-  static const String     SERVER_KEY ;
-  static const Identifier SERVER_IDENTIFIER ;
-
-  static const Identifier SERVERS_IDENTIFIER ;
 
   static const String     DEFAULT_CONFIG_XML ;
 } ;

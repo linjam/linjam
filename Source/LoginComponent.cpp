@@ -224,23 +224,38 @@ void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+//bool validateHost(host) { return host.isNotEmpty() ; } // TODO:
 void LoginComponent::broughtToFront()
 {
 // TODO: set textboxes from per host config
   if (LinJam::Config == nullptr) return ;
 
-DBG("LoginComponent::broughtToFront() last Server=" + LinJam::Config->Server.toString()) ;
+DBG("LoginComponent::broughtToFront() last Server=" + LinJam::Config->Host.toString()) ;
+DBG("LoginComponent::broughtToFront() last Login=" + LinJam::Config->Login.toString()) ;
+DBG("LoginComponent::broughtToFront() last Pass=" + LinJam::Config->Pass.toString()) ;
+DBG("LoginComponent::broughtToFront() last Anon=" + LinJam::Config->IsAnonymous.toString()) ;
 
-  ValueTree server = LinJam::Config->getServerConfig(hostText->getText()) ;
-  String login     = server.getProperty(STORAGE::LOGIN_IDENTIFIER) ;//.toString()
-  String pass      = server.getProperty(STORAGE::PASS_IDENTIFIER) ;
-  bool   anon      = server.getProperty(STORAGE::ANON_IDENTIFIER) ;
-  bool   agree     = server.getProperty(STORAGE::AGREE_IDENTIFIER) ;
+  String    host   = hostText->getText() ; String login ; String pass ; bool anon ;
+  ValueTree server = LinJam::Config->getServerConfig(host) ;
+  if (server.isValid())
+  {
+    login = server.getProperty(STORAGE::LOGIN_IDENTIFIER).toString() ;
+    pass  = server.getProperty(STORAGE::PASS_IDENTIFIER).toString() ;
+    anon  = bool(server.getProperty(STORAGE::ANON_IDENTIFIER)) ;
+  }
+  else
+  {
+    login =      LinJam::Config->Host.toString() ;
+    pass  =      LinJam::Config->Pass.toString() ;
+    anon  = bool(LinJam::Config->IsAnonymous.getValue()) ;
+  }
+  this->loginText ->setText(login) ;
+  this->passText  ->setText(pass) ;
+  this->anonButton->setToggleState(anon , dontSendNotification) ;
 
 DBG("LoginComponent::broughtToFront() login=" + login) ;
 DBG("LoginComponent::broughtToFront() pass=" + pass) ;
 DBG("LoginComponent::broughtToFront() anon=" + String(anon)) ;
-DBG("LoginComponent::broughtToFront() agree=" + String(agree)) ;
 }
 
 void LoginComponent::valueChanged(Value &login_value)

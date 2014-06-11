@@ -23,17 +23,24 @@
 class LinJamConfig
 {
 public:
+
   LinJamConfig() ;
   ~LinJamConfig() ;
 
-  Value MasterVolume ;
-  Value Server ;
   ValueTree Servers ;
+  Value     MasterVolume ;
+  Value     Host ;
+  Value     Login ;
+  Value     Pass ;
+  Value     IsAnonymous ;
+  Value     ShouldAgree ;
 
 
+  ValueTree addServerConfig(String host) ;
+  ValueTree getServerConfig(String host) ;
   void      setServerConfig(String host , String login , String pass ,
                             bool anon , bool agree) ;
-  ValueTree getServerConfig(String host) ;
+
 
 private:
 
@@ -42,9 +49,9 @@ private:
   UndoManager ConfigUndoManager ;
   Value       DummyValue ;
 
-
-  void  storeConfig(XmlElement* config_xml) ;
-  Value getConfigValueObj(Identifier node_id , Identifier key) ;
+  ValueTree sanitizeConfig(ValueTree default_config , ValueTree stored_config) ;
+  void      storeConfig(XmlElement* config_xml) ;
+  Value     getConfigValueObj(Identifier node_id , Identifier key) ;
 
 void DBGConfigValueType(String val_name , Value a_value) ;
 

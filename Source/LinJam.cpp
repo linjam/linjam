@@ -147,6 +147,16 @@ Config->MasterVolume = 42.0 ;
 
 
 
+
+
+
+
+
+
+
+
+
+
   // initialize audio
 #ifdef _WIN32
   Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , win_audio_if_n , OnSamples) ;
@@ -450,47 +460,40 @@ void LinJam::CleanSessionDir()
 
 LinJamConfig::LinJamConfig()
 {
-  // load config
+  // load default and stored configs
   File this_binary = File::getSpecialLocation(File::currentExecutableFile) ;
   ConfigXmlFile    = this_binary.getSiblingFile(STORAGE::PERSISTENCE_FILENAME) ;
-  XmlElement* config_xml        = XmlDocument::parse(STORAGE::DEFAULT_CONFIG_XML) ;
-  XmlElement* stored_config_xml = XmlDocument::parse(ConfigXmlFile) ;
+  XmlElement* default_config_xml = XmlDocument::parse(STORAGE::DEFAULT_CONFIG_XML) ;
+  XmlElement* stored_config_xml  = XmlDocument::parse(ConfigXmlFile) ;
 
 DEBUG_TRACE_LOAD_CONFIG
 
-// TODO: load in Servers
-
-  // ensure config is sane
-  if (stored_config_xml != nullptr &&
-      stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))
-  {
-DEBUG_TRACE_PARSE_CONFIG
-
-    forEachXmlChildElement(*config_xml , an_element) // macro
-    {
-      StringRef   tag_name         = an_element->getTagName() ;
-      int         n_attributes     = an_element->getNumAttributes() ;
-      XmlElement* a_stored_element = stored_config_xml->getChildByName(tag_name) ;
-      if (!a_stored_element) continue ;
-
-      for (int attribute_n = 0 ; attribute_n < n_attributes ; ++attribute_n)
-      {
-        StringRef key        = an_element->getAttributeName(attribute_n) ;
-        String default_value = an_element->getAttributeValue(attribute_n) ;
-        String use_value     = a_stored_element->getStringAttribute(key , default_value) ;
-        an_element->setAttribute(key.text , use_value) ;
-      }
-    }
-  }
-
   // create static config ValueTree
-  LinjamValueTree = ValueTree::fromXml(*config_xml) ;
-  storeConfig(config_xml) ; delete config_xml ; delete stored_config_xml ;
+  if (stored_config_xml == nullptr ||
+     !stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))
+    LinjamValueTree          = ValueTree::fromXml(*default_config_xml) ;
+  else
+  {
+//     ValueTree default_config = ValueTree::fromXml(*default_config_xml) ;
+//     LinjamValueTree          = ValueTree::fromXml(*stored_config_xml) ;
+
+// DEBUG_TRACE_SANITIZE_CONFIG
+
+//     SanitizeConfig(default_config , LinjamValueTree) ;
+    LinjamValueTree = sanitizeConfig(ValueTree::fromXml(*default_config_xml) ,
+                                     ValueTree::fromXml(*stored_config_xml)) ;
+  }
+  storeConfig(stored_config_xml) ; delete default_config_xml ; delete stored_config_xml ;
 
   // instantiate shared value holders
-  MasterVolume.referTo(getConfigValueObj(STORAGE::MASTER_IDENTIFIER , STORAGE::MASTER_VOLUME_IDENTIFIER)) ;
-  Server      .referTo(getConfigValueObj(STORAGE::MISC_IDENTIFIER   , STORAGE::SERVER_IDENTIFIER)) ;
   Servers = LinjamValueTree.getOrCreateChildWithName(STORAGE::SERVERS_IDENTIFIER , nullptr) ;
+  Host        .referTo(getConfigValueObj(STORAGE::SERVER_IDENTIFIER , STORAGE::HOST_IDENTIFIER)) ;
+  Login       .referTo(getConfigValueObj(STORAGE::SERVER_IDENTIFIER , STORAGE::LOGIN_IDENTIFIER)) ;
+  Pass        .referTo(getConfigValueObj(STORAGE::SERVER_IDENTIFIER , STORAGE::PASS_IDENTIFIER)) ;
+  IsAnonymous .referTo(getConfigValueObj(STORAGE::SERVER_IDENTIFIER , STORAGE::ANON_IDENTIFIER)) ;
+  ShouldAgree .referTo(getConfigValueObj(STORAGE::SERVER_IDENTIFIER , STORAGE::AGREE_IDENTIFIER)) ;
+
+  MasterVolume.referTo(getConfigValueObj(STORAGE::MASTER_IDENTIFIER , STORAGE::MASTER_VOLUME_IDENTIFIER)) ;
 }
 
 LinJamConfig::~LinJamConfig()
@@ -501,23 +504,9 @@ LinJamConfig::~LinJamConfig()
 
 /* LinJamConfig public instance methods */
 
-void LinJamConfig::setServerConfig(String host , String login , String pass ,
-                                   bool anon , bool agree)
+ValueTree LinJamConfig::addServerConfig(String host)
 {
-//   ValueTree servers = LinjamValueTree.getOrCreateChildWithName(STORAGE::SERVERS_IDENTIFIER , nullptr) ;
-//   ValueTree server = servers.getChildWithProperty(STORAGE::HOST_IDENTIFIER , var(host)) ;
-//   if (!server.isValid()) server = ValueTree(STORAGE::SERVER_IDENTIFIER) ;
   ValueTree server = getServerConfig(host) ;
-  server.setProperty(STORAGE::HOST_IDENTIFIER  , host  , nullptr) ;
-  server.setProperty(STORAGE::LOGIN_IDENTIFIER , login , nullptr) ;
-  server.setProperty(STORAGE::PASS_IDENTIFIER  , pass  , nullptr) ;
-  server.setProperty(STORAGE::ANON_IDENTIFIER  , anon  , nullptr) ;
-  server.setProperty(STORAGE::AGREE_IDENTIFIER , agree , nullptr) ;
-}
-
-ValueTree LinJamConfig::getServerConfig(String host)
-{
-  ValueTree server = Servers.getChildWithProperty(STORAGE::HOST_IDENTIFIER , var(host)) ;
   if (!server.isValid())
   {
     server = ValueTree(STORAGE::SERVER_IDENTIFIER) ;
@@ -526,15 +515,64 @@ ValueTree LinJamConfig::getServerConfig(String host)
     server.setProperty(STORAGE::PASS_IDENTIFIER  , ""    , nullptr) ;
     server.setProperty(STORAGE::ANON_IDENTIFIER  , true  , nullptr) ;
     server.setProperty(STORAGE::AGREE_IDENTIFIER , false , nullptr) ;
+
+    Servers        .addChild(server  , -1 , nullptr) ;
+    LinjamValueTree.addChild(Servers , -1 , nullptr) ;
   }
-  Servers        .addChild(server  , -1 , nullptr) ;
-  LinjamValueTree.addChild(Servers , -1 , nullptr) ;
 
   return server ;
 }
 
+ValueTree LinJamConfig::getServerConfig(String host)
+{ return Servers.getChildWithProperty(STORAGE::HOST_IDENTIFIER , var(host)) ; }
+
+void LinJamConfig::setServerConfig(String host , String login , String pass ,
+                                   bool anon , bool agree)
+{
+  ValueTree server = addServerConfig(host) ;
+  server.setProperty(STORAGE::HOST_IDENTIFIER  , host  , nullptr) ;
+  server.setProperty(STORAGE::LOGIN_IDENTIFIER , login , nullptr) ;
+  server.setProperty(STORAGE::PASS_IDENTIFIER  , pass  , nullptr) ;
+  server.setProperty(STORAGE::ANON_IDENTIFIER  , anon  , nullptr) ;
+  server.setProperty(STORAGE::AGREE_IDENTIFIER , agree , nullptr) ;
+}
+
 
 /* LinJamConfig private instance methods */
+
+ValueTree LinJamConfig::sanitizeConfig(ValueTree default_config , ValueTree stored_config)
+{
+  // add any missing nodes and attributes to stored config
+  for (int child_n = 0 ; child_n < default_config.getNumChildren() ; ++child_n)
+  {
+    ValueTree default_child = default_config.getChild(child_n) ;
+    ValueTree stored_child  = stored_config.getChildWithName(default_child.getType()) ;
+
+    // transfer missing node
+    if (!stored_child.isValid())
+    {
+      default_config.removeChild(default_child , nullptr) ;
+      stored_config.addChild(default_child , -1 , nullptr) ;
+      --child_n ; continue ;
+    }
+
+    int n_grandchildren = default_child.getNumChildren() ;
+    int n_properties    = default_child.getNumProperties() ;
+
+    // recurse if node has children ignoring atrributes
+    if (n_grandchildren) { sanitizeConfig(default_child , stored_child) ; continue ; }
+
+    // transfer missing attributes
+    for (int property_n = 0 ; property_n < n_properties ; ++property_n)
+    {
+      Identifier key   = default_child.getPropertyName(property_n) ;
+      var        value = default_child.getProperty(key) ;
+      if (!stored_child.hasProperty(key)) stored_child.setProperty(key , value , nullptr) ;
+    }
+  }
+
+  return stored_config ;
+}
 
 void LinJamConfig::storeConfig(XmlElement* config_xml)
 {

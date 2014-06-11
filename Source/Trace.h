@@ -9,7 +9,7 @@
 #define DEBUG_TRACE_OUT    DEBUG && 1
 #define DEBUG_TRACE_VB     DEBUG && 1
 
-#define EXIT_IMMEDIAYELY    0
+#define EXIT_IMMEDIAYELY    1
 #define DEBUG_STATIC_SERVER 1 // DEBUG_SERVER defined in LinJam.cpp
 
 #define CHAT_COMMANDS_BUGGY
@@ -28,38 +28,26 @@
                                                  String(Audio->m_innch)    + "in -> "    +     \
                                                  String(Audio->m_outnch)   + "out "            ) ;
 
-#  define DEBUG_TRACE_LOAD_CONFIG                                                   \
-    Identifier root_node_id = STORAGE::PERSISTENCE_IDENTIFIER ;                     \
-    if (config_xml == nullptr || !config_xml->hasTagName(root_node_id))             \
-        Trace::TraceConfig("default config invalid") ;                              \
-    else Trace::TraceConfig("default config loaded") ;                              \
-    if (stored_config_xml == nullptr)                                               \
-        Trace::TraceConfig("stored config not found - falling back on defaults") ;  \
-    else if (!stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))       \
-        Trace::TraceConfig("stored config is invalid - falling back on defaults") ; \
+#  define DEBUG_TRACE_LOAD_CONFIG                                                       \
+    Identifier root_node_id = STORAGE::PERSISTENCE_IDENTIFIER ;                         \
+    if (default_config_xml == nullptr || !default_config_xml->hasTagName(root_node_id)) \
+        Trace::TraceConfig("default config invalid") ;                                  \
+    else Trace::TraceConfig("default config loaded") ;                                  \
+    if (stored_config_xml == nullptr)                                                   \
+        Trace::TraceConfig("stored config not found - falling back on defaults") ;      \
+    else if (!stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))           \
+        Trace::TraceConfig("stored config is invalid - falling back on defaults") ;     \
     else Trace::TraceConfig("stored config found") ;
-#  define DEBUG_TRACE_PARSE_CONFIG                                                        \
-    String dbg = "stored config parsed successfully =>" ;                                 \
-    forEachXmlChildElement(*config_xml , element)                                         \
-    {                                                                                     \
-      StringRef   tag            = element->getTagName() ;                                \
-      int         n_attrs        = element->getNumAttributes() ;                          \
-      XmlElement* stored_element = stored_config_xml->getChildByName(tag) ;               \
-      dbg += "\n  tag_name => " + tag + " (" + String(n_attrs) + " attributes)" ;         \
-      for (int attr_n = 0 ; attr_n < n_attrs ; ++attr_n)                                  \
-      {                                                                                   \
-        StringRef k = element->getAttributeName(attr_n) ;                                 \
-        dbg += "\n    key => "          + k                                             + \
-            "\n      default_value => " + element->getAttributeValue(attr_n)            + \
-            "\n      stored_value  => " + stored_element->getStringAttribute(k , "n/a") ; \
-      }                                                                                   \
-    }                                                                                     \
-    Trace::TraceConfig(dbg) ;
+#define DEBUG_TRACE_SANITIZE_CONFIG                                                    \
+    Trace::TraceConfig("stored config parsed successfully =>" +                        \
+                       Trace::SanitizeConfig(ValueTree::fromXml(*default_config_xml) , \
+                                             ValueTree::fromXml(*stored_config_xml) , "  ")) ;
 #  define DEBUG_TRACE_STORE_CONFIG       Trace::TraceConfig("storing config xml=\n" + LinjamValueTree.toXmlString()) ;
-#  define DEBUG_TRACE_CONFIG_VALUE                                                        \
-    bool valid = a_node.isValid() ; String n = String(node_id) ; String k = String(key) ; \
-    Trace::TraceConfig("a_node '" + n + ((valid)? "' is valid" : "' not valid") + " - " + \
-        ((valid && a_node.hasProperty(key))? "has key '" : "missing key '") + k + "'") ;
+#  define DEBUG_TRACE_CONFIG_VALUE                                                         \
+    bool valid = a_node.isValid() ; String n = String(node_id) ; String k = String(key) ;  \
+    Trace::TraceConfig("node '" + n + ((valid)? "' is" : "' not") + " valid - " +          \
+        ((valid && a_node.hasProperty(key))? "has key '"     + k + "' - is shared value" : \
+                                             "missing key '" + k + "' - has dummy value")) ;
 
 #  define DEBUG_TRACE_LOGIN_CLICKED                                                          \
     if      (buttonThatWasClicked == loginButton) Trace::TraceEvent("loginButton clicked") ; \
@@ -204,8 +192,6 @@ class Trace
 {
 public:
 
-  static void Dbg(String type , String msg) ;
-
   static void TraceConfig(      String msg) ;
   static void TraceEvent(       String msg) ;
   static void TraceEventVerbose(String msg) ;
@@ -213,6 +199,11 @@ public:
   static void TraceConnection(  String msg) ;
   static void TraceError(       String msg) ;
   static void TraceServer(      String msg) ;
+
+  static void Dbg(String type , String msg) ;
+
+  static String SanitizeConfig(ValueTree default_config , ValueTree stored_config ,
+                               String pad) ;
 
 private:
 
