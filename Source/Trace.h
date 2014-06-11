@@ -9,7 +9,7 @@
 #define DEBUG_TRACE_OUT    DEBUG && 1
 #define DEBUG_TRACE_VB     DEBUG && 1
 
-#define EXIT_IMMEDIAYELY    1
+#define EXIT_IMMEDIAYELY    0
 #define DEBUG_STATIC_SERVER 1 // DEBUG_SERVER defined in LinJam.cpp
 
 #define CHAT_COMMANDS_BUGGY
@@ -38,10 +38,12 @@
     else if (!stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))           \
         Trace::TraceConfig("stored config is invalid - falling back on defaults") ;     \
     else Trace::TraceConfig("stored config found") ;
-#define DEBUG_TRACE_SANITIZE_CONFIG                                                    \
-    Trace::TraceConfig("stored config parsed successfully =>" +                        \
-                       Trace::SanitizeConfig(ValueTree::fromXml(*default_config_xml) , \
-                                             ValueTree::fromXml(*stored_config_xml) , "  ")) ;
+#define DEBUG_TRACE_SANITIZE_CONFIG                                                     \
+    if (stored_config_xml != nullptr &&                                                 \
+        stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))                 \
+      Trace::TraceConfig("stored config parsed successfully =>" +                       \
+                        Trace::SanitizeConfig(ValueTree::fromXml(*default_config_xml) , \
+                                              ValueTree::fromXml(*stored_config_xml) , "  ")) ;
 #  define DEBUG_TRACE_STORE_CONFIG       Trace::TraceConfig("storing config xml=\n" + LinjamValueTree.toXmlString()) ;
 #  define DEBUG_TRACE_CONFIG_VALUE                                                         \
     bool valid = a_node.isValid() ; String n = String(node_id) ; String k = String(key) ;  \

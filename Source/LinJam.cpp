@@ -156,7 +156,6 @@ Config->MasterVolume = 42.0 ;
 
 
 
-
   // initialize audio
 #ifdef _WIN32
   Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , win_audio_if_n , OnSamples) ;
@@ -467,22 +466,16 @@ LinJamConfig::LinJamConfig()
   XmlElement* stored_config_xml  = XmlDocument::parse(ConfigXmlFile) ;
 
 DEBUG_TRACE_LOAD_CONFIG
+DEBUG_TRACE_SANITIZE_CONFIG
 
   // create static config ValueTree
   if (stored_config_xml == nullptr ||
      !stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))
-    LinjamValueTree          = ValueTree::fromXml(*default_config_xml) ;
+    LinjamValueTree = ValueTree::fromXml(*default_config_xml) ;
   else
-  {
-//     ValueTree default_config = ValueTree::fromXml(*default_config_xml) ;
-//     LinjamValueTree          = ValueTree::fromXml(*stored_config_xml) ;
-
-// DEBUG_TRACE_SANITIZE_CONFIG
-
-//     SanitizeConfig(default_config , LinjamValueTree) ;
     LinjamValueTree = sanitizeConfig(ValueTree::fromXml(*default_config_xml) ,
                                      ValueTree::fromXml(*stored_config_xml)) ;
-  }
+
   storeConfig(stored_config_xml) ; delete default_config_xml ; delete stored_config_xml ;
 
   // instantiate shared value holders

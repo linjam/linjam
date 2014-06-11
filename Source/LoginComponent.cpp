@@ -225,6 +225,7 @@ void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
 //bool validateHost(host) { return host.isNotEmpty() ; } // TODO:
+
 void LoginComponent::broughtToFront()
 {
 // TODO: set textboxes from per host config

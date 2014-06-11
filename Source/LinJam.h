@@ -49,9 +49,11 @@ private:
   UndoManager ConfigUndoManager ;
   Value       DummyValue ;
 
+
   ValueTree sanitizeConfig(ValueTree default_config , ValueTree stored_config) ;
   void      storeConfig(XmlElement* config_xml) ;
   Value     getConfigValueObj(Identifier node_id , Identifier key) ;
+
 
 void DBGConfigValueType(String val_name , Value a_value) ;
 

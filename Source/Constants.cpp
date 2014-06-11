@@ -109,7 +109,6 @@ const Identifier STORAGE::ANON_IDENTIFIER          = ANON_KEY ;
 const String     STORAGE::AGREE_KEY                = "should-agree" ;
 const Identifier STORAGE::AGREE_IDENTIFIER         = AGREE_KEY ;
 
-
 #define CONFIG_XML "<?xml version=\"1.0\"?><" + \
     PERSISTENCE_KEY        + "><"             + \
       MASTER_KEY           + " "              + \
