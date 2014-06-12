@@ -17,48 +17,8 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+#include "LinJamConfig.h"
 #include "MainComponent.h"
-
-
-class LinJamConfig
-{
-public:
-
-  LinJamConfig() ;
-  ~LinJamConfig() ;
-
-  ValueTree Servers ;
-  Value     MasterVolume ;
-  Value     Host ;
-  Value     Login ;
-  Value     Pass ;
-  Value     IsAnonymous ;
-  Value     ShouldAgree ;
-
-
-  ValueTree addServerConfig(String host) ;
-  ValueTree getServerConfig(String host) ;
-  void      setServerConfig(String host , String login , String pass ,
-                            bool anon , bool agree) ;
-
-
-private:
-
-  File        ConfigXmlFile ;
-  ValueTree   LinjamValueTree ;
-  UndoManager ConfigUndoManager ;
-  Value       DummyValue ;
-
-
-  ValueTree sanitizeConfig(ValueTree default_config , ValueTree stored_config) ;
-  void      storeConfig(XmlElement* config_xml) ;
-  Value     getConfigValueObj(Identifier node_id , Identifier key) ;
-
-
-void DBGConfigValueType(String val_name , Value a_value) ;
-
-  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJamConfig) ;
-} ;
 
 
 class LinJam
@@ -88,8 +48,11 @@ public:
   static bool   GetIsAnonymous() ;                 // TODO: persistent config per Server (issue #6)
   static bool   GetShouldAgree() ;                 // TODO: persistent config per Server (issue #6)
   static void   SetShouldAgree(bool shouldAgree) ; // TODO: persistent config per Server (issue #6)
-#endif // PERSISTENCE_TRANSITION
   static void   SetIsAgreed(   bool isAgreed) ;
+#else
+  static bool IsAgreed() ;
+#endif // PERSISTENCE_TRANSITION
+
 
   // chat helpers
   static void SendChat(String chat_text) ;
@@ -99,10 +62,11 @@ public:
   static void CleanSessionDir() ;
 
 
-  static bool          IsAgreed ; // TODO: ?? this exists only so OnLicense doesnt block (issue #14)
-#if PERSISTENCE_TRANSITION
+#if ! PERSISTENCE_TRANSITION
+  static bool IsAgreed ; // TODO: ?? this exists only so OnLicense doesnt block (issue #14)
+#else // PERSISTENCE_TRANSITION
   static LinJamConfig* Config ;
-#endif
+#endif // PERSISTENCE_TRANSITION
 
 private:
 

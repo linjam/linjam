@@ -33,6 +33,7 @@ public:
     {
       this->mainWindow         = new MainWindow() ;
       this->contentComponent   = (MainContentComponent*)getContainerComponent(GUI::CONTENT_GUI_ID) ;
+      this->blankComponent     = (BlankComponent*)      getChildComponent(GUI::BLANK_GUI_ID) ;
       this->loginComponent     = (LoginComponent*)      getChildComponent(GUI::LOGIN_GUI_ID) ;
       this->licenseComponent   = (LicenseComponent*)    getChildComponent(GUI::LICENSE_GUI_ID) ;
       this->chatComponent      = (ChatComponent*)       getChildComponent(GUI::CHAT_GUI_ID) ;
@@ -41,7 +42,7 @@ public:
 
       if (!LinJam::Initialize(this , contentComponent , args)) initError() ;
 
-      this->prev_status = NJClient::NJC_STATUS_PRECONNECT ;
+      this->prev_status = NJClient::NJC_STATUS_DISCONNECTED ;
       this->startTimer(CLIENT::CLIENT_DRIVER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
 //      this->startTimer(CLIENT::STATUS_POLL_ID ,   CLIENT::STATUS_POLL_IVL) ;
     }
@@ -89,7 +90,7 @@ DEBUG_TRACE_SHUTDOWN
     {
     public:
         MainWindow() : DocumentWindow (JUCEApplication::getInstance()->getApplicationName() ,
-                                       Colours::lightgrey ,
+                                       Colour (0xff202020) ,
                                        DocumentWindow::allButtons)
         {
             mainContentComponent = new MainContentComponent() ;
@@ -151,35 +152,23 @@ DBG("[DEBUG]: EXIT_IMMEDIAYELY defined - bailing") ; this->quit() ;
 
     void handleStatus(int status)
     {
-//      if (status != this->prev_status) this->prev_status = status ; else return ;
-
-//DEBUG_TRACE_CONNECT_STATUS // linux .so segfault (issue #15)
+DEBUG_TRACE_CONNECT_STATUS
 
       // GUI state
-      int visibility_mask = 0 ;
+      this->blankComponent->toFront(false) ;
       switch (status)
       {
-        case NJC_STATUS_DISCONNECTED: this->loginComponent  ->toFront(true) ;  break ;
-        case NJC_STATUS_INVALIDAUTH:  (LinJam::IsAgreed)?
-                                      this->loginComponent  ->toFront(true) :
-                                      this->licenseComponent->toFront(true) ;  break ;
-        case NJC_STATUS_CANTCONNECT:  this->loginComponent  ->toFront(true) ;  break ;
-        case NJC_STATUS_OK:           this->chatComponent   ->toFront(true) ;
+        case NJC_STATUS_DISCONNECTED: this->loginComponent  ->toFront(true)  ; break ;
+        case NJC_STATUS_INVALIDAUTH:  (LinJam::IsAgreed())?
+                                      this->loginComponent  ->toFront(true)  :
+                                      this->licenseComponent->toFront(true)  ; break ;
+        case NJC_STATUS_CANTCONNECT:  this->loginComponent  ->toFront(true)  ; break ;
+        case NJC_STATUS_OK:           this->chatComponent   ->toFront(true)  ;
                                       this->mixerComponent  ->toFront(false) ; break ;
-        case NJC_STATUS_PRECONNECT:   this->loginComponent  ->toFront(true) ;  break ;
+        case NJC_STATUS_PRECONNECT:   this->loginComponent  ->toFront(true)  ; break ;
         default:                                                               break ;
       }
-/*
-      this->loginComponent  -> setVisible(visibility_mask & GUI::LOGIN_VISIBILITY_MASK_BIT) ;
-      this->licenseComponent-> setVisible(visibility_mask & GUI::LICENSE_VISIBILITY_MASK_BIT) ;
-      this->chatComponent   -> setVisible(visibility_mask & GUI::CHAT_VISIBILITY_MASK_BIT) ;
-      this->mixerComponent  -> setVisible(visibility_mask & GUI::MIXER_VISIBILITY_MASK_BIT) ;
 
-GUI::LOGIN_VISIBILITY_MASK_BIT) ;
-GUI::LICENSE_VISIBILITY_MASK_BIT) ;
-GUI::CHAT_VISIBILITY_MASK_BIT) ;
-GUI::MIXER_VISIBILITY_MASK_BIT) ;
-*/
       // status indicator
       String status_text ;
       switch (status)
@@ -187,7 +176,7 @@ GUI::MIXER_VISIBILITY_MASK_BIT) ;
         case NJC_STATUS_DISCONNECTED:
           status_text = GUI::DISCONNECTED_STATUS_TEXT ;              break ;
         case NJC_STATUS_INVALIDAUTH:
-          status_text = (LinJam::IsAgreed)? ((isRoomFull())?
+          status_text = (LinJam::IsAgreed())? ((isRoomFull())?
                         GUI::ROOM_FULL_STATUS_TEXT :
                         GUI::INVALID_AUTH_STATUS_TEXT) :
                         GUI::PENDING_LICENSE_STATUS_TEXT ;           break ;
@@ -217,6 +206,7 @@ private:
 
     ScopedPointer<MainWindow> mainWindow ;
     MainContentComponent*     contentComponent ;
+    BlankComponent*           blankComponent ;
     LoginComponent*           loginComponent ;
     LicenseComponent*         licenseComponent ;
     ChatComponent*            chatComponent ;

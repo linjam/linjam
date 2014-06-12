@@ -11,6 +11,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+#include "BlankComponent.h"
 #include "LoginComponent.h"
 #include "LicenseComponent.h"
 #include "ChatComponent.h"
@@ -35,12 +36,13 @@ public:
   void paint(Graphics&) ;
   void resized() ;
 
-#ifdef DEBUG_LICENSE_MULTITHREADED
+#ifdef DEBUG_LICENSE_MULTITHREADED // TODO: (issue #14)
   bool prompt_license(String license_text) ;
 #endif // DEBUG_LICENSE_MULTITHREADED
 
 private:
 
+  ScopedPointer<BlankComponent>     blankComponent ;
   ScopedPointer<LoginComponent>     loginComponent ;
   ScopedPointer<LicenseComponent>   licenseComponent ;
   ScopedPointer<ChatComponent>      chatComponent ;

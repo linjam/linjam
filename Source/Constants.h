@@ -47,11 +47,33 @@ public:
 } ;
 
 
+class NETWORK
+{
+public:
+
+  static const String        NINJAM_2049_URL ;
+  static const String        NINJAM_2050_URL ;
+  static const String        NINJAM_2051_URL ;
+  static const String        NINJAM_2052_URL ;
+  static const String        NINJAM_2600_URL ;
+  static const String        NINJAM_2601_URL ;
+  static const String        NINBOT_2049_URL ;
+  static const String        NINBOT_2050_URL ;
+  static const String        NINBOT_2051_URL ;
+  static const String        NINBOT_2052_URL ;
+  static const String        NINJAMER_2049_URL ;
+  static const String        NINJAMER_2050_URL ;
+  static const String        NINJAMER_2051_URL ;
+  static const String        NINJAMER_2052_URL ;
+  static const int           N_KNOWN_HOSTS = 8 ;
+  static const Array<String> KNOWN_HOSTS ;
+} ;
+
 class GUI
 {
 public:
 
-  // global
+  // common
   static const int PAD     = 4 ;
   static const int PAD3    = PAD * 3 ;
   static const int PAD2    = PAD * 2 ;
@@ -64,6 +86,7 @@ public:
   static const String INVALID_AUTH_STATUS_TEXT ;
   static const String PENDING_LICENSE_STATUS_TEXT ;
   static const String FAILED_CONNECTION_STATUS_TEXT ;
+  static const String CONNECTING_STATUS_TEXT ;
   static const String CONNECTED_STATUS_TEXT ;
   static const String IDLE_STATUS_TEXT ;
   static const String UNKNOWN_STATUS_TEXT ;
@@ -73,8 +96,15 @@ public:
   static const int    CONTENT_W = 630 ;
   static const int    CONTENT_H = 470 ;
 
+  // blankComponent
+  static const String BLANK_GUI_ID ;
+
   // LoginComponent
   static const String LOGIN_GUI_ID ;
+  static const int    LOGIN_BUTTON_L = GUI::PAD ;
+  static const int    LOGIN_BUTTON_T = GUI::PAD ;
+  static const int    LOGIN_BUTTON_W = 96 ;
+  static const int    LOGIN_BUTTON_H = 24 ;
 
   // licenseComponent
   static const String LICENSE_GUI_ID ;
@@ -154,6 +184,8 @@ public:
   static const Identifier PASS_IDENTIFIER ;
   static const String     ANON_KEY ;
   static const Identifier ANON_IDENTIFIER ;
+  static const String     AGREED_KEY ;
+  static const Identifier AGREED_IDENTIFIER ;
   static const String     AGREE_KEY ;
   static const Identifier AGREE_IDENTIFIER ;
 

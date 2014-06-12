@@ -5,8 +5,8 @@
               jucerVersion="3.1.0">
   <MAINGROUP id="dT83m5" name="LinJam">
     <GROUP id="{51F23963-7F0B-17B4-72A3-B564BDD36515}" name="Headers">
-      <FILE id="SBrFCQ" name="MixerGroupComponent.h" compile="0" resource="0"
-            file="Source/MixerGroupComponent.h"/>
+      <FILE id="A4xouB" name="BlankComponent.h" compile="0" resource="0"
+            file="Source/BlankComponent.h"/>
       <FILE id="XeDmZL" name="ChannelComponent.h" compile="0" resource="0"
             file="Source/ChannelComponent.h"/>
       <FILE id="pNseOT" name="ChatComponent.h" compile="0" resource="0" file="Source/ChatComponent.h"/>
@@ -14,16 +14,21 @@
       <FILE id="xqc9VC" name="LicenseComponent.h" compile="0" resource="0"
             file="Source/LicenseComponent.h"/>
       <FILE id="rS1R2S" name="LinJam.h" compile="0" resource="0" file="Source/LinJam.h"/>
+      <FILE id="rt1VcC" name="LinJamConfig.h" compile="0" resource="0" file="Source/LinJamConfig.h"/>
       <FILE id="KfXKxz" name="LoginComponent.h" compile="0" resource="0"
             file="Source/LoginComponent.h"/>
       <FILE id="sKUFRy" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
       <FILE id="DDFUUa" name="MixerComponent.h" compile="0" resource="0"
             file="Source/MixerComponent.h"/>
+      <FILE id="SBrFCQ" name="MixerGroupComponent.h" compile="0" resource="0"
+            file="Source/MixerGroupComponent.h"/>
       <FILE id="N6kt6x" name="StatusBarComponent.h" compile="0" resource="0"
             file="Source/StatusBarComponent.h"/>
       <FILE id="r3GyaJ" name="Trace.h" compile="0" resource="0" file="Source/Trace.h"/>
     </GROUP>
     <GROUP id="{F298109F-8531-F160-2BC9-F72C3764B7EF}" name="Source">
+      <FILE id="WuNCUn" name="BlankComponent.cpp" compile="1" resource="0"
+            file="Source/BlankComponent.cpp"/>
       <FILE id="pasbMc" name="ChannelComponent.cpp" compile="1" resource="0"
             file="Source/ChannelComponent.cpp"/>
       <FILE id="CywiEf" name="ChatComponent.cpp" compile="1" resource="0"
@@ -32,6 +37,8 @@
       <FILE id="HugMKb" name="LicenseComponent.cpp" compile="1" resource="0"
             file="Source/LicenseComponent.cpp"/>
       <FILE id="ZHvRfB" name="LinJam.cpp" compile="1" resource="0" file="Source/LinJam.cpp"/>
+      <FILE id="Bgn7uP" name="LinJamConfig.cpp" compile="1" resource="0"
+            file="Source/LinJamConfig.cpp"/>
       <FILE id="tNjNcS" name="LoginComponent.cpp" compile="1" resource="0"
             file="Source/LoginComponent.cpp"/>
       <FILE id="j4iSrP" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>

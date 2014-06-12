@@ -20,8 +20,11 @@
 
 /* LinJam public class variables */
 
-bool          LinJam::IsAgreed = false ;
+#if ! PERSISTENCE_TRANSITION
+bool LinJam::IsAgreed = false ;
+#else // PERSISTENCE_TRANSITION
 LinJamConfig* LinJam::Config ;
+#endif // PERSISTENCE_TRANSITION
 
 
 /* LinJam private class variables */
@@ -29,7 +32,7 @@ LinJamConfig* LinJam::Config ;
 audioStreamer*        LinJam::Audio          = nullptr ; // Initialize()
 NJClient*             LinJam::Client         = nullptr ; // Initialize()
 MainContentComponent* LinJam::Gui            = nullptr ; // Initialize()
-bool                  LinJam::IsAudioEnabled = false ;   // TODO: use Client->>m_audio_enable instead ?? (issue #11)
+bool                  LinJam::IsAudioEnabled = false ;   // Initialize() TODO: use Client->>m_audio_enable instead ?? (issue #11)
 File                  LinJam::SessionDir ;               // Initialize()
 
 #if ! PERSISTENCE_TRANSITION
@@ -39,7 +42,6 @@ String LinJam::Login          = "" ;    // TODO: persistent config per Server (i
 String LinJam::Pass           = ""  ;   // TODO: persistent config per Server (issue #6)
 bool   LinJam::IsAnonymous    = true ;  // TODO: persistent config per Server (issue #6)
 bool   LinJam::ShouldAgree    = false ; // TODO: persistent config per Server (issue #6)
-
 #endif // PERSISTENCE_TRANSITION
 
 
@@ -137,12 +139,13 @@ DEBUG_TRACE_LINJAM_INIT
 // TODO: parse command line args for autojoin (issue #9)
 
 
-// TODO: read persistent config (issue #6)
+// TODO: load master and local channels from persistent config (issue #6)
+#if PERSISTENCE_TRANSITION
   Config = new LinJamConfig() ;
 
-Config->MasterVolume.addListener(Gui->loginComponent) ; // leaky
-Config->MasterVolume = 42.0 ;
-//DBG("Server=" + Config->Server.getValue().toString()) ;
+// Config->masterVolume.addListener(Gui->loginComponent) ; Config->masterVolume = 42.0 ;
+// DBG("Config->masterVolume=" + Config->masterVolume.getValue().toString()) ;
+#endif // PERSISTENCE_TRANSITION
 
 
 
@@ -200,11 +203,7 @@ DEBUG_TRACE_AUDIO_INIT
   int n_input_channels = Audio->m_innch ;
   for (int ch_n = 0 ; ch_n < n_input_channels ; ++ch_n)
   {
-// NJClient::SetLocalChannelInfo(int ch, const char *name, bool setsrcch, int srcch, bool setbitrate, int bitrate, bool setbcast, bool broadcast)
-//g_client->SetLocalChannelInfo(0  , "channel0"                      , true  , 0                       , false , 0 , true  , true);// from cursesclient
     Client->SetLocalChannelInfo(ch_n , channel_names[ch_n].toRawUTF8() , true  , channel_source_ns[ch_n] , false , 0 , true  , channel_xmits[ch_n]) ;
-//NJClient::SetLocalChannelMonitoring(int ch, bool setvol, float vol, bool setpan, float pan, bool setmute, bool mute, bool setsolo, bool solo)
-//g_client->SetLocalChannelMonitoring(0  , false , 0.0f                  , false , 0.0f               , false , false               , false ,false);// from cursesclient
     Client->SetLocalChannelMonitoring(ch_n , true  , channel_volumes[ch_n] , true  , channel_pans[ch_n] , true  , channel_mutes[ch_n] , true  , channel_solos[ch_n]) ;
 
 #ifdef INPUT_FX
@@ -249,27 +248,36 @@ DEBUG_TRACE_AUDIO_INIT
 
 void LinJam::Connect()
 {
-#if PERSISTENCE_TRANSITION
-String Server = "" ; String Login = "" ; String Pass = "" ; bool IsAnonymous = true ;
-#endif // PERSISTENCE_TRANSITION
-
   Client->Disconnect() ;
+#if ! PERSISTENCE_TRANSITION
   String login = Login ;
   if (IsAnonymous)
   {
     login = "anonymous:" + ((Login == "")? "nobody" : Login) ;
     Pass  = "" ;
   }
-
-#if DEBUG_STATIC_SERVER
+#  if DEBUG_STATIC_SERVER
 Server = DEBUG_SERVER ; // TODO: get Server Login Pass IsAnonymous from config (issue #6)
-#endif // DEBUG_STATIC_SERVER
+#  endif // DEBUG_STATIC_SERVER
 #if DEBUG_BYPASS_LICENSE
   IsAgreed = true ;
 #endif
 DEBUG_TRACE_CONNECT
 
   Client->Connect(Server.toRawUTF8() , login.toRawUTF8() , Pass.toRawUTF8()) ;
+#else // PERSISTENCE_TRANSITION
+  String host         =      Config->currentHost.toString() ;
+  String login        =      Config->currentLogin.toString() ;
+  String pass         =      Config->currentPass.toString() ;
+  bool   is_anonymous = bool(Config->currentIsAnonymous.getValue()) ;
+
+  if (is_anonymous) { login = "anonymous:" + login ; pass  = "" ; }
+
+DEBUG_TRACE_CONNECT
+
+  Gui->statusbarComponent->setStatusL(GUI::CONNECTING_STATUS_TEXT + host) ;
+  Client->Connect(host.toRawUTF8() , login.toRawUTF8() , pass.toRawUTF8()) ;
+#endif // PERSISTENCE_TRANSITION
   IsAudioEnabled = true ;
 }
 
@@ -286,24 +294,34 @@ void LinJam::Shutdown()
 
 int LinJam::OnLicense(int user32 , char* license_text)
 {
-#ifdef DEBUG_LICENSE_MULTITHREADED
-return Gui->prompt_license(String(license_text)) ;
-Gui->licenseComponent->toFront(true) ;
-Gui->licenseComponent->agreeEvent->wait() ;
-IsAgreed = (licenseComponent->getIsAgreed()) ;
-#else // DEBUG_LICENSE_MULTITHREADED
+#if ! PERSISTENCE_TRANSITION
+  if (!(IsAgreed = (IsAgreed || GetShouldAgree())))
+  {
+    Gui->licenseComponent->setLicenseText(CharPointer_UTF8(license_text)) ;
+    Config->setServerConfig() ;
+  }
 
-#  if PERSISTENCE_TRANSITION
-  //IsAgreed = (IsAgreed || bool(Config->ShouldAlwaysAgree.getValue())) ;
-#  else // PERSISTENCE_TRANSITION
-  IsAgreed = (IsAgreed || GetShouldAgree()) ;
-#  endif // PERSISTENCE_TRANSITION
-
-  if (!IsAgreed) Gui->licenseComponent->setLicenseText(CharPointer_UTF8(license_text)) ;
-#endif // DEBUG_LICENSE_MULTITHREADED
 DEBUG_TRACE_LICENSE
 
   return IsAgreed ;
+
+#else // PERSISTENCE_TRANSITION
+  ValueTree server         = Config->getCurrentServerConfig() ;
+  bool should_always_agree = server.isValid() &&
+                             bool(server.getProperty(STORAGE::AGREE_IDENTIFIER)) ;
+  bool is_agreed           = IsAgreed() || should_always_agree ;
+  Config->currentIsAgreed  = is_agreed ;
+
+  if (!is_agreed)
+  {
+    Gui->licenseComponent->setLicenseText(CharPointer_UTF8(license_text)) ;
+    Config->setServerConfig() ;
+  }
+
+DEBUG_TRACE_LICENSE
+
+  return is_agreed ;
+#endif // PERSISTENCE_TRANSITION
 }
 
 void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , int nparms)
@@ -319,9 +337,7 @@ void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , in
   bool is_join_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_JOIN)) ;
   bool is_part_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PART)) ;  
 
-#if ! PERSISTENCE_TRANSITION
 DEBUG_TRACE_CHAT_IN
-#endif //PERSISTENCE_TRANSITION
 
   if (is_topic_msg)
   {
@@ -378,8 +394,10 @@ String LinJam::GetPass() { return Pass ; }
 bool   LinJam::GetIsAnonymous() { return IsAnonymous; }
 bool   LinJam::GetShouldAgree() { return ShouldAgree ; }
 void   LinJam::SetShouldAgree(bool shouldAgree) { ShouldAgree = shouldAgree ; }
-#endif // PERSISTENCE_TRANSITION
 void   LinJam::SetIsAgreed(bool isAgreed) { IsAgreed = isAgreed ; }
+#else // PERSISTENCE_TRANSITION
+bool LinJam::IsAgreed() { return bool(Config->currentIsAgreed.getValue()) ; }
+#endif // PERSISTENCE_TRANSITION
 
 
 /* chat helpers */
@@ -452,152 +470,4 @@ void LinJam::CleanSessionDir()
 
   DirectoryIterator session_dir_iter (SessionDir , false , "*.*" , File::findFilesAndDirectories) ;
   while (session_dir_iter.next()) session_dir_iter.getFile().deleteRecursively() ;
-}
-
-
-/* LinJamConfig public class methods */
-
-LinJamConfig::LinJamConfig()
-{
-  // load default and stored configs
-  File this_binary = File::getSpecialLocation(File::currentExecutableFile) ;
-  ConfigXmlFile    = this_binary.getSiblingFile(STORAGE::PERSISTENCE_FILENAME) ;
-  XmlElement* default_config_xml = XmlDocument::parse(STORAGE::DEFAULT_CONFIG_XML) ;
-  XmlElement* stored_config_xml  = XmlDocument::parse(ConfigXmlFile) ;
-
-DEBUG_TRACE_LOAD_CONFIG
-DEBUG_TRACE_SANITIZE_CONFIG
-
-  // create static config ValueTree
-  if (stored_config_xml == nullptr ||
-     !stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))
-    LinjamValueTree = ValueTree::fromXml(*default_config_xml) ;
-  else
-    LinjamValueTree = sanitizeConfig(ValueTree::fromXml(*default_config_xml) ,
-                                     ValueTree::fromXml(*stored_config_xml)) ;
-
-  storeConfig(stored_config_xml) ; delete default_config_xml ; delete stored_config_xml ;
-
-  // instantiate shared value holders
-  Servers = LinjamValueTree.getOrCreateChildWithName(STORAGE::SERVERS_IDENTIFIER , nullptr) ;
-  Host        .referTo(getConfigValueObj(STORAGE::SERVER_IDENTIFIER , STORAGE::HOST_IDENTIFIER)) ;
-  Login       .referTo(getConfigValueObj(STORAGE::SERVER_IDENTIFIER , STORAGE::LOGIN_IDENTIFIER)) ;
-  Pass        .referTo(getConfigValueObj(STORAGE::SERVER_IDENTIFIER , STORAGE::PASS_IDENTIFIER)) ;
-  IsAnonymous .referTo(getConfigValueObj(STORAGE::SERVER_IDENTIFIER , STORAGE::ANON_IDENTIFIER)) ;
-  ShouldAgree .referTo(getConfigValueObj(STORAGE::SERVER_IDENTIFIER , STORAGE::AGREE_IDENTIFIER)) ;
-
-  MasterVolume.referTo(getConfigValueObj(STORAGE::MASTER_IDENTIFIER , STORAGE::MASTER_VOLUME_IDENTIFIER)) ;
-}
-
-LinJamConfig::~LinJamConfig()
-{
-  XmlElement* config = LinjamValueTree.createXml() ; storeConfig(config) ; delete config ;
-}
-
-
-/* LinJamConfig public instance methods */
-
-ValueTree LinJamConfig::addServerConfig(String host)
-{
-  ValueTree server = getServerConfig(host) ;
-  if (!server.isValid())
-  {
-    server = ValueTree(STORAGE::SERVER_IDENTIFIER) ;
-    server.setProperty(STORAGE::HOST_IDENTIFIER  , ""    , nullptr) ;
-    server.setProperty(STORAGE::LOGIN_IDENTIFIER , ""    , nullptr) ;
-    server.setProperty(STORAGE::PASS_IDENTIFIER  , ""    , nullptr) ;
-    server.setProperty(STORAGE::ANON_IDENTIFIER  , true  , nullptr) ;
-    server.setProperty(STORAGE::AGREE_IDENTIFIER , false , nullptr) ;
-
-    Servers        .addChild(server  , -1 , nullptr) ;
-    LinjamValueTree.addChild(Servers , -1 , nullptr) ;
-  }
-
-  return server ;
-}
-
-ValueTree LinJamConfig::getServerConfig(String host)
-{ return Servers.getChildWithProperty(STORAGE::HOST_IDENTIFIER , var(host)) ; }
-
-void LinJamConfig::setServerConfig(String host , String login , String pass ,
-                                   bool anon , bool agree)
-{
-  ValueTree server = addServerConfig(host) ;
-  server.setProperty(STORAGE::HOST_IDENTIFIER  , host  , nullptr) ;
-  server.setProperty(STORAGE::LOGIN_IDENTIFIER , login , nullptr) ;
-  server.setProperty(STORAGE::PASS_IDENTIFIER  , pass  , nullptr) ;
-  server.setProperty(STORAGE::ANON_IDENTIFIER  , anon  , nullptr) ;
-  server.setProperty(STORAGE::AGREE_IDENTIFIER , agree , nullptr) ;
-}
-
-
-/* LinJamConfig private instance methods */
-
-ValueTree LinJamConfig::sanitizeConfig(ValueTree default_config , ValueTree stored_config)
-{
-  // add any missing nodes and attributes to stored config
-  for (int child_n = 0 ; child_n < default_config.getNumChildren() ; ++child_n)
-  {
-    ValueTree default_child = default_config.getChild(child_n) ;
-    ValueTree stored_child  = stored_config.getChildWithName(default_child.getType()) ;
-
-    // transfer missing node
-    if (!stored_child.isValid())
-    {
-      default_config.removeChild(default_child , nullptr) ;
-      stored_config.addChild(default_child , -1 , nullptr) ;
-      --child_n ; continue ;
-    }
-
-    int n_grandchildren = default_child.getNumChildren() ;
-    int n_properties    = default_child.getNumProperties() ;
-
-    // recurse if node has children ignoring atrributes
-    if (n_grandchildren) { sanitizeConfig(default_child , stored_child) ; continue ; }
-
-    // transfer missing attributes
-    for (int property_n = 0 ; property_n < n_properties ; ++property_n)
-    {
-      Identifier key   = default_child.getPropertyName(property_n) ;
-      var        value = default_child.getProperty(key) ;
-      if (!stored_child.hasProperty(key)) stored_child.setProperty(key , value , nullptr) ;
-    }
-  }
-
-  return stored_config ;
-}
-
-void LinJamConfig::storeConfig(XmlElement* config_xml)
-{
-DEBUG_TRACE_STORE_CONFIG
-
-  config_xml->writeToFile(ConfigXmlFile , StringRef() , StringRef("UTF-8") , 0) ;
-}
-
-Value LinJamConfig::getConfigValueObj(Identifier node_id , Identifier key)
-{
-  ValueTree a_node = LinjamValueTree.getChildWithName(node_id) ;
-
-DEBUG_TRACE_CONFIG_VALUE
-
-  return (a_node.isValid() && a_node.hasProperty(key))?
-    a_node.getPropertyAsValue(key , &ConfigUndoManager) : DummyValue ;
-}
-
-// DEBUG
-void LinJamConfig::DBGConfigValueType(String val_name , Value a_value)
-{
-  var a_var = a_value.getValue() ; String dynamic_type ;
-  if      (a_var.isVoid())       dynamic_type = "Void" ;
-  else if (a_var.isUndefined())  dynamic_type = "Undefined" ;
-  else if (a_var.isInt())        dynamic_type = "Int" ;
-  else if (a_var.isInt64())      dynamic_type = "Int64" ;
-  else if (a_var.isBool())       dynamic_type = "Bool" ;
-  else if (a_var.isDouble())     dynamic_type = "Double" ;
-  else if (a_var.isString())     dynamic_type = "String" ;
-  else if (a_var.isObject())     dynamic_type = "Object" ;
-  else if (a_var.isArray())      dynamic_type = "Array" ;
-  else if (a_var.isBinaryData()) dynamic_type = "Binary" ;
-  else if (a_var.isMethod())     dynamic_type = "Method" ;
-  DBG(val_name + " type is " + dynamic_type) ;
 }

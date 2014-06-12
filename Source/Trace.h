@@ -10,7 +10,7 @@
 #define DEBUG_TRACE_VB     DEBUG && 1
 
 #define EXIT_IMMEDIAYELY    0
-#define DEBUG_STATIC_SERVER 1 // DEBUG_SERVER defined in LinJam.cpp
+#define DEBUG_STATIC_SERVER 0 // DEBUG_SERVER defined in LinJam.cpp
 
 #define CHAT_COMMANDS_BUGGY
 
@@ -20,7 +20,7 @@
 #if DEBUG_TRACE
 
 #  define DEBUG_TRACE_LINJAM_INIT        Trace::TraceEvent("initializing") ;
-#  define DEBUG_TRACE_JACK_INIT  if (!Audio) Trace::TraceError("error connecting to JACK - falling back to ALSA") ;
+#  define DEBUG_TRACE_JACK_INIT  if (!Audio) Trace::TraceState("could not connect to JACK - falling back to ALSA") ;
 #  define DEBUG_TRACE_AUDIO_INIT if (!Audio) Trace::TraceError("error opening audio device") ; \
                                  else        Trace::TraceState("opened audio device at " +     \
                                                  String(Audio->m_srate)    + "Hz "       +     \
@@ -44,43 +44,58 @@
       Trace::TraceConfig("stored config parsed successfully =>" +                       \
                         Trace::SanitizeConfig(ValueTree::fromXml(*default_config_xml) , \
                                               ValueTree::fromXml(*stored_config_xml) , "  ")) ;
-#  define DEBUG_TRACE_STORE_CONFIG       Trace::TraceConfig("storing config xml=\n" + LinjamValueTree.toXmlString()) ;
+#  define DEBUG_TRACE_STORE_CONFIG       Trace::TraceConfig("storing config xml=\n" + configValueTree.toXmlString()) ;
 #  define DEBUG_TRACE_CONFIG_VALUE                                                         \
     bool valid = a_node.isValid() ; String n = String(node_id) ; String k = String(key) ;  \
     Trace::TraceConfig("node '" + n + ((valid)? "' is" : "' not") + " valid - " +          \
         ((valid && a_node.hasProperty(key))? "has key '"     + k + "' - is shared value" : \
                                              "missing key '" + k + "' - has dummy value")) ;
 
+#  define DEBUG_TRACE_LOGIN_LOAD                                                              \
+    Trace::TraceState("Login - currentHost => '" + host + "' - storage " + \
+                      ((server.isValid())? "" : " not") + " found") ;
 #  define DEBUG_TRACE_LOGIN_CLICKED                                                          \
     if      (buttonThatWasClicked == loginButton) Trace::TraceEvent("loginButton clicked") ; \
     else if (buttonThatWasClicked == anonButton)  Trace::TraceEvent("anonButton clicked") ;
-#  define DEBUG_TRACE_CONNECT if (!IsAgreed)                                                   \
-                                   Trace::TraceState("connecting") ;                           \
-                              else Trace::TraceState("joining '" + Server + "' as '" + login + \
-                                     "'(" + ((Login == "")? "nil" : Login) + "):'" + Pass + "'") ;
+#  define DEBUG_TRACE_CONNECT Trace::TraceState((!IsAgreed())? \
+                                                "connecting to " + host :                    \
+                                                "joining "       + host + " as " + login) ;
 
 #  define DEBUG_TRACE_LICENSE_CLICKED                                                          \
     if      (buttonThatWasClicked == cancelButton) Trace::TraceEvent("cancelButton clicked") ; \
     else if (buttonThatWasClicked == agreeButton)  Trace::TraceEvent("agreeButton clicked") ;  \
     else if (buttonThatWasClicked == alwaysButton) Trace::TraceEvent("alwaysButton clicked") ;
-#  define DEBUG_TRACE_LICENSE if (IsAgreed)                                               \
-                                   Trace::TraceState("agreeing to license") ;             \
-                              else Trace::TraceState("prompting for license agreement") ;
+#  define DEBUG_TRACE_LICENSE Trace::TraceState((is_agreed)? "agreeing to license" : \
+                                                "prompting for license agreement") ;
 
-#  define DEBUG_TRACE_CONNECT_STATUS                                              \
-    switch (status)                                                               \
-    {                                                                             \
-      case -3: Trace::TraceConnection("NJC_STATUS_DISCONNECTED") ; break ;        \
-      case -2: Trace::TraceConnection((LinJam::IsAgreed)?                         \
-                   "NJC_STATUS_INVALIDAUTH" : "LICENSE_PENDING") ; break ;        \
-      case -1: Trace::TraceConnection("NJC_STATUS_CANTCONNECT") ;  break ;        \
-      case  0: Trace::TraceConnection("NJC_STATUS_OK") ;           break ;        \
-      case  1: Trace::TraceConnection("NJC_STATUS_PRECONNECT") ;   break ;        \
-      default:                                                     break ;        \
-    }                                                                             \
-    Trace::TraceServer("connected to host: " + String(GetHostName())) ;           \
-    if (this->GetErrorStr()[0])                                                   \
-      Trace::TraceServer("Error: " + String(this->GetErrorStr())) ;
+#  ifdef WIN32 // TODO: GetHostName() and GetErrorStr() linux .so segfault (issue #15)
+#    define DEBUG_TRACE_CONNECT_STATUS                                              \
+      switch (status)                                                               \
+      {                                                                             \
+        case -3: Trace::TraceConnection("NJC_STATUS_DISCONNECTED") ; break ;        \
+        case -2: Trace::TraceConnection((LinJam::IsAgreed())?                         \
+                     "NJC_STATUS_INVALIDAUTH" : "LICENSE_PENDING") ; break ;        \
+        case -1: Trace::TraceConnection("NJC_STATUS_CANTCONNECT") ;  break ;        \
+        case  0: Trace::TraceConnection("NJC_STATUS_OK") ;           break ;        \
+        case  1: Trace::TraceConnection("NJC_STATUS_PRECONNECT") ;   break ;        \
+        default:                                                     break ;        \
+      }                                                                             \
+      Trace::TraceServer("connected to host: " + String(GetHostName())) ;           \
+      if (this->GetErrorStr()[0])                                                   \
+        Trace::TraceServer("Error: " + String(this->GetErrorStr())) ;
+#  else // WIN32
+#    define DEBUG_TRACE_CONNECT_STATUS                                              \
+      switch (status)                                                               \
+      {                                                                             \
+        case -3: Trace::TraceConnection("NJC_STATUS_DISCONNECTED") ; break ;        \
+        case -2: Trace::TraceConnection((LinJam::IsAgreed)?                         \
+                     "NJC_STATUS_INVALIDAUTH" : "LICENSE_PENDING") ; break ;        \
+        case -1: Trace::TraceConnection("NJC_STATUS_CANTCONNECT") ;  break ;        \
+        case  0: Trace::TraceConnection("NJC_STATUS_OK") ;           break ;        \
+        case  1: Trace::TraceConnection("NJC_STATUS_PRECONNECT") ;   break ;        \
+        default:                                                     break ;        \
+      }
+#  endif // WIN32
 
 #  define DEBUG_CHANNELS                 Trace::TraceServer("handleUserInfoChanged()") ;
 #  define DEBUG_CHANNELS_VB                                                         \
@@ -154,7 +169,7 @@
       }                                                                             \
     }
 
-#  define DEBUG_TRACE_CHAT_IN            if (chat_user.compare(Config->Login)) Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
+#  define DEBUG_TRACE_CHAT_IN            if (chat_user.compare(Config->currentLogin.toString())) Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 //#  define DEBUG_TRACE_CHATIN String msg = "|" ; for (;nparms--;) msg += String(parms[nparms]) + "|" ; Trace::TraceEvent("LinJam::OnChatmsg()=\n\"" + msg + "\"") ;
 //#  define DEBUG_TRACE_CHATIN Trace::TraceEvent("LinJam::OnChatmsg()=\n") ; for (;nparms--;) Trace::TraceEvent("\tnparms[" + String(nparms) + "]='" + String(parms[nparms]) + "'\n") ;
 

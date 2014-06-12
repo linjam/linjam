@@ -19,10 +19,15 @@ MainContentComponent::MainContentComponent()
   this->setName("ContentComponent") ;
   this->setSize(GUI::CONTENT_W , GUI::CONTENT_H) ;
 
+  // blankComponent
+  this->blankComponent = new BlankComponent() ;
+  this->addChildAndSetID(this->blankComponent , GUI::BLANK_GUI_ID) ;
+  this->blankComponent->toFront(true) ;
+
   // loginComponent
   this->loginComponent = new LoginComponent() ;
   this->addChildAndSetID(this->loginComponent , GUI::LOGIN_GUI_ID) ;
-  this->loginComponent->toFront(true) ;
+  this->loginComponent->toBack() ;
 
   // licenseComponent
   this->licenseComponent = new LicenseComponent() ;
@@ -122,7 +127,7 @@ void MainContentComponent::resized()
     this->statusbarComponent->setBounds(status_x , status_y , status_w , status_h) ;
 }
 
-#ifdef DEBUG_LICENSE_MULTITHREADED
+#ifdef DEBUG_LICENSE_MULTITHREADED // TODO: (issue #14)
 bool MainContentComponent::prompt_license(String license_text)
 {
 DBG("MainContentComponent::prompt_license()") ; // license_text=\n" + license_text) ;

@@ -134,24 +134,28 @@
   <Files>
     <Filter Name="LinJam">
       <Filter Name="Headers">
-        <File RelativePath="..\..\Source\MixerGroupComponent.h"/>
+        <File RelativePath="..\..\Source\BlankComponent.h"/>
         <File RelativePath="..\..\Source\ChannelComponent.h"/>
         <File RelativePath="..\..\Source\ChatComponent.h"/>
         <File RelativePath="..\..\Source\Constants.h"/>
         <File RelativePath="..\..\Source\LicenseComponent.h"/>
         <File RelativePath="..\..\Source\LinJam.h"/>
+        <File RelativePath="..\..\Source\LinJamConfig.h"/>
         <File RelativePath="..\..\Source\LoginComponent.h"/>
         <File RelativePath="..\..\Source\MainComponent.h"/>
         <File RelativePath="..\..\Source\MixerComponent.h"/>
+        <File RelativePath="..\..\Source\MixerGroupComponent.h"/>
         <File RelativePath="..\..\Source\StatusBarComponent.h"/>
         <File RelativePath="..\..\Source\Trace.h"/>
       </Filter>
       <Filter Name="Source">
+        <File RelativePath="..\..\Source\BlankComponent.cpp"/>
         <File RelativePath="..\..\Source\ChannelComponent.cpp"/>
         <File RelativePath="..\..\Source\ChatComponent.cpp"/>
         <File RelativePath="..\..\Source\Constants.cpp"/>
         <File RelativePath="..\..\Source\LicenseComponent.cpp"/>
         <File RelativePath="..\..\Source\LinJam.cpp"/>
+        <File RelativePath="..\..\Source\LinJamConfig.cpp"/>
         <File RelativePath="..\..\Source\LoginComponent.cpp"/>
         <File RelativePath="..\..\Source\Main.cpp"/>
         <File RelativePath="..\..\Source\MainComponent.cpp"/>

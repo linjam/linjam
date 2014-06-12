@@ -140,7 +140,10 @@ void 	scrollEditorToPositionCaret (int desiredCaretX, int desiredCaretY)
 }
 
 void ChatComponent::textEditorReturnKeyPressed(TextEditor& a_text_editor)
-{ LinJam::SendChat(this->chatEntryTextEditor->getText()) ; this->chatEntryTextEditor->clear() ; }
+{
+  LinJam::SendChat(this->chatEntryTextEditor->getText()) ;
+  this->chatEntryTextEditor->clear() ;
+}
 //[/MiscUserCode]
 
 

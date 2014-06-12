@@ -24,6 +24,40 @@ const String CLIENT::CHATMSG_CMD_ADMIN = "/admin " ;
 // audio
 char* CLIENT::WIN_INI_FILE = "linjam.ini" ;
 
+// known hosts
+const String        NETWORK::NINJAM_2049_URL            = "test-ninjam-com-2049" ;
+const String        NETWORK::NINJAM_2050_URL            = "test.ninjam.com:2050" ;
+const String        NETWORK::NINJAM_2051_URL            = "test.ninjam.com:2051" ;
+const String        NETWORK::NINJAM_2052_URL            = "test.ninjam.com:2052" ;
+const String        NETWORK::NINJAM_2600_URL            = "test.ninjam.com:2600" ;
+const String        NETWORK::NINJAM_2601_URL            = "test.ninjam.com:2601" ;
+const String        NETWORK::NINBOT_2049_URL            = "ninbot.com:2049" ;
+const String        NETWORK::NINBOT_2050_URL            = "ninbot.com:2050" ;
+const String        NETWORK::NINBOT_2051_URL            = "ninbot.com:2051" ;
+const String        NETWORK::NINBOT_2052_URL            = "ninbot.com:2052" ;
+const String        NETWORK::NINJAMER_2049_URL          = "ninjamer.com:2049" ;
+const String        NETWORK::NINJAMER_2050_URL          = "ninjamer.com:2050" ;
+const String        NETWORK::NINJAMER_2051_URL          = "ninjamer.com:2051" ;
+const String        NETWORK::NINJAMER_2052_URL          = "ninjamer.com:2052" ;
+const String        known_hosts[NETWORK::N_KNOWN_HOSTS] = {
+/*
+                        NETWORK::NINJAM_2049_URL   ,
+                        NETWORK::NINJAM_2050_URL   ,
+                        NETWORK::NINJAM_2051_URL   ,
+                        NETWORK::NINJAM_2052_URL   ,
+                        NETWORK::NINJAM_2600_URL   ,
+                        NETWORK::NINJAM_2601_URL   ,
+*/
+                        NETWORK::NINBOT_2049_URL   ,
+                        NETWORK::NINBOT_2050_URL   ,
+                        NETWORK::NINBOT_2051_URL   ,
+                        NETWORK::NINBOT_2052_URL   ,
+                        NETWORK::NINJAMER_2049_URL ,
+                        NETWORK::NINJAMER_2050_URL ,
+                        NETWORK::NINJAMER_2051_URL ,
+                        NETWORK::NINJAMER_2052_URL } ;
+const Array<String> NETWORK::KNOWN_HOSTS = Array<String>(known_hosts , NETWORK::N_KNOWN_HOSTS) ;
+
 
 /* GUI class public class constants */
 
@@ -34,12 +68,16 @@ const String GUI::ROOM_FULL_STATUS_TEXT         = "Jam room full" ;
 const String GUI::INVALID_AUTH_STATUS_TEXT      = "Invalid login/pass" ;
 const String GUI::PENDING_LICENSE_STATUS_TEXT   = "Pending license" ;
 const String GUI::FAILED_CONNECTION_STATUS_TEXT = "Connection failed" ;
+const String GUI::CONNECTING_STATUS_TEXT        = "Connecting to " ;
 const String GUI::CONNECTED_STATUS_TEXT         = "Connected to " ;
 const String GUI::IDLE_STATUS_TEXT              = "Idle" ;
 const String GUI::UNKNOWN_STATUS_TEXT           = "Status: " ;
 
 // contentComponent
 const String GUI::CONTENT_GUI_ID = "main-content-gui" ;
+
+// blankComponent
+const String GUI::BLANK_GUI_ID = "blank-gui" ;
 
 // loginComponent
 const String GUI::LOGIN_GUI_ID = "login-gui" ;
@@ -106,6 +144,8 @@ const String     STORAGE::PASS_KEY                 = "pass" ;
 const Identifier STORAGE::PASS_IDENTIFIER          = PASS_KEY ;
 const String     STORAGE::ANON_KEY                 = "is-anonymous" ;
 const Identifier STORAGE::ANON_IDENTIFIER          = ANON_KEY ;
+const String     STORAGE::AGREED_KEY               = "is-agreed" ;
+const Identifier STORAGE::AGREED_IDENTIFIER        = AGREED_KEY ;
 const String     STORAGE::AGREE_KEY                = "should-agree" ;
 const Identifier STORAGE::AGREE_IDENTIFIER         = AGREE_KEY ;
 
@@ -126,7 +166,7 @@ const Identifier STORAGE::AGREE_IDENTIFIER         = AGREE_KEY ;
         LOGIN_KEY          + "=\"\" "         + \
         PASS_KEY           + "=\"\" "         + \
         ANON_KEY           + "=\"true\" "     + \
-        AGREE_KEY          + "=\"false\" "    + \
+        AGREED_KEY         + "=\"false\" "    + \
       "/><"                                   + \
       SERVERS_KEY          + " />"            + \
     "</" + PERSISTENCE_KEY + ">"

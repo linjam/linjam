@@ -27,6 +27,12 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+
+StringRef LoginComponent::HostValidationMask = "*.*:*" ;
+StringRef LoginComponent::Letters            = "abcdefghijklmnopqrstuvwxyz" ;
+StringRef LoginComponent::Digits             = "0123456789" ;
+StringRef LoginComponent::UrlChars           = "0123456789abcdefghijklmnopqrstuvwxyz-." ;
+
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -61,6 +67,7 @@ LoginComponent::LoginComponent ()
     passLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (hostText = new TextEditor ("hostText"));
+    hostText->setTooltip (TRANS("Enter you server ip/port in the form: example.com:2050 or 123.123.123.123:2050 to use a private server."));
     hostText->setMultiLine (false);
     hostText->setReturnKeyStartsNewLine (false);
     hostText->setReadOnly (false);
@@ -73,6 +80,8 @@ LoginComponent::LoginComponent ()
     hostText->setText (String::empty);
 
     addAndMakeVisible (loginText = new TextEditor ("loginText"));
+    loginText->setTooltip (TRANS("Enter a username using only the characters a-z 0-9 - and _"));
+    loginText->setExplicitFocusOrder (1);
     loginText->setMultiLine (false);
     loginText->setReturnKeyStartsNewLine (false);
     loginText->setReadOnly (false);
@@ -85,6 +94,7 @@ LoginComponent::LoginComponent ()
     loginText->setText (String::empty);
 
     addAndMakeVisible (passText = new TextEditor ("passText"));
+    passText->setTooltip (TRANS("Some servers require a password. Try logging in with the anonymous button ticked first."));
     passText->setExplicitFocusOrder (2);
     passText->setMultiLine (false);
     passText->setReturnKeyStartsNewLine (false);
@@ -98,15 +108,19 @@ LoginComponent::LoginComponent ()
     passText->setText (String::empty);
 
     addAndMakeVisible (loginButton = new TextButton ("loginButton"));
-    loginButton->setButtonText (TRANS("Connect"));
+    loginButton->setTooltip (TRANS("Click this to connect to the specified server."));
+    loginButton->setExplicitFocusOrder (3);
+    loginButton->setButtonText (TRANS("<--   Connect"));
     loginButton->addListener (this);
 
     addAndMakeVisible (serverButton = new TextButton ("serverButton"));
-    serverButton->setButtonText (TRANS("Custom Server"));
+    serverButton->setTooltip (TRANS("Click this to enter the adress of a private server."));
+    serverButton->setExplicitFocusOrder (4);
+    serverButton->setButtonText (TRANS("Private Server"));
     serverButton->addListener (this);
 
     addAndMakeVisible (anonButton = new ToggleButton ("anonButton"));
-    anonButton->setExplicitFocusOrder (1);
+    anonButton->setExplicitFocusOrder (5);
     anonButton->setButtonText (TRANS("anonymous"));
     anonButton->addListener (this);
     anonButton->setToggleState (true, dontSendNotification);
@@ -114,15 +128,37 @@ LoginComponent::LoginComponent ()
 
 
     //[UserPreSize]
-  hostLabel  ->setVisible(false) ;
-  hostText   ->setVisible(false) ;
-  loginButton->setVisible(false) ;
+
+  this->loginButton->setVisible(false) ;
+  this->hostLabel  ->setVisible(false) ;
+  this->hostText   ->setVisible(false) ;
+  this->passLabel  ->setVisible(false) ;
+  this->passText   ->setVisible(false) ;
+
     //[/UserPreSize]
 
     setSize (622, 442);
 
 
     //[Constructor] You can add your own custom stuff here..
+
+  this->hostText ->addListener(this) ;
+  this->loginText->addListener(this) ;
+  this->passText ->addListener(this) ;
+  this->passText ->setPasswordCharacter('*') ;
+
+  for (int host_n = 0 ; host_n < NETWORK::N_KNOWN_HOSTS ; ++host_n)
+  {
+    String known_host = NETWORK::KNOWN_HOSTS.getUnchecked(host_n) ;
+    TextButton* loginButton = new TextButton(known_host + "Button") ;
+    this->loginButtons.add(loginButton) ;
+
+    addAndMakeVisible(loginButton) ;
+    loginButton->setExplicitFocusOrder(6 + host_n) ; // here be dragons
+    loginButton->setButtonText(known_host) ;
+    loginButton->addListener(this) ;
+  }
+
     //[/Constructor]
 }
 
@@ -174,6 +210,9 @@ void LoginComponent::resized()
     serverButton->setBounds ((getWidth() / 2) + 85, getHeight() - 80, 96, 24);
     anonButton->setBounds ((getWidth() / 2) + 85, getHeight() - 48, 96, 24);
     //[UserResized] Add your own custom resize handling here..
+
+  sortLoginButtons() ;
+
     //[/UserResized]
 }
 
@@ -186,7 +225,7 @@ void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_loginButton] -- add your button handler code here..
 
-      LinJam::Connect() ;
+      login(this->hostText->getText()) ;
 
         //[/UserButtonCode_loginButton]
     }
@@ -197,6 +236,7 @@ void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
       bool customHostToggleState = !this->hostText->isVisible() ;
       if (customHostToggleState) this->hostText->setText("") ;
 
+      validateHost() ;
       this->hostLabel  ->setVisible(customHostToggleState) ;
       this->hostText   ->setVisible(customHostToggleState) ;
       this->loginButton->setVisible(customHostToggleState) ;
@@ -208,15 +248,25 @@ void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_anonButton] -- add your button handler code here..
 
       bool anonymousToggleState = this->anonButton->getToggleState() ;
-      if (!anonymousToggleState) this->passText->setText("") ;
+      if (anonymousToggleState) this->passText->setText("") ;
 
-      this->passLabel->setVisible(anonymousToggleState) ;
-      this->passText ->setVisible(anonymousToggleState) ;
+      validatePass() ;
+      this->passLabel->setVisible(!anonymousToggleState) ;
+      this->passText ->setVisible(!anonymousToggleState) ;
 
         //[/UserButtonCode_anonButton]
     }
 
     //[UserbuttonClicked_Post]
+
+    else if (this->loginButtons.contains((TextButton*)buttonThatWasClicked))
+    {
+      String host = buttonThatWasClicked->getButtonText().trim() ;
+      this->hostText->setText(host) ;
+
+      login(host) ;
+    }
+
     //[/UserbuttonClicked_Post]
 }
 
@@ -224,46 +274,136 @@ void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-//bool validateHost(host) { return host.isNotEmpty() ; } // TODO:
+/* event handlers */
 
-void LoginComponent::broughtToFront()
+void LoginComponent::broughtToFront() { refreshState() ; }
+
+void LoginComponent::textEditorTextChanged(TextEditor& a_text_editor)
 {
-// TODO: set textboxes from per host config
-  if (LinJam::Config == nullptr) return ;
-
-DBG("LoginComponent::broughtToFront() last Server=" + LinJam::Config->Host.toString()) ;
-DBG("LoginComponent::broughtToFront() last Login=" + LinJam::Config->Login.toString()) ;
-DBG("LoginComponent::broughtToFront() last Pass=" + LinJam::Config->Pass.toString()) ;
-DBG("LoginComponent::broughtToFront() last Anon=" + LinJam::Config->IsAnonymous.toString()) ;
-
-  String    host   = hostText->getText() ; String login ; String pass ; bool anon ;
-  ValueTree server = LinJam::Config->getServerConfig(host) ;
-  if (server.isValid())
-  {
-    login = server.getProperty(STORAGE::LOGIN_IDENTIFIER).toString() ;
-    pass  = server.getProperty(STORAGE::PASS_IDENTIFIER).toString() ;
-    anon  = bool(server.getProperty(STORAGE::ANON_IDENTIFIER)) ;
-  }
-  else
-  {
-    login =      LinJam::Config->Host.toString() ;
-    pass  =      LinJam::Config->Pass.toString() ;
-    anon  = bool(LinJam::Config->IsAnonymous.getValue()) ;
-  }
-  this->loginText ->setText(login) ;
-  this->passText  ->setText(pass) ;
-  this->anonButton->setToggleState(anon , dontSendNotification) ;
-
-DBG("LoginComponent::broughtToFront() login=" + login) ;
-DBG("LoginComponent::broughtToFront() pass=" + pass) ;
-DBG("LoginComponent::broughtToFront() anon=" + String(anon)) ;
+  if      (&a_text_editor == &(*hostText))  validateHost() ;
+  else if (&a_text_editor == &(*loginText)) validateLogin() ;
+  else if (&a_text_editor == &(*passText))  validatePass() ;
 }
 
-void LoginComponent::valueChanged(Value &login_value)
+void LoginComponent::valueChanged(Value& login_value)
 {
-// TODO: probably all this wants to respond to is server status for quick-login buttons
+// TODO: probably all this wants to respond to is server status
+//           for quick-login buttons (issue #7)
 DBG("LoginComponent::valueChanged()=" + login_value.getValue().toString()) ;
-this->loginText->setText(login_value.getValue().toString()) ;
+}
+
+
+/* helpers */
+
+void LoginComponent::refreshState()
+{
+  if (LinJam::Config == nullptr) return ;
+
+  String    host         =      LinJam::Config->currentHost.toString() ;
+  String    login        =      LinJam::Config->currentLogin.toString() ;
+  String    pass         =      LinJam::Config->currentPass.toString() ;
+  bool      is_anonymous = bool(LinJam::Config->currentIsAnonymous.getValue()) ;
+  ValueTree server       = LinJam::Config->getServerConfig(host) ;
+
+DEBUG_TRACE_LOGIN_LOAD
+
+  if (!server.isValid())
+    // could not connect to currentHost - reset current login state
+    setCurrentConfig(host = "" , login = "" , pass = "" , is_anonymous = true) ;
+
+  // initialize GUI
+  validateHost() ; validateLogin() ; validatePass() ;
+  bool is_custom_server = host.isNotEmpty() && !NETWORK::KNOWN_HOSTS.contains(host) ;
+  this->loginButton->setVisible(is_custom_server) ;
+  this->hostLabel  ->setVisible(is_custom_server) ;
+  this->hostText   ->setVisible(is_custom_server) ;
+  this->passLabel  ->setVisible(!is_anonymous) ;
+  this->passText   ->setVisible(!is_anonymous) ;
+  this->hostText   ->setText(host) ;
+  this->loginText  ->setText(login) ;
+  this->passText   ->setText(pass) ;
+  this->anonButton ->setToggleState(is_anonymous , dontSendNotification) ;
+}
+
+void LoginComponent::sortLoginButtons()
+{
+  // TODO: sort dynamically into occupied/vacant groups (issue #7)
+  if (loginButtons.size() == NETWORK::N_KNOWN_HOSTS)
+    for (int host_n = 0 ; host_n < NETWORK::N_KNOWN_HOSTS ; ++host_n)
+    {
+      int x = GUI::LOGIN_BUTTON_L ;
+      int y = GUI::LOGIN_BUTTON_T + ((GUI::LOGIN_BUTTON_H + GUI::PAD) * host_n) ;
+      int w = GUI::LOGIN_BUTTON_W ;
+      int h = GUI::LOGIN_BUTTON_H ;
+      this->loginButtons.getUnchecked(host_n)->setBounds(x , y , w , h) ;
+    }
+}
+
+bool LoginComponent::validateHost()
+{
+  String host      = this->hostText->getText().trim() ;
+  String host_name = host.upToLastOccurrenceOf(StringRef(".") , false , true) ;
+  String host_tld  = host.fromLastOccurrenceOf(StringRef(".") , false , true)
+                         .upToFirstOccurrenceOf(StringRef(":") , false , true) ;
+  String host_port = host.fromFirstOccurrenceOf(StringRef(":") , false , true) ;
+
+  bool is_valid = host.matchesWildcard(HostValidationMask , true) &&
+                  host_name.containsOnly(UrlChars)                &&
+                  host_tld.containsOnly(Letters)                  &&
+                  host_port.containsOnly(Digits) ;
+
+  Colour border_color = (is_valid)? Colours::white : Colours::red ;
+  this->hostText->setColour(TextEditor::outlineColourId , border_color) ;
+
+  return is_valid ;
+}
+
+bool LoginComponent::validateLogin()
+{
+  bool is_valid = this->loginText->getText().trim().containsNonWhitespaceChars() ;
+
+  Colour border_color = (is_valid)? Colours::white : Colours::red ;
+  this->loginText->setColour(TextEditor::outlineColourId , border_color) ;
+
+  return is_valid ;
+}
+
+bool LoginComponent::validatePass()
+{
+  String pass         = this->passText->getText().trim() ;
+  bool   is_anonymous = this->anonButton ->getToggleState() ;
+
+  bool is_valid = is_anonymous || pass.containsNonWhitespaceChars() ;
+
+  Colour border_color = (is_valid)? Colours::white : Colours::red ;
+  this->passText->setColour(TextEditor::outlineColourId , border_color) ;
+
+  return is_valid ;
+}
+
+void LoginComponent::setCurrentConfig(String host , String login , String pass ,
+                                      bool is_anonymous)
+{
+  LinJam::Config->currentHost        = host ;
+  LinJam::Config->currentLogin       = login ;
+  LinJam::Config->currentPass        = (is_anonymous)? "" : pass ;
+  LinJam::Config->currentIsAnonymous = is_anonymous ;
+  LinJam::Config->currentIsAgreed    = false ;
+}
+
+void LoginComponent::login(String host)
+{
+  String login        = this->loginText  ->getText().trim() ;
+  String pass         = this->passText   ->getText().trim() ;
+  bool   is_anonymous = this->anonButton ->getToggleState() ;
+
+  bool is_valid_host  = validateHost() ;
+  bool is_valid_login = validateLogin() ;
+  bool is_valid_pass  = validatePass() ;
+  if (!is_valid_host || !is_valid_login || !is_valid_pass) return ;
+
+  setCurrentConfig(host , login , pass , is_anonymous) ;
+  LinJam::Connect() ;
 }
 
 //[/MiscUserCode]
@@ -279,9 +419,10 @@ this->loginText->setText(login_value.getValue().toString()) ;
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="LoginComponent" componentName="LoginComponent"
-                 parentClasses="public Component, public Value::Listener" constructorParams=""
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="0" initialWidth="622" initialHeight="442">
+                 parentClasses="public Component, public TextEditor::Listener, public Value::Listener"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="622"
+                 initialHeight="442">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
@@ -302,26 +443,31 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="hostText" id="d540c830b7e8d52f" memberName="hostText" virtualName=""
-              explicitFocusOrder="0" pos="-100C 112R 160 24" textcol="ff808080"
-              bkgcol="ff000000" outlinecol="ffffffff" initialText="" multiline="0"
-              retKeyStartsLine="0" readonly="0" scrollbars="0" caret="1" popupmenu="1"/>
+              explicitFocusOrder="0" pos="-100C 112R 160 24" tooltip="Enter you server ip/port in the form: example.com:2050 or 123.123.123.123:2050 to use a private server."
+              textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" initialText=""
+              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
+              caret="1" popupmenu="1"/>
   <TEXTEDITOR name="loginText" id="5490b33873f48ebc" memberName="loginText"
-              virtualName="" explicitFocusOrder="0" pos="-100C 80R 160 24"
+              virtualName="" explicitFocusOrder="1" pos="-100C 80R 160 24"
+              tooltip="Enter a username using only the characters a-z 0-9 - and _"
               textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
               caret="1" popupmenu="1"/>
   <TEXTEDITOR name="passText" id="3962fd184843da61" memberName="passText" virtualName=""
-              explicitFocusOrder="2" pos="-100C 48R 160 24" textcol="ff808080"
-              bkgcol="ff000000" outlinecol="ffffffff" initialText="" multiline="0"
-              retKeyStartsLine="0" readonly="0" scrollbars="0" caret="1" popupmenu="1"/>
+              explicitFocusOrder="2" pos="-100C 48R 160 24" tooltip="Some servers require a password. Try logging in with the anonymous button ticked first."
+              textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" initialText=""
+              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
+              caret="1" popupmenu="1"/>
   <TEXTBUTTON name="loginButton" id="7db8d8f23fee0f6a" memberName="loginButton"
-              virtualName="" explicitFocusOrder="0" pos="85C 112R 96 24" buttonText="Connect"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="3" pos="85C 112R 96 24" tooltip="Click this to connect to the specified server."
+              buttonText="&lt;--   Connect" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
   <TEXTBUTTON name="serverButton" id="2353714d1f249baf" memberName="serverButton"
-              virtualName="" explicitFocusOrder="0" pos="85C 80R 96 24" buttonText="Custom Server"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="4" pos="85C 80R 96 24" tooltip="Click this to enter the adress of a private server."
+              buttonText="Private Server" connectedEdges="0" needsCallback="1"
+              radioGroupId="0"/>
   <TOGGLEBUTTON name="anonButton" id="42b61bb43a881103" memberName="anonButton"
-                virtualName="" explicitFocusOrder="1" pos="85C 48R 96 24" txtcol="ff808080"
+                virtualName="" explicitFocusOrder="5" pos="85C 48R 96 24" txtcol="ff808080"
                 buttonText="anonymous" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="1"/>
 </JUCER_COMPONENT>

@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_F1008AB42F514BC4__
-#define __JUCE_HEADER_F1008AB42F514BC4__
+#ifndef __JUCE_HEADER_3C896865B068DF8E__
+#define __JUCE_HEADER_3C896865B068DF8E__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
@@ -34,46 +34,34 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class LicenseComponent  : public Component,
-                          public ButtonListener
+class BlankComponent  : public Component
 {
 public:
     //==============================================================================
-    LicenseComponent ();
-    ~LicenseComponent();
+    BlankComponent ();
+    ~BlankComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-  friend class LinJam ;
-
-//   bool getIsAgreed() ; // TODO: onvisibility set agreeState = pending (issue #14)
-//     WaitableEvent* agreeEvent ;
-//   ScopedPointer<WaitableEvent> agreeEvent ; bool isAgreed ;
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-  void setLicenseText(String license_text) ;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TextEditor> licenseTextEditor;
-    ScopedPointer<TextButton> cancelButton;
-    ScopedPointer<TextButton> agreeButton;
-    ScopedPointer<ToggleButton> alwaysButton;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LicenseComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BlankComponent)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_F1008AB42F514BC4__
+#endif   // __JUCE_HEADER_3C896865B068DF8E__

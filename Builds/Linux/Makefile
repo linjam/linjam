@@ -51,11 +51,13 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
+  $(OBJDIR)/BlankComponent_1b2cc912.o \
   $(OBJDIR)/ChannelComponent_5726acc3.o \
   $(OBJDIR)/ChatComponent_27b18166.o \
   $(OBJDIR)/Constants_e698e730.o \
   $(OBJDIR)/LicenseComponent_b99bda45.o \
   $(OBJDIR)/LinJam_a166dece.o \
+  $(OBJDIR)/LinJamConfig_8af59670.o \
   $(OBJDIR)/LoginComponent_e898b51d.o \
   $(OBJDIR)/Main_90ebc5c2.o \
   $(OBJDIR)/MainComponent_a6ffb4a5.o \
@@ -86,6 +88,11 @@ strip:
 	@echo Stripping LinJam
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
 
+$(OBJDIR)/BlankComponent_1b2cc912.o: ../../Source/BlankComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling BlankComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/ChannelComponent_5726acc3.o: ../../Source/ChannelComponent.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ChannelComponent.cpp"
@@ -109,6 +116,11 @@ $(OBJDIR)/LicenseComponent_b99bda45.o: ../../Source/LicenseComponent.cpp
 $(OBJDIR)/LinJam_a166dece.o: ../../Source/LinJam.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling LinJam.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/LinJamConfig_8af59670.o: ../../Source/LinJamConfig.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LinJamConfig.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/LoginComponent_e898b51d.o: ../../Source/LoginComponent.cpp

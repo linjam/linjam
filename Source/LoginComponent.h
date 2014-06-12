@@ -35,6 +35,7 @@
                                                                     //[/Comments]
 */
 class LoginComponent  : public Component,
+                        public TextEditor::Listener,
                         public Value::Listener,
                         public ButtonListener
 {
@@ -56,8 +57,27 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  void broughtToFront() override ;
-  void valueChanged(Value &login_value) override ;
+  static StringRef HostValidationMask ;
+  static StringRef Letters ;
+  static StringRef Digits ;
+  static StringRef UrlChars ;
+
+  OwnedArray<TextButton> loginButtons ;
+
+
+  // event handlers
+  void broughtToFront()                                 override ;
+  void textEditorTextChanged(TextEditor& a_text_editor) override ;
+  void valueChanged(         Value& login_value)        override ;
+
+  // helpers
+  void refreshState() ;
+  void sortLoginButtons() ;
+  bool validateHost() ;
+  bool validateLogin() ;
+  bool validatePass() ;
+  void setCurrentConfig(String host , String login , String pass, bool is_anonymous) ;
+  void login(           String host) ;
 
     //[/UserVariables]
 

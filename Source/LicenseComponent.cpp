@@ -43,18 +43,22 @@ LicenseComponent::LicenseComponent ()
     licenseTextEditor->setText (String::empty);
 
     addAndMakeVisible (cancelButton = new TextButton ("cancelButton"));
+    cancelButton->setTooltip (TRANS("Check this if you do not agree to these above terms. You will not be able to jam here."));
+    cancelButton->setExplicitFocusOrder (2);
     cancelButton->setButtonText (TRANS("Cancel"));
     cancelButton->addListener (this);
 
     addAndMakeVisible (agreeButton = new TextButton ("agreeButton"));
+    agreeButton->setTooltip (TRANS("Check this to agree to the above terms for this session only."));
     agreeButton->setExplicitFocusOrder (1);
     agreeButton->setButtonText (TRANS("Agree"));
     agreeButton->addListener (this);
 
-    addAndMakeVisible (alwaysButton = new TextButton ("alwaysButton"));
-    alwaysButton->setExplicitFocusOrder (2);
-    alwaysButton->setButtonText (TRANS("Always"));
+    addAndMakeVisible (alwaysButton = new ToggleButton ("alwaysButton"));
+    alwaysButton->setTooltip (TRANS("Check this to automatically agree to these terms on this server. You will not see this screen again unless the terms should change."));
+    alwaysButton->setButtonText (TRANS("Always Agree"));
     alwaysButton->addListener (this);
+    alwaysButton->setColour (ToggleButton::textColourId, Colours::grey);
 
 
     //[UserPreSize]
@@ -64,9 +68,11 @@ LicenseComponent::LicenseComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
-#ifdef DEBUG_LICENSE_MULTITHREADED
+
+#ifdef DEBUG_LICENSE_MULTITHREADED // TODO: (issue #14)
     agreeEvent = new WaitableEvent(false) ; isAgreed = false ;
 #endif // DEBUG_LICENSE_MULTITHREADED
+
     //[/Constructor]
 }
 
@@ -82,10 +88,12 @@ LicenseComponent::~LicenseComponent()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-#ifdef DEBUG_LICENSE_MULTITHREADED
+
+#ifdef DEBUG_LICENSE_MULTITHREADED // TODO: (issue #14)
     agreeEvent = nullptr ;
 //     delete (agreeEvent) ;
 #endif // DEBUG_LICENSE_MULTITHREADED
+
     //[/Destructor]
 }
 
@@ -114,9 +122,9 @@ void LicenseComponent::paint (Graphics& g)
 void LicenseComponent::resized()
 {
     licenseTextEditor->setBounds (4, 4, getWidth() - 8, getHeight() - 36);
-    cancelButton->setBounds (getWidth() - 140 - 64, getHeight() - 4 - 24, 64, 24);
-    agreeButton->setBounds (getWidth() - 72 - 64, getHeight() - 4 - 24, 64, 24);
-    alwaysButton->setBounds (getWidth() - 4 - 64, getHeight() - 4 - 24, 64, 24);
+    cancelButton->setBounds (getWidth() - 68, getHeight() - 28, 64, 24);
+    agreeButton->setBounds (getWidth() - 136, getHeight() - 28, 64, 24);
+    alwaysButton->setBounds (getWidth() - 204, getHeight() - 28, 64, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -126,46 +134,61 @@ void LicenseComponent::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
 DEBUG_TRACE_LICENSE_CLICKED
 
-  this->toBack() ;
+  bool is_agreed ;
+
     //[/UserbuttonClicked_Pre]
 
     if (buttonThatWasClicked == cancelButton)
     {
         //[UserButtonCode_cancelButton] -- add your button handler code here..
-    LinJam::IsAgreed = false ;
+
+      is_agreed = false ;
+
         //[/UserButtonCode_cancelButton]
     }
     else if (buttonThatWasClicked == agreeButton)
     {
         //[UserButtonCode_agreeButton] -- add your button handler code here..
-    LinJam::IsAgreed = true ;
+
+      is_agreed = true ;
+
         //[/UserButtonCode_agreeButton]
     }
     else if (buttonThatWasClicked == alwaysButton)
     {
         //[UserButtonCode_alwaysButton] -- add your button handler code here..
 
-    LinJam::IsAgreed = true ;
+      bool should_always_agree = is_agreed = this->alwaysButton->getToggleState() ;
 #if ! PERSISTENCE_TRANSITION
-    LinJam::SetShouldAgree(true) ;
+      LinJam::SetShouldAgree(should_always_agree) ;
 #else // PERSISTENCE_TRANSITION
-//    LinJam::Config->ShouldAlwaysAgree = true ;
+      LinJam::Config->setShouldAgree(should_always_agree) ;
 #endif // PERSISTENCE_TRANSITION
 
         //[/UserButtonCode_alwaysButton]
     }
 
     //[UserbuttonClicked_Post]
-  LinJam::Disconnect() ; if (LinJam::IsAgreed) LinJam::Connect() ;
+
+#if ! PERSISTENCE_TRANSITION
+  LinJam::IsAgreed = is_agreed ; // TODO: (issue #14)
+#else // PERSISTENCE_TRANSITION
+  LinJam::Config->currentIsAgreed = is_agreed ; // TODO: (issue #14)
+#endif // PERSISTENCE_TRANSITION
+
+  LinJam::Disconnect() ; if (is_agreed) LinJam::Connect() ;
+
     //[/UserbuttonClicked_Post]
 }
 
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
 // bool LicenseComponent::getIsAgreed() { return this->isAgreed ; }//isAgreed = false ;
 void LicenseComponent::setLicenseText(String license_text)
 { this->licenseTextEditor->setText(TRANS(license_text)) ; }
+
 //[/MiscUserCode]
 
 
@@ -193,14 +216,15 @@ BEGIN_JUCER_METADATA
               bkgcol="0" initialText="" multiline="1" retKeyStartsLine="0"
               readonly="1" scrollbars="1" caret="0" popupmenu="0"/>
   <TEXTBUTTON name="cancelButton" id="e40ccd6a36998aa2" memberName="cancelButton"
-              virtualName="" explicitFocusOrder="0" pos="140Rr 4Rr 64 24" buttonText="Cancel"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="2" pos="68R 28R 64 24" tooltip="Check this if you do not agree to these above terms. You will not be able to jam here."
+              buttonText="Cancel" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <TEXTBUTTON name="agreeButton" id="1c12b4600196bad4" memberName="agreeButton"
-              virtualName="" explicitFocusOrder="1" pos="72Rr 4Rr 64 24" buttonText="Agree"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
-  <TEXTBUTTON name="alwaysButton" id="fee5be226ba0b7b5" memberName="alwaysButton"
-              virtualName="" explicitFocusOrder="2" pos="4Rr 4Rr 64 24" buttonText="Always"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              virtualName="" explicitFocusOrder="1" pos="136R 28R 64 24" tooltip="Check this to agree to the above terms for this session only."
+              buttonText="Agree" connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <TOGGLEBUTTON name="alwaysButton" id="7f039929e852c525" memberName="alwaysButton"
+                virtualName="" explicitFocusOrder="0" pos="204R 28R 64 24" tooltip="Check this to automatically agree to these terms on this server. You will not see this screen again unless the terms should change."
+                txtcol="ff808080" buttonText="Always Agree" connectedEdges="0"
+                needsCallback="1" radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
