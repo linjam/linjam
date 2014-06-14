@@ -179,6 +179,11 @@ DEBUG_TRACE_CONNECT_STATUS
 
       // status indicator
       String status_text ;
+#ifdef WIN32 // TODO: GetHostName() linux .so segfault (issue #15)
+      String host = GetHostName() ;
+#else // WIN32
+      String host = "host" ;
+#endif // WIN32
       switch (status)
       {
         case NJC_STATUS_DISCONNECTED:
@@ -191,11 +196,7 @@ DEBUG_TRACE_CONNECT_STATUS
         case NJC_STATUS_CANTCONNECT:
           status_text = GUI::FAILED_CONNECTION_STATUS_TEXT ;         break ;
         case NJC_STATUS_OK:
-#ifdef WIN32 // TODO: GetHostName() linux .so segfault (issue #15)
-          status_text = GUI::CONNECTED_STATUS_TEXT + GetHostName() ; break ;
-#else // WIN32
-          status_text = GUI::CONNECTED_STATUS_TEXT ;                 break ;
-#endif // WIN32
+          status_text = GUI::CONNECTED_STATUS_TEXT + host ;          break ;
         case NJC_STATUS_PRECONNECT:
           status_text = GUI::IDLE_STATUS_TEXT ;                      break ;
         default:

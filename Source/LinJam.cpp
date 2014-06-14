@@ -214,7 +214,14 @@ bool LinJam::InitializeAudio()
   char* jack_name     = jack_name_wdl.Get() ;
   char* config_string = "" ;
 #ifdef _WIN32
-  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , interface_n , OnSamples) ;
+#  ifndef AUDIOCONFIG_CPP_NYI_TODO
+  // TODO: make this function auto-cascade fallback selections -then we can default to 0
+  audioStreamer::WinAudioIf if_n = audioStreamer::WinAudioIf::WINDOWS_AUDIO_WAVE ; // 3
+  interface_n = if_n ;
+#  else // AUDIOCONFIG_CPP_NYI_TODO
+// TODO reimplement audioconfig.cpp client-side
+#  endif // AUDIOCONFIG_CPP_NYI_TODO
+  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , (audioStreamer::WinAudioIf)interface_n , OnSamples) ;
 #else // _WIN32
 #  ifdef _MAC
   Audio = create_audioStreamer_CoreAudio(&config_string , sample_rate ,

@@ -34,18 +34,16 @@ MixerComponent::MixerComponent ()
     setName ("MixerComponent");
 
     //[UserPreSize]
+
+  this->localMixerGroupComponent  = addMixerSectionComponent(GUI::LOCAL_MIXER_GUI_ID) ;
+  this->masterMixerGroupComponent = addMixerSectionComponent(GUI::MASTER_MIXER_GUI_ID) ;
+
     //[/UserPreSize]
 
     setSize (622, 284);
 
 
     //[Constructor] You can add your own custom stuff here..
-
-  this->localMixerGroupComponent  = addMixerSectionComponent(GUI::LOCAL_MIXER_GUI_ID) ;
-  this->masterMixerGroupComponent = addMixerSectionComponent(GUI::MASTER_MIXER_GUI_ID) ;
-
-  resized() ;
-
     //[/Constructor]
 }
 

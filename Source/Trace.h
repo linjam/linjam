@@ -36,7 +36,7 @@
     else if (!stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))           \
         Trace::TraceConfig("stored config is invalid - falling back on defaults") ;     \
     else Trace::TraceConfig("stored config found") ;
-#define DEBUG_TRACE_SANITIZE_CONFIG                                                     \
+#  define DEBUG_TRACE_SANITIZE_CONFIG                                                   \
     if      (default_config_xml == nullptr)                                             \
     { Trace::TraceError("default_config_xml invalid - bailing") ; return ; }            \
     else if (stored_config_xml != nullptr &&                                            \
@@ -169,9 +169,9 @@
       }                                                                             \
     }
 
-#define DEBUG_TRACE_ADD_MASTER_CHANNEL   Trace::TraceEvent("adding master channel '" + gui_id + "'") ;
-#define DEBUG_TRACE_ADD_LOCAL_CHANNEL    Trace::TraceEvent("adding local channel '"  + gui_id + "'") ;
-#define DEBUG_TRACE_ADD_REMOTE_CHANNEL   Trace::TraceEvent("adding remote channel '" + gui_id + "' for user " + user_gui_id) ;
+#  define DEBUG_TRACE_ADD_MASTER_CHANNEL   Trace::TraceEvent("adding master channel '" + gui_id + "'") ;
+#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL    Trace::TraceEvent("adding local channel '"  + gui_id + "'") ;
+#  define DEBUG_TRACE_ADD_REMOTE_CHANNEL   Trace::TraceEvent("adding remote channel '" + gui_id + "' for user " + user_gui_id) ;
 
 #  define DEBUG_TRACE_CHAT_IN            if (chat_user.compare(Config->currentLogin.toString())) Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 //#  define DEBUG_TRACE_CHATIN String msg = "|" ; for (;nparms--;) msg += String(parms[nparms]) + "|" ; Trace::TraceEvent("LinJam::OnChatmsg()=\n\"" + msg + "\"") ;
@@ -184,7 +184,7 @@
           CLIENT::CHATMSG_TYPE_MSG)) ;
 // DBG("LinJam::SendChat() =" + chat_text) ;
 
-#define DEBUG_TRACE_CLEAN_SESSION                                                                  \
+#  define DEBUG_TRACE_CLEAN_SESSION                                                                \
     File thisdir = File::getSpecialLocation(File::currentExecutableFile).getParentDirectory() ;    \
     if (!SessionDir.isDirectory() || !SessionDir.isAChildOf(thisdir))                              \
         Trace::TraceError("session directory '" + SessionDir.getFullPathName() + "' is invalid") ; \
@@ -197,9 +197,10 @@
 #  define DEBUG_TRACE_JACK_INIT          ;
 #  define DEBUG_TRACE_AUDIO_INIT         ;
 #  define DEBUG_TRACE_LOAD_CONFIG        ;
-#  define DEBUG_TRACE_PARSE_CONFIG       ;
+#  define DEBUG_TRACE_SANITIZE_CONFIG    ;
 #  define DEBUG_TRACE_STORE_CONFIG       ;
 #  define DEBUG_TRACE_CONFIG_VALUE       ;
+#  define DEBUG_TRACE_LOGIN_LOAD         ;
 #  define DEBUG_TRACE_LOGIN_CLICKED      ;
 #  define DEBUG_TRACE_CONNECT            ;
 #  define DEBUG_TRACE_LICENSE_CLICKED    ;
