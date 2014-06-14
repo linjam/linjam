@@ -36,9 +36,6 @@ public:
   void paint(Graphics&) ;
   void resized() ;
 
-#ifdef DEBUG_LICENSE_MULTITHREADED // TODO: (issue #14)
-  bool prompt_license(String license_text) ;
-#endif // DEBUG_LICENSE_MULTITHREADED
 
 private:
 

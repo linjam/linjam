@@ -8,11 +8,6 @@
   ==============================================================================
 */
 
-
-//#define DEBUG_SERVER "ninbot.com:2049"
-#define DEBUG_SERVER "ninbot.com:2050"
-
-
 #include "LinJam.h"
 #include "Constants.h"
 #include "Trace.h"
@@ -20,11 +15,7 @@
 
 /* LinJam public class variables */
 
-#if ! PERSISTENCE_TRANSITION
-bool LinJam::IsAgreed = false ;
-#else // PERSISTENCE_TRANSITION
 LinJamConfig* LinJam::Config ;
-#endif // PERSISTENCE_TRANSITION
 
 
 /* LinJam private class variables */
@@ -34,15 +25,6 @@ NJClient*             LinJam::Client         = nullptr ; // Initialize()
 MainContentComponent* LinJam::Gui            = nullptr ; // Initialize()
 bool                  LinJam::IsAudioEnabled = false ;   // Initialize() TODO: use Client->>m_audio_enable instead ?? (issue #11)
 File                  LinJam::SessionDir ;               // Initialize()
-
-#if ! PERSISTENCE_TRANSITION
-bool   LinJam::ShouldAutoJoin = false ; // TODO: persistent config            (issue #6)
-String LinJam::Server         = "" ;    // TODO: persistent config            (issue #6)
-String LinJam::Login          = "" ;    // TODO: persistent config per Server (issue #6)
-String LinJam::Pass           = ""  ;   // TODO: persistent config per Server (issue #6)
-bool   LinJam::IsAnonymous    = true ;  // TODO: persistent config per Server (issue #6)
-bool   LinJam::ShouldAgree    = false ; // TODO: persistent config per Server (issue #6)
-#endif // PERSISTENCE_TRANSITION
 
 
 /* LinJam public class methods */
@@ -55,24 +37,12 @@ DEBUG_TRACE_LINJAM_INIT
   Client = client ;
   Gui    = contentComponent ;
 
-  // audio config defaults
-  int                       should_save_local_audio = 0 ;
-#ifdef _WIN32
-  audioStreamer::WinAudioIf win_audio_if_n          = audioStreamer::WINDOWS_AUDIO_WAVE ;
-#else // _WIN32
-#  ifdef _MAC
-  int                       mac_n_input_channels    = 2 ;
-  int                       mac_sample_rate         = 48000 ;
-  int                       mac_bit_depth           = 16 ;
-  char*                     audio_config            = "" ;
-#  else // _MAC
-  int                       nix_audio_driver        = 0 ;
-  String                    jack_client_name        = "linjam" ;
-  int                       jack_n_input_channels   = 2 ;
-  int                       jack_n_output_channels  = 2 ;
-  char*                     audio_config            = "" ;
-#  endif // _MAC
-#endif // _WIN32
+
+// TODO: parse command line args for autojoin (issue #9)
+
+
+// TODO: load master and local channels from persistent config (issue #6)
+
 /* TODO:  (issue #19)
   audio_config =>
     win =>
@@ -92,180 +62,23 @@ DEBUG_TRACE_LINJAM_INIT
           nblock 16    -- set number of blocks
 */
 
-#if ! PERSISTENCE_TRANSITION
-// XML_DEFAULTS begin
-// DEFAULTS_DONE begin
-  // master channels config defaults
-  float master_volume = 1.0f ; // DB2VAL(-120.0) .. DB2VAL(20.0) db gain
-// DEFAULTS_DONE end
-#endif // PERSISTENCE_TRANSITION
-  float master_pan    = 0.0f ; // -1.0 .. 1.0
-  bool  master_mute   = false ;
-  float metro_volume  = DB2VAL(-36.0f) ;
-  float metro_pan     = 0.0f ;
-  bool  metro_mute    = false ;
-  int   metro_channel = 0 ;
-  bool  metro_stereo  = true ;
-// XML_DEFAULTS end
+  // load persistent configuration
+  Config = new LinJamConfig() ; if (!Config->sanityCheck()) return false ;
 
-  // input channels config defaults
-  const int     MAX_INPUT_CHANNELS = Client->GetMaxLocalChannels() ;
-  Array<String> channel_names ;     String channel_name   = String("unnamed channel ") ;
-  Array<int   > channel_source_ns ;
-  Array<bool  > channel_xmits ;     bool   channel_xmit   = false ;
-  Array<bool  > channel_mutes ;     bool   channel_mute   = false ;
-  Array<bool  > channel_solos ;     bool   channel_solo   = false ;
-  Array<float > channel_volumes ;   float  channel_volume = 0.0f ;
-  Array<float > channel_pans ;      float  channel_pan    = 0.0f ;
-  for (int ch_n = 0 ; ch_n < MAX_INPUT_CHANNELS ; ++ch_n)
-  {
-    channel_names.add(channel_name + String(ch_n)) ;
-    channel_source_ns.add(ch_n) ;
-  }
-  channel_xmits  .insertMultiple(0 , channel_xmit   , MAX_INPUT_CHANNELS) ;
-  channel_mutes  .insertMultiple(0 , channel_mute   , MAX_INPUT_CHANNELS) ;
-  channel_solos  .insertMultiple(0 , channel_solo   , MAX_INPUT_CHANNELS) ;
-  channel_volumes.insertMultiple(0 , channel_volume , MAX_INPUT_CHANNELS) ;
-  channel_pans   .insertMultiple(0 , channel_pan    , MAX_INPUT_CHANNELS) ;
-
-  // misc config defaults
-  String session_dirname     = "/.linjam/session" ;
-  bool   should_save_log     = true ;
-  String log_filename        = "clipsort.log" ;
-  int    debug_level         = 0 ; // TODO: what are the accepted values
-  bool should_auto_subscribe = true ;
-  Array<String> auto_subscribe_users ;
-
-// TODO: parse command line args for autojoin (issue #9)
-
-
-// TODO: load master and local channels from persistent config (issue #6)
-#if PERSISTENCE_TRANSITION
-  Config = new LinJamConfig() ;
-
-// Config->masterVolume.addListener(Gui->loginComponent) ; Config->masterVolume = 42.0 ;
-// DBG("Config->masterVolume=" + Config->masterVolume.getValue().toString()) ;
-#endif // PERSISTENCE_TRANSITION
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // initialize audio
-#ifdef _WIN32
-  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , win_audio_if_n , OnSamples) ;
-#else // _WIN32
-#  ifdef _MAC
-  Audio = create_audioStreamer_CoreAudio(&audio_config , mac_sample_rate ,
-                                         mac_n_input_channels , mac_bit_depth , OnSamples) ;
-#  else // _MAC
-  switch (nix_audio_driver)
-  {
-    case 0: // JACK
-      Audio = create_audioStreamer_JACK(jack_client_name.toRawUTF8() , jack_n_input_channels ,
-                                        jack_n_output_channels , OnSamples , Client) ;
-
-DEBUG_TRACE_JACK_INIT
-
-      if (Audio) break ;
-    case 1: // ALSA
-    default:
-      Audio = create_audioStreamer_ALSA(audio_config , OnSamples) ;
-  }
-#  endif // _MAC
-#endif // _WIN32
-
-DEBUG_TRACE_AUDIO_INIT
-
-  if (!Audio) return false ;
-
-  // configure master channels
-  Client->config_mastervolume        = 1.0;//float(MasterVolume.getValue()) ;
-  Client->config_masterpan           = master_pan ;
-  Client->config_mastermute          = master_mute ;
-  Client->config_metronome           = metro_volume ;
-  Client->config_metronome_pan       = metro_pan ;
-  Client->config_metronome_mute      = metro_mute ;
-  Client->config_metronome_channel   = metro_channel ;
-  Client->config_metronome_stereoout = metro_stereo ;
-  Gui->mixerComponent->addMasterChannelComponent(GUI::MASTER_CHANNEL_GUI_ID) ;
-  Gui->mixerComponent->addMasterChannelComponent(GUI::METRO_CHANNEL_GUI_ID) ;
-
-  // configure input channels
-  int n_input_channels = Audio->m_innch ;
-  for (int ch_n = 0 ; ch_n < n_input_channels ; ++ch_n)
-  {
-    Client->SetLocalChannelInfo(ch_n , channel_names[ch_n].toRawUTF8() , true  , channel_source_ns[ch_n] , false , 0 , true  , channel_xmits[ch_n]) ;
-    Client->SetLocalChannelMonitoring(ch_n , true  , channel_volumes[ch_n] , true  , channel_pans[ch_n] , true  , channel_mutes[ch_n] , true  , channel_solos[ch_n]) ;
-
-#ifdef INPUT_FX
-#  ifdef _WIN32
-    void *p=CreateJesusInstance(ch,"",Audio->m_srate);
-    if (p) Client->SetLocalChannelProcessor(ch,jesusonic_processor,p);
-#  endif
-#endif
-
-    Gui->mixerComponent->addLocalChannelComponent(GUI::LOCAL_CHANNEL_GUI_ID + String(ch_n)) ;
-  }
-
-  // prepare session directory
-  File home_dir = File::getSpecialLocation(File::userApplicationDataDirectory) ;
-  if (home_dir.isDirectory())
-  {
-    session_dirname = (session_dirname.startsWith("/"))?
-        home_dir.getFullPathName() + session_dirname :
-        home_dir.getFullPathName() + String("/") + session_dirname ;
-    SessionDir = File(session_dirname) ;
-    SessionDir.createDirectory() ; CleanSessionDir() ;
-  }
-  bool does_session_dir_exist = SessionDir.isDirectory() ;
-  if (does_session_dir_exist) Client->SetWorkDir(session_dirname.toRawUTF8()) ;
-
-  // configure NINJAM client
-  Client->LicenseAgreementCallback = OnLicense ;
-  Client->ChatMessage_Callback     = OnChatmsg ;
-  Client->config_savelocalaudio    = should_save_local_audio ;
-  Client->config_debug_level       = debug_level ;
-  Client->config_autosubscribe     = should_auto_subscribe ;
-  if (should_save_log && does_session_dir_exist)
-    Client->SetLogFile((session_dirname + log_filename).toRawUTF8()) ;
-  for (int user_n = 0 ; user_n < auto_subscribe_users.size() ; ++user_n)
-    Client->config_autosubscribe_userlist.insert(auto_subscribe_users[user_n].toRawUTF8()) ;
+  // configure audio , session directory , and NINJAM client
+  if (InitializeAudio())         ConfigureAudio() ;  else return false ;
+  if (PrepareSessionDirectory()) ConfigureNinjam() ; else return false ;
 
   // initialize networking
   JNL::open_socketlib() ;
 
-  return does_session_dir_exist ;
+  return true ;
 }
 
 void LinJam::Connect()
 {
   Client->Disconnect() ;
-#if ! PERSISTENCE_TRANSITION
-  String login = Login ;
-  if (IsAnonymous)
-  {
-    login = "anonymous:" + ((Login == "")? "nobody" : Login) ;
-    Pass  = "" ;
-  }
-#  if DEBUG_STATIC_SERVER
-Server = DEBUG_SERVER ; // TODO: get Server Login Pass IsAnonymous from config (issue #6)
-#  endif // DEBUG_STATIC_SERVER
-#if DEBUG_BYPASS_LICENSE
-  IsAgreed = true ;
-#endif
-DEBUG_TRACE_CONNECT
 
-  Client->Connect(Server.toRawUTF8() , login.toRawUTF8() , Pass.toRawUTF8()) ;
-#else // PERSISTENCE_TRANSITION
   String host         =      Config->currentHost.toString() ;
   String login        =      Config->currentLogin.toString() ;
   String pass         =      Config->currentPass.toString() ;
@@ -277,7 +90,6 @@ DEBUG_TRACE_CONNECT
 
   Gui->statusbarComponent->setStatusL(GUI::CONNECTING_STATUS_TEXT + host) ;
   Client->Connect(host.toRawUTF8() , login.toRawUTF8() , pass.toRawUTF8()) ;
-#endif // PERSISTENCE_TRANSITION
   IsAudioEnabled = true ;
 }
 
@@ -285,8 +97,8 @@ void LinJam::Disconnect() { IsAudioEnabled = false ; Client->Disconnect() ; }
 
 void LinJam::Shutdown()
 {
-  delete Audio ; delete Config ;
-  JNL::close_socketlib() ; CleanSessionDir() ;
+  JNL::close_socketlib() ; delete Audio ;
+  CleanSessionDir() ; delete Config ;
 }
 
 
@@ -294,18 +106,6 @@ void LinJam::Shutdown()
 
 int LinJam::OnLicense(int user32 , char* license_text)
 {
-#if ! PERSISTENCE_TRANSITION
-  if (!(IsAgreed = (IsAgreed || GetShouldAgree())))
-  {
-    Gui->licenseComponent->setLicenseText(CharPointer_UTF8(license_text)) ;
-    Config->setServerConfig() ;
-  }
-
-DEBUG_TRACE_LICENSE
-
-  return IsAgreed ;
-
-#else // PERSISTENCE_TRANSITION
   ValueTree server         = Config->getCurrentServerConfig() ;
   bool should_always_agree = server.isValid() &&
                              bool(server.getProperty(STORAGE::AGREE_IDENTIFIER)) ;
@@ -321,7 +121,6 @@ DEBUG_TRACE_LICENSE
 DEBUG_TRACE_LICENSE
 
   return is_agreed ;
-#endif // PERSISTENCE_TRANSITION
 }
 
 void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , int nparms)
@@ -386,18 +185,7 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 
 /* getters/setters */
 
-// TODO: get/set persistent config (issue #6)
-#if ! PERSISTENCE_TRANSITION
-String LinJam::GetServer() { return Server ; }
-String LinJam::GetLogin() { return Login ; }
-String LinJam::GetPass() { return Pass ; }
-bool   LinJam::GetIsAnonymous() { return IsAnonymous; }
-bool   LinJam::GetShouldAgree() { return ShouldAgree ; }
-void   LinJam::SetShouldAgree(bool shouldAgree) { ShouldAgree = shouldAgree ; }
-void   LinJam::SetIsAgreed(bool isAgreed) { IsAgreed = isAgreed ; }
-#else // PERSISTENCE_TRANSITION
 bool LinJam::IsAgreed() { return bool(Config->currentIsAgreed.getValue()) ; }
-#endif // PERSISTENCE_TRANSITION
 
 
 /* chat helpers */
@@ -410,6 +198,140 @@ DEBUG_TRACE_CHAT_OUT
 
   if (chat_text.startsWith("/")) HandleChatCommand(chat_text) ;
   else Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_MSG.toRawUTF8() , chat_text.toRawUTF8()) ;
+}
+
+
+/* LinJam class private class functions */
+
+bool LinJam::InitializeAudio()
+{
+  int   interface_n   = int(Config->audioIfN  .getValue()) ;
+  int   n_inputs      = int(Config->nInputs   .getValue()) ;
+  int   n_outputs     = int(Config->nOutputs  .getValue()) ;
+  int   bit_depth     = int(Config->bitDepth  .getValue()) ;
+  int   sample_rate   = int(Config->sampleRate.getValue()) ;
+  WDL_String jack_name_wdl( Config->jackName  .toString().toRawUTF8()) ;
+  char* jack_name     = jack_name_wdl.Get() ;
+  char* config_string = "" ;
+#ifdef _WIN32
+  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , interface_n , OnSamples) ;
+#else // _WIN32
+#  ifdef _MAC
+  Audio = create_audioStreamer_CoreAudio(&config_string , sample_rate ,
+                                         n_inputs , bit_depth , OnSamples) ;
+#  else // _MAC
+  switch (interface_n)
+  {
+    case 0: // JACK
+      Audio = create_audioStreamer_JACK(jack_name , n_inputs , n_outputs ,
+                                        OnSamples , Client) ;
+
+DEBUG_TRACE_JACK_INIT
+
+      if (Audio) break ;
+    case 1: // ALSA
+    default:
+      Audio = create_audioStreamer_ALSA(config_string , OnSamples) ;
+  }
+#  endif // _MAC
+#endif // _WIN32
+
+DEBUG_TRACE_AUDIO_INIT
+
+  return (!!Audio) ;
+}
+
+void LinJam::ConfigureAudio()
+{
+  float master_volume   = float(Config->masterVolume .getValue()) ;
+  float master_pan      = float(Config->masterPan    .getValue()) ;
+  bool  is_master_muted = bool( Config->isMasterMuted.getValue()) ;
+  float metro_volume    = float(Config->metroVolume  .getValue()) ;
+  float metro_pan       = float(Config->metroPan     .getValue()) ;
+  bool  is_metro_muted  = bool( Config->isMetroMuted .getValue()) ;
+  int   metro_channel   = int(  Config->metroChannel .getValue()) ;
+  bool  is_metro_stereo = bool( Config->isMetroStereo.getValue()) ;
+
+  // configure master channels
+  Client->config_mastervolume        = master_volume ;
+  Client->config_masterpan           = master_pan ;
+  Client->config_mastermute          = is_master_muted ;
+  Client->config_metronome           = metro_volume ;
+  Client->config_metronome_pan       = metro_pan ;
+  Client->config_metronome_mute      = is_metro_muted ;
+  Client->config_metronome_channel   = metro_channel ;
+  Client->config_metronome_stereoout = is_metro_stereo ;
+  Gui->mixerComponent->addMasterChannelComponent(GUI::MASTER_CHANNEL_GUI_ID) ;
+  Gui->mixerComponent->addMasterChannelComponent(GUI::METRO_CHANNEL_GUI_ID) ;
+
+  // configure input channels
+  for (int ch_n = 0 ; ch_n < Config->localChannels.getNumChildren() ; ++ch_n)
+  {
+    ValueTree  channel   = Config->localChannels.getChild(ch_n) ;
+    String     name      = String(channel.getType()) ;
+    WDL_String name_wdl(name.toRawUTF8()) ;
+    char*      c_name    = name_wdl.Get() ;
+    float      volume    = float(channel.getProperty(STORAGE::VOLUME_IDENTIFIER)) ;
+    float      pan       = float(channel.getProperty(STORAGE::PAN_IDENTIFIER)) ;
+    float      is_xmit   = float(channel.getProperty(STORAGE::XMIT_IDENTIFIER)) ;
+    float      is_muted  = float(channel.getProperty(STORAGE::MUTE_IDENTIFIER)) ;
+    float      is_solo   = float(channel.getProperty(STORAGE::SOLO_IDENTIFIER)) ;
+    float      source_n  = float(channel.getProperty(STORAGE::SOURCE_N_IDENTIFIER)) ;
+    float      is_stereo = float(channel.getProperty(STORAGE::STEREO_IDENTIFIER)) ;
+
+    Client->SetLocalChannelInfo(ch_n , c_name , true  , source_n ,
+                                                false , 0        ,
+                                                true  , is_xmit  ) ;
+    Client->SetLocalChannelMonitoring(ch_n , true  , volume   ,
+                                             true  , pan      ,
+                                             true  , is_muted ,
+                                             true  , is_solo  ) ;
+
+#ifdef INPUT_FX
+#  ifdef _WIN32
+    void *p=CreateJesusInstance(ch,"",Audio->m_srate);
+    if (p) Client->SetLocalChannelProcessor(ch,jesusonic_processor,p);
+#  endif
+#endif
+
+    Gui->mixerComponent->addLocalChannelComponent(name) ;
+  }
+}
+
+bool LinJam::PrepareSessionDirectory()
+{
+  File this_binary = File::getSpecialLocation(File::currentExecutableFile) ;
+  File this_dir    = this_binary.getParentDirectory() ;
+  SessionDir       = File(this_dir.getFullPathName() + STORAGE::SESSIONDIR) ;
+
+  SessionDir.createDirectory() ; CleanSessionDir() ;
+
+  bool does_session_dir_exist = SessionDir.isDirectory() ;
+  if (does_session_dir_exist) Client->SetWorkDir(SessionDir.getFullPathName().toRawUTF8()) ;
+
+  return does_session_dir_exist ;
+}
+
+void LinJam::ConfigureNinjam()
+{
+  bool      should_save_audio     = bool(Config->shouldSaveAudio    .getValue()) ;
+  bool      should_save_log       = bool(Config->shouldSaveLog      .getValue()) ;
+  int       debug_level           = int( Config->debugLevel         .getValue()) ;
+  bool      should_auto_subscribe = bool(Config->shouldAutoSubscribe.getValue()) ;
+  ValueTree subscriptions         = Config->autoSubscribeUsers ;
+
+  Client->LicenseAgreementCallback = OnLicense ;
+  Client->ChatMessage_Callback     = OnChatmsg ;
+  Client->config_savelocalaudio    = should_save_audio ;
+  Client->config_debug_level       = debug_level ;
+  Client->config_autosubscribe     = should_auto_subscribe ;
+  if (should_save_audio && should_save_log)
+    Client->SetLogFile((SessionDir.getFullPathName() + STORAGE::LOGFILE).toRawUTF8()) ;
+  for (int user_n = 0 ; user_n < subscriptions.getNumChildren() ; ++user_n)
+  {
+    WDL_String user_wdl(String(subscriptions.getChild(user_n).getType()).toRawUTF8()) ;
+    Client->config_autosubscribe_userlist.insert(user_wdl.Get()) ;
+  }
 }
 
 void LinJam::HandleChatCommand(String chat_text)
@@ -461,13 +383,17 @@ void LinJam::HandleChatCommand(String chat_text)
 #endif // CHAT_COMMANDS_BUGGY
 }
 
-
-/* misc helpers */
-
 void LinJam::CleanSessionDir()
 {
-  if (!SessionDir.isDirectory()) return ;
+  bool should_save_audio = bool(Config->shouldSaveAudio.getValue()) ;
+  if (should_save_audio) return ;
 
-  DirectoryIterator session_dir_iter (SessionDir , false , "*.*" , File::findFilesAndDirectories) ;
+DEBUG_TRACE_CLEAN_SESSION
+
+  File this_binary = File::getSpecialLocation(File::currentExecutableFile) ;
+  File this_dir    = this_binary.getParentDirectory() ;
+  if (!SessionDir.isDirectory() || !SessionDir.isAChildOf(this_dir)) return ;
+
+  DirectoryIterator session_dir_iter(SessionDir , false , "*.*" , File::findFilesAndDirectories) ;
   while (session_dir_iter.next()) session_dir_iter.getFile().deleteRecursively() ;
 }

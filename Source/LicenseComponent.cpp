@@ -68,11 +68,6 @@ LicenseComponent::LicenseComponent ()
 
 
     //[Constructor] You can add your own custom stuff here..
-
-#ifdef DEBUG_LICENSE_MULTITHREADED // TODO: (issue #14)
-    agreeEvent = new WaitableEvent(false) ; isAgreed = false ;
-#endif // DEBUG_LICENSE_MULTITHREADED
-
     //[/Constructor]
 }
 
@@ -88,12 +83,6 @@ LicenseComponent::~LicenseComponent()
 
 
     //[Destructor]. You can add your own custom destruction code here..
-
-#ifdef DEBUG_LICENSE_MULTITHREADED // TODO: (issue #14)
-    agreeEvent = nullptr ;
-//     delete (agreeEvent) ;
-#endif // DEBUG_LICENSE_MULTITHREADED
-
     //[/Destructor]
 }
 
@@ -159,23 +148,14 @@ DEBUG_TRACE_LICENSE_CLICKED
         //[UserButtonCode_alwaysButton] -- add your button handler code here..
 
       bool should_always_agree = is_agreed = this->alwaysButton->getToggleState() ;
-#if ! PERSISTENCE_TRANSITION
-      LinJam::SetShouldAgree(should_always_agree) ;
-#else // PERSISTENCE_TRANSITION
       LinJam::Config->setShouldAgree(should_always_agree) ;
-#endif // PERSISTENCE_TRANSITION
 
         //[/UserButtonCode_alwaysButton]
     }
 
     //[UserbuttonClicked_Post]
 
-#if ! PERSISTENCE_TRANSITION
-  LinJam::IsAgreed = is_agreed ; // TODO: (issue #14)
-#else // PERSISTENCE_TRANSITION
   LinJam::Config->currentIsAgreed = is_agreed ; // TODO: (issue #14)
-#endif // PERSISTENCE_TRANSITION
-
   LinJam::Disconnect() ; if (is_agreed) LinJam::Connect() ;
 
     //[/UserbuttonClicked_Post]

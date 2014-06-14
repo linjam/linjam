@@ -27,7 +27,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-ChannelComponent::ChannelComponent ()
+ChannelComponent::ChannelComponent (String channel_name)
 {
     setName ("ChannelComponent");
     addAndMakeVisible (xmitButton = new ToggleButton ("xmitButton"));
@@ -98,7 +98,10 @@ ChannelComponent::ChannelComponent ()
 
 
     //[UserPreSize]
-  vuSlider->setSliderStyle(Slider::LinearBarVertical) ;
+
+  this->vuSlider ->setSliderStyle(Slider::LinearBarVertical) ;
+  this->nameLabel->setText(channel_name, dontSendNotification) ;
+
     //[/UserPreSize]
 
     setSize (60, 252);

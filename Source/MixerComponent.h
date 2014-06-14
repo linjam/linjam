@@ -45,9 +45,8 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  void addRemoteMixerComponent(  String gui_id) ;
   void addLocalChannelComponent( String gui_id) ;
-  void addRemoteChannelComponent(String gui_id , String user_gui_id) ;
+  void addRemoteChannelComponent(String gui_id , String user_gui_id) ; // TODO
   void addMasterChannelComponent(String gui_id) ;
 
     //[/UserMethods]
@@ -56,12 +55,12 @@ public:
     void resized();
 
 
-
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
   MixerGroupComponent* localMixerGroupComponent ;
   MixerGroupComponent* masterMixerGroupComponent ;
+
 
   MixerGroupComponent* addMixerSectionComponent(String gui_id) ;
   void                 addChannelComponent(     String gui_id , MixerGroupComponent* mixer) ;

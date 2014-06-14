@@ -29,7 +29,7 @@ public:
     bool moreThanOneInstanceAllowed() override       { return false ; }
 
     //==============================================================================
-    void initialise (const String& args) override
+    void initialise (const String& commandLine) override
     {
       this->mainWindow         = new MainWindow() ;
       this->contentComponent   = (MainContentComponent*)getContainerComponent(GUI::CONTENT_GUI_ID) ;
@@ -40,11 +40,22 @@ public:
       this->mixerComponent     = (MixerComponent*)      getChildComponent(GUI::MIXER_GUI_ID) ;
       this->statusbarComponent = (StatusBarComponent*)  getChildComponent(GUI::STATUS_GUI_ID) ;
 
-      if (!LinJam::Initialize(this , contentComponent , args)) initError() ;
+      this->args = commandLine ; initializeLinJam() ;
+    }
 
-      this->prev_status = NJClient::NJC_STATUS_DISCONNECTED ;
-      this->startTimer(CLIENT::CLIENT_DRIVER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
-//      this->startTimer(CLIENT::STATUS_POLL_ID ,   CLIENT::STATUS_POLL_IVL) ;
+    void initializeLinJam()
+    {
+      if (!LinJam::Initialize(this , contentComponent , this->args))
+      {
+        this->statusbarComponent->setStatusL(GUI::AUDIO_INIT_ERROR_MSG) ;
+        shutdown() ; this->quit() ; // TODO: MB , prompt cfg ?? (issue #12)
+      }
+      else
+      {
+          this->prev_status = NJClient::NJC_STATUS_DISCONNECTED ;
+          this->startTimer(CLIENT::CLIENT_DRIVER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
+//        this->startTimer(CLIENT::STATUS_POLL_ID ,   CLIENT::STATUS_POLL_IVL) ;
+      }
     }
 
     Component* getContainerComponent(String id)
@@ -52,9 +63,6 @@ public:
 
     Component* getChildComponent(String id)
     { return this->contentComponent->findChildWithID(StringRef(id)) ; }
-
-    void initError()
-    { this->statusbarComponent->setStatusL(GUI::AUDIO_INIT_ERROR_MSG) ; } // TODO: MB , prompt cfg ?? (issue #12)
 
     void shutdown() override
     {
@@ -198,7 +206,7 @@ DEBUG_TRACE_CONNECT_STATUS
 
     void handleUserInfoChanged()
     {
-DEBUG_CHANNELS
+DEBUG_TRACE_CHANNELS
     }
 
 
@@ -213,7 +221,8 @@ private:
     MixerComponent*           mixerComponent ;
     StatusBarComponent*       statusbarComponent ;
 
-    int prev_status ;
+    String args ;
+    int    prev_status ;
 
 
     bool isRoomFull()

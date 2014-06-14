@@ -126,21 +126,3 @@ void MainContentComponent::resized()
   if (this->statusbarComponent != nullptr)
     this->statusbarComponent->setBounds(status_x , status_y , status_w , status_h) ;
 }
-
-#ifdef DEBUG_LICENSE_MULTITHREADED // TODO: (issue #14)
-bool MainContentComponent::prompt_license(String license_text)
-{
-DBG("MainContentComponent::prompt_license()") ; // license_text=\n" + license_text) ;
-#  if DEBUG_BYPASS_LICENSE_PROMPT
-return 1 ;
-#  else // DEBUG_BYPASS_LICENSE_PROMPT
-//this->licenseComponent->state = GUI::LICENCE_PENDING_STATE ;
-//this->licenseComponent->setLabel
-this->licenseComponent->toFront(true) ;
-// while (this->licenseComponent->state == GUI::LICENCE_PENDING_STATE) Sleep(100) ; ;
-this->licenseComponent->agreeEvent->wait() ;
-
-return (this->licenseComponent->getIsAgreed()) ;
-#  endif // DEBUG_BYPASS_LICENSE_PROMPT
-}
-#endif // DEBUG_LICENSE_MULTITHREADED

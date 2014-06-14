@@ -116,10 +116,9 @@ public:
   static const String INVALID_PM_MSG ;
 
   // ChannelComponents
-  static const String LOCAL_CHANNEL_GUI_ID ;
   static const String MASTER_CHANNEL_GUI_ID ;
   static const String METRO_CHANNEL_GUI_ID ;
-  static const int    CHANNEL_Y = LABEL_H + PAD2 ;//20 ;
+  static const int    CHANNEL_Y = LABEL_H + PAD2 ;
   static const int    CHANNEL_W = 60 ;
   static const int    CHANNEL_H = 252 ;
 
@@ -127,13 +126,13 @@ public:
   static const String LOCAL_MIXER_GUI_ID ;
   static const String MASTER_MIXER_GUI_ID ;
   static const int    MIXERGROUP_Y  = PAD ;
-  static const int    MASTERGROUP_W =                       PAD + (2          * (CHANNEL_W + PAD)) ;//132
+  static const int    MIXERGROUP_H  = CHANNEL_H + LABEL_H + PAD3 ;
   static       int    MIXERGROUP_W(int n_channels) { return PAD + (n_channels * (CHANNEL_W + PAD)) ; }
-  static const int    MIXERGROUP_H  = CHANNEL_H + LABEL_H + PAD3 ; // 276
+  static const int    MASTERGROUP_W =                       PAD + (2          * (CHANNEL_W + PAD)) ;
 
   // MixerComponent
   static const String MIXER_GUI_ID ;
-  static const int    MIXER_H = MIXERGROUP_H + PAD2 ;//284 ;
+  static const int    MIXER_H = MIXERGROUP_H + PAD2 ;
 
   // statusComponent
   static const String STATUS_GUI_ID ;
@@ -152,6 +151,60 @@ public:
   static const String     PERSISTENCE_FILENAME ;
   static const String     PERSISTENCE_KEY ;
   static const Identifier PERSISTENCE_IDENTIFIER ;
+
+  // client config
+  static const String     CLIENT_KEY ;
+  static const Identifier CLIENT_IDENTIFIER ;
+  static const String     SAVE_AUDIO_KEY ;
+  static const Identifier SAVE_AUDIO_IDENTIFIER ;
+  static const String     SAVE_LOG_KEY ;
+  static const Identifier SAVE_LOG_IDENTIFIER ;
+  static const String     DEBUGLEVEL_KEY ;
+  static const Identifier DEBUGLEVEL_IDENTIFIER ;
+  static const String     AUTOSUBSCRIBE_KEY ;
+  static const Identifier AUTOSUBSCRIBE_IDENTIFIER ;
+  static const String     SESSIONDIR_KEY ;
+  static const Identifier SESSIONDIR_IDENTIFIER ;
+  static const String     LOGFILE_KEY ;
+  static const Identifier LOGFILE_IDENTIFIER ;
+  static const String     SESSIONDIR ;
+  static const String     LOGFILE ;
+  static const String     SUBSCRIPTIONS_KEY ;
+  static const Identifier SUBSCRIPTIONS_IDENTIFIER ;
+
+  // device config
+  static const String     AUDIO_KEY ;
+  static const Identifier AUDIO_IDENTIFIER ;
+  static const String     AUDIO_IF_KEY ;
+  static const Identifier AUDIO_IF_IDENTIFIER ;
+  static const String     BITDEPTH_KEY ;
+  static const Identifier BITDEPTH_IDENTIFIER ;
+  static const String     SAMPLERATE_KEY ;
+  static const Identifier SAMPLERATE_IDENTIFIER ;
+  static const String     N_INPUTS_KEY ;
+  static const Identifier N_INPUTS_IDENTIFIER ;
+  static const String     N_OUTPUTS_KEY ;
+  static const Identifier N_OUTPUTS_IDENTIFIER ;
+  static const String     JACK_NAME_KEY ;
+  static const Identifier JACK_NAME_IDENTIFIER ;
+
+  // per server user data
+  static const String     SERVERS_KEY ;
+  static const Identifier SERVERS_IDENTIFIER ;
+  static const String     SERVER_KEY ;
+  static const Identifier SERVER_IDENTIFIER ;
+  static const String     HOST_KEY ;
+  static const Identifier HOST_IDENTIFIER ;
+  static const String     LOGIN_KEY ;
+  static const Identifier LOGIN_IDENTIFIER ;
+  static const String     PASS_KEY ;
+  static const Identifier PASS_IDENTIFIER ;
+  static const String     ANON_KEY ;
+  static const Identifier ANON_IDENTIFIER ;
+  static const String     AGREED_KEY ;
+  static const Identifier AGREED_IDENTIFIER ;
+  static const String     AGREE_KEY ;
+  static const Identifier AGREE_IDENTIFIER ;
 
   static const String     MASTER_KEY ;
   static const Identifier MASTER_IDENTIFIER ;
@@ -172,22 +225,23 @@ public:
   static const String     METRO_STEREO_KEY ;
   static const Identifier METRO_STEREO_IDENTIFIER ;
 
-  static const String     SERVERS_KEY ;
-  static const Identifier SERVERS_IDENTIFIER ;
-  static const String     SERVER_KEY ;
-  static const Identifier SERVER_IDENTIFIER ;
-  static const String     HOST_KEY ;
-  static const Identifier HOST_IDENTIFIER ;
-  static const String     LOGIN_KEY ;
-  static const Identifier LOGIN_IDENTIFIER ;
-  static const String     PASS_KEY ;
-  static const Identifier PASS_IDENTIFIER ;
-  static const String     ANON_KEY ;
-  static const Identifier ANON_IDENTIFIER ;
-  static const String     AGREED_KEY ;
-  static const Identifier AGREED_IDENTIFIER ;
-  static const String     AGREE_KEY ;
-  static const Identifier AGREE_IDENTIFIER ;
+  // channels
+  static const String     LOCALS_KEY ;
+  static const Identifier LOCALS_IDENTIFIER ;
+  static const String     VOLUME_KEY ;
+  static const Identifier VOLUME_IDENTIFIER ;
+  static const String     PAN_KEY ;
+  static const Identifier PAN_IDENTIFIER ;
+  static const String     XMIT_KEY ;
+  static const Identifier XMIT_IDENTIFIER ;
+  static const String     MUTE_KEY ;
+  static const Identifier MUTE_IDENTIFIER ;
+  static const String     SOLO_KEY ;
+  static const Identifier SOLO_IDENTIFIER ;
+  static const String     SOURCE_N_KEY ;
+  static const Identifier SOURCE_N_IDENTIFIER ;
+  static const String     STEREO_KEY ;
+  static const Identifier STEREO_IDENTIFIER ;
 
   static const String     DEFAULT_CONFIG_XML ;
 } ;

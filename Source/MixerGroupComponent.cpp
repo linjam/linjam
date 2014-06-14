@@ -89,11 +89,10 @@ void MixerGroupComponent::resized()
     //[UserResized] Add your own custom resize handling here..
 
   int n_channels = this->getNumChildComponents() ;
-  for (int channel_n = 1 ; channel_n < n_channels ; ++channel_n)
+  for (int channel_n = 1 ; channel_n < n_channels ; ++channel_n) // first child is label
   {
-    Component* channelComponent = getChildComponent(channel_n) ;
-    int channel_x               = GUI::MIXERGROUP_W(channel_n - 1) ;
-    channelComponent->setBounds(channel_x , GUI::CHANNEL_Y , GUI::CHANNEL_W , GUI::CHANNEL_H) ;
+    int channel_x = GUI::MIXERGROUP_W(channel_n - 1) ;
+    getChildComponent(channel_n)->setTopLeftPosition(channel_x , GUI::CHANNEL_Y) ;
   }
 
     //[/UserResized]
@@ -105,11 +104,9 @@ void MixerGroupComponent::resized()
 
 void MixerGroupComponent::addChannelComponent(String gui_id)
 {
-  ChannelComponent* channel_component = new ChannelComponent() ;
+  ChannelComponent* channel_component = new ChannelComponent(gui_id) ;
   this->addChildAndSetID(channel_component , gui_id) ;
   channel_component->toFront(false) ;
-
-  resized() ; // TODO: resize parent , main ??
 }
 
 //[/MiscUserCode]

@@ -10,8 +10,6 @@
 #define DEBUG_TRACE_VB     DEBUG && 1
 
 #define EXIT_IMMEDIAYELY    0
-#define DEBUG_STATIC_SERVER 0 // DEBUG_SERVER defined in LinJam.cpp
-
 #define CHAT_COMMANDS_BUGGY
 
 #include "JuceHeader.h"
@@ -39,21 +37,23 @@
         Trace::TraceConfig("stored config is invalid - falling back on defaults") ;     \
     else Trace::TraceConfig("stored config found") ;
 #define DEBUG_TRACE_SANITIZE_CONFIG                                                     \
-    if (stored_config_xml != nullptr &&                                                 \
-        stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))                 \
+    if      (default_config_xml == nullptr)                                             \
+    { Trace::TraceError("default_config_xml invalid - bailing") ; return ; }            \
+    else if (stored_config_xml != nullptr &&                                            \
+             stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))            \
       Trace::TraceConfig("stored config parsed successfully =>" +                       \
                         Trace::SanitizeConfig(ValueTree::fromXml(*default_config_xml) , \
                                               ValueTree::fromXml(*stored_config_xml) , "  ")) ;
 #  define DEBUG_TRACE_STORE_CONFIG       Trace::TraceConfig("storing config xml=\n" + configValueTree.toXmlString()) ;
-#  define DEBUG_TRACE_CONFIG_VALUE                                                         \
-    bool valid = a_node.isValid() ; String n = String(node_id) ; String k = String(key) ;  \
-    Trace::TraceConfig("node '" + n + ((valid)? "' is" : "' not") + " valid - " +          \
-        ((valid && a_node.hasProperty(key))? "has key '"     + k + "' - is shared value" : \
-                                             "missing key '" + k + "' - has dummy value")) ;
+#  define DEBUG_TRACE_CONFIG_VALUE                                                          \
+    bool valid = a_node.isValid() ; String n = String(node_id) ; String k = String(key) ;   \
+    Trace::TraceConfig("node '" + n + ((valid)? "' (" : "' (in") + "valid) - " +            \
+        ((valid && a_node.hasProperty(key))? "has shared value on key '"        + k + "'" : \
+                                             "has dummy value on missing key '" + k + "'")) ;
 
 #  define DEBUG_TRACE_LOGIN_LOAD                                                              \
     Trace::TraceState("Login - currentHost => '" + host + "' - storage " + \
-                      ((server.isValid())? "" : " not") + " found") ;
+                      ((server.isValid())? "" : "not ") + "found") ;
 #  define DEBUG_TRACE_LOGIN_CLICKED                                                          \
     if      (buttonThatWasClicked == loginButton) Trace::TraceEvent("loginButton clicked") ; \
     else if (buttonThatWasClicked == anonButton)  Trace::TraceEvent("anonButton clicked") ;
@@ -97,8 +97,8 @@
       }
 #  endif // WIN32
 
-#  define DEBUG_CHANNELS                 Trace::TraceServer("handleUserInfoChanged()") ;
-#  define DEBUG_CHANNELS_VB                                                         \
+#  define DEBUG_TRACE_CHANNELS           Trace::TraceServer("handleUserInfoChanged()") ;
+#  define DEBUG_TRACE_CHANNELS_VB                                                   \
     /* master channel */                                                            \
     this->chatComponent->addChatLine("" , "") ;                                     \
     this->chatComponent->addChatLine("master channel:\n" ,                          \
@@ -169,6 +169,10 @@
       }                                                                             \
     }
 
+#define DEBUG_TRACE_ADD_MASTER_CHANNEL   Trace::TraceEvent("adding master channel '" + gui_id + "'") ;
+#define DEBUG_TRACE_ADD_LOCAL_CHANNEL    Trace::TraceEvent("adding local channel '"  + gui_id + "'") ;
+#define DEBUG_TRACE_ADD_REMOTE_CHANNEL   Trace::TraceEvent("adding remote channel '" + gui_id + "' for user " + user_gui_id) ;
+
 #  define DEBUG_TRACE_CHAT_IN            if (chat_user.compare(Config->currentLogin.toString())) Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 //#  define DEBUG_TRACE_CHATIN String msg = "|" ; for (;nparms--;) msg += String(parms[nparms]) + "|" ; Trace::TraceEvent("LinJam::OnChatmsg()=\n\"" + msg + "\"") ;
 //#  define DEBUG_TRACE_CHATIN Trace::TraceEvent("LinJam::OnChatmsg()=\n") ; for (;nparms--;) Trace::TraceEvent("\tnparms[" + String(nparms) + "]='" + String(parms[nparms]) + "'\n") ;
@@ -180,27 +184,36 @@
           CLIENT::CHATMSG_TYPE_MSG)) ;
 // DBG("LinJam::SendChat() =" + chat_text) ;
 
+#define DEBUG_TRACE_CLEAN_SESSION                                                                  \
+    File thisdir = File::getSpecialLocation(File::currentExecutableFile).getParentDirectory() ;    \
+    if (!SessionDir.isDirectory() || !SessionDir.isAChildOf(thisdir))                              \
+        Trace::TraceError("session directory '" + SessionDir.getFullPathName() + "' is invalid") ; \
+    else Trace::TraceState("cleaning session directory '" + SessionDir.getFullPathName() + "'") ;
 #  define DEBUG_TRACE_SHUTDOWN           Trace::TraceState("clean shutdown - bye") ;
 
 #else // #if DEBUG_TRACE
 
-#  define DEBUG_TRACE_LINJAM_INIT     ;
-#  define DEBUG_TRACE_JACK_INIT       ;
-#  define DEBUG_TRACE_AUDIO_INIT      ;
-#  define DEBUG_TRACE_LOAD_CONFIG     ;
-#  define DEBUG_TRACE_PARSE_CONFIG    ;
-#  define DEBUG_TRACE_STORE_CONFIG    ;
-#  define DEBUG_TRACE_CONFIG_VALUE    ;
-#  define DEBUG_TRACE_LOGIN_CLICKED   ;
-#  define DEBUG_TRACE_CONNECT         ;
-#  define DEBUG_TRACE_LICENSE_CLICKED ;
-#  define DEBUG_TRACE_LICENSE         ;
-#  define DEBUG_TRACE_CONNECT_STATUS  ;
-#  define DEBUG_CHANNELS              ;
-#  define DEBUG_CHANNELS_VB           ;
-#  define DEBUG_TRACE_CHAT_IN         ;
-#  define DEBUG_TRACE_CHAT_OUT        ;
-#  define DEBUG_TRACE_SHUTDOWN        ;
+#  define DEBUG_TRACE_LINJAM_INIT        ;
+#  define DEBUG_TRACE_JACK_INIT          ;
+#  define DEBUG_TRACE_AUDIO_INIT         ;
+#  define DEBUG_TRACE_LOAD_CONFIG        ;
+#  define DEBUG_TRACE_PARSE_CONFIG       ;
+#  define DEBUG_TRACE_STORE_CONFIG       ;
+#  define DEBUG_TRACE_CONFIG_VALUE       ;
+#  define DEBUG_TRACE_LOGIN_CLICKED      ;
+#  define DEBUG_TRACE_CONNECT            ;
+#  define DEBUG_TRACE_LICENSE_CLICKED    ;
+#  define DEBUG_TRACE_LICENSE            ;
+#  define DEBUG_TRACE_CONNECT_STATUS     ;
+#  define DEBUG_TRACE_CHANNELS           ;
+#  define DEBUG_TRACE_CHANNELS_VB        ;
+#  define DEBUG_TRACE_ADD_MASTER_CHANNEL ;
+#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL  ;
+#  define DEBUG_TRACE_ADD_REMOTE_CHANNEL ;
+#  define DEBUG_TRACE_CHAT_IN            ;
+#  define DEBUG_TRACE_CHAT_OUT           ;
+#  define DEBUG_TRACE_SHUTDOWN           ;
+#  define DEBUG_TRACE_CLEAN_SESSION      ;
 
 #endif // #if DEBUG_TRACE
 

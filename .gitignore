@@ -1,8 +1,8 @@
 
-
 # nix
 Builds/Linux/build
-
+*~
+*.kate-swp
 
 # win
 *Debug

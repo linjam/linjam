@@ -19,6 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 #include "Constants.h"
+#include "Trace.h"
 //[/Headers]
 
 #include "MixerComponent.h"
@@ -80,13 +81,15 @@ void MixerComponent::resized()
 {
     //[UserResized] Add your own custom resize handling here..
 
-  int n_channels = this->getNumChildComponents() - 1 ;// if (!n_channels) n_channels = 1 ;
-  int local_x    = GUI::PAD ;
-  int local_y    = GUI::MIXERGROUP_Y ;
-  int local_w    = GUI::MIXERGROUP_W(n_channels) ;
-  int local_h    = GUI::MIXERGROUP_H ;
   if (this->localMixerGroupComponent != nullptr)
+  {
+    int n_channels = localMixerGroupComponent->getNumChildComponents() - 1 ;
+    int local_x    = GUI::PAD ;
+    int local_y    = GUI::MIXERGROUP_Y ;
+    int local_w    = GUI::MIXERGROUP_W(n_channels) ;
+    int local_h    = GUI::MIXERGROUP_H ;
     this->localMixerGroupComponent->setBounds(local_x , local_y , local_w , local_h) ;
+  }
 
   int master_x = getWidth() - GUI::MASTERGROUP_W - GUI::PAD ;
   int master_y = GUI::MIXERGROUP_Y ;
@@ -102,20 +105,28 @@ void MixerComponent::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void MixerComponent::addRemoteMixerComponent(String gui_id)
-{ addMixerSectionComponent(gui_id) ; }
-
 void MixerComponent::addLocalChannelComponent(String gui_id)
-{ addChannelComponent(gui_id , localMixerGroupComponent) ; }
+{
+DEBUG_TRACE_ADD_LOCAL_CHANNEL
 
+  addChannelComponent(gui_id , localMixerGroupComponent) ;
+}
+/* TODO
 void MixerComponent::addRemoteChannelComponent(String gui_id , String user_gui_id)
 {
-  MixerGroupComponent* remoteMixerComponent = (MixerGroupComponent*)findChildWithID(gui_id) ;
-  if (remoteMixerComponent) addChannelComponent(gui_id , remoteMixerComponent) ;
-}
+DEBUG_TRACE_ADD_REMOTE_CHANNEL
 
+  MixerGroupComponent* remoteMixerComponent = (MixerGroupComponent*)findChildWithID(gui_id) ;
+  if (!remoteMixerComponent) addMixerSectionComponent(user_gui_id) ;
+  addChannelComponent(gui_id , remoteMixerComponent) ;
+}
+*/
 void MixerComponent::addMasterChannelComponent(String gui_id)
-{ addChannelComponent(gui_id , masterMixerGroupComponent) ; }
+{
+DEBUG_TRACE_ADD_MASTER_CHANNEL
+
+  addChannelComponent(gui_id , masterMixerGroupComponent) ;
+}
 
 
 MixerGroupComponent* MixerComponent::addMixerSectionComponent(String gui_id)
@@ -128,7 +139,12 @@ MixerGroupComponent* MixerComponent::addMixerSectionComponent(String gui_id)
 }
 
 void MixerComponent::addChannelComponent(String gui_id , MixerGroupComponent* mixer)
-{ mixer->addChannelComponent(gui_id) ; }
+{
+  mixer->addChannelComponent(gui_id) ;
+
+  int n_channels = mixer->getNumChildComponents() - 1 ;
+  mixer->setSize(GUI::MIXERGROUP_W(n_channels) , GUI::MIXERGROUP_H) ;
+}
 
 //[/MiscUserCode]
 

@@ -40,7 +40,7 @@ class ChannelComponent  : public Component,
 {
 public:
     //==============================================================================
-    ChannelComponent ();
+    ChannelComponent (String channel_name);
     ~ChannelComponent();
 
     //==============================================================================
