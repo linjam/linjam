@@ -337,11 +337,11 @@
 				Name="juce_core"
 				>
 				<File
-					RelativePath="..\..\..\..\..\..\..\src\JUCE\modules\juce_core\juce_core.h"
+					RelativePath="..\..\..\..\juce\modules\juce_core\juce_core.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\..\..\..\..\src\JUCE\modules\juce_core\juce_module_info"
+					RelativePath="..\..\..\..\juce\modules\juce_core\juce_module_info"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -2393,11 +2393,11 @@
 				Name="juce_data_structures"
 				>
 				<File
-					RelativePath="..\..\..\..\..\..\..\src\JUCE\modules\juce_data_structures\juce_data_structures.h"
+					RelativePath="..\..\..\..\juce\modules\juce_data_structures\juce_data_structures.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\..\..\..\..\src\JUCE\modules\juce_data_structures\juce_module_info"
+					RelativePath="..\..\..\..\juce\modules\juce_data_structures\juce_module_info"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -2557,11 +2557,11 @@
 				Name="juce_events"
 				>
 				<File
-					RelativePath="..\..\..\..\..\..\..\src\JUCE\modules\juce_events\juce_events.h"
+					RelativePath="..\..\..\..\juce\modules\juce_events\juce_events.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\..\..\..\..\src\JUCE\modules\juce_events\juce_module_info"
+					RelativePath="..\..\..\..\juce\modules\juce_events\juce_module_info"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -3001,11 +3001,11 @@
 				Name="juce_graphics"
 				>
 				<File
-					RelativePath="..\..\..\..\..\..\..\src\JUCE\modules\juce_graphics\juce_graphics.h"
+					RelativePath="..\..\..\..\juce\modules\juce_graphics\juce_graphics.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\..\..\..\..\src\JUCE\modules\juce_graphics\juce_module_info"
+					RelativePath="..\..\..\..\juce\modules\juce_graphics\juce_module_info"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
@@ -3941,11 +3941,11 @@
 				Name="juce_gui_basics"
 				>
 				<File
-					RelativePath="..\..\..\..\..\..\..\src\JUCE\modules\juce_gui_basics\juce_gui_basics.h"
+					RelativePath="..\..\..\..\juce\modules\juce_gui_basics\juce_gui_basics.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\..\..\..\..\src\JUCE\modules\juce_gui_basics\juce_module_info"
+					RelativePath="..\..\..\..\juce\modules\juce_gui_basics\juce_module_info"
 					>
 					<FileConfiguration
 						Name="Release|Win32"
