@@ -52,14 +52,11 @@
                                                  "has dummy value on missing key '" + k + "'")) ;
 #define DEBUG_TRACE_CONFIG_CHANGED String event_source ;                                         \
     if      (a_value.refersToSameSourceAs(this->masterVolume))  event_source = "masterVolume" ;  \
-    else if (a_value.refersToSameSourceAs(this->masterPan))     event_source = "masterPan" ;     \
-    else if (a_value.refersToSameSourceAs(this->isMasterMuted)) event_source = "isMasterMuted" ; \
-    else if (a_value.refersToSameSourceAs(this->metroVolume))   event_source = "metroVolume" ;   \
-    else if (a_value.refersToSameSourceAs(this->metroPan))      event_source = "metroPan" ;      \
-    else if (a_value.refersToSameSourceAs(this->isMetroMuted))  event_source = "isMetroMuted" ;  \
-    else if (a_value.refersToSameSourceAs(this->metroChannel))  event_source = "metroChannel" ;  \
-    else if (a_value.refersToSameSourceAs(this->isMetroStereo)) event_source = "isMetroStereo" ; \
+    else if (etc);                                                                               \
     Trace::TraceEvent("value changed " + event_source + " = " + a_value.getValue().toString()) ;
+#define DEBUG_TRACE_CONFIG_TREE_CHANGED                                                    \
+    Trace::TraceEvent("value changed " + String(a_node.getType()) +                        \
+                      "[" + String(key) + "] = " + a_node[key].toString()) ;
 
 #  define DEBUG_TRACE_LOGIN_LOAD                                                              \
     Trace::TraceState("Login - currentHost => '" + host + "' - storage " + \

@@ -92,9 +92,8 @@ const String GUI::UNKNOWN_COMMAND_MSG = "Error: unknown command" ;
 const String GUI::INVALID_PM_MSG      = "Error: /msg requires a username and a message" ;
 
 // ChannelComponents
-//const String GUI::DEFAULT_CHANNEL_GUI_ID = "default channel" ;
-const String GUI::MASTER_CHANNEL_GUI_ID  = "master channel" ;
-const String GUI::METRO_CHANNEL_GUI_ID   = "metro channel" ;
+const String GUI::MASTER_CHANNEL_GUI_ID  = "master" ;
+const String GUI::METRO_CHANNEL_GUI_ID   = "metronome" ;
 
 // mixerGroupComponent
 const String GUI::LOCAL_MIXER_GUI_ID  = "Local" ;
@@ -170,9 +169,9 @@ const Identifier STORAGE::AGREE_IDENTIFIER         = AGREE_KEY ;
 // channels
 const String     STORAGE::MASTERS_KEY              = "master-channels" ;
 const Identifier STORAGE::MASTERS_IDENTIFIER       = MASTERS_KEY ;
-const String     STORAGE::MASTER_KEY               = "master" ;
+const String     STORAGE::MASTER_KEY               = GUI::MASTER_CHANNEL_GUI_ID ;
 const Identifier STORAGE::MASTER_IDENTIFIER        = MASTER_KEY ;
-const String     STORAGE::METRO_KEY                = "metronome" ;
+const String     STORAGE::METRO_KEY                = GUI::METRO_CHANNEL_GUI_ID ;
 const Identifier STORAGE::METRO_IDENTIFIER         = METRO_KEY ;
 const String     STORAGE::LOCALS_KEY               = "local-channels" ;
 const Identifier STORAGE::LOCALS_IDENTIFIER        = LOCALS_KEY ;
@@ -212,7 +211,7 @@ const Identifier STORAGE::STEREO_IDENTIFIER        = STEREO_KEY ;
       SERVER_KEY           + " "              + \
         HOST_KEY           + "=\"\" "         + \
         LOGIN_KEY          + "=\"\" "         + \
-        PASS_KEY           + "=\"\" "        + \
+        PASS_KEY           + "=\"\" "         + \
         ANON_KEY           + "=\"true\" "     + \
         AGREED_KEY         + "=\"false\" "    + \
       "/><"                                   + \

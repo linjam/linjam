@@ -48,6 +48,38 @@ LinJamConfig::~LinJamConfig() { storeConfig() ; }
 
 /* LinJamConfig public instance methods */
 
+bool LinJamConfig::sanityCheck()
+{
+  return (!this->shouldSaveAudio    .refersToSameSourceAs(this->dummyValue) &&
+          !this->shouldSaveLog      .refersToSameSourceAs(this->dummyValue) &&
+          !this->debugLevel         .refersToSameSourceAs(this->dummyValue) &&
+          !this->shouldAutoSubscribe.refersToSameSourceAs(this->dummyValue) &&
+          !this->audioIfN           .refersToSameSourceAs(this->dummyValue) &&
+          !this->nInputs            .refersToSameSourceAs(this->dummyValue) &&
+          !this->nOutputs           .refersToSameSourceAs(this->dummyValue) &&
+          !this->bitDepth           .refersToSameSourceAs(this->dummyValue) &&
+          !this->sampleRate         .refersToSameSourceAs(this->dummyValue) &&
+          !this->jackName           .refersToSameSourceAs(this->dummyValue) &&
+          !this->masterVolume       .refersToSameSourceAs(this->dummyValue) &&
+          !this->masterPan          .refersToSameSourceAs(this->dummyValue) &&
+          !this->isMasterMuted      .refersToSameSourceAs(this->dummyValue) &&
+          !this->metroVolume        .refersToSameSourceAs(this->dummyValue) &&
+          !this->metroPan           .refersToSameSourceAs(this->dummyValue) &&
+          !this->isMetroMuted       .refersToSameSourceAs(this->dummyValue) &&
+          !this->metroChannel       .refersToSameSourceAs(this->dummyValue) &&
+          !this->isMetroStereo      .refersToSameSourceAs(this->dummyValue) &&
+          !this->currentHost        .refersToSameSourceAs(this->dummyValue) &&
+          !this->currentLogin       .refersToSameSourceAs(this->dummyValue) &&
+          !this->currentPass        .refersToSameSourceAs(this->dummyValue) &&
+          !this->currentIsAnonymous .refersToSameSourceAs(this->dummyValue) &&
+          !this->currentIsAgreed    .refersToSameSourceAs(this->dummyValue) &&
+          autoSubscribeUsers.isValid()                                      &&
+          masterChannels    .isValid()                                      &&
+          localChannels     .isValid()                                      &&
+          remoteChannels    .isValid()                                      &&
+          servers           .isValid()                                       ) ;
+}
+
 void LinJamConfig::setServerConfig()
 {
   // copy volatile login state to persistent storage
@@ -63,6 +95,12 @@ void LinJamConfig::setServerConfig()
   server.setProperty(STORAGE::ANON_IDENTIFIER  , is_anonymous , nullptr) ;
 }
 
+ValueTree LinJamConfig::getServerConfig(String host)
+{ return this->servers.getChildWithProperty(STORAGE::HOST_IDENTIFIER , var(host)) ; }
+
+ValueTree LinJamConfig::getCurrentServerConfig()
+{ return getServerConfig(this->currentHost.toString()) ; }
+
 void LinJamConfig::setShouldAgree(bool should_agree)
 {
   // continuation of setServerConfig() after license agreement
@@ -72,40 +110,26 @@ void LinJamConfig::setShouldAgree(bool should_agree)
   server.setProperty(STORAGE::AGREE_IDENTIFIER , should_agree , nullptr) ;
 }
 
-ValueTree LinJamConfig::getServerConfig(String host)
-{ return this->servers.getChildWithProperty(STORAGE::HOST_IDENTIFIER , var(host)) ; }
+Value LinJamConfig::getClientConfigValueObj(Identifier key)
+{ return getConfigValueObj(this->configValueTree , STORAGE::CLIENT_IDENTIFIER , key) ; }
 
-ValueTree LinJamConfig::getCurrentServerConfig()
-{ return getServerConfig(this->currentHost.toString()) ; }
+Value LinJamConfig::getAudioConfigValueObj(Identifier key)
+{ return getConfigValueObj(this->configValueTree , STORAGE::AUDIO_IDENTIFIER  , key) ; }
+
+Value LinJamConfig::getServerConfigValueObj(Identifier key)
+{ return getConfigValueObj(this->configValueTree , STORAGE::SERVER_IDENTIFIER , key) ; }
+
+Value LinJamConfig::getMasterConfigValueObj(Identifier channel_id , Identifier key)
+{ return getConfigValueObj(this->masterChannels , channel_id , key) ; }
+
+Value LinJamConfig::getLocalConfigValueObj(Identifier channel_id , Identifier key)
+{ return getConfigValueObj(this->localChannels  , channel_id , key) ; }
+
+Value LinJamConfig::getRemoteConfigValueObj(Identifier channel_id , Identifier key)
+{ return getConfigValueObj(this->remoteChannels , channel_id , key) ; }
 
 
 /* LinJamConfig private instance methods */
-
-void LinJamConfig::valueChanged(Value& a_value)
-{
-DEBUG_TRACE_CONFIG_CHANGED
-
-  bool a_bool  = bool( a_value.getValue()) ;
-  bool an_int  = int(  a_value.getValue()) ;
-  bool a_float = float(a_value.getValue()) ;
-
-  if      (a_value.refersToSameSourceAs(this->masterVolume))
-    LinJam::Client->config_mastervolume        = a_float ;
-  else if (a_value.refersToSameSourceAs(this->masterPan))
-    LinJam::Client->config_masterpan           = a_float ;
-  else if (a_value.refersToSameSourceAs(this->isMasterMuted))
-    LinJam::Client->config_mastermute          = a_bool ;
-  else if (a_value.refersToSameSourceAs(this->metroVolume))
-    LinJam::Client->config_metronome           = a_float ;
-  else if (a_value.refersToSameSourceAs(this->metroPan))
-    LinJam::Client->config_metronome_pan       = a_float ;
-  else if (a_value.refersToSameSourceAs(this->isMetroMuted))
-    LinJam::Client->config_metronome_mute      = a_bool ;
-  else if (a_value.refersToSameSourceAs(this->metroChannel))
-    LinJam::Client->config_metronome_channel   = an_int ;
-  else if (a_value.refersToSameSourceAs(this->isMetroStereo))
-    LinJam::Client->config_metronome_stereoout = a_bool ;
-}
 
 ValueTree LinJamConfig::sanitizeConfig(ValueTree default_config , ValueTree stored_config)
 {
@@ -182,26 +206,21 @@ void LinJamConfig::establishSharedStore()
 
   // static channels
   this->masterChannels = this->configValueTree.getOrCreateChildWithName(STORAGE::MASTERS_IDENTIFIER , nullptr) ;
-  this->masterVolume .referTo(getMasterConfigValueObj(STORAGE::MASTER_IDENTIFIER , STORAGE::VOLUME_IDENTIFIER)) ;
-  this->masterVolume .addListener(this) ;
-  this->masterPan    .referTo(getMasterConfigValueObj(STORAGE::MASTER_IDENTIFIER , STORAGE::PAN_IDENTIFIER)) ;
-  this->masterPan    .addListener(this) ;
-  this->isMasterMuted.referTo(getMasterConfigValueObj(STORAGE::MASTER_IDENTIFIER , STORAGE::MUTE_IDENTIFIER)) ;
-  this->isMasterMuted.addListener(this) ;
-  this->metroVolume  .referTo(getMasterConfigValueObj(STORAGE::METRO_IDENTIFIER  , STORAGE::VOLUME_IDENTIFIER)) ;
-  this->metroVolume  .addListener(this) ;
-  this->metroPan     .referTo(getMasterConfigValueObj(STORAGE::METRO_IDENTIFIER  , STORAGE::PAN_IDENTIFIER)) ;
-  this->masterPan    .addListener(this) ;
-  this->isMetroMuted .referTo(getMasterConfigValueObj(STORAGE::METRO_IDENTIFIER  , STORAGE::MUTE_IDENTIFIER)) ;
-  this->isMetroMuted .addListener(this) ;
-  this->metroChannel .referTo(getMasterConfigValueObj(STORAGE::METRO_IDENTIFIER  , STORAGE::SOURCE_N_IDENTIFIER)) ;
-  this->metroChannel .addListener(this) ;
-  this->isMetroStereo.referTo(getMasterConfigValueObj(STORAGE::METRO_IDENTIFIER  , STORAGE::STEREO_IDENTIFIER)) ;
-  this->isMetroStereo.addListener(this) ;
+  this->masterChannels.addListener(this) ;
+  this->masterVolume  .referTo(getMasterConfigValueObj(STORAGE::MASTER_IDENTIFIER , STORAGE::VOLUME_IDENTIFIER)) ;
+  this->masterPan     .referTo(getMasterConfigValueObj(STORAGE::MASTER_IDENTIFIER , STORAGE::PAN_IDENTIFIER)) ;
+  this->isMasterMuted .referTo(getMasterConfigValueObj(STORAGE::MASTER_IDENTIFIER , STORAGE::MUTE_IDENTIFIER)) ;
+  this->metroVolume   .referTo(getMasterConfigValueObj(STORAGE::METRO_IDENTIFIER  , STORAGE::VOLUME_IDENTIFIER)) ;
+  this->metroPan      .referTo(getMasterConfigValueObj(STORAGE::METRO_IDENTIFIER  , STORAGE::PAN_IDENTIFIER)) ;
+  this->isMetroMuted  .referTo(getMasterConfigValueObj(STORAGE::METRO_IDENTIFIER  , STORAGE::MUTE_IDENTIFIER)) ;
+  this->metroChannel  .referTo(getMasterConfigValueObj(STORAGE::METRO_IDENTIFIER  , STORAGE::SOURCE_N_IDENTIFIER)) ;
+  this->isMetroStereo .referTo(getMasterConfigValueObj(STORAGE::METRO_IDENTIFIER  , STORAGE::STEREO_IDENTIFIER)) ;
 
   // transient channels
   this->localChannels  = this->configValueTree.getOrCreateChildWithName(STORAGE::LOCALS_IDENTIFIER , nullptr) ;
+  this->localChannels .addListener(this) ;
   this->remoteChannels = this->configValueTree.getOrCreateChildWithName(STORAGE::REMOTES_IDENTIFIER , nullptr) ;
+  this->remoteChannels.addListener(this) ;
 
   // per server user data
   this->servers = this->configValueTree.getOrCreateChildWithName(STORAGE::SERVERS_IDENTIFIER , nullptr) ;
@@ -217,54 +236,6 @@ DEBUG_TRACE_CONFIG_VALUE
   return (child_node.isValid() && child_node.hasProperty(key))?
     child_node.getPropertyAsValue(key , &this->configUndoManager) :
     this->dummyValue ;
-}
-
-Value LinJamConfig::getClientConfigValueObj(Identifier key)
-{ return getConfigValueObj(this->configValueTree , STORAGE::CLIENT_IDENTIFIER , key) ; }
-
-Value LinJamConfig::getAudioConfigValueObj(Identifier key)
-{ return getConfigValueObj(this->configValueTree , STORAGE::AUDIO_IDENTIFIER  , key) ; }
-
-Value LinJamConfig::getServerConfigValueObj(Identifier key)
-{ return getConfigValueObj(this->configValueTree , STORAGE::SERVER_IDENTIFIER , key) ; }
-
-Value LinJamConfig::getMasterConfigValueObj(Identifier channel_id , Identifier key)
-{ return getConfigValueObj(this->masterChannels , channel_id , key) ; }
-
-Value LinJamConfig::getLocalConfigValueObj(Identifier channel_id , Identifier key)
-{ return getConfigValueObj(this->localChannels  , channel_id , key) ; }
-
-Value LinJamConfig::getRemoteConfigValueObj(Identifier channel_id , Identifier key)
-{ return getConfigValueObj(this->remoteChannels , channel_id , key) ; }
-
-bool LinJamConfig::sanityCheck()
-{
-  return (!this->shouldSaveAudio    .refersToSameSourceAs(this->dummyValue) &&
-          !this->shouldSaveLog      .refersToSameSourceAs(this->dummyValue) &&
-          !this->debugLevel         .refersToSameSourceAs(this->dummyValue) &&
-          !this->shouldAutoSubscribe.refersToSameSourceAs(this->dummyValue) &&
-          !this->audioIfN           .refersToSameSourceAs(this->dummyValue) &&
-          !this->nInputs            .refersToSameSourceAs(this->dummyValue) &&
-          !this->nOutputs           .refersToSameSourceAs(this->dummyValue) &&
-          !this->bitDepth           .refersToSameSourceAs(this->dummyValue) &&
-          !this->sampleRate         .refersToSameSourceAs(this->dummyValue) &&
-          !this->jackName           .refersToSameSourceAs(this->dummyValue) &&
-          !this->masterVolume       .refersToSameSourceAs(this->dummyValue) &&
-          !this->masterPan          .refersToSameSourceAs(this->dummyValue) &&
-          !this->isMasterMuted      .refersToSameSourceAs(this->dummyValue) &&
-          !this->metroVolume        .refersToSameSourceAs(this->dummyValue) &&
-          !this->metroPan           .refersToSameSourceAs(this->dummyValue) &&
-          !this->isMetroMuted       .refersToSameSourceAs(this->dummyValue) &&
-          !this->metroChannel       .refersToSameSourceAs(this->dummyValue) &&
-          !this->isMetroStereo      .refersToSameSourceAs(this->dummyValue) &&
-          !this->currentHost        .refersToSameSourceAs(this->dummyValue) &&
-          !this->currentLogin       .refersToSameSourceAs(this->dummyValue) &&
-          !this->currentPass        .refersToSameSourceAs(this->dummyValue) &&
-          !this->currentIsAnonymous .refersToSameSourceAs(this->dummyValue) &&
-          !this->currentIsAgreed    .refersToSameSourceAs(this->dummyValue) &&
-          autoSubscribeUsers.isValid()                                      &&
-          localChannels.isValid()                                           &&
-          servers.isValid()                                                  ) ;
 }
 
 ValueTree LinJamConfig::addServerConfig(String host , String login , String pass ,
@@ -290,6 +261,63 @@ ValueTree LinJamConfig::addServerConfig(String host , String login , String pass
 
   return server ;
 }
+
+void LinJamConfig::valueChanged(Value& a_value)
+{
+/*
+DEBUG_TRACE_CONFIG_VALUE_CHANGED
+
+  bool   a_bool   = bool( a_value.getValue()) ;
+  bool   an_int   = int(  a_value.getValue()) ;
+  bool   a_float  = float(a_value.getValue()) ;
+  String a_string =       a_value.toString() ;
+
+  if      (a_value.refersToSameSourceAs(this->masterVolume))
+    LinJam::Client->config_mastervolume = a_float ;
+  else if (etc) ;
+*/
+}
+
+void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)
+{
+DEBUG_TRACE_CONFIG_TREE_CHANGED
+
+  Identifier node_id  =       a_node.getType() ;
+  bool       a_bool   = bool( a_node[key]) ;
+  bool       an_int   = int(  a_node[key]) ;
+  bool       a_float  = float(a_node[key]) ;
+  String     a_string =       a_node[key].toString() ;
+
+  if (node_id == STORAGE::MASTER_IDENTIFIER)
+  {
+    if      (key == STORAGE::VOLUME_IDENTIFIER)
+      LinJam::Client->config_mastervolume = a_float ;
+    else if (key == STORAGE::PAN_IDENTIFIER)
+      LinJam::Client->config_masterpan    = a_float ;
+    else if (key == STORAGE::MUTE_IDENTIFIER)
+      LinJam::Client->config_mastermute   = a_bool ;
+  }
+  else if (node_id == STORAGE::METRO_IDENTIFIER)
+  {
+    if      (key == STORAGE::VOLUME_IDENTIFIER)
+      LinJam::Client->config_metronome           = a_float ;
+    else if (key == STORAGE::PAN_IDENTIFIER)
+      LinJam::Client->config_metronome_pan       = a_float ;
+    else if (key == STORAGE::MUTE_IDENTIFIER)
+      LinJam::Client->config_metronome_mute      = a_bool ;
+    else if (key == STORAGE::SOURCE_N_IDENTIFIER)
+      LinJam::Client->config_metronome_channel   = an_int ;
+    else if (key == STORAGE::STEREO_IDENTIFIER)
+      LinJam::Client->config_metronome_stereoout = a_bool ;
+  }
+}
+
+void LinJamConfig::valueTreeChildAdded(ValueTree& a_parent_tree , ValueTree& a_child_tree)   {}
+void LinJamConfig::valueTreeChildRemoved(ValueTree& a_parent_tree , ValueTree& a_child_tree) {}
+void LinJamConfig::valueTreeChildOrderChanged(ValueTree& a_parent_tree)                      {}
+void LinJamConfig::valueTreeParentChanged(ValueTree& a_tree)                                 {}
+void LinJamConfig::valueTreeRedirected(ValueTree& a_tree)                                    {}
+
 
 
 // DEBUG

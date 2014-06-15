@@ -56,6 +56,9 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+//  MixerComponent* mixerComponent ; // controller for all channels
+
     //[/UserVariables]
 
     //==============================================================================

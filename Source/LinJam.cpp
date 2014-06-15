@@ -201,7 +201,7 @@ DEBUG_TRACE_CHAT_OUT
 }
 
 
-/* LinJam class private class functions */
+/* LinJam class private class methods */
 
 bool LinJam::InitializeAudio()
 {

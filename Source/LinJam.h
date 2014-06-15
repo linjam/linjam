@@ -27,7 +27,7 @@ class LinJam
 
 public:
 
-  // state functions
+  // state methods
   static bool Initialize(NJClient* client , MainContentComponent* mainGUI ,
                          const String& args) ;
   static void Connect() ;

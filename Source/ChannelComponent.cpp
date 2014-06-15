@@ -176,7 +176,14 @@ void ChannelComponent::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == muteButton)
     {
         //[UserButtonCode_muteButton] -- add your button handler code here..
-//LinJam::Config->isMetroMuted = this->muteButton->getToggleState() ; // ok
+
+// ok Value::Listener in LinJamConfig
+//LinJam::Config->isMetroMuted = this->muteButton->getToggleState() ;
+
+// ok ValueTree::Listener in LinJamConfig
+Value muted = LinJam::Config->getMasterConfigValueObj(STORAGE::METRO_IDENTIFIER , STORAGE::MUTE_IDENTIFIER) ;
+muted.setValue(this->muteButton->getToggleState()) ;
+
         //[/UserButtonCode_muteButton]
     }
     else if (buttonThatWasClicked == soloButton)

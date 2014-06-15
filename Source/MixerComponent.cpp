@@ -20,6 +20,7 @@
 //[Headers] You can add your own extra header files here...
 #include "Constants.h"
 #include "Trace.h"
+#include "LinJam.h"
 //[/Headers]
 
 #include "MixerComponent.h"
@@ -123,7 +124,8 @@ void MixerComponent::addMasterChannelComponent(String gui_id)
 {
 DEBUG_TRACE_ADD_MASTER_CHANNEL
 
-//  bool is_muted = bool(LinJamConfig::getMasterConfigValueObj(gui_id , STORAGE::MUTE_IDENTIFIER)) ;
+  Value muted = LinJam::Config->getMasterConfigValueObj(gui_id , STORAGE::MUTE_IDENTIFIER) ;
+  bool is_muted = bool(muted.getValue()) ;
   addChannelComponent(gui_id , masterMixerGroupComponent) ;
 }
 
