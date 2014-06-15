@@ -41,18 +41,20 @@ public:
   Value jackName ;        // string
   Value configAudio ;     // string
 
-  // master channels
-  Value masterVolume ;  // float
-  Value masterPan ;     // float
-  Value isMasterMuted ; // bool
-  Value metroVolume ;   // float
-  Value metroPan ;      // float
-  Value isMetroMuted ;  // bool
-  Value metroChannel ;  // int
-  Value isMetroStereo ; // bool
+  // static channels
+  ValueTree masterChannels ;
+  Value     masterVolume ;  // float
+  Value     masterPan ;     // float
+  Value     isMasterMuted ; // bool
+  Value     metroVolume ;   // float
+  Value     metroPan ;      // float
+  Value     isMetroMuted ;  // bool
+  Value     metroChannel ;  // int
+  Value     isMetroStereo ; // bool
 
-  // local channels
+  // transient channels
   ValueTree localChannels ;
+  ValueTree remoteChannels ;
 
   // transient login state
   Value currentHost ;        // string
@@ -89,8 +91,16 @@ private:
   ValueTree sanitizeConfig(ValueTree default_config , ValueTree stored_config) ;
   void      storeConfig() ;
   void      establishSharedStore() ;
-  Value     getConfigValueObj(Identifier node_id , Identifier key) ;
+  Value     getConfigValueObj(      ValueTree parent_node , Identifier child_node_id ,
+                                    Identifier key) ;
+  Value     getClientConfigValueObj(Identifier key) ;
+  Value     getAudioConfigValueObj( Identifier key) ;
+  Value     getServerConfigValueObj(Identifier key) ;
+  Value     getMasterConfigValueObj(Identifier channel_id , Identifier key) ;
+  Value     getLocalConfigValueObj( Identifier channel_id , Identifier key) ;
+  Value     getRemoteConfigValueObj(Identifier channel_id , Identifier key) ;
   ValueTree addServerConfig(String host , String login , String pass , bool is_anonymous) ;
+
 
 void DBGConfigValueType(String val_name , Value a_value) ;
 

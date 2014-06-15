@@ -20,6 +20,7 @@
 //[Headers] You can add your own extra header files here...
 //[/Headers]
 
+#include "LinJam.h"
 #include "ChannelComponent.h"
 
 
@@ -175,6 +176,7 @@ void ChannelComponent::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == muteButton)
     {
         //[UserButtonCode_muteButton] -- add your button handler code here..
+//LinJam::Config->isMetroMuted = this->muteButton->getToggleState() ; // ok
         //[/UserButtonCode_muteButton]
     }
     else if (buttonThatWasClicked == soloButton)

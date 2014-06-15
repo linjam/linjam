@@ -45,11 +45,21 @@
                         Trace::SanitizeConfig(ValueTree::fromXml(*default_config_xml) , \
                                               ValueTree::fromXml(*stored_config_xml) , "  ")) ;
 #  define DEBUG_TRACE_STORE_CONFIG       Trace::TraceConfig("storing config xml=\n" + configValueTree.toXmlString()) ;
-#  define DEBUG_TRACE_CONFIG_VALUE                                                          \
-    bool valid = a_node.isValid() ; String n = String(node_id) ; String k = String(key) ;   \
-    Trace::TraceConfig("node '" + n + ((valid)? "' (" : "' (in") + "valid) - " +            \
-        ((valid && a_node.hasProperty(key))? "has shared value on key '"        + k + "'" : \
-                                             "has dummy value on missing key '" + k + "'")) ;
+#  define DEBUG_TRACE_CONFIG_VALUE                                                         \
+    bool valid = child_node.isValid() ; String n = String(child_node_id) ; String k = String(key) ; \
+    Trace::TraceConfig("node '" + n + ((valid)? "' (" : "' (in") + "valid) - " +                    \
+        ((valid && child_node.hasProperty(key))? "has shared value on key '"        + k + "'" :     \
+                                                 "has dummy value on missing key '" + k + "'")) ;
+#define DEBUG_TRACE_CONFIG_CHANGED String event_source ;                                         \
+    if      (a_value.refersToSameSourceAs(this->masterVolume))  event_source = "masterVolume" ;  \
+    else if (a_value.refersToSameSourceAs(this->masterPan))     event_source = "masterPan" ;     \
+    else if (a_value.refersToSameSourceAs(this->isMasterMuted)) event_source = "isMasterMuted" ; \
+    else if (a_value.refersToSameSourceAs(this->metroVolume))   event_source = "metroVolume" ;   \
+    else if (a_value.refersToSameSourceAs(this->metroPan))      event_source = "metroPan" ;      \
+    else if (a_value.refersToSameSourceAs(this->isMetroMuted))  event_source = "isMetroMuted" ;  \
+    else if (a_value.refersToSameSourceAs(this->metroChannel))  event_source = "metroChannel" ;  \
+    else if (a_value.refersToSameSourceAs(this->isMetroStereo)) event_source = "isMetroStereo" ; \
+    Trace::TraceEvent("value changed " + event_source + " = " + a_value.getValue().toString()) ;
 
 #  define DEBUG_TRACE_LOGIN_LOAD                                                              \
     Trace::TraceState("Login - currentHost => '" + host + "' - storage " + \

@@ -206,28 +206,17 @@ public:
   static const String     AGREE_KEY ;
   static const Identifier AGREE_IDENTIFIER ;
 
+  // channels
+  static const String     MASTERS_KEY ;
+  static const Identifier MASTERS_IDENTIFIER ;
   static const String     MASTER_KEY ;
   static const Identifier MASTER_IDENTIFIER ;
-  static const String     MASTER_VOLUME_KEY ;
-  static const Identifier MASTER_VOLUME_IDENTIFIER ;
-  static const String     MASTER_PAN_KEY ;
-  static const Identifier MASTER_PAN_IDENTIFIER ;
-  static const String     MASTER_MUTE_KEY ;
-  static const Identifier MASTER_MUTE_IDENTIFIER ;
-  static const String     METRO_VOLUME_KEY ;
-  static const Identifier METRO_VOLUME_IDENTIFIER ;
-  static const String     METRO_PAN_KEY ;
-  static const Identifier METRO_PAN_IDENTIFIER ;
-  static const String     METRO_MUTE_KEY ;
-  static const Identifier METRO_MUTE_IDENTIFIER ;
-  static const String     METRO_CHANNEL_KEY ;
-  static const Identifier METRO_CHANNEL_IDENTIFIER ;
-  static const String     METRO_STEREO_KEY ;
-  static const Identifier METRO_STEREO_IDENTIFIER ;
-
-  // channels
+  static const String     METRO_KEY ;
+  static const Identifier METRO_IDENTIFIER ;
   static const String     LOCALS_KEY ;
   static const Identifier LOCALS_IDENTIFIER ;
+  static const String     REMOTES_KEY ;
+  static const Identifier REMOTES_IDENTIFIER ;
   static const String     VOLUME_KEY ;
   static const Identifier VOLUME_IDENTIFIER ;
   static const String     PAN_KEY ;

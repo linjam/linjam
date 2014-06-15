@@ -123,6 +123,7 @@ void MixerComponent::addMasterChannelComponent(String gui_id)
 {
 DEBUG_TRACE_ADD_MASTER_CHANNEL
 
+//  bool is_muted = bool(LinJamConfig::getMasterConfigValueObj(gui_id , STORAGE::MUTE_IDENTIFIER)) ;
   addChannelComponent(gui_id , masterMixerGroupComponent) ;
 }
 

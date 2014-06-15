@@ -22,6 +22,9 @@
 
 class LinJam
 {
+    friend class LinJamConfig ;
+
+
 public:
 
   // state functions
@@ -30,14 +33,6 @@ public:
   static void Connect() ;
   static void Disconnect() ;
   static void Shutdown() ;
-
-  // NJClient callbacks
-  static int  OnLicense(int user32            , char* license_text) ;
-  static void OnChatmsg(int user32            , NJClient* instance ,
-                        const char** parms    , int nparms)        ;
-  static void OnSamples(float** input_buffer  , int n_input_channels  ,
-                        float** output_buffer , int n_output_channels ,
-                        int n_samples         , int sample_rate)      ;
 
   // getters/setters
   static bool IsAgreed() ;
@@ -57,6 +52,14 @@ private:
   static bool                  IsAudioEnabled ;
   static File                  SessionDir ;
 
+
+  // NJClient callbacks
+  static int  OnLicense(int user32            , char* license_text) ;
+  static void OnChatmsg(int user32            , NJClient* instance ,
+                        const char** parms    , int nparms)        ;
+  static void OnSamples(float** input_buffer  , int n_input_channels  ,
+                        float** output_buffer , int n_output_channels ,
+                        int n_samples         , int sample_rate)      ;
 
   // helpers
   static bool InitializeAudio() ;
