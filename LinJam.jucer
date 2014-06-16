@@ -63,11 +63,11 @@
                        targetName="LinJam"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_events" path="/home/me/src/JUCE/modules"/>
-        <MODULEPATH id="juce_graphics" path="/home/me/src/JUCE/modules"/>
-        <MODULEPATH id="juce_data_structures" path="/home/me/src/JUCE/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="/home/me/src/JUCE/modules"/>
-        <MODULEPATH id="juce_core" path="/home/me/src/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </LINUX_MAKE>
     <XCODE_MAC targetFolder="Builds/MacOSX">
@@ -78,11 +78,11 @@
                        isDebug="0" optimisation="2" targetName="LinJam"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_basics" path="../../juce/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../juce/modules"/>
-        <MODULEPATH id="juce_events" path="../../juce/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../juce/modules"/>
-        <MODULEPATH id="juce_core" path="../../juce/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
     <VS2008 targetFolder="Builds/VisualStudio2008" externalLibraries="" extraCompilerFlags="/I &quot;$(LIBNINJAM)&quot;&#10;/I &quot;$(LIBOGG)\include&quot;&#10;/I &quot;$(LIBVORBIS)\include&quot;&#10;/I &quot;$(DXSDK_DIR)include&quot;&#10;/I &quot;$(MSSDK)\include&quot;"
@@ -96,11 +96,11 @@
                        headerPath=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_basics" path="C:\juce\modules"/>
-        <MODULEPATH id="juce_graphics" path="C:\juce\modules"/>
-        <MODULEPATH id="juce_events" path="C:\juce\modules"/>
-        <MODULEPATH id="juce_data_structures" path="C:\juce\modules"/>
-        <MODULEPATH id="juce_core" path="C:\juce\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </VS2008>
     <VS2013 targetFolder="Builds/VisualStudio2013" externalLibraries="" extraCompilerFlags="/I &quot;$(LIBNINJAM)&quot;&#10;/I &quot;$(LIBOGG)\include&quot;&#10;/I &quot;$(LIBVORBIS)\include&quot;&#10;/I &quot;$(DXSDK_DIR)include&quot;&#10;/I &quot;$(MSSDK)\include&quot;"
@@ -114,11 +114,11 @@
                        libraryPath="&quot;$(LIBNINJAM)\Win32\Release\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_gui_basics" path="C:\juce\modules"/>
-        <MODULEPATH id="juce_graphics" path="C:\juce\modules"/>
-        <MODULEPATH id="juce_events" path="C:\juce\modules"/>
-        <MODULEPATH id="juce_data_structures" path="C:\juce\modules"/>
-        <MODULEPATH id="juce_core" path="C:\juce\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_graphics" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_data_structures" path="JuceLibraryCode/modules"/>
+        <MODULEPATH id="juce_core" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </VS2013>
   </EXPORTFORMATS>

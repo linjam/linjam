@@ -21,8 +21,10 @@
 #define __JUCE_HEADER_CAE02453DB8909B0__
 
 //[Headers]     -- You can add your own extra header files here --
+
 #include "JuceHeader.h"
 #include "MixerGroupComponent.h"
+
 //[/Headers]
 
 
@@ -45,9 +47,16 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  void addLocalChannelComponent( String gui_id) ;
-  void addRemoteChannelComponent(String gui_id , String user_gui_id) ; // TODO
-  void addMasterChannelComponent(String gui_id) ;
+  void addMasterChannelComponent(String               channel_id) ;
+  void addLocalChannelComponent( String               channel_id) ;
+//   void addRemoteChannelComponent(String               gui_id              ,
+//                                  String               user_gui_id) ; // TODO
+  void updateChannelVU(          Identifier           mixergroup_id       ,
+                                 String               channel_id          , float vu) ;
+  void channelControlChanged(    MixerGroupComponent* mixerGroupComponent ,
+                                 Identifier           channel_id          ,
+                                 Identifier           config_key          ,
+                                 var                  value) ;
 
     //[/UserMethods]
 
@@ -55,15 +64,21 @@ public:
     void resized();
 
 
+
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  MixerGroupComponent* localMixerGroupComponent ;
   MixerGroupComponent* masterMixerGroupComponent ;
+  MixerGroupComponent* localMixerGroupComponent ;
 
-
-  MixerGroupComponent* addMixerSectionComponent(String gui_id) ;
-  void                 addChannelComponent(     String gui_id , MixerGroupComponent* mixer) ;
+  ValueTree            getChannelConfig(      MixerGroupComponent* mixerGroupComponent ,
+                                              Identifier           channel_id) ;
+  MixerGroupComponent* addMixerGroupComponent(String               mixer_group_id) ;
+  void                 addChannelComponent(   MixerGroupComponent* mixer           ,
+                                              String               channel_id      ,
+                                              bool                 is_xmit_enabled ,
+                                              bool                 is_solo_enabled ,
+                                              String               xmit_rcv_text) ;
 
     //[/UserVariables]
 

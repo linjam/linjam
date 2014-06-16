@@ -39,13 +39,14 @@ class MixerGroupComponent  : public Component
 {
 public:
     //==============================================================================
-    MixerGroupComponent (String gui_id);
+    MixerGroupComponent (String mixergroup_id);
     ~MixerGroupComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  void addChannelComponent(String gui_id) ;
+  void addChannelComponent(ChannelConfig* channel_config) ;
+  void updateChannelVU(    String         channel_id     , float vu) ;
 
     //[/UserMethods]
 

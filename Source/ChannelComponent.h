@@ -21,7 +21,12 @@
 #define __JUCE_HEADER_2B00F310AD58FBC0__
 
 //[Headers]     -- You can add your own extra header files here --
+
 #include "JuceHeader.h"
+
+
+class ChannelConfig ;
+
 //[/Headers]
 
 
@@ -40,11 +45,14 @@ class ChannelComponent  : public Component,
 {
 public:
     //==============================================================================
-    ChannelComponent (String channel_name);
+    ChannelComponent (ChannelConfig* channel_config);
     ~ChannelComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+  void updateChannelVU(float vu) ;
+
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -57,7 +65,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-//  MixerComponent* mixerComponent ; // controller for all channels
+  void setChannelConfig(Identifier config_key , var value) ;
 
     //[/UserVariables]
 
@@ -78,6 +86,46 @@ private:
 };
 
 //[EndFile] You can add extra defines here...
+
+class ChannelConfig
+{
+public:
+
+    ChannelConfig(String channel_id      , bool   is_xmit_enabled ,
+                  bool   is_solo_enabled , String xmit_rcv_text   ,
+                  double volume          , double pan             ,
+                  bool   is_xmit         , bool   is_muted        ,
+                  bool   is_solo         , int    source_ch       ,
+                  bool   is_stereo)
+    {
+      this->channel_id      = channel_id ;
+      this->is_xmit_enabled = is_xmit_enabled ;
+      this->is_solo_enabled = is_solo_enabled ;
+      this->xmit_rcv_text   = xmit_rcv_text ;
+      this->volume          = volume ;
+      this->pan             = pan ;
+      this->is_xmit         = is_xmit ;
+      this->is_muted        = is_muted ;
+      this->is_solo         = is_solo ;
+      this->source_ch       = source_ch ;
+      this->is_stereo       = is_stereo ;
+    }
+
+    ~ChannelConfig() ;
+
+    String channel_id ;
+    bool   is_xmit_enabled ;
+    bool   is_solo_enabled ;
+    String xmit_rcv_text ;
+    double volume ;
+    double pan ;
+    bool   is_xmit ;
+    bool   is_muted ;
+    bool   is_solo ;
+    int    source_ch ;
+    bool   is_stereo ;
+} ;
+
 //[/EndFile]
 
 #endif   // __JUCE_HEADER_2B00F310AD58FBC0__

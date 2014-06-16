@@ -94,10 +94,14 @@ const String GUI::INVALID_PM_MSG      = "Error: /msg requires a username and a m
 // ChannelComponents
 const String GUI::MASTER_CHANNEL_GUI_ID  = "master" ;
 const String GUI::METRO_CHANNEL_GUI_ID   = "metronome" ;
+const String GUI::XMIT_LABEL_TEXT        = "XMIT" ;
+const String GUI::RCV_LABEL_TEXT         = "RCV" ;
 
 // mixerGroupComponent
-const String GUI::LOCAL_MIXER_GUI_ID  = "Local" ;
-const String GUI::MASTER_MIXER_GUI_ID = "Master" ;
+const String     GUI::MASTER_MIXERGROUP_GUI_ID     = "Master" ;
+const Identifier GUI::MASTER_MIXERGROUP_IDENTIFIER = MASTER_MIXERGROUP_GUI_ID ;
+const String     GUI::LOCAL_MIXERGROUP_GUI_ID      = "Local" ;
+const Identifier GUI::LOCAL_MIXERGROUP_IDENTIFIER  = LOCAL_MIXERGROUP_GUI_ID ;
 
 // mixerComponent
 const String GUI::MIXER_GUI_ID = "mixer-gui" ;
@@ -217,22 +221,22 @@ const Identifier STORAGE::STEREO_IDENTIFIER        = STEREO_KEY ;
       "/><"                                   + \
       MASTERS_KEY          + "><"             + \
         MASTER_KEY         + " "              + \
-          VOLUME_KEY       + "=\"1.0f\" "     + \
-          PAN_KEY          + "=\"0.0f\" "     + \
+          VOLUME_KEY       + "=\"0.0\" "      + \
+          PAN_KEY          + "=\"0.0\" "      + \
           MUTE_KEY         + "=\"false\" "    + \
       "/><"                                   + \
         METRO_KEY          + " "              + \
-          VOLUME_KEY       + "=\"1.0f\" "     + \
-          PAN_KEY          + "=\"0.0f\" "     + \
+          VOLUME_KEY       + "=\"0.0\" "      + \
+          PAN_KEY          + "=\"0.0\" "      + \
           MUTE_KEY         + "=\"false\" "    + \
           SOURCE_N_KEY     + "=\"0\" "        + \
-          STEREO_KEY       + "=\"false\" "    + \
+          STEREO_KEY       + "=\"true\" "     + \
       "/>"                                    + \
       "</" + MASTERS_KEY   + "><"             + \
       LOCALS_KEY           + "><"             + \
         "default "                            + \
-          VOLUME_KEY       + "=\"1.0f\" "     + \
-          PAN_KEY          + "=\"0.0f\" "     + \
+          VOLUME_KEY       + "=\"0.0\" "      + \
+          PAN_KEY          + "=\"0.0\" "      + \
           XMIT_KEY         + "=\"false\" "    + \
           MUTE_KEY         + "=\"false\" "    + \
           SOLO_KEY         + "=\"false\" "    + \

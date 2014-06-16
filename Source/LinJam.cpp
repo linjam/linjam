@@ -250,23 +250,25 @@ DEBUG_TRACE_AUDIO_INIT
 
 void LinJam::ConfigureAudio()
 {
-  float master_volume   = float(Config->masterVolume .getValue()) ;
-  float master_pan      = float(Config->masterPan    .getValue()) ;
-  bool  is_master_muted = bool( Config->isMasterMuted.getValue()) ;
-  float metro_volume    = float(Config->metroVolume  .getValue()) ;
-  float metro_pan       = float(Config->metroPan     .getValue()) ;
-  bool  is_metro_muted  = bool( Config->isMetroMuted .getValue()) ;
-  int   metro_channel   = int(  Config->metroChannel .getValue()) ;
-  bool  is_metro_stereo = bool( Config->isMetroStereo.getValue()) ;
-
   // configure master channels
-  Client->config_mastervolume        = master_volume ;
+  ValueTree master_channel = Config->masterChannels.getChildWithName(GUI::MASTER_CHANNEL_GUI_ID) ;
+  ValueTree metro_channel  = Config->masterChannels.getChildWithName(GUI::METRO_CHANNEL_GUI_ID) ;
+  float master_volume      = float(master_channel.getProperty(STORAGE::VOLUME_IDENTIFIER)) ;
+  float master_pan         = float(master_channel.getProperty(STORAGE::PAN_IDENTIFIER)) ;
+  bool  is_master_muted    = bool( master_channel.getProperty(STORAGE::MUTE_IDENTIFIER)) ;
+  float metro_volume       = float(metro_channel .getProperty(STORAGE::VOLUME_IDENTIFIER)) ;
+  float metro_pan          = float(metro_channel .getProperty(STORAGE::PAN_IDENTIFIER)) ;
+  bool  is_metro_muted     = bool( metro_channel .getProperty(STORAGE::MUTE_IDENTIFIER)) ;
+  int   metro_source       = int(  metro_channel .getProperty(STORAGE::SOURCE_N_IDENTIFIER)) ;
+  bool  is_metro_stereo    = bool( metro_channel .getProperty(STORAGE::STEREO_IDENTIFIER)) ;
+
+  Client->config_mastervolume        = (float)DB2VAL(master_volume) ;
   Client->config_masterpan           = master_pan ;
   Client->config_mastermute          = is_master_muted ;
-  Client->config_metronome           = metro_volume ;
+  Client->config_metronome           = (float)DB2VAL(metro_volume) ;
   Client->config_metronome_pan       = metro_pan ;
   Client->config_metronome_mute      = is_metro_muted ;
-  Client->config_metronome_channel   = metro_channel ;
+  Client->config_metronome_channel   = metro_source ;
   Client->config_metronome_stereoout = is_metro_stereo ;
   Gui->mixerComponent->addMasterChannelComponent(GUI::MASTER_CHANNEL_GUI_ID) ;
   Gui->mixerComponent->addMasterChannelComponent(GUI::METRO_CHANNEL_GUI_ID) ;
@@ -280,11 +282,11 @@ void LinJam::ConfigureAudio()
     char*      c_name    = name_wdl.Get() ;
     float      volume    = float(channel.getProperty(STORAGE::VOLUME_IDENTIFIER)) ;
     float      pan       = float(channel.getProperty(STORAGE::PAN_IDENTIFIER)) ;
-    float      is_xmit   = float(channel.getProperty(STORAGE::XMIT_IDENTIFIER)) ;
-    float      is_muted  = float(channel.getProperty(STORAGE::MUTE_IDENTIFIER)) ;
-    float      is_solo   = float(channel.getProperty(STORAGE::SOLO_IDENTIFIER)) ;
-    float      source_n  = float(channel.getProperty(STORAGE::SOURCE_N_IDENTIFIER)) ;
-    float      is_stereo = float(channel.getProperty(STORAGE::STEREO_IDENTIFIER)) ;
+    bool       is_xmit   = bool( channel.getProperty(STORAGE::XMIT_IDENTIFIER)) ;
+    bool       is_muted  = bool( channel.getProperty(STORAGE::MUTE_IDENTIFIER)) ;
+    bool       is_solo   = bool( channel.getProperty(STORAGE::SOLO_IDENTIFIER)) ;
+    int        source_n  = int(  channel.getProperty(STORAGE::SOURCE_N_IDENTIFIER)) ;
+    bool       is_stereo = bool( channel.getProperty(STORAGE::STEREO_IDENTIFIER)) ;
 
     Client->SetLocalChannelInfo(ch_n , c_name , true  , source_n ,
                                                 false , 0        ,

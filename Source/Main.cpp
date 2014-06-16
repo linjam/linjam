@@ -8,6 +8,10 @@
   ==============================================================================
 */
 
+//#define DEBUG_AUTOJOIN_STATIC_CHANNEL
+#define DEBUG_STATIC_CHANNEL "ninbot.com:2049"
+
+
 // NOTE: arrange that "windows.h" be included before "JuceHeader.h" in all contexts
 //         and arrange to include "JuceHeader.h" before any "*Component.h"
 #include "LinJam.h" // includes "windows.h" and "JuceHeader.h"
@@ -54,7 +58,7 @@ public:
       {
           this->prev_status = NJClient::NJC_STATUS_DISCONNECTED ;
           this->startTimer(CLIENT::CLIENT_DRIVER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
-//        this->startTimer(CLIENT::STATUS_POLL_ID ,   CLIENT::STATUS_POLL_IVL) ;
+          this->startTimer(CLIENT::GUI_DRIVER_ID ,    CLIENT::GUI_DRIVER_IVL) ;
       }
     }
 
@@ -142,9 +146,9 @@ DBG("[DEBUG]: EXIT_IMMEDIAYELY defined - bailing") ; this->quit() ;
 
       switch (timerId)
       {
-        case CLIENT::CLIENT_DRIVER_ID: driveClient() ;  break ;
-//        case CLIENT::STATUS_POLL_ID:   handleStatus(status) ; break ;
-        default:                                              break ;
+        case CLIENT::CLIENT_DRIVER_ID: driveClient() ; break ;
+        case CLIENT::GUI_DRIVER_ID:    updateGUI() ;   break ;
+        default:                                       break ;
       }
     }
 
@@ -161,6 +165,12 @@ DBG("[DEBUG]: EXIT_IMMEDIAYELY defined - bailing") ; this->quit() ;
     void handleStatus(int status)
     {
 DEBUG_TRACE_CONNECT_STATUS
+#ifdef DEBUG_AUTOJOIN_STATIC_CHANNEL
+if (status == NJC_STATUS_PRECONNECT)
+{ LinJam::Config->currentHost        = DEBUG_STATIC_CHANNEL ;
+  LinJam::Config->currentLogin       =  "nobody" ;
+  LinJam::Config->currentIsAnonymous = true ; LinJam::Connect() ; }
+#endif // DEBUG_AUTOJOIN_STATIC_CHANNEL
 
       // GUI state
       this->blankComponent->toFront(false) ;
@@ -203,6 +213,13 @@ DEBUG_TRACE_CONNECT_STATUS
           status_text = GUI::UNKNOWN_STATUS_TEXT + String(status) ;  break ;
       }
       this->statusbarComponent->setStatusL(status_text) ;
+    }
+
+    void updateGUI()
+    {
+      float master_vu = VAL2DB(GetOutputPeak()) ;
+      mixerComponent->updateChannelVU(GUI::MASTER_MIXERGROUP_IDENTIFIER ,
+                                      STORAGE::MASTER_KEY , master_vu) ;
     }
 
     void handleUserInfoChanged()

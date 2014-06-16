@@ -28,7 +28,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-MixerGroupComponent::MixerGroupComponent (String gui_id)
+MixerGroupComponent::MixerGroupComponent (String mixergroup_id)
 {
     addAndMakeVisible (mixerSectionLabel = new Label ("mixerSectionLabel",
                                                       String::empty));
@@ -48,7 +48,7 @@ MixerGroupComponent::MixerGroupComponent (String gui_id)
 
 
     //[Constructor] You can add your own custom stuff here..
-  mixerSectionLabel->setText(gui_id , dontSendNotification) ;
+  mixerSectionLabel->setText(mixergroup_id , dontSendNotification) ;
     //[/Constructor]
 }
 
@@ -102,12 +102,15 @@ void MixerGroupComponent::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void MixerGroupComponent::addChannelComponent(String gui_id)
+void MixerGroupComponent::addChannelComponent(ChannelConfig* channel_config)
 {
-  ChannelComponent* channel_component = new ChannelComponent(gui_id) ;
-  this->addChildAndSetID(channel_component , gui_id) ;
+  ChannelComponent* channel_component = new ChannelComponent(channel_config) ;
+  this->addChildAndSetID(channel_component , channel_config->channel_id) ;
   channel_component->toFront(false) ;
 }
+
+void MixerGroupComponent::updateChannelVU(String channel_id , float vu)
+{ ((ChannelComponent*)findChildWithID(StringRef(channel_id)))->updateChannelVU(vu) ; }
 
 //[/MiscUserCode]
 
@@ -122,7 +125,7 @@ void MixerGroupComponent::addChannelComponent(String gui_id)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MixerGroupComponent" componentName=""
-                 parentClasses="public Component" constructorParams="String gui_id"
+                 parentClasses="public Component" constructorParams="String mixergroup_id"
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
                  overlayOpacity="0.330" fixedSize="0" initialWidth="132" initialHeight="276">
   <BACKGROUND backgroundColour="0">

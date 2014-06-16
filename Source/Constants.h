@@ -43,7 +43,7 @@ public:
 
   // main
   static const int CLIENT_DRIVER_ID = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
-//  static const int STATUS_POLL_ID   = 1 ; static const int STATUS_POLL_IVL   = 500 ;
+  static const int GUI_DRIVER_ID    = 1 ; static const int GUI_DRIVER_IVL    = 125 ;
 } ;
 
 
@@ -118,17 +118,21 @@ public:
   // ChannelComponents
   static const String MASTER_CHANNEL_GUI_ID ;
   static const String METRO_CHANNEL_GUI_ID ;
+  static const String XMIT_LABEL_TEXT ;
+  static const String RCV_LABEL_TEXT ;
   static const int    CHANNEL_Y = LABEL_H + PAD2 ;
   static const int    CHANNEL_W = 60 ;
   static const int    CHANNEL_H = 252 ;
 
   // MixerGroupComponent
-  static const String LOCAL_MIXER_GUI_ID ;
-  static const String MASTER_MIXER_GUI_ID ;
-  static const int    MIXERGROUP_Y  = PAD ;
-  static const int    MIXERGROUP_H  = CHANNEL_H + LABEL_H + PAD3 ;
-  static       int    MIXERGROUP_W(int n_channels) { return PAD + (n_channels * (CHANNEL_W + PAD)) ; }
-  static const int    MASTERGROUP_W =                       PAD + (2          * (CHANNEL_W + PAD)) ;
+  static const String     MASTER_MIXERGROUP_GUI_ID ;
+  static const Identifier MASTER_MIXERGROUP_IDENTIFIER ;
+  static const String     LOCAL_MIXERGROUP_GUI_ID ;
+  static const Identifier LOCAL_MIXERGROUP_IDENTIFIER ;
+  static const int        MIXERGROUP_Y  = PAD ;
+  static const int        MIXERGROUP_H  = CHANNEL_H + LABEL_H + PAD3 ;
+  static       int        MIXERGROUP_W(int n_channels) { return PAD + (n_channels * (CHANNEL_W + PAD)) ; }
+  static const int        MASTERGROUP_W =                       PAD + (2          * (CHANNEL_W + PAD)) ;
 
   // MixerComponent
   static const String MIXER_GUI_ID ;

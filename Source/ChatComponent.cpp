@@ -18,7 +18,9 @@
 */
 
 //[Headers] You can add your own extra header files here...
+
 #include "LinJam.h"
+
 //[/Headers]
 
 #include "ChatComponent.h"

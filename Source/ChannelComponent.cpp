@@ -18,9 +18,14 @@
 */
 
 //[Headers] You can add your own extra header files here...
+
+#include "Constants.h"
+#include "Trace.h"
+#include "MixerGroupComponent.h"
+#include "MixerComponent.h"
+
 //[/Headers]
 
-#include "LinJam.h"
 #include "ChannelComponent.h"
 
 
@@ -28,7 +33,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-ChannelComponent::ChannelComponent (String channel_name)
+ChannelComponent::ChannelComponent (ChannelConfig* channel_config)
 {
     setName ("ChannelComponent");
     addAndMakeVisible (xmitButton = new ToggleButton ("xmitButton"));
@@ -55,7 +60,7 @@ ChannelComponent::ChannelComponent (String channel_name)
     panSlider->addListener (this);
 
     addAndMakeVisible (vuSlider = new Slider ("vuSlider"));
-    vuSlider->setRange (50, 100, 0);
+    vuSlider->setRange (-120, 20, 0);
     vuSlider->setSliderStyle (Slider::LinearBar);
     vuSlider->setTextBoxStyle (Slider::NoTextBox, true, 48, 12);
     vuSlider->setColour (Slider::textBoxTextColourId, Colours::grey);
@@ -63,7 +68,7 @@ ChannelComponent::ChannelComponent (String channel_name)
     vuSlider->addListener (this);
 
     addAndMakeVisible (gainSlider = new Slider ("gainSlider"));
-    gainSlider->setRange (50, 100, 0);
+    gainSlider->setRange (-120, 20, 0);
     gainSlider->setSliderStyle (Slider::LinearVertical);
     gainSlider->setTextBoxStyle (Slider::NoTextBox, true, 48, 12);
     gainSlider->setColour (Slider::textBoxTextColourId, Colours::grey);
@@ -71,7 +76,7 @@ ChannelComponent::ChannelComponent (String channel_name)
     gainSlider->addListener (this);
 
     addAndMakeVisible (vuLabel = new Label ("vuLabel",
-                                            TRANS("-12")));
+                                            TRANS("-120")));
     vuLabel->setFont (Font (10.00f, Font::plain));
     vuLabel->setJustificationType (Justification::centred);
     vuLabel->setEditable (false, false, false);
@@ -101,7 +106,6 @@ ChannelComponent::ChannelComponent (String channel_name)
     //[UserPreSize]
 
   this->vuSlider ->setSliderStyle(Slider::LinearBarVertical) ;
-  this->nameLabel->setText(channel_name, dontSendNotification) ;
 
     //[/UserPreSize]
 
@@ -109,6 +113,22 @@ ChannelComponent::ChannelComponent (String channel_name)
 
 
     //[Constructor] You can add your own custom stuff here..
+
+DEBUG_TRACE_ADDED_CHANNEL
+
+  this->nameLabel   ->setText(           channel_config->channel_id , dontSendNotification) ;
+  this->xmitButton  ->setEnabled(        channel_config->is_xmit_enabled) ;
+  this->soloButton  ->setEnabled(        channel_config->is_solo_enabled) ;
+  this->xmitButton  ->setButtonText(     channel_config->xmit_rcv_text) ;
+  this->gainSlider  ->setValue(          channel_config->volume) ;
+  this->gainLabel   ->setText(String(int(channel_config->volume))   , dontSendNotification) ;
+  this->panSlider   ->setValue(          channel_config->pan) ;
+  this->xmitButton  ->setToggleState(    channel_config->is_xmit    , dontSendNotification) ;
+  this->muteButton  ->setToggleState(    channel_config->is_muted   , dontSendNotification) ;
+  this->soloButton  ->setToggleState(    channel_config->is_solo    , dontSendNotification) ;
+//   this->sourceLabel ->setText(String(    channel_config->source_ch)) ; // TODO:
+//   this->stereoButton->setToggleState(    channel_config->is_stereo) ; // TODO:
+
     //[/Constructor]
 }
 
@@ -166,33 +186,40 @@ void ChannelComponent::resized()
 void ChannelComponent::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
+
+  bool toggleState = buttonThatWasClicked->getToggleState() ; Identifier config_key ;
+
     //[/UserbuttonClicked_Pre]
 
     if (buttonThatWasClicked == xmitButton)
     {
         //[UserButtonCode_xmitButton] -- add your button handler code here..
+
+      config_key = STORAGE::XMIT_IDENTIFIER ;
+
         //[/UserButtonCode_xmitButton]
     }
     else if (buttonThatWasClicked == muteButton)
     {
         //[UserButtonCode_muteButton] -- add your button handler code here..
 
-// ok Value::Listener in LinJamConfig
-//LinJam::Config->isMetroMuted = this->muteButton->getToggleState() ;
-
-// ok ValueTree::Listener in LinJamConfig
-Value muted = LinJam::Config->getMasterConfigValueObj(STORAGE::METRO_IDENTIFIER , STORAGE::MUTE_IDENTIFIER) ;
-muted.setValue(this->muteButton->getToggleState()) ;
+      config_key = STORAGE::MUTE_IDENTIFIER ;
 
         //[/UserButtonCode_muteButton]
     }
     else if (buttonThatWasClicked == soloButton)
     {
         //[UserButtonCode_soloButton] -- add your button handler code here..
+
+      config_key = STORAGE::SOLO_IDENTIFIER ;
+
         //[/UserButtonCode_soloButton]
     }
 
     //[UserbuttonClicked_Post]
+
+  setChannelConfig(config_key , var(toggleState)) ;
+
     //[/UserbuttonClicked_Post]
 }
 
@@ -204,6 +231,9 @@ void ChannelComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     if (sliderThatWasMoved == panSlider)
     {
         //[UserSliderCode_panSlider] -- add your slider handling code here..
+      double value = sliderThatWasMoved->getValue() ;
+      setChannelConfig(STORAGE::PAN_IDENTIFIER , var(value)) ;
+
         //[/UserSliderCode_panSlider]
     }
     else if (sliderThatWasMoved == vuSlider)
@@ -214,22 +244,36 @@ void ChannelComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     else if (sliderThatWasMoved == gainSlider)
     {
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
+
+      double value = sliderThatWasMoved->getValue() ;
+      gainLabel->setText(String(int(value)) , dontSendNotification) ;
+      setChannelConfig(STORAGE::VOLUME_IDENTIFIER , var(value)) ;
+
         //[/UserSliderCode_gainSlider]
     }
 
     //[UsersliderValueChanged_Post]
-/*
-// NJClient::SetLocalChannelInfo(int ch, const char *name, bool setsrcch, int srcch, bool setbitrate, int bitrate, bool setbcast, bool broadcast)
-//g_client->SetLocalChannelInfo(0  , "channel0"                      , true  , 0                       , false , 0 , true  , true);// from cursesclient
-    Client->SetLocalChannelInfo(ch_n , channel_names[ch_n].toRawUTF8() , true  , channel_source_ns[ch_n] , false , 0 , true  , channel_xmits[ch_n]) ;
-//NJClient::SetLocalChannelMonitoring(int ch, bool setvol, float vol, bool setpan, float pan, bool setmute, bool mute, bool setsolo, bool solo)
-*/
     //[/UsersliderValueChanged_Post]
 }
 
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void ChannelComponent::updateChannelVU(float vu)
+{
+  this->vuSlider->setValue(vu) ;
+  this->vuLabel ->setText(String(int(vu)) , dontSendNotification) ;
+}
+
+void ChannelComponent::setChannelConfig(Identifier config_key , var value)
+{
+  MixerGroupComponent* mixergroup = (MixerGroupComponent*)getParentComponent() ;
+  MixerComponent*      mixer      = (MixerComponent*)mixergroup->getParentComponent() ;
+
+  mixer->channelControlChanged(mixergroup , this->getComponentID() , config_key , value) ;
+}
+
 //[/MiscUserCode]
 
 
@@ -243,7 +287,7 @@ void ChannelComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="ChannelComponent" componentName="ChannelComponent"
-                 parentClasses="public Component" constructorParams="String channel_name"
+                 parentClasses="public Component" constructorParams="ChannelConfig* channel_config"
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
                  overlayOpacity="0.330" fixedSize="0" initialWidth="60" initialHeight="252">
   <BACKGROUND backgroundColour="0">
@@ -269,17 +313,17 @@ BEGIN_JUCER_METADATA
           skewFactor="1"/>
   <SLIDER name="vuSlider" id="fbb656fdc87f46ed" memberName="vuSlider" virtualName=""
           explicitFocusOrder="0" pos="4 92 24 128" textboxtext="ff808080"
-          textboxbkgd="0" min="50" max="100" int="0" style="LinearBar"
+          textboxbkgd="0" min="-120" max="20" int="0" style="LinearBar"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="48"
           textBoxHeight="12" skewFactor="1"/>
   <SLIDER name="gainSlider" id="e34ef13291b2ec40" memberName="gainSlider"
           virtualName="" explicitFocusOrder="0" pos="32 92 24 128" textboxtext="ff808080"
-          textboxbkgd="0" min="50" max="100" int="0" style="LinearVertical"
+          textboxbkgd="0" min="-120" max="20" int="0" style="LinearVertical"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="48"
           textBoxHeight="12" skewFactor="1"/>
   <LABEL name="vuLabel" id="cdc1fb3056af7c9b" memberName="vuLabel" virtualName=""
          explicitFocusOrder="0" pos="4 224 24 12" textCol="ff808080" edTextCol="ff000000"
-         edBkgCol="0" labelText="-12" editableSingleClick="0" editableDoubleClick="0"
+         edBkgCol="0" labelText="-120" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="10"
          bold="0" italic="0" justification="36"/>
   <LABEL name="gainLabel" id="4bb31261e6795ae1" memberName="gainLabel"
@@ -300,4 +344,7 @@ END_JUCER_METADATA
 
 
 //[EndFile] You can add extra defines here...
+
+  ChannelConfig::~ChannelConfig() {}
+
 //[/EndFile]

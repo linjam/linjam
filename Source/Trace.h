@@ -176,9 +176,21 @@
       }                                                                             \
     }
 
-#  define DEBUG_TRACE_ADD_MASTER_CHANNEL   Trace::TraceEvent("adding master channel '" + gui_id + "'") ;
-#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL    Trace::TraceEvent("adding local channel '"  + gui_id + "'") ;
-#  define DEBUG_TRACE_ADD_REMOTE_CHANNEL   Trace::TraceEvent("adding remote channel '" + gui_id + "' for user " + user_gui_id) ;
+#  define DEBUG_TRACE_ADD_MASTER_CHANNEL   Trace::TraceEvent("adding master channel '" + channel_id + "'") ;
+#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL    Trace::TraceEvent("adding local channel '"  + channel_id + "'") ;
+#  define DEBUG_TRACE_ADD_REMOTE_CHANNEL   Trace::TraceEvent("adding remote channel '" + channel_id + "' for user " + user_gui_id) ;
+#  define DEBUG_TRACE_ADDED_CHANNEL        Trace::TraceEvent(String("channel added =>") + \
+    "\n  channel_id      => " + String(channel_config->channel_id)                      + \
+    "\n  is_xmit_enabled => " + String(channel_config->is_xmit_enabled)                 + \
+    "\n  is_solo_enabled => " + String(channel_config->is_solo_enabled)                 + \
+    "\n  xmit_rcv_text   => " + String(channel_config->xmit_rcv_text)                   + \
+    "\n  volume          => " + String(channel_config->volume)                          + \
+    "\n  pan             => " + String(channel_config->pan)                             + \
+    "\n  is_xmit         => " + String(channel_config->is_xmit)                         + \
+    "\n  is_muted        => " + String(channel_config->is_muted)                        + \
+    "\n  is_solo         => " + String(channel_config->is_solo)                         + \
+    "\n  source_ch       => " + String(channel_config->source_ch)                       + \
+    "\n  is_stereo       => " + String(channel_config->is_stereo)) ;
 
 #  define DEBUG_TRACE_CHAT_IN            if (chat_user.compare(Config->currentLogin.toString())) Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 //#  define DEBUG_TRACE_CHATIN String msg = "|" ; for (;nparms--;) msg += String(parms[nparms]) + "|" ; Trace::TraceEvent("LinJam::OnChatmsg()=\n\"" + msg + "\"") ;
@@ -218,6 +230,7 @@
 #  define DEBUG_TRACE_ADD_MASTER_CHANNEL ;
 #  define DEBUG_TRACE_ADD_LOCAL_CHANNEL  ;
 #  define DEBUG_TRACE_ADD_REMOTE_CHANNEL ;
+#  define DEBUG_TRACE_ADDED_CHANNEL      ;
 #  define DEBUG_TRACE_CHAT_IN            ;
 #  define DEBUG_TRACE_CHAT_OUT           ;
 #  define DEBUG_TRACE_SHUTDOWN           ;

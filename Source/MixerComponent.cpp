@@ -18,9 +18,11 @@
 */
 
 //[Headers] You can add your own extra header files here...
+
 #include "Constants.h"
 #include "Trace.h"
 #include "LinJam.h"
+
 //[/Headers]
 
 #include "MixerComponent.h"
@@ -36,8 +38,8 @@ MixerComponent::MixerComponent ()
 
     //[UserPreSize]
 
-  this->localMixerGroupComponent  = addMixerSectionComponent(GUI::LOCAL_MIXER_GUI_ID) ;
-  this->masterMixerGroupComponent = addMixerSectionComponent(GUI::MASTER_MIXER_GUI_ID) ;
+  this->localMixerGroupComponent  = addMixerGroupComponent(GUI::LOCAL_MIXERGROUP_GUI_ID) ;
+  this->masterMixerGroupComponent = addMixerGroupComponent(GUI::MASTER_MIXERGROUP_GUI_ID) ;
 
     //[/UserPreSize]
 
@@ -104,47 +106,105 @@ void MixerComponent::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void MixerComponent::addLocalChannelComponent(String gui_id)
+ValueTree MixerComponent::getChannelConfig(MixerGroupComponent* mixerGroupComponent ,
+                                           Identifier channel_id)
 {
-DEBUG_TRACE_ADD_LOCAL_CHANNEL
-
-  addChannelComponent(gui_id , localMixerGroupComponent) ;
+  if      (mixerGroupComponent == masterMixerGroupComponent)
+    return LinJam::Config->masterChannels.getChildWithName(channel_id) ;
+  else if (mixerGroupComponent == localMixerGroupComponent)
+    return LinJam::Config->localChannels .getChildWithName(channel_id) ;
+//   else if (mixerGroupComponent == remoteMixerGroupComponent)
+//     return LinJam::Config->remoteChannels.getChildWithName(channel_id) ;
+  else return ValueTree::invalid ;
 }
-/* TODO
-void MixerComponent::addRemoteChannelComponent(String gui_id , String user_gui_id)
-{
-DEBUG_TRACE_ADD_REMOTE_CHANNEL
 
-  MixerGroupComponent* remoteMixerComponent = (MixerGroupComponent*)findChildWithID(gui_id) ;
-  if (!remoteMixerComponent) addMixerSectionComponent(user_gui_id) ;
-  addChannelComponent(gui_id , remoteMixerComponent) ;
-}
-*/
-void MixerComponent::addMasterChannelComponent(String gui_id)
+void MixerComponent::addMasterChannelComponent(String channel_id)
 {
 DEBUG_TRACE_ADD_MASTER_CHANNEL
 
-  Value muted = LinJam::Config->getMasterConfigValueObj(gui_id , STORAGE::MUTE_IDENTIFIER) ;
-  bool is_muted = bool(muted.getValue()) ;
-  addChannelComponent(gui_id , masterMixerGroupComponent) ;
+  bool   is_xmit_enabled = false ;
+  bool   is_solo_enabled = false ;
+  String xmit_rcv_text   = "" ;
+  addChannelComponent(masterMixerGroupComponent , channel_id ,
+                      is_xmit_enabled , is_solo_enabled , xmit_rcv_text) ;
 }
 
-
-MixerGroupComponent* MixerComponent::addMixerSectionComponent(String gui_id)
+void MixerComponent::addLocalChannelComponent(String channel_id)
 {
-  MixerGroupComponent* mixer_group_component = new MixerGroupComponent(gui_id) ;
-  addChildAndSetID(mixer_group_component , gui_id) ;
-  mixer_group_component->toFront(true) ;
+DEBUG_TRACE_ADD_LOCAL_CHANNEL
 
-  return mixer_group_component ;
+  bool   is_xmit_enabled = true ;
+  bool   is_solo_enabled = true ;
+  String xmit_rcv_text   = GUI::XMIT_LABEL_TEXT ;
+  addChannelComponent(localMixerGroupComponent , channel_id ,
+                      is_xmit_enabled , is_solo_enabled , xmit_rcv_text) ;
+}
+/* TODO
+void MixerComponent::addRemoteChannelComponent(String channel_id , String user_gui_id)
+{
+DEBUG_TRACE_ADD_REMOTE_CHANNEL
+
+  MixerGroupComponent* remoteMixerComponent = (MixerGroupComponent*)findChildWithID(channel_id) ;
+  if (!remoteMixerComponent) addMixerSectionComponent(user_gui_id) ;
+
+  bool   is_xmit_enabled = false ;
+  bool   is_solo_enabled = false ;
+  String xmit_rcv_text   = GUI::RCV_LABEL_TEXT ;
+  addChannelComponent(remoteMixerGroupComponent , channel_id ,
+                      is_xmit_enabled , is_solo_enabled , xmit_rcv_text) ;
+}
+*/
+
+MixerGroupComponent* MixerComponent::addMixerGroupComponent(String mixergroup_id)
+{
+  MixerGroupComponent* mixergroup_component = new MixerGroupComponent(mixergroup_id) ;
+  addChildAndSetID(mixergroup_component , mixergroup_id) ;
+  mixergroup_component->toFront(true) ;
+
+  return mixergroup_component ;
 }
 
-void MixerComponent::addChannelComponent(String gui_id , MixerGroupComponent* mixer)
+void MixerComponent::addChannelComponent(MixerGroupComponent* mixer , String channel_id    ,
+                                         bool   is_xmit_enabled     , bool   is_solo_enabled ,
+                                         String xmit_rcv_text)
 {
-  mixer->addChannelComponent(gui_id) ;
+  ValueTree channel_config_values = getChannelConfig(mixer , channel_id) ;
+  double volume  = double(channel_config_values[STORAGE::VOLUME_IDENTIFIER]) ;
+  double pan     = double(channel_config_values[STORAGE::PAN_IDENTIFIER]) ;
+  bool is_xmit   = bool(  channel_config_values[STORAGE::XMIT_IDENTIFIER]) ;
+  bool is_muted  = bool(  channel_config_values[STORAGE::MUTE_IDENTIFIER]) ;
+  bool is_solo   = bool(  channel_config_values[STORAGE::SOLO_IDENTIFIER]) ;
+  int  source_ch = int(   channel_config_values[STORAGE::SOURCE_N_IDENTIFIER]) ;
+  bool is_stereo = bool(  channel_config_values[STORAGE::STEREO_IDENTIFIER]) ;
+
+  ChannelConfig* channel_config = new ChannelConfig(channel_id , is_xmit_enabled ,
+                                                    is_solo_enabled , xmit_rcv_text ,
+                                                    volume , pan , is_xmit , is_muted ,
+                                                    is_solo , source_ch , is_stereo) ;
+  mixer->addChannelComponent(channel_config) ; delete channel_config ;
 
   int n_channels = mixer->getNumChildComponents() - 1 ;
   mixer->setSize(GUI::MIXERGROUP_W(n_channels) , GUI::MIXERGROUP_H) ;
+}
+
+void MixerComponent::updateChannelVU(Identifier mixergroup_id ,
+                                     String channel_id        , float vu)
+{
+  if      (mixergroup_id == GUI::MASTER_MIXERGROUP_IDENTIFIER)
+    masterMixerGroupComponent->updateChannelVU(channel_id , vu) ;
+  else if (mixergroup_id == GUI::LOCAL_MIXERGROUP_IDENTIFIER)
+    localMixerGroupComponent ->updateChannelVU(channel_id , vu) ;
+//   else if (mixergroup_id == GUI::REMOTE_MIXERGROUP_IDENTIFIER)
+//     remoteMixerGroupComponent->updateChannelVU(channel_id , vu) ;
+}
+
+void MixerComponent::channelControlChanged(MixerGroupComponent* mixerGroupComponent ,
+                                           Identifier           channel_id          ,
+                                           Identifier           config_key          ,
+                                           var                  value)
+{
+  ValueTree channel_config = getChannelConfig(mixerGroupComponent , channel_id) ;
+  channel_config.setProperty(config_key , value , &LinJam::Config->configUndoManager) ;
 }
 
 //[/MiscUserCode]
