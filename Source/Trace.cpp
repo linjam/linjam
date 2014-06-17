@@ -79,10 +79,12 @@ String Trace::SanitizeConfig(ValueTree default_config , ValueTree stored_config 
     else dbg += SanitizeConfig(default_child , stored_child , pad + "  ") ;
   }
 
-  Array<Identifier> custom_keys ;
-  custom_keys.add(STORAGE::SERVERS_IDENTIFIER) ;
-//  custom_keys.add(STORAGE::CHANNELS_IDENTIFIER) ; // TODO:
-  if (custom_keys.contains(node_name))
+  Array<Identifier> user_keys ;
+//  user_keys.add(STORAGE::LOCALS_IDENTIFIER) ; // TODO:
+//  user_keys.add(STORAGE::REMOTES_IDENTIFIER) ; // TODO:
+//  user_keys.add(STORAGE::SUBSCRIPTIONS_IDENTIFIER) ; // TODO:
+  user_keys.add(STORAGE::SERVERS_IDENTIFIER) ;
+  if (user_keys.contains(node_name))
   {
     for (int child_n = 0 ; child_n < stored_config.getNumChildren() ; ++child_n)
     {

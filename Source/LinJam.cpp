@@ -40,9 +40,6 @@ DEBUG_TRACE_LINJAM_INIT
 
 // TODO: parse command line args for autojoin (issue #9)
 
-
-// TODO: load master and local channels from persistent config (issue #6)
-
 /* TODO:  (issue #19)
   audio_config =>
     win =>
@@ -59,8 +56,8 @@ DEBUG_TRACE_LINJAM_INIT
           nch 2        -- set channels
           bps 16       -- set bits/sample
           bsize 2048   -- set blocksize (bytes)
-          nblock 16    -- set number of blocks
-*/
+          nblock 16    -- set number of blocks */
+
 
   // load persistent configuration
   Config = new LinJamConfig() ; if (!Config->sanityCheck()) return false ;
@@ -205,21 +202,19 @@ DEBUG_TRACE_CHAT_OUT
 
 bool LinJam::InitializeAudio()
 {
-  int   interface_n   = int(Config->audioIfN  .getValue()) ;
-  int   n_inputs      = int(Config->nInputs   .getValue()) ;
-  int   n_outputs     = int(Config->nOutputs  .getValue()) ;
-  int   bit_depth     = int(Config->bitDepth  .getValue()) ;
-  int   sample_rate   = int(Config->sampleRate.getValue()) ;
-  WDL_String jack_name_wdl( Config->jackName  .toString().toRawUTF8()) ;
-  char* jack_name     = jack_name_wdl.Get() ;
-  char* config_string = "" ;
+        int   interface_n   = int(Config->audioIfN  .getValue()) ;
+        int   n_inputs      = int(Config->nInputs   .getValue()) ;
+        int   n_outputs     = int(Config->nOutputs  .getValue()) ;
+        int   bit_depth     = int(Config->bitDepth  .getValue()) ;
+        int   sample_rate   = int(Config->sampleRate.getValue()) ;
+  const char* jack_name     =     Config->jackName  .toString().toRawUTF8() ;
+        char* config_string = "" ;
 #ifdef _WIN32
 #  ifndef AUDIOCONFIG_CPP_NYI_TODO
-  // TODO: make this function auto-cascade fallback selections -then we can default to 0
   audioStreamer::WinAudioIf if_n = audioStreamer::WinAudioIf::WINDOWS_AUDIO_WAVE ; // 3
   interface_n = if_n ;
 #  else // AUDIOCONFIG_CPP_NYI_TODO
-// TODO reimplement audioconfig.cpp client-side
+// TODO reimplement audioconfig.cpp client-side (issue #27)
 #  endif // AUDIOCONFIG_CPP_NYI_TODO
   Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , (audioStreamer::WinAudioIf)interface_n , OnSamples) ;
 #else // _WIN32
@@ -286,15 +281,15 @@ void LinJam::ConfigureAudio()
     bool       is_muted  = bool( channel.getProperty(STORAGE::MUTE_IDENTIFIER)) ;
     bool       is_solo   = bool( channel.getProperty(STORAGE::SOLO_IDENTIFIER)) ;
     int        source_n  = int(  channel.getProperty(STORAGE::SOURCE_N_IDENTIFIER)) ;
-    bool       is_stereo = bool( channel.getProperty(STORAGE::STEREO_IDENTIFIER)) ;
+//     bool       is_stereo = bool( channel.getProperty(STORAGE::STEREO_IDENTIFIER)) ;
 
     Client->SetLocalChannelInfo(ch_n , c_name , true  , source_n ,
                                                 false , 0        ,
                                                 true  , is_xmit  ) ;
-    Client->SetLocalChannelMonitoring(ch_n , true  , volume   ,
-                                             true  , pan      ,
-                                             true  , is_muted ,
-                                             true  , is_solo  ) ;
+    Client->SetLocalChannelMonitoring(ch_n , true  , (float)DB2VAL(volume) ,
+                                             true  , pan                   ,
+                                             true  , is_muted              ,
+                                             true  , is_solo               ) ;
 
 #ifdef INPUT_FX
 #  ifdef _WIN32
@@ -343,6 +338,21 @@ void LinJam::ConfigureNinjam()
   }
 }
 
+void LinJam::CleanSessionDir()
+{
+  bool should_save_audio = bool(Config->shouldSaveAudio.getValue()) ;
+  if (should_save_audio) return ;
+
+DEBUG_TRACE_CLEAN_SESSION
+
+  File this_binary = File::getSpecialLocation(File::currentExecutableFile) ;
+  File this_dir    = this_binary.getParentDirectory() ;
+  if (!SessionDir.isDirectory() || !SessionDir.isAChildOf(this_dir)) return ;
+
+  DirectoryIterator session_dir_iter(SessionDir , false , "*.*" , File::findFilesAndDirectories) ;
+  while (session_dir_iter.next()) session_dir_iter.getFile().deleteRecursively() ;
+}
+
 void LinJam::HandleChatCommand(String chat_text)
 {
   String command        = chat_text.upToFirstOccurrenceOf(" " , false , false) ;
@@ -354,7 +364,7 @@ void LinJam::HandleChatCommand(String chat_text)
                            !command.compare(CLIENT::CHATMSG_CMD_BPM)   ||
                            !command.compare(CLIENT::CHATMSG_CMD_BPI)    ) ;
 
-#ifdef CHAT_COMMANDS_BUGGY
+#ifdef CHAT_COMMANDS_BUGGY // (issue #19)
   Gui->chatComponent->addChatLine(GUI::SERVER_NICK , "commands disabled") ;
 #else // CHAT_COMMANDS_BUGGY
 
@@ -381,7 +391,7 @@ void LinJam::HandleChatCommand(String chat_text)
 
     if (to_user.isEmpty() || msg.isEmpty())
       Gui->chatComponent->addChatLine(GUI::SERVER_NICK , GUI::INVALID_PM_MSG) ;
-    else // if (does_user_exist(to_user)) // TODO: this safe yea ?
+    else // if (does_user_exist(to_user)) // TODO: this safe yea ? // (issue #19)
     {
       Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_PRIVMSG.toRawUTF8() , msg.toRawUTF8()) ;
       Gui->chatComponent->addChatLine("(PM -> " + to_user + ")" , msg) ;
@@ -392,17 +402,33 @@ void LinJam::HandleChatCommand(String chat_text)
 #endif // CHAT_COMMANDS_BUGGY
 }
 
-void LinJam::CleanSessionDir()
+bool LinJam::SetLocalChannelInfoByName(const char* channel_name                         ,
+                                             bool  should_set_source_n , int   source_n ,
+                                             bool  should_set_bitrate  , int   bitrate  ,
+                                             bool  should_set_is_xmit  , bool  is_xmit  ,
+                                             bool  should_set_volume   , float volume   ,
+                                             bool  should_set_pan      , float pan      ,
+                                             bool  should_set_is_muted , bool  is_muted ,
+                                             bool  should_set_is_solo  , bool  is_solo  )
 {
-  bool should_save_audio = bool(Config->shouldSaveAudio.getValue()) ;
-  if (should_save_audio) return ;
+  int channel_n = -1 ; int channel_idx ;
+  while ((channel_idx = LinJam::Client->EnumLocalChannels(++channel_n)) != -1)
+    if (!strcmp(channel_name , Client->GetLocalChannelInfo(channel_idx , NULL , NULL , NULL)))
+    {
+      // TODO: channel name changes (issue #12)
+      if (should_set_source_n || should_set_bitrate || should_set_is_xmit)
+        Client->SetLocalChannelInfo(channel_idx , NULL , should_set_source_n , source_n ,
+                                                        should_set_bitrate  , bitrate  ,
+                                                        should_set_is_xmit  , is_xmit  ) ;
+      if (should_set_volume || should_set_pan || should_set_is_muted || should_set_is_solo)
+        Client->SetLocalChannelMonitoring(channel_idx                                 ,
+                                          should_set_volume   , (float)DB2VAL(volume) ,
+                                          should_set_pan      , pan                   ,
+                                          should_set_is_muted , is_muted              ,
+                                          should_set_is_solo  , is_solo               ) ;
+      return true ;
+    }
+  // TODO: iterate remote channels (issue #22)
 
-DEBUG_TRACE_CLEAN_SESSION
-
-  File this_binary = File::getSpecialLocation(File::currentExecutableFile) ;
-  File this_dir    = this_binary.getParentDirectory() ;
-  if (!SessionDir.isDirectory() || !SessionDir.isAChildOf(this_dir)) return ;
-
-  DirectoryIterator session_dir_iter(SessionDir , false , "*.*" , File::findFilesAndDirectories) ;
-  while (session_dir_iter.next()) session_dir_iter.getFile().deleteRecursively() ;
+  return false ;
 }

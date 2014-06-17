@@ -286,6 +286,7 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
   double     a_double = double(a_node[key]) ;
   String     a_string =        a_node[key].toString() ;
 
+  // master channels
   if (node_id == STORAGE::MASTER_IDENTIFIER)
   {
     if      (key == STORAGE::VOLUME_IDENTIFIER)
@@ -294,8 +295,10 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
       LinJam::Client->config_masterpan    = a_float ;
     else if (key == STORAGE::MUTE_IDENTIFIER)
       LinJam::Client->config_mastermute   = a_bool ;
+
+    return ;
   }
-  else if (node_id == STORAGE::METRO_IDENTIFIER)
+  if (node_id == STORAGE::METRO_IDENTIFIER)
   {
     if      (key == STORAGE::VOLUME_IDENTIFIER)
       LinJam::Client->config_metronome           = (float)DB2VAL(a_double) ;
@@ -307,6 +310,34 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
       LinJam::Client->config_metronome_channel   = an_int ;
     else if (key == STORAGE::STEREO_IDENTIFIER)
       LinJam::Client->config_metronome_stereoout = a_bool ;
+
+    return ;
+  }
+
+  // local and remote channels
+//   ValueTree channel_config ; int channel_idx ;
+  // TODO: this seems much cleaner but Local_Channel::name is protected
+//   else if (channel_idx = LinJam::Client->GetLocalChannelIdxByName(node_id) != -1)
+//   if (channel_config = this->localChannels.getChildWithName(node_id))
+//   int source_n ; int bitrate ; bool is_xmit ;
+  bool  should_set_volume   = (key == STORAGE::VOLUME_IDENTIFIER) ;
+  bool  should_set_pan      = (key == STORAGE::PAN_IDENTIFIER) ;
+  bool  should_set_is_xmit  = (key == STORAGE::XMIT_IDENTIFIER) ;
+  bool  should_set_is_muted = (key == STORAGE::MUTE_IDENTIFIER) ;
+  bool  should_set_is_solo  = (key == STORAGE::SOLO_IDENTIFIER) ;
+  bool  should_set_source_n = (key == STORAGE::SOURCE_N_IDENTIFIER) ;
+  bool  should_set_bitrate  = (key == STORAGE::SAMPLERATE_IDENTIFIER) ;
+  if      (LinJam::SetLocalChannelInfoByName(String(node_id).toRawUTF8()             ,
+                                             should_set_source_n           , an_int  ,
+                                             should_set_bitrate            , an_int  ,
+                                             should_set_is_xmit            , a_bool  ,
+                                             should_set_volume             , a_float ,
+                                             should_set_pan                , a_float ,
+                                             should_set_is_muted           , a_bool  ,
+                                             should_set_is_solo            , a_bool))
+  {
+DBG("valueTreePropertyChanged() SetLocalChannelInfoByName() returned true") ;
+//    channel_idx = this->localChannels.indexOf(channel_config) ;
   }
 }
 

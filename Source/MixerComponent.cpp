@@ -139,7 +139,7 @@ DEBUG_TRACE_ADD_LOCAL_CHANNEL
   addChannelComponent(localMixerGroupComponent , channel_id ,
                       is_xmit_enabled , is_solo_enabled , xmit_rcv_text) ;
 }
-/* TODO
+/* TODO (issue #22)
 void MixerComponent::addRemoteChannelComponent(String channel_id , String user_gui_id)
 {
 DEBUG_TRACE_ADD_REMOTE_CHANNEL

@@ -287,8 +287,7 @@ void LoginComponent::textEditorTextChanged(TextEditor& a_text_editor)
 
 void LoginComponent::valueChanged(Value& login_value)
 {
-// TODO: probably all this wants to respond to is server status
-//           for quick-login buttons (issue #7)
+// TODO: probably all this wants to respond to is server status for quick-login buttons (issue #7)
 DBG("LoginComponent::valueChanged()=" + login_value.getValue().toString()) ;
 }
 

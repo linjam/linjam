@@ -206,7 +206,7 @@ const Identifier STORAGE::STEREO_IDENTIFIER        = STEREO_KEY ;
       "/><"                                   + \
       AUDIO_KEY            + " "              + \
         AUDIO_IF_KEY       + "=\"0\" "        + \
-        N_INPUTS_KEY       + "=\"1\" "        + \
+        N_INPUTS_KEY       + "=\"2\" "        + \
         N_OUTPUTS_KEY      + "=\"2\" "        + \
         BITDEPTH_KEY       + "=\"16\" "       + \
         SAMPLERATE_KEY     + "=\"48000\" "    + \
@@ -234,13 +234,22 @@ const Identifier STORAGE::STEREO_IDENTIFIER        = STEREO_KEY ;
       "/>"                                    + \
       "</" + MASTERS_KEY   + "><"             + \
       LOCALS_KEY           + "><"             + \
-        "default "                            + \
+        "default-L "                          + \
           VOLUME_KEY       + "=\"0.0\" "      + \
           PAN_KEY          + "=\"0.0\" "      + \
           XMIT_KEY         + "=\"false\" "    + \
           MUTE_KEY         + "=\"false\" "    + \
           SOLO_KEY         + "=\"false\" "    + \
           SOURCE_N_KEY     + "=\"0\" "        + \
+          STEREO_KEY       + "=\"false\" "    + \
+        "/><"                                 + \
+        "default-R "                          + \
+          VOLUME_KEY       + "=\"0.0\" "      + \
+          PAN_KEY          + "=\"0.0\" "      + \
+          XMIT_KEY         + "=\"false\" "    + \
+          MUTE_KEY         + "=\"false\" "    + \
+          SOLO_KEY         + "=\"false\" "    + \
+          SOURCE_N_KEY     + "=\"1\" "        + \
           STEREO_KEY       + "=\"false\" "    + \
         "/>"                                  + \
       "</" + LOCALS_KEY    + "><"             + \

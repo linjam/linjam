@@ -50,7 +50,7 @@ public:
   void addMasterChannelComponent(String               channel_id) ;
   void addLocalChannelComponent( String               channel_id) ;
 //   void addRemoteChannelComponent(String               gui_id              ,
-//                                  String               user_gui_id) ; // TODO
+//                                  String               user_gui_id) ; // TODO (issue #22)
   void updateChannelVU(          Identifier           mixergroup_id       ,
                                  String               channel_id          , float vu) ;
   void channelControlChanged(    MixerGroupComponent* mixerGroupComponent ,

@@ -126,8 +126,8 @@ DEBUG_TRACE_ADDED_CHANNEL
   this->xmitButton  ->setToggleState(    channel_config->is_xmit    , dontSendNotification) ;
   this->muteButton  ->setToggleState(    channel_config->is_muted   , dontSendNotification) ;
   this->soloButton  ->setToggleState(    channel_config->is_solo    , dontSendNotification) ;
-//   this->sourceLabel ->setText(String(    channel_config->source_ch)) ; // TODO:
-//   this->stereoButton->setToggleState(    channel_config->is_stereo) ; // TODO:
+//   this->sourceLabel ->setText(String(    channel_config->source_ch)) ; // TODO: (issue #25)
+//   this->stereoButton->setToggleState(    channel_config->is_stereo) ;  // TODO: (issue #25)
 
     //[/Constructor]
 }

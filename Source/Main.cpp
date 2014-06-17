@@ -217,9 +217,18 @@ if (status == NJC_STATUS_PRECONNECT)
 
     void updateGUI()
     {
-      float master_vu = VAL2DB(GetOutputPeak()) ;
       mixerComponent->updateChannelVU(GUI::MASTER_MIXERGROUP_IDENTIFIER ,
-                                      STORAGE::MASTER_KEY , master_vu) ;
+                                      STORAGE::MASTER_KEY , VAL2DB(GetOutputPeak())) ;
+
+      int ch_n = -1 ; int channel_idx ;
+      while ((channel_idx = EnumLocalChannels(++ch_n)) != -1)
+      {
+        ValueTree channel_config = LinJam::Config->localChannels.getChild(ch_n) ;
+        if (channel_config.isValid())
+          mixerComponent->updateChannelVU(GUI::LOCAL_MIXERGROUP_IDENTIFIER ,
+                                          String(channel_config.getType()) ,
+                                          VAL2DB(GetLocalChannelPeak(channel_idx))) ;
+      }
     }
 
     void handleUserInfoChanged()
@@ -259,6 +268,7 @@ private:
 #endif
     }
 } ;
+
 
 //==============================================================================
 // This macro generates the main() routine that launches the app.
