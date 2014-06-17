@@ -28,6 +28,7 @@ class MainContentComponent : public Component
 {
   friend class LinJam ;
 
+
 public:
   //==============================================================================
   MainContentComponent() ;

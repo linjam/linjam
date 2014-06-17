@@ -44,11 +44,9 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
   friend class LinJam ;
 
-//   bool getIsAgreed() ; // TODO: onvisibility set agreeState = pending (issue #14)
-//     WaitableEvent* agreeEvent ;
-//   ScopedPointer<WaitableEvent> agreeEvent ; bool isAgreed ;
     //[/UserMethods]
 
     void paint (Graphics& g);

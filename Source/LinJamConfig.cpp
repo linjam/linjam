@@ -192,18 +192,16 @@ void LinJamConfig::establishSharedStore()
   this->sampleRate     .referTo(getAudioConfigValueObj(STORAGE::SAMPLERATE_IDENTIFIER)) ;
   this->jackName       .referTo(getAudioConfigValueObj(STORAGE::JACK_NAME_IDENTIFIER)) ;
 
-  // transient login state
+  // login state
   this->currentHost       .referTo(getServerConfigValueObj(STORAGE::HOST_IDENTIFIER)) ;
   this->currentLogin      .referTo(getServerConfigValueObj(STORAGE::LOGIN_IDENTIFIER)) ;
   this->currentPass       .referTo(getServerConfigValueObj(STORAGE::PASS_IDENTIFIER)) ;
   this->currentIsAnonymous.referTo(getServerConfigValueObj(STORAGE::ANON_IDENTIFIER)) ;
   this->currentIsAgreed   .referTo(getServerConfigValueObj(STORAGE::AGREED_IDENTIFIER)) ;
 
-  // static channels
+  // channels
   this->masterChannels = this->configValueTree.getOrCreateChildWithName(STORAGE::MASTERS_IDENTIFIER , nullptr) ;
   this->masterChannels.addListener(this) ;
-
-  // transient channels
   this->localChannels  = this->configValueTree.getOrCreateChildWithName(STORAGE::LOCALS_IDENTIFIER , nullptr) ;
   this->localChannels .addListener(this) ;
   this->remoteChannels = this->configValueTree.getOrCreateChildWithName(STORAGE::REMOTES_IDENTIFIER , nullptr) ;
@@ -315,11 +313,6 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
   }
 
   // local and remote channels
-//   ValueTree channel_config ; int channel_idx ;
-  // TODO: this seems much cleaner but Local_Channel::name is protected
-//   else if (channel_idx = LinJam::Client->GetLocalChannelIdxByName(node_id) != -1)
-//   if (channel_config = this->localChannels.getChildWithName(node_id))
-//   int source_n ; int bitrate ; bool is_xmit ;
   bool  should_set_volume   = (key == STORAGE::VOLUME_IDENTIFIER) ;
   bool  should_set_pan      = (key == STORAGE::PAN_IDENTIFIER) ;
   bool  should_set_is_xmit  = (key == STORAGE::XMIT_IDENTIFIER) ;
@@ -327,18 +320,14 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
   bool  should_set_is_solo  = (key == STORAGE::SOLO_IDENTIFIER) ;
   bool  should_set_source_n = (key == STORAGE::SOURCE_N_IDENTIFIER) ;
   bool  should_set_bitrate  = (key == STORAGE::SAMPLERATE_IDENTIFIER) ;
-  if      (LinJam::SetLocalChannelInfoByName(String(node_id).toRawUTF8()             ,
-                                             should_set_source_n           , an_int  ,
-                                             should_set_bitrate            , an_int  ,
-                                             should_set_is_xmit            , a_bool  ,
-                                             should_set_volume             , a_float ,
-                                             should_set_pan                , a_float ,
-                                             should_set_is_muted           , a_bool  ,
-                                             should_set_is_solo            , a_bool))
-  {
-DBG("valueTreePropertyChanged() SetLocalChannelInfoByName() returned true") ;
-//    channel_idx = this->localChannels.indexOf(channel_config) ;
-  }
+  if (LinJam::SetChannelInfoByName(String(node_id).toRawUTF8()           ,
+                                   should_set_source_n         , an_int  ,
+                                   should_set_bitrate          , an_int  ,
+                                   should_set_is_xmit          , a_bool  ,
+                                   should_set_volume           , a_float ,
+                                   should_set_pan              , a_float ,
+                                   should_set_is_muted         , a_bool  ,
+                                   should_set_is_solo          , a_bool)) {}
 }
 
 // unused ValueTree::Listener interface methods

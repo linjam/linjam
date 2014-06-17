@@ -22,22 +22,23 @@
 
 class LinJam
 {
-    friend class LinJamConfig ;
+  friend class LinJamConfig ;
 
 
 public:
 
   // state methods
-  static bool Initialize(NJClient* client , MainContentComponent* mainGUI ,
+  static bool Initialize(NJClient* client , MainContentComponent* contentComponent ,
                          const String& args) ;
   static void Connect() ;
   static void Disconnect() ;
   static void Shutdown() ;
 
-  // getters/setters
-  static bool IsAgreed() ;
+  // NJClient runtime routines
+  static void DriveClient() ;
+  static void UpdateGUI() ;
 
-  // chat helpers
+  // helpers
   static void SendChat(String chat_text) ;
 
 
@@ -51,7 +52,11 @@ private:
   static NJClient*             Client ;
   static bool                  IsAudioEnabled ;
   static File                  SessionDir ;
+  static int                   PrevStatus ;
 
+
+  // getters/setters
+  static bool IsAgreed() ;
 
   // NJClient callbacks
   static int  OnLicense(int user32            , char* license_text) ;
@@ -61,6 +66,12 @@ private:
                         float** output_buffer , int n_output_channels ,
                         int n_samples         , int sample_rate)      ;
 
+
+  // NJClient runtime helpers
+  static void HandleStatus(int status) ;
+  static void HandleUserInfoChanged() ;
+  static bool IsRoomFull() ;
+
   // helpers
   static bool InitializeAudio() ;
   static void ConfigureAudio() ;
@@ -68,14 +79,14 @@ private:
   static void ConfigureNinjam() ;
   static void CleanSessionDir() ;
   static void HandleChatCommand(String chat_text) ;
-  static bool SetLocalChannelInfoByName(const char* channel_name                         ,
-                                              bool  should_set_source_n , int   source_n ,
-                                              bool  should_set_bitrate  , int   bitrate  ,
-                                              bool  should_set_is_xmit  , bool  is_xmit  ,
-                                              bool  should_set_volume   , float volume   ,
-                                              bool  should_set_pan      , float pan      ,
-                                              bool  should_set_is_muted , bool  is_muted ,
-                                              bool  should_set_is_solo  , bool  is_solo  ) ;
+  static bool SetChannelInfoByName(const char* channel_name                         ,
+                                         bool  should_set_source_n , int   source_n ,
+                                         bool  should_set_bitrate  , int   bitrate  ,
+                                         bool  should_set_is_xmit  , bool  is_xmit  ,
+                                         bool  should_set_volume   , float volume   ,
+                                         bool  should_set_pan      , float pan      ,
+                                         bool  should_set_is_muted , bool  is_muted ,
+                                         bool  should_set_is_solo  , bool  is_solo  ) ;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;
 } ;

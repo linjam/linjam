@@ -180,13 +180,13 @@ const Identifier STORAGE::METRO_IDENTIFIER         = METRO_KEY ;
 const String     STORAGE::LOCALS_KEY               = "local-channels" ;
 const Identifier STORAGE::LOCALS_IDENTIFIER        = LOCALS_KEY ;
 const String     STORAGE::REMOTES_KEY              = "remote-channels" ;
-const Identifier STORAGE::REMOTES_IDENTIFIER       = LOCALS_KEY ;
+const Identifier STORAGE::REMOTES_IDENTIFIER       = REMOTES_KEY ;
 const String     STORAGE::VOLUME_KEY               = "volume" ;
 const Identifier STORAGE::VOLUME_IDENTIFIER        = VOLUME_KEY ;
 const String     STORAGE::PAN_KEY                  = "pan" ;
 const Identifier STORAGE::PAN_IDENTIFIER           = PAN_KEY ;
 const String     STORAGE::XMIT_KEY                 = "should-xmit-rcv" ;
-const Identifier STORAGE::XMIT_IDENTIFIER          = PAN_KEY ;
+const Identifier STORAGE::XMIT_IDENTIFIER          = XMIT_KEY ;
 const String     STORAGE::MUTE_KEY                 = "is-muted" ;
 const Identifier STORAGE::MUTE_IDENTIFIER          = MUTE_KEY ;
 const String     STORAGE::SOLO_KEY                 = "is-solo" ;
@@ -199,10 +199,10 @@ const Identifier STORAGE::STEREO_IDENTIFIER        = STEREO_KEY ;
 #define CONFIG_XML "<?xml version=\"1.0\"?><" + \
     PERSISTENCE_KEY        + "><"             + \
       CLIENT_KEY           + " "              + \
-        SAVE_AUDIO_KEY     + "=\"false\" "    + \
+        SAVE_AUDIO_KEY     + "=\"-1\" "       + \
         SAVE_LOG_KEY       + "=\"false\" "    + \
         DEBUGLEVEL_KEY     + "=\"0\" "        + \
-        AUTOSUBSCRIBE_KEY  + "=\"true\" "     + \
+        AUTOSUBSCRIBE_KEY  + "=\"1\" "        + \
       "/><"                                   + \
       AUDIO_KEY            + " "              + \
         AUDIO_IF_KEY       + "=\"0\" "        + \

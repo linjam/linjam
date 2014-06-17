@@ -54,9 +54,9 @@
     if      (a_value.refersToSameSourceAs(this->masterVolume))  event_source = "masterVolume" ;  \
     else if (etc);                                                                               \
     Trace::TraceEvent("value changed " + event_source + " = " + a_value.getValue().toString()) ;
-#define DEBUG_TRACE_CONFIG_TREE_CHANGED                                                    \
-    Trace::TraceEvent("value changed " + String(a_node.getType()) +                        \
-                      "[" + String(key) + "] = " + a_node[key].toString()) ;
+#define DEBUG_TRACE_CONFIG_TREE_CHANGED                                             \
+    String node = String(a_node.getType()) ; String val = a_node[key].toString() ;  \
+    Trace::TraceEvent("value changed " + node + "[" + String(key) + "] = " + val) ;
 
 #  define DEBUG_TRACE_LOGIN_LOAD                                                              \
     Trace::TraceState("Login - currentHost => '" + host + "' - storage " + \
@@ -76,33 +76,25 @@
                                                 "prompting for license agreement") ;
 
 #  ifdef WIN32 // TODO: GetHostName() and GetErrorStr() linux .so segfault (issue #15)
-#    define DEBUG_TRACE_CONNECT_STATUS                                              \
-      switch (status)                                                               \
-      {                                                                             \
-        case -3: Trace::TraceConnection("NJC_STATUS_DISCONNECTED") ; break ;        \
-        case -2: Trace::TraceConnection((LinJam::IsAgreed())?                         \
-                     "NJC_STATUS_INVALIDAUTH" : "LICENSE_PENDING") ; break ;        \
-        case -1: Trace::TraceConnection("NJC_STATUS_CANTCONNECT") ;  break ;        \
-        case  0: Trace::TraceConnection("NJC_STATUS_OK") ;           break ;        \
-        case  1: Trace::TraceConnection("NJC_STATUS_PRECONNECT") ;   break ;        \
-        default:                                                     break ;        \
-      }                                                                             \
-      Trace::TraceServer("connected to host: " + String(GetHostName())) ;           \
-      if (this->GetErrorStr()[0])                                                   \
-        Trace::TraceServer("Error: " + String(this->GetErrorStr())) ;
+#    define DEBUG_TRACE_CONNECT_STATUS_BUGGY                                        \
+        Trace::TraceServer("connected to host: " + String(Client->GetHostName())) ; \
+        if (Client->GetErrorStr()[0])                                               \
+          Trace::TraceServer("Error: " + String(Client->GetErrorStr())) ;
 #  else // WIN32
-#    define DEBUG_TRACE_CONNECT_STATUS                                              \
-      switch (status)                                                               \
-      {                                                                             \
-        case -3: Trace::TraceConnection("NJC_STATUS_DISCONNECTED") ; break ;        \
-        case -2: Trace::TraceConnection((LinJam::IsAgreed)?                         \
-                     "NJC_STATUS_INVALIDAUTH" : "LICENSE_PENDING") ; break ;        \
-        case -1: Trace::TraceConnection("NJC_STATUS_CANTCONNECT") ;  break ;        \
-        case  0: Trace::TraceConnection("NJC_STATUS_OK") ;           break ;        \
-        case  1: Trace::TraceConnection("NJC_STATUS_PRECONNECT") ;   break ;        \
-        default:                                                     break ;        \
-      }
+#    define DEBUG_TRACE_CONNECT_STATUS_BUGGY ;
 #  endif // WIN32
+#  define DEBUG_TRACE_CONNECT_STATUS                                                \
+    switch (client_status)                                                          \
+    {                                                                               \
+      case -3: Trace::TraceConnection("NJC_STATUS_DISCONNECTED") ; break ;          \
+      case -2: Trace::TraceConnection((IsAgreed())?                                 \
+                   "NJC_STATUS_INVALIDAUTH" : "LICENSE_PENDING") ; break ;          \
+      case -1: Trace::TraceConnection("NJC_STATUS_CANTCONNECT") ;  break ;          \
+      case  0: Trace::TraceConnection("NJC_STATUS_OK") ;           break ;          \
+      case  1: Trace::TraceConnection("NJC_STATUS_PRECONNECT") ;   break ;          \
+      default:                                                     break ;          \
+    }                                                                               \
+    DEBUG_TRACE_CONNECT_STATUS_BUGGY
 
 #  define DEBUG_TRACE_CHANNELS           Trace::TraceServer("handleUserInfoChanged()") ;
 #  define DEBUG_TRACE_CHANNELS_VB                                                   \

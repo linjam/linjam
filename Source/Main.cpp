@@ -8,9 +8,6 @@
   ==============================================================================
 */
 
-//#define DEBUG_AUTOJOIN_STATIC_CHANNEL
-#define DEBUG_STATIC_CHANNEL "ninbot.com:2049"
-
 
 // NOTE: arrange that "windows.h" be included before "JuceHeader.h" in all contexts
 //         and arrange to include "JuceHeader.h" before any "*Component.h"
@@ -49,16 +46,15 @@ public:
 
     void initializeLinJam()
     {
-      if (!LinJam::Initialize(this , contentComponent , this->args))
+      if (!LinJam::Initialize(this , this->contentComponent , this->args))
       {
         this->statusbarComponent->setStatusL(GUI::AUDIO_INIT_ERROR_MSG) ;
         shutdown() ; this->quit() ; // TODO: MB , prompt cfg ?? (issue #12)
       }
       else
       {
-          this->prev_status = NJClient::NJC_STATUS_DISCONNECTED ;
-          this->startTimer(CLIENT::CLIENT_DRIVER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
-          this->startTimer(CLIENT::GUI_DRIVER_ID ,    CLIENT::GUI_DRIVER_IVL) ;
+        this->startTimer(CLIENT::CLIENT_DRIVER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
+        this->startTimer(CLIENT::GUI_DRIVER_ID ,    CLIENT::GUI_DRIVER_IVL) ;
       }
     }
 
@@ -146,94 +142,10 @@ DBG("[DEBUG]: EXIT_IMMEDIAYELY defined - bailing") ; this->quit() ;
 
       switch (timerId)
       {
-        case CLIENT::CLIENT_DRIVER_ID: driveClient() ; break ;
-        case CLIENT::GUI_DRIVER_ID:    updateGUI() ;   break ;
+        case CLIENT::CLIENT_DRIVER_ID: LinJam::DriveClient() ; break ;
+        case CLIENT::GUI_DRIVER_ID:    LinJam::UpdateGUI() ;   break ;
         default:                                       break ;
       }
-    }
-
-    void driveClient()
-    {
-      int status = GetStatus() ;
-      if (status != this->prev_status) handleStatus(this->prev_status = status) ;
-      if (status < NJC_STATUS_OK || !this->Run()) return ;
-
-//      while (this->Run()) ;
-      if (status == NJC_STATUS_OK && HasUserInfoChanged()) ;//handleUserInfoChanged() ;// TODO: this fires repeatedly
-    }
-
-    void handleStatus(int status)
-    {
-DEBUG_TRACE_CONNECT_STATUS
-#ifdef DEBUG_AUTOJOIN_STATIC_CHANNEL
-if (status == NJC_STATUS_PRECONNECT)
-{ LinJam::Config->currentHost        = DEBUG_STATIC_CHANNEL ;
-  LinJam::Config->currentLogin       =  "nobody" ;
-  LinJam::Config->currentIsAnonymous = true ; LinJam::Connect() ; }
-#endif // DEBUG_AUTOJOIN_STATIC_CHANNEL
-
-      // GUI state
-      this->blankComponent->toFront(false) ;
-      switch (status)
-      {
-        case NJC_STATUS_DISCONNECTED: this->loginComponent  ->toFront(true)  ; break ;
-        case NJC_STATUS_INVALIDAUTH:  (LinJam::IsAgreed())?
-                                      this->loginComponent  ->toFront(true)  :
-                                      this->licenseComponent->toFront(true)  ; break ;
-        case NJC_STATUS_CANTCONNECT:  this->loginComponent  ->toFront(true)  ; break ;
-        case NJC_STATUS_OK:           this->chatComponent   ->toFront(true)  ;
-                                      this->mixerComponent  ->toFront(false) ; break ;
-        case NJC_STATUS_PRECONNECT:   this->loginComponent  ->toFront(true)  ; break ;
-        default:                                                               break ;
-      }
-
-      // status indicator
-      String status_text ;
-#ifdef WIN32 // TODO: GetHostName() linux .so segfault (issue #15)
-      String host = GetHostName() ;
-#else // WIN32
-      String host = "host" ;
-#endif // WIN32
-      switch (status)
-      {
-        case NJC_STATUS_DISCONNECTED:
-          status_text = GUI::DISCONNECTED_STATUS_TEXT ;              break ;
-        case NJC_STATUS_INVALIDAUTH:
-          status_text = (LinJam::IsAgreed())? ((isRoomFull())?
-                        GUI::ROOM_FULL_STATUS_TEXT :
-                        GUI::INVALID_AUTH_STATUS_TEXT) :
-                        GUI::PENDING_LICENSE_STATUS_TEXT ;           break ;
-        case NJC_STATUS_CANTCONNECT:
-          status_text = GUI::FAILED_CONNECTION_STATUS_TEXT ;         break ;
-        case NJC_STATUS_OK:
-          status_text = GUI::CONNECTED_STATUS_TEXT + host ;          break ;
-        case NJC_STATUS_PRECONNECT:
-          status_text = GUI::IDLE_STATUS_TEXT ;                      break ;
-        default:
-          status_text = GUI::UNKNOWN_STATUS_TEXT + String(status) ;  break ;
-      }
-      this->statusbarComponent->setStatusL(status_text) ;
-    }
-
-    void updateGUI()
-    {
-      mixerComponent->updateChannelVU(GUI::MASTER_MIXERGROUP_IDENTIFIER ,
-                                      STORAGE::MASTER_KEY , VAL2DB(GetOutputPeak())) ;
-
-      int ch_n = -1 ; int channel_idx ;
-      while ((channel_idx = EnumLocalChannels(++ch_n)) != -1)
-      {
-        ValueTree channel_config = LinJam::Config->localChannels.getChild(ch_n) ;
-        if (channel_config.isValid())
-          mixerComponent->updateChannelVU(GUI::LOCAL_MIXERGROUP_IDENTIFIER ,
-                                          String(channel_config.getType()) ,
-                                          VAL2DB(GetLocalChannelPeak(channel_idx))) ;
-      }
-    }
-
-    void handleUserInfoChanged()
-    {
-DEBUG_TRACE_CHANNELS
     }
 
 
@@ -249,24 +161,6 @@ private:
     StatusBarComponent*       statusbarComponent ;
 
     String args ;
-    int    prev_status ;
-
-
-    bool isRoomFull()
-    {
-#ifdef WIN32 // TODO: GetErrorStr() linux .so segfault (issue #15)
-      String err = String(CharPointer_UTF8(GetErrorStr())) ;
-      return (err.isNotEmpty() && !err.compare(CLIENT::SERVER_FULL_STATUS)) ;
-#else // WIN32
-      return true ;
-/*
-      if (GetErrorStr()[0]) // <-- segfault here
-        return (!strcmp(GetErrorStr() , "room full")) ;
-      else
-        return false ;
-*/
-#endif
-    }
 } ;
 
 

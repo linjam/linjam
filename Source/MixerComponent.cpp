@@ -164,11 +164,12 @@ MixerGroupComponent* MixerComponent::addMixerGroupComponent(String mixergroup_id
   return mixergroup_component ;
 }
 
-void MixerComponent::addChannelComponent(MixerGroupComponent* mixer , String channel_id    ,
-                                         bool   is_xmit_enabled     , bool   is_solo_enabled ,
-                                         String xmit_rcv_text)
+void MixerComponent::addChannelComponent(MixerGroupComponent* mixergroup                 ,
+                                         String channel_id      , bool   is_xmit_enabled ,
+                                         bool   is_solo_enabled , String xmit_rcv_text)
 {
-  ValueTree channel_config_values = getChannelConfig(mixer , channel_id) ;
+  // get stored config for this channel
+  ValueTree channel_config_values = getChannelConfig(mixergroup , channel_id) ;
   double volume  = double(channel_config_values[STORAGE::VOLUME_IDENTIFIER]) ;
   double pan     = double(channel_config_values[STORAGE::PAN_IDENTIFIER]) ;
   bool is_xmit   = bool(  channel_config_values[STORAGE::XMIT_IDENTIFIER]) ;
@@ -177,14 +178,16 @@ void MixerComponent::addChannelComponent(MixerGroupComponent* mixer , String cha
   int  source_ch = int(   channel_config_values[STORAGE::SOURCE_N_IDENTIFIER]) ;
   bool is_stereo = bool(  channel_config_values[STORAGE::STEREO_IDENTIFIER]) ;
 
+  // instantiate ChannelConfig data class for this new channel GUI
   ChannelConfig* channel_config = new ChannelConfig(channel_id , is_xmit_enabled ,
                                                     is_solo_enabled , xmit_rcv_text ,
                                                     volume , pan , is_xmit , is_muted ,
                                                     is_solo , source_ch , is_stereo) ;
-  mixer->addChannelComponent(channel_config) ; delete channel_config ;
+  mixergroup->addChannelComponent(channel_config) ; delete channel_config ;
 
-  int n_channels = mixer->getNumChildComponents() - 1 ;
-  mixer->setSize(GUI::MIXERGROUP_W(n_channels) , GUI::MIXERGROUP_H) ;
+  // resize the mixer group containing this channel
+  int n_channels = mixergroup->getNumChildComponents() - 1 ;
+  mixergroup->setSize(GUI::MIXERGROUP_W(n_channels) , GUI::MIXERGROUP_H) ;
 }
 
 void MixerComponent::updateChannelVU(Identifier mixergroup_id ,

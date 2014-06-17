@@ -74,7 +74,7 @@ private:
   ValueTree            getChannelConfig(      MixerGroupComponent* mixerGroupComponent ,
                                               Identifier           channel_id) ;
   MixerGroupComponent* addMixerGroupComponent(String               mixer_group_id) ;
-  void                 addChannelComponent(   MixerGroupComponent* mixer           ,
+  void                 addChannelComponent(   MixerGroupComponent* mixergroup      ,
                                               String               channel_id      ,
                                               bool                 is_xmit_enabled ,
                                               bool                 is_solo_enabled ,

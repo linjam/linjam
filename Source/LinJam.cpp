@@ -8,9 +8,17 @@
   ==============================================================================
 */
 
+
+//#define DEBUG_AUTOJOIN_STATIC_CHANNEL
+#define DEBUG_STATIC_CHANNEL "ninjamer.com:2049"
+
+
 #include "LinJam.h"
 #include "Constants.h"
 #include "Trace.h"
+
+
+class LinJamApplication ;
 
 
 /* LinJam public class variables */
@@ -23,14 +31,14 @@ LinJamConfig* LinJam::Config ;
 audioStreamer*        LinJam::Audio          = nullptr ; // Initialize()
 NJClient*             LinJam::Client         = nullptr ; // Initialize()
 MainContentComponent* LinJam::Gui            = nullptr ; // Initialize()
-bool                  LinJam::IsAudioEnabled = false ;   // Initialize() TODO: use Client->>m_audio_enable instead ?? (issue #11)
+bool                  LinJam::IsAudioEnabled = false ;   // Initialize() TODO: use Client->IsAudioRunning() instead ?? (issue #11)
 File                  LinJam::SessionDir ;               // Initialize()
-
+int                   LinJam::PrevStatus ;               // Initialize()
 
 /* LinJam public class methods */
 
 bool LinJam::Initialize(NJClient* client , MainContentComponent* contentComponent ,
-                       const String& args)
+                        const String& args)
 {
 DEBUG_TRACE_LINJAM_INIT
 
@@ -67,7 +75,7 @@ DEBUG_TRACE_LINJAM_INIT
   if (PrepareSessionDirectory()) ConfigureNinjam() ; else return false ;
 
   // initialize networking
-  JNL::open_socketlib() ;
+  PrevStatus = NJClient::NJC_STATUS_DISCONNECTED ; JNL::open_socketlib() ;
 
   return true ;
 }
@@ -97,6 +105,72 @@ void LinJam::Shutdown()
   JNL::close_socketlib() ; delete Audio ;
   CleanSessionDir() ; delete Config ;
 }
+
+
+/* NJClient runtime routines */
+
+void LinJam::DriveClient()
+{
+  int client_status = Client->GetStatus() ;
+  if (client_status != PrevStatus) HandleStatus(PrevStatus = client_status) ;
+  if (client_status < NJClient::NJC_STATUS_OK || !Client->Run()) return ;
+
+//      while (this->Run()) ;
+  if (client_status == NJClient::NJC_STATUS_OK &&
+      Client->HasUserInfoChanged()) HandleUserInfoChanged() ;
+}
+
+void LinJam::UpdateGUI()
+{
+  // master VU
+  Gui->mixerComponent->updateChannelVU(GUI::MASTER_MIXERGROUP_IDENTIFIER ,
+                                       STORAGE::MASTER_KEY               ,
+                                       VAL2DB(Client->GetOutputPeak())   ) ;
+
+  // local VU
+  int channel_n = -1 ; int channel_idx ;
+  while ((channel_idx = Client->EnumLocalChannels(++channel_n)) != -1)
+  {
+    ValueTree channel_config = Config->localChannels.getChild(channel_n) ;
+    if (channel_config.isValid())
+      Gui->mixerComponent->updateChannelVU(GUI::LOCAL_MIXERGROUP_IDENTIFIER ,
+                                           String(channel_config.getType()) ,
+                                           VAL2DB(Client->GetLocalChannelPeak(channel_idx))) ;
+  }
+
+  // local and remote VU
+  // TODO: remote channels vu (issue #22)
+/*
+  // loop progress
+  int beat , bpi ; Client->GetPosition(&beat , &bpi) ;
+//  Gui->mixerComponent->updateLoopProgress(1.0*beat/bpi) ;
+int bpii = Client->GetBPI();
+int bpm = Client->GetActualBPM();
+DBG("str=" + String((beat*bpi)/bpi));
+DBG("beat=" + String(beat));
+DBG("bpi=" + String(bpi));
+DBG("bpii=" + String(bpii));
+DBG("bpm=" + String(bpm));
+*/
+}
+
+
+/* helpers */
+
+void LinJam::SendChat(String chat_text)
+{
+DEBUG_TRACE_CHAT_OUT
+
+  if ((chat_text = chat_text.trim()).isEmpty()) return ;
+
+  if (chat_text.startsWith("/")) HandleChatCommand(chat_text) ;
+  else Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_MSG.toRawUTF8() , chat_text.toRawUTF8()) ;
+}
+
+
+/* getters/setters */
+
+bool LinJam::IsAgreed() { return bool(Config->currentIsAgreed.getValue()) ; }
 
 
 /* NJClient callbacks */
@@ -131,7 +205,7 @@ void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , in
   bool is_bcast_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_MSG)) ;
   bool is_priv_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PRIVMSG)) ;
   bool is_join_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_JOIN)) ;
-  bool is_part_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PART)) ;  
+  bool is_part_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PART)) ;
 
 DEBUG_TRACE_CHAT_IN
 
@@ -152,14 +226,14 @@ DEBUG_TRACE_CHAT_IN
     if (chat_user.isEmpty() || chat_text.isEmpty()) return ;
 
     chat_user += " (whispers)" ;
-  } 
+  }
   else if (is_join_msg || is_part_msg)
   {
     if (chat_user.isEmpty()) return ;
 
     chat_text = chat_user + " has " + ((is_join_msg)? "joined" : "left") + " the jam" ;
     chat_user = GUI::SERVER_NICK ;
-  } 
+  }
   Gui->chatComponent->addChatLine(chat_user , chat_text) ;
 }
 
@@ -180,21 +254,82 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 }
 
 
-/* getters/setters */
+/* NJClient runtime helpers */
 
-bool LinJam::IsAgreed() { return bool(Config->currentIsAgreed.getValue()) ; }
-
-
-/* chat helpers */
-
-void LinJam::SendChat(String chat_text)
+void LinJam::HandleStatus(int client_status)
 {
-DEBUG_TRACE_CHAT_OUT
+DEBUG_TRACE_CONNECT_STATUS
+#ifdef DEBUG_AUTOJOIN_STATIC_CHANNEL
+if (client_status == NJClient::NJC_STATUS_PRECONNECT)
+{ Config->currentHost        = DEBUG_STATIC_CHANNEL ;
+  Config->currentLogin       =  "nobody" ;
+  Config->currentIsAnonymous = true ; Connect() ; }
+#endif // DEBUG_AUTOJOIN_STATIC_CHANNEL
 
-  if ((chat_text = chat_text.trim()).isEmpty()) return ;
+  bool is_agreed = IsAgreed() ;
 
-  if (chat_text.startsWith("/")) HandleChatCommand(chat_text) ;
-  else Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_MSG.toRawUTF8() , chat_text.toRawUTF8()) ;
+  // GUI state
+  Gui->blankComponent->toFront(false) ;
+  switch (client_status)
+  {
+    case NJClient::NJC_STATUS_DISCONNECTED: Gui->loginComponent  ->toFront(true)  ; break ;
+    case NJClient::NJC_STATUS_INVALIDAUTH:  (is_agreed)?
+                                            Gui->loginComponent  ->toFront(true)  :
+                                            Gui->licenseComponent->toFront(true)  ; break ;
+    case NJClient::NJC_STATUS_CANTCONNECT:  Gui->loginComponent  ->toFront(true)  ; break ;
+    case NJClient::NJC_STATUS_OK:           Gui->chatComponent   ->toFront(true)  ;
+                                            Gui->mixerComponent  ->toFront(false) ; break ;
+    case NJClient::NJC_STATUS_PRECONNECT:   Gui->loginComponent  ->toFront(true)  ; break ;
+    default:                                                                        break ;
+  }
+
+  // status indicator
+  String status_text ;
+#ifdef WIN32 // TODO: GetHostName() linux .so segfault (issue #15)
+  String host = Client->GetHostName() ;
+#else // WIN32
+  String host = "host" ;
+#endif // WIN32
+  switch (client_status)
+  {
+    case NJClient::NJC_STATUS_DISCONNECTED:
+      status_text = GUI::DISCONNECTED_STATUS_TEXT ;                     break ;
+    case NJClient::NJC_STATUS_INVALIDAUTH:
+      status_text = (is_agreed)? ((IsRoomFull())?
+                    GUI::ROOM_FULL_STATUS_TEXT :
+                    GUI::INVALID_AUTH_STATUS_TEXT) :
+                    GUI::PENDING_LICENSE_STATUS_TEXT ;                  break ;
+    case NJClient::NJC_STATUS_CANTCONNECT:
+      status_text = GUI::FAILED_CONNECTION_STATUS_TEXT ;                break ;
+    case NJClient::NJC_STATUS_OK:
+      status_text = GUI::CONNECTED_STATUS_TEXT + host ;                 break ;
+    case NJClient::NJC_STATUS_PRECONNECT:
+      status_text = GUI::IDLE_STATUS_TEXT ;                             break ;
+    default:
+      status_text = GUI::UNKNOWN_STATUS_TEXT + String(client_status) ;  break ;
+  }
+  Gui->statusbarComponent->setStatusL(status_text) ;
+}
+
+void LinJam::HandleUserInfoChanged() // TODO: this fires repeatedly
+{
+//DEBUG_TRACE_CHANNELS
+}
+
+bool LinJam::IsRoomFull()
+{
+#ifdef WIN32 // TODO: GetErrorStr() linux .so segfault (issue #15)
+  String err = String(CharPointer_UTF8(Client->GetErrorStr())) ;
+  return (err.isNotEmpty() && !err.compare(CLIENT::SERVER_FULL_STATUS)) ;
+#else // WIN32
+  return true ;
+/*
+  if (GetErrorStr()[0]) // <-- segfault here
+    return (!strcmp(GetErrorStr() , "room full")) ;
+  else
+    return false ;
+*/
+#endif
 }
 
 
@@ -318,10 +453,10 @@ bool LinJam::PrepareSessionDirectory()
 
 void LinJam::ConfigureNinjam()
 {
-  bool      should_save_audio     = bool(Config->shouldSaveAudio    .getValue()) ;
+  int       should_save_audio     = int( Config->shouldSaveAudio    .getValue()) ;
   bool      should_save_log       = bool(Config->shouldSaveLog      .getValue()) ;
   int       debug_level           = int( Config->debugLevel         .getValue()) ;
-  bool      should_auto_subscribe = bool(Config->shouldAutoSubscribe.getValue()) ;
+  int       should_auto_subscribe = int( Config->shouldAutoSubscribe.getValue()) ;
   ValueTree subscriptions         = Config->autoSubscribeUsers ;
 
   Client->LicenseAgreementCallback = OnLicense ;
@@ -402,14 +537,14 @@ void LinJam::HandleChatCommand(String chat_text)
 #endif // CHAT_COMMANDS_BUGGY
 }
 
-bool LinJam::SetLocalChannelInfoByName(const char* channel_name                         ,
-                                             bool  should_set_source_n , int   source_n ,
-                                             bool  should_set_bitrate  , int   bitrate  ,
-                                             bool  should_set_is_xmit  , bool  is_xmit  ,
-                                             bool  should_set_volume   , float volume   ,
-                                             bool  should_set_pan      , float pan      ,
-                                             bool  should_set_is_muted , bool  is_muted ,
-                                             bool  should_set_is_solo  , bool  is_solo  )
+bool LinJam::SetChannelInfoByName(const char* channel_name                         ,
+                                        bool  should_set_source_n , int   source_n ,
+                                        bool  should_set_bitrate  , int   bitrate  ,
+                                        bool  should_set_is_xmit  , bool  is_xmit  ,
+                                        bool  should_set_volume   , float volume   ,
+                                        bool  should_set_pan      , float pan      ,
+                                        bool  should_set_is_muted , bool  is_muted ,
+                                        bool  should_set_is_solo  , bool  is_solo  )
 {
   int channel_n = -1 ; int channel_idx ;
   while ((channel_idx = LinJam::Client->EnumLocalChannels(++channel_n)) != -1)
@@ -418,8 +553,8 @@ bool LinJam::SetLocalChannelInfoByName(const char* channel_name                 
       // TODO: channel name changes (issue #12)
       if (should_set_source_n || should_set_bitrate || should_set_is_xmit)
         Client->SetLocalChannelInfo(channel_idx , NULL , should_set_source_n , source_n ,
-                                                        should_set_bitrate  , bitrate  ,
-                                                        should_set_is_xmit  , is_xmit  ) ;
+                                                         should_set_bitrate  , bitrate  ,
+                                                         should_set_is_xmit  , is_xmit  ) ;
       if (should_set_volume || should_set_pan || should_set_is_muted || should_set_is_solo)
         Client->SetLocalChannelMonitoring(channel_idx                                 ,
                                           should_set_volume   , (float)DB2VAL(volume) ,
