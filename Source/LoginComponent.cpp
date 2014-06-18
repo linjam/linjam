@@ -123,7 +123,7 @@ LoginComponent::LoginComponent ()
     anonButton->setExplicitFocusOrder (5);
     anonButton->setButtonText (TRANS("anonymous"));
     anonButton->addListener (this);
-    anonButton->setToggleState (true, dontSendNotification);
+    anonButton->setToggleState (true, juce::dontSendNotification);
     anonButton->setColour (ToggleButton::textColourId, Colours::grey);
 
 
@@ -321,7 +321,7 @@ DEBUG_TRACE_LOGIN_LOAD
   this->hostText   ->setText(host) ;
   this->loginText  ->setText(login) ;
   this->passText   ->setText(pass) ;
-  this->anonButton ->setToggleState(is_anonymous , dontSendNotification) ;
+  this->anonButton ->setToggleState(is_anonymous , juce::dontSendNotification) ;
 }
 
 void LoginComponent::sortLoginButtons()

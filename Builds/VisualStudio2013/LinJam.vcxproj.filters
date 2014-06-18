@@ -187,6 +187,9 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\LoopComponent.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\BlankComponent.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
@@ -1041,6 +1044,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\LoopComponent.h">
+      <Filter>LinJam\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\BlankComponent.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>

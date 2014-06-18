@@ -50,9 +50,10 @@ private:
   static audioStreamer*        Audio ;
   static MainContentComponent* Gui ;
   static NJClient*             Client ;
-  static bool                  IsAudioEnabled ;
+  static int                   GuiBeatOffset ;
   static File                  SessionDir ;
   static int                   PrevStatus ;
+  static bool                  IsAudioEnabled ;
 
 
   // getters/setters

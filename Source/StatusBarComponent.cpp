@@ -31,7 +31,7 @@ StatusBarComponent::StatusBarComponent ()
 {
     setName ("StatusBarComponent");
     addAndMakeVisible (statusLLabel = new Label ("statusLLabel",
-                                                 TRANS("connection status")));
+                                                 String::empty));
     statusLLabel->setFont (Font (15.00f, Font::plain));
     statusLLabel->setJustificationType (Justification::centredLeft);
     statusLLabel->setEditable (false, false, false);
@@ -42,9 +42,9 @@ StatusBarComponent::StatusBarComponent ()
     statusLLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (statusRLabel = new Label ("statusRLabel",
-                                                 TRANS("bpi-bpm")));
+                                                 String::empty));
     statusRLabel->setFont (Font (15.00f, Font::plain));
-    statusRLabel->setJustificationType (Justification::centredLeft);
+    statusRLabel->setJustificationType (Justification::centredRight);
     statusRLabel->setEditable (false, false, false);
     statusRLabel->setColour (Label::backgroundColourId, Colours::black);
     statusRLabel->setColour (Label::textColourId, Colours::grey);
@@ -91,10 +91,10 @@ void StatusBarComponent::paint (Graphics& g)
     g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f, 1.000f);
 
     g.setColour (Colours::black);
-    g.fillRect (128, 4, getWidth() - 256, 16);
+    g.fillRect (168, 4, getWidth() - 336, 16);
 
     g.setColour (Colours::white);
-    g.drawRect (128, 4, getWidth() - 256, 16, 1);
+    g.drawRect (168, 4, getWidth() - 336, 16, 1);
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -102,8 +102,8 @@ void StatusBarComponent::paint (Graphics& g)
 
 void StatusBarComponent::resized()
 {
-    statusLLabel->setBounds (4, 4, 120, 16);
-    statusRLabel->setBounds (getWidth() - 4 - 120, 4, 120, 16);
+    statusLLabel->setBounds (4, 4, 160, 16);
+    statusRLabel->setBounds (getWidth() - 164, 4, 160, 16);
     //[UserResized] Add your own custom resize handling here..
 /*
   statusLLabel->setBounds(GUI::STATUS_PAD_X , GUI::STATUS_PAD_Y ,
@@ -143,21 +143,21 @@ BEGIN_JUCER_METADATA
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
-    <RECT pos="128 4 256M 16" fill="solid: ff000000" hasStroke="1" stroke="1, mitered, butt"
+    <RECT pos="168 4 336M 16" fill="solid: ff000000" hasStroke="1" stroke="1, mitered, butt"
           strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <LABEL name="statusLLabel" id="2b89e84fd708c8e0" memberName="statusLLabel"
-         virtualName="" explicitFocusOrder="0" pos="4 4 120 16" bkgCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="4 4 160 16" bkgCol="ff000000"
          textCol="ff808080" outlineCol="ffffffff" edTextCol="ff000000"
-         edBkgCol="0" labelText="connection status" editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
-  <LABEL name="statusRLabel" id="d9ab2c99c74ba401" memberName="statusRLabel"
-         virtualName="" explicitFocusOrder="0" pos="4Rr 4 120 16" bkgCol="ff000000"
-         textCol="ff808080" outlineCol="ffffffff" edTextCol="ff000000"
-         edBkgCol="0" labelText="bpi-bpm" editableSingleClick="0" editableDoubleClick="0"
+         edBkgCol="0" labelText="" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
+  <LABEL name="statusRLabel" id="d9ab2c99c74ba401" memberName="statusRLabel"
+         virtualName="" explicitFocusOrder="0" pos="164R 4 160 16" bkgCol="ff000000"
+         textCol="ff808080" outlineCol="ffffffff" edTextCol="ff000000"
+         edBkgCol="0" labelText="" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
+         bold="0" italic="0" justification="34"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -51,6 +51,7 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
+  $(OBJDIR)/LoopComponent_8b30099a.o \
   $(OBJDIR)/BlankComponent_1b2cc912.o \
   $(OBJDIR)/ChannelComponent_5726acc3.o \
   $(OBJDIR)/ChatComponent_27b18166.o \
@@ -87,6 +88,11 @@ clean:
 strip:
 	@echo Stripping LinJam
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
+
+$(OBJDIR)/LoopComponent_8b30099a.o: ../../Source/LoopComponent.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling LoopComponent.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/BlankComponent_1b2cc912.o: ../../Source/BlankComponent.cpp
 	-@mkdir -p $(OBJDIR)

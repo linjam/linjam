@@ -17,6 +17,7 @@
 #include "ChatComponent.h"
 #include "MixerComponent.h"
 #include "StatusBarComponent.h"
+#include "LoopComponent.h"
 
 
 //==============================================================================
@@ -46,6 +47,7 @@ private:
   ScopedPointer<ChatComponent>      chatComponent ;
   ScopedPointer<MixerComponent>     mixerComponent ;
   ScopedPointer<StatusBarComponent> statusbarComponent ;
+  ScopedPointer<LoopComponent>      loopComponent ;
 
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContentComponent)

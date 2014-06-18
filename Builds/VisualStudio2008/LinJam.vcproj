@@ -134,6 +134,7 @@
   <Files>
     <Filter Name="LinJam">
       <Filter Name="Headers">
+        <File RelativePath="..\..\Source\LoopComponent.h"/>
         <File RelativePath="..\..\Source\BlankComponent.h"/>
         <File RelativePath="..\..\Source\ChannelComponent.h"/>
         <File RelativePath="..\..\Source\ChatComponent.h"/>
@@ -149,6 +150,7 @@
         <File RelativePath="..\..\Source\Trace.h"/>
       </Filter>
       <Filter Name="Source">
+        <File RelativePath="..\..\Source\LoopComponent.cpp"/>
         <File RelativePath="..\..\Source\BlankComponent.cpp"/>
         <File RelativePath="..\..\Source\ChannelComponent.cpp"/>
         <File RelativePath="..\..\Source\ChatComponent.cpp"/>

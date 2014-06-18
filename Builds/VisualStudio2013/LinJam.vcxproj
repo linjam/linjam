@@ -139,6 +139,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Source\LoopComponent.cpp"/>
     <ClCompile Include="..\..\Source\BlankComponent.cpp"/>
     <ClCompile Include="..\..\Source\ChannelComponent.cpp"/>
     <ClCompile Include="..\..\Source\ChatComponent.cpp"/>
@@ -907,6 +908,7 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\juce_gui_basics.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\LoopComponent.h"/>
     <ClInclude Include="..\..\Source\BlankComponent.h"/>
     <ClInclude Include="..\..\Source\ChannelComponent.h"/>
     <ClInclude Include="..\..\Source\ChatComponent.h"/>

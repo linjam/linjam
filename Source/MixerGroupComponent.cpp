@@ -48,7 +48,7 @@ MixerGroupComponent::MixerGroupComponent (String mixergroup_id)
 
 
     //[Constructor] You can add your own custom stuff here..
-  mixerSectionLabel->setText(mixergroup_id , dontSendNotification) ;
+  mixerSectionLabel->setText(mixergroup_id , juce::dontSendNotification) ;
     //[/Constructor]
 }
 

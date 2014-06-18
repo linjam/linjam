@@ -1,4 +1,6 @@
 
+*.ninjam
+
 # nix
 Builds/Linux/build
 *~

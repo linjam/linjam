@@ -8,7 +8,6 @@
 
 #include "Constants.h"
 #include "MainComponent.h"
-#include "MixerComponent.h"
 #include "Trace.h"
 
 
@@ -50,16 +49,24 @@ MainContentComponent::MainContentComponent()
   this->statusbarComponent->setAlwaysOnTop(true) ;
   this->statusbarComponent->setStatusL(GUI::DISCONNECTED_STATUS_TEXT) ;
 
+  // loopComponent
+  this->loopComponent = new LoopComponent() ;
+  this->addChildAndSetID(this->loopComponent , GUI::LOOP_GUI_ID) ;
+  this->loopComponent->setAlwaysOnTop(true) ;
+  this->loopComponent->toFront(false) ;
+
   this->resized() ;
 }
 
 MainContentComponent::~MainContentComponent()
 {
+  this->blankComponent     = nullptr ;
   this->loginComponent     = nullptr ;
   this->licenseComponent   = nullptr ;
   this->chatComponent      = nullptr ;
   this->statusbarComponent = nullptr ;
   this->mixerComponent     = nullptr ;
+  this->loopComponent      = nullptr ;
 }
 
 void MainContentComponent::paint(Graphics& g)
@@ -75,6 +82,10 @@ void MainContentComponent::resized()
   // If you add any child components, this is where you should
   // update their positions.
 
+  if (this->loginComponent     == nullptr || this->licenseComponent == nullptr ||
+      this->chatComponent      == nullptr || this->mixerComponent   == nullptr ||
+      this->statusbarComponent == nullptr || this->loopComponent    == nullptr) return ;
+
   int window_w = getWidth() ;
   int window_h = getHeight() ;
 
@@ -82,11 +93,29 @@ void MainContentComponent::resized()
   int content_w = window_w - GUI::PAD2 ;
   int content_h = window_h - GUI::STATUSBAR_H - GUI::PAD3 ;
 
+  // loginComponent
+  int login_x = GUI::PAD ;
+  int login_y = GUI::PAD ;
+  int login_w = content_w ;
+  int login_h = content_h ;
+
+  // licenseComponent
+  int license_x = GUI::PAD ;
+  int license_y = GUI::PAD ;
+  int license_w = content_w ;
+  int license_h = content_h ;
+
   // mixer div
   int mixer_x = GUI::PAD ;
   int mixer_y = window_h - GUI::STATUSBAR_H - GUI::MIXER_H - GUI::PAD2 ;
   int mixer_w = content_w ;
   int mixer_h = GUI::MIXER_H ;
+
+  // chatComponent
+  int chat_x = GUI::PAD ;
+  int chat_y = GUI::PAD ;
+  int chat_w = content_w ;
+  int chat_h = content_h - GUI::MIXER_H - GUI::PAD ;
 
   // status div
   int status_x = GUI::PAD ;
@@ -94,35 +123,16 @@ void MainContentComponent::resized()
   int status_w = content_w ;
   int status_h = GUI::STATUSBAR_H ;
 
-  // loginComponent
-  int login_x = GUI::PAD ;
-  int login_y = GUI::PAD ;
-  int login_w = content_w ;
-  int login_h = content_h ;
-  if (this->loginComponent != nullptr)
-    this->loginComponent->setBounds(login_x , login_y , login_w , login_h) ;
+  // loopComponent
+  int loop_x = GUI::LOOP_X ;
+  int loop_y = status_y + GUI::PAD ;
+  int loop_w = content_w - GUI::PAD4 - (GUI::STATUS_W * 2) ;
+  int loop_h = GUI::LOOP_H ;
 
-  // licenseComponent
-  int license_x = GUI::PAD ;
-  int license_y = GUI::PAD ;
-  int license_w = content_w ;
-  int license_h = content_h ;
-  if (this->licenseComponent != nullptr)
-    this->licenseComponent->setBounds(license_x , license_y , license_w , license_h) ;
-
-  // chatComponent
-  int chat_x = GUI::PAD ;
-  int chat_y = GUI::PAD ;
-  int chat_w = content_w ;
-  int chat_h = content_h - GUI::MIXER_H - GUI::PAD ;
-  if (this->chatComponent != nullptr)
-    this->chatComponent->setBounds(chat_x , chat_y , chat_w , chat_h) ;
-
-  // mixerComponent
-  if (this->mixerComponent != nullptr)
-    this->mixerComponent->setBounds(mixer_x , mixer_y , mixer_w , mixer_h) ;
-
-  // statusbarComponent
-  if (this->statusbarComponent != nullptr)
-    this->statusbarComponent->setBounds(status_x , status_y , status_w , status_h) ;
+  this->loginComponent    ->setBounds(login_x   , login_y   , login_w   , login_h) ;
+  this->licenseComponent  ->setBounds(license_x , license_y , license_w , license_h) ;
+  this->chatComponent     ->setBounds(chat_x    , chat_y    , chat_w    , chat_h) ;
+  this->mixerComponent    ->setBounds(mixer_x   , mixer_y   , mixer_w   , mixer_h) ;
+  this->statusbarComponent->setBounds(status_x  , status_y  , status_w  , status_h) ;
+  this->loopComponent     ->setBounds(loop_x    , loop_y    , loop_w    , loop_h) ;
 }

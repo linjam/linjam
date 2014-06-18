@@ -40,6 +40,7 @@ public:
       this->chatComponent      = (ChatComponent*)       getChildComponent(GUI::CHAT_GUI_ID) ;
       this->mixerComponent     = (MixerComponent*)      getChildComponent(GUI::MIXER_GUI_ID) ;
       this->statusbarComponent = (StatusBarComponent*)  getChildComponent(GUI::STATUS_GUI_ID) ;
+      this->loopComponent      = (LoopComponent*)       getChildComponent(GUI::LOOP_GUI_ID) ;
 
       this->args = commandLine ; initializeLinJam() ;
     }
@@ -159,6 +160,7 @@ private:
     ChatComponent*            chatComponent ;
     MixerComponent*           mixerComponent ;
     StatusBarComponent*       statusbarComponent ;
+    LoopComponent*            loopComponent ;
 
     String args ;
 } ;

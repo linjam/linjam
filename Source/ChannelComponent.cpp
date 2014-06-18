@@ -116,16 +116,16 @@ ChannelComponent::ChannelComponent (ChannelConfig* channel_config)
 
 DEBUG_TRACE_ADDED_CHANNEL
 
-  this->nameLabel   ->setText(           channel_config->channel_id , dontSendNotification) ;
+  this->nameLabel   ->setText(           channel_config->channel_id , juce::dontSendNotification) ;
   this->xmitButton  ->setEnabled(        channel_config->is_xmit_enabled) ;
   this->soloButton  ->setEnabled(        channel_config->is_solo_enabled) ;
   this->xmitButton  ->setButtonText(     channel_config->xmit_rcv_text) ;
   this->gainSlider  ->setValue(          channel_config->volume) ;
-  this->gainLabel   ->setText(String(int(channel_config->volume))   , dontSendNotification) ;
+  this->gainLabel   ->setText(String(int(channel_config->volume))   , juce::dontSendNotification) ;
   this->panSlider   ->setValue(          channel_config->pan) ;
-  this->xmitButton  ->setToggleState(    channel_config->is_xmit    , dontSendNotification) ;
-  this->muteButton  ->setToggleState(    channel_config->is_muted   , dontSendNotification) ;
-  this->soloButton  ->setToggleState(    channel_config->is_solo    , dontSendNotification) ;
+  this->xmitButton  ->setToggleState(    channel_config->is_xmit    , juce::dontSendNotification) ;
+  this->muteButton  ->setToggleState(    channel_config->is_muted   , juce::dontSendNotification) ;
+  this->soloButton  ->setToggleState(    channel_config->is_solo    , juce::dontSendNotification) ;
 //   this->sourceLabel ->setText(String(    channel_config->source_ch)) ; // TODO: (issue #25)
 //   this->stereoButton->setToggleState(    channel_config->is_stereo) ;  // TODO: (issue #25)
 
@@ -246,7 +246,7 @@ void ChannelComponent::sliderValueChanged (Slider* sliderThatWasMoved)
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
 
       double value = sliderThatWasMoved->getValue() ;
-      gainLabel->setText(String(int(value)) , dontSendNotification) ;
+      gainLabel->setText(String(int(value)) , juce::dontSendNotification) ;
       setChannelConfig(STORAGE::VOLUME_IDENTIFIER , var(value)) ;
 
         //[/UserSliderCode_gainSlider]
@@ -263,7 +263,7 @@ void ChannelComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 void ChannelComponent::updateChannelVU(float vu)
 {
   this->vuSlider->setValue(vu) ;
-  this->vuLabel ->setText(String(int(vu)) , dontSendNotification) ;
+  this->vuLabel ->setText(String(int(vu)) , juce::dontSendNotification) ;
 }
 
 void ChannelComponent::setChannelConfig(Identifier config_key , var value)

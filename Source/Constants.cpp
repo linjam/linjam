@@ -109,6 +109,9 @@ const String GUI::MIXER_GUI_ID = "mixer-gui" ;
 // statusComponent
 const String GUI::STATUS_GUI_ID = "statusbar-gui" ;
 
+// loopComponent
+const String GUI::LOOP_GUI_ID = "loop-gui" ;
+
 
 /* STORAGE class public class constants */
 

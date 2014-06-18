@@ -75,8 +75,9 @@ public:
 
   // common
   static const int PAD     = 4 ;
-  static const int PAD3    = PAD * 3 ;
   static const int PAD2    = PAD * 2 ;
+  static const int PAD3    = PAD * 3 ;
+  static const int PAD4    = PAD * 4 ;
   static const int LABEL_H = 12 ;
 
   // main
@@ -141,10 +142,15 @@ public:
   // statusComponent
   static const String STATUS_GUI_ID ;
   static const int    STATUSBAR_H  = 24 ;
-  static const int    STATUS_W     = 120 ;
+  static const int    STATUS_W     = 160 ;
   static const int    STATUS_H     = 16 ;
   static const int    STATUS_PAD_X = 8 ;
   static const int    STATUS_PAD_Y = 2 ;
+
+  // loopComponent
+  static const String LOOP_GUI_ID ;
+  static const int    LOOP_X = STATUS_W + PAD3 ;
+  static const int    LOOP_H = STATUS_H ;
 } ;
 
 

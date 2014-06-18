@@ -31,9 +31,11 @@ LinJamConfig* LinJam::Config ;
 audioStreamer*        LinJam::Audio          = nullptr ; // Initialize()
 NJClient*             LinJam::Client         = nullptr ; // Initialize()
 MainContentComponent* LinJam::Gui            = nullptr ; // Initialize()
-bool                  LinJam::IsAudioEnabled = false ;   // Initialize() TODO: use Client->IsAudioRunning() instead ?? (issue #11)
-File                  LinJam::SessionDir ;               // Initialize()
+int                   LinJam::GuiBeatOffset ;            // InitializeAudio()
+File                  LinJam::SessionDir ;               // PrepareSessionDirectory()
 int                   LinJam::PrevStatus ;               // Initialize()
+bool                  LinJam::IsAudioEnabled = false ;   // TODO: use Client->IsAudioRunning() instead ?? (issue #11)
+
 
 /* LinJam public class methods */
 
@@ -140,18 +142,17 @@ void LinJam::UpdateGUI()
 
   // local and remote VU
   // TODO: remote channels vu (issue #22)
-/*
+
   // loop progress
-  int beat , bpi ; Client->GetPosition(&beat , &bpi) ;
-//  Gui->mixerComponent->updateLoopProgress(1.0*beat/bpi) ;
-int bpii = Client->GetBPI();
-int bpm = Client->GetActualBPM();
-DBG("str=" + String((beat*bpi)/bpi));
-DBG("beat=" + String(beat));
-DBG("bpi=" + String(bpi));
-DBG("bpii=" + String(bpii));
-DBG("bpm=" + String(bpm));
-*/
+  int   sample_n , n_samples ; Client->GetPosition(&sample_n , &n_samples) ;
+  int   bpi      = Client->GetBPI() ;
+  float bpm      = Client->GetActualBPM() ;
+  float progress = (sample_n + GuiBeatOffset) / (float)n_samples ;
+  int   beat_n   = ((int)(bpi * progress) % bpi) + 1 ;
+  Gui->loopComponent->updateBeat(beat_n) ;
+
+Gui->loopComponent->updateBPI(bpi) ; // TODO: this need not be set constantly
+Gui->statusbarComponent->setStatusR(String(bpi) + " bpi @ " + String(bpm) + " bpm") ; // TODO: this need not be set constantly
 }
 
 
@@ -278,7 +279,8 @@ if (client_status == NJClient::NJC_STATUS_PRECONNECT)
                                             Gui->licenseComponent->toFront(true)  ; break ;
     case NJClient::NJC_STATUS_CANTCONNECT:  Gui->loginComponent  ->toFront(true)  ; break ;
     case NJClient::NJC_STATUS_OK:           Gui->chatComponent   ->toFront(true)  ;
-                                            Gui->mixerComponent  ->toFront(false) ; break ;
+                                            Gui->mixerComponent  ->toFront(false) ;
+                                            Gui->loopComponent   ->toFront(false) ; break ;
     case NJClient::NJC_STATUS_PRECONNECT:   Gui->loginComponent  ->toFront(true)  ; break ;
     default:                                                                        break ;
   }
@@ -372,6 +374,8 @@ DEBUG_TRACE_JACK_INIT
   }
 #  endif // _MAC
 #endif // _WIN32
+
+  GuiBeatOffset = Audio->m_srate * (CLIENT::GUI_DRIVER_IVL * 0.001) ;
 
 DEBUG_TRACE_AUDIO_INIT
 
