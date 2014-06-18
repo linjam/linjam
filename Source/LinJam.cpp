@@ -287,28 +287,23 @@ if (client_status == NJClient::NJC_STATUS_PRECONNECT)
 
   // status indicator
   String status_text ;
-#ifdef WIN32 // TODO: GetHostName() linux .so segfault (issue #15)
-  String host = Client->GetHostName() ;
-#else // WIN32
-  String host = "host" ;
-#endif // WIN32
   switch (client_status)
   {
     case NJClient::NJC_STATUS_DISCONNECTED:
-      status_text = GUI::DISCONNECTED_STATUS_TEXT ;                     break ;
+      status_text = GUI::DISCONNECTED_STATUS_TEXT ;                              break ;
     case NJClient::NJC_STATUS_INVALIDAUTH:
       status_text = (is_agreed)? ((IsRoomFull())?
                     GUI::ROOM_FULL_STATUS_TEXT :
                     GUI::INVALID_AUTH_STATUS_TEXT) :
-                    GUI::PENDING_LICENSE_STATUS_TEXT ;                  break ;
+                    GUI::PENDING_LICENSE_STATUS_TEXT ;                           break ;
     case NJClient::NJC_STATUS_CANTCONNECT:
-      status_text = GUI::FAILED_CONNECTION_STATUS_TEXT ;                break ;
+      status_text = GUI::FAILED_CONNECTION_STATUS_TEXT ;                         break ;
     case NJClient::NJC_STATUS_OK:
-      status_text = GUI::CONNECTED_STATUS_TEXT + host ;                 break ;
+      status_text = GUI::CONNECTED_STATUS_TEXT + String(Client->GetHostName()) ; break ;
     case NJClient::NJC_STATUS_PRECONNECT:
-      status_text = GUI::IDLE_STATUS_TEXT ;                             break ;
+      status_text = GUI::IDLE_STATUS_TEXT ;                                      break ;
     default:
-      status_text = GUI::UNKNOWN_STATUS_TEXT + String(client_status) ;  break ;
+      status_text = GUI::UNKNOWN_STATUS_TEXT + String(client_status) ;           break ;
   }
   Gui->statusbarComponent->setStatusL(status_text) ;
 }
