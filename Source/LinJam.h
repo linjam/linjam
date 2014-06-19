@@ -39,7 +39,8 @@ public:
   static void UpdateGUI() ;
 
   // helpers
-  static void SendChat(String chat_text) ;
+  static void AddLocalChannel(String channel_id) ;
+  static void SendChat(       String chat_text) ;
 
 
   static LinJamConfig* Config ;
@@ -89,7 +90,7 @@ private:
                                      bool       should_set_is_muted  , bool  is_muted  ,
                                      bool       should_set_is_solo   , bool  is_solo   ,
                                      bool       should_set_source_n  , int   source_n  ,
-                                     bool       should_set_bitrate   , int   bit_depth ,
+                                     bool       should_set_bit_depth , int   bit_depth ,
                                      bool       should_set_is_stereo , bool  is_stereo ) ;
   static bool ConfigureLocalChannel(int  channel_idx          , String name      ,
                                     bool should_set_volume    , float  volume    ,
@@ -98,7 +99,7 @@ private:
                                     bool should_set_is_muted  , bool   is_muted  ,
                                     bool should_set_is_solo   , bool   is_solo   ,
                                     bool should_set_source_n  , int    source_n  ,
-                                    bool should_set_bitrate   , int    bit_depth ,
+                                    bool should_set_bit_depth , int    bit_depth ,
                                     bool should_set_is_stereo , bool   is_stereo ) ;
 
 

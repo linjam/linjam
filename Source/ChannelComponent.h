@@ -81,6 +81,7 @@ private:
     ScopedPointer<Label> vuLabel;
     ScopedPointer<Label> gainLabel;
     ScopedPointer<Label> nameLabel;
+    ScopedPointer<TextButton> removeButton;
 
 
     //==============================================================================

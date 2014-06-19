@@ -190,16 +190,32 @@
       }                                                                             \
     }
 
-#  define DEBUG_TRACE_ADD_CHANNEL                                                  \
-    if      (mixergroup_id == GUI::MASTER_MIXERGROUP_IDENTIFIER)                   \
-         Trace::TraceEvent("adding master channel '" + String(channel_id) + "'") ; \
-    else if (mixergroup_id == GUI::LOCAL_MIXERGROUP_IDENTIFIER)                    \
-         Trace::TraceEvent("adding local channel '"  + String(channel_id) + "'") ; \
-    else Trace::TraceEvent("adding remote channel '" + String(channel_id) +        \
+#  define DEBUG_TRACE_ADD_CHANNEL                                                   \
+    if      (mixergroup_id == GUI::MASTER_MIXERGROUP_IDENTIFIER)                    \
+         Trace::TraceConfig("adding master channel '" + String(channel_id) + "'") ; \
+    else if (mixergroup_id == GUI::LOCAL_MIXERGROUP_IDENTIFIER)                     \
+         Trace::TraceConfig("adding local channel[" + String(channel_idx) +         \
+                            "] - " + String(channel_id)) ;                          \
+    else Trace::TraceEvent("adding remote channel '" + String(channel_id) +         \
                            "' for user " + String(mixergroup_id)) ;
-#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL                                     \
-    Trace::TraceConfig("configuring local channel[" + String(channel_idx) + \
-                       "] - " + String(channel_id)) ;
+#  define DEBUG_TRACE_NEW_LOCAL_CHANNEL_FAIL                                            \
+    int n_chs = -1 ; while (~Client->EnumLocalChannels(++n_chs)) ;                      \
+    if (n_chs >= Client->GetMaxLocalChannels())                                         \
+      Trace::TraceError("cannot create new local channel - maximum input channels = " + \
+                        String(Client->GetMaxLocalChannels())) ;
+#  define DEBUG_TRACE_NEW_LOCAL_CHANNEL                                    \
+    Trace::TraceEvent("created new local channel[" + String(channel_idx) + \
+                      "] - " + String(channel_id)) ;
+#  define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL                                    \
+    Trace::TraceConfig("configuring local channel "  + channel_name            + \
+        ((should_set_volume)?    "\n  volume    => " + String(volume)    : "") + \
+        ((should_set_pan)?       "\n  pan       => " + String(pan)       : "") + \
+        ((should_set_is_xmit)?   "\n  is_xmit   => " + String(is_xmit)   : "") + \
+        ((should_set_is_muted)?  "\n  is_muted  => " + String(is_muted)  : "") + \
+        ((should_set_is_solo)?   "\n  is_solo   => " + String(is_solo)   : "") + \
+        ((should_set_source_n)?  "\n  source_n  => " + String(source_n)  : "") + \
+        ((should_set_bit_depth)? "\n  bit_depth => " + String(bit_depth) : "") + \
+        ((should_set_is_stereo)? "\n  is_stereo => " + String(is_stereo) : "") ) ;
 #  define DEBUG_TRACE_ADDED_CHANNEL Trace::TraceEvent(String("channel added =>") + \
     "\n  mixergroup      => " + String(config_store.getParent().getType())       + \
     "\n  name            => " + name                                             + \
@@ -230,30 +246,32 @@
 
 #else // #if DEBUG_TRACE
 
-#  define DEBUG_TRACE_LINJAM_INIT         ;
-#  define DEBUG_TRACE_JACK_INIT           ;
-#  define DEBUG_TRACE_AUDIO_INIT          ;
-#  define DEBUG_TRACE_LOAD_CONFIG         ;
-#  define DEBUG_TRACE_SANITIZE_CONFIG     ;
-#  define DEBUG_TRACE_STORE_CONFIG        ;
-#  define DEBUG_TRACE_CONFIG_VALUE        ;
-#  define DEBUG_TRACE_CONFIG_CHANGED      ;
-#  define DEBUG_TRACE_CONFIG_TREE_CHANGED ;
-#  define DEBUG_TRACE_LOGIN_LOAD          ;
-#  define DEBUG_TRACE_LOGIN_CLICKED       ;
-#  define DEBUG_TRACE_CONNECT             ;
-#  define DEBUG_TRACE_LICENSE_CLICKED     ;
-#  define DEBUG_TRACE_LICENSE             ;
-#  define DEBUG_TRACE_CONNECT_STATUS      ;
-#  define DEBUG_TRACE_REMOTE_CHANNELS     ;
-#  define DEBUG_TRACE_CHANNELS_VB         ;
-#  define DEBUG_TRACE_ADD_CHANNEL         ;
-#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL   ;
-#  define DEBUG_TRACE_ADDED_CHANNEL       ;
-#  define DEBUG_TRACE_CHAT_IN             ;
-#  define DEBUG_TRACE_CHAT_OUT            ;
-#  define DEBUG_TRACE_CLEAN_SESSION       ;
-#  define DEBUG_TRACE_SHUTDOWN            ;
+#  define DEBUG_TRACE_LINJAM_INIT             ;
+#  define DEBUG_TRACE_JACK_INIT               ;
+#  define DEBUG_TRACE_AUDIO_INIT              ;
+#  define DEBUG_TRACE_LOAD_CONFIG             ;
+#  define DEBUG_TRACE_SANITIZE_CONFIG         ;
+#  define DEBUG_TRACE_STORE_CONFIG            ;
+#  define DEBUG_TRACE_CONFIG_VALUE            ;
+#  define DEBUG_TRACE_CONFIG_CHANGED          ;
+#  define DEBUG_TRACE_CONFIG_TREE_CHANGED     ;
+#  define DEBUG_TRACE_LOGIN_LOAD              ;
+#  define DEBUG_TRACE_LOGIN_CLICKED           ;
+#  define DEBUG_TRACE_CONNECT                 ;
+#  define DEBUG_TRACE_LICENSE_CLICKED         ;
+#  define DEBUG_TRACE_LICENSE                 ;
+#  define DEBUG_TRACE_CONNECT_STATUS          ;
+#  define DEBUG_TRACE_REMOTE_CHANNELS         ;
+#  define DEBUG_TRACE_CHANNELS_VB             ;
+#  define DEBUG_TRACE_ADD_CHANNEL             ;
+#  define DEBUG_TRACE_NEW_LOCAL_CHANNEL_FAIL  ;
+#  define DEBUG_TRACE_NEW_LOCAL_CHANNEL       ;
+#  define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL ;
+#  define DEBUG_TRACE_ADDED_CHANNEL           ;
+#  define DEBUG_TRACE_CHAT_IN                 ;
+#  define DEBUG_TRACE_CHAT_OUT                ;
+#  define DEBUG_TRACE_CLEAN_SESSION           ;
+#  define DEBUG_TRACE_SHUTDOWN                ;
 
 #endif // #if DEBUG_TRACE
 
@@ -264,7 +282,7 @@ public:
 
   static void TraceConfig(      String msg) ;
   static void TraceEvent(       String msg) ;
-  static void TraceEventVerbose(String msg) ;
+  static void TraceVerbose(     String msg) ;
   static void TraceState(       String msg) ;
   static void TraceConnection(  String msg) ;
   static void TraceError(       String msg) ;

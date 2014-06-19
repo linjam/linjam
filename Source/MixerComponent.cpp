@@ -84,7 +84,7 @@ void MixerComponent::resized()
 
   if (this->localMixerGroupComponent != nullptr)
   {
-    int n_channels = localMixerGroupComponent->getNumChildComponents() - 1 ;
+    int n_channels = localMixerGroupComponent->getNumChildComponents() -GUI::N_NON_CHANNELS ;
     int local_x    = GUI::PAD ;
     int local_y    = GUI::MIXERGROUP_Y ;
     int local_w    = GUI::MIXERGROUP_W(n_channels) ;
@@ -112,11 +112,9 @@ void MixerComponent::addChannelComponent(Identifier mixergroup_id , ValueTree ch
   MixerGroupComponent* mixergroup = (MixerGroupComponent*)findChildWithID(id_ref) ;
   if (!mixergroup || !channel_store.isValid()) return ;
 
-  // add channel GUI
+  // add channel GUI and resize the mixer group
   mixergroup->addChannelComponent(channel_store) ;
-
-  // resize the mixer group containing this channel
-  int n_channels = mixergroup->getNumChildComponents() - 1 ;
+  int n_channels = mixergroup->getNumChildComponents() - GUI::N_NON_CHANNELS ;
   mixergroup->setSize(GUI::MIXERGROUP_W(n_channels) , GUI::MIXERGROUP_H) ;
 }
 

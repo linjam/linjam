@@ -58,7 +58,6 @@ bool LinJamConfig::sanityCheck()
   return ( autoSubscribeUsers       .isValid()                                 &&
            masterChannels           .isValid()                                 &&
            localChannels            .isValid()                                 &&
-           remoteChannels           .isValid()                                 &&
            servers                  .isValid()                                 &&
           !this->shouldSaveAudio    .refersToSameSourceAs(this->dummyValue)    &&
           !this->shouldSaveLog      .refersToSameSourceAs(this->dummyValue)    &&
@@ -91,6 +90,14 @@ bool LinJamConfig::sanityCheck()
            default_channel          .hasProperty(STORAGE::SOURCE_N_IDENTIFIER) &&
            default_channel          .hasProperty(STORAGE::STEREO_IDENTIFIER)    ) ;
 }
+
+Identifier LinJamConfig::encodeChannelId(String channel_name)
+{
+  return ((channel_name.isNotEmpty())? channel_name :
+             STORAGE::DEFAULT_NAME + String(this->localChannels.getNumChildren() + 1)) ;
+}
+
+String LinJamConfig::decodeChannelId(Identifier channel_id) { return String(channel_id) ; }
 
 ValueTree LinJamConfig::getChannelConfig(Identifier mixergroup_id , Identifier channel_id)
 {
@@ -215,8 +222,6 @@ void LinJamConfig::establishSharedStore()
   this->masterChannels.addListener(this) ;
   this->localChannels  = this->configValueTree.getOrCreateChildWithName(STORAGE::LOCALS_IDENTIFIER , nullptr) ;
   this->localChannels .addListener(this) ;
-  this->remoteChannels = this->configValueTree.getOrCreateChildWithName(STORAGE::REMOTES_IDENTIFIER , nullptr) ;
-  this->remoteChannels.addListener(this) ;
 
   // per server user data
   this->servers = this->configValueTree.getOrCreateChildWithName(STORAGE::SERVERS_IDENTIFIER , nullptr) ;
@@ -331,7 +336,7 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
   bool  should_set_is_muted  = (key == STORAGE::MUTE_IDENTIFIER) ;
   bool  should_set_is_solo   = (key == STORAGE::SOLO_IDENTIFIER) ;
   bool  should_set_source_n  = (key == STORAGE::SOURCE_N_IDENTIFIER) ;
-  bool  should_set_bitrate   = (key == STORAGE::SAMPLERATE_IDENTIFIER) ;
+  bool  should_set_bit_depth = (key == STORAGE::SAMPLERATE_IDENTIFIER) ;
   bool  should_set_is_stereo = (key == STORAGE::STEREO_IDENTIFIER) ;
   if (LinJam::ConfigureChannelByName(node_id                        ,
                                      should_set_volume    , a_float ,
@@ -340,7 +345,7 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
                                      should_set_is_muted  , a_bool  ,
                                      should_set_is_solo   , a_bool  ,
                                      should_set_source_n  , an_int  ,
-                                     should_set_bitrate   , an_int  ,
+                                     should_set_bit_depth , an_int  ,
                                      should_set_is_stereo , a_bool  )) {}
   }
 

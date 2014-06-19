@@ -45,7 +45,6 @@ public:
   // channels
   ValueTree masterChannels ;
   ValueTree localChannels ;
-  ValueTree remoteChannels ;
 /* per-channel data - access through above ValueTrees
   Value     volume ;        // float
   Value     pan ;           // float
@@ -68,7 +67,9 @@ public:
 
 
   // validation
-  bool sanityCheck() ;
+  bool       sanityCheck() ;
+  Identifier encodeChannelId(String channel_name) ;
+  String     decodeChannelId(Identifier channel_id) ;
 
   // getters/setters
   ValueTree getChannelConfig(      Identifier mixergroup_id , Identifier channel_id) ;

@@ -198,6 +198,14 @@ const String     STORAGE::SOURCE_N_KEY             = "source-channel-n" ;
 const Identifier STORAGE::SOURCE_N_IDENTIFIER      = SOURCE_N_KEY ;
 const String     STORAGE::STEREO_KEY               = "is-stereo" ;
 const Identifier STORAGE::STEREO_IDENTIFIER        = STEREO_KEY ;
+const String     STORAGE::DEFAULT_NAME             = "channel-" ;
+const float      STORAGE::DEFAULT_VOLUME           = 0.0 ;
+const float      STORAGE::DEFAULT_PAN              = 0.0 ;
+const bool       STORAGE::DEFAULT_IS_XMIT          = false ;
+const bool       STORAGE::DEFAULT_IS_MUTE          = false ;
+const bool       STORAGE::DEFAULT_IS_SOLO          = false ;
+const int        STORAGE::DEFAULT_SOURCE_N         = 0 ;
+const bool       STORAGE::DEFAULT_IS_STEREO        = false ;
 
 #define CONFIG_XML "<?xml version=\"1.0\"?><" + \
     PERSISTENCE_KEY        + "><"             + \
@@ -244,15 +252,6 @@ const Identifier STORAGE::STEREO_IDENTIFIER        = STEREO_KEY ;
           MUTE_KEY         + "=\"false\" "    + \
           SOLO_KEY         + "=\"false\" "    + \
           SOURCE_N_KEY     + "=\"0\" "        + \
-          STEREO_KEY       + "=\"false\" "    + \
-        "/><"                                 + \
-        "default-R "                          + \
-          VOLUME_KEY       + "=\"0.0\" "      + \
-          PAN_KEY          + "=\"0.0\" "      + \
-          XMIT_KEY         + "=\"false\" "    + \
-          MUTE_KEY         + "=\"false\" "    + \
-          SOLO_KEY         + "=\"false\" "    + \
-          SOURCE_N_KEY     + "=\"1\" "        + \
           STEREO_KEY       + "=\"false\" "    + \
         "/>"                                  + \
       "</" + LOCALS_KEY    + "><"             + \

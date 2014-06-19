@@ -35,7 +35,8 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MixerGroupComponent  : public Component
+class MixerGroupComponent  : public Component,
+                             public ButtonListener
 {
 public:
     //==============================================================================
@@ -52,6 +53,7 @@ public:
 
     void paint (Graphics& g);
     void resized();
+    void buttonClicked (Button* buttonThatWasClicked);
 
 
 
@@ -61,6 +63,7 @@ private:
 
     //==============================================================================
     ScopedPointer<Label> mixerSectionLabel;
+    ScopedPointer<TextButton> addButton;
 
 
     //==============================================================================

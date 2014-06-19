@@ -130,7 +130,7 @@ void LinJam::UpdateGUI()
 
   // local VU
   int channel_n = -1 ; int channel_idx ;
-  while ((channel_idx = Client->EnumLocalChannels(++channel_n)) != -1)
+  while (~(channel_idx = Client->EnumLocalChannels(++channel_n)))
   {
     ValueTree channel_config = Config->localChannels.getChild(channel_n) ;
     if (channel_config.isValid())
@@ -349,18 +349,11 @@ DEBUG_TRACE_REMOTE_CHANNELS
 
 bool LinJam::IsRoomFull()
 {
-#ifdef WIN32 // TODO: GetErrorStr() linux .so segfault (issue #15)
+DBG("IsRoomFull() err=" + String(CharPointer_UTF8(Client->GetErrorStr()))) ;
+DBG("err.isNotEmpty()=" + String(String(CharPointer_UTF8(Client->GetErrorStr())).isNotEmpty()) +
+  " !err.compare(CLIENT::SERVER_FULL_STATUS)=" + String(!String(CharPointer_UTF8(Client->GetErrorStr())).compare(CLIENT::SERVER_FULL_STATUS))) ;
   String err = String(CharPointer_UTF8(Client->GetErrorStr())) ;
   return (err.isNotEmpty() && !err.compare(CLIENT::SERVER_FULL_STATUS)) ;
-#else // WIN32
-  return true ;
-/*
-  if (GetErrorStr()[0]) // <-- segfault here
-    return (!strcmp(GetErrorStr() , "room full")) ;
-  else
-    return false ;
-*/
-#endif
 }
 
 
@@ -543,6 +536,31 @@ void LinJam::HandleChatCommand(String chat_text)
 #endif // CHAT_COMMANDS_BUGGY
 }
 
+void LinJam::AddLocalChannel(String channel_name)
+{
+DEBUG_TRACE_NEW_LOCAL_CHANNEL_FAIL
+
+  int max_channels = Client->GetMaxLocalChannels() ;
+  int n_channels   = -1 ; while (~Client->EnumLocalChannels(++n_channels)) ;
+  if (n_channels >= max_channels) return ;
+
+  Identifier channel_id = Config->encodeChannelId(channel_name) ;
+  ValueTree store       = ValueTree(channel_id) ;
+  store.setProperty(STORAGE::VOLUME_IDENTIFIER   , STORAGE::DEFAULT_VOLUME    , nullptr) ;
+  store.setProperty(STORAGE::PAN_IDENTIFIER      , STORAGE::DEFAULT_PAN       , nullptr) ;
+  store.setProperty(STORAGE::XMIT_IDENTIFIER     , STORAGE::DEFAULT_IS_XMIT   , nullptr) ;
+  store.setProperty(STORAGE::MUTE_IDENTIFIER     , STORAGE::DEFAULT_IS_MUTE   , nullptr) ;
+  store.setProperty(STORAGE::SOLO_IDENTIFIER     , STORAGE::DEFAULT_IS_SOLO   , nullptr) ;
+  store.setProperty(STORAGE::SOURCE_N_IDENTIFIER , STORAGE::DEFAULT_SOURCE_N  , nullptr) ;
+  store.setProperty(STORAGE::STEREO_IDENTIFIER   , STORAGE::DEFAULT_IS_STEREO , nullptr) ;
+  Config->localChannels.addChild(store , -1 , nullptr) ;
+
+  int channel_idx = Config->localChannels.indexOf(store) ;
+  AddChannel(GUI::LOCAL_MIXERGROUP_IDENTIFIER , channel_id , channel_idx) ;
+
+DEBUG_TRACE_NEW_LOCAL_CHANNEL
+}
+
 void LinJam::AddChannel(Identifier mixergroup_id , Identifier channel_id , int channel_idx)
 {
 DEBUG_TRACE_ADD_CHANNEL
@@ -555,8 +573,6 @@ DEBUG_TRACE_ADD_CHANNEL
   Gui->mixerComponent->addChannelComponent(mixergroup_id , channel_store) ;
 
   if (mixergroup_id != GUI::LOCAL_MIXERGROUP_IDENTIFIER) return ;
-
-DEBUG_TRACE_ADD_LOCAL_CHANNEL
 
   // configure input channel
   ConfigureLocalChannel(channel_idx , String(channel_id) ,
@@ -577,7 +593,7 @@ bool LinJam::ConfigureChannelByName(Identifier channel_id                       
                                     bool  should_set_is_muted  , bool  is_muted  ,
                                     bool  should_set_is_solo   , bool  is_solo   ,
                                     bool  should_set_source_n  , int   source_n  ,
-                                    bool  should_set_bitrate   , int   bit_depth ,
+                                    bool  should_set_bit_depth , int   bit_depth ,
                                     bool  should_set_is_stereo , bool  is_stereo)
 {
   WDL_String name_wdl(channel_id.getCharPointer()) ; char* channel_name = name_wdl.Get() ;
@@ -591,7 +607,7 @@ bool LinJam::ConfigureChannelByName(Identifier channel_id                       
                             should_set_is_muted  , is_muted      ,
                             should_set_is_solo   , is_solo       ,
                             should_set_source_n  , source_n      ,
-                            should_set_bitrate   , bit_depth     ,
+                            should_set_bit_depth , bit_depth     ,
                             should_set_is_stereo , is_stereo     ) ;
 
   // TODO: iterate remote channels (issue #22)
@@ -606,19 +622,24 @@ bool LinJam::ConfigureLocalChannel(int  channel_idx          , String channel_na
                                    bool should_set_is_muted  , bool   is_muted     ,
                                    bool should_set_is_solo   , bool   is_solo      ,
                                    bool should_set_source_n  , int    source_n     ,
-                                   bool should_set_bitrate   , int    bit_depth    ,
+                                   bool should_set_bit_depth , int    bit_depth    ,
                                    bool should_set_is_stereo , bool   is_stereo)
 {
+DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
+
   WDL_String name_wdl(channel_name.toRawUTF8()) ; char* name = name_wdl.Get() ;
 
-  if (should_set_source_n || should_set_bitrate || should_set_is_xmit)
+  if (should_set_source_n || should_set_bit_depth || should_set_is_xmit)
     Client->SetLocalChannelInfo(channel_idx , name , should_set_source_n , source_n  ,
-                                                     should_set_bitrate  , bit_depth ,
+                                                     should_set_bit_depth, bit_depth ,
                                                      should_set_is_xmit  , is_xmit   ) ;
+
   if (should_set_volume || should_set_pan || should_set_is_muted || should_set_is_solo)
     Client->SetLocalChannelMonitoring(channel_idx                                 ,
                                       should_set_volume   , (float)DB2VAL(volume) ,
                                       should_set_pan      , pan                   ,
                                       should_set_is_muted , is_muted              ,
                                       should_set_is_solo  , is_solo               ) ;
+
+  Client->NotifyServerOfChannelChange() ;
 }

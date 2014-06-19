@@ -12,7 +12,7 @@
 
 void Trace::TraceConfig(String msg)       { if (TraceState())  Dbg("CONFIG"     , msg) ; }
 void Trace::TraceEvent(String msg)        { if (TraceEvs())    Dbg("EVENT"      , msg) ; }
-void Trace::TraceEventVerbose(String msg) { if (TraceVb())     Dbg("EVENT"      , msg) ; }
+void Trace::TraceVerbose(String msg)      { if (TraceVb())     Dbg("DEBUG"      , msg) ; }
 void Trace::TraceState(String msg)        { if (TraceState())  Dbg("STATE"      , msg) ; }
 void Trace::TraceConnection(String msg)   { if (TraceState())  Dbg("CONNECTION" , msg) ; }
 void Trace::TraceError(String msg)        { if (TraceState())  Dbg("ERROR"      , msg) ; }

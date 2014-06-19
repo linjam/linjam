@@ -121,9 +121,10 @@ public:
   static const String METRO_CHANNEL_GUI_ID ;
   static const String XMIT_LABEL_TEXT ;
   static const String RCV_LABEL_TEXT ;
-  static const int    CHANNEL_Y = LABEL_H + PAD2 ;
-  static const int    CHANNEL_W = 60 ;
-  static const int    CHANNEL_H = 252 ;
+  static const int    N_NON_CHANNELS = 2 ; // resizing compensation for additional elements
+  static const int    CHANNEL_Y      = LABEL_H + PAD2 ;
+  static const int    CHANNEL_W      = 60 ;
+  static const int    CHANNEL_H      = 252 ;
 
   // MixerGroupComponent
   static const String     MASTER_MIXERGROUP_GUI_ID ;
@@ -241,6 +242,14 @@ public:
   static const Identifier SOURCE_N_IDENTIFIER ;
   static const String     STEREO_KEY ;
   static const Identifier STEREO_IDENTIFIER ;
+  static const String     DEFAULT_NAME ;
+  static const float      DEFAULT_VOLUME ;
+  static const float      DEFAULT_PAN ;
+  static const bool       DEFAULT_IS_XMIT ;
+  static const bool       DEFAULT_IS_MUTE ;
+  static const bool       DEFAULT_IS_SOLO ;
+  static const int        DEFAULT_SOURCE_N ;
+  static const bool       DEFAULT_IS_STEREO ;
 
   static const String     DEFAULT_CONFIG_XML ;
 } ;

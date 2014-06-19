@@ -19,6 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 
+#include "LinJam.h"
 #include "Constants.h"
 #include "Trace.h"
 #include "MixerGroupComponent.h"
@@ -102,6 +103,14 @@ ChannelComponent::ChannelComponent (ValueTree config_store)
     nameLabel->setColour (TextEditor::textColourId, Colours::black);
     nameLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
+    addAndMakeVisible (removeButton = new TextButton ("removeButton"));
+    removeButton->setButtonText (TRANS("X"));
+    removeButton->addListener (this);
+    removeButton->setColour (TextButton::buttonColourId, Colour (0xff400000));
+    removeButton->setColour (TextButton::buttonOnColourId, Colours::maroon);
+    removeButton->setColour (TextButton::textColourOnId, Colours::red);
+    removeButton->setColour (TextButton::textColourOffId, Colours::red);
+
 
     //[UserPreSize]
 
@@ -125,14 +134,14 @@ ChannelComponent::ChannelComponent (ValueTree config_store)
 
   // TODO: subclass this (issue #29)
   Identifier mixergroup_id = config_store.getParent().getType() ;
-  bool   is_master_channel = (mixergroup_id == GUI::MASTER_MIXERGROUP_IDENTIFIER) ;
-  bool   is_local_channel  = (mixergroup_id == GUI::LOCAL_MIXERGROUP_IDENTIFIER) ;
+  bool   is_master_channel = (mixergroup_id == STORAGE::MASTERS_IDENTIFIER) ;
+  bool   is_local_channel  = (mixergroup_id == STORAGE::LOCALS_IDENTIFIER) ;
   String xmit_rcv_text     = ( is_local_channel)?  GUI::XMIT_LABEL_TEXT :
                              (!is_master_channel)? GUI::RCV_LABEL_TEXT  : "" ;
 
   this->nameLabel   ->setText(           name     , juce::dontSendNotification) ;
-  this->xmitButton  ->setEnabled(        !is_master_channel) ;
-  this->soloButton  ->setEnabled(        !is_master_channel) ;
+  this->xmitButton  ->setVisible(        !is_master_channel) ;
+  this->soloButton  ->setVisible(        !is_master_channel) ;
   this->xmitButton  ->setButtonText(     xmit_rcv_text) ;
   this->gainSlider  ->setValue(          volume) ;
   this->gainLabel   ->setText(String(int(volume)) , juce::dontSendNotification) ;
@@ -162,6 +171,7 @@ ChannelComponent::~ChannelComponent()
     vuLabel = nullptr;
     gainLabel = nullptr;
     nameLabel = nullptr;
+    removeButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -186,15 +196,16 @@ void ChannelComponent::paint (Graphics& g)
 
 void ChannelComponent::resized()
 {
-    xmitButton->setBounds (12, 4, 36, 12);
-    muteButton->setBounds (12, 20, 36, 12);
-    soloButton->setBounds (12, 36, 36, 12);
+    xmitButton->setBounds (4, 4, 36, 12);
+    muteButton->setBounds (4, 20, 36, 12);
+    soloButton->setBounds (4, 36, 36, 12);
     panSlider->setBounds (12, 52, 36, 36);
     vuSlider->setBounds (4, 92, 24, 128);
     gainSlider->setBounds (32, 92, 24, 128);
     vuLabel->setBounds (4, 224, 24, 12);
     gainLabel->setBounds (32, 224, 24, 12);
     nameLabel->setBounds (4, 236, 52, 12);
+    removeButton->setBounds (45, 0, 15, 16);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -211,7 +222,7 @@ void ChannelComponent::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_xmitButton] -- add your button handler code here..
 
-      config_key = STORAGE::XMIT_IDENTIFIER ;
+      setChannelConfig(STORAGE::XMIT_IDENTIFIER , var(toggleState)) ;
 
         //[/UserButtonCode_xmitButton]
     }
@@ -219,7 +230,7 @@ void ChannelComponent::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_muteButton] -- add your button handler code here..
 
-      config_key = STORAGE::MUTE_IDENTIFIER ;
+      setChannelConfig(STORAGE::MUTE_IDENTIFIER , var(toggleState)) ;
 
         //[/UserButtonCode_muteButton]
     }
@@ -227,15 +238,17 @@ void ChannelComponent::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_soloButton] -- add your button handler code here..
 
-      config_key = STORAGE::SOLO_IDENTIFIER ;
+      setChannelConfig(STORAGE::SOLO_IDENTIFIER , var(toggleState)) ;
 
         //[/UserButtonCode_soloButton]
     }
+    else if (buttonThatWasClicked == removeButton)
+    {
+        //[UserButtonCode_removeButton] -- add your button handler code here..
+        //[/UserButtonCode_removeButton]
+    }
 
     //[UserbuttonClicked_Post]
-
-  setChannelConfig(config_key , var(toggleState)) ;
-
     //[/UserbuttonClicked_Post]
 }
 
@@ -306,15 +319,15 @@ BEGIN_JUCER_METADATA
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <TOGGLEBUTTON name="xmitButton" id="f45f759640162c62" memberName="xmitButton"
-                virtualName="" explicitFocusOrder="0" pos="12 4 36 12" txtcol="ff808080"
+                virtualName="" explicitFocusOrder="0" pos="4 4 36 12" txtcol="ff808080"
                 buttonText="XMIT" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="0"/>
   <TOGGLEBUTTON name="muteButton" id="263020526add917" memberName="muteButton"
-                virtualName="" explicitFocusOrder="0" pos="12 20 36 12" txtcol="ff808080"
+                virtualName="" explicitFocusOrder="0" pos="4 20 36 12" txtcol="ff808080"
                 buttonText="MUTE" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="0"/>
   <TOGGLEBUTTON name="soloButton" id="3b096c8c7df5c792" memberName="soloButton"
-                virtualName="" explicitFocusOrder="0" pos="12 36 36 12" txtcol="ff808080"
+                virtualName="" explicitFocusOrder="0" pos="4 36 36 12" txtcol="ff808080"
                 buttonText="SOLO" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="0"/>
   <SLIDER name="panSlider" id="aa7c4f80abb603e9" memberName="panSlider"
@@ -347,6 +360,10 @@ BEGIN_JUCER_METADATA
          edTextCol="ff000000" edBkgCol="0" labelText="channel name" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="12" bold="0" italic="0" justification="36"/>
+  <TEXTBUTTON name="removeButton" id="becd368b728d32c0" memberName="removeButton"
+              virtualName="" explicitFocusOrder="0" pos="45 0 15 16" bgColOff="ff400000"
+              bgColOn="ff800000" textCol="ffff0000" textColOn="ffff0000" buttonText="X"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
