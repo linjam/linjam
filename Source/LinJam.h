@@ -69,7 +69,7 @@ private:
 
 
   // NJClient runtime helpers
-  static void HandleStatus(int status) ;
+  static void HandleStatusChanged(int status) ;
   static void HandleUserInfoChanged() ;
   static bool IsRoomFull() ;
 

@@ -114,12 +114,10 @@ void LinJam::Shutdown()
 void LinJam::DriveClient()
 {
   int client_status = Client->GetStatus() ;
-  if (client_status != PrevStatus) HandleStatus(PrevStatus = client_status) ;
-  if (client_status < NJClient::NJC_STATUS_OK || !Client->Run()) return ;
-
-//      while (this->Run()) ;
-  if (client_status == NJClient::NJC_STATUS_OK &&
-      Client->HasUserInfoChanged()) HandleUserInfoChanged() ;
+  if (client_status != PrevStatus) HandleStatusChanged(PrevStatus = client_status) ;
+  if (client_status == NJClient::NJC_STATUS_OK && Client->HasUserInfoChanged())
+    HandleUserInfoChanged() ;
+  if (client_status >= NJClient::NJC_STATUS_OK) while (!Client->Run()) ;
 }
 
 void LinJam::UpdateGUI()
@@ -150,9 +148,8 @@ void LinJam::UpdateGUI()
   float progress = (sample_n + GuiBeatOffset) / (float)n_samples ;
   int   beat_n   = ((int)(bpi * progress) % bpi) + 1 ;
   Gui->loopComponent->updateBeat(beat_n) ;
-
-Gui->loopComponent->updateBPI(bpi) ; // TODO: this need not be set constantly
-Gui->statusbarComponent->setStatusR(String(bpi) + " bpi @ " + String(bpm) + " bpm") ; // TODO: this need not be set constantly
+  Gui->loopComponent->updateBPI(bpi) ;
+  Gui->statusbarComponent->setStatusR(String(bpi) + " bpi @ " + String(bpm) + " bpm") ;
 }
 
 
@@ -257,7 +254,7 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 
 /* NJClient runtime helpers */
 
-void LinJam::HandleStatus(int client_status)
+void LinJam::HandleStatusChanged(int client_status)
 {
 DEBUG_TRACE_CONNECT_STATUS
 #ifdef DEBUG_AUTOJOIN_STATIC_CHANNEL
@@ -308,9 +305,25 @@ if (client_status == NJClient::NJC_STATUS_PRECONNECT)
   Gui->statusbarComponent->setStatusL(status_text) ;
 }
 
-void LinJam::HandleUserInfoChanged() // TODO: this fires repeatedly
+void LinJam::HandleUserInfoChanged()
 {
-//DEBUG_TRACE_CHANNELS
+DEBUG_TRACE_REMOTE_CHANNELS
+
+  int user_n = -1 ; char* user_name ; float user_volume ; float user_pan ; bool  user_mute ;
+  while (user_name = Client->GetUserState(++user_n , &user_volume , &user_pan , &user_mute))
+  {
+    int channel_n = -1 ; while (Client->EnumUserChannels(user_n , ++channel_n) != -1)
+    {
+      bool is_rcv ;  float channel_volume ; float channel_pan ; bool channel_mute ;
+      bool is_solo ; int   output_channel ; bool  is_stereo ;
+      char* channel_name = Client->GetUserChannelState(user_n , channel_n , &is_rcv      ,
+                                                       &channel_volume    , &channel_pan ,
+                                                       &channel_mute      , &is_solo     ,
+                                                       &output_channel    , &is_stereo   ) ;
+
+//Gui->mixerComponent->addLocalChannelComponent(name) ;
+    }
+  }
 }
 
 bool LinJam::IsRoomFull()

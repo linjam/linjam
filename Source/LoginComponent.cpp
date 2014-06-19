@@ -77,6 +77,7 @@ LoginComponent::LoginComponent ()
     hostText->setColour (TextEditor::textColourId, Colours::grey);
     hostText->setColour (TextEditor::backgroundColourId, Colours::black);
     hostText->setColour (TextEditor::outlineColourId, Colours::white);
+    hostText->setColour (CaretComponent::caretColourId, Colours::white);
     hostText->setText (String::empty);
 
     addAndMakeVisible (loginText = new TextEditor ("loginText"));
@@ -91,6 +92,7 @@ LoginComponent::LoginComponent ()
     loginText->setColour (TextEditor::textColourId, Colours::grey);
     loginText->setColour (TextEditor::backgroundColourId, Colours::black);
     loginText->setColour (TextEditor::outlineColourId, Colours::white);
+    loginText->setColour (CaretComponent::caretColourId, Colours::white);
     loginText->setText (String::empty);
 
     addAndMakeVisible (passText = new TextEditor ("passText"));
@@ -105,6 +107,7 @@ LoginComponent::LoginComponent ()
     passText->setColour (TextEditor::textColourId, Colours::grey);
     passText->setColour (TextEditor::backgroundColourId, Colours::black);
     passText->setColour (TextEditor::outlineColourId, Colours::white);
+    passText->setColour (CaretComponent::caretColourId, Colours::white);
     passText->setText (String::empty);
 
     addAndMakeVisible (loginButton = new TextButton ("loginButton"));
@@ -123,7 +126,7 @@ LoginComponent::LoginComponent ()
     anonButton->setExplicitFocusOrder (5);
     anonButton->setButtonText (TRANS("anonymous"));
     anonButton->addListener (this);
-    anonButton->setToggleState (true, juce::dontSendNotification);
+    anonButton->setToggleState (true, dontSendNotification);
     anonButton->setColour (ToggleButton::textColourId, Colours::grey);
 
 
@@ -443,20 +446,20 @@ BEGIN_JUCER_METADATA
          fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="hostText" id="d540c830b7e8d52f" memberName="hostText" virtualName=""
               explicitFocusOrder="0" pos="-100C 112R 160 24" tooltip="Enter you server ip/port in the form: example.com:2050 or 123.123.123.123:2050 to use a private server."
-              textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" initialText=""
-              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
-              caret="1" popupmenu="1"/>
+              textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" caretcol="ffffffff"
+              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
+              scrollbars="0" caret="1" popupmenu="1"/>
   <TEXTEDITOR name="loginText" id="5490b33873f48ebc" memberName="loginText"
               virtualName="" explicitFocusOrder="1" pos="-100C 80R 160 24"
               tooltip="Enter a username using only the characters a-z 0-9 - and _"
-              textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" initialText=""
-              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
-              caret="1" popupmenu="1"/>
+              textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" caretcol="ffffffff"
+              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
+              scrollbars="0" caret="1" popupmenu="1"/>
   <TEXTEDITOR name="passText" id="3962fd184843da61" memberName="passText" virtualName=""
               explicitFocusOrder="2" pos="-100C 48R 160 24" tooltip="Some servers require a password. Try logging in with the anonymous button ticked first."
-              textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" initialText=""
-              multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
-              caret="1" popupmenu="1"/>
+              textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" caretcol="ffffffff"
+              initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
+              scrollbars="0" caret="1" popupmenu="1"/>
   <TEXTBUTTON name="loginButton" id="7db8d8f23fee0f6a" memberName="loginButton"
               virtualName="" explicitFocusOrder="3" pos="85C 112R 96 24" tooltip="Click this to connect to the specified server."
               buttonText="&lt;--   Connect" connectedEdges="0" needsCallback="1"

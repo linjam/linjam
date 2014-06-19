@@ -90,8 +90,36 @@
     if (Client->GetErrorStr()[0])                                               \
       Trace::TraceServer("Error: " + String(Client->GetErrorStr())) ;
 
-#  define DEBUG_TRACE_CHANNELS           Trace::TraceServer("handleUserInfoChanged()") ;
-#  define DEBUG_TRACE_CHANNELS_VB                                                   \
+#  define DEBUG_TRACE_REMOTE_CHANNELS                                                       \
+    Trace::TraceServer("user info changed - " + String(Client->GetNumUsers()) + " users") ; \
+    int u_n = -1 ; char* u_name ; float u_vol ; float u_pan ; bool  u_mute ;                \
+    while (u_name = Client->GetUserState(++u_n , &u_vol , &u_pan , &u_mute))                \
+    {                                                                                       \
+      String dbg = "found remote user[" + String(u_n) + "] =>" +                            \
+          "\n  user_name   => " + String(u_name)               +                            \
+          "\n  user_volume => " + String(u_vol)                +                            \
+          "\n  user_pan    => " + String(u_pan)                +                            \
+          "\n  user_mute   => " + String(u_mute) ;                                          \
+      int c_n = -1 ; while (Client->EnumUserChannels(u_n , ++c_n) != -1)                    \
+      {                                                                                     \
+        bool c_rcv ;  float c_vol ; float c_pan ; bool c_mute ;                             \
+        bool c_solo ; int   c_chan ; bool  c_stereo ;                                       \
+        char* c_name = Client->GetUserChannelState(u_n , c_n , &c_rcv  , &c_vol  ,          \
+                                                  &c_pan    , &c_mute , &c_solo ,           \
+                                                  &c_chan   , &c_stereo         ) ;         \
+        dbg += "\n  found remote channel[" + String(c_n) + "] =>" +                         \
+               "\n    channel_name   => "  + String(c_name)       +                         \
+               "\n    is_rcv         => "  + String(c_rcv)        +                         \
+               "\n    channel_volume => "  + String(c_vol)        +                         \
+               "\n    channel_pan    => "  + String(c_pan)        +                         \
+               "\n    channel_mute   => "  + String(c_mute)       +                         \
+               "\n    is_solo        => "  + String(c_solo)       +                         \
+               "\n    output_channel => "  + String(c_chan)       +                         \
+               "\n    is_stereo      => "  + String(c_stereo) ;                             \
+      }                                                                                     \
+      Trace::TraceState(dbg) ;                                                              \
+    }
+#  define DEBUG_TRACE_CHANNELS_VB /* TODO: so not use - some of this is obsolete */ \
     /* master channel */                                                            \
     this->chatComponent->addChatLine("" , "") ;                                     \
     this->chatComponent->addChatLine("master channel:\n" ,                          \
