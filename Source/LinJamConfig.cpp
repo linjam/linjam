@@ -92,6 +92,17 @@ bool LinJamConfig::sanityCheck()
            default_channel          .hasProperty(STORAGE::STEREO_IDENTIFIER)    ) ;
 }
 
+ValueTree LinJamConfig::getChannelConfig(Identifier mixergroup_id , Identifier channel_id)
+{
+  if      (mixergroup_id == GUI::MASTER_MIXERGROUP_IDENTIFIER)
+    return this->masterChannels.getChildWithName(channel_id) ;
+  else if (mixergroup_id == GUI::LOCAL_MIXERGROUP_IDENTIFIER)
+    return this->localChannels .getChildWithName(channel_id) ;
+//   else if (mixergroup_id == this->getChildWithName(mixergroup_id))
+//     return this->getChildWithName(mixergroup_id).getChildWithName(channel_id) ;
+  else return ValueTree::invalid ;
+}
+
 void LinJamConfig::setServerConfig()
 {
   // copy volatile login state to persistent storage
@@ -220,8 +231,8 @@ Value LinJamConfig::getConfigValueObj(ValueTree parent_node , Identifier child_n
 DEBUG_TRACE_CONFIG_VALUE
 
   return (child_node.isValid() && child_node.hasProperty(key))?
-    child_node.getPropertyAsValue(key , &this->configUndoManager) :
-    this->dummyValue ;
+              child_node.getPropertyAsValue(key , nullptr) :
+              this->dummyValue ;
 }
 
 Value LinJamConfig::getClientConfigValueObj(Identifier key)
@@ -313,22 +324,25 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
   }
 
   // local and remote channels
-  bool  should_set_volume   = (key == STORAGE::VOLUME_IDENTIFIER) ;
-  bool  should_set_pan      = (key == STORAGE::PAN_IDENTIFIER) ;
-  bool  should_set_is_xmit  = (key == STORAGE::XMIT_IDENTIFIER) ;
-  bool  should_set_is_muted = (key == STORAGE::MUTE_IDENTIFIER) ;
-  bool  should_set_is_solo  = (key == STORAGE::SOLO_IDENTIFIER) ;
-  bool  should_set_source_n = (key == STORAGE::SOURCE_N_IDENTIFIER) ;
-  bool  should_set_bitrate  = (key == STORAGE::SAMPLERATE_IDENTIFIER) ;
-  if (LinJam::SetChannelInfoByName(String(node_id).toRawUTF8()           ,
-                                   should_set_source_n         , an_int  ,
-                                   should_set_bitrate          , an_int  ,
-                                   should_set_is_xmit          , a_bool  ,
-                                   should_set_volume           , a_float ,
-                                   should_set_pan              , a_float ,
-                                   should_set_is_muted         , a_bool  ,
-                                   should_set_is_solo          , a_bool)) {}
-}
+  // TODO: channel name changes (issue #12)
+  bool  should_set_volume    = (key == STORAGE::VOLUME_IDENTIFIER) ;
+  bool  should_set_pan       = (key == STORAGE::PAN_IDENTIFIER) ;
+  bool  should_set_is_xmit   = (key == STORAGE::XMIT_IDENTIFIER) ;
+  bool  should_set_is_muted  = (key == STORAGE::MUTE_IDENTIFIER) ;
+  bool  should_set_is_solo   = (key == STORAGE::SOLO_IDENTIFIER) ;
+  bool  should_set_source_n  = (key == STORAGE::SOURCE_N_IDENTIFIER) ;
+  bool  should_set_bitrate   = (key == STORAGE::SAMPLERATE_IDENTIFIER) ;
+  bool  should_set_is_stereo = (key == STORAGE::STEREO_IDENTIFIER) ;
+  if (LinJam::ConfigureChannelByName(node_id                        ,
+                                     should_set_volume    , a_float ,
+                                     should_set_pan       , a_float ,
+                                     should_set_is_xmit   , a_bool  ,
+                                     should_set_is_muted  , a_bool  ,
+                                     should_set_is_solo   , a_bool  ,
+                                     should_set_source_n  , an_int  ,
+                                     should_set_bitrate   , an_int  ,
+                                     should_set_is_stereo , a_bool  )) {}
+  }
 
 // unused ValueTree::Listener interface methods
 void LinJamConfig::valueTreeChildAdded(ValueTree& a_parent_tree , ValueTree& a_child_tree)   {}

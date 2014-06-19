@@ -47,16 +47,8 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  void addMasterChannelComponent(String               channel_id) ;
-  void addLocalChannelComponent( String               channel_id) ;
-//   void addRemoteChannelComponent(String               gui_id              ,
-//                                  String               user_gui_id) ; // TODO (issue #22)
-  void updateChannelVU(          Identifier           mixergroup_id       ,
-                                 String               channel_id          , float vu) ;
-  void channelControlChanged(    MixerGroupComponent* mixerGroupComponent ,
-                                 Identifier           channel_id          ,
-                                 Identifier           config_key          ,
-                                 var                  value) ;
+  void addChannelComponent(Identifier mixergroup_id , ValueTree channel_store) ;
+  void updateChannelVU(    Identifier mixergroup_id , String channel_id , float vu) ;
 
     //[/UserMethods]
 
@@ -71,14 +63,7 @@ private:
   MixerGroupComponent* masterMixerGroupComponent ;
   MixerGroupComponent* localMixerGroupComponent ;
 
-  ValueTree            getChannelConfig(      MixerGroupComponent* mixerGroupComponent ,
-                                              Identifier           channel_id) ;
-  MixerGroupComponent* addMixerGroupComponent(String               mixer_group_id) ;
-  void                 addChannelComponent(   MixerGroupComponent* mixergroup      ,
-                                              String               channel_id      ,
-                                              bool                 is_xmit_enabled ,
-                                              bool                 is_solo_enabled ,
-                                              String               xmit_rcv_text) ;
+  MixerGroupComponent* addMixerGroupComponent(String mixer_group_id) ;
 
     //[/UserVariables]
 

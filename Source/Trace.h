@@ -190,26 +190,30 @@
       }                                                                             \
     }
 
-#  define DEBUG_TRACE_ADD_MASTER_CHANNEL   Trace::TraceEvent("adding master channel '" + channel_id + "'") ;
-#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL    Trace::TraceEvent("adding local channel '"  + channel_id + "'") ;
-#  define DEBUG_TRACE_ADD_REMOTE_CHANNEL   Trace::TraceEvent("adding remote channel '" + channel_id + "' for user " + user_gui_id) ;
-#  define DEBUG_TRACE_ADDED_CHANNEL        Trace::TraceEvent(String("channel added =>") + \
-    "\n  channel_id      => " + String(channel_config->channel_id)                      + \
-    "\n  is_xmit_enabled => " + String(channel_config->is_xmit_enabled)                 + \
-    "\n  is_solo_enabled => " + String(channel_config->is_solo_enabled)                 + \
-    "\n  xmit_rcv_text   => " + String(channel_config->xmit_rcv_text)                   + \
-    "\n  volume          => " + String(channel_config->volume)                          + \
-    "\n  pan             => " + String(channel_config->pan)                             + \
-    "\n  is_xmit         => " + String(channel_config->is_xmit)                         + \
-    "\n  is_muted        => " + String(channel_config->is_muted)                        + \
-    "\n  is_solo         => " + String(channel_config->is_solo)                         + \
-    "\n  source_ch       => " + String(channel_config->source_ch)                       + \
-    "\n  is_stereo       => " + String(channel_config->is_stereo)) ;
+#  define DEBUG_TRACE_ADD_CHANNEL                                                  \
+    if      (mixergroup_id == GUI::MASTER_MIXERGROUP_IDENTIFIER)                   \
+         Trace::TraceEvent("adding master channel '" + String(channel_id) + "'") ; \
+    else if (mixergroup_id == GUI::LOCAL_MIXERGROUP_IDENTIFIER)                    \
+         Trace::TraceEvent("adding local channel '"  + String(channel_id) + "'") ; \
+    else Trace::TraceEvent("adding remote channel '" + String(channel_id) +        \
+                           "' for user " + String(mixergroup_id)) ;
+#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL                                     \
+    Trace::TraceConfig("configuring local channel[" + String(channel_idx) + \
+                       "] - " + String(channel_id)) ;
+#  define DEBUG_TRACE_ADDED_CHANNEL Trace::TraceEvent(String("channel added =>") + \
+    "\n  mixergroup      => " + String(config_store.getParent().getType())       + \
+    "\n  name            => " + name                                             + \
+    "\n  volume          => " + String(volume)                                   + \
+    "\n  pan             => " + String(pan)                                      + \
+    "\n  is_xmit         => " + String(is_xmit)                                  + \
+    "\n  is_muted        => " + String(is_muted)                                 + \
+    "\n  is_solo         => " + String(is_solo)                                  + \
+    "\n  source_ch       => " + String(source_ch)                                + \
+    "\n  is_stereo       => " + String(is_stereo)) ;
 
 #  define DEBUG_TRACE_CHAT_IN            if (chat_user.compare(Config->currentLogin.toString())) Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 //#  define DEBUG_TRACE_CHATIN String msg = "|" ; for (;nparms--;) msg += String(parms[nparms]) + "|" ; Trace::TraceEvent("LinJam::OnChatmsg()=\n\"" + msg + "\"") ;
 //#  define DEBUG_TRACE_CHATIN Trace::TraceEvent("LinJam::OnChatmsg()=\n") ; for (;nparms--;) Trace::TraceEvent("\tnparms[" + String(nparms) + "]='" + String(parms[nparms]) + "'\n") ;
-
 #  define DEBUG_TRACE_CHAT_OUT                                      \
     if ((chat_text = chat_text.trim()).isNotEmpty())                \
       Trace::TraceEvent("outgoing chat: " + ((chat_text[0] == '/')? \
@@ -226,29 +230,30 @@
 
 #else // #if DEBUG_TRACE
 
-#  define DEBUG_TRACE_LINJAM_INIT        ;
-#  define DEBUG_TRACE_JACK_INIT          ;
-#  define DEBUG_TRACE_AUDIO_INIT         ;
-#  define DEBUG_TRACE_LOAD_CONFIG        ;
-#  define DEBUG_TRACE_SANITIZE_CONFIG    ;
-#  define DEBUG_TRACE_STORE_CONFIG       ;
-#  define DEBUG_TRACE_CONFIG_VALUE       ;
-#  define DEBUG_TRACE_LOGIN_LOAD         ;
-#  define DEBUG_TRACE_LOGIN_CLICKED      ;
-#  define DEBUG_TRACE_CONNECT            ;
-#  define DEBUG_TRACE_LICENSE_CLICKED    ;
-#  define DEBUG_TRACE_LICENSE            ;
-#  define DEBUG_TRACE_CONNECT_STATUS     ;
-#  define DEBUG_TRACE_CHANNELS           ;
-#  define DEBUG_TRACE_CHANNELS_VB        ;
-#  define DEBUG_TRACE_ADD_MASTER_CHANNEL ;
-#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL  ;
-#  define DEBUG_TRACE_ADD_REMOTE_CHANNEL ;
-#  define DEBUG_TRACE_ADDED_CHANNEL      ;
-#  define DEBUG_TRACE_CHAT_IN            ;
-#  define DEBUG_TRACE_CHAT_OUT           ;
-#  define DEBUG_TRACE_SHUTDOWN           ;
-#  define DEBUG_TRACE_CLEAN_SESSION      ;
+#  define DEBUG_TRACE_LINJAM_INIT         ;
+#  define DEBUG_TRACE_JACK_INIT           ;
+#  define DEBUG_TRACE_AUDIO_INIT          ;
+#  define DEBUG_TRACE_LOAD_CONFIG         ;
+#  define DEBUG_TRACE_SANITIZE_CONFIG     ;
+#  define DEBUG_TRACE_STORE_CONFIG        ;
+#  define DEBUG_TRACE_CONFIG_VALUE        ;
+#  define DEBUG_TRACE_CONFIG_CHANGED      ;
+#  define DEBUG_TRACE_CONFIG_TREE_CHANGED ;
+#  define DEBUG_TRACE_LOGIN_LOAD          ;
+#  define DEBUG_TRACE_LOGIN_CLICKED       ;
+#  define DEBUG_TRACE_CONNECT             ;
+#  define DEBUG_TRACE_LICENSE_CLICKED     ;
+#  define DEBUG_TRACE_LICENSE             ;
+#  define DEBUG_TRACE_CONNECT_STATUS      ;
+#  define DEBUG_TRACE_REMOTE_CHANNELS     ;
+#  define DEBUG_TRACE_CHANNELS_VB         ;
+#  define DEBUG_TRACE_ADD_CHANNEL         ;
+#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL   ;
+#  define DEBUG_TRACE_ADDED_CHANNEL       ;
+#  define DEBUG_TRACE_CHAT_IN             ;
+#  define DEBUG_TRACE_CHAT_OUT            ;
+#  define DEBUG_TRACE_CLEAN_SESSION       ;
+#  define DEBUG_TRACE_SHUTDOWN            ;
 
 #endif // #if DEBUG_TRACE
 

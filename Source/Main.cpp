@@ -55,7 +55,7 @@ public:
       else
       {
         this->startTimer(CLIENT::CLIENT_DRIVER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
-        this->startTimer(CLIENT::GUI_DRIVER_ID ,    CLIENT::GUI_DRIVER_IVL) ;
+        this->startTimer(CLIENT::GUI_DRIVER_ID    , CLIENT::GUI_DRIVER_IVL) ;
       }
     }
 
@@ -145,7 +145,7 @@ DBG("[DEBUG]: EXIT_IMMEDIAYELY defined - bailing") ; this->quit() ;
       {
         case CLIENT::CLIENT_DRIVER_ID: LinJam::DriveClient() ; break ;
         case CLIENT::GUI_DRIVER_ID:    LinJam::UpdateGUI() ;   break ;
-        default:                                       break ;
+        default:                                               break ;
       }
     }
 

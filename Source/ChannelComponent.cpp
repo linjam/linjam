@@ -33,7 +33,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-ChannelComponent::ChannelComponent (ChannelConfig* channel_config)
+ChannelComponent::ChannelComponent (ValueTree config_store)
 {
     setName ("ChannelComponent");
     addAndMakeVisible (xmitButton = new ToggleButton ("xmitButton"));
@@ -114,20 +114,36 @@ ChannelComponent::ChannelComponent (ChannelConfig* channel_config)
 
     //[Constructor] You can add your own custom stuff here..
 
-DEBUG_TRACE_ADDED_CHANNEL
+  String name      = String((this->configStore = config_store).getType()) ;
+  double volume    = double( this->configStore[STORAGE::VOLUME_IDENTIFIER]) ;
+  double pan       = double( this->configStore[STORAGE::PAN_IDENTIFIER]) ;
+  bool   is_xmit   = bool(   this->configStore[STORAGE::XMIT_IDENTIFIER]) ;
+  bool   is_muted  = bool(   this->configStore[STORAGE::MUTE_IDENTIFIER]) ;
+  bool   is_solo   = bool(   this->configStore[STORAGE::SOLO_IDENTIFIER]) ;
+  int    source_ch = int(    this->configStore[STORAGE::SOURCE_N_IDENTIFIER]) ;
+  bool   is_stereo = bool(   this->configStore[STORAGE::STEREO_IDENTIFIER]) ;
 
-  this->nameLabel   ->setText(           channel_config->channel_id , juce::dontSendNotification) ;
-  this->xmitButton  ->setEnabled(        channel_config->is_xmit_enabled) ;
-  this->soloButton  ->setEnabled(        channel_config->is_solo_enabled) ;
-  this->xmitButton  ->setButtonText(     channel_config->xmit_rcv_text) ;
-  this->gainSlider  ->setValue(          channel_config->volume) ;
-  this->gainLabel   ->setText(String(int(channel_config->volume))   , juce::dontSendNotification) ;
-  this->panSlider   ->setValue(          channel_config->pan) ;
-  this->xmitButton  ->setToggleState(    channel_config->is_xmit    , juce::dontSendNotification) ;
-  this->muteButton  ->setToggleState(    channel_config->is_muted   , juce::dontSendNotification) ;
-  this->soloButton  ->setToggleState(    channel_config->is_solo    , juce::dontSendNotification) ;
-//   this->sourceLabel ->setText(String(    channel_config->source_ch)) ; // TODO: (issue #25)
-//   this->stereoButton->setToggleState(    channel_config->is_stereo) ;  // TODO: (issue #25)
+  // TODO: subclass this (issue #29)
+  Identifier mixergroup_id = config_store.getParent().getType() ;
+  bool   is_master_channel = (mixergroup_id == GUI::MASTER_MIXERGROUP_IDENTIFIER) ;
+  bool   is_local_channel  = (mixergroup_id == GUI::LOCAL_MIXERGROUP_IDENTIFIER) ;
+  String xmit_rcv_text     = ( is_local_channel)?  GUI::XMIT_LABEL_TEXT :
+                             (!is_master_channel)? GUI::RCV_LABEL_TEXT  : "" ;
+
+  this->nameLabel   ->setText(           name     , juce::dontSendNotification) ;
+  this->xmitButton  ->setEnabled(        !is_master_channel) ;
+  this->soloButton  ->setEnabled(        !is_master_channel) ;
+  this->xmitButton  ->setButtonText(     xmit_rcv_text) ;
+  this->gainSlider  ->setValue(          volume) ;
+  this->gainLabel   ->setText(String(int(volume)) , juce::dontSendNotification) ;
+  this->panSlider   ->setValue(          pan) ;
+  this->xmitButton  ->setToggleState(    is_xmit  , juce::dontSendNotification) ;
+  this->muteButton  ->setToggleState(    is_muted , juce::dontSendNotification) ;
+  this->soloButton  ->setToggleState(    is_solo  , juce::dontSendNotification) ;
+//   this->sourceLabel ->setText(String(    source_ch , juce::dontSendNotification) ;)) ; // TODO: (issue #25)
+//   this->stereoButton->setToggleState(    is_stereo , juce::dontSendNotification) ;) ;  // TODO: (issue #25)
+
+DEBUG_TRACE_ADDED_CHANNEL
 
     //[/Constructor]
 }
@@ -267,12 +283,7 @@ void ChannelComponent::updateChannelVU(float vu)
 }
 
 void ChannelComponent::setChannelConfig(Identifier config_key , var value)
-{
-  MixerGroupComponent* mixergroup = (MixerGroupComponent*)getParentComponent() ;
-  MixerComponent*      mixer      = (MixerComponent*)mixergroup->getParentComponent() ;
-
-  mixer->channelControlChanged(mixergroup , this->getComponentID() , config_key , value) ;
-}
+{ this->configStore.setProperty(config_key , value , nullptr) ; }
 
 //[/MiscUserCode]
 
@@ -287,7 +298,7 @@ void ChannelComponent::setChannelConfig(Identifier config_key , var value)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="ChannelComponent" componentName="ChannelComponent"
-                 parentClasses="public Component" constructorParams="ChannelConfig* channel_config"
+                 parentClasses="public Component" constructorParams="ValueTree config_store"
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
                  overlayOpacity="0.330" fixedSize="0" initialWidth="60" initialHeight="252">
   <BACKGROUND backgroundColour="0">
@@ -344,7 +355,4 @@ END_JUCER_METADATA
 
 
 //[EndFile] You can add extra defines here...
-
-  ChannelConfig::~ChannelConfig() {}
-
 //[/EndFile]

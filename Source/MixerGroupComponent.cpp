@@ -102,10 +102,10 @@ void MixerGroupComponent::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void MixerGroupComponent::addChannelComponent(ChannelConfig* channel_config)
+void MixerGroupComponent::addChannelComponent(ValueTree channel_store)
 {
-  ChannelComponent* channel_component = new ChannelComponent(channel_config) ;
-  this->addChildAndSetID(channel_component , channel_config->channel_id) ;
+  ChannelComponent* channel_component = new ChannelComponent(channel_store) ;
+  this->addChildAndSetID(channel_component , String(channel_store.getType())) ;
   channel_component->toFront(false) ;
 }
 

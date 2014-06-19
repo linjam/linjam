@@ -26,8 +26,6 @@ public:
   ~LinJamConfig() ;
 
 
-  UndoManager configUndoManager ;
-
   // client config
   Value     shouldSaveAudio ;     // bool
   Value     shouldSaveLog ;       // bool
@@ -73,6 +71,7 @@ public:
   bool sanityCheck() ;
 
   // getters/setters
+  ValueTree getChannelConfig(      Identifier mixergroup_id , Identifier channel_id) ;
   void      setServerConfig() ;
   ValueTree getServerConfig(       String host) ;
   ValueTree getCurrentServerConfig() ;

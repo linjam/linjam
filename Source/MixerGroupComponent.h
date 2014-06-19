@@ -45,8 +45,8 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  void addChannelComponent(ChannelConfig* channel_config) ;
-  void updateChannelVU(    String         channel_id     , float vu) ;
+  void addChannelComponent(ValueTree channel_store) ;
+  void updateChannelVU(    String channel_id , float vu) ;
 
     //[/UserMethods]
 

@@ -79,15 +79,28 @@ private:
   static bool PrepareSessionDirectory() ;
   static void ConfigureNinjam() ;
   static void CleanSessionDir() ;
-  static void HandleChatCommand(String chat_text) ;
-  static bool SetChannelInfoByName(const char* channel_name                         ,
-                                         bool  should_set_source_n , int   source_n ,
-                                         bool  should_set_bitrate  , int   bitrate  ,
-                                         bool  should_set_is_xmit  , bool  is_xmit  ,
-                                         bool  should_set_volume   , float volume   ,
-                                         bool  should_set_pan      , float pan      ,
-                                         bool  should_set_is_muted , bool  is_muted ,
-                                         bool  should_set_is_solo  , bool  is_solo  ) ;
+  static void HandleChatCommand(     String chat_text) ;
+  static void AddChannel(            Identifier mixergroup_id , Identifier channel_id ,
+                                     int        channel_idx) ;
+  static bool ConfigureChannelByName(Identifier channel_id                             ,
+                                     bool       should_set_volume    , float volume    ,
+                                     bool       should_set_pan       , float pan       ,
+                                     bool       should_set_is_xmit   , bool  is_xmit   ,
+                                     bool       should_set_is_muted  , bool  is_muted  ,
+                                     bool       should_set_is_solo   , bool  is_solo   ,
+                                     bool       should_set_source_n  , int   source_n  ,
+                                     bool       should_set_bitrate   , int   bit_depth ,
+                                     bool       should_set_is_stereo , bool  is_stereo ) ;
+  static bool ConfigureLocalChannel(int  channel_idx          , String name      ,
+                                    bool should_set_volume    , float  volume    ,
+                                    bool should_set_pan       , float  pan       ,
+                                    bool should_set_is_xmit   , bool   is_xmit   ,
+                                    bool should_set_is_muted  , bool   is_muted  ,
+                                    bool should_set_is_solo   , bool   is_solo   ,
+                                    bool should_set_source_n  , int    source_n  ,
+                                    bool should_set_bitrate   , int    bit_depth ,
+                                    bool should_set_is_stereo , bool   is_stereo ) ;
+
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;
 } ;
