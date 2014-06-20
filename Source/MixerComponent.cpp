@@ -38,8 +38,8 @@ MixerComponent::MixerComponent ()
 
     //[UserPreSize]
 
-  this->localMixerGroupComponent  = addMixerGroupComponent(GUI::LOCAL_MIXERGROUP_GUI_ID) ;
-  this->masterMixerGroupComponent = addMixerGroupComponent(GUI::MASTER_MIXERGROUP_GUI_ID) ;
+  this->masterMixerGroupComponent = addMixerGroup(GUI::MASTER_MIXERGROUP_GUI_ID) ;
+  this->localMixerGroupComponent  = addMixerGroup(GUI::LOCAL_MIXERGROUP_GUI_ID) ;
 
     //[/UserPreSize]
 
@@ -82,9 +82,21 @@ void MixerComponent::resized()
 {
     //[UserResized] Add your own custom resize handling here..
 
+  // master channels
+  if (this->masterMixerGroupComponent != nullptr)
+  {
+    int master_x = getWidth() - GUI::MASTERGROUP_W - GUI::PAD ;
+    int master_y = GUI::MIXERGROUP_Y ;
+    int master_w = GUI::MASTERGROUP_W ;
+    int master_h = GUI::MIXERGROUP_H ;
+    this->masterMixerGroupComponent->setBounds(master_x , master_y , master_w , master_h) ;
+  }
+
+  // local channels
+  int n_channels ; int n_remote_channels ;
   if (this->localMixerGroupComponent != nullptr)
   {
-    int n_channels = localMixerGroupComponent->getNumChildComponents() -GUI::N_NON_CHANNELS ;
+        n_channels = getNumChannels(localMixerGroupComponent) ;
     int local_x    = GUI::PAD ;
     int local_y    = GUI::MIXERGROUP_Y ;
     int local_w    = GUI::MIXERGROUP_W(n_channels) ;
@@ -92,12 +104,18 @@ void MixerComponent::resized()
     this->localMixerGroupComponent->setBounds(local_x , local_y , local_w , local_h) ;
   }
 
-  int master_x = getWidth() - GUI::MASTERGROUP_W - GUI::PAD ;
-  int master_y = GUI::MIXERGROUP_Y ;
-  int master_w = GUI::MASTERGROUP_W ;
-  int master_h = GUI::MIXERGROUP_H ;
-  if (this->masterMixerGroupComponent != nullptr)
-    this->masterMixerGroupComponent->setBounds(master_x , master_y , master_w , master_h) ;
+  // remote channels
+  int remote_y = GUI::MIXERGROUP_Y ;
+  int remote_h = GUI::MIXERGROUP_H ;
+  int n_groups = this->getNumChildComponents() ; MixerGroupComponent* mixergroup ;
+  for (int group_n = 2 ; group_n < n_groups ; ++group_n)
+  {
+    int remote_x = GUI::PAD + GUI::MIXERGROUP_W(n_channels) + (GUI::PAD * group_n) ;
+    mixergroup   = (MixerGroupComponent*)this->getChildComponent(group_n) ;
+    n_channels  += n_remote_channels = getNumChannels(mixergroup) ;
+    int remote_w = GUI::MIXERGROUP_W(n_remote_channels) ;
+    mixergroup->setBounds(remote_x , remote_y , remote_w , remote_h) ;
+  }
 
     //[/UserResized]
 }
@@ -106,16 +124,27 @@ void MixerComponent::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void MixerComponent::addChannelComponent(Identifier mixergroup_id , ValueTree channel_store)
+MixerGroupComponent* MixerComponent::getOrCreateMixerGroup(Identifier user_id)
+{
+  MixerGroupComponent* a_component = (MixerGroupComponent*)findChildWithID(user_id) ;
+  return (a_component)? a_component : addMixerGroup(String(user_id)) ;
+}
+
+void MixerComponent::addChannel(Identifier mixergroup_id , ValueTree channel_store)
 {
   StringRef            id_ref     = StringRef(String(mixergroup_id)) ;
   MixerGroupComponent* mixergroup = (MixerGroupComponent*)findChildWithID(id_ref) ;
   if (!mixergroup || !channel_store.isValid()) return ;
 
   // add channel GUI and resize the mixer group
-  mixergroup->addChannelComponent(channel_store) ;
+  mixergroup->addChannel(channel_store) ;
   int n_channels = mixergroup->getNumChildComponents() - GUI::N_NON_CHANNELS ;
   mixergroup->setSize(GUI::MIXERGROUP_W(n_channels) , GUI::MIXERGROUP_H) ;
+
+  // TODO: seems a bug here - this guard shoud not be necessary ?
+  //           but as of now without it the metro channel does not place correctly
+  if (mixergroup_id != GUI::MASTER_MIXERGROUP_IDENTIFIER &&
+      mixergroup_id != GUI::LOCAL_MIXERGROUP_IDENTIFIER) this->resized() ;
 }
 
 void MixerComponent::updateChannelVU(Identifier mixergroup_id ,
@@ -129,14 +158,19 @@ void MixerComponent::updateChannelVU(Identifier mixergroup_id ,
 //     remoteMixerGroupComponent->updateChannelVU(channel_id , vu) ;
 }
 
-MixerGroupComponent* MixerComponent::addMixerGroupComponent(String mixergroup_id)
+MixerGroupComponent* MixerComponent::addMixerGroup(String mixergroup_id)
 {
   MixerGroupComponent* mixergroup_component = new MixerGroupComponent(mixergroup_id) ;
   addChildAndSetID(mixergroup_component , mixergroup_id) ;
   mixergroup_component->toFront(true) ;
 
+  this->resized() ;
+
   return mixergroup_component ;
 }
+
+int MixerComponent::getNumChannels(MixerGroupComponent* mixergroup)
+{ return mixergroup->getNumChildComponents() - GUI::N_NON_CHANNELS; }
 
 //[/MiscUserCode]
 

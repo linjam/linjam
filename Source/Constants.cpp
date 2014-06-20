@@ -182,8 +182,6 @@ const String     STORAGE::METRO_KEY                = GUI::METRO_CHANNEL_GUI_ID ;
 const Identifier STORAGE::METRO_IDENTIFIER         = METRO_KEY ;
 const String     STORAGE::LOCALS_KEY               = "local-channels" ;
 const Identifier STORAGE::LOCALS_IDENTIFIER        = LOCALS_KEY ;
-const String     STORAGE::REMOTES_KEY              = "remote-channels" ;
-const Identifier STORAGE::REMOTES_IDENTIFIER       = REMOTES_KEY ;
 const String     STORAGE::VOLUME_KEY               = "volume" ;
 const Identifier STORAGE::VOLUME_IDENTIFIER        = VOLUME_KEY ;
 const String     STORAGE::PAN_KEY                  = "pan" ;
@@ -198,7 +196,10 @@ const String     STORAGE::SOURCE_N_KEY             = "source-channel-n" ;
 const Identifier STORAGE::SOURCE_N_IDENTIFIER      = SOURCE_N_KEY ;
 const String     STORAGE::STEREO_KEY               = "is-stereo" ;
 const Identifier STORAGE::STEREO_IDENTIFIER        = STEREO_KEY ;
-const String     STORAGE::DEFAULT_NAME             = "channel-" ;
+const StringRef  STORAGE::VALID_CHARS              = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- " ;
+const StringRef  STORAGE::AT_CHAR                  = "@" ;
+const String     STORAGE::DEFAULT_CHANNEL_NAME     = "channel-" ;
+const String     STORAGE::DEFAULT_USER_NAME        = "user-" ;
 const float      STORAGE::DEFAULT_VOLUME           = 0.0 ;
 const float      STORAGE::DEFAULT_PAN              = 0.0 ;
 const bool       STORAGE::DEFAULT_IS_XMIT          = false ;
@@ -255,7 +256,6 @@ const bool       STORAGE::DEFAULT_IS_STEREO        = false ;
           STEREO_KEY       + "=\"false\" "    + \
         "/>"                                  + \
       "</" + LOCALS_KEY    + "><"             + \
-      REMOTES_KEY          + " /><"           + \
       SUBSCRIPTIONS_KEY    + " /><"           + \
       SERVERS_KEY          + " />"            + \
     "</" + PERSISTENCE_KEY + ">"

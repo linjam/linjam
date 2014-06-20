@@ -29,14 +29,12 @@
 //==============================================================================
 LoopComponent::LoopComponent ()
 {
-    addAndMakeVisible (progressSlider = new Slider ("progressSlider"));
-    progressSlider->setRange (0, 32, 1);
-    progressSlider->setSliderStyle (Slider::LinearBar);
-    progressSlider->setTextBoxStyle (Slider::NoTextBox, true, 80, 20);
-    progressSlider->addListener (this);
+    addAndMakeVisible (progressBar = new ProgressBar (this->loopProgress));
+    progressBar->setName ("progressBar");
 
 
     //[UserPreSize]
+addAndMakeVisible(progressBar = new ProgressBar(this->loopProgress = 0.0)) ;
     //[/UserPreSize]
 
     setSize (256, 16);
@@ -51,7 +49,7 @@ LoopComponent::~LoopComponent()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    progressSlider = nullptr;
+    progressBar = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -70,33 +68,17 @@ void LoopComponent::paint (Graphics& g)
 
 void LoopComponent::resized()
 {
-    progressSlider->setBounds (0, 0, getWidth() - 0, getHeight() - 0);
+    progressBar->setBounds (0, 0, getWidth() - 0, getHeight() - 0);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
-}
-
-void LoopComponent::sliderValueChanged (Slider* sliderThatWasMoved)
-{
-    //[UsersliderValueChanged_Pre]
-    //[/UsersliderValueChanged_Pre]
-
-    if (sliderThatWasMoved == progressSlider)
-    {
-        //[UserSliderCode_progressSlider] -- add your slider handling code here..
-        //[/UserSliderCode_progressSlider]
-    }
-
-    //[UsersliderValueChanged_Post]
-    //[/UsersliderValueChanged_Post]
 }
 
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void LoopComponent::updateBeat(int beat_n) { this->progressSlider->setValue(beat_n) ; }
-
-void LoopComponent::updateBPI(int bpi) { this->progressSlider->setRange( 0 , bpi , 1) ; }
+void LoopComponent::updateBeat(int beat_n)
+{ this->progressBar->setTextToDisplay(String(beat_n)) ; }
 
 //[/MiscUserCode]
 
@@ -115,10 +97,9 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="256" initialHeight="16">
   <BACKGROUND backgroundColour="0"/>
-  <SLIDER name="progressSlider" id="b7584d379dc52155" memberName="progressSlider"
-          virtualName="" explicitFocusOrder="0" pos="0 0 0M 0M" min="0"
-          max="32" int="1" style="LinearBar" textBoxPos="NoTextBox" textBoxEditable="0"
-          textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
+  <GENERICCOMPONENT name="progressBar" id="de373a8913a42503" memberName="progressBar"
+                    virtualName="" explicitFocusOrder="0" pos="0 0 0M 0M" class="ProgressBar"
+                    params="this-&gt;loopProgress"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

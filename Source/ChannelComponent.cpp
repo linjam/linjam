@@ -138,11 +138,13 @@ ChannelComponent::ChannelComponent (ValueTree config_store)
   bool   is_local_channel  = (mixergroup_id == STORAGE::LOCALS_IDENTIFIER) ;
   String xmit_rcv_text     = ( is_local_channel)?  GUI::XMIT_LABEL_TEXT :
                              (!is_master_channel)? GUI::RCV_LABEL_TEXT  : "" ;
+  bool is_first_child      = !config_store.getParent().indexOf(config_store) ;
+  this->removeButton->setVisible(   is_local_channel && !is_first_child) ;
+  this->xmitButton  ->setVisible(  !is_master_channel) ;
+  this->soloButton  ->setVisible(  !is_master_channel) ;
+  this->xmitButton  ->setButtonText(xmit_rcv_text) ;
 
   this->nameLabel   ->setText(           name     , juce::dontSendNotification) ;
-  this->xmitButton  ->setVisible(        !is_master_channel) ;
-  this->soloButton  ->setVisible(        !is_master_channel) ;
-  this->xmitButton  ->setButtonText(     xmit_rcv_text) ;
   this->gainSlider  ->setValue(          volume) ;
   this->gainLabel   ->setText(String(int(volume)) , juce::dontSendNotification) ;
   this->panSlider   ->setValue(          pan) ;
@@ -151,6 +153,9 @@ ChannelComponent::ChannelComponent (ValueTree config_store)
   this->soloButton  ->setToggleState(    is_solo  , juce::dontSendNotification) ;
 //   this->sourceLabel ->setText(String(    source_ch , juce::dontSendNotification) ;)) ; // TODO: (issue #25)
 //   this->stereoButton->setToggleState(    is_stereo , juce::dontSendNotification) ;) ;  // TODO: (issue #25)
+
+  this->gainSlider->setDoubleClickReturnValue(true , 0.0) ;
+  this->panSlider ->setDoubleClickReturnValue(true , 0.0) ;
 
 DEBUG_TRACE_ADDED_CHANNEL
 

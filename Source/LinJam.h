@@ -51,7 +51,7 @@ private:
   static audioStreamer*        Audio ;
   static MainContentComponent* Gui ;
   static NJClient*             Client ;
-  static int                   GuiBeatOffset ;
+  static float                 GuiBeatOffset ;
   static File                  SessionDir ;
   static int                   PrevStatus ;
   static bool                  IsAudioEnabled ;

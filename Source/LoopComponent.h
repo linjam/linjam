@@ -34,8 +34,7 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class LoopComponent  : public Component,
-                       public SliderListener
+class LoopComponent  : public Component
 {
 public:
     //==============================================================================
@@ -46,13 +45,14 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
   void updateBeat(int beat_n) ;
-  void updateBPI(int bpi) ;
+
+
+  double loopProgress ;
 
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
-    void sliderValueChanged (Slider* sliderThatWasMoved);
 
 
 
@@ -61,7 +61,7 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Slider> progressSlider;
+    ScopedPointer<ProgressBar> progressBar;
 
 
     //==============================================================================

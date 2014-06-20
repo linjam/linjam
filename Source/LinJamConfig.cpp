@@ -93,11 +93,21 @@ bool LinJamConfig::sanityCheck()
 
 Identifier LinJamConfig::encodeChannelId(String channel_name)
 {
-  return ((channel_name.isNotEmpty())? channel_name :
-             STORAGE::DEFAULT_NAME + String(this->localChannels.getNumChildren() + 1)) ;
+  return ((channel_name.isNotEmpty())?
+             filteredName(channel_name) :
+             defaultName(STORAGE::DEFAULT_CHANNEL_NAME)) ;
 }
 
 String LinJamConfig::decodeChannelId(Identifier channel_id) { return String(channel_id) ; }
+
+Identifier LinJamConfig::encodeUserId(String user_name)
+{
+  return ((user_name.isNotEmpty())?
+             filteredName(user_name.upToFirstOccurrenceOf(STORAGE::AT_CHAR , false , true)) :
+             defaultName(STORAGE::DEFAULT_USER_NAME)) ;
+}
+
+String LinJamConfig::decodeUserId(Identifier user_id) { return String(user_id) ; }
 
 ValueTree LinJamConfig::getChannelConfig(Identifier mixergroup_id , Identifier channel_id)
 {
@@ -105,9 +115,13 @@ ValueTree LinJamConfig::getChannelConfig(Identifier mixergroup_id , Identifier c
     return this->masterChannels.getChildWithName(channel_id) ;
   else if (mixergroup_id == GUI::LOCAL_MIXERGROUP_IDENTIFIER)
     return this->localChannels .getChildWithName(channel_id) ;
-//   else if (mixergroup_id == this->getChildWithName(mixergroup_id))
-//     return this->getChildWithName(mixergroup_id).getChildWithName(channel_id) ;
-  else return ValueTree::invalid ;
+
+  // assume this is a remote channel
+  ValueTree user_config = this->configValueTree.getChildWithName(mixergroup_id) ;
+
+  return (user_config.isValid())?
+             user_config.getChildWithName(channel_id) :
+             ValueTree::invalid ;
 }
 
 void LinJamConfig::setServerConfig()
@@ -125,11 +139,11 @@ void LinJamConfig::setServerConfig()
   server.setProperty(STORAGE::ANON_IDENTIFIER  , is_anonymous , nullptr) ;
 }
 
-ValueTree LinJamConfig::getServerConfig(String host)
-{ return this->servers.getChildWithProperty(STORAGE::HOST_IDENTIFIER , var(host)) ; }
-
 ValueTree LinJamConfig::getCurrentServerConfig()
 { return getServerConfig(this->currentHost.toString()) ; }
+
+ValueTree LinJamConfig::getServerConfig(String host)
+{ return this->servers.getChildWithProperty(STORAGE::HOST_IDENTIFIER , var(host)) ; }
 
 void LinJamConfig::setShouldAgree(bool should_agree)
 {
@@ -139,6 +153,9 @@ void LinJamConfig::setShouldAgree(bool should_agree)
 
   server.setProperty(STORAGE::AGREE_IDENTIFIER , should_agree , nullptr) ;
 }
+
+ValueTree LinJamConfig::getOrCreateRemoteUser(Identifier user_name)
+{ return this->configValueTree.getOrCreateChildWithName(user_name , nullptr) ; }
 
 
 /* LinJamConfig private instance methods */
@@ -272,6 +289,12 @@ ValueTree LinJamConfig::addServerConfig(String host , String login , String pass
 
   return server ;
 }
+
+String LinJamConfig::filteredName(String a_string)
+{ return a_string.retainCharacters(STORAGE::VALID_CHARS).replaceCharacter(' ', '-') ; }
+
+String LinJamConfig::defaultName(String a_name)
+{ return filteredName(a_name) + String(Time::getApproximateMillisecondCounter()) ; }
 
 void LinJamConfig::valueChanged(Value& a_value)
 {

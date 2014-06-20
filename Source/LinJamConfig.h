@@ -68,8 +68,10 @@ public:
 
   // validation
   bool       sanityCheck() ;
-  Identifier encodeChannelId(String channel_name) ;
+  Identifier encodeChannelId(String     channel_name) ;
   String     decodeChannelId(Identifier channel_id) ;
+  Identifier encodeUserId(   String     channel_name) ;
+  String     decodeUserId(   Identifier channel_id) ;
 
   // getters/setters
   ValueTree getChannelConfig(      Identifier mixergroup_id , Identifier channel_id) ;
@@ -77,6 +79,7 @@ public:
   ValueTree getServerConfig(       String host) ;
   ValueTree getCurrentServerConfig() ;
   void      setShouldAgree(        bool should_agree) ;
+  ValueTree getOrCreateRemoteUser( Identifier user_name) ;
 
 
 private:
@@ -98,6 +101,8 @@ private:
   Value     getServerConfigValueObj(Identifier key) ;
   ValueTree addServerConfig(        String host , String login , String pass ,
                                     bool is_anonymous) ;
+  String    filteredName(           String a_name) ;
+  String    defaultName(            String a_name) ;
 
   // event handlers
   void valueChanged(            Value& a_value)                                   override ;

@@ -60,13 +60,21 @@ MixerGroupComponent::MixerGroupComponent (String mixergroup_id)
 
 
     //[Constructor] You can add your own custom stuff here..
-  mixerSectionLabel->setText(mixergroup_id , juce::dontSendNotification) ;
+
+  bool is_local_mixergroup = (Identifier(mixergroup_id) == GUI::LOCAL_MIXERGROUP_IDENTIFIER) ;
+  this->addButton        ->setVisible(is_local_mixergroup) ;
+  this->mixerSectionLabel->setText(mixergroup_id , juce::dontSendNotification) ;
+/*
+if (is_local_mixergroup)
+  addAndMakeVisible(this->resizer = new ResizableEdgeComponent(this , nullptr , ResizableEdgeComponent::rightEdge)) ;
+*/
     //[/Constructor]
 }
 
 MixerGroupComponent::~MixerGroupComponent()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+//   this->resizer = nullptr ;
     //[/Destructor_pre]
 
     mixerSectionLabel = nullptr;
@@ -133,7 +141,7 @@ void MixerGroupComponent::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void MixerGroupComponent::addChannelComponent(ValueTree channel_store)
+void MixerGroupComponent::addChannel(ValueTree channel_store)
 {
   ChannelComponent* channel_component = new ChannelComponent(channel_store) ;
   this->addChildAndSetID(channel_component , String(channel_store.getType())) ;

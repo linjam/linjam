@@ -190,6 +190,8 @@
       }                                                                             \
     }
 
+#  define DEBUG_TRACE_ADD_REMOTE_USER                             \
+    Trace::TraceConfig("adding remote user " + String(user_id)) ;
 #  define DEBUG_TRACE_ADD_CHANNEL                                                   \
     if      (mixergroup_id == GUI::MASTER_MIXERGROUP_IDENTIFIER)                    \
          Trace::TraceConfig("adding master channel '" + String(channel_id) + "'") ; \
@@ -288,7 +290,8 @@ public:
   static void TraceError(       String msg) ;
   static void TraceServer(      String msg) ;
 
-  static void Dbg(String type , String msg) ;
+  static void Dbg(         String    type , String msg) ;
+  static void DumpStoreXml(ValueTree store) ;
 
   static String SanitizeConfig(ValueTree default_config , ValueTree stored_config ,
                                String pad) ;

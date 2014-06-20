@@ -61,11 +61,11 @@ public:
     void sliderValueChanged (Slider* sliderThatWasMoved);
 
 
-
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
   ValueTree configStore ;
+
 
   void setChannelConfig(Identifier config_key , var value) ;
 

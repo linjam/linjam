@@ -47,8 +47,11 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  void addChannelComponent(Identifier mixergroup_id , ValueTree channel_store) ;
-  void updateChannelVU(    Identifier mixergroup_id , String channel_id , float vu) ;
+  MixerGroupComponent* getOrCreateMixerGroup(Identifier user_id) ;
+  void                 addChannel(           Identifier mixergroup_id ,
+                                             ValueTree  channel_store) ;
+  void                 updateChannelVU(      Identifier mixergroup_id ,
+                                             String     channel_id    , float vu) ;
 
     //[/UserMethods]
 
@@ -63,7 +66,9 @@ private:
   MixerGroupComponent* masterMixerGroupComponent ;
   MixerGroupComponent* localMixerGroupComponent ;
 
-  MixerGroupComponent* addMixerGroupComponent(String mixer_group_id) ;
+
+  MixerGroupComponent* addMixerGroup( String mixer_group_id) ;
+  int                  getNumChannels(MixerGroupComponent* mixergroup) ;
 
     //[/UserVariables]
 

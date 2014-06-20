@@ -226,8 +226,6 @@ public:
   static const Identifier METRO_IDENTIFIER ;
   static const String     LOCALS_KEY ;
   static const Identifier LOCALS_IDENTIFIER ;
-  static const String     REMOTES_KEY ;
-  static const Identifier REMOTES_IDENTIFIER ;
   static const String     VOLUME_KEY ;
   static const Identifier VOLUME_IDENTIFIER ;
   static const String     PAN_KEY ;
@@ -242,7 +240,11 @@ public:
   static const Identifier SOURCE_N_IDENTIFIER ;
   static const String     STEREO_KEY ;
   static const Identifier STEREO_IDENTIFIER ;
+  static const StringRef  VALID_CHARS ;
+  static const StringRef  AT_CHAR ;
   static const String     DEFAULT_NAME ;
+  static const String     DEFAULT_CHANNEL_NAME ;
+  static const String     DEFAULT_USER_NAME ;
   static const float      DEFAULT_VOLUME ;
   static const float      DEFAULT_PAN ;
   static const bool       DEFAULT_IS_XMIT ;

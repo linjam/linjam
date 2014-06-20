@@ -19,6 +19,8 @@ void Trace::TraceError(String msg)        { if (TraceState())  Dbg("ERROR"      
 void Trace::TraceServer(String msg)       { if (TraceState())  Dbg("SERVER"     , msg) ; }
 
 void Trace::Dbg(String type , String msg) { DBG(String("[" + type + "]: " + msg)) ; }
+void Trace::DumpStoreXml(ValueTree store)
+{ DBG(String(store.getType()) + " xml=\n" + store.toXmlString()) ; }
 
 
 /* private class methods */

@@ -32,7 +32,7 @@ LinJamConfig* LinJam::Config ;
 audioStreamer*        LinJam::Audio          = nullptr ; // Initialize()
 NJClient*             LinJam::Client         = nullptr ; // Initialize()
 MainContentComponent* LinJam::Gui            = nullptr ; // Initialize()
-int                   LinJam::GuiBeatOffset ;            // InitializeAudio()
+float                 LinJam::GuiBeatOffset ;            // InitializeAudio()
 File                  LinJam::SessionDir ;               // PrepareSessionDirectory()
 int                   LinJam::PrevStatus ;               // Initialize()
 bool                  LinJam::IsAudioEnabled = false ;   // TODO: use Client->IsAudioRunning() instead ?? (issue #11)
@@ -146,10 +146,11 @@ void LinJam::UpdateGUI()
   int   sample_n , n_samples ; Client->GetPosition(&sample_n , &n_samples) ;
   int   bpi      = Client->GetBPI() ;
   float bpm      = Client->GetActualBPM() ;
-  float progress = (sample_n + GuiBeatOffset) / (float)n_samples ;
+  float progress = (sample_n + GuiBeatOffset) / n_samples ;
   int   beat_n   = ((int)(bpi * progress) % bpi) + 1 ;
   Gui->loopComponent->updateBeat(beat_n) ;
-  Gui->loopComponent->updateBPI(bpi) ;
+//  Gui->loopComponent->loopProgress = progress ; // linear
+  Gui->loopComponent->loopProgress = (float)beat_n / bpi ; // discrete
   Gui->statusbarComponent->setStatusR(String(bpi) + " bpi @ " + String(bpm) + " bpm") ;
 }
 
@@ -309,21 +310,31 @@ if (client_status == NJClient::NJC_STATUS_PRECONNECT)
 void LinJam::HandleUserInfoChanged()
 {
 DEBUG_TRACE_REMOTE_CHANNELS
-/*
+
+  // load remote users state
   int user_n = -1 ; char* user_name ; float user_volume ; float user_pan ; bool user_muted ;
   while (user_name = Client->GetUserState(++user_n , &user_volume , &user_pan , &user_muted))
   {
-    ValueTree user_store = Config->getChildWithName(user_name , nullptr) ;
-    if (!user_store.isValid())
+    // test if this remote user exists
+    Identifier user_id   = Config->encodeUserId(user_name) ;
+    ValueTree user_store = Config->getOrCreateRemoteUser(user_id) ;
+    if (!user_store.hasProperty(STORAGE::VOLUME_IDENTIFIER))
     {
-      user_store = ValueTree(user_name) ;
+DEBUG_TRACE_ADD_REMOTE_USER
+
+      // add new remote user
       user_store.setProperty(STORAGE::VOLUME_IDENTIFIER , user_volume , nullptr) ;
-      Config->addChild(user_store , -1 , nullptr) ;
+      user_store.setProperty(STORAGE::PAN_IDENTIFIER    , user_pan    , nullptr) ;
+      user_store.setProperty(STORAGE::MUTE_IDENTIFIER   , user_muted  , nullptr) ;
     }
+
+    // get or add remote user GUI
+    MixerGroupComponent* mixergroup = Gui->mixerComponent->getOrCreateMixerGroup(user_id) ;
 
     int channel_n = -1 ; int channel_idx ;
     while (~(channel_idx = Client->EnumUserChannels(user_n , ++channel_n)))
     {
+      // load remote channel state
       bool  is_rcv ;  float channel_volume ; float channel_pan ; bool is_muted ;
       bool  is_solo ; int   output_channel ; bool  is_stereo ;
       char* channel_name = Client->GetUserChannelState(user_n , channel_idx , &is_rcv      ,
@@ -331,27 +342,30 @@ DEBUG_TRACE_REMOTE_CHANNELS
                                                        &is_muted            , &is_solo     ,
                                                        &output_channel      , &is_stereo   ) ;
 
-      ValueTree channel_store = user_store.getChildWithName(channel_name) ;
-      if (channel_store.isValid()) continue ;
+      // test if this remote channel exists
+      Identifier channel_id   = Config->encodeChannelId(channel_name) ;
+      ValueTree channel_store = user_store.getOrCreateChildWithName(channel_id , nullptr) ;
+      if (!channel_store.hasProperty(STORAGE::VOLUME_IDENTIFIER))
+      {
+        // create new remote channel
+        channel_store.setProperty(STORAGE::VOLUME_IDENTIFIER   , channel_volume , nullptr) ;
+        channel_store.setProperty(STORAGE::PAN_IDENTIFIER      , channel_pan    , nullptr) ;
+        channel_store.setProperty(STORAGE::XMIT_IDENTIFIER     , is_rcv         , nullptr) ;
+        channel_store.setProperty(STORAGE::MUTE_IDENTIFIER     , is_muted       , nullptr) ;
+        channel_store.setProperty(STORAGE::SOLO_IDENTIFIER     , is_solo        , nullptr) ;
+        channel_store.setProperty(STORAGE::SOURCE_N_IDENTIFIER , output_channel , nullptr) ;
+        channel_store.setProperty(STORAGE::STEREO_IDENTIFIER   , is_stereo      , nullptr) ;
+      }
 
-      channel_store.setProperty(STORAGE::VOLUME_IDENTIFIER   , volume         , nullptr) ;
-      channel_store.setProperty(STORAGE::PAN_IDENTIFIER      , pan            , nullptr) ;
-      channel_store.setProperty(STORAGE::XMIT_IDENTIFIER     , is_rcv         , nullptr) ;
-      channel_store.setProperty(STORAGE::MUTE_IDENTIFIER     , is_muted       , nullptr) ;
-      channel_store.setProperty(STORAGE::SOLO_IDENTIFIER     , is_solo        , nullptr) ;
-      channel_store.setProperty(STORAGE::SOURCE_N_IDENTIFIER , output_channel , nullptr) ;
-      channel_store.setProperty(STORAGE::STEREO_IDENTIFIER   , is_stereo      , nullptr) ;
-      AddChannel(user_name , Identifier(channel_name) , channel_idx) ;
+      // add remote channel GUI
+      if (!mixergroup->findChildWithID(channel_id))
+        AddChannel(user_id , channel_id , channel_idx) ;
     }
   }
-*/
 }
 
 bool LinJam::IsRoomFull()
 {
-DBG("IsRoomFull() err=" + String(CharPointer_UTF8(Client->GetErrorStr()))) ;
-DBG("err.isNotEmpty()=" + String(String(CharPointer_UTF8(Client->GetErrorStr())).isNotEmpty()) +
-  " !err.compare(CLIENT::SERVER_FULL_STATUS)=" + String(!String(CharPointer_UTF8(Client->GetErrorStr())).compare(CLIENT::SERVER_FULL_STATUS))) ;
   String err = String(CharPointer_UTF8(Client->GetErrorStr())) ;
   return (err.isNotEmpty() && !err.compare(CLIENT::SERVER_FULL_STATUS)) ;
 }
@@ -397,7 +411,7 @@ DEBUG_TRACE_JACK_INIT
 #  endif // _MAC
 #endif // _WIN32
 
-  GuiBeatOffset = Audio->m_srate * (CLIENT::GUI_DRIVER_IVL * 0.001) ;
+  GuiBeatOffset = Audio->m_srate * (CLIENT::GUI_DRIVER_IVL * 0.002) ;
 
 DEBUG_TRACE_AUDIO_INIT
 
@@ -569,8 +583,9 @@ DEBUG_TRACE_ADD_CHANNEL
   ValueTree channel_store = Config->getChannelConfig(mixergroup_id , channel_id) ;
   if (!channel_store.isValid()) return ;
 
+
   // add new channel GUI
-  Gui->mixerComponent->addChannelComponent(mixergroup_id , channel_store) ;
+  Gui->mixerComponent->addChannel(mixergroup_id , channel_store) ;
 
   if (mixergroup_id != GUI::LOCAL_MIXERGROUP_IDENTIFIER) return ;
 
