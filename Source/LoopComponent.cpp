@@ -34,7 +34,9 @@ LoopComponent::LoopComponent ()
 
 
     //[UserPreSize]
-addAndMakeVisible(progressBar = new ProgressBar(this->loopProgress = 0.0)) ;
+
+  addAndMakeVisible(progressBar = new ProgressBar(this->loopProgress = 0.0)) ;
+  progressBar->setColour(ProgressBar::backgroundColourId , Colour(0x00000000));
     //[/UserPreSize]
 
     setSize (256, 16);

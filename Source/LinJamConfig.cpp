@@ -55,56 +55,135 @@ bool LinJamConfig::sanityCheck()
   ValueTree metro_channel   = this->masterChannels.getChildWithName(GUI::METRO_CHANNEL_GUI_ID) ;
   ValueTree default_channel = this->localChannels .getChild(0) ;
 
-  return ( autoSubscribeUsers       .isValid()                                 &&
-           masterChannels           .isValid()                                 &&
-           localChannels            .isValid()                                 &&
-           servers                  .isValid()                                 &&
-          !this->shouldSaveAudio    .refersToSameSourceAs(this->dummyValue)    &&
-          !this->shouldSaveLog      .refersToSameSourceAs(this->dummyValue)    &&
-          !this->debugLevel         .refersToSameSourceAs(this->dummyValue)    &&
-          !this->shouldAutoSubscribe.refersToSameSourceAs(this->dummyValue)    &&
-          !this->audioIfN           .refersToSameSourceAs(this->dummyValue)    &&
-          !this->nInputs            .refersToSameSourceAs(this->dummyValue)    &&
-          !this->nOutputs           .refersToSameSourceAs(this->dummyValue)    &&
-          !this->bitDepth           .refersToSameSourceAs(this->dummyValue)    &&
-          !this->sampleRate         .refersToSameSourceAs(this->dummyValue)    &&
-          !this->jackName           .refersToSameSourceAs(this->dummyValue)    &&
-          !this->currentHost        .refersToSameSourceAs(this->dummyValue)    &&
-          !this->currentLogin       .refersToSameSourceAs(this->dummyValue)    &&
-          !this->currentPass        .refersToSameSourceAs(this->dummyValue)    &&
-          !this->currentIsAnonymous .refersToSameSourceAs(this->dummyValue)    &&
-          !this->currentIsAgreed    .refersToSameSourceAs(this->dummyValue)    &&
-           master_channel           .hasProperty(STORAGE::VOLUME_IDENTIFIER)   &&
-           master_channel           .hasProperty(STORAGE::PAN_IDENTIFIER)      &&
-           master_channel           .hasProperty(STORAGE::MUTE_IDENTIFIER)     &&
-           metro_channel            .hasProperty(STORAGE::VOLUME_IDENTIFIER)   &&
-           metro_channel            .hasProperty(STORAGE::PAN_IDENTIFIER)      &&
-           metro_channel            .hasProperty(STORAGE::MUTE_IDENTIFIER)     &&
-           metro_channel            .hasProperty(STORAGE::SOURCE_N_IDENTIFIER) &&
-           metro_channel            .hasProperty(STORAGE::STEREO_IDENTIFIER)   &&
-           default_channel          .hasProperty(STORAGE::VOLUME_IDENTIFIER)   &&
-           default_channel          .hasProperty(STORAGE::PAN_IDENTIFIER)      &&
-           default_channel          .hasProperty(STORAGE::XMIT_IDENTIFIER)     &&
-           default_channel          .hasProperty(STORAGE::MUTE_IDENTIFIER)     &&
-           default_channel          .hasProperty(STORAGE::SOLO_IDENTIFIER)     &&
-           default_channel          .hasProperty(STORAGE::SOURCE_N_IDENTIFIER) &&
-           default_channel          .hasProperty(STORAGE::STEREO_IDENTIFIER)    ) ;
+  // subscribed trees
+  bool auto_subscribe_users_is_valid       =
+    autoSubscribeUsers        .isValid()                                 ;
+  bool master_channels_is_valid            =
+    masterChannels            .isValid()                                 ;
+  bool local_channels_is_valid             =
+    localChannels             .isValid()                                 ;
+  bool servers_is_valid                    =
+    servers                   .isValid()                                 ;
+
+  // implicitly subscribed values (via above trees)
+  bool master_channel_has_volume_property  =
+    master_channel            .hasProperty(STORAGE::VOLUME_IDENTIFIER)   ;
+  bool master_channel_has_pan_property     =
+    master_channel            .hasProperty(STORAGE::PAN_IDENTIFIER)      ;
+  bool master_channel_has_mute_property    =
+    master_channel            .hasProperty(STORAGE::MUTE_IDENTIFIER)     ;
+  bool metro_channel_has_volume_property   =
+    metro_channel             .hasProperty(STORAGE::VOLUME_IDENTIFIER)   ;
+  bool metro_channel_has_pan_property      =
+    metro_channel             .hasProperty(STORAGE::PAN_IDENTIFIER)      ;
+  bool metro_channel_has_mute_property     =
+    metro_channel             .hasProperty(STORAGE::MUTE_IDENTIFIER)     ;
+  bool metro_channel_has_source_property   =
+    metro_channel             .hasProperty(STORAGE::SOURCE_N_IDENTIFIER) ;
+  bool metro_channel_has_stereo_property   =
+    metro_channel             .hasProperty(STORAGE::STEREO_IDENTIFIER)   ;
+  bool default_channel_has_volume_property =
+    default_channel           .hasProperty(STORAGE::VOLUME_IDENTIFIER)   ;
+  bool default_channel_has_pan_property    =
+    default_channel           .hasProperty(STORAGE::PAN_IDENTIFIER)      ;
+  bool default_channel_has_xmit_property   =
+    default_channel           .hasProperty(STORAGE::XMIT_IDENTIFIER)     ;
+  bool default_channel_has_mute_property   =
+    default_channel           .hasProperty(STORAGE::MUTE_IDENTIFIER)     ;
+  bool default_channel_has_solo_property   =
+    default_channel           .hasProperty(STORAGE::SOLO_IDENTIFIER)     ;
+  bool default_channel_has_source_property =
+    default_channel           .hasProperty(STORAGE::SOURCE_N_IDENTIFIER) ;
+  bool default_channel_has_stereo_property =
+    default_channel           .hasProperty(STORAGE::STEREO_IDENTIFIER)   ;
+
+  // explicitly subscribed values
+  bool should_save_audio_has_value         =
+    !this->shouldSaveAudio    .refersToSameSourceAs(this->dummyValue)    ;
+  bool should_save_log_has_value           =
+    !this->shouldSaveLog      .refersToSameSourceAs(this->dummyValue)    ;
+  bool debug_level_has_value               =
+    !this->debugLevel         .refersToSameSourceAs(this->dummyValue)    ;
+  bool should_auto_subscribe_has_value     =
+    !this->shouldAutoSubscribe.refersToSameSourceAs(this->dummyValue)    ;
+  bool audio_if_n_has_value                =
+    !this->audioIfN           .refersToSameSourceAs(this->dummyValue)    ;
+  bool n_inputs_has_value                  =
+    !this->nInputs            .refersToSameSourceAs(this->dummyValue)    ;
+  bool n_outputs_has_value                 =
+    !this->nOutputs           .refersToSameSourceAs(this->dummyValue)    ;
+  bool bit_depth_has_value                 =
+    !this->bitDepth           .refersToSameSourceAs(this->dummyValue)    ;
+  bool sample_rate_has_value               =
+    !this->sampleRate         .refersToSameSourceAs(this->dummyValue)    ;
+  bool jack_name_has_value                 =
+    !this->jackName           .refersToSameSourceAs(this->dummyValue)    ;
+  bool current_host_has_value              =
+    !this->currentHost        .refersToSameSourceAs(this->dummyValue)    ;
+  bool current_login_has_value             =
+    !this->currentLogin       .refersToSameSourceAs(this->dummyValue)    ;
+  bool current_pass_has_value              =
+    !this->currentPass        .refersToSameSourceAs(this->dummyValue)    ;
+  bool current_is_anonymous_has_value      =
+    !this->currentIsAnonymous .refersToSameSourceAs(this->dummyValue)    ;
+  bool current_is_agreed_has_value         =
+    !this->currentIsAgreed    .refersToSameSourceAs(this->dummyValue)    ;
+  bool should_hide_bots_has_value          =
+    !this->shouldHideBots     .refersToSameSourceAs(this->dummyValue)    ;
+
+DEBUG_TRACE_SANITY_CHECK
+
+  return (auto_subscribe_users_is_valid       &&
+          master_channels_is_valid            &&
+          local_channels_is_valid             &&
+          servers_is_valid                    &&
+          master_channel_has_volume_property  &&
+          master_channel_has_pan_property     &&
+          master_channel_has_mute_property    &&
+          metro_channel_has_volume_property   &&
+          metro_channel_has_pan_property      &&
+          metro_channel_has_mute_property     &&
+          metro_channel_has_source_property   &&
+          metro_channel_has_stereo_property   &&
+          default_channel_has_volume_property &&
+          default_channel_has_pan_property    &&
+          default_channel_has_xmit_property   &&
+          default_channel_has_mute_property   &&
+          default_channel_has_solo_property   &&
+          default_channel_has_source_property &&
+          default_channel_has_stereo_property &&
+          should_save_audio_has_value         &&
+          should_save_log_has_value           &&
+          debug_level_has_value               &&
+          should_auto_subscribe_has_value     &&
+          audio_if_n_has_value                &&
+          n_inputs_has_value                  &&
+          n_outputs_has_value                 &&
+          bit_depth_has_value                 &&
+          sample_rate_has_value               &&
+          jack_name_has_value                 &&
+          current_host_has_value              &&
+          current_login_has_value             &&
+          current_pass_has_value              &&
+          current_is_anonymous_has_value      &&
+          current_is_agreed_has_value         &&
+          should_hide_bots_has_value           ) ;
 }
 
-Identifier LinJamConfig::encodeChannelId(String channel_name)
+Identifier LinJamConfig::encodeChannelId(String channel_name , int channel_idx)
 {
   return ((channel_name.isNotEmpty())?
              filteredName(channel_name) :
-             defaultName(STORAGE::DEFAULT_CHANNEL_NAME)) ;
+             STORAGE::DEFAULT_CHANNEL_NAME + String(channel_idx)) ;
 }
 
 String LinJamConfig::decodeChannelId(Identifier channel_id) { return String(channel_id) ; }
 
-Identifier LinJamConfig::encodeUserId(String user_name)
+Identifier LinJamConfig::encodeUserId(String user_name , int user_idx)
 {
   return ((user_name.isNotEmpty())?
              filteredName(user_name.upToFirstOccurrenceOf(STORAGE::AT_CHAR , false , true)) :
-             defaultName(STORAGE::DEFAULT_USER_NAME)) ;
+             STORAGE::DEFAULT_USER_NAME + String(user_idx)) ;
 }
 
 String LinJamConfig::decodeUserId(Identifier user_id) { return String(user_id) ; }
@@ -216,8 +295,7 @@ void LinJamConfig::establishSharedStore()
   this->shouldSaveLog      .referTo(getClientConfigValueObj(STORAGE::SAVE_LOG_IDENTIFIER)) ;
   this->debugLevel         .referTo(getClientConfigValueObj(STORAGE::DEBUGLEVEL_IDENTIFIER)) ;
   this->shouldAutoSubscribe.referTo(getClientConfigValueObj(STORAGE::AUTOSUBSCRIBE_IDENTIFIER)) ;
-  this->autoSubscribeUsers = this->configValueTree.getOrCreateChildWithName(STORAGE::SUBSCRIPTIONS_IDENTIFIER , nullptr) ;
-  this->autoSubscribeUsers.addListener(this) ;
+  this->autoSubscribeUsers = getConfigTreeObj(STORAGE::SUBSCRIPTIONS_IDENTIFIER) ;
 
   // device config
   this->audioIfN       .referTo(getAudioConfigValueObj(STORAGE::AUDIO_IF_IDENTIFIER)) ;
@@ -233,27 +311,38 @@ void LinJamConfig::establishSharedStore()
   this->currentPass       .referTo(getServerConfigValueObj(STORAGE::PASS_IDENTIFIER)) ;
   this->currentIsAnonymous.referTo(getServerConfigValueObj(STORAGE::ANON_IDENTIFIER)) ;
   this->currentIsAgreed   .referTo(getServerConfigValueObj(STORAGE::AGREED_IDENTIFIER)) ;
+  this->shouldHideBots    .referTo(getServerConfigValueObj(STORAGE::BOTS_IDENTIFIER)) ;
 
   // channels
-  this->masterChannels = this->configValueTree.getOrCreateChildWithName(STORAGE::MASTERS_IDENTIFIER , nullptr) ;
-  this->masterChannels.addListener(this) ;
-  this->localChannels  = this->configValueTree.getOrCreateChildWithName(STORAGE::LOCALS_IDENTIFIER , nullptr) ;
-  this->localChannels .addListener(this) ;
+  this->masterChannels = getConfigTreeObj(STORAGE::MASTERS_IDENTIFIER) ;
+  this->localChannels  = getConfigTreeObj(STORAGE::LOCALS_IDENTIFIER) ;
+//   this->remoteChannels = getConfigTreeObj(STORAGE::REMOTES_IDENTIFIER) ; // (issue #33)
+this->remoteChannels = this->configValueTree ; // kludge (issue #33)
 
   // per server user data
-  this->servers = this->configValueTree.getOrCreateChildWithName(STORAGE::SERVERS_IDENTIFIER , nullptr) ;
-  this->servers.addListener(this) ;
+  this->servers        = getConfigTreeObj(STORAGE::SERVERS_IDENTIFIER) ;
+
+  this->configValueTree.addListener(this) ;
+}
+
+ValueTree LinJamConfig::getConfigTreeObj(Identifier tree_node_id)
+{
+  ValueTree tree_node = this->configValueTree.getChildWithName(tree_node_id) ;
+
+DEBUG_TRACE_CONFIG_TREE
+
+  return tree_node ;
 }
 
 Value LinJamConfig::getConfigValueObj(ValueTree parent_node , Identifier child_node_id ,
                                       Identifier key)
 {
-  ValueTree child_node  = parent_node.getChildWithName(child_node_id) ;
+  ValueTree value_node = parent_node.getChildWithName(child_node_id) ;
 
 DEBUG_TRACE_CONFIG_VALUE
 
-  return (child_node.isValid() && child_node.hasProperty(key))?
-              child_node.getPropertyAsValue(key , nullptr) :
+  return (value_node.isValid() && value_node.hasProperty(key))?
+              value_node.getPropertyAsValue(key , nullptr) :
               this->dummyValue ;
 }
 
@@ -292,9 +381,6 @@ ValueTree LinJamConfig::addServerConfig(String host , String login , String pass
 
 String LinJamConfig::filteredName(String a_string)
 { return a_string.retainCharacters(STORAGE::VALID_CHARS).replaceCharacter(' ', '-') ; }
-
-String LinJamConfig::defaultName(String a_name)
-{ return filteredName(a_name) + String(Time::getApproximateMillisecondCounter()) ; }
 
 void LinJamConfig::valueChanged(Value& a_value)
 {
@@ -351,29 +437,75 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
     return ;
   }
 
+  if (node_id == STORAGE::CLIENT_IDENTIFIER)        return ; // most likely will handle this eventuall
+  if (node_id == STORAGE::SUBSCRIPTIONS_IDENTIFIER) return ; // most likely will handle this eventuall
+  if (node_id == STORAGE::AUDIO_IDENTIFIER  ||               // most likely wont need to handle these
+      node_id == STORAGE::SERVER_IDENTIFIER ||               // but we must guard for now (issue #33)
+      node_id == STORAGE::SERVERS_IDENTIFIER) return ;
+
   // local and remote channels
   // TODO: channel name changes (issue #12)
-  bool  should_set_volume    = (key == STORAGE::VOLUME_IDENTIFIER) ;
-  bool  should_set_pan       = (key == STORAGE::PAN_IDENTIFIER) ;
-  bool  should_set_is_xmit   = (key == STORAGE::XMIT_IDENTIFIER) ;
-  bool  should_set_is_muted  = (key == STORAGE::MUTE_IDENTIFIER) ;
-  bool  should_set_is_solo   = (key == STORAGE::SOLO_IDENTIFIER) ;
-  bool  should_set_source_n  = (key == STORAGE::SOURCE_N_IDENTIFIER) ;
-  bool  should_set_bit_depth = (key == STORAGE::SAMPLERATE_IDENTIFIER) ;
-  bool  should_set_is_stereo = (key == STORAGE::STEREO_IDENTIFIER) ;
-  if (LinJam::ConfigureChannelByName(node_id                        ,
-                                     should_set_volume    , a_float ,
-                                     should_set_pan       , a_float ,
-                                     should_set_is_xmit   , a_bool  ,
-                                     should_set_is_muted  , a_bool  ,
-                                     should_set_is_solo   , a_bool  ,
-                                     should_set_source_n  , an_int  ,
-                                     should_set_bit_depth , an_int  ,
-                                     should_set_is_stereo , a_bool  )) {}
+  ValueTree parent_node          = a_node.getParent() ; int channel_idx ;
+  bool      should_set_volume    = (key == STORAGE::VOLUME_IDENTIFIER) ;
+  bool      should_set_pan       = (key == STORAGE::PAN_IDENTIFIER) ;
+  bool      should_set_is_xmit   = (key == STORAGE::XMIT_IDENTIFIER) ;
+  bool      should_set_is_muted  = (key == STORAGE::MUTE_IDENTIFIER) ;
+  bool      should_set_is_solo   = (key == STORAGE::SOLO_IDENTIFIER) ;
+  bool      should_set_source_n  = (key == STORAGE::SOURCE_N_IDENTIFIER) ;
+  bool      should_set_bit_depth = (key == STORAGE::SAMPLERATE_IDENTIFIER) ;
+  bool      should_set_is_stereo = (key == STORAGE::STEREO_IDENTIFIER) ;
+
+  // configure local channel
+  if (parent_node == this->localChannels)
+  {
+    if (~(channel_idx = LinJam::GetLocalChannelIdx(node_id)))
+      LinJam::ConfigureLocalChannel(channel_idx          , String::empty ,
+                                    should_set_volume    , a_float       ,
+                                    should_set_pan       , a_float       ,
+                                    should_set_is_xmit   , a_bool        ,
+                                    should_set_is_muted  , a_bool        ,
+                                    should_set_is_solo   , a_bool        ,
+                                    should_set_source_n  , an_int        ,
+                                    should_set_bit_depth , an_int        ,
+                                    should_set_is_stereo , a_bool        ) ;
+    return ;
   }
 
+  // configure remote channels
+  Identifier parent_node_id = parent_node.getType() ; int user_idx ;
+  if (parent_node == this->remoteChannels) // TODO: nyi GUI for these
+  {
+    if (~(user_idx = LinJam::GetRemoteUserIdx(parent_node_id)))
+      LinJam::ConfigureRemoteUser(user_idx                      ,
+                                  should_set_volume   , a_float ,
+                                  should_set_pan      , a_float ,
+                                  should_set_is_muted , a_bool  ) ;
+    return ;
+  }
+
+  if (parent_node.getParent() == this->remoteChannels  &&
+    ~(user_idx    = LinJam::GetRemoteUserIdx(parent_node_id)) &&
+    ~(channel_idx = LinJam::GetRemoteChannelIdx(user_idx , node_id)))
+    LinJam::ConfigureRemoteChannel(user_idx                             ,
+                                   channel_idx          , String::empty ,
+                                   should_set_volume    , a_float       ,
+                                   should_set_pan       , a_float       ,
+                                   should_set_is_xmit   , a_bool        , // aka is_rcv
+                                   should_set_is_muted  , a_bool        ,
+                                   should_set_is_solo   , a_bool        ,
+                                   should_set_source_n  , an_int        , // aka sink_n
+                                   should_set_is_stereo , a_bool        ) ;
+}
+
+void LinJamConfig::valueTreeChildAdded(ValueTree& a_parent_tree , ValueTree& a_child_tree)
+{
+DBG("valueTreeChildAdded() a_parent_tree=" + a_parent_tree.getType().toString() +
+  " a_child_tree="  + a_child_tree.getType().toString()) ;
+
+//   a_child_tree.addListener(this) ;
+}
+
 // unused ValueTree::Listener interface methods
-void LinJamConfig::valueTreeChildAdded(ValueTree& a_parent_tree , ValueTree& a_child_tree)   {}
 void LinJamConfig::valueTreeChildRemoved(ValueTree& a_parent_tree , ValueTree& a_child_tree) {}
 void LinJamConfig::valueTreeChildOrderChanged(ValueTree& a_parent_tree)                      {}
 void LinJamConfig::valueTreeParentChanged(ValueTree& a_tree)                                 {}

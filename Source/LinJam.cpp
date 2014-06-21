@@ -74,8 +74,8 @@ DEBUG_TRACE_LINJAM_INIT
   Config = new LinJamConfig() ; if (!Config->sanityCheck()) return false ;
 
   // configure audio , session directory , and NINJAM client
-  if (InitializeAudio())         ConfigureAudio() ;  else return false ;
-  if (PrepareSessionDirectory()) ConfigureNinjam() ; else return false ;
+  if (InitializeAudio())         ConfigureAudio() ;  else   return false ;
+  if (PrepareSessionDirectory()) ConfigureNinjam() ; else   return false ;
 
   // initialize networking
   PrevStatus = NJClient::NJC_STATUS_DISCONNECTED ; JNL::open_socketlib() ;
@@ -139,8 +139,19 @@ void LinJam::UpdateGUI()
                                            VAL2DB(Client->GetLocalChannelPeak(channel_idx))) ;
   }
 
-  // local and remote VU
-  // TODO: remote channels vu (issue #22)
+  // remote VU
+  int user_idx = -1 ; char* user_name ;
+  while (user_name = Client->GetUserState(++user_idx))
+  {
+    Identifier user_id = Config->encodeUserId(user_name , user_idx) ; channel_n = -1 ;
+    while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
+    {
+      char*  channel_name = Client->GetUserChannelState(user_idx , channel_idx) ;
+      String channel_id   = String(Config->encodeChannelId(channel_name , channel_idx)) ;
+      float  channel_vu   = VAL2DB(Client->GetUserChannelPeak(user_idx , channel_idx)) ;
+      Gui->mixerComponent->updateChannelVU(user_id , channel_id , channel_vu) ;
+    }
+  }
 
   // loop progress
   int   sample_n , n_samples ; Client->GetPosition(&sample_n , &n_samples) ;
@@ -309,14 +320,17 @@ if (client_status == NJClient::NJC_STATUS_PRECONNECT)
 
 void LinJam::HandleUserInfoChanged()
 {
-DEBUG_TRACE_REMOTE_CHANNELS
+DEBUG_TRACE_REMOTE_CHANNELS_VB
 
   // load remote users state
-  int user_n = -1 ; char* user_name ; float user_volume ; float user_pan ; bool user_muted ;
-  while (user_name = Client->GetUserState(++user_n , &user_volume , &user_pan , &user_muted))
+  int user_idx = -1 ; char* user_name ; float user_volume ; float user_pan ; bool user_muted ;
+  while (user_name = Client->GetUserState(++user_idx , &user_volume , &user_pan , &user_muted))
   {
     // test if this remote user exists
-    Identifier user_id   = Config->encodeUserId(user_name) ;
+// TODO: we are adding remote users directly to the root node for now for simplicity
+//           mostly because Trace::SanitizeConfig() does not yet handle nested lists
+//           but for clarity there should be a <remote-channels> tree (issue #33)
+    Identifier user_id   = Config->encodeUserId(user_name , user_idx) ;
     ValueTree user_store = Config->getOrCreateRemoteUser(user_id) ;
     if (!user_store.hasProperty(STORAGE::VOLUME_IDENTIFIER))
     {
@@ -328,22 +342,26 @@ DEBUG_TRACE_ADD_REMOTE_USER
       user_store.setProperty(STORAGE::MUTE_IDENTIFIER   , user_muted  , nullptr) ;
     }
 
+    if (bool(Config->shouldHideBots.getValue()) &&
+        NETWORK::KNOWN_BOTS.contains(user_id)) continue ;
+
     // get or add remote user GUI
     MixerGroupComponent* mixergroup = Gui->mixerComponent->getOrCreateMixerGroup(user_id) ;
 
     int channel_n = -1 ; int channel_idx ;
-    while (~(channel_idx = Client->EnumUserChannels(user_n , ++channel_n)))
+    while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
     {
       // load remote channel state
       bool  is_rcv ;  float channel_volume ; float channel_pan ; bool is_muted ;
       bool  is_solo ; int   output_channel ; bool  is_stereo ;
-      char* channel_name = Client->GetUserChannelState(user_n , channel_idx , &is_rcv      ,
-                                                       &channel_volume      , &channel_pan ,
-                                                       &is_muted            , &is_solo     ,
-                                                       &output_channel      , &is_stereo   ) ;
+      char* channel_name = Client->GetUserChannelState(user_idx        , channel_idx  ,
+                                                       &is_rcv                        ,
+                                                       &channel_volume , &channel_pan ,
+                                                       &is_muted       , &is_solo     ,
+                                                       &output_channel , &is_stereo   ) ;
 
       // test if this remote channel exists
-      Identifier channel_id   = Config->encodeChannelId(channel_name) ;
+      Identifier channel_id   = Config->encodeChannelId(channel_name , channel_idx) ;
       ValueTree channel_store = user_store.getOrCreateChildWithName(channel_id , nullptr) ;
       if (!channel_store.hasProperty(STORAGE::VOLUME_IDENTIFIER))
       {
@@ -497,6 +515,8 @@ DEBUG_TRACE_CLEAN_SESSION
   File this_dir    = this_binary.getParentDirectory() ;
   if (!SessionDir.isDirectory() || !SessionDir.isAChildOf(this_dir)) return ;
 
+  // NOTE: the *.ninjam directories created when save_loca_audio == -1 (delete ASAP)
+  //           are not being deleted implicitly as they presumably should be (issue #32)
   DirectoryIterator session_dir_iter(SessionDir , false , "*.*" , File::findFilesAndDirectories) ;
   while (session_dir_iter.next()) session_dir_iter.getFile().deleteRecursively() ;
 }
@@ -554,11 +574,11 @@ void LinJam::AddLocalChannel(String channel_name)
 {
 DEBUG_TRACE_NEW_LOCAL_CHANNEL_FAIL
 
-  int max_channels = Client->GetMaxLocalChannels() ;
-  int n_channels   = -1 ; while (~Client->EnumLocalChannels(++n_channels)) ;
+  int max_channels = Client->GetMaxLocalChannels() ; int n_channels = -1 ; int channel_idx ;
+  while (~(channel_idx = Client->EnumLocalChannels(++n_channels))) ;
   if (n_channels >= max_channels) return ;
 
-  Identifier channel_id = Config->encodeChannelId(channel_name) ;
+  Identifier channel_id = Config->encodeChannelId(channel_name , channel_idx) ;
   ValueTree store       = ValueTree(channel_id) ;
   store.setProperty(STORAGE::VOLUME_IDENTIFIER   , STORAGE::DEFAULT_VOLUME    , nullptr) ;
   store.setProperty(STORAGE::PAN_IDENTIFIER      , STORAGE::DEFAULT_PAN       , nullptr) ;
@@ -569,7 +589,6 @@ DEBUG_TRACE_NEW_LOCAL_CHANNEL_FAIL
   store.setProperty(STORAGE::STEREO_IDENTIFIER   , STORAGE::DEFAULT_IS_STEREO , nullptr) ;
   Config->localChannels.addChild(store , -1 , nullptr) ;
 
-  int channel_idx = Config->localChannels.indexOf(store) ;
   AddChannel(GUI::LOCAL_MIXERGROUP_IDENTIFIER , channel_id , channel_idx) ;
 
 DEBUG_TRACE_NEW_LOCAL_CHANNEL
@@ -582,7 +601,6 @@ DEBUG_TRACE_ADD_CHANNEL
   // load stored config for this channel into temporary ChannelConfig data object
   ValueTree channel_store = Config->getChannelConfig(mixergroup_id , channel_id) ;
   if (!channel_store.isValid()) return ;
-
 
   // add new channel GUI
   Gui->mixerComponent->addChannel(mixergroup_id , channel_store) ;
@@ -601,36 +619,54 @@ DEBUG_TRACE_ADD_CHANNEL
                         true        , bool( channel_store[STORAGE::STEREO_IDENTIFIER])   ) ;
 }
 
-bool LinJam::ConfigureChannelByName(Identifier channel_id                        ,
-                                    bool  should_set_volume    , float volume    ,
-                                    bool  should_set_pan       , float pan       ,
-                                    bool  should_set_is_xmit   , bool  is_xmit   ,
-                                    bool  should_set_is_muted  , bool  is_muted  ,
-                                    bool  should_set_is_solo   , bool  is_solo   ,
-                                    bool  should_set_source_n  , int   source_n  ,
-                                    bool  should_set_bit_depth , int   bit_depth ,
-                                    bool  should_set_is_stereo , bool  is_stereo)
+int LinJam::GetLocalChannelIdx(Identifier channel_id)
 {
-  WDL_String name_wdl(channel_id.getCharPointer()) ; char* channel_name = name_wdl.Get() ;
-  int channel_n      = -1 ; int channel_idx ;
+  // ASSERT: channel_id is encoded with LinJamConfig::encodeChannelId()
+
+  // find local channel
+  int channel_n = -1 ; int channel_idx ;
   while (~(channel_idx = LinJam::Client->EnumLocalChannels(++channel_n)))
-    if (!strcmp(channel_name , Client->GetLocalChannelInfo(channel_idx , NULL , NULL , NULL)))
-      ConfigureLocalChannel(channel_idx          , String::empty ,
-                            should_set_volume    , volume        ,
-                            should_set_pan       , pan           ,
-                            should_set_is_xmit   , is_xmit       ,
-                            should_set_is_muted  , is_muted      ,
-                            should_set_is_solo   , is_solo       ,
-                            should_set_source_n  , source_n      ,
-                            should_set_bit_depth , bit_depth     ,
-                            should_set_is_stereo , is_stereo     ) ;
+  {
+    char*  channel_c_name = Client->GetLocalChannelInfo(channel_idx , NULL , NULL , NULL) ;
+    String channel_name   = String(Config->encodeChannelId(channel_c_name , channel_idx)) ;
+    if (!String(channel_id).compare(channel_name)) break ;
+  }
 
-  // TODO: iterate remote channels (issue #22)
-
-  return ~channel_idx ;
+  return channel_idx ;
 }
 
-bool LinJam::ConfigureLocalChannel(int  channel_idx          , String channel_name ,
+int LinJam::GetRemoteUserIdx(Identifier user_id)
+{
+  // ASSERT: user_id is encoded with LinJamConfig::encodeUserId()
+
+  // find remote user
+  int user_idx = Client->GetNumUsers() ; char* user_c_name ;
+  while ((user_c_name = Client->GetUserState(--user_idx)))
+  {
+    String user_name = String(Config->encodeUserId(user_c_name , user_idx)) ;
+    if (!String(user_id).compare(user_name)) break ;
+  }
+
+  return user_idx ;
+}
+
+int LinJam::GetRemoteChannelIdx(int user_idx , Identifier channel_id)
+{
+  // ASSERT: channel_id is encoded with LinJamConfig::encodeChannelId()
+
+  // find remote channel
+  int channel_n = -1 ; int channel_idx ;
+  while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
+  {
+    char*  channel_c_name = Client->GetUserChannelState(user_idx , channel_idx) ;
+    String channel_name   = String(Config->encodeChannelId(channel_c_name , channel_idx)) ;
+    if (!String(channel_id).compare(channel_name)) break ;
+  }
+
+  return channel_idx ;
+}
+
+void LinJam::ConfigureLocalChannel(int  channel_idx          , String channel_name ,
                                    bool should_set_volume    , float  volume       ,
                                    bool should_set_pan       , float  pan          ,
                                    bool should_set_is_xmit   , bool   is_xmit      ,
@@ -642,12 +678,16 @@ bool LinJam::ConfigureLocalChannel(int  channel_idx          , String channel_na
 {
 DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
 
-  WDL_String name_wdl(channel_name.toRawUTF8()) ; char* name = name_wdl.Get() ;
+  // convert juce::String into non-const char*
+  char* new_name ; WDL_String name_wdl ;
+  if (channel_name.isEmpty()) new_name = NULL ; // no name change
+  else { name_wdl.Set(channel_name.toRawUTF8()) ; new_name = name_wdl.Get() ; }
 
   if (should_set_source_n || should_set_bit_depth || should_set_is_xmit)
-    Client->SetLocalChannelInfo(channel_idx , name , should_set_source_n , source_n  ,
-                                                     should_set_bit_depth, bit_depth ,
-                                                     should_set_is_xmit  , is_xmit   ) ;
+    Client->SetLocalChannelInfo(channel_idx         , new_name  ,
+                                should_set_source_n , source_n  ,
+                                should_set_bit_depth, bit_depth ,
+                                should_set_is_xmit  , is_xmit   ) ;
 
   if (should_set_volume || should_set_pan || should_set_is_muted || should_set_is_solo)
     Client->SetLocalChannelMonitoring(channel_idx                                 ,
@@ -657,4 +697,37 @@ DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
                                       should_set_is_solo  , is_solo               ) ;
 
   Client->NotifyServerOfChannelChange() ;
+}
+
+void LinJam::ConfigureRemoteUser(int  user_idx                            ,
+                                 bool should_set_volume   , float  volume ,
+                                 bool should_set_pan      , float  pan    ,
+                                 bool should_set_is_muted , bool   is_muted)
+{
+DBG("ConfigureRemoteUser() (untested)") ;
+
+  Client->SetUserState(user_idx                      ,
+                       should_set_volume   , volume  ,
+                       should_set_pan      , pan     ,
+                       should_set_is_muted , is_muted) ;
+}
+
+void LinJam::ConfigureRemoteChannel(int  user_idx                                   ,
+                                    int  channel_idx          , String channel_name ,
+                                    bool should_set_volume    , float  volume       ,
+                                    bool should_set_pan       , float  pan          ,
+                                    bool should_set_is_rcv    , bool   is_rcv       ,
+                                    bool should_set_is_muted  , bool   is_muted     ,
+                                    bool should_set_is_solo   , bool   is_solo      ,
+                                    bool should_set_sink_n    , int    sink_n       ,
+                                    bool should_set_is_stereo , bool   is_stereo    )
+{
+    Client->SetUserChannelState(user_idx             , channel_idx ,
+                                should_set_is_rcv    , is_rcv      ,
+                                should_set_volume    , volume      ,
+                                should_set_pan       , pan         ,
+                                should_set_is_muted  , is_muted    ,
+                                should_set_is_solo   , is_solo     ,
+                                should_set_sink_n    , sink_n      ,
+                                should_set_is_stereo , is_stereo   ) ;
 }

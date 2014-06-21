@@ -156,6 +156,7 @@ ChannelComponent::ChannelComponent (ValueTree config_store)
 
   this->gainSlider->setDoubleClickReturnValue(true , 0.0) ;
   this->panSlider ->setDoubleClickReturnValue(true , 0.0) ;
+  this->vuSlider->setInterceptsMouseClicks(false , false) ;
 
 DEBUG_TRACE_ADDED_CHANNEL
 

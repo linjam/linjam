@@ -110,7 +110,7 @@ void MixerGroupComponent::resized()
     addButton->setBounds (getWidth() - 15, 0, 15, 16);
     //[UserResized] Add your own custom resize handling here..
 
-  int n_channels = this->getNumChildComponents() - GUI::N_NON_CHANNELS ;
+  int n_channels = getNumChannels() ;
   for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
   {
     int child_n   = channel_n + GUI::N_NON_CHANNELS ;
@@ -129,7 +129,9 @@ void MixerGroupComponent::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == addButton)
     {
         //[UserButtonCode_addButton] -- add your button handler code here..
-      LinJam::AddLocalChannel("channelid") ;
+
+      LinJam::AddLocalChannel(String(LinJam::Config->encodeChannelId("" , getNumChannels()))) ;
+
         //[/UserButtonCode_addButton]
     }
 
@@ -148,8 +150,16 @@ void MixerGroupComponent::addChannel(ValueTree channel_store)
   channel_component->toFront(false) ;
 }
 
+int MixerGroupComponent::getNumChannels()
+{ return this->getNumChildComponents() - GUI::N_NON_CHANNELS; }
+
 void MixerGroupComponent::updateChannelVU(String channel_id , float vu)
-{ ((ChannelComponent*)findChildWithID(StringRef(channel_id)))->updateChannelVU(vu) ; }
+{
+  ChannelComponent* channel = (ChannelComponent*)findChildWithID(StringRef(channel_id)) ;
+  if (channel) channel->updateChannelVU(vu) ;
+
+DEBUG_TRACE_INVALID_CHANNELID
+}
 
 //[/MiscUserCode]
 

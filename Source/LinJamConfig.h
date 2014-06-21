@@ -45,6 +45,7 @@ public:
   // channels
   ValueTree masterChannels ;
   ValueTree localChannels ;
+  ValueTree remoteChannels ;
 /* per-channel data - access through above ValueTrees
   Value     volume ;        // float
   Value     pan ;           // float
@@ -55,12 +56,13 @@ public:
   Value     isStereo ;      // bool
 */
 
-  // transient login state
+  // current server config
   Value currentHost ;        // string
   Value currentLogin ;       // string
   Value currentPass ;        // string
   Value currentIsAnonymous ; // bool
   Value currentIsAgreed ;    // bool // TODO: ?? this exists only so OnLicense doesnt block (issue #14)
+  Value shouldHideBots ;     // bool
 
   // per server config (subtree)
   ValueTree servers ;
@@ -68,9 +70,9 @@ public:
 
   // validation
   bool       sanityCheck() ;
-  Identifier encodeChannelId(String     channel_name) ;
+  Identifier encodeChannelId(String     channel_name , int channel_idx) ;
   String     decodeChannelId(Identifier channel_id) ;
-  Identifier encodeUserId(   String     channel_name) ;
+  Identifier encodeUserId(   String     channel_name , int user_idx) ;
   String     decodeUserId(   Identifier channel_id) ;
 
   // getters/setters
@@ -94,24 +96,25 @@ private:
   void      establishSharedStore() ;
 
   // helpers
+  ValueTree getConfigTreeObj(       Identifier tree_node_id) ;
   Value     getConfigValueObj(      ValueTree parent_node , Identifier child_node_id ,
                                     Identifier key) ;
   Value     getClientConfigValueObj(Identifier key) ;
   Value     getAudioConfigValueObj( Identifier key) ;
   Value     getServerConfigValueObj(Identifier key) ;
-  ValueTree addServerConfig(        String host , String login , String pass ,
-                                    bool is_anonymous) ;
+  ValueTree addServerConfig(        String host        , String login , String pass ,
+                                    bool   is_anonymous) ;
   String    filteredName(           String a_name) ;
-  String    defaultName(            String a_name) ;
 
   // event handlers
-  void valueChanged(            Value& a_value)                                   override ;
-  void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)        override ;
+  void valueChanged(            Value& a_value)                                     override ;
+  void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)          override ;
+  void valueTreeChildAdded(     ValueTree& a_parent_tree , ValueTree& a_child_tree) override ;
 
   // unused ValueTree::Listener interface methods
 //  void valueTreePropertyChanged (ValueTree &treeWhosePropertyHasChanged, const Identifier &property)=0 override ;
   // This method is called when a property of this node (or of one of its sub-nodes) has changed.
-  void valueTreeChildAdded(ValueTree& a_parent_tree , ValueTree& a_child_tree)    override ;
+//  void valueTreeChildAdded(ValueTree& a_parent_tree , ValueTree& a_child_tree)    override ;
   // This method is called when a child sub-tree is added.
   void valueTreeChildRemoved(ValueTree& a_parent_tree , ValueTree& a_child_tree)  override ;
   // This method is called when a child sub-tree is removed.

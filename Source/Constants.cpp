@@ -39,24 +39,32 @@ const String        NETWORK::NINJAMER_2049_URL          = "ninjamer.com:2049" ;
 const String        NETWORK::NINJAMER_2050_URL          = "ninjamer.com:2050" ;
 const String        NETWORK::NINJAMER_2051_URL          = "ninjamer.com:2051" ;
 const String        NETWORK::NINJAMER_2052_URL          = "ninjamer.com:2052" ;
+const Identifier    NETWORK::NINBOT_USER                = "ninbot" ;
+const Identifier    NETWORK::JAMBOT_USER                = "Jambot" ;
 const String        known_hosts[NETWORK::N_KNOWN_HOSTS] = {
 /*
-                        NETWORK::NINJAM_2049_URL   ,
-                        NETWORK::NINJAM_2050_URL   ,
-                        NETWORK::NINJAM_2051_URL   ,
-                        NETWORK::NINJAM_2052_URL   ,
-                        NETWORK::NINJAM_2600_URL   ,
-                        NETWORK::NINJAM_2601_URL   ,
+                        NETWORK::NINJAM_2049_URL          ,
+                        NETWORK::NINJAM_2050_URL          ,
+                        NETWORK::NINJAM_2051_URL          ,
+                        NETWORK::NINJAM_2052_URL          ,
+                        NETWORK::NINJAM_2600_URL          ,
+                        NETWORK::NINJAM_2601_URL          ,
 */
-                        NETWORK::NINBOT_2049_URL   ,
-                        NETWORK::NINBOT_2050_URL   ,
-                        NETWORK::NINBOT_2051_URL   ,
-                        NETWORK::NINBOT_2052_URL   ,
-                        NETWORK::NINJAMER_2049_URL ,
-                        NETWORK::NINJAMER_2050_URL ,
-                        NETWORK::NINJAMER_2051_URL ,
-                        NETWORK::NINJAMER_2052_URL } ;
-const Array<String> NETWORK::KNOWN_HOSTS = Array<String>(known_hosts , NETWORK::N_KNOWN_HOSTS) ;
+                        NETWORK::NINBOT_2049_URL          ,
+                        NETWORK::NINBOT_2050_URL          ,
+                        NETWORK::NINBOT_2051_URL          ,
+                        NETWORK::NINBOT_2052_URL          ,
+                        NETWORK::NINJAMER_2049_URL        ,
+                        NETWORK::NINJAMER_2050_URL        ,
+                        NETWORK::NINJAMER_2051_URL        ,
+                        NETWORK::NINJAMER_2052_URL        } ;
+const Identifier    known_bots[NETWORK::N_KNOWN_BOTS]   = {
+                        NETWORK::NINBOT_USER              ,
+                        NETWORK::JAMBOT_USER              } ;
+const Array<String>     NETWORK::KNOWN_HOSTS            =
+    Array<String>(    known_hosts , NETWORK::N_KNOWN_HOSTS) ;
+const Array<Identifier> NETWORK::KNOWN_BOTS             =
+    Array<Identifier>(known_bots  , NETWORK::N_KNOWN_BOTS) ;
 
 
 /* GUI class public class constants */
@@ -115,6 +123,9 @@ const String GUI::LOOP_GUI_ID = "loop-gui" ;
 
 /* STORAGE class public class constants */
 
+// NOTE: many of these *_KEY *_IDENTIFIER pairs maybe redundant or unused (issue #30)
+
+// config root
 const String     STORAGE::PERSISTENCE_FILENAME     = "linjam.xml" ;
 const String     STORAGE::PERSISTENCE_KEY          = "linjam-data" ;
 const Identifier STORAGE::PERSISTENCE_IDENTIFIER   = PERSISTENCE_KEY ;
@@ -155,7 +166,7 @@ const Identifier STORAGE::SAMPLERATE_IDENTIFIER    = SAMPLERATE_KEY ;
 const String     STORAGE::JACK_NAME_KEY            = "jack-name" ;
 const Identifier STORAGE::JACK_NAME_IDENTIFIER     = JACK_NAME_KEY ;
 
-// per server user data
+// network config
 const String     STORAGE::SERVERS_KEY              = "servers" ;
 const Identifier STORAGE::SERVERS_IDENTIFIER       = SERVERS_KEY ;
 const String     STORAGE::SERVER_KEY               = "server" ;
@@ -172,6 +183,8 @@ const String     STORAGE::AGREED_KEY               = "is-agreed" ;
 const Identifier STORAGE::AGREED_IDENTIFIER        = AGREED_KEY ;
 const String     STORAGE::AGREE_KEY                = "should-agree" ;
 const Identifier STORAGE::AGREE_IDENTIFIER         = AGREE_KEY ;
+const String     STORAGE::BOTS_KEY                 = "should-hide-bots" ;
+const Identifier STORAGE::BOTS_IDENTIFIER          = BOTS_KEY ;
 
 // channels
 const String     STORAGE::MASTERS_KEY              = "master-channels" ;
@@ -196,6 +209,8 @@ const String     STORAGE::SOURCE_N_KEY             = "source-channel-n" ;
 const Identifier STORAGE::SOURCE_N_IDENTIFIER      = SOURCE_N_KEY ;
 const String     STORAGE::STEREO_KEY               = "is-stereo" ;
 const Identifier STORAGE::STEREO_IDENTIFIER        = STEREO_KEY ;
+const String     STORAGE::INITIAL_LOCAL_KEY        = "default-L " ;
+const Identifier STORAGE::INITIAL_LOCAL_IDENTIFIER = STEREO_KEY ;
 const StringRef  STORAGE::VALID_CHARS              = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- " ;
 const StringRef  STORAGE::AT_CHAR                  = "@" ;
 const String     STORAGE::DEFAULT_CHANNEL_NAME     = "channel-" ;
@@ -207,7 +222,9 @@ const bool       STORAGE::DEFAULT_IS_MUTE          = false ;
 const bool       STORAGE::DEFAULT_IS_SOLO          = false ;
 const int        STORAGE::DEFAULT_SOURCE_N         = 0 ;
 const bool       STORAGE::DEFAULT_IS_STEREO        = false ;
-
+// NOTE: when adding nodes to CONFIG_XML be sure to
+//         * attach them to values in LinJamConfig::establishSharedStore()
+//         * verify them in           LinJamConfig::sanityCheck()
 #define CONFIG_XML "<?xml version=\"1.0\"?><" + \
     PERSISTENCE_KEY        + "><"             + \
       CLIENT_KEY           + " "              + \
@@ -230,6 +247,7 @@ const bool       STORAGE::DEFAULT_IS_STEREO        = false ;
         PASS_KEY           + "=\"\" "         + \
         ANON_KEY           + "=\"true\" "     + \
         AGREED_KEY         + "=\"false\" "    + \
+        BOTS_KEY           + "=\"true\" "     + \
       "/><"                                   + \
       MASTERS_KEY          + "><"             + \
         MASTER_KEY         + " "              + \
@@ -246,7 +264,7 @@ const bool       STORAGE::DEFAULT_IS_STEREO        = false ;
       "/>"                                    + \
       "</" + MASTERS_KEY   + "><"             + \
       LOCALS_KEY           + "><"             + \
-        "default-L "                          + \
+        INITIAL_LOCAL_KEY                     + \
           VOLUME_KEY       + "=\"0.0\" "      + \
           PAN_KEY          + "=\"0.0\" "      + \
           XMIT_KEY         + "=\"false\" "    + \
@@ -259,5 +277,4 @@ const bool       STORAGE::DEFAULT_IS_STEREO        = false ;
       SUBSCRIPTIONS_KEY    + " /><"           + \
       SERVERS_KEY          + " />"            + \
     "</" + PERSISTENCE_KEY + ">"
-
 const String STORAGE::DEFAULT_CONFIG_XML = String(CONFIG_XML) ;

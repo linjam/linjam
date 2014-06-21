@@ -51,23 +51,28 @@ class NETWORK
 {
 public:
 
-  static const String        NINJAM_2049_URL ;
-  static const String        NINJAM_2050_URL ;
-  static const String        NINJAM_2051_URL ;
-  static const String        NINJAM_2052_URL ;
-  static const String        NINJAM_2600_URL ;
-  static const String        NINJAM_2601_URL ;
-  static const String        NINBOT_2049_URL ;
-  static const String        NINBOT_2050_URL ;
-  static const String        NINBOT_2051_URL ;
-  static const String        NINBOT_2052_URL ;
-  static const String        NINJAMER_2049_URL ;
-  static const String        NINJAMER_2050_URL ;
-  static const String        NINJAMER_2051_URL ;
-  static const String        NINJAMER_2052_URL ;
-  static const int           N_KNOWN_HOSTS = 8 ;
-  static const Array<String> KNOWN_HOSTS ;
+  static const String            NINJAM_2049_URL ;
+  static const String            NINJAM_2050_URL ;
+  static const String            NINJAM_2051_URL ;
+  static const String            NINJAM_2052_URL ;
+  static const String            NINJAM_2600_URL ;
+  static const String            NINJAM_2601_URL ;
+  static const String            NINBOT_2049_URL ;
+  static const String            NINBOT_2050_URL ;
+  static const String            NINBOT_2051_URL ;
+  static const String            NINBOT_2052_URL ;
+  static const String            NINJAMER_2049_URL ;
+  static const String            NINJAMER_2050_URL ;
+  static const String            NINJAMER_2051_URL ;
+  static const String            NINJAMER_2052_URL ;
+  static const int               N_KNOWN_HOSTS = 8 ;
+  static const Identifier        NINBOT_USER ;
+  static const Identifier        JAMBOT_USER ;
+  static const int               N_KNOWN_BOTS = 2 ;
+  static const Array<String>     KNOWN_HOSTS ;
+  static const Array<Identifier> KNOWN_BOTS ;
 } ;
+
 
 class GUI
 {
@@ -199,7 +204,7 @@ public:
   static const String     JACK_NAME_KEY ;
   static const Identifier JACK_NAME_IDENTIFIER ;
 
-  // per server user data
+  // network
   static const String     SERVERS_KEY ;
   static const Identifier SERVERS_IDENTIFIER ;
   static const String     SERVER_KEY ;
@@ -216,6 +221,8 @@ public:
   static const Identifier AGREED_IDENTIFIER ;
   static const String     AGREE_KEY ;
   static const Identifier AGREE_IDENTIFIER ;
+  static const String     BOTS_KEY ;
+  static const Identifier BOTS_IDENTIFIER ;
 
   // channels
   static const String     MASTERS_KEY ;
@@ -240,6 +247,8 @@ public:
   static const Identifier SOURCE_N_IDENTIFIER ;
   static const String     STEREO_KEY ;
   static const Identifier STEREO_IDENTIFIER ;
+  static const String     INITIAL_LOCAL_KEY ;
+  static const Identifier INITIAL_LOCAL_IDENTIFIER ;
   static const StringRef  VALID_CHARS ;
   static const StringRef  AT_CHAR ;
   static const String     DEFAULT_NAME ;

@@ -47,7 +47,10 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
   void addChannel(     ValueTree channel_store) ;
+  int  getNumChannels() ;
   void updateChannelVU(String    channel_id , float vu) ;
+
+// ResizableEdgeComponent* resizer ;
 
     //[/UserMethods]
 
@@ -55,7 +58,6 @@ public:
     void resized();
     void buttonClicked (Button* buttonThatWasClicked);
 
-// ResizableEdgeComponent* resizer ;
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.

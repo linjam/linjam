@@ -15,7 +15,9 @@ void Trace::TraceEvent(String msg)        { if (TraceEvs())    Dbg("EVENT"      
 void Trace::TraceVerbose(String msg)      { if (TraceVb())     Dbg("DEBUG"      , msg) ; }
 void Trace::TraceState(String msg)        { if (TraceState())  Dbg("STATE"      , msg) ; }
 void Trace::TraceConnection(String msg)   { if (TraceState())  Dbg("CONNECTION" , msg) ; }
-void Trace::TraceError(String msg)        { if (TraceState())  Dbg("ERROR"      , msg) ; }
+void Trace::TraceError(String msg)        { if (TraceState())
+DBG("TraceError()") ;
+Dbg("ERROR"      , msg) ; }
 void Trace::TraceServer(String msg)       { if (TraceState())  Dbg("SERVER"     , msg) ; }
 
 void Trace::Dbg(String type , String msg) { DBG(String("[" + type + "]: " + msg)) ; }
@@ -34,8 +36,8 @@ bool Trace::TraceState() { return (DEBUG_TRACE_STATE  || !SanityCheck()) ; }
 String Trace::SanitizeConfig(ValueTree default_config , ValueTree stored_config ,
                              String pad)
 {
-  if (!default_config.isValid()) return "ERROR: default_config.isValid()" ;
-  if (!stored_config.isValid())  return "ERROR: stored_config.isValid()" ;
+  if (!default_config.isValid()) return "ERROR: default config invalid" ;
+  if (!stored_config.isValid())  return "ERROR: stored config invalid" ;
 
   Identifier node_name   = default_config.getType() ;
   int n_default_children = default_config.getNumChildren() ;
@@ -113,5 +115,16 @@ String Trace::SanitizeConfig(ValueTree default_config , ValueTree stored_config 
 
   return dbg ;
 }
+
+void Trace::TraceInvalidNode(String a_node_key)
+{
+DBG("TraceInvalidNode()") ;
+  Trace::TraceError("node '" + a_node_key + "' invalid") ; }
+
+void Trace::TraceMissingValue(String a_node_key , String a_value_key)
+{ Trace::TraceError("node '" + a_node_key + "' - missing key '" + a_value_key + "'") ; }
+
+void Trace::TraceMissingProperty(String a_node_key , String a_property_key)
+{ Trace::TraceError("node '" + a_node_key + "' - missing key '" + a_property_key + "'") ; }
 
 #endif // #if DEBUG_TRACE

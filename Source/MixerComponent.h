@@ -68,7 +68,6 @@ private:
 
 
   MixerGroupComponent* addMixerGroup( String mixer_group_id) ;
-  int                  getNumChannels(MixerGroupComponent* mixergroup) ;
 
     //[/UserVariables]
 
