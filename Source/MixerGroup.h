@@ -17,11 +17,14 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_FA5FA7D103997D98__
-#define __JUCE_HEADER_FA5FA7D103997D98__
+#ifndef _MIXERGROUP_H_
+#define _MIXERGROUP_H_
+
 
 //[Headers]     -- You can add your own extra header files here --
+
 #include "JuceHeader.h"
+
 //[/Headers]
 
 
@@ -34,15 +37,12 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class LoginComponent  : public Component,
-                        public TextEditor::Listener,
-                        public Value::Listener,
-                        public ButtonListener
+class MixerGroup  : public Component
 {
 public:
     //==============================================================================
-    LoginComponent ();
-    ~LoginComponent();
+    MixerGroup ();
+    ~MixerGroup();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -50,54 +50,25 @@ public:
 
     void paint (Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  static StringRef HostValidationMask ;
-  static StringRef Letters ;
-  static StringRef Digits ;
-  static StringRef UrlChars ;
-
-  OwnedArray<TextButton> loginButtons ;
-
-
-  // event handlers
-  void broughtToFront()                                 override ;
-  void textEditorTextChanged(TextEditor& a_text_editor) override ;
-  void valueChanged(         Value& login_value)        override ;
-
-  // helpers
-  void refreshState() ;
-  void sortLoginButtons() ;
-  bool validateHost() ;
-  bool validateLogin() ;
-  bool validatePass() ;
-  void setCurrentConfig(String host , String login , String pass, bool is_anonymous) ;
-  void login(           String host) ;
+  Component* remoteChannels ;
 
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> hostLabel;
-    ScopedPointer<Label> loginLabel;
-    ScopedPointer<Label> passLabel;
-    ScopedPointer<TextEditor> hostText;
-    ScopedPointer<TextEditor> loginText;
-    ScopedPointer<TextEditor> passText;
-    ScopedPointer<TextButton> loginButton;
-    ScopedPointer<TextButton> serverButton;
-    ScopedPointer<ToggleButton> anonButton;
+    ScopedPointer<Viewport> remotesViewport;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LoginComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MixerGroup)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_FA5FA7D103997D98__
+#endif // _MIXERGROUP_H_

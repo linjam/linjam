@@ -24,25 +24,25 @@
 
 //[/Headers]
 
-#include "MixerGroupComponent.h"
+#include "Channels.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-MixerGroupComponent::MixerGroupComponent (String mixergroup_id)
+Channels::Channels (String channels_id)
 {
-    addAndMakeVisible (mixerSectionLabel = new Label ("mixerSectionLabel",
-                                                      String::empty));
-    mixerSectionLabel->setFont (Font (12.00f, Font::plain));
-    mixerSectionLabel->setJustificationType (Justification::centredTop);
-    mixerSectionLabel->setEditable (false, false, false);
-    mixerSectionLabel->setColour (Label::backgroundColourId, Colour (0x00000000));
-    mixerSectionLabel->setColour (Label::textColourId, Colours::grey);
-    mixerSectionLabel->setColour (Label::outlineColourId, Colour (0x00000000));
-    mixerSectionLabel->setColour (TextEditor::textColourId, Colour (0x00000000));
-    mixerSectionLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (channelsLabel = new Label ("channelsLabel",
+                                                  String::empty));
+    channelsLabel->setFont (Font (12.00f, Font::plain));
+    channelsLabel->setJustificationType (Justification::centredTop);
+    channelsLabel->setEditable (false, false, false);
+    channelsLabel->setColour (Label::backgroundColourId, Colour (0x00000000));
+    channelsLabel->setColour (Label::textColourId, Colours::grey);
+    channelsLabel->setColour (Label::outlineColourId, Colour (0x00000000));
+    channelsLabel->setColour (TextEditor::textColourId, Colour (0x00000000));
+    channelsLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (addButton = new TextButton ("addButton"));
     addButton->setButtonText (TRANS("+"));
@@ -61,23 +61,23 @@ MixerGroupComponent::MixerGroupComponent (String mixergroup_id)
 
     //[Constructor] You can add your own custom stuff here..
 
-  bool is_local_mixergroup = (Identifier(mixergroup_id) == GUI::LOCAL_MIXERGROUP_IDENTIFIER) ;
-  this->addButton        ->setVisible(is_local_mixergroup) ;
-  this->mixerSectionLabel->setText(mixergroup_id , juce::dontSendNotification) ;
+  bool are_local_channels = (Identifier(channels_id) == GUI::LOCAL_MIXERGROUP_IDENTIFIER) ;
+  this->addButton    ->setVisible(are_local_channels) ;
+  this->channelsLabel->setText(channels_id , juce::dontSendNotification) ;
 /*
-if (is_local_mixergroup)
+if (is_local_channelgroup)
   addAndMakeVisible(this->resizer = new ResizableEdgeComponent(this , nullptr , ResizableEdgeComponent::rightEdge)) ;
 */
     //[/Constructor]
 }
 
-MixerGroupComponent::~MixerGroupComponent()
+Channels::~Channels()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
 //   this->resizer = nullptr ;
     //[/Destructor_pre]
 
-    mixerSectionLabel = nullptr;
+    channelsLabel = nullptr;
     addButton = nullptr;
 
 
@@ -89,7 +89,7 @@ MixerGroupComponent::~MixerGroupComponent()
 }
 
 //==============================================================================
-void MixerGroupComponent::paint (Graphics& g)
+void Channels::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -104,9 +104,9 @@ void MixerGroupComponent::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void MixerGroupComponent::resized()
+void Channels::resized()
 {
-    mixerSectionLabel->setBounds (4, 4, getWidth() - 8, 12);
+    channelsLabel->setBounds (4, 4, getWidth() - 8, 12);
     addButton->setBounds (getWidth() - 15, 0, 15, 16);
     //[UserResized] Add your own custom resize handling here..
 
@@ -121,7 +121,7 @@ void MixerGroupComponent::resized()
     //[/UserResized]
 }
 
-void MixerGroupComponent::buttonClicked (Button* buttonThatWasClicked)
+void Channels::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -130,7 +130,9 @@ void MixerGroupComponent::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_addButton] -- add your button handler code here..
 
-      LinJam::AddLocalChannel(String(LinJam::Config->encodeChannelId("" , getNumChannels()))) ;
+      // TODO: prompt ?
+//       LinJam::AddLocalChannel(String(LinJam::Config->encodeChannelId("" , getNumChannels()))) ;
+      LinJam::AddLocalChannel(LinJam::Config->encodeChannelId("" , getNumChannels() + 1 )) ;
 
         //[/UserButtonCode_addButton]
     }
@@ -143,19 +145,19 @@ void MixerGroupComponent::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void MixerGroupComponent::addChannel(ValueTree channel_store)
+void Channels::addChannel(ValueTree channel_store)
 {
-  ChannelComponent* channel_component = new ChannelComponent(channel_store) ;
-  this->addChildAndSetID(channel_component , String(channel_store.getType())) ;
-  channel_component->toFront(false) ;
+  Channel* channel = new Channel(channel_store) ;
+  this->addChildAndSetID(channel , String(channel_store.getType())) ;
+  channel->toFront(false) ;
 }
 
-int MixerGroupComponent::getNumChannels()
+int Channels::getNumChannels()
 { return this->getNumChildComponents() - GUI::N_NON_CHANNELS; }
 
-void MixerGroupComponent::updateChannelVU(String channel_id , float vu)
+void Channels::updateChannelVU(String channel_id , double vu)
 {
-  ChannelComponent* channel = (ChannelComponent*)findChildWithID(StringRef(channel_id)) ;
+  Channel* channel = (Channel*)findChildWithID(StringRef(channel_id)) ;
   if (channel) channel->updateChannelVU(vu) ;
 
 DEBUG_TRACE_INVALID_CHANNELID
@@ -173,15 +175,15 @@ DEBUG_TRACE_INVALID_CHANNELID
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="MixerGroupComponent" componentName=""
-                 parentClasses="public Component" constructorParams="String mixergroup_id"
+<JUCER_COMPONENT documentType="Component" className="Channels" componentName=""
+                 parentClasses="public Component" constructorParams="String channels_id"
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
                  overlayOpacity="0.330" fixedSize="0" initialWidth="132" initialHeight="276">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
-  <LABEL name="mixerSectionLabel" id="11f182b0c62d16d1" memberName="mixerSectionLabel"
+  <LABEL name="channelsLabel" id="11f182b0c62d16d1" memberName="channelsLabel"
          virtualName="" explicitFocusOrder="0" pos="4 4 8M 12" bkgCol="0"
          textCol="ff808080" outlineCol="0" edTextCol="0" edBkgCol="0"
          labelText="" editableSingleClick="0" editableDoubleClick="0"

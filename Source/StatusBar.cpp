@@ -20,16 +20,16 @@
 //[Headers] You can add your own extra header files here...
 //[/Headers]
 
-#include "StatusBarComponent.h"
+#include "StatusBar.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-StatusBarComponent::StatusBarComponent ()
+StatusBar::StatusBar ()
 {
-    setName ("StatusBarComponent");
+    setName ("StatusBar");
     addAndMakeVisible (statusLLabel = new Label ("statusLLabel",
                                                  String::empty));
     statusLLabel->setFont (Font (15.00f, Font::plain));
@@ -65,7 +65,7 @@ StatusBarComponent::StatusBarComponent ()
     //[/Constructor]
 }
 
-StatusBarComponent::~StatusBarComponent()
+StatusBar::~StatusBar()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
@@ -79,7 +79,7 @@ StatusBarComponent::~StatusBarComponent()
 }
 
 //==============================================================================
-void StatusBarComponent::paint (Graphics& g)
+void StatusBar::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -100,7 +100,7 @@ void StatusBarComponent::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void StatusBarComponent::resized()
+void StatusBar::resized()
 {
     statusLLabel->setBounds (4, 4, 160, 16);
     statusRLabel->setBounds (getWidth() - 164, 4, 160, 16);
@@ -119,11 +119,13 @@ void StatusBarComponent::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-  void StatusBarComponent::setStatusL(String statusText)
-  { this->statusLLabel->setText(statusText , juce::dontSendNotification) ; }
+
+void StatusBar::setStatusL(String statusText)
+{ this->statusLLabel->setText(statusText , juce::dontSendNotification) ; }
 //  void StatusBarComponent::setStatusC(TODO: list of btns) {;} (issue #8)
-  void StatusBarComponent::setStatusR(String statusText)
-  { this->statusRLabel->setText(statusText , juce::dontSendNotification) ; }
+void StatusBar::setStatusR(String statusText)
+{ this->statusRLabel->setText(statusText , juce::dontSendNotification) ; }
+
 //[/MiscUserCode]
 
 
@@ -136,7 +138,7 @@ void StatusBarComponent::resized()
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="StatusBarComponent" componentName="StatusBarComponent"
+<JUCER_COMPONENT documentType="Component" className="StatusBar" componentName="StatusBar"
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="24">

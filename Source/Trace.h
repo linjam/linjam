@@ -1,6 +1,6 @@
 
-#ifndef TRACE_H_INCLUDED
-#define TRACE_H_INCLUDED
+#ifndef _TRACE_H_
+#define _TRACE_H_
 
 #define DEBUG_TRACE            DEBUG && 1
 #define DEBUG_TRACE_EVENTS     DEBUG && 1
@@ -33,13 +33,13 @@
                                   String(Audio->m_outnch)   + "out "      ) ;
 
 #  define DEBUG_TRACE_LOAD_CONFIG                                                       \
-    Identifier root_node_id = STORAGE::PERSISTENCE_IDENTIFIER ;                         \
+    Identifier root_node_id = CONFIG::PERSISTENCE_IDENTIFIER ;                          \
     if (default_config_xml == nullptr || !default_config_xml->hasTagName(root_node_id)) \
         Trace::TraceConfig("default config invalid") ;                                  \
     else Trace::TraceConfig("default config loaded") ;                                  \
     if (stored_config_xml == nullptr)                                                   \
         Trace::TraceConfig("stored config not found - falling back on defaults") ;      \
-    else if (!stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))           \
+    else if (!stored_config_xml->hasTagName(CONFIG::PERSISTENCE_IDENTIFIER))            \
         Trace::TraceConfig("stored config is invalid - falling back on defaults") ;     \
     else Trace::TraceConfig("stored config found") ;
 #  if DEBUG_SANITIZE_CONFIG
@@ -47,7 +47,7 @@
     if      (default_config_xml == nullptr)                                             \
     { Trace::TraceError("default_config_xml invalid - bailing") ; return ; }            \
     else if (stored_config_xml != nullptr &&                                            \
-             stored_config_xml->hasTagName(STORAGE::PERSISTENCE_IDENTIFIER))            \
+             stored_config_xml->hasTagName(CONFIG::PERSISTENCE_IDENTIFIER))             \
       Trace::TraceConfig("stored config parsed successfully =>" +                       \
                         Trace::SanitizeConfig(ValueTree::fromXml(*default_config_xml) , \
                                               ValueTree::fromXml(*stored_config_xml) , "  ")) ;
@@ -72,79 +72,79 @@
 #  define DEBUG_TRACE_SANITY_CHECK                                                      \
     /* subscribed trees */                                                              \
     if (!auto_subscribe_users_is_valid)                                                 \
-      Trace::TraceInvalidNode(STORAGE::SUBSCRIPTIONS_KEY) ;                             \
+      Trace::TraceInvalidNode(CONFIG::SUBSCRIPTIONS_KEY) ;                              \
     if (!master_channels_is_valid)                                                      \
-      Trace::TraceInvalidNode(STORAGE::MASTERS_KEY) ;                                   \
+      Trace::TraceInvalidNode(CONFIG::MASTERS_KEY) ;                                    \
     if (!local_channels_is_valid)                                                       \
-      Trace::TraceInvalidNode(STORAGE::LOCALS_KEY) ;                                    \
+      Trace::TraceInvalidNode(CONFIG::LOCALS_KEY) ;                                     \
     if (!servers_is_valid)                                                              \
-      Trace::TraceInvalidNode(STORAGE::SERVERS_KEY) ;                                   \
+      Trace::TraceInvalidNode(CONFIG::SERVERS_KEY) ;                                    \
                                                                                         \
     /* implicitly subscribed values (via above trees) */                                \
     if (!master_channel_has_volume_property)                                            \
-      Trace::TraceMissingProperty(STORAGE::MASTER_KEY        , STORAGE::VOLUME_KEY) ;   \
+      Trace::TraceMissingProperty(CONFIG::MASTER_KEY        , CONFIG::VOLUME_KEY) ;     \
     if (!master_channel_has_pan_property)                                               \
-      Trace::TraceMissingProperty(STORAGE::MASTER_KEY        , STORAGE::PAN_KEY) ;      \
+      Trace::TraceMissingProperty(CONFIG::MASTER_KEY        , CONFIG::PAN_KEY) ;        \
     if (!master_channel_has_mute_property)                                              \
-      Trace::TraceMissingProperty(STORAGE::MASTER_KEY        , STORAGE::MUTE_KEY) ;     \
+      Trace::TraceMissingProperty(CONFIG::MASTER_KEY        , CONFIG::MUTE_KEY) ;       \
     if (!metro_channel_has_volume_property)                                             \
-      Trace::TraceMissingProperty(STORAGE::METRO_KEY         , STORAGE::VOLUME_KEY) ;   \
+      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::VOLUME_KEY) ;     \
     if (!metro_channel_has_pan_property)                                                \
-      Trace::TraceMissingProperty(STORAGE::METRO_KEY         , STORAGE::PAN_KEY) ;      \
+      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::PAN_KEY) ;        \
     if (!metro_channel_has_mute_property)                                               \
-      Trace::TraceMissingProperty(STORAGE::METRO_KEY         , STORAGE::MUTE_KEY) ;     \
+      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::MUTE_KEY) ;       \
     if (!metro_channel_has_source_property)                                             \
-      Trace::TraceMissingProperty(STORAGE::METRO_KEY         , STORAGE::SOURCE_N_KEY) ; \
+      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::SOURCE_N_KEY) ;   \
     if (!metro_channel_has_stereo_property)                                             \
-      Trace::TraceMissingProperty(STORAGE::METRO_KEY         , STORAGE::STEREO_KEY) ;   \
+      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::STEREO_KEY) ;     \
     if (!default_channel_has_volume_property)                                           \
-      Trace::TraceMissingProperty(STORAGE::INITIAL_LOCAL_KEY , STORAGE::VOLUME_KEY) ;   \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::VOLUME_KEY) ;     \
     if (!default_channel_has_pan_property)                                              \
-      Trace::TraceMissingProperty(STORAGE::INITIAL_LOCAL_KEY , STORAGE::PAN_KEY) ;      \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::PAN_KEY) ;        \
     if (!default_channel_has_xmit_property)                                             \
-      Trace::TraceMissingProperty(STORAGE::INITIAL_LOCAL_KEY , STORAGE::XMIT_KEY) ;     \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::XMIT_KEY) ;       \
     if (!default_channel_has_mute_property)                                             \
-      Trace::TraceMissingProperty(STORAGE::INITIAL_LOCAL_KEY , STORAGE::MUTE_KEY) ;     \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::MUTE_KEY) ;       \
     if (!default_channel_has_solo_property)                                             \
-      Trace::TraceMissingProperty(STORAGE::INITIAL_LOCAL_KEY , STORAGE::SOLO_KEY) ;     \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::SOLO_KEY) ;       \
     if (!default_channel_has_source_property)                                           \
-      Trace::TraceMissingProperty(STORAGE::INITIAL_LOCAL_KEY , STORAGE::SOURCE_N_KEY) ; \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::SOURCE_N_KEY) ;   \
     if (!default_channel_has_stereo_property)                                           \
-      Trace::TraceMissingProperty(STORAGE::INITIAL_LOCAL_KEY , STORAGE::STEREO_KEY) ;   \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::STEREO_KEY) ;     \
                                                                                         \
     /* explicitly subscribed values */                                                  \
     if (!should_save_audio_has_value)                                                   \
-      Trace::TraceMissingValue(STORAGE::CLIENT_KEY , STORAGE::SAVE_AUDIO_KEY) ;         \
+      Trace::TraceMissingValue(CONFIG::CLIENT_KEY , CONFIG::SAVE_AUDIO_KEY) ;           \
     if (!should_save_log_has_value)                                                     \
-      Trace::TraceMissingValue(STORAGE::CLIENT_KEY , STORAGE::SAVE_LOG_KEY) ;           \
+      Trace::TraceMissingValue(CONFIG::CLIENT_KEY , CONFIG::SAVE_LOG_KEY) ;             \
     if (!debug_level_has_value)                                                         \
-      Trace::TraceMissingValue(STORAGE::CLIENT_KEY , STORAGE::DEBUGLEVEL_KEY) ;         \
+      Trace::TraceMissingValue(CONFIG::CLIENT_KEY , CONFIG::DEBUGLEVEL_KEY) ;           \
     if (!should_auto_subscribe_has_value)                                               \
-      Trace::TraceMissingValue(STORAGE::CLIENT_KEY , STORAGE::AUTOSUBSCRIBE_KEY) ;      \
+      Trace::TraceMissingValue(CONFIG::CLIENT_KEY , CONFIG::AUTOSUBSCRIBE_KEY) ;        \
     if (!audio_if_n_has_value)                                                          \
-      Trace::TraceMissingValue(STORAGE::AUDIO_KEY  , STORAGE::AUDIO_IF_KEY) ;           \
+      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::AUDIO_IF_KEY) ;             \
     if (!n_inputs_has_value)                                                            \
-      Trace::TraceMissingValue(STORAGE::AUDIO_KEY  , STORAGE::N_INPUTS_KEY) ;           \
+      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::N_INPUTS_KEY) ;             \
     if (!n_outputs_has_value)                                                           \
-      Trace::TraceMissingValue(STORAGE::AUDIO_KEY  , STORAGE::N_OUTPUTS_KEY) ;          \
+      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::N_OUTPUTS_KEY) ;            \
     if (!bit_depth_has_value)                                                           \
-      Trace::TraceMissingValue(STORAGE::AUDIO_KEY  , STORAGE::BITDEPTH_KEY) ;           \
+      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::BITDEPTH_KEY) ;             \
     if (!sample_rate_has_value)                                                         \
-      Trace::TraceMissingValue(STORAGE::AUDIO_KEY  , STORAGE::SAMPLERATE_KEY) ;         \
+      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::SAMPLERATE_KEY) ;           \
     if (!jack_name_has_value)                                                           \
-      Trace::TraceMissingValue(STORAGE::AUDIO_KEY  , STORAGE::JACK_NAME_KEY) ;          \
+      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::JACK_NAME_KEY) ;            \
     if (!current_host_has_value)                                                        \
-      Trace::TraceMissingValue(STORAGE::SERVER_KEY , STORAGE::HOST_KEY) ;               \
+      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::HOST_KEY) ;                 \
     if (!current_login_has_value)                                                       \
-      Trace::TraceMissingValue(STORAGE::SERVER_KEY , STORAGE::LOGIN_KEY) ;              \
+      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::LOGIN_KEY) ;                \
     if (!current_pass_has_value)                                                        \
-      Trace::TraceMissingValue(STORAGE::SERVER_KEY , STORAGE::PASS_KEY) ;               \
+      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::PASS_KEY) ;                 \
     if (!current_is_anonymous_has_value)                                                \
-      Trace::TraceMissingValue(STORAGE::SERVER_KEY , STORAGE::ANON_KEY) ;               \
+      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::ANON_KEY) ;                 \
     if (!current_is_agreed_has_value)                                                   \
-      Trace::TraceMissingValue(STORAGE::SERVER_KEY , STORAGE::AGREED_KEY) ;             \
+      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::AGREED_KEY) ;               \
     if (!should_hide_bots_has_value)                                                    \
-      Trace::TraceMissingValue(STORAGE::SERVER_KEY , STORAGE::BOTS_KEY) ;
+      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::BOTS_KEY) ;
 #  if DEBUG_STORE_CONFIG_VB
 #    define DEBUG_TRACE_STORE_CONFIG Trace::TraceConfig("storing config xml=\n" +        \
                                                         configValueTree.toXmlString()) ;
@@ -323,7 +323,7 @@
         ((should_set_is_stereo)? "\n  is_stereo => " + String(is_stereo) : "") ) ;
 #  if DEBUG_ADDED_CHANNEL_VB
 #    define DEBUG_TRACE_ADDED_CHANNEL Trace::TraceEvent(String("channel added =>") + \
-    "\n  mixergroup      => " + String(config_store.getParent().getType())         + \
+    "\n  mixergroup      => " + String(this->configStore.getParent().getType())         + \
     "\n  name            => " + name                                               + \
     "\n  volume          => " + String(volume)                                     + \
     "\n  pan             => " + String(pan)                                        + \
@@ -334,7 +334,7 @@
     "\n  is_stereo       => " + String(is_stereo)) ;
 #  else // DEBUG_ADDED_CHANNEL_VB
 #    define DEBUG_TRACE_ADDED_CHANNEL                              \
-    Trace::TraceEvent(String(config_store.getParent().getType()) + \
+    Trace::TraceEvent(String(this->configStore.getParent().getType()) + \
                       " - channel added '" + name + "'") ;
 #  endif // DEBUG_ADDED_CHANNEL_VB
 #  define DEBUG_TRACE_INVALID_CHANNELID                                 \
@@ -425,4 +425,4 @@ private:
   static bool TraceState() ;
 } ;
 
-#endif // TRACE_H_INCLUDED
+#endif // _TRACE_H_

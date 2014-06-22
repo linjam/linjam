@@ -8,8 +8,8 @@
   ==============================================================================
 */
 
-#ifndef CONSTANTS_H_INCLUDED
-#define CONSTANTS_H_INCLUDED
+#ifndef _CONSTANTS_H_
+#define _CONSTANTS_H_
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
@@ -18,9 +18,6 @@
 class CLIENT
 {
 public:
-
-  // audio
-  static char* WIN_INI_FILE ;
 
   // NJClient
   static const String SERVER_FULL_STATUS ;
@@ -41,6 +38,9 @@ public:
   static const String CHATMSG_CMD_BPI ;
   static const String CHATMSG_CMD_ADMIN ;
 
+  // audio
+  static char* WIN_INI_FILE ;
+
   // main
   static const int CLIENT_DRIVER_ID = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
   static const int GUI_DRIVER_ID    = 1 ; static const int GUI_DRIVER_IVL    = 125 ;
@@ -51,6 +51,7 @@ class NETWORK
 {
 public:
 
+  // known hosts
   static const String            NINJAM_2049_URL ;
   static const String            NINJAM_2050_URL ;
   static const String            NINJAM_2051_URL ;
@@ -71,6 +72,12 @@ public:
   static const int               N_KNOWN_BOTS = 2 ;
   static const Array<String>     KNOWN_HOSTS ;
   static const Array<Identifier> KNOWN_BOTS ;
+
+  // login
+  static const StringRef HOST_VALIDATION_MASK ;
+  static const StringRef LETTERS ;
+  static const StringRef DIGITS ;
+  static const StringRef VALID_URL_CHARS ;
 } ;
 
 
@@ -160,7 +167,7 @@ public:
 } ;
 
 
-class STORAGE
+class CONFIG
 {
 public:
 
@@ -249,7 +256,7 @@ public:
   static const Identifier STEREO_IDENTIFIER ;
   static const String     INITIAL_LOCAL_KEY ;
   static const Identifier INITIAL_LOCAL_IDENTIFIER ;
-  static const StringRef  VALID_CHARS ;
+  static const StringRef  VALID_NAME_CHARS ;
   static const StringRef  AT_CHAR ;
   static const String     DEFAULT_NAME ;
   static const String     DEFAULT_CHANNEL_NAME ;
@@ -265,4 +272,4 @@ public:
   static const String     DEFAULT_CONFIG_XML ;
 } ;
 
-#endif // CONSTANTS_H_INCLUDED
+#endif // _CONSTANTS_H_

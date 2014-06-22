@@ -17,11 +17,13 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_F1008AB42F514BC4__
-#define __JUCE_HEADER_F1008AB42F514BC4__
+#ifndef _LICENSE_H_
+#define _LICENSE_H_
 
 //[Headers]     -- You can add your own extra header files here --
+
 #include "JuceHeader.h"
+
 //[/Headers]
 
 
@@ -34,13 +36,13 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class LicenseComponent  : public Component,
-                          public ButtonListener
+class License  : public Component,
+                 public ButtonListener
 {
 public:
     //==============================================================================
-    LicenseComponent ();
-    ~LicenseComponent();
+    License ();
+    ~License();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -68,10 +70,10 @@ private:
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LicenseComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (License)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_F1008AB42F514BC4__
+#endif // _LICENSE_H_

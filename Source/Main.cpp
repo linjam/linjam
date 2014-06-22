@@ -14,7 +14,7 @@
 #include "LinJam.h" // includes "windows.h" and "JuceHeader.h"
 
 #include "Constants.h"
-#include "MainComponent.h"
+#include "MainContent.h"
 #include "Trace.h"
 
 
@@ -32,24 +32,24 @@ public:
     //==============================================================================
     void initialise (const String& commandLine) override
     {
-      this->mainWindow         = new MainWindow() ;
-      this->contentComponent   = (MainContentComponent*)getContainerComponent(GUI::CONTENT_GUI_ID) ;
-      this->blankComponent     = (BlankComponent*)      getChildComponent(GUI::BLANK_GUI_ID) ;
-      this->loginComponent     = (LoginComponent*)      getChildComponent(GUI::LOGIN_GUI_ID) ;
-      this->licenseComponent   = (LicenseComponent*)    getChildComponent(GUI::LICENSE_GUI_ID) ;
-      this->chatComponent      = (ChatComponent*)       getChildComponent(GUI::CHAT_GUI_ID) ;
-      this->mixerComponent     = (MixerComponent*)      getChildComponent(GUI::MIXER_GUI_ID) ;
-      this->statusbarComponent = (StatusBarComponent*)  getChildComponent(GUI::STATUS_GUI_ID) ;
-      this->loopComponent      = (LoopComponent*)       getChildComponent(GUI::LOOP_GUI_ID) ;
+      this->mainWindow  = new MainWindow() ;
+      this->mainContent = (MainContent*) getContainerComponent(GUI::CONTENT_GUI_ID) ;
+      this->background  = (Background*)  getChildComponent(GUI::BLANK_GUI_ID) ;
+      this->login       = (Login*)       getChildComponent(GUI::LOGIN_GUI_ID) ;
+      this->license     = (License*)     getChildComponent(GUI::LICENSE_GUI_ID) ;
+      this->chat        = (Chat*)        getChildComponent(GUI::CHAT_GUI_ID) ;
+      this->mixer       = (Mixer*)       getChildComponent(GUI::MIXER_GUI_ID) ;
+      this->statusbar   = (StatusBar*)   getChildComponent(GUI::STATUS_GUI_ID) ;
+      this->loop        = (Loop*)        getChildComponent(GUI::LOOP_GUI_ID) ;
 
       this->args = commandLine ; initializeLinJam() ;
     }
 
     void initializeLinJam()
     {
-      if (!LinJam::Initialize(this , this->contentComponent , this->args))
+      if (!LinJam::Initialize(this , this->mainContent , this->args))
       {
-        this->statusbarComponent->setStatusL(GUI::AUDIO_INIT_ERROR_MSG) ;
+        this->statusbar->setStatusL(GUI::AUDIO_INIT_ERROR_MSG) ;
         shutdown() ; this->quit() ; // TODO: MB , prompt cfg ?? (issue #12)
       }
       else
@@ -63,7 +63,7 @@ public:
     { return this->mainWindow->findChildWithID(StringRef(id)) ; }
 
     Component* getChildComponent(String id)
-    { return this->contentComponent->findChildWithID(StringRef(id)) ; }
+    { return this->mainContent->findChildWithID(StringRef(id)) ; }
 
     void shutdown() override
     {
@@ -102,16 +102,16 @@ DEBUG_TRACE_SHUTDOWN
                                        Colour (0xff202020) ,
                                        DocumentWindow::allButtons)
         {
-            mainContentComponent = new MainContentComponent() ;
-            setContentOwned(mainContentComponent , true) ;
-            mainContentComponent->setComponentID(GUI::CONTENT_GUI_ID) ;
+            mainContent = new MainContent() ;
+            setContentOwned(mainContent , true) ;
+            mainContent->setComponentID(GUI::CONTENT_GUI_ID) ;
             centreWithSize(getWidth() , getHeight()) ;
             setVisible(true) ;
         }
 
         ~MainWindow()
         {
-          this->mainContentComponent = nullptr ;
+          this->mainContent = nullptr ;
         }
 
         void closeButtonPressed()
@@ -132,7 +132,7 @@ DEBUG_TRACE_SHUTDOWN
     private:
         JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
 
-        ScopedPointer<MainContentComponent> mainContentComponent ;
+        ScopedPointer<MainContent> mainContent ;
     };
 
     void timerCallback(int timerId) override
@@ -153,14 +153,14 @@ DBG("[DEBUG]: EXIT_IMMEDIAYELY defined - bailing") ; this->quit() ;
 private:
 
     ScopedPointer<MainWindow> mainWindow ;
-    MainContentComponent*     contentComponent ;
-    BlankComponent*           blankComponent ;
-    LoginComponent*           loginComponent ;
-    LicenseComponent*         licenseComponent ;
-    ChatComponent*            chatComponent ;
-    MixerComponent*           mixerComponent ;
-    StatusBarComponent*       statusbarComponent ;
-    LoopComponent*            loopComponent ;
+    MainContent*              mainContent ;
+    Background*               background ;
+    Login*                    login ;
+    License*                  license ;
+    Chat*                     chat ;
+    Mixer*                    mixer ;
+    StatusBar*                statusbar ;
+    Loop*                     loop ;
 
     String args ;
 } ;

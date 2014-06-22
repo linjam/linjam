@@ -25,21 +25,21 @@
 
 //[/Headers]
 
-#include "MixerComponent.h"
+#include "Mixer.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-MixerComponent::MixerComponent ()
+Mixer::Mixer ()
 {
-    setName ("MixerComponent");
+    setName ("Mixer");
 
     //[UserPreSize]
 
-  this->masterMixerGroupComponent = addMixerGroup(GUI::MASTER_MIXERGROUP_GUI_ID) ;
-  this->localMixerGroupComponent  = addMixerGroup(GUI::LOCAL_MIXERGROUP_GUI_ID) ;
+  this->masterChannels = addChannels(GUI::MASTER_MIXERGROUP_GUI_ID) ;
+  this->localChannels  = addChannels(GUI::LOCAL_MIXERGROUP_GUI_ID) ;
 
     //[/UserPreSize]
 
@@ -50,7 +50,7 @@ MixerComponent::MixerComponent ()
     //[/Constructor]
 }
 
-MixerComponent::~MixerComponent()
+Mixer::~Mixer()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
@@ -58,12 +58,14 @@ MixerComponent::~MixerComponent()
 
 
     //[Destructor]. You can add your own custom destruction code here..
+
   deleteAllChildren() ;
+
     //[/Destructor]
 }
 
 //==============================================================================
-void MixerComponent::paint (Graphics& g)
+void Mixer::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -78,7 +80,7 @@ void MixerComponent::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void MixerComponent::resized()
+void Mixer::resized()
 {
     //[UserResized] Add your own custom resize handling here..
 
@@ -87,21 +89,21 @@ void MixerComponent::resized()
   int master_y = GUI::MIXERGROUP_Y ;
   int master_w = GUI::MASTERGROUP_W ;
   int master_h = GUI::MIXERGROUP_H ;
-  if (this->masterMixerGroupComponent != nullptr)
-    this->masterMixerGroupComponent->setBounds(master_x , master_y , master_w , master_h) ;
+  if (this->masterChannels != nullptr)
+    this->masterChannels->setBounds(master_x , master_y , master_w , master_h) ;
 
   // local and remote channels
-  int mixergroup_x = 0 ;
-  int mixergroup_y = GUI::MIXERGROUP_Y ;
-  int mixergroup_w = 0 ;
-  int mixergroup_h = GUI::MIXERGROUP_H ;
-  int n_groups     = this->getNumChildComponents() ; MixerGroupComponent* mixergroup ;
+  int channels_x = 0 ;
+  int channels_y = GUI::MIXERGROUP_Y ;
+  int channels_w = 0 ;
+  int channels_h = GUI::MIXERGROUP_H ;
+  int n_groups     = this->getNumChildComponents() ; Channels* channels ;
   for (int group_n = 1 ; group_n < n_groups ; ++group_n) // first child is master
   {
-    mixergroup    = (MixerGroupComponent*)this->getChildComponent(group_n) ;
-    mixergroup_x += GUI::PAD + mixergroup_w ;
-    mixergroup_w  = GUI::MIXERGROUP_W(mixergroup->getNumChannels()) ;
-    mixergroup->setBounds(mixergroup_x , mixergroup_y , mixergroup_w , mixergroup_h) ;
+    channels    = (Channels*)this->getChildComponent(group_n) ;
+    channels_x += GUI::PAD + channels_w ;
+    channels_w  = GUI::MIXERGROUP_W(channels->getNumChannels()) ;
+    channels->setBounds(channels_x , channels_y , channels_w , channels_h) ;
   }
 
     //[/UserResized]
@@ -111,52 +113,48 @@ void MixerComponent::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-/* MixerComponent class public methods */
+/* Mixer class public methods */
 
-MixerGroupComponent* MixerComponent::getOrCreateMixerGroup(Identifier user_id)
+Channels* Mixer::getRemoteChannelsGroup(Identifier user_id)
 {
-  MixerGroupComponent* a_component = (MixerGroupComponent*)findChildWithID(user_id) ;
-  return (a_component)? a_component : addMixerGroup(String(user_id)) ;
+  Channels* a_component = (Channels*)findChildWithID(user_id) ;
+  return (a_component)? a_component : addChannels(String(user_id)) ;
 }
 
-void MixerComponent::addChannel(Identifier mixergroup_id , ValueTree channel_store)
+void Mixer::addChannel(Identifier channels_id , ValueTree channel_store)
 {
-  StringRef            id_ref     = StringRef(String(mixergroup_id)) ;
-  MixerGroupComponent* mixergroup = (MixerGroupComponent*)findChildWithID(id_ref) ;
-  if (!mixergroup || !channel_store.isValid()) return ;
+  Channels* channels = (Channels*)findChildWithID(StringRef(String(channels_id))) ;
+  if (!channels || !channel_store.isValid()) return ;
 
-  // add channel GUI and resize the mixer group
-  mixergroup->addChannel(channel_store) ;
-  int n_channels = mixergroup->getNumChannels() ;
-  mixergroup->setSize(GUI::MIXERGROUP_W(n_channels) , GUI::MIXERGROUP_H) ;
+  channels->addChannel(channel_store) ; this->resized() ;
+  channels->setSize(GUI::MIXERGROUP_W(channels->getNumChannels()) , GUI::MIXERGROUP_H) ;
 }
 
-void MixerComponent::updateChannelVU(Identifier mixergroup_id ,
-                                     String     channel_id    , float vu)
+void Mixer::updateChannelVU(Identifier channels_id , String channel_id , double vu)
 {
-  if      (mixergroup_id == GUI::MASTER_MIXERGROUP_IDENTIFIER)
-    masterMixerGroupComponent->updateChannelVU(channel_id , vu) ;
-  else if (mixergroup_id == GUI::LOCAL_MIXERGROUP_IDENTIFIER)
-    localMixerGroupComponent ->updateChannelVU(channel_id , vu) ;
+  if      (channels_id == GUI::MASTER_MIXERGROUP_IDENTIFIER)
+    masterChannels->updateChannelVU(channel_id , vu) ;
+  else if (channels_id == GUI::LOCAL_MIXERGROUP_IDENTIFIER)
+    localChannels ->updateChannelVU(channel_id , vu) ;
   else
   {
-    MixerGroupComponent* mixergroup = (MixerGroupComponent*)findChildWithID(mixergroup_id) ;
-    if (mixergroup) mixergroup->updateChannelVU(channel_id , vu) ;
+    Channels* channels = (Channels*)findChildWithID(channels_id) ;
+    if (channels) channels->updateChannelVU(channel_id , vu) ;
   }
 }
 
 
-/* MixerComponent class private methods */
+/* Mixer class private methods */
 
-MixerGroupComponent* MixerComponent::addMixerGroup(String mixergroup_id)
+Channels* Mixer::addChannels(String channels_id)
 {
-  MixerGroupComponent* mixergroup_component = new MixerGroupComponent(mixergroup_id) ;
-  addChildAndSetID(mixergroup_component , mixergroup_id) ;
-  mixergroup_component->toFront(true) ;
+  Channels* channels = new Channels(channels_id) ;
+  addChildAndSetID(channels , channels_id) ;
+  channels->toFront(true) ;
 
   this->resized() ;
 
-  return mixergroup_component ;
+  return channels ;
 }
 
 //[/MiscUserCode]
@@ -171,7 +169,7 @@ MixerGroupComponent* MixerComponent::addMixerGroup(String mixergroup_id)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="MixerComponent" componentName="MixerComponent"
+<JUCER_COMPONENT documentType="Component" className="Mixer" componentName="Mixer"
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="284">

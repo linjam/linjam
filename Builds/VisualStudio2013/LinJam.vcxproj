@@ -139,20 +139,21 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\LoopComponent.cpp"/>
-    <ClCompile Include="..\..\Source\BlankComponent.cpp"/>
-    <ClCompile Include="..\..\Source\ChannelComponent.cpp"/>
-    <ClCompile Include="..\..\Source\ChatComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Background.cpp"/>
+    <ClCompile Include="..\..\Source\Channel.cpp"/>
+    <ClCompile Include="..\..\Source\Channels.cpp"/>
+    <ClCompile Include="..\..\Source\Chat.cpp"/>
     <ClCompile Include="..\..\Source\Constants.cpp"/>
-    <ClCompile Include="..\..\Source\LicenseComponent.cpp"/>
+    <ClCompile Include="..\..\Source\License.cpp"/>
     <ClCompile Include="..\..\Source\LinJam.cpp"/>
     <ClCompile Include="..\..\Source\LinJamConfig.cpp"/>
-    <ClCompile Include="..\..\Source\LoginComponent.cpp"/>
+    <ClCompile Include="..\..\Source\Login.cpp"/>
+    <ClCompile Include="..\..\Source\Loop.cpp"/>
     <ClCompile Include="..\..\Source\Main.cpp"/>
-    <ClCompile Include="..\..\Source\MainComponent.cpp"/>
-    <ClCompile Include="..\..\Source\MixerComponent.cpp"/>
-    <ClCompile Include="..\..\Source\MixerGroupComponent.cpp"/>
-    <ClCompile Include="..\..\Source\StatusBarComponent.cpp"/>
+    <ClCompile Include="..\..\Source\MainContent.cpp"/>
+    <ClCompile Include="..\..\Source\Mixer.cpp"/>
+    <ClCompile Include="..\..\Source\MixerGroup.cpp"/>
+    <ClCompile Include="..\..\Source\StatusBar.cpp"/>
     <ClCompile Include="..\..\Source\Trace.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharacterFunctions.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -908,19 +909,20 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\juce_gui_basics.cpp"/>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\LoopComponent.h"/>
-    <ClInclude Include="..\..\Source\BlankComponent.h"/>
-    <ClInclude Include="..\..\Source\ChannelComponent.h"/>
-    <ClInclude Include="..\..\Source\ChatComponent.h"/>
+    <ClInclude Include="..\..\Source\Background.h"/>
+    <ClInclude Include="..\..\Source\Channel.h"/>
+    <ClInclude Include="..\..\Source\Channels.h"/>
+    <ClInclude Include="..\..\Source\Chat.h"/>
     <ClInclude Include="..\..\Source\Constants.h"/>
-    <ClInclude Include="..\..\Source\LicenseComponent.h"/>
+    <ClInclude Include="..\..\Source\License.h"/>
     <ClInclude Include="..\..\Source\LinJam.h"/>
     <ClInclude Include="..\..\Source\LinJamConfig.h"/>
-    <ClInclude Include="..\..\Source\LoginComponent.h"/>
-    <ClInclude Include="..\..\Source\MainComponent.h"/>
-    <ClInclude Include="..\..\Source\MixerComponent.h"/>
-    <ClInclude Include="..\..\Source\MixerGroupComponent.h"/>
-    <ClInclude Include="..\..\Source\StatusBarComponent.h"/>
+    <ClInclude Include="..\..\Source\Login.h"/>
+    <ClInclude Include="..\..\Source\Loop.h"/>
+    <ClInclude Include="..\..\Source\MainContent.h"/>
+    <ClInclude Include="..\..\Source\Mixer.h"/>
+    <ClInclude Include="..\..\Source\MixerGroup.h"/>
+    <ClInclude Include="..\..\Source\StatusBar.h"/>
     <ClInclude Include="..\..\Source\Trace.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_ASCII.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_UTF8.h"/>

@@ -18,27 +18,23 @@
 */
 
 //[Headers] You can add your own extra header files here...
+
 #include "LinJam.h"
 #include "Constants.h"
 #include "Trace.h"
+
 //[/Headers]
 
-#include "LoginComponent.h"
+#include "Login.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
-
-StringRef LoginComponent::HostValidationMask = "*.*:*" ;
-StringRef LoginComponent::Letters            = "abcdefghijklmnopqrstuvwxyz" ;
-StringRef LoginComponent::Digits             = "0123456789" ;
-StringRef LoginComponent::UrlChars           = "0123456789abcdefghijklmnopqrstuvwxyz-." ;
-
 //[/MiscUserDefs]
 
 //==============================================================================
-LoginComponent::LoginComponent ()
+Login::Login ()
 {
-    setName ("LoginComponent");
+    setName ("Login");
     addAndMakeVisible (hostLabel = new Label ("hostLabel",
                                               TRANS("Server:")));
     hostLabel->setFont (Font (15.00f, Font::plain));
@@ -165,7 +161,7 @@ LoginComponent::LoginComponent ()
     //[/Constructor]
 }
 
-LoginComponent::~LoginComponent()
+Login::~Login()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
@@ -186,7 +182,7 @@ LoginComponent::~LoginComponent()
 }
 
 //==============================================================================
-void LoginComponent::paint (Graphics& g)
+void Login::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -201,7 +197,7 @@ void LoginComponent::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void LoginComponent::resized()
+void Login::resized()
 {
     hostLabel->setBounds ((getWidth() / 2) + -190, getHeight() - 112, 72, 24);
     loginLabel->setBounds ((getWidth() / 2) + -190, getHeight() - 80, 72, 24);
@@ -219,7 +215,7 @@ void LoginComponent::resized()
     //[/UserResized]
 }
 
-void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
+void Login::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
@@ -279,25 +275,25 @@ void LoginComponent::buttonClicked (Button* buttonThatWasClicked)
 
 /* event handlers */
 
-void LoginComponent::broughtToFront() { refreshState() ; }
+void Login::broughtToFront() { refreshState() ; }
 
-void LoginComponent::textEditorTextChanged(TextEditor& a_text_editor)
+void Login::textEditorTextChanged(TextEditor& a_text_editor)
 {
   if      (&a_text_editor == &(*hostText))  validateHost() ;
   else if (&a_text_editor == &(*loginText)) validateLogin() ;
   else if (&a_text_editor == &(*passText))  validatePass() ;
 }
 
-void LoginComponent::valueChanged(Value& login_value)
+void Login::valueChanged(Value& login_value)
 {
 // TODO: probably all this wants to respond to is server status for quick-login buttons (issue #7)
-DBG("LoginComponent::valueChanged()=" + login_value.getValue().toString()) ;
+DBG("Login::valueChanged()=" + login_value.getValue().toString()) ;
 }
 
 
 /* helpers */
 
-void LoginComponent::refreshState()
+void Login::refreshState()
 {
   if (LinJam::Config == nullptr) return ;
 
@@ -327,7 +323,7 @@ DEBUG_TRACE_LOGIN_LOAD
   this->anonButton ->setToggleState(is_anonymous , juce::dontSendNotification) ;
 }
 
-void LoginComponent::sortLoginButtons()
+void Login::sortLoginButtons()
 {
   // TODO: sort dynamically into occupied/vacant groups (issue #7)
   if (loginButtons.size() == NETWORK::N_KNOWN_HOSTS)
@@ -341,18 +337,18 @@ void LoginComponent::sortLoginButtons()
     }
 }
 
-bool LoginComponent::validateHost()
+bool Login::validateHost()
 {
   String host      = this->hostText->getText().trim() ;
-  String host_name = host.upToLastOccurrenceOf(StringRef(".") , false , true) ;
-  String host_tld  = host.fromLastOccurrenceOf(StringRef(".") , false , true)
+  String host_name = host.upToLastOccurrenceOf( StringRef(".") , false , true) ;
+  String host_tld  = host.fromLastOccurrenceOf( StringRef(".") , false , true)
                          .upToFirstOccurrenceOf(StringRef(":") , false , true) ;
   String host_port = host.fromFirstOccurrenceOf(StringRef(":") , false , true) ;
 
-  bool is_valid = host.matchesWildcard(HostValidationMask , true) &&
-                  host_name.containsOnly(UrlChars)                &&
-                  host_tld.containsOnly(Letters)                  &&
-                  host_port.containsOnly(Digits) ;
+  bool is_valid = (host     .matchesWildcard(NETWORK::HOST_VALIDATION_MASK , true) &&
+                   host_name.containsOnly(   NETWORK::VALID_URL_CHARS)             &&
+                   host_tld .containsOnly(   NETWORK::LETTERS)                     &&
+                   host_port.containsOnly(   NETWORK::DIGITS)                       ) ;
 
   Colour border_color = (is_valid)? Colours::white : Colours::red ;
   this->hostText->setColour(TextEditor::outlineColourId , border_color) ;
@@ -360,7 +356,7 @@ bool LoginComponent::validateHost()
   return is_valid ;
 }
 
-bool LoginComponent::validateLogin()
+bool Login::validateLogin()
 {
   bool is_valid = this->loginText->getText().trim().containsNonWhitespaceChars() ;
 
@@ -370,7 +366,7 @@ bool LoginComponent::validateLogin()
   return is_valid ;
 }
 
-bool LoginComponent::validatePass()
+bool Login::validatePass()
 {
   String pass         = this->passText->getText().trim() ;
   bool   is_anonymous = this->anonButton ->getToggleState() ;
@@ -383,7 +379,7 @@ bool LoginComponent::validatePass()
   return is_valid ;
 }
 
-void LoginComponent::setCurrentConfig(String host , String login , String pass ,
+void Login::setCurrentConfig(String host , String login , String pass ,
                                       bool is_anonymous)
 {
   LinJam::Config->currentHost        = host ;
@@ -393,7 +389,7 @@ void LoginComponent::setCurrentConfig(String host , String login , String pass ,
   LinJam::Config->currentIsAgreed    = false ;
 }
 
-void LoginComponent::login(String host)
+void Login::login(String host)
 {
   String login        = this->loginText  ->getText().trim() ;
   String pass         = this->passText   ->getText().trim() ;
@@ -420,7 +416,7 @@ void LoginComponent::login(String host)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="LoginComponent" componentName="LoginComponent"
+<JUCER_COMPONENT documentType="Component" className="Login" componentName="Login"
                  parentClasses="public Component, public TextEditor::Listener, public Value::Listener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="622"

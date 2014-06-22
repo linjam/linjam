@@ -17,11 +17,15 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_3C896865B068DF8E__
-#define __JUCE_HEADER_3C896865B068DF8E__
+#ifndef _MIXER_H_
+#define _MIXER_H_
+
 
 //[Headers]     -- You can add your own extra header files here --
+
 #include "JuceHeader.h"
+#include "Channels.h"
+
 //[/Headers]
 
 
@@ -34,15 +38,22 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class BlankComponent  : public Component
+class Mixer  : public Component
 {
 public:
     //==============================================================================
-    BlankComponent ();
-    ~BlankComponent();
+    Mixer ();
+    ~Mixer();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+  Channels*   getRemoteChannelsGroup(Identifier user_id) ;
+  void        addChannel(            Identifier mixergroup_id ,
+                                     ValueTree  channel_store) ;
+  void        updateChannelVU(       Identifier mixergroup_id ,
+                                     String     channel_id    , double vu) ;
+
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -52,16 +63,23 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+  Channels* masterChannels;
+  Channels* localChannels;
+
+
+  Channels* addChannels(String mixer_group_id) ;
+
     //[/UserVariables]
 
     //==============================================================================
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BlankComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Mixer)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_3C896865B068DF8E__
+#endif // _MIXER_H_

@@ -7,8 +7,9 @@
 
   ==============================================================================
 */
-#ifndef LINJAM_H_INCLUDED
-#define LINJAM_H_INCLUDED
+#ifndef _LINJAM_H_
+#define _LINJAM_H_
+
 
 #include <ninjam/audiostream.h>
 #include <ninjam/njclient.h>
@@ -17,7 +18,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 #include "LinJamConfig.h"
-#include "MainComponent.h"
+#include "MainContent.h"
 
 
 class LinJam
@@ -28,8 +29,7 @@ class LinJam
 public:
 
   // state methods
-  static bool Initialize(NJClient* client , MainContentComponent* contentComponent ,
-                         const String& args) ;
+  static bool Initialize(NJClient* client , MainContent* mainContent , const String& args) ;
   static void Connect() ;
   static void Disconnect() ;
   static void Shutdown() ;
@@ -39,7 +39,7 @@ public:
   static void UpdateGUI() ;
 
   // helpers
-  static void AddLocalChannel(String channel_id) ;
+  static void AddLocalChannel(Identifier channel_id) ;
   static void SendChat(       String chat_text) ;
 
 
@@ -48,13 +48,13 @@ public:
 
 private:
 
-  static audioStreamer*        Audio ;
-  static MainContentComponent* Gui ;
-  static NJClient*             Client ;
-  static float                 GuiBeatOffset ;
-  static File                  SessionDir ;
-  static int                   PrevStatus ;
-  static bool                  IsAudioEnabled ;
+  static audioStreamer* Audio ;
+  static MainContent*   Gui ;
+  static NJClient*      Client ;
+  static float          GuiBeatOffset ;
+  static File           SessionDir ;
+  static int            PrevStatus ;
+  static bool           IsAudioEnabled ;
 
 
   // getters/setters
@@ -112,4 +112,4 @@ private:
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;
 } ;
 
-#endif  // LINJAM_H_INCLUDED
+#endif // _LINJAM_H_

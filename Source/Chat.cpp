@@ -23,16 +23,16 @@
 
 //[/Headers]
 
-#include "ChatComponent.h"
+#include "Chat.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-ChatComponent::ChatComponent ()
+Chat::Chat ()
 {
-    setName ("ChatComponent");
+    setName ("Chat");
     addAndMakeVisible (chatTextEditor = new TextEditor ("chatTextEditor"));
     chatTextEditor->setMultiLine (true);
     chatTextEditor->setReturnKeyStartsNewLine (false);
@@ -75,7 +75,7 @@ ChatComponent::ChatComponent ()
     //[/Constructor]
 }
 
-ChatComponent::~ChatComponent()
+Chat::~Chat()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
@@ -89,7 +89,7 @@ ChatComponent::~ChatComponent()
 }
 
 //==============================================================================
-void ChatComponent::paint (Graphics& g)
+void Chat::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -116,7 +116,7 @@ void ChatComponent::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void ChatComponent::resized()
+void Chat::resized()
 {
     chatTextEditor->setBounds (8, 8, getWidth() - 16, getHeight() - 44);
     chatEntryTextEditor->setBounds (8, getHeight() - 8 - 16, getWidth() - 16, 16);
@@ -127,21 +127,18 @@ void ChatComponent::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void ChatComponent::setTopic(String topic_text)
+
+void Chat::setTopic(String topic_text)
 {}// TODO: this->topicLabel->setText(String("TOPIC: " + topic_text)) ; } (issue #13)
 
-void ChatComponent::addChatLine(String chat_user , String chat_text)
+void Chat::addChatLine(String chat_user , String chat_text)
 {
   this->chatTextEditor->moveCaretToEnd() ;
   this->chatTextEditor->insertTextAtCaret(chat_user + ": " + chat_text + "\n") ;
   this->chatTextEditor->moveCaretToEnd() ;
-/*
-void 	scrollEditorToPositionCaret (int desiredCaretX, int desiredCaretY)
- 	Attempts to scroll the text edit
-*/
 }
 
-void ChatComponent::textEditorReturnKeyPressed(TextEditor& a_text_editor)
+void Chat::textEditorReturnKeyPressed(TextEditor& a_text_editor)
 {
   LinJam::SendChat(this->chatEntryTextEditor->getText()) ;
   this->chatEntryTextEditor->clear() ;
@@ -158,7 +155,7 @@ void ChatComponent::textEditorReturnKeyPressed(TextEditor& a_text_editor)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="ChatComponent" componentName="ChatComponent"
+<JUCER_COMPONENT documentType="Component" className="Chat" componentName="Chat"
                  parentClasses="public Component, public TextEditor::Listener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="622"

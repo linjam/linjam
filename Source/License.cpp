@@ -22,15 +22,16 @@
 #include "Trace.h"
 //[/Headers]
 
-#include "LicenseComponent.h"
+#include "License.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-LicenseComponent::LicenseComponent ()
+License::License ()
 {
+    setName ("License");
     addAndMakeVisible (licenseTextEditor = new TextEditor ("licenseTextEditor"));
     licenseTextEditor->setMultiLine (true);
     licenseTextEditor->setReturnKeyStartsNewLine (false);
@@ -71,7 +72,7 @@ LicenseComponent::LicenseComponent ()
     //[/Constructor]
 }
 
-LicenseComponent::~LicenseComponent()
+License::~License()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
@@ -87,7 +88,7 @@ LicenseComponent::~LicenseComponent()
 }
 
 //==============================================================================
-void LicenseComponent::paint (Graphics& g)
+void License::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -108,7 +109,7 @@ void LicenseComponent::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void LicenseComponent::resized()
+void License::resized()
 {
     licenseTextEditor->setBounds (4, 4, getWidth() - 8, getHeight() - 36);
     cancelButton->setBounds (getWidth() - 68, getHeight() - 28, 64, 24);
@@ -118,7 +119,7 @@ void LicenseComponent::resized()
     //[/UserResized]
 }
 
-void LicenseComponent::buttonClicked (Button* buttonThatWasClicked)
+void License::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
 DEBUG_TRACE_LICENSE_CLICKED
@@ -165,8 +166,7 @@ DEBUG_TRACE_LICENSE_CLICKED
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-// bool LicenseComponent::getIsAgreed() { return this->isAgreed ; }//isAgreed = false ;
-void LicenseComponent::setLicenseText(String license_text)
+void License::setLicenseText(String license_text)
 { this->licenseTextEditor->setText(TRANS(license_text)) ; }
 
 //[/MiscUserCode]
@@ -181,7 +181,7 @@ void LicenseComponent::setLicenseText(String license_text)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="LicenseComponent" componentName=""
+<JUCER_COMPONENT documentType="Component" className="License" componentName="License"
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="442">

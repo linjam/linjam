@@ -84,10 +84,10 @@ String Trace::SanitizeConfig(ValueTree default_config , ValueTree stored_config 
   }
 
   Array<Identifier> user_keys ;
-//  user_keys.add(STORAGE::LOCALS_IDENTIFIER) ; // TODO:
-//  user_keys.add(STORAGE::REMOTES_IDENTIFIER) ; // TODO:
-//  user_keys.add(STORAGE::SUBSCRIPTIONS_IDENTIFIER) ; // TODO:
-  user_keys.add(STORAGE::SERVERS_IDENTIFIER) ;
+  user_keys.add(CONFIG::LOCALS_IDENTIFIER) ;
+//  user_keys.add(CONFIG::REMOTES_IDENTIFIER) ; // TODO:
+  user_keys.add(CONFIG::SUBSCRIPTIONS_IDENTIFIER) ; // TODO:
+  user_keys.add(CONFIG::SERVERS_IDENTIFIER) ;
   if (user_keys.contains(node_name))
   {
     for (int child_n = 0 ; child_n < stored_config.getNumChildren() ; ++child_n)

@@ -187,22 +187,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\LoopComponent.cpp">
+    <ClCompile Include="..\..\Source\Background.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\BlankComponent.cpp">
+    <ClCompile Include="..\..\Source\Channel.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ChannelComponent.cpp">
+    <ClCompile Include="..\..\Source\Channels.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ChatComponent.cpp">
+    <ClCompile Include="..\..\Source\Chat.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Constants.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\LicenseComponent.cpp">
+    <ClCompile Include="..\..\Source\License.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\LinJam.cpp">
@@ -211,22 +211,25 @@
     <ClCompile Include="..\..\Source\LinJamConfig.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\LoginComponent.cpp">
+    <ClCompile Include="..\..\Source\Login.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Loop.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Main.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\MainComponent.cpp">
+    <ClCompile Include="..\..\Source\MainContent.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\MixerComponent.cpp">
+    <ClCompile Include="..\..\Source\Mixer.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\MixerGroupComponent.cpp">
+    <ClCompile Include="..\..\Source\MixerGroup.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\StatusBarComponent.cpp">
+    <ClCompile Include="..\..\Source\StatusBar.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Trace.cpp">
@@ -1044,22 +1047,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\LoopComponent.h">
+    <ClInclude Include="..\..\Source\Background.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\BlankComponent.h">
+    <ClInclude Include="..\..\Source\Channel.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ChannelComponent.h">
+    <ClInclude Include="..\..\Source\Channels.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ChatComponent.h">
+    <ClInclude Include="..\..\Source\Chat.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Constants.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\LicenseComponent.h">
+    <ClInclude Include="..\..\Source\License.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\LinJam.h">
@@ -1068,19 +1071,22 @@
     <ClInclude Include="..\..\Source\LinJamConfig.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\LoginComponent.h">
+    <ClInclude Include="..\..\Source\Login.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\MainComponent.h">
+    <ClInclude Include="..\..\Source\Loop.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\MixerComponent.h">
+    <ClInclude Include="..\..\Source\MainContent.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\MixerGroupComponent.h">
+    <ClInclude Include="..\..\Source\Mixer.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\StatusBarComponent.h">
+    <ClInclude Include="..\..\Source\MixerGroup.h">
+      <Filter>LinJam\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\StatusBar.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Trace.h">

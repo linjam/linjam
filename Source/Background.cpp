@@ -20,38 +20,32 @@
 //[Headers] You can add your own extra header files here...
 //[/Headers]
 
-#include "LoopComponent.h"
+#include "Background.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-LoopComponent::LoopComponent ()
+Background::Background ()
 {
-    addAndMakeVisible (progressBar = new ProgressBar (this->loopProgress));
-    progressBar->setName ("progressBar");
-
+    setName ("Background");
 
     //[UserPreSize]
-
-  addAndMakeVisible(progressBar = new ProgressBar(this->loopProgress = 0.0)) ;
-  progressBar->setColour(ProgressBar::backgroundColourId , Colour(0x00000000));
     //[/UserPreSize]
 
-    setSize (256, 16);
+    setSize (630, 470);
 
 
     //[Constructor] You can add your own custom stuff here..
     //[/Constructor]
 }
 
-LoopComponent::~LoopComponent()
+Background::~Background()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    progressBar = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -59,18 +53,19 @@ LoopComponent::~LoopComponent()
 }
 
 //==============================================================================
-void LoopComponent::paint (Graphics& g)
+void Background::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
+
+    g.fillAll (Colour (0xff202020));
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
 }
 
-void LoopComponent::resized()
+void Background::resized()
 {
-    progressBar->setBounds (0, 0, getWidth() - 0, getHeight() - 0);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -78,10 +73,6 @@ void LoopComponent::resized()
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-
-void LoopComponent::updateBeat(int beat_n)
-{ this->progressBar->setTextToDisplay(String(beat_n)) ; }
-
 //[/MiscUserCode]
 
 
@@ -94,14 +85,11 @@ void LoopComponent::updateBeat(int beat_n)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="LoopComponent" componentName=""
+<JUCER_COMPONENT documentType="Component" className="Background" componentName="Background"
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="256" initialHeight="16">
-  <BACKGROUND backgroundColour="0"/>
-  <GENERICCOMPONENT name="progressBar" id="de373a8913a42503" memberName="progressBar"
-                    virtualName="" explicitFocusOrder="0" pos="0 0 0M 0M" class="ProgressBar"
-                    params="this-&gt;loopProgress"/>
+                 fixedSize="0" initialWidth="630" initialHeight="470">
+  <BACKGROUND backgroundColour="ff202020"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -51,20 +51,21 @@ ifeq ($(CONFIG),Release)
 endif
 
 OBJECTS := \
-  $(OBJDIR)/LoopComponent_8b30099a.o \
-  $(OBJDIR)/BlankComponent_1b2cc912.o \
-  $(OBJDIR)/ChannelComponent_5726acc3.o \
-  $(OBJDIR)/ChatComponent_27b18166.o \
+  $(OBJDIR)/Background_ba4a3b7.o \
+  $(OBJDIR)/Channel_14ad93e4.o \
+  $(OBJDIR)/Channels_84b8f659.o \
+  $(OBJDIR)/Chat_e7196be1.o \
   $(OBJDIR)/Constants_e698e730.o \
-  $(OBJDIR)/LicenseComponent_b99bda45.o \
+  $(OBJDIR)/License_de20cc22.o \
   $(OBJDIR)/LinJam_a166dece.o \
   $(OBJDIR)/LinJamConfig_8af59670.o \
-  $(OBJDIR)/LoginComponent_e898b51d.o \
+  $(OBJDIR)/Login_37b1de4a.o \
+  $(OBJDIR)/Loop_17fb192d.o \
   $(OBJDIR)/Main_90ebc5c2.o \
-  $(OBJDIR)/MainComponent_a6ffb4a5.o \
-  $(OBJDIR)/MixerComponent_e3e89c7d.o \
-  $(OBJDIR)/MixerGroupComponent_71123c88.o \
-  $(OBJDIR)/StatusBarComponent_a32bf2c5.o \
+  $(OBJDIR)/MainContent_6313eee1.o \
+  $(OBJDIR)/Mixer_d95e2aea.o \
+  $(OBJDIR)/MixerGroup_f6fd427f.o \
+  $(OBJDIR)/StatusBar_3fb23a2.o \
   $(OBJDIR)/Trace_c9579226.o \
   $(OBJDIR)/juce_core_aff681cc.o \
   $(OBJDIR)/juce_data_structures_bdd6d488.o \
@@ -89,24 +90,24 @@ strip:
 	@echo Stripping LinJam
 	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
 
-$(OBJDIR)/LoopComponent_8b30099a.o: ../../Source/LoopComponent.cpp
+$(OBJDIR)/Background_ba4a3b7.o: ../../Source/Background.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LoopComponent.cpp"
+	@echo "Compiling Background.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/BlankComponent_1b2cc912.o: ../../Source/BlankComponent.cpp
+$(OBJDIR)/Channel_14ad93e4.o: ../../Source/Channel.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling BlankComponent.cpp"
+	@echo "Compiling Channel.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ChannelComponent_5726acc3.o: ../../Source/ChannelComponent.cpp
+$(OBJDIR)/Channels_84b8f659.o: ../../Source/Channels.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ChannelComponent.cpp"
+	@echo "Compiling Channels.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ChatComponent_27b18166.o: ../../Source/ChatComponent.cpp
+$(OBJDIR)/Chat_e7196be1.o: ../../Source/Chat.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ChatComponent.cpp"
+	@echo "Compiling Chat.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Constants_e698e730.o: ../../Source/Constants.cpp
@@ -114,9 +115,9 @@ $(OBJDIR)/Constants_e698e730.o: ../../Source/Constants.cpp
 	@echo "Compiling Constants.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/LicenseComponent_b99bda45.o: ../../Source/LicenseComponent.cpp
+$(OBJDIR)/License_de20cc22.o: ../../Source/License.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LicenseComponent.cpp"
+	@echo "Compiling License.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/LinJam_a166dece.o: ../../Source/LinJam.cpp
@@ -129,9 +130,14 @@ $(OBJDIR)/LinJamConfig_8af59670.o: ../../Source/LinJamConfig.cpp
 	@echo "Compiling LinJamConfig.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/LoginComponent_e898b51d.o: ../../Source/LoginComponent.cpp
+$(OBJDIR)/Login_37b1de4a.o: ../../Source/Login.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LoginComponent.cpp"
+	@echo "Compiling Login.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Loop_17fb192d.o: ../../Source/Loop.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Loop.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
@@ -139,24 +145,24 @@ $(OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
 	@echo "Compiling Main.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/MainComponent_a6ffb4a5.o: ../../Source/MainComponent.cpp
+$(OBJDIR)/MainContent_6313eee1.o: ../../Source/MainContent.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling MainComponent.cpp"
+	@echo "Compiling MainContent.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/MixerComponent_e3e89c7d.o: ../../Source/MixerComponent.cpp
+$(OBJDIR)/Mixer_d95e2aea.o: ../../Source/Mixer.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling MixerComponent.cpp"
+	@echo "Compiling Mixer.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/MixerGroupComponent_71123c88.o: ../../Source/MixerGroupComponent.cpp
+$(OBJDIR)/MixerGroup_f6fd427f.o: ../../Source/MixerGroup.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling MixerGroupComponent.cpp"
+	@echo "Compiling MixerGroup.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/StatusBarComponent_a32bf2c5.o: ../../Source/StatusBarComponent.cpp
+$(OBJDIR)/StatusBar_3fb23a2.o: ../../Source/StatusBar.cpp
 	-@mkdir -p $(OBJDIR)
-	@echo "Compiling StatusBarComponent.cpp"
+	@echo "Compiling StatusBar.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Trace_c9579226.o: ../../Source/Trace.cpp

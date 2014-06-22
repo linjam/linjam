@@ -17,13 +17,13 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_CAE02453DB8909B0__
-#define __JUCE_HEADER_CAE02453DB8909B0__
+#ifndef _BACKGROUND_H_
+#define _BACKGROUND_H_
+
 
 //[Headers]     -- You can add your own extra header files here --
 
 #include "JuceHeader.h"
-#include "MixerGroupComponent.h"
 
 //[/Headers]
 
@@ -37,22 +37,15 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MixerComponent  : public Component
+class Background  : public Component
 {
 public:
     //==============================================================================
-    MixerComponent ();
-    ~MixerComponent();
+    Background ();
+    ~Background();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-
-  MixerGroupComponent* getOrCreateMixerGroup(Identifier user_id) ;
-  void                 addChannel(           Identifier mixergroup_id ,
-                                             ValueTree  channel_store) ;
-  void                 updateChannelVU(      Identifier mixergroup_id ,
-                                             String     channel_id    , float vu) ;
-
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -62,23 +55,16 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-
-  MixerGroupComponent* masterMixerGroupComponent ;
-  MixerGroupComponent* localMixerGroupComponent ;
-
-
-  MixerGroupComponent* addMixerGroup( String mixer_group_id) ;
-
     //[/UserVariables]
 
     //==============================================================================
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MixerComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Background)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_CAE02453DB8909B0__
+#endif // _BACKGROUND_H_

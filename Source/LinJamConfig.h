@@ -8,8 +8,9 @@
   ==============================================================================
 */
 
-#ifndef LINJAMCONFIG_H_INCLUDED
-#define LINJAMCONFIG_H_INCLUDED
+#ifndef _LINJAMCONFIG_H_
+#define _LINJAMCONFIG_H_
+
 
 #include "Constants.h"
 #include "Trace.h"
@@ -76,12 +77,12 @@ public:
   String     decodeUserId(   Identifier channel_id) ;
 
   // getters/setters
-  ValueTree getChannelConfig(      Identifier mixergroup_id , Identifier channel_id) ;
+  ValueTree getChannelConfig(           Identifier mixergroup_id , Identifier channel_id) ;
   void      setServerConfig() ;
-  ValueTree getServerConfig(       String host) ;
+  ValueTree getServerConfig(            String host) ;
   ValueTree getCurrentServerConfig() ;
-  void      setShouldAgree(        bool should_agree) ;
-  ValueTree getOrCreateRemoteUser( Identifier user_name) ;
+  void      setShouldAgree(             bool should_agree) ;
+  ValueTree getOrCreateRemoteUserConfig(Identifier user_name) ;
 
 
 private:
@@ -131,4 +132,4 @@ void DBGConfigValueType(String val_name , var a_var) ;
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJamConfig) ;
 } ;
 
-#endif  // LINJAMCONFIG_H_INCLUDED
+#endif // _LINJAMCONFIG_H_

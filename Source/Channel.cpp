@@ -22,21 +22,21 @@
 #include "LinJam.h"
 #include "Constants.h"
 #include "Trace.h"
-#include "MixerGroupComponent.h"
-#include "MixerComponent.h"
+#include "MixerGroup.h"
+#include "Mixer.h"
 
 //[/Headers]
 
-#include "ChannelComponent.h"
+#include "Channel.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-ChannelComponent::ChannelComponent (ValueTree config_store)
+Channel::Channel (ValueTree channel_config)
 {
-    setName ("ChannelComponent");
+    setName ("Channel");
     addAndMakeVisible (xmitButton = new ToggleButton ("xmitButton"));
     xmitButton->setButtonText (TRANS("XMIT"));
     xmitButton->addListener (this);
@@ -123,22 +123,22 @@ ChannelComponent::ChannelComponent (ValueTree config_store)
 
     //[Constructor] You can add your own custom stuff here..
 
-  String name      = String((this->configStore = config_store).getType()) ;
-  double volume    = double( this->configStore[STORAGE::VOLUME_IDENTIFIER]) ;
-  double pan       = double( this->configStore[STORAGE::PAN_IDENTIFIER]) ;
-  bool   is_xmit   = bool(   this->configStore[STORAGE::XMIT_IDENTIFIER]) ;
-  bool   is_muted  = bool(   this->configStore[STORAGE::MUTE_IDENTIFIER]) ;
-  bool   is_solo   = bool(   this->configStore[STORAGE::SOLO_IDENTIFIER]) ;
-  int    source_ch = int(    this->configStore[STORAGE::SOURCE_N_IDENTIFIER]) ;
-  bool   is_stereo = bool(   this->configStore[STORAGE::STEREO_IDENTIFIER]) ;
+  String name      = String((this->configStore = channel_config).getType()) ;
+  double volume    = double( this->configStore[CONFIG::VOLUME_IDENTIFIER]) ;
+  double pan       = double( this->configStore[CONFIG::PAN_IDENTIFIER]) ;
+  bool   is_xmit   = bool(   this->configStore[CONFIG::XMIT_IDENTIFIER]) ;
+  bool   is_muted  = bool(   this->configStore[CONFIG::MUTE_IDENTIFIER]) ;
+  bool   is_solo   = bool(   this->configStore[CONFIG::SOLO_IDENTIFIER]) ;
+  int    source_ch = int(    this->configStore[CONFIG::SOURCE_N_IDENTIFIER]) ;
+  bool   is_stereo = bool(   this->configStore[CONFIG::STEREO_IDENTIFIER]) ;
 
   // TODO: subclass this (issue #29)
-  Identifier mixergroup_id = config_store.getParent().getType() ;
-  bool   is_master_channel = (mixergroup_id == STORAGE::MASTERS_IDENTIFIER) ;
-  bool   is_local_channel  = (mixergroup_id == STORAGE::LOCALS_IDENTIFIER) ;
+  Identifier mixergroup_id = this->configStore.getParent().getType() ;
+  bool   is_master_channel = (mixergroup_id == CONFIG::MASTERS_IDENTIFIER) ;
+  bool   is_local_channel  = (mixergroup_id == CONFIG::LOCALS_IDENTIFIER) ;
   String xmit_rcv_text     = ( is_local_channel)?  GUI::XMIT_LABEL_TEXT :
                              (!is_master_channel)? GUI::RCV_LABEL_TEXT  : "" ;
-  bool is_first_child      = !config_store.getParent().indexOf(config_store) ;
+  bool is_first_child      = !this->configStore.getParent().indexOf(this->configStore) ;
   this->removeButton->setVisible(   is_local_channel && !is_first_child) ;
   this->xmitButton  ->setVisible(  !is_master_channel) ;
   this->soloButton  ->setVisible(  !is_master_channel) ;
@@ -163,7 +163,7 @@ DEBUG_TRACE_ADDED_CHANNEL
     //[/Constructor]
 }
 
-ChannelComponent::~ChannelComponent()
+Channel::~Channel()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
@@ -185,7 +185,7 @@ ChannelComponent::~ChannelComponent()
 }
 
 //==============================================================================
-void ChannelComponent::paint (Graphics& g)
+void Channel::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -200,7 +200,7 @@ void ChannelComponent::paint (Graphics& g)
     //[/UserPaint]
 }
 
-void ChannelComponent::resized()
+void Channel::resized()
 {
     xmitButton->setBounds (4, 4, 36, 12);
     muteButton->setBounds (4, 20, 36, 12);
@@ -216,7 +216,7 @@ void ChannelComponent::resized()
     //[/UserResized]
 }
 
-void ChannelComponent::buttonClicked (Button* buttonThatWasClicked)
+void Channel::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
 
@@ -228,7 +228,7 @@ void ChannelComponent::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_xmitButton] -- add your button handler code here..
 
-      setChannelConfig(STORAGE::XMIT_IDENTIFIER , var(toggleState)) ;
+      setChannelConfig(CONFIG::XMIT_IDENTIFIER , var(toggleState)) ;
 
         //[/UserButtonCode_xmitButton]
     }
@@ -236,7 +236,7 @@ void ChannelComponent::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_muteButton] -- add your button handler code here..
 
-      setChannelConfig(STORAGE::MUTE_IDENTIFIER , var(toggleState)) ;
+      setChannelConfig(CONFIG::MUTE_IDENTIFIER , var(toggleState)) ;
 
         //[/UserButtonCode_muteButton]
     }
@@ -244,7 +244,7 @@ void ChannelComponent::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_soloButton] -- add your button handler code here..
 
-      setChannelConfig(STORAGE::SOLO_IDENTIFIER , var(toggleState)) ;
+      setChannelConfig(CONFIG::SOLO_IDENTIFIER , var(toggleState)) ;
 
         //[/UserButtonCode_soloButton]
     }
@@ -258,7 +258,7 @@ void ChannelComponent::buttonClicked (Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
-void ChannelComponent::sliderValueChanged (Slider* sliderThatWasMoved)
+void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
     //[/UsersliderValueChanged_Pre]
@@ -267,7 +267,7 @@ void ChannelComponent::sliderValueChanged (Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_panSlider] -- add your slider handling code here..
       double value = sliderThatWasMoved->getValue() ;
-      setChannelConfig(STORAGE::PAN_IDENTIFIER , var(value)) ;
+      setChannelConfig(CONFIG::PAN_IDENTIFIER , var(value)) ;
 
         //[/UserSliderCode_panSlider]
     }
@@ -282,7 +282,7 @@ void ChannelComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 
       double value = sliderThatWasMoved->getValue() ;
       gainLabel->setText(String(int(value)) , juce::dontSendNotification) ;
-      setChannelConfig(STORAGE::VOLUME_IDENTIFIER , var(value)) ;
+      setChannelConfig(CONFIG::VOLUME_IDENTIFIER , var(value)) ;
 
         //[/UserSliderCode_gainSlider]
     }
@@ -295,13 +295,13 @@ void ChannelComponent::sliderValueChanged (Slider* sliderThatWasMoved)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void ChannelComponent::updateChannelVU(float vu)
+void Channel::updateChannelVU(double vu)
 {
   this->vuSlider->setValue(vu) ;
   this->vuLabel ->setText(String(int(vu)) , juce::dontSendNotification) ;
 }
 
-void ChannelComponent::setChannelConfig(Identifier config_key , var value)
+void Channel::setChannelConfig(Identifier config_key , var value)
 { this->configStore.setProperty(config_key , value , nullptr) ; }
 
 //[/MiscUserCode]
@@ -316,8 +316,8 @@ void ChannelComponent::setChannelConfig(Identifier config_key , var value)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="ChannelComponent" componentName="ChannelComponent"
-                 parentClasses="public Component" constructorParams="ValueTree config_store"
+<JUCER_COMPONENT documentType="Component" className="Channel" componentName="Channel"
+                 parentClasses="public Component" constructorParams="ValueTree channel_config"
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
                  overlayOpacity="0.330" fixedSize="0" initialWidth="60" initialHeight="252">
   <BACKGROUND backgroundColour="0">

@@ -17,15 +17,13 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_2B00F310AD58FBC0__
-#define __JUCE_HEADER_2B00F310AD58FBC0__
+#ifndef _LOOP_H_
+#define _LOOP_H_
+
 
 //[Headers]     -- You can add your own extra header files here --
 
 #include "JuceHeader.h"
-
-
-class ChannelConfig ;
 
 //[/Headers]
 
@@ -39,59 +37,41 @@ class ChannelConfig ;
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class ChannelComponent  : public Component,
-                          public ButtonListener,
-                          public SliderListener
+class Loop  : public Component
 {
 public:
     //==============================================================================
-    ChannelComponent (ValueTree config_store);
-    ~ChannelComponent();
+    Loop ();
+    ~Loop();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  void updateChannelVU(float vu) ;
+  void updateBeat(int beat_n) ;
+
+
+  double loopProgress ;
 
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
-    void sliderValueChanged (Slider* sliderThatWasMoved);
+
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-
-  ValueTree configStore ;
-
-
-  void setChannelConfig(Identifier config_key , var value) ;
-
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ToggleButton> xmitButton;
-    ScopedPointer<ToggleButton> muteButton;
-    ScopedPointer<ToggleButton> soloButton;
-    ScopedPointer<Slider> panSlider;
-    ScopedPointer<Slider> vuSlider;
-    ScopedPointer<Slider> gainSlider;
-    ScopedPointer<Label> vuLabel;
-    ScopedPointer<Label> gainLabel;
-    ScopedPointer<Label> nameLabel;
-    ScopedPointer<TextButton> removeButton;
+    ScopedPointer<ProgressBar> progressBar;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Loop)
 };
 
 //[EndFile] You can add extra defines here...
-
-// TODO: subclass ChannelComponent (eliminating mixergroup_id and xmit_rcv_text) (issue #29)
-
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_2B00F310AD58FBC0__
+#endif // _LOOP_H_

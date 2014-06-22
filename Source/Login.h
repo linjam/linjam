@@ -17,11 +17,14 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_E60B5488D6F6AC46__
-#define __JUCE_HEADER_E60B5488D6F6AC46__
+#ifndef _LOGIN_H_
+#define _LOGIN_H_
+
 
 //[Headers]     -- You can add your own extra header files here --
+
 #include "JuceHeader.h"
+
 //[/Headers]
 
 
@@ -34,41 +37,70 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class LoopComponent  : public Component
+class Login  : public Component,
+               public TextEditor::Listener,
+               public Value::Listener,
+               public ButtonListener
 {
 public:
     //==============================================================================
-    LoopComponent ();
-    ~LoopComponent();
+    Login ();
+    ~Login();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-
-  void updateBeat(int beat_n) ;
-
-
-  double loopProgress ;
-
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
+    void buttonClicked (Button* buttonThatWasClicked);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+  static StringRef HostValidationMask ;
+  static StringRef Letters ;
+  static StringRef Digits ;
+  static StringRef UrlChars ;
+
+  OwnedArray<TextButton> loginButtons ;
+
+
+  // event handlers
+  void broughtToFront()                                 override ;
+  void textEditorTextChanged(TextEditor& a_text_editor) override ;
+  void valueChanged(         Value& login_value)        override ;
+
+  // helpers
+  void refreshState() ;
+  void sortLoginButtons() ;
+  bool validateHost() ;
+  bool validateLogin() ;
+  bool validatePass() ;
+  void setCurrentConfig(String host , String login , String pass, bool is_anonymous) ;
+  void login(           String host) ;
+
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ProgressBar> progressBar;
+    ScopedPointer<Label> hostLabel;
+    ScopedPointer<Label> loginLabel;
+    ScopedPointer<Label> passLabel;
+    ScopedPointer<TextEditor> hostText;
+    ScopedPointer<TextEditor> loginText;
+    ScopedPointer<TextEditor> passText;
+    ScopedPointer<TextButton> loginButton;
+    ScopedPointer<TextButton> serverButton;
+    ScopedPointer<ToggleButton> anonButton;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LoopComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Login)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_E60B5488D6F6AC46__
+#endif // _LOGIN_H_

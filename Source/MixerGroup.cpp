@@ -20,31 +20,39 @@
 //[Headers] You can add your own extra header files here...
 //[/Headers]
 
-#include "BlankComponent.h"
+#include "MixerGroup.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-BlankComponent::BlankComponent ()
+MixerGroup::MixerGroup ()
 {
+    setName ("MixerGroup");
+    addAndMakeVisible (remotesViewport = new Viewport ("remotesViewport"));
+    remotesViewport->setScrollBarsShown (false, true);
+    remotesViewport->setScrollBarThickness (8);
+    remotesViewport->setViewedComponent (new Component());
+
 
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (630, 470);
+    setSize (600, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
+  this->remoteChannels = remotesViewport->getViewedComponent() ;
     //[/Constructor]
 }
 
-BlankComponent::~BlankComponent()
+MixerGroup::~MixerGroup()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
+    remotesViewport = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -52,19 +60,18 @@ BlankComponent::~BlankComponent()
 }
 
 //==============================================================================
-void BlankComponent::paint (Graphics& g)
+void MixerGroup::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
-
-    g.fillAll (Colour (0xff202020));
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
 }
 
-void BlankComponent::resized()
+void MixerGroup::resized()
 {
+    remotesViewport->setBounds (0, 0, getWidth() - 0, getHeight() - 0);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -84,11 +91,15 @@ void BlankComponent::resized()
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="BlankComponent" componentName=""
+<JUCER_COMPONENT documentType="Component" className="MixerGroup" componentName="MixerGroup"
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="630" initialHeight="470">
-  <BACKGROUND backgroundColour="ff202020"/>
+                 fixedSize="0" initialWidth="600" initialHeight="400">
+  <BACKGROUND backgroundColour="0"/>
+  <VIEWPORT name="remotesViewport" id="5cb0d447dd569416" memberName="remotesViewport"
+            virtualName="" explicitFocusOrder="0" pos="0 0 0M 0M" vscroll="0"
+            hscroll="1" scrollbarThickness="8" contentType="2" jucerFile=""
+            contentClass="Component" constructorParams=""/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
