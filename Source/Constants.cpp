@@ -88,43 +88,43 @@ const String GUI::CONNECTED_STATUS_TEXT         = "Connected to " ;
 const String GUI::IDLE_STATUS_TEXT              = "Idle" ;
 const String GUI::UNKNOWN_STATUS_TEXT           = "Status: " ;
 
-// contentComponent
+// MainContent
 const String GUI::CONTENT_GUI_ID = "main-content-gui" ;
 
-// blankComponent
-const String GUI::BLANK_GUI_ID = "blank-gui" ;
+// Background
+const String GUI::BACKGROUND_GUI_ID = "background-gui" ;
 
-// loginComponent
+// Login
 const String GUI::LOGIN_GUI_ID = "login-gui" ;
 
-// licenseComponent
+// License
 const String GUI::LICENSE_GUI_ID = "license-gui" ;
 
-// chatComponent
+// Chat
 const String GUI::CHAT_GUI_ID         = "chat-gui" ;
 const String GUI::SERVER_NICK         = "NINJAM" ;
 const String GUI::UNKNOWN_COMMAND_MSG = "Error: unknown command" ;
 const String GUI::INVALID_PM_MSG      = "Error: /msg requires a username and a message" ;
 
-// ChannelComponents
+// Channel
 const String GUI::MASTER_CHANNEL_GUI_ID = "master" ;
 const String GUI::METRO_CHANNEL_GUI_ID  = "metronome" ;
 const String GUI::XMIT_LABEL_TEXT       = "XMIT" ;
 const String GUI::RCV_LABEL_TEXT        = "RCV" ;
 
-// mixerGroupComponent
+// Channels
 const String     GUI::MASTER_MIXERGROUP_GUI_ID     = "Master" ;
 const Identifier GUI::MASTER_MIXERGROUP_IDENTIFIER = MASTER_MIXERGROUP_GUI_ID ;
 const String     GUI::LOCAL_MIXERGROUP_GUI_ID      = "Local" ;
 const Identifier GUI::LOCAL_MIXERGROUP_IDENTIFIER  = LOCAL_MIXERGROUP_GUI_ID ;
 
-// mixerComponent
+// Mixer
 const String GUI::MIXER_GUI_ID = "mixer-gui" ;
 
-// statusComponent
+// StatusBar
 const String GUI::STATUS_GUI_ID = "statusbar-gui" ;
 
-// loopComponent
+// Loop
 const String GUI::LOOP_GUI_ID = "loop-gui" ;
 
 

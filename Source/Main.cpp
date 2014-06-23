@@ -34,7 +34,7 @@ public:
     {
       this->mainWindow  = new MainWindow() ;
       this->mainContent = (MainContent*) getContainerComponent(GUI::CONTENT_GUI_ID) ;
-      this->background  = (Background*)  getChildComponent(GUI::BLANK_GUI_ID) ;
+      this->background  = (Background*)  getChildComponent(GUI::BACKGROUND_GUI_ID) ;
       this->login       = (Login*)       getChildComponent(GUI::LOGIN_GUI_ID) ;
       this->license     = (License*)     getChildComponent(GUI::LICENSE_GUI_ID) ;
       this->chat        = (Chat*)        getChildComponent(GUI::CHAT_GUI_ID) ;

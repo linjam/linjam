@@ -20,7 +20,7 @@ MainContent::MainContent()
 
   // background
   this->background = new Background() ;
-  this->addChildAndSetID(this->background , GUI::BLANK_GUI_ID) ;
+  this->addChildAndSetID(this->background , GUI::BACKGROUND_GUI_ID) ;
   this->background->toFront(true) ;
 
   // login

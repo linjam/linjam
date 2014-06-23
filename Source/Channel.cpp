@@ -132,7 +132,7 @@ Channel::Channel (ValueTree channel_config)
   int    source_ch = int(    this->configStore[CONFIG::SOURCE_N_IDENTIFIER]) ;
   bool   is_stereo = bool(   this->configStore[CONFIG::STEREO_IDENTIFIER]) ;
 
-  // TODO: subclass this (issue #29)
+  // TODO: subclass this or Channels (issue #29)
   Identifier mixergroup_id = this->configStore.getParent().getType() ;
   bool   is_master_channel = (mixergroup_id == CONFIG::MASTERS_IDENTIFIER) ;
   bool   is_local_channel  = (mixergroup_id == CONFIG::LOCALS_IDENTIFIER) ;
@@ -299,6 +299,12 @@ void Channel::updateChannelVU(double vu)
 {
   this->vuSlider->setValue(vu) ;
   this->vuLabel ->setText(String(int(vu)) , juce::dontSendNotification) ;
+  this->vuSlider->setColour(Slider::thumbColourId , ((vu > 0.0)?
+                                                        Colours::red :
+                                                        Colour(0xFFBBBBFF))) ;
+  this->vuSlider->setColour(Slider::trackColourId , ((vu > 0.0)?
+                                                        Colour(0x01800000) :
+                                                        Colour(0x01008000))) ;
 }
 
 void Channel::setChannelConfig(Identifier config_key , var value)

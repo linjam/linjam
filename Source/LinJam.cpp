@@ -136,11 +136,11 @@ void LinJam::UpdateGUI()
 
   // master VU
   Gui->mixer->updateChannelVU(GUI::MASTER_MIXERGROUP_IDENTIFIER ,
-                              CONFIG::MASTER_KEY               ,
+                              CONFIG::MASTER_KEY                ,
                               VAL2DB(Client->GetOutputPeak())   ) ;
-  Gui->mixer->updateChannelVU(GUI::MASTER_MIXERGROUP_IDENTIFIER ,
-                              CONFIG::METRO_KEY                ,
-                              (discrete_progress * 140) - 120   ) ;
+  Gui->mixer->updateChannelVU(GUI::MASTER_MIXERGROUP_IDENTIFIER                     ,
+                              CONFIG::METRO_KEY                                     ,
+                              (discrete_progress * GUI::VU_RANGE) - GUI::VU_OFFSET) ;
 
   // local VU
   int channel_n = -1 ; int channel_idx ;

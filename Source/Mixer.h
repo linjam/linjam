@@ -17,9 +17,8 @@
   ==============================================================================
 */
 
-#ifndef _MIXER_H_
-#define _MIXER_H_
-
+#ifndef __JUCE_HEADER_EB46FF61849DA256__
+#define __JUCE_HEADER_EB46FF61849DA256__
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -38,7 +37,8 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class Mixer  : public Component
+class Mixer  : public Component,
+               public ButtonListener
 {
 public:
     //==============================================================================
@@ -64,11 +64,17 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  Channels* masterChannels;
-  Channels* localChannels;
+  ScopedPointer<Channels>   masterChannels ;
+  ScopedPointer<Channels>   localChannels ;
+  ScopedPointer<TextButton> prevLocalScrollButton ;
+  ScopedPointer<TextButton> nextLocalScrollButton ;
+  ScopedPointer<TextButton> prevRemoteScrollButton ;
+  ScopedPointer<TextButton> nextRemoteScrollButton ;
 
-
-  Channels* addChannels(String mixer_group_id) ;
+  void        buttonClicked(      Button* buttonThatWasClicked) override ;
+  TextButton* addScrollButton(    String button_id) ;
+  Channels*   addChannels(        String mixer_group_id) ;
+  int         getNumDynamicMixers() ;
 
     //[/UserVariables]
 
@@ -82,4 +88,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif // _MIXER_H_
+#endif   // __JUCE_HEADER_EB46FF61849DA256__

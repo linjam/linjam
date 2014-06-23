@@ -54,6 +54,10 @@ Channels::Channels (String channels_id)
 
 
     //[UserPreSize]
+
+  this->channelsLabel->setAlwaysOnTop(true) ;
+  this->addButton->setAlwaysOnTop(true) ;
+
     //[/UserPreSize]
 
     setSize (132, 276);
@@ -113,9 +117,8 @@ void Channels::resized()
   int n_channels = getNumChannels() ;
   for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
   {
-    int child_n   = channel_n + GUI::N_NON_CHANNELS ;
     int channel_x = GUI::MIXERGROUP_W(channel_n) ;
-    getChildComponent(child_n)->setTopLeftPosition(channel_x , GUI::CHANNEL_Y) ;
+    getChildComponent(channel_n)->setTopLeftPosition(channel_x , GUI::CHANNEL_Y) ;
   }
 
     //[/UserResized]
@@ -150,10 +153,15 @@ void Channels::addChannel(ValueTree channel_store)
   Channel* channel = new Channel(channel_store) ;
   this->addChildAndSetID(channel , String(channel_store.getType())) ;
   channel->toFront(false) ;
+//  if (getComponentID().compare(GUI::MASTER_MIXERGROUP_GUI_ID)) channel->setAlwaysOnTop(true) ;
+/*
+  if (!getComponentID().compare(GUI::MASTER_MIXERGROUP_GUI_ID)) channel->toFront(false) ;
+  else                                                          channel->toBack() ;
+*/
 }
 
 int Channels::getNumChannels()
-{ return this->getNumChildComponents() - GUI::N_NON_CHANNELS; }
+{ return this->getNumChildComponents() - GUI::N_STATIC_CHANNEL_CHILDREN; }
 
 void Channels::updateChannelVU(String channel_id , double vu)
 {

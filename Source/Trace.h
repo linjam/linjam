@@ -15,6 +15,9 @@
 
 #define EXIT_IMMEDIAYELY    0
 #define CHAT_COMMANDS_BUGGY
+#define ADD_REMOTES         1
+#define UPDATE_VU           0
+
 
 #include "JuceHeader.h"
 

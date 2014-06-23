@@ -38,8 +38,21 @@ Mixer::Mixer ()
 
     //[UserPreSize]
 
-  this->masterChannels = addChannels(GUI::MASTER_MIXERGROUP_GUI_ID) ;
-  this->localChannels  = addChannels(GUI::LOCAL_MIXERGROUP_GUI_ID) ;
+  this->masterChannels         = addChannels(GUI::MASTER_MIXERGROUP_GUI_ID) ;
+  this->localChannels          = addChannels(GUI::LOCAL_MIXERGROUP_GUI_ID) ;
+  this->prevLocalScrollButton  = addScrollButton("prevLocalScrollButton") ;
+  this->nextLocalScrollButton  = addScrollButton("nextLocalScrollButton") ;
+  this->prevRemoteScrollButton = addScrollButton("prevRemoteScrollButton") ;
+  this->nextRemoteScrollButton = addScrollButton("nextRemoteScrollButton") ;
+  this->prevLocalScrollButton ->setButtonText(TRANS("<")) ;
+  this->nextLocalScrollButton ->setButtonText(TRANS(">")) ;
+  this->prevRemoteScrollButton->setButtonText(TRANS("<")) ;
+  this->nextRemoteScrollButton->setButtonText(TRANS(">")) ;
+  this->masterChannels        ->setAlwaysOnTop(true) ;
+  this->prevLocalScrollButton ->setAlwaysOnTop(true) ;
+  this->nextLocalScrollButton ->setAlwaysOnTop(true) ;
+  this->prevRemoteScrollButton->setAlwaysOnTop(true) ;
+  this->nextRemoteScrollButton->setAlwaysOnTop(true) ;
 
     //[/UserPreSize]
 
@@ -59,6 +72,12 @@ Mixer::~Mixer()
 
     //[Destructor]. You can add your own custom destruction code here..
 
+  masterChannels         = nullptr ;
+  localChannels          = nullptr ;
+  prevLocalScrollButton  = nullptr ;
+  nextLocalScrollButton  = nullptr ;
+  prevRemoteScrollButton = nullptr ;
+  nextRemoteScrollButton = nullptr ;
   deleteAllChildren() ;
 
     //[/Destructor]
@@ -84,27 +103,64 @@ void Mixer::resized()
 {
     //[UserResized] Add your own custom resize handling here..
 
+  if (this->masterChannels         == nullptr || this->localChannels          == nullptr ||
+      this->prevLocalScrollButton  == nullptr || this->nextLocalScrollButton  == nullptr ||
+      this->prevRemoteScrollButton == nullptr || this->nextRemoteScrollButton == nullptr  )
+    return ;
+
   // master channels
   int master_x = getWidth() - GUI::MASTERGROUP_W - GUI::PAD ;
   int master_y = GUI::MIXERGROUP_Y ;
   int master_w = GUI::MASTERGROUP_W ;
   int master_h = GUI::MIXERGROUP_H ;
-  if (this->masterChannels != nullptr)
-    this->masterChannels->setBounds(master_x , master_y , master_w , master_h) ;
+  this->masterChannels->setBounds(master_x , master_y , master_w , master_h) ;
 
   // local and remote channels
-  int channels_x = 0 ;
+  int channels_x = GUI::PAD ;
   int channels_y = GUI::MIXERGROUP_Y ;
   int channels_w = 0 ;
   int channels_h = GUI::MIXERGROUP_H ;
-  int n_groups     = this->getNumChildComponents() ; Channels* channels ;
-  for (int group_n = 1 ; group_n < n_groups ; ++group_n) // first child is master
+  int n_groups   = getNumDynamicMixers() ; Channels* channels ;
+  for (int group_n = 0 ; group_n < n_groups ; ++group_n)
   {
-    channels    = (Channels*)this->getChildComponent(group_n) ;
-    channels_x += GUI::PAD + channels_w ;
+    channels    = (Channels*)getChildComponent(group_n) ;
     channels_w  = GUI::MIXERGROUP_W(channels->getNumChannels()) ;
     channels->setBounds(channels_x , channels_y , channels_w , channels_h) ;
+
+    channels_x += GUI::PAD + channels_w ;
   }
+
+  // scroll buttons
+  int  n_channels                     = this->localChannels->getNumChannels() ;
+  int  locals_w                       = GUI::MIXERGROUP_W(n_channels) ;
+  bool should_show_prev_local_button  = true ;
+  bool should_show_next_local_button  = true ;
+  bool should_show_prev_remote_button = true ;
+  bool should_show_next_remote_button = (channels_x >= master_x) ;
+  if (should_show_prev_local_button)
+  {
+    int prev_local_button_x = GUI::PAD ;
+    prevLocalScrollButton->setTopLeftPosition(prev_local_button_x , channels_y) ;
+  }
+  if (should_show_next_local_button)
+  {
+    int next_local_button_x = locals_w + GUI::PAD - GUI::CHANNEL_SCROLL_BTN_W ;
+    nextLocalScrollButton->setTopLeftPosition(next_local_button_x , channels_y) ;
+  }
+  if (should_show_prev_remote_button)
+  {
+    int prev_button_x = locals_w + GUI::PAD ;
+    prevRemoteScrollButton->setTopLeftPosition(prev_button_x , channels_y) ;
+  }
+  if (should_show_next_remote_button)
+  {
+    int next_button_x = master_x - GUI::CHANNEL_SCROLL_BTN_W ;
+    nextRemoteScrollButton->setTopLeftPosition(next_button_x , channels_y) ;
+  }
+  prevLocalScrollButton ->setVisible(should_show_prev_local_button) ;
+  nextLocalScrollButton ->setVisible(should_show_next_local_button) ;
+  prevRemoteScrollButton->setVisible(should_show_prev_remote_button) ;
+  nextRemoteScrollButton->setVisible(should_show_next_remote_button) ;
 
     //[/UserResized]
 }
@@ -126,7 +182,7 @@ void Mixer::addChannel(Identifier channels_id , ValueTree channel_store)
   Channels* channels = (Channels*)findChildWithID(StringRef(String(channels_id))) ;
   if (!channels || !channel_store.isValid()) return ;
 
-  channels->addChannel(channel_store) ; this->resized() ;
+  channels->addChannel(channel_store) ; resized() ;
   channels->setSize(GUI::MIXERGROUP_W(channels->getNumChannels()) , GUI::MIXERGROUP_H) ;
 }
 
@@ -146,16 +202,46 @@ void Mixer::updateChannelVU(Identifier channels_id , String channel_id , double 
 
 /* Mixer class private methods */
 
+void Mixer::buttonClicked(Button* buttonThatWasClicked)
+{
+//   if (buttonThatWasClicked == prevScrollButton)
+  {
+
+  }
+
+//  else if (buttonThatWasClicked == nextScrollButton)
+  {
+
+  }
+}
+
+TextButton* Mixer::addScrollButton(String button_id)
+{
+  TextButton* scroll_button = new TextButton(button_id) ;
+  addChildComponent(scroll_button) ;
+  scroll_button->addListener(this) ;
+  scroll_button->setColour(TextButton::buttonColourId   , Colour(0xff004000)) ;
+  scroll_button->setColour(TextButton::buttonOnColourId , Colours::green) ;
+  scroll_button->setColour(TextButton::textColourOnId   , Colours::lime) ;
+  scroll_button->setColour(TextButton::textColourOffId  , Colours::lime) ;
+  scroll_button->setSize(GUI::CHANNEL_SCROLL_BTN_W , GUI::MIXERGROUP_H) ;
+
+  return scroll_button ;
+}
+
 Channels* Mixer::addChannels(String channels_id)
 {
   Channels* channels = new Channels(channels_id) ;
   addChildAndSetID(channels , channels_id) ;
   channels->toFront(true) ;
 
-  this->resized() ;
+  resized() ;
 
   return channels ;
 }
+
+int Mixer::getNumDynamicMixers()
+{ return getNumChildComponents() - GUI::N_STATIC_MIXER_CHILDREN ; }
 
 //[/MiscUserCode]
 
@@ -170,9 +256,9 @@ Channels* Mixer::addChannels(String channels_id)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Mixer" componentName="Mixer"
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="622" initialHeight="284">
+                 parentClasses="public Component, public ButtonListener" constructorParams=""
+                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
+                 overlayOpacity="0.330" fixedSize="0" initialWidth="622" initialHeight="284">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
