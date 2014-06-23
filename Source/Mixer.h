@@ -53,6 +53,7 @@ public:
                                      ValueTree  channel_store) ;
   void        updateChannelVU(       Identifier mixergroup_id ,
                                      String     channel_id    , double vu) ;
+  void        positionResizers() ;
 
     //[/UserMethods]
 
@@ -64,12 +65,15 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  ScopedPointer<Channels>   masterChannels ;
-  ScopedPointer<Channels>   localChannels ;
-  ScopedPointer<TextButton> prevLocalScrollButton ;
-  ScopedPointer<TextButton> nextLocalScrollButton ;
-  ScopedPointer<TextButton> prevRemoteScrollButton ;
-  ScopedPointer<TextButton> nextRemoteScrollButton ;
+  ScopedPointer<Channels>               masterChannels ;
+  ScopedPointer<Channels>               localChannels ;
+  ScopedPointer<TextButton>             prevLocalScrollButton ;
+  ScopedPointer<TextButton>             nextLocalScrollButton ;
+  ScopedPointer<TextButton>             prevRemoteScrollButton ;
+  ScopedPointer<TextButton>             nextRemoteScrollButton ;
+  ScopedPointer<ResizableEdgeComponent> localsResizer ;
+  ScopedPointer<ResizableEdgeComponent> mastersResizer ;
+
 
   void        buttonClicked(      Button* buttonThatWasClicked) override ;
   TextButton* addScrollButton(    String button_id) ;

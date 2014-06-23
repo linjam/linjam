@@ -44,6 +44,13 @@ Mixer::Mixer ()
   this->nextLocalScrollButton  = addScrollButton("nextLocalScrollButton") ;
   this->prevRemoteScrollButton = addScrollButton("prevRemoteScrollButton") ;
   this->nextRemoteScrollButton = addScrollButton("nextRemoteScrollButton") ;
+  this->localsResizer          =
+      new ResizableEdgeComponent(localChannels  , nullptr , ResizableEdgeComponent::rightEdge) ;
+  this->mastersResizer         =
+      new ResizableEdgeComponent(masterChannels , nullptr , ResizableEdgeComponent::leftEdge) ;
+  addAndMakeVisible(this->localsResizer) ;
+  addAndMakeVisible(this->mastersResizer) ;
+
   this->prevLocalScrollButton ->setButtonText(TRANS("<")) ;
   this->nextLocalScrollButton ->setButtonText(TRANS(">")) ;
   this->prevRemoteScrollButton->setButtonText(TRANS("<")) ;
@@ -53,6 +60,10 @@ Mixer::Mixer ()
   this->nextLocalScrollButton ->setAlwaysOnTop(true) ;
   this->prevRemoteScrollButton->setAlwaysOnTop(true) ;
   this->nextRemoteScrollButton->setAlwaysOnTop(true) ;
+  this->localsResizer         ->setAlwaysOnTop(true) ;
+  this->mastersResizer        ->setAlwaysOnTop(true) ;
+  this->localsResizer         ->setSize(GUI::PAD + 2 , GUI::MIXERGROUP_H) ;
+  this->mastersResizer        ->setSize(GUI::PAD + 2 , GUI::MIXERGROUP_H) ;
 
     //[/UserPreSize]
 
@@ -72,12 +83,14 @@ Mixer::~Mixer()
 
     //[Destructor]. You can add your own custom destruction code here..
 
-  masterChannels         = nullptr ;
-  localChannels          = nullptr ;
-  prevLocalScrollButton  = nullptr ;
-  nextLocalScrollButton  = nullptr ;
-  prevRemoteScrollButton = nullptr ;
-  nextRemoteScrollButton = nullptr ;
+  this->masterChannels         = nullptr ;
+  this->localChannels          = nullptr ;
+  this->prevLocalScrollButton  = nullptr ;
+  this->nextLocalScrollButton  = nullptr ;
+  this->prevRemoteScrollButton = nullptr ;
+  this->nextRemoteScrollButton = nullptr ;
+  this->localsResizer          = nullptr ;
+  this->mastersResizer         = nullptr ;
   deleteAllChildren() ;
 
     //[/Destructor]
@@ -133,9 +146,9 @@ void Mixer::resized()
   // scroll buttons
   int  n_channels                     = this->localChannels->getNumChannels() ;
   int  locals_w                       = GUI::MIXERGROUP_W(n_channels) ;
-  bool should_show_prev_local_button  = true ;
-  bool should_show_next_local_button  = true ;
-  bool should_show_prev_remote_button = true ;
+  bool should_show_prev_local_button  = false ;
+  bool should_show_next_local_button  = false ;
+  bool should_show_prev_remote_button = false ;
   bool should_show_next_remote_button = (channels_x >= master_x) ;
   if (should_show_prev_local_button)
   {
@@ -154,13 +167,16 @@ void Mixer::resized()
   }
   if (should_show_next_remote_button)
   {
-    int next_button_x = master_x - GUI::CHANNEL_SCROLL_BTN_W ;
+    int next_button_x = master_x - GUI::PAD - GUI::CHANNEL_SCROLL_BTN_W ;
     nextRemoteScrollButton->setTopLeftPosition(next_button_x , channels_y) ;
   }
   prevLocalScrollButton ->setVisible(should_show_prev_local_button) ;
   nextLocalScrollButton ->setVisible(should_show_next_local_button) ;
   prevRemoteScrollButton->setVisible(should_show_prev_remote_button) ;
   nextRemoteScrollButton->setVisible(should_show_next_remote_button) ;
+
+  // resizers
+  positionResizers() ;
 
     //[/UserResized]
 }
@@ -197,6 +213,14 @@ void Mixer::updateChannelVU(Identifier channels_id , String channel_id , double 
     Channels* channels = (Channels*)findChildWithID(channels_id) ;
     if (channels) channels->updateChannelVU(channel_id , vu) ;
   }
+}
+
+void Mixer::positionResizers()
+{
+  int locals_resizer_x  = localChannels->getWidth() + GUI::PAD2 - 1 ;
+  int remotes_resizer_x = masterChannels->getX() - GUI::PAD - 1 ;
+  this->localsResizer ->setTopLeftPosition(locals_resizer_x  , GUI::MIXERGROUP_Y) ;
+  this->mastersResizer->setTopLeftPosition(remotes_resizer_x , GUI::MIXERGROUP_Y) ;
 }
 
 

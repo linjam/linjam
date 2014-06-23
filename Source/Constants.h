@@ -153,7 +153,7 @@ public:
   // Mixer
   static const String MIXER_GUI_ID ;
   static const int    MIXER_H                 = MIXERGROUP_H + PAD2 ;
-  static const int    N_STATIC_MIXER_CHILDREN = 5 ;
+  static const int    N_STATIC_MIXER_CHILDREN = 7 ;
   static const int    CHANNEL_SCROLL_BTN_W    = 24 ;
 
   // StatusBar

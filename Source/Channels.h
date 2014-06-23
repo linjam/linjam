@@ -21,8 +21,10 @@
 #define _CHANNELS_H_
 
 //[Headers]     -- You can add your own extra header files here --
+
 #include "JuceHeader.h"
 #include "Channel.h"
+
 //[/Headers]
 
 
@@ -50,9 +52,7 @@ public:
   int  getNumChannels() ;
   void updateChannelVU(String channel_id , double vu) ;
 
-// ResizableEdgeComponent* resizer ;
-
-    //[/UserMethods]
+   //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();

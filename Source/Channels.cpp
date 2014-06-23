@@ -68,17 +68,13 @@ Channels::Channels (String channels_id)
   bool are_local_channels = (Identifier(channels_id) == GUI::LOCAL_MIXERGROUP_IDENTIFIER) ;
   this->addButton    ->setVisible(are_local_channels) ;
   this->channelsLabel->setText(channels_id , juce::dontSendNotification) ;
-/*
-if (is_local_channelgroup)
-  addAndMakeVisible(this->resizer = new ResizableEdgeComponent(this , nullptr , ResizableEdgeComponent::rightEdge)) ;
-*/
+
     //[/Constructor]
 }
 
 Channels::~Channels()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-//   this->resizer = nullptr ;
     //[/Destructor_pre]
 
     channelsLabel = nullptr;
@@ -121,6 +117,8 @@ void Channels::resized()
     getChildComponent(channel_n)->setTopLeftPosition(channel_x , GUI::CHANNEL_Y) ;
   }
 
+  if (n_channels) ((Mixer*)getParentComponent())->positionResizers() ;
+
     //[/UserResized]
 }
 
@@ -153,11 +151,6 @@ void Channels::addChannel(ValueTree channel_store)
   Channel* channel = new Channel(channel_store) ;
   this->addChildAndSetID(channel , String(channel_store.getType())) ;
   channel->toFront(false) ;
-//  if (getComponentID().compare(GUI::MASTER_MIXERGROUP_GUI_ID)) channel->setAlwaysOnTop(true) ;
-/*
-  if (!getComponentID().compare(GUI::MASTER_MIXERGROUP_GUI_ID)) channel->toFront(false) ;
-  else                                                          channel->toBack() ;
-*/
 }
 
 int Channels::getNumChannels()
