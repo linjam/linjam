@@ -196,11 +196,7 @@ int LinJam::OnLicense(int user32 , char* license_text)
   bool is_agreed           = IsAgreed() || should_always_agree ;
   Config->currentIsAgreed  = is_agreed ;
 
-  if (!is_agreed)
-  {
-    Gui->license->setLicenseText(CharPointer_UTF8(license_text)) ;
-    Config->setServer() ;
-  }
+  if (!is_agreed) Gui->license->setLicenseText(CharPointer_UTF8(license_text)) ;
 
 DEBUG_TRACE_LICENSE
 
@@ -274,48 +270,54 @@ void LinJam::HandleStatusChanged(int client_status)
 DEBUG_TRACE_CONNECT_STATUS
 #ifdef DEBUG_AUTOJOIN_STATIC_CHANNEL
 if (client_status == NJClient::NJC_STATUS_PRECONNECT)
-{ Config->currentHost        = DEBUG_STATIC_CHANNEL ;
-  Config->currentLogin       =  "nobody" ;
-  Config->currentIsAnonymous = true ; Connect() ; }
+{ Config->setCurrentConfig(DEBUG_STATIC_CHANNEL , "nobody" , "" , true) ;
+  Connect() ; }
 #endif // DEBUG_AUTOJOIN_STATIC_CHANNEL
 
-  bool is_agreed = IsAgreed() ;
+  // server config
+  if (client_status == NJClient::NJC_STATUS_OK) Config->setServer() ;
 
   // GUI state
-  Gui->background->toFront(false) ;
   switch (client_status)
   {
-    case NJClient::NJC_STATUS_DISCONNECTED: Gui->login  ->toFront(true)  ; break ;
-    case NJClient::NJC_STATUS_INVALIDAUTH:  (is_agreed)?
-                                            Gui->login  ->toFront(true)  :
-                                            Gui->license->toFront(true)  ; break ;
-    case NJClient::NJC_STATUS_CANTCONNECT:  Gui->login  ->toFront(true)  ; break ;
-    case NJClient::NJC_STATUS_OK:           Gui->chat   ->toFront(true)  ;
-                                            Gui->mixer  ->toFront(false) ;
-                                            Gui->loop   ->toFront(false) ; break ;
-    case NJClient::NJC_STATUS_PRECONNECT:   Gui->login  ->toFront(true)  ; break ;
-    default:                                                                        break ;
+    case NJClient::NJC_STATUS_DISCONNECTED: Gui->login     ->toFront(true)  ;
+                                            Gui->background->toBehind(Gui->login) ;   break ;
+    case NJClient::NJC_STATUS_INVALIDAUTH:  (IsAgreed())?
+                                            Gui->login     ->toFront(true)  :
+                                            Gui->license   ->toFront(true)  ;
+                                            (IsAgreed())?
+                                            Gui->background->toBehind(Gui->login)   :
+                                            Gui->background->toBehind(Gui->license) ; break ;
+    case NJClient::NJC_STATUS_CANTCONNECT:  Gui->login     ->toFront(true)  ;
+                                            Gui->background->toBehind(Gui->login) ;   break ;
+    case NJClient::NJC_STATUS_OK:           Gui->chat      ->toFront(true)  ;
+                                            Gui->mixer     ->toFront(false) ;
+                                            Gui->loop      ->toFront(false) ;
+                                            Gui->background->toBehind(Gui->chat) ;    break ;
+    case NJClient::NJC_STATUS_PRECONNECT:   Gui->login     ->toFront(true)  ;
+                                            Gui->background->toBehind(Gui->login) ;   break ;
+    default:                                                               break ;
   }
 
   // status indicator
-  String status_text ;
+  String host = Client->GetHostName() ; String status_text ;
   switch (client_status)
   {
     case NJClient::NJC_STATUS_DISCONNECTED:
-      status_text = GUI::DISCONNECTED_STATUS_TEXT ;                              break ;
+      status_text = GUI::DISCONNECTED_STATUS_TEXT ;                    break ;
     case NJClient::NJC_STATUS_INVALIDAUTH:
-      status_text = (is_agreed)? ((IsRoomFull())?
+      status_text = (IsAgreed())? ((IsRoomFull())?
                     GUI::ROOM_FULL_STATUS_TEXT :
                     GUI::INVALID_AUTH_STATUS_TEXT) :
-                    GUI::PENDING_LICENSE_STATUS_TEXT ;                           break ;
+                    GUI::PENDING_LICENSE_STATUS_TEXT ;                 break ;
     case NJClient::NJC_STATUS_CANTCONNECT:
-      status_text = GUI::FAILED_CONNECTION_STATUS_TEXT ;                         break ;
+      status_text = GUI::FAILED_CONNECTION_STATUS_TEXT ;               break ;
     case NJClient::NJC_STATUS_OK:
-      status_text = GUI::CONNECTED_STATUS_TEXT + String(Client->GetHostName()) ; break ;
+      status_text = GUI::CONNECTED_STATUS_TEXT + host ;                break ;
     case NJClient::NJC_STATUS_PRECONNECT:
-      status_text = GUI::IDLE_STATUS_TEXT ;                                      break ;
+      status_text = GUI::IDLE_STATUS_TEXT ;                            break ;
     default:
-      status_text = GUI::UNKNOWN_STATUS_TEXT + String(client_status) ;           break ;
+      status_text = GUI::UNKNOWN_STATUS_TEXT + String(client_status) ; break ;
   }
   Gui->statusbar->setStatusL(status_text) ;
 }

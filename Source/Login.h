@@ -76,11 +76,10 @@ private:
   // helpers
   void refreshState() ;
   void sortLoginButtons() ;
+  void login() ;
   bool validateHost() ;
   bool validateLogin() ;
   bool validatePass() ;
-  void setCurrentConfig(String host , String login , String pass, bool is_anonymous) ;
-  void login(           String host) ;
 
     //[/UserVariables]
 

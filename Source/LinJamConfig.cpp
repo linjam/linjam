@@ -218,6 +218,16 @@ void LinJamConfig::setServer()
   server.setProperty(CONFIG::ANON_IDENTIFIER  , is_anonymous , nullptr) ;
 }
 
+void LinJamConfig::setCurrentServer(String host , String login , String pass ,
+                                    bool   is_anonymous)
+{
+  this->currentHost        = host ;
+  this->currentLogin       = login ;
+  this->currentPass        = (is_anonymous)? "" : pass ;
+  this->currentIsAnonymous = is_anonymous ;
+  this->currentIsAgreed    = false ;
+}
+
 ValueTree LinJamConfig::getCurrentServer()
 { return getServer(this->currentHost.toString()) ; }
 
@@ -499,9 +509,9 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
 
 void LinJamConfig::valueTreeChildAdded(ValueTree& a_parent_tree , ValueTree& a_child_tree)
 {
-DBG("valueTreeChildAdded() a_parent_tree=" + a_parent_tree.getType().toString() +
-  " a_child_tree="  + a_child_tree.getType().toString()) ;
+//DBG("valueTreeChildAdded() a_parent_tree=" + a_parent_tree.getType().toString() + " a_child_tree="  + a_child_tree.getType().toString()) ;
 
+// TODO: remotes added to '<remote-channels>' node (issue #33)
 //   a_child_tree.addListener(this) ;
 }
 

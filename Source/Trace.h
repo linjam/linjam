@@ -174,17 +174,39 @@
     String node = String(a_node.getType()) ; String val = a_node[key].toString() ;  \
     Trace::TraceEvent("value changed " + node + "[" + String(key) + "] = " + val) ;
 
-#  define DEBUG_TRACE_LOGIN_LOAD                                           \
-    Trace::TraceState("Login - currentHost => '" + host + "' - storage " + \
-                      ((server.isValid())? "" : "not ") + "found") ;
-
+#  define DEBUG_TRACE_LOGIN_LOAD                                                     \
+    Trace::TraceState("Lobby - storage " + String((server.isValid())? "" : "not ") + \
+                      "found for currentHost => '" + host + "'") ;
 #  define DEBUG_TRACE_LOGIN_BTNS                                                             \
     if      (buttonThatWasClicked == loginButton) Trace::TraceEvent("loginButton clicked") ; \
     else if (buttonThatWasClicked == anonButton)  Trace::TraceEvent("anonButton clicked") ;  \
     else if (loginButtons.contains((TextButton*)buttonThatWasClicked))                       \
       Trace::TraceEvent("quick-login button clicked " +                                      \
           buttonThatWasClicked->getButtonText().trim()) ;
-
+#  define DEBUG_TRACE_LOGIN_HOST_VB                                                     \
+    String h  = this->hostText->getText().trim() ; String dbg ;                         \
+    String hn = h.upToLastOccurrenceOf( StringRef(".") , false , true) ;                \
+    String ht = h.fromLastOccurrenceOf( StringRef(".") , false , true)                  \
+                 .upToFirstOccurrenceOf(StringRef(":") , false , true) ;                \
+    String hp = h.fromFirstOccurrenceOf(StringRef(":") , false , true) ;                \
+    bool valid = (NETWORK::KNOWN_HOSTS.contains(h)                                ||    \
+                 (h                   .matchesWildcard(NETWORK::HOST_MASK , true) &&    \
+                  hn                  .containsOnly(   NETWORK::URL_CHARS)        &&    \
+                  ht                  .containsOnly(   NETWORK::LETTERS)          &&    \
+                  hp                  .containsOnly(   NETWORK::DIGITS)           )) ;  \
+    if (valid) Trace::TraceVerbose("validated host '"        + h + "'") ;               \
+    else       Trace::TraceVerbose("error validating host '" + h + "'" +                \
+      "\n  parsed host="      + h  +                                                    \
+      "\n  parsed host_tld="  + ht +                                                    \
+      "\n  parsed host_port=" + hp +                                                    \
+      "\n  is_known_host="    + String(NETWORK::KNOWN_HOSTS.contains(h))              + \
+      "\n  is_valid_host="    + String(h .matchesWildcard(NETWORK::HOST_MASK , true)) + \
+      "\n  is_valid_url="     + String(hn.containsOnly(   NETWORK::URL_CHARS) &&        \
+                                       hn.isNotEmpty())                               + \
+      "\n  is_valid_tld="     + String(ht.containsOnly(   NETWORK::LETTERS)   &&        \
+                                       ht.isNotEmpty())                               + \
+      "\n  is_valid_port="    + String(hp.containsOnly(   NETWORK::DIGITS)    &&        \
+                                       hp.isNotEmpty())                               ) ;
 #  define DEBUG_TRACE_CONNECT Trace::TraceState((!IsAgreed())?                               \
                                                 "connecting to " + host :                    \
                                                 "joining "       + host + " as " + login) ;
@@ -196,19 +218,20 @@
 #  define DEBUG_TRACE_LICENSE Trace::TraceState((is_agreed)? "agreeing to license" : \
                                                 "prompting for license agreement") ;
 
-#  define DEBUG_TRACE_CONNECT_STATUS                                            \
-    switch (client_status)                                                      \
-    {                                                                           \
-      case -3: Trace::TraceConnection("NJC_STATUS_DISCONNECTED") ; break ;      \
-      case -2: Trace::TraceConnection((IsAgreed())?                             \
-                   "NJC_STATUS_INVALIDAUTH" : "LICENSE_PENDING") ; break ;      \
-      case -1: Trace::TraceConnection("NJC_STATUS_CANTCONNECT") ;  break ;      \
-      case  0: Trace::TraceConnection("NJC_STATUS_OK") ;           break ;      \
-      case  1: Trace::TraceConnection("NJC_STATUS_PRECONNECT") ;   break ;      \
-      default:                                                     break ;      \
-    }                                                                           \
-    Trace::TraceServer("connected to host: " + String(Client->GetHostName())) ; \
-    if (Client->GetErrorStr()[0])                                               \
+#  define DEBUG_TRACE_CONNECT_STATUS                                           \
+    String host_name = Client->GetHostName() ;                                 \
+    switch (client_status)                                                     \
+    {                                                                          \
+      case -3: Trace::TraceNetwork("NJC_STATUS_DISCONNECTED") ;        break ; \
+      case -2: Trace::TraceNetwork((IsAgreed())?                               \
+                   "NJC_STATUS_INVALIDAUTH" : "LICENSE_PENDING") ;     break ; \
+      case -1: Trace::TraceNetwork("NJC_STATUS_CANTCONNECT") ;         break ; \
+      case  0: Trace::TraceNetwork("NJC_STATUS_OK") ;                          \
+               Trace::TraceServer("connected to host: " + host_name) ; break ; \
+      case  1: Trace::TraceNetwork("NJC_STATUS_PRECONNECT") ;          break ; \
+      default:                                                         break ; \
+    }                                                                          \
+    if (Client->GetErrorStr()[0])                                              \
       Trace::TraceServer("Error: " + String(Client->GetErrorStr())) ;
 
 #  define DEBUG_TRACE_CHANNELS_VB /* TODO: do not use - some of this is obsolete */ \
@@ -393,7 +416,8 @@
 #  define DEBUG_TRACE_CONFIG_CHANGED          ;
 #  define DEBUG_TRACE_CONFIG_TREE_CHANGED     ;
 #  define DEBUG_TRACE_LOGIN_LOAD              ;
-#  define DEBUG_TRACE_LOGIN_CLICKED           ;
+#  define DEBUG_TRACE_LOGIN_BTNS              ;
+#  define DEBUG_TRACE_LOGIN_HOST_VB           ;
 #  define DEBUG_TRACE_CONNECT                 ;
 #  define DEBUG_TRACE_LICENSE_CLICKED         ;
 #  define DEBUG_TRACE_LICENSE                 ;
@@ -420,13 +444,13 @@ class Trace
 {
 public:
 
-  static void TraceConfig(      String msg) ;
-  static void TraceEvent(       String msg) ;
-  static void TraceVerbose(     String msg) ;
-  static void TraceState(       String msg) ;
-  static void TraceConnection(  String msg) ;
-  static void TraceError(       String msg) ;
-  static void TraceServer(      String msg) ;
+  static void TraceConfig( String msg) ;
+  static void TraceEvent(  String msg) ;
+  static void TraceVerbose(String msg) ;
+  static void TraceState(  String msg) ;
+  static void TraceNetwork(String msg) ;
+  static void TraceError(  String msg) ;
+  static void TraceServer( String msg) ;
 
   static void Dbg(         String    type , String msg) ;
   static void DumpStoreXml(ValueTree store) ;

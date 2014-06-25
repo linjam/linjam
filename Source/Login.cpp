@@ -226,7 +226,7 @@ DEBUG_TRACE_LOGIN_BTNS
     {
         //[UserButtonCode_loginButton] -- add your button handler code here..
 
-      login(this->hostText->getText()) ;
+      login() ;
 
         //[/UserButtonCode_loginButton]
     }
@@ -262,10 +262,18 @@ DEBUG_TRACE_LOGIN_BTNS
 
     else if (this->loginButtons.contains((TextButton*)buttonThatWasClicked))
     {
-      String host = buttonThatWasClicked->getButtonText().trim() ;
-      this->hostText->setText(host) ;
+      String host      = buttonThatWasClicked->getButtonText().trim() ;
+      ValueTree server = LinJam::Config->getServer(host) ;
 
-      login(host) ;
+      this->hostText->setText(host) ;
+      if (server.isValid())
+      {
+        this->loginText ->setText(       server[CONFIG::LOGIN_IDENTIFIER]) ;
+        this->passText  ->setText(       server[CONFIG::PASS_IDENTIFIER]) ;
+        this->anonButton->setToggleState(server[CONFIG::ANON_IDENTIFIER] , juce::dontSendNotification) ;
+      }
+
+      login() ;
     }
 
     //[/UserbuttonClicked_Post]
@@ -277,7 +285,9 @@ DEBUG_TRACE_LOGIN_BTNS
 
 /* event handlers */
 
-void Login::broughtToFront() { refreshState() ; }
+void Login::broughtToFront() {
+DBG("Login::broughtToFront()") ;
+  refreshState() ; }
 
 void Login::textEditorTextChanged(TextEditor& a_text_editor)
 {
@@ -297,6 +307,8 @@ DBG("Login::valueChanged()=" + login_value.getValue().toString()) ;
 
 void Login::refreshState()
 {
+DBG("Login::refreshState()") ;
+
   if (LinJam::Config == nullptr) return ;
 
   String    host         =      LinJam::Config->currentHost.toString() ;
@@ -305,23 +317,26 @@ void Login::refreshState()
   bool      is_anonymous = bool(LinJam::Config->currentIsAnonymous.getValue()) ;
   ValueTree server       = LinJam::Config->getServer(host) ;
 
-DEBUG_TRACE_LOGIN_LOAD
-
   if (!server.isValid())
     // could not connect to currentHost - reset current login state
-    setCurrentConfig(host = "" , login = "" , pass = "" , is_anonymous = true) ;
+    LinJam::Config->setCurrentServer(host = "" , login = "" ,
+                                     pass = "" , is_anonymous = true) ;
+  this->hostText ->setText(host) ;
+  this->loginText->setText(login) ;
+  this->passText ->setText(pass) ;
+
+DEBUG_TRACE_LOGIN_LOAD
 
   // initialize GUI
-  validateHost() ; validateLogin() ; validatePass() ;
   bool is_custom_server = host.isNotEmpty() && !NETWORK::KNOWN_HOSTS.contains(host) ;
   this->loginButton->setVisible(is_custom_server) ;
   this->hostLabel  ->setVisible(is_custom_server) ;
   this->hostText   ->setVisible(is_custom_server) ;
   this->passLabel  ->setVisible(!is_anonymous) ;
   this->passText   ->setVisible(!is_anonymous) ;
-  this->hostText   ->setText(host) ;
-  this->loginText  ->setText(login) ;
-  this->passText   ->setText(pass) ;
+  this->hostText   ->setText((validateHost())?  host  : "") ;
+  this->loginText  ->setText((validateLogin())? login : "") ;
+  this->passText   ->setText((validatePass())?  pass  : "") ;
   this->anonButton ->setToggleState(is_anonymous , juce::dontSendNotification) ;
 }
 
@@ -338,29 +353,26 @@ void Login::sortLoginButtons()
       this->loginButtons.getUnchecked(host_n)->setBounds(x , y , w , h) ;
     }
 }
-#  define DEBUG_TRACE_LOGIN_HOST                                                       \
-    String h  = this->hostText->getText().trim() ; String dbg ;                        \
-    String hn = h.upToLastOccurrenceOf( StringRef(".") , false , true) ;               \
-    String ht = h.fromLastOccurrenceOf( StringRef(".") , false , true)                 \
-                 .upToFirstOccurrenceOf(StringRef(":") , false , true) ;               \
-    String hp = h.fromFirstOccurrenceOf(StringRef(":") , false , true) ;               \
-    Trace::TraceConfig("validating host '" + h + "'"  +                                \
-      "\n  parsed host="      + h  +                                                   \
-      "\n  parsed host_tld="  + ht +                                                   \
-      "\n  parsed host_port=" + hp +                                                   \
-      "\n  is_valid_host="    + String(h .matchesWildcard(NETWORK::HOST_MASK , true) + \
-      "\n  is_valid_url="     + String(hn.containsOnly(   NETWORK::URL_CHARS))       + \
-      "\n  is_valid_tld="     + String(ht.containsOnly(   NETWORK::LETTERS))         + \
-      "\n  is_valid_port="    + String(hp.containsOnly(   NETWORK::DIGITS))           )) ;
-#  define DEBUG_TRACE_LOGIN                                     \
-    if (!validateHost() || !validateLogin() || !validatePass()) \
-      DBG("Login::login() host='" + host + "'"                + \
-          " is_valid_host=" + String(validateHost())          + \
-          " is_valid_login=" + String(validateLogin())        + \
-          " is_valid_pass=" + String(validatePass())) ;
+
+void Login::login()
+{
+  String host         = this->hostText  ->getText().trim() ;
+  String login        = this->loginText ->getText().trim() ;
+  String pass         = this->passText  ->getText().trim() ;
+  bool   is_anonymous = this->anonButton->getToggleState() ;
+
+  bool is_valid_host  = validateHost() ;
+  bool is_valid_login = validateLogin() ;
+  bool is_valid_pass  = validatePass() ;
+  if (!is_valid_host || !is_valid_login || !is_valid_pass) return ;
+
+  LinJam::Config->setCurrentServer(host , login , pass , is_anonymous) ;
+  LinJam::Connect() ;
+}
+
 bool Login::validateHost()
 {
-DEBUG_TRACE_LOGIN_HOST
+DEBUG_TRACE_LOGIN_HOST_VB
 
   String host      = this->hostText->getText().trim() ;
   String host_name = host.upToLastOccurrenceOf( StringRef(".") , false , true) ;
@@ -368,10 +380,14 @@ DEBUG_TRACE_LOGIN_HOST
                          .upToFirstOccurrenceOf(StringRef(":") , false , true) ;
   String host_port = host.fromFirstOccurrenceOf(StringRef(":") , false , true) ;
 
-  bool is_valid = (host     .matchesWildcard(NETWORK::HOST_MASK , true) &&
-                   host_name.containsOnly(   NETWORK::URL_CHARS)             &&
-                   host_tld .containsOnly(   NETWORK::LETTERS)                     &&
-                   host_port.containsOnly(   NETWORK::DIGITS)                       ) ;
+  bool is_valid = (NETWORK::KNOWN_HOSTS.contains(host) ||
+                  (host     .matchesWildcard(NETWORK::HOST_MASK , true) &&
+                   host_name.containsOnly(   NETWORK::URL_CHARS)        &&
+                   host_tld .containsOnly(   NETWORK::LETTERS)          &&
+                   host_port.containsOnly(   NETWORK::DIGITS)           &&
+                   host_name.isNotEmpty()                               &&
+                   host_tld .isNotEmpty()                               &&
+                   host_port.isNotEmpty()                               )) ;
 
   Colour border_color = (is_valid)? Colours::white : Colours::red ;
   this->hostText->setColour(TextEditor::outlineColourId , border_color) ;
@@ -393,40 +409,12 @@ bool Login::validatePass()
 {
   String pass         = this->passText->getText().trim() ;
   bool   is_anonymous = this->anonButton ->getToggleState() ;
-
-  bool is_valid = is_anonymous || pass.containsNonWhitespaceChars() ;
+  bool   is_valid     = is_anonymous || pass.containsNonWhitespaceChars() ;
 
   Colour border_color = (is_valid)? Colours::white : Colours::red ;
   this->passText->setColour(TextEditor::outlineColourId , border_color) ;
 
   return is_valid ;
-}
-
-void Login::setCurrentConfig(String host , String login , String pass ,
-                                      bool is_anonymous)
-{
-  LinJam::Config->currentHost        = host ;
-  LinJam::Config->currentLogin       = login ;
-  LinJam::Config->currentPass        = (is_anonymous)? "" : pass ;
-  LinJam::Config->currentIsAnonymous = is_anonymous ;
-  LinJam::Config->currentIsAgreed    = false ;
-}
-
-void Login::login(String host)
-{
-DEBUG_TRACE_LOGIN
-
-  String login        = this->loginText  ->getText().trim() ;
-  String pass         = this->passText   ->getText().trim() ;
-  bool   is_anonymous = this->anonButton ->getToggleState() ;
-
-  bool is_valid_host  = validateHost() ;
-  bool is_valid_login = validateLogin() ;
-  bool is_valid_pass  = validatePass() ;
-  if (!is_valid_host || !is_valid_login || !is_valid_pass) return ;
-
-  setCurrentConfig(host , login , pass , is_anonymous) ;
-  LinJam::Connect() ;
 }
 
 //[/MiscUserCode]

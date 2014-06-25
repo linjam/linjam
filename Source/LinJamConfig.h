@@ -78,6 +78,7 @@ public:
   ValueTree getChannel(      Identifier mixergroup_id , Identifier channel_id) ;
   void      setServer() ;
   ValueTree getServer(       String host) ;
+  void      setCurrentServer(String host , String login , String pass , bool is_anonymous) ;
   ValueTree getCurrentServer() ;
   void      setShouldAgree(  bool should_agree) ;
   ValueTree getOrCreateNode( Identifier user_name) ;
@@ -101,7 +102,7 @@ private:
   Value     getClient(   Identifier key) ;
   Value     getAudio(    Identifier key) ;
   Value     getServer(   Identifier key) ;
-  ValueTree addServer(   String host  , String login , String pass , bool is_anonymous) ;
+  ValueTree addServer(   String host , String login , String pass , bool is_anonymous) ;
   String    filteredName(String a_name) ;
 
   // event handlers
