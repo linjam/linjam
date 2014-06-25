@@ -4,7 +4,8 @@
 // NOTE: this file is not included in the jucer project
 
 
-#include "audioconfig.h"
+#ifdef _WIN32
+#  include "audioconfig.h"
 
 
 struct
@@ -189,3 +190,5 @@ audioStreamer* CreateConfiguredStreamer(char *ini_file                       ,
 
   return NULL ;
 }
+
+#endif // _WIN32

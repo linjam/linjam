@@ -404,13 +404,16 @@ bool LinJam::InitializeAudio()
   const char* jack_name     =     Config->jackName  .toString().toRawUTF8() ;
         char* config_string = "" ;
 #ifdef _WIN32
-interface_n = 4 ;
   audioStreamer::WinAudioIf if_n = (audioStreamer::WinAudioIf)interface_n ;
   Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , if_n , OnSamples) ;
+
+DEBUG_TRACE_AUDIO_INIT_WIN
 #else // _WIN32
 #  ifdef _MAC
   Audio = create_audioStreamer_CoreAudio(&config_string , sample_rate ,
                                          n_inputs , bit_depth , OnSamples) ;
+
+DEBUG_TRACE_AUDIO_INIT_MAC
 #  else // _MAC
   switch (interface_n)
   {
@@ -418,12 +421,14 @@ interface_n = 4 ;
       Audio = create_audioStreamer_JACK(jack_name , n_inputs , n_outputs ,
                                         OnSamples , Client) ;
 
-DEBUG_TRACE_JACK_INIT
+DEBUG_TRACE_AUDIO_INIT_JACK
 
       if (Audio) break ;
     case 1: // ALSA
     default:
       Audio = create_audioStreamer_ALSA(config_string , OnSamples) ;
+
+DEBUG_TRACE_AUDIO_INIT_ALSA
   }
 #  endif // _MAC
 #endif // _WIN32

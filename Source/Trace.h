@@ -25,27 +25,28 @@
 #if DEBUG_TRACE
 
 #  define DEBUG_TRACE_LINJAM_INIT Trace::TraceEvent("initializing") ;
-#  define DEBUG_TRACE_JACK_INIT                                                         \
-    if (!Audio) Trace::TraceState("could not connect to JACK - falling back to ALSA") ;
-#  define DEBUG_TRACE_AUDIO_INIT                                                            \
-    if (!Audio) Trace::TraceError("error opening audio device") ;                           \
-    else                                                                                    \
-    {                                                                                       \
-      /* TODO: distinguish DS from WAVE */                                                  \
-      String type = "unknown" ; /* this can not be so */                                    \
-      if      (typeid(*Audio) == typeid(audioStreamer_ASIO))          type = "ASIO" ;       \
-      else if (typeid(*Audio) == typeid(audioStreamer_KS_asiosim))    type = "KS" ;         \
-      else if (typeid(*Audio) == typeid(audioStreamer_win32_asiosim)) type = "DS or WAVE" ; \
-      else if (typeid(*Audio) == typeid(audioStreamer_CoreAudio))     type = "CoreAudio" ;  \
-      else if (typeid(*Audio) == typeid(audioStreamer_JACK))          type = "JACK" ;       \
-      else if (typeid(*Audio) == typeid(audioStreamer_asiosim))       type = "ALSA" ;       \
-      Trace::TraceConfig("instantiated " + type + " audiostreamer object") ;                \
-      Trace::TraceState("opened audio device at "             +                             \
-                        String(Audio->m_srate)  + "Hz "       +                             \
-                        String(Audio->m_bps)    + "bps "      +                             \
-                        String(Audio->m_innch)  + "in -> "    +                             \
-                        String(Audio->m_outnch) + "out "      ) ;                           \
-    }
+
+#  define DEBUG_TRACE_AUDIO_INIT_WIN                                                  \
+    String type = "unknown" ; /* this can not be so */                                \
+    if      (if_n == audioStreamer::WINDOWS_AUDIO_ASIO)) type = "ASIO" ;              \
+    else if (if_n == audioStreamer::WINDOWS_AUDIO_KS))   type = "KS" ;                \
+    else if (if_n == audioStreamer::WINDOWS_AUDIO_DS)    type = "DS" ;                \
+    else if (if_n == audioStreamer::WINDOWS_AUDIO_WAVE)  type = "WAVE" ;              \
+    if (Audio) Trace::TraceConfig("using " + type + " audiostreamerobject") ;
+#  define DEBUG_TRACE_AUDIO_INIT_MAC                                               \
+    if (Audio) Trace::TraceConfig("using CoreAudio audiostreamerobject") ;
+#  define DEBUG_TRACE_AUDIO_INIT_JACK                                                  \
+    if (Audio) Trace::TraceConfig("using JACK audiostreamer") ;          \
+    else       Trace::TraceState("could not connect to JACK - falling back to ALSA") ;
+#  define DEBUG_TRACE_AUDIO_INIT_ALSA                                         \
+    if (Audio) Trace::TraceConfig("using ALSA audiostreamer") ;
+#  define DEBUG_TRACE_AUDIO_INIT                                     \
+    if (!Audio) Trace::TraceError("error opening audio device") ;    \
+    else Trace::TraceState("opened audio device at "             +   \
+                           String(Audio->m_srate)  + "Hz "       +   \
+                           String(Audio->m_bps)    + "bps "      +   \
+                           String(Audio->m_innch)  + "in -> "    +   \
+                           String(Audio->m_outnch) + "out "      ) ;
 
 #  define DEBUG_TRACE_LOAD_CONFIG                                                       \
     Identifier root_node_id = CONFIG::PERSISTENCE_IDENTIFIER ;                          \
