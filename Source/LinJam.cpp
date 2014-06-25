@@ -404,13 +404,9 @@ bool LinJam::InitializeAudio()
   const char* jack_name     =     Config->jackName  .toString().toRawUTF8() ;
         char* config_string = "" ;
 #ifdef _WIN32
-#  ifndef AUDIOCONFIG_CPP_NYI_TODO
-  audioStreamer::WinAudioIf if_n = audioStreamer::WinAudioIf::WINDOWS_AUDIO_WAVE ; // 3
-  interface_n = if_n ;
-#  else // AUDIOCONFIG_CPP_NYI_TODO
-// TODO reimplement audioconfig.cpp client-side (issue #27)
-#  endif // AUDIOCONFIG_CPP_NYI_TODO
-  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , (audioStreamer::WinAudioIf)interface_n , OnSamples) ;
+interface_n = 4 ;
+  audioStreamer::WinAudioIf if_n = (audioStreamer::WinAudioIf)interface_n ;
+  Audio = CreateConfiguredStreamer(CLIENT::WIN_INI_FILE , if_n , OnSamples) ;
 #else // _WIN32
 #  ifdef _MAC
   Audio = create_audioStreamer_CoreAudio(&config_string , sample_rate ,
@@ -432,7 +428,7 @@ DEBUG_TRACE_JACK_INIT
 #  endif // _MAC
 #endif // _WIN32
 
-  GuiBeatOffset = Audio->m_srate * (CLIENT::GUI_DRIVER_IVL * 0.002) ;
+  if (Audio) GuiBeatOffset = Audio->m_srate * (CLIENT::GUI_DRIVER_IVL * 0.002) ;
 
 DEBUG_TRACE_AUDIO_INIT
 

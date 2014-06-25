@@ -10,7 +10,7 @@
 #ifndef _LINJAM_H_
 #define _LINJAM_H_
 
-
+#include "audioconfig.h" // TODO: transitional (issue #27)
 #include <ninjam/audiostream.h>
 #include <ninjam/njclient.h>
 #include <ninjam/njmisc.h>

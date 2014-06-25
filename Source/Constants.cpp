@@ -133,9 +133,9 @@ const String GUI::LOOP_GUI_ID = "loop-gui" ;
 // NOTE: many of these *_KEY *_IDENTIFIER pairs maybe redundant or unused (issue #30)
 
 // config root
-const String     CONFIG::PERSISTENCE_FILENAME     = "linjam.xml" ;
-const String     CONFIG::PERSISTENCE_KEY          = "linjam-data" ;
-const Identifier CONFIG::PERSISTENCE_IDENTIFIER   = PERSISTENCE_KEY ;
+const String     CONFIG::PERSISTENCE_FILENAME   = "linjam.xml" ;
+const String     CONFIG::PERSISTENCE_KEY        = "linjam-data" ;
+const Identifier CONFIG::PERSISTENCE_IDENTIFIER = PERSISTENCE_KEY ;
 
 // client config
 const String     CONFIG::CLIENT_KEY               = "client" ;
@@ -158,68 +158,72 @@ const String     CONFIG::SUBSCRIPTIONS_KEY        = "subscriptions" ;
 const Identifier CONFIG::SUBSCRIPTIONS_IDENTIFIER = SUBSCRIPTIONS_KEY ;
 
 // device config
-const String     CONFIG::AUDIO_KEY                = "audio" ;
-const Identifier CONFIG::AUDIO_IDENTIFIER         = AUDIO_KEY ;
-const String     CONFIG::AUDIO_IF_KEY             = "audio-if-n" ;
-const Identifier CONFIG::AUDIO_IF_IDENTIFIER      = AUDIO_IF_KEY ;
-const String     CONFIG::N_INPUTS_KEY             = "n-inputs" ;
-const Identifier CONFIG::N_INPUTS_IDENTIFIER      = N_INPUTS_KEY ;
-const String     CONFIG::N_OUTPUTS_KEY            = "n-outputs" ;
-const Identifier CONFIG::N_OUTPUTS_IDENTIFIER     = N_OUTPUTS_KEY ;
-const String     CONFIG::BITDEPTH_KEY             = "bit-depth" ;
-const Identifier CONFIG::BITDEPTH_IDENTIFIER      = BITDEPTH_KEY ;
-const String     CONFIG::SAMPLERATE_KEY           = "sample-rate" ;
-const Identifier CONFIG::SAMPLERATE_IDENTIFIER    = SAMPLERATE_KEY ;
-const String     CONFIG::JACK_NAME_KEY            = "jack-name" ;
-const Identifier CONFIG::JACK_NAME_IDENTIFIER     = JACK_NAME_KEY ;
+const String     CONFIG::AUDIO_KEY             = "audio" ;
+const Identifier CONFIG::AUDIO_IDENTIFIER      = AUDIO_KEY ;
+const String     CONFIG::AUDIO_IF_KEY          = "audio-if-n" ;
+const Identifier CONFIG::AUDIO_IF_IDENTIFIER   = AUDIO_IF_KEY ;
+const String     CONFIG::N_INPUTS_KEY          = "n-inputs" ;
+const Identifier CONFIG::N_INPUTS_IDENTIFIER   = N_INPUTS_KEY ;
+const String     CONFIG::N_OUTPUTS_KEY         = "n-outputs" ;
+const Identifier CONFIG::N_OUTPUTS_IDENTIFIER  = N_OUTPUTS_KEY ;
+const String     CONFIG::BITDEPTH_KEY          = "bit-depth" ;
+const Identifier CONFIG::BITDEPTH_IDENTIFIER   = BITDEPTH_KEY ;
+const String     CONFIG::SAMPLERATE_KEY        = "sample-rate" ;
+const Identifier CONFIG::SAMPLERATE_IDENTIFIER = SAMPLERATE_KEY ;
+const String     CONFIG::JACK_NAME_KEY         = "jack-name" ;
+const Identifier CONFIG::JACK_NAME_IDENTIFIER  = JACK_NAME_KEY ;
 
 // network config
-const String     CONFIG::SERVERS_KEY              = "servers" ;
-const Identifier CONFIG::SERVERS_IDENTIFIER       = SERVERS_KEY ;
-const String     CONFIG::SERVER_KEY               = "server" ;
-const Identifier CONFIG::SERVER_IDENTIFIER        = SERVER_KEY ;
-const String     CONFIG::HOST_KEY                 = "host" ;
-const Identifier CONFIG::HOST_IDENTIFIER          = HOST_KEY ;
-const String     CONFIG::LOGIN_KEY                = "login" ;
-const Identifier CONFIG::LOGIN_IDENTIFIER         = LOGIN_KEY ;
-const String     CONFIG::PASS_KEY                 = "pass" ;
-const Identifier CONFIG::PASS_IDENTIFIER          = PASS_KEY ;
-const String     CONFIG::ANON_KEY                 = "is-anonymous" ;
-const Identifier CONFIG::ANON_IDENTIFIER          = ANON_KEY ;
-const String     CONFIG::AGREED_KEY               = "is-agreed" ;
-const Identifier CONFIG::AGREED_IDENTIFIER        = AGREED_KEY ;
-const String     CONFIG::AGREE_KEY                = "should-agree" ;
-const Identifier CONFIG::AGREE_IDENTIFIER         = AGREE_KEY ;
-const String     CONFIG::BOTS_KEY                 = "should-hide-bots" ;
-const Identifier CONFIG::BOTS_IDENTIFIER          = BOTS_KEY ;
+const String     CONFIG::SERVERS_KEY        = "servers" ;
+const Identifier CONFIG::SERVERS_IDENTIFIER = SERVERS_KEY ;
+const String     CONFIG::SERVER_KEY         = "server" ;
+const Identifier CONFIG::SERVER_IDENTIFIER  = SERVER_KEY ;
+const String     CONFIG::HOST_KEY           = "host" ;
+const Identifier CONFIG::HOST_IDENTIFIER    = HOST_KEY ;
+const String     CONFIG::LOGIN_KEY          = "login" ;
+const Identifier CONFIG::LOGIN_IDENTIFIER   = LOGIN_KEY ;
+const String     CONFIG::PASS_KEY           = "pass" ;
+const Identifier CONFIG::PASS_IDENTIFIER    = PASS_KEY ;
+const String     CONFIG::ANON_KEY           = "is-anonymous" ;
+const Identifier CONFIG::ANON_IDENTIFIER    = ANON_KEY ;
+const String     CONFIG::AGREED_KEY         = "is-agreed" ;
+const Identifier CONFIG::AGREED_IDENTIFIER  = AGREED_KEY ;
+const String     CONFIG::AGREE_KEY          = "should-agree" ;
+const Identifier CONFIG::AGREE_IDENTIFIER   = AGREE_KEY ;
+const String     CONFIG::BOTS_KEY           = "should-hide-bots" ;
+const Identifier CONFIG::BOTS_IDENTIFIER    = BOTS_KEY ;
 
 // channels
-const String     CONFIG::MASTERS_KEY              = "master-channels" ;
-const Identifier CONFIG::MASTERS_IDENTIFIER       = MASTERS_KEY ;
-const String     CONFIG::MASTER_KEY               = GUI::MASTER_CHANNEL_GUI_ID ;
-const Identifier CONFIG::MASTER_IDENTIFIER        = MASTER_KEY ;
-const String     CONFIG::METRO_KEY                = GUI::METRO_CHANNEL_GUI_ID ;
-const Identifier CONFIG::METRO_IDENTIFIER         = METRO_KEY ;
-const String     CONFIG::LOCALS_KEY               = "local-channels" ;
-const Identifier CONFIG::LOCALS_IDENTIFIER        = LOCALS_KEY ;
-const String     CONFIG::VOLUME_KEY               = "volume" ;
-const Identifier CONFIG::VOLUME_IDENTIFIER        = VOLUME_KEY ;
-const String     CONFIG::PAN_KEY                  = "pan" ;
-const Identifier CONFIG::PAN_IDENTIFIER           = PAN_KEY ;
-const String     CONFIG::XMIT_KEY                 = "should-xmit-rcv" ;
-const Identifier CONFIG::XMIT_IDENTIFIER          = XMIT_KEY ;
-const String     CONFIG::MUTE_KEY                 = "is-muted" ;
-const Identifier CONFIG::MUTE_IDENTIFIER          = MUTE_KEY ;
-const String     CONFIG::SOLO_KEY                 = "is-solo" ;
-const Identifier CONFIG::SOLO_IDENTIFIER          = SOLO_KEY ;
-const String     CONFIG::SOURCE_N_KEY             = "source-channel-n" ;
-const Identifier CONFIG::SOURCE_N_IDENTIFIER      = SOURCE_N_KEY ;
-const String     CONFIG::STEREO_KEY               = "is-stereo" ;
-const Identifier CONFIG::STEREO_IDENTIFIER        = STEREO_KEY ;
-const String     CONFIG::INITIAL_LOCAL_KEY        = "default-L " ;
-const Identifier CONFIG::INITIAL_LOCAL_IDENTIFIER = STEREO_KEY ;
+const String     CONFIG::MASTERS_KEY         = "master-channels" ;
+const Identifier CONFIG::MASTERS_IDENTIFIER  = MASTERS_KEY ;
+const String     CONFIG::MASTER_KEY          = GUI::MASTER_CHANNEL_GUI_ID ;
+const Identifier CONFIG::MASTER_IDENTIFIER   = MASTER_KEY ;
+const String     CONFIG::METRO_KEY           = GUI::METRO_CHANNEL_GUI_ID ;
+const Identifier CONFIG::METRO_IDENTIFIER    = METRO_KEY ;
+const String     CONFIG::LOCALS_KEY          = "local-channels" ;
+const Identifier CONFIG::LOCALS_IDENTIFIER   = LOCALS_KEY ;
+const String     CONFIG::VOLUME_KEY          = "volume" ;
+const Identifier CONFIG::VOLUME_IDENTIFIER   = VOLUME_KEY ;
+const String     CONFIG::PAN_KEY             = "pan" ;
+const Identifier CONFIG::PAN_IDENTIFIER      = PAN_KEY ;
+const String     CONFIG::XMIT_KEY            = "should-xmit-rcv" ;
+const Identifier CONFIG::XMIT_IDENTIFIER     = XMIT_KEY ;
+const String     CONFIG::MUTE_KEY            = "is-muted" ;
+const Identifier CONFIG::MUTE_IDENTIFIER     = MUTE_KEY ;
+const String     CONFIG::SOLO_KEY            = "is-solo" ;
+const Identifier CONFIG::SOLO_IDENTIFIER     = SOLO_KEY ;
+const String     CONFIG::SOURCE_N_KEY        = "source-channel-n" ;
+const Identifier CONFIG::SOURCE_N_IDENTIFIER = SOURCE_N_KEY ;
+const String     CONFIG::STEREO_KEY          = "is-stereo" ;
+const Identifier CONFIG::STEREO_IDENTIFIER   = STEREO_KEY ;
+
+// validation
 const StringRef  CONFIG::VALID_NAME_CHARS         = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- " ;
 const StringRef  CONFIG::AT_CHAR                  = "@" ;
+
+// defaults
+const String     CONFIG::INITIAL_LOCAL_KEY        = "default-L " ;
+const Identifier CONFIG::INITIAL_LOCAL_IDENTIFIER = STEREO_KEY ;
 const String     CONFIG::DEFAULT_CHANNEL_NAME     = "channel-" ;
 const String     CONFIG::DEFAULT_USER_NAME        = "user-" ;
 const float      CONFIG::DEFAULT_VOLUME           = 0.0 ;
@@ -229,9 +233,9 @@ const bool       CONFIG::DEFAULT_IS_MUTE          = false ;
 const bool       CONFIG::DEFAULT_IS_SOLO          = false ;
 const int        CONFIG::DEFAULT_SOURCE_N         = 0 ;
 const bool       CONFIG::DEFAULT_IS_STEREO        = false ;
-// NOTE: when adding nodes to CONFIG_XML be sure to
-//         * attach them to values in LinJamConfig::establishSharedStore()
-//         * verify them in           LinJamConfig::sanityCheck()
+// NOTE: when adding nodes or leaves to CONFIG_XML be sure to
+//         * refernce them in LinJamConfig::establishSharedStore()
+//         * verify them in   LinJamConfig::sanityCheck()
 #define CONFIG_XML "<?xml version=\"1.0\"?><" + \
     PERSISTENCE_KEY        + "><"             + \
       CLIENT_KEY           + " "              + \

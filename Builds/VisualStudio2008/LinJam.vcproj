@@ -217,6 +217,10 @@
 				Name="Headers"
 				>
 				<File
+					RelativePath="..\..\Source\audioconfig.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\Source\Background.h"
 					>
 				</File>
@@ -280,6 +284,10 @@
 			<Filter
 				Name="Source"
 				>
+				<File
+					RelativePath="..\..\Source\audioconfig.cpp"
+					>
+				</File>
 				<File
 					RelativePath="..\..\Source\Background.cpp"
 					>

@@ -11,7 +11,7 @@
 #ifndef _CONSTANTS_H_
 #define _CONSTANTS_H_
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "LinJam.h"
 
 
 
@@ -258,10 +258,14 @@ public:
   static const Identifier SOURCE_N_IDENTIFIER ;
   static const String     STEREO_KEY ;
   static const Identifier STEREO_IDENTIFIER ;
+
+  // validation
+  static const StringRef VALID_NAME_CHARS ;
+  static const StringRef AT_CHAR ;
+
+  // defaults
   static const String     INITIAL_LOCAL_KEY ;
   static const Identifier INITIAL_LOCAL_IDENTIFIER ;
-  static const StringRef  VALID_NAME_CHARS ;
-  static const StringRef  AT_CHAR ;
   static const String     DEFAULT_NAME ;
   static const String     DEFAULT_CHANNEL_NAME ;
   static const String     DEFAULT_USER_NAME ;
@@ -272,7 +276,7 @@ public:
   static const bool       DEFAULT_IS_SOLO ;
   static const int        DEFAULT_SOURCE_N ;
   static const bool       DEFAULT_IS_STEREO ;
-
+  static const int        DEFAULT_AUDIO_IF = audioStreamer::WINDOWS_AUDIO_ASIO ;
   static const String     DEFAULT_CONFIG_XML ;
 } ;
 
