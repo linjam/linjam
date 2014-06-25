@@ -77,12 +77,12 @@ public:
   String     decodeUserId(   Identifier channel_id) ;
 
   // getters/setters
-  ValueTree getChannelConfig(           Identifier mixergroup_id , Identifier channel_id) ;
-  void      setServerConfig() ;
-  ValueTree getServerConfig(            String host) ;
-  ValueTree getCurrentServerConfig() ;
-  void      setShouldAgree(             bool should_agree) ;
-  ValueTree getOrCreateRemoteUserConfig(Identifier user_name) ;
+  ValueTree getChannel(      Identifier mixergroup_id , Identifier channel_id) ;
+  void      setServer() ;
+  ValueTree getServer(       String host) ;
+  ValueTree getCurrentServer() ;
+  void      setShouldAgree(  bool should_agree) ;
+  ValueTree getOrCreateNode( Identifier user_name) ;
 
 
 private:
@@ -97,15 +97,14 @@ private:
   void      establishSharedStore() ;
 
   // helpers
-  ValueTree getConfigTreeObj(       Identifier tree_node_id) ;
-  Value     getConfigValueObj(      ValueTree parent_node , Identifier child_node_id ,
-                                    Identifier key) ;
-  Value     getClientConfigValueObj(Identifier key) ;
-  Value     getAudioConfigValueObj( Identifier key) ;
-  Value     getServerConfigValueObj(Identifier key) ;
-  ValueTree addServerConfig(        String host        , String login , String pass ,
-                                    bool   is_anonymous) ;
-  String    filteredName(           String a_name) ;
+  ValueTree getNode(     Identifier tree_node_id) ;
+  Value     getLeaf(     ValueTree parent_node , Identifier child_node_id ,
+                         Identifier key) ;
+  Value     getClient(   Identifier key) ;
+  Value     getAudio(    Identifier key) ;
+  Value     getServer(   Identifier key) ;
+  ValueTree addServer(   String host  , String login , String pass , bool is_anonymous) ;
+  String    filteredName(String a_name) ;
 
   // event handlers
   void valueChanged(            Value& a_value)                                     override ;

@@ -75,6 +75,10 @@ private:
   ScopedPointer<ResizableEdgeComponent> mastersResizer ;
 
 
+  uint8 localScrollZ ;
+  uint8 remoteScrollZ ;
+
+
   void        buttonClicked(      Button* buttonThatWasClicked) override ;
   TextButton* addScrollButton(    String button_id) ;
   Channels*   addChannels(        String mixer_group_id) ;

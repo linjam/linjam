@@ -62,15 +62,17 @@ Mixer::Mixer ()
   this->nextRemoteScrollButton->setAlwaysOnTop(true) ;
   this->localsResizer         ->setAlwaysOnTop(true) ;
   this->mastersResizer        ->setAlwaysOnTop(true) ;
-  this->localsResizer         ->setSize(GUI::PAD + 2 , GUI::MIXERGROUP_H) ;
-  this->mastersResizer        ->setSize(GUI::PAD + 2 , GUI::MIXERGROUP_H) ;
-
+  this->localsResizer         ->setSize(GUI::RESIZER_W , GUI::MIXERGROUP_H) ;
+  this->mastersResizer        ->setSize(GUI::RESIZER_W , GUI::MIXERGROUP_H) ;
     //[/UserPreSize]
 
     setSize (622, 284);
 
 
     //[Constructor] You can add your own custom stuff here..
+
+  this->localScrollZ = this->remoteScrollZ = 0 ;
+
     //[/Constructor]
 }
 
@@ -134,7 +136,7 @@ void Mixer::resized()
   int channels_w = 0 ;
   int channels_h = GUI::MIXERGROUP_H ;
   int n_groups   = getNumDynamicMixers() ; Channels* channels ;
-  for (int group_n = 0 ; group_n < n_groups ; ++group_n)
+  for (int group_n = this->remoteScrollZ ; group_n < n_groups ; ++group_n)
   {
     channels    = (Channels*)getChildComponent(group_n) ;
     channels_w  = GUI::MIXERGROUP_W(channels->getNumChannels()) ;
@@ -144,31 +146,33 @@ void Mixer::resized()
   }
 
   // scroll buttons
+  int  locals_resizer_x               = this->localsResizer ->getX() ;
+  int  masters_resizer_x              = this->mastersResizer->getX() ;
   int  n_channels                     = this->localChannels->getNumChannels() ;
   int  locals_w                       = GUI::MIXERGROUP_W(n_channels) ;
-  bool should_show_prev_local_button  = false ;
-  bool should_show_next_local_button  = false ;
-  bool should_show_prev_remote_button = false ;
-  bool should_show_next_remote_button = (channels_x >= master_x) ;
+  bool should_show_prev_local_button  = this->localScrollZ  >  0 ;
+  bool should_show_next_local_button  = locals_resizer_x < locals_w + GUI::PAD - 1 ;
+  bool should_show_prev_remote_button = this->remoteScrollZ >  0 ;
+  bool should_show_next_remote_button = (channels_x > masters_resizer_x) ;
   if (should_show_prev_local_button)
   {
     int prev_local_button_x = GUI::PAD ;
-    prevLocalScrollButton->setTopLeftPosition(prev_local_button_x , channels_y) ;
+    prevLocalScrollButton->setTopLeftPosition(prev_local_button_x , GUI::CHANNEL_SCROLL_BTN_Y) ;
   }
   if (should_show_next_local_button)
   {
-    int next_local_button_x = locals_w + GUI::PAD - GUI::CHANNEL_SCROLL_BTN_W ;
-    nextLocalScrollButton->setTopLeftPosition(next_local_button_x , channels_y) ;
+    int next_local_button_x = locals_resizer_x  - GUI::PAD - GUI::CHANNEL_SCROLL_BTN_W ;
+    nextLocalScrollButton->setTopLeftPosition(next_local_button_x , GUI::CHANNEL_SCROLL_BTN_Y) ;
   }
   if (should_show_prev_remote_button)
   {
-    int prev_button_x = locals_w + GUI::PAD ;
-    prevRemoteScrollButton->setTopLeftPosition(prev_button_x , channels_y) ;
+    int prev_button_x = locals_resizer_x + GUI::RESIZER_W + 1 ;
+    prevRemoteScrollButton->setTopLeftPosition(prev_button_x , GUI::CHANNEL_SCROLL_BTN_Y) ;
   }
   if (should_show_next_remote_button)
   {
-    int next_button_x = master_x - GUI::PAD - GUI::CHANNEL_SCROLL_BTN_W ;
-    nextRemoteScrollButton->setTopLeftPosition(next_button_x , channels_y) ;
+    int next_button_x = masters_resizer_x  - GUI::PAD - GUI::CHANNEL_SCROLL_BTN_W ;
+    nextRemoteScrollButton->setTopLeftPosition(next_button_x , GUI::CHANNEL_SCROLL_BTN_Y) ;
   }
   prevLocalScrollButton ->setVisible(should_show_prev_local_button) ;
   nextLocalScrollButton ->setVisible(should_show_next_local_button) ;
@@ -248,7 +252,7 @@ TextButton* Mixer::addScrollButton(String button_id)
   scroll_button->setColour(TextButton::buttonOnColourId , Colours::green) ;
   scroll_button->setColour(TextButton::textColourOnId   , Colours::lime) ;
   scroll_button->setColour(TextButton::textColourOffId  , Colours::lime) ;
-  scroll_button->setSize(GUI::CHANNEL_SCROLL_BTN_W , GUI::MIXERGROUP_H) ;
+  scroll_button->setSize(GUI::CHANNEL_SCROLL_BTN_W , GUI::CHANNEL_SCROLL_BTN_H) ;
 
   return scroll_button ;
 }

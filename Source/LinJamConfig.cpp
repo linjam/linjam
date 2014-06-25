@@ -188,7 +188,7 @@ Identifier LinJamConfig::encodeUserId(String user_name , int user_idx)
 
 String LinJamConfig::decodeUserId(Identifier user_id) { return String(user_id) ; }
 
-ValueTree LinJamConfig::getChannelConfig(Identifier mixergroup_id , Identifier channel_id)
+ValueTree LinJamConfig::getChannel(Identifier mixergroup_id , Identifier channel_id)
 {
   if      (mixergroup_id == GUI::MASTER_MIXERGROUP_IDENTIFIER)
     return this->masterChannels.getChildWithName(channel_id) ;
@@ -203,7 +203,7 @@ ValueTree LinJamConfig::getChannelConfig(Identifier mixergroup_id , Identifier c
              ValueTree::invalid ;
 }
 
-void LinJamConfig::setServerConfig()
+void LinJamConfig::setServer()
 {
   // copy volatile login state to persistent storage
   String host         =      this->currentHost.toString() ;
@@ -211,29 +211,29 @@ void LinJamConfig::setServerConfig()
   String pass         =      this->currentPass.toString() ;
   bool   is_anonymous = bool(this->currentIsAnonymous.getValue()) ;
 
-  ValueTree server = addServerConfig(host , login , pass , is_anonymous) ;
+  ValueTree server = addServer(host , login , pass , is_anonymous) ;
   server.setProperty(CONFIG::HOST_IDENTIFIER  , host         , nullptr) ;
   server.setProperty(CONFIG::LOGIN_IDENTIFIER , login        , nullptr) ;
   server.setProperty(CONFIG::PASS_IDENTIFIER  , pass         , nullptr) ;
   server.setProperty(CONFIG::ANON_IDENTIFIER  , is_anonymous , nullptr) ;
 }
 
-ValueTree LinJamConfig::getCurrentServerConfig()
-{ return getServerConfig(this->currentHost.toString()) ; }
+ValueTree LinJamConfig::getCurrentServer()
+{ return getServer(this->currentHost.toString()) ; }
 
-ValueTree LinJamConfig::getServerConfig(String host)
+ValueTree LinJamConfig::getServer(String host)
 { return this->servers.getChildWithProperty(CONFIG::HOST_IDENTIFIER , var(host)) ; }
 
 void LinJamConfig::setShouldAgree(bool should_agree)
 {
-  // continuation of setServerConfig() after license agreement
-  ValueTree server = getCurrentServerConfig() ;
+  // continuation of setServer() after license agreement
+  ValueTree server = getCurrentServer() ;
   if (!server.isValid()) return ;
 
   server.setProperty(CONFIG::AGREE_IDENTIFIER , should_agree , nullptr) ;
 }
 
-ValueTree LinJamConfig::getOrCreateRemoteUserConfig(Identifier user_name)
+ValueTree LinJamConfig::getOrCreateNode(Identifier user_name)
 { return this->configValueTree.getOrCreateChildWithName(user_name , nullptr) ; }
 
 
@@ -291,41 +291,41 @@ DEBUG_TRACE_STORE_CONFIG
 void LinJamConfig::establishSharedStore()
 {
   // client config
-  this->shouldSaveAudio    .referTo(getClientConfigValueObj(CONFIG::SAVE_AUDIO_IDENTIFIER)) ;
-  this->shouldSaveLog      .referTo(getClientConfigValueObj(CONFIG::SAVE_LOG_IDENTIFIER)) ;
-  this->debugLevel         .referTo(getClientConfigValueObj(CONFIG::DEBUGLEVEL_IDENTIFIER)) ;
-  this->shouldAutoSubscribe.referTo(getClientConfigValueObj(CONFIG::AUTOSUBSCRIBE_IDENTIFIER)) ;
-  this->autoSubscribeUsers = getConfigTreeObj(CONFIG::SUBSCRIPTIONS_IDENTIFIER) ;
+  this->shouldSaveAudio    .referTo(getClient(CONFIG::SAVE_AUDIO_IDENTIFIER)) ;
+  this->shouldSaveLog      .referTo(getClient(CONFIG::SAVE_LOG_IDENTIFIER)) ;
+  this->debugLevel         .referTo(getClient(CONFIG::DEBUGLEVEL_IDENTIFIER)) ;
+  this->shouldAutoSubscribe.referTo(getClient(CONFIG::AUTOSUBSCRIBE_IDENTIFIER)) ;
+  this->autoSubscribeUsers = getNode(CONFIG::SUBSCRIPTIONS_IDENTIFIER) ;
 
   // device config
-  this->audioIfN       .referTo(getAudioConfigValueObj(CONFIG::AUDIO_IF_IDENTIFIER)) ;
-  this->nInputs        .referTo(getAudioConfigValueObj(CONFIG::N_INPUTS_IDENTIFIER)) ;
-  this->nOutputs       .referTo(getAudioConfigValueObj(CONFIG::N_OUTPUTS_IDENTIFIER)) ;
-  this->bitDepth       .referTo(getAudioConfigValueObj(CONFIG::BITDEPTH_IDENTIFIER)) ;
-  this->sampleRate     .referTo(getAudioConfigValueObj(CONFIG::SAMPLERATE_IDENTIFIER)) ;
-  this->jackName       .referTo(getAudioConfigValueObj(CONFIG::JACK_NAME_IDENTIFIER)) ;
+  this->audioIfN       .referTo(getAudio(CONFIG::AUDIO_IF_IDENTIFIER)) ;
+  this->nInputs        .referTo(getAudio(CONFIG::N_INPUTS_IDENTIFIER)) ;
+  this->nOutputs       .referTo(getAudio(CONFIG::N_OUTPUTS_IDENTIFIER)) ;
+  this->bitDepth       .referTo(getAudio(CONFIG::BITDEPTH_IDENTIFIER)) ;
+  this->sampleRate     .referTo(getAudio(CONFIG::SAMPLERATE_IDENTIFIER)) ;
+  this->jackName       .referTo(getAudio(CONFIG::JACK_NAME_IDENTIFIER)) ;
 
   // login state
-  this->currentHost       .referTo(getServerConfigValueObj(CONFIG::HOST_IDENTIFIER)) ;
-  this->currentLogin      .referTo(getServerConfigValueObj(CONFIG::LOGIN_IDENTIFIER)) ;
-  this->currentPass       .referTo(getServerConfigValueObj(CONFIG::PASS_IDENTIFIER)) ;
-  this->currentIsAnonymous.referTo(getServerConfigValueObj(CONFIG::ANON_IDENTIFIER)) ;
-  this->currentIsAgreed   .referTo(getServerConfigValueObj(CONFIG::AGREED_IDENTIFIER)) ;
-  this->shouldHideBots    .referTo(getServerConfigValueObj(CONFIG::BOTS_IDENTIFIER)) ;
+  this->currentHost       .referTo(getServer(CONFIG::HOST_IDENTIFIER)) ;
+  this->currentLogin      .referTo(getServer(CONFIG::LOGIN_IDENTIFIER)) ;
+  this->currentPass       .referTo(getServer(CONFIG::PASS_IDENTIFIER)) ;
+  this->currentIsAnonymous.referTo(getServer(CONFIG::ANON_IDENTIFIER)) ;
+  this->currentIsAgreed   .referTo(getServer(CONFIG::AGREED_IDENTIFIER)) ;
+  this->shouldHideBots    .referTo(getServer(CONFIG::BOTS_IDENTIFIER)) ;
 
   // channels
-  this->masterChannels = getConfigTreeObj(CONFIG::MASTERS_IDENTIFIER) ;
-  this->localChannels  = getConfigTreeObj(CONFIG::LOCALS_IDENTIFIER) ;
-//   this->remoteChannels = getConfigTreeObj(CONFIG::REMOTES_IDENTIFIER) ; // (issue #33)
+  this->masterChannels = getNode(CONFIG::MASTERS_IDENTIFIER) ;
+  this->localChannels  = getNode(CONFIG::LOCALS_IDENTIFIER) ;
+//   this->remoteChannels = getNode(CONFIG::REMOTES_IDENTIFIER) ; // (issue #33)
 this->remoteChannels = this->configValueTree ; // kludge (issue #33)
 
   // per server user data
-  this->servers        = getConfigTreeObj(CONFIG::SERVERS_IDENTIFIER) ;
+  this->servers        = getNode(CONFIG::SERVERS_IDENTIFIER) ;
 
   this->configValueTree.addListener(this) ;
 }
 
-ValueTree LinJamConfig::getConfigTreeObj(Identifier tree_node_id)
+ValueTree LinJamConfig::getNode(Identifier tree_node_id)
 {
   ValueTree tree_node = this->configValueTree.getChildWithName(tree_node_id) ;
 
@@ -334,7 +334,7 @@ DEBUG_TRACE_CONFIG_TREE
   return tree_node ;
 }
 
-Value LinJamConfig::getConfigValueObj(ValueTree parent_node , Identifier child_node_id ,
+Value LinJamConfig::getLeaf(ValueTree parent_node , Identifier child_node_id ,
                                       Identifier key)
 {
   ValueTree value_node = parent_node.getChildWithName(child_node_id) ;
@@ -346,19 +346,19 @@ DEBUG_TRACE_CONFIG_VALUE
               this->dummyValue ;
 }
 
-Value LinJamConfig::getClientConfigValueObj(Identifier key)
-{ return getConfigValueObj(this->configValueTree , CONFIG::CLIENT_IDENTIFIER , key) ; }
+Value LinJamConfig::getClient(Identifier key)
+{ return getLeaf(this->configValueTree , CONFIG::CLIENT_IDENTIFIER , key) ; }
 
-Value LinJamConfig::getAudioConfigValueObj(Identifier key)
-{ return getConfigValueObj(this->configValueTree , CONFIG::AUDIO_IDENTIFIER  , key) ; }
+Value LinJamConfig::getAudio(Identifier key)
+{ return getLeaf(this->configValueTree , CONFIG::AUDIO_IDENTIFIER  , key) ; }
 
-Value LinJamConfig::getServerConfigValueObj(Identifier key)
-{ return getConfigValueObj(this->configValueTree , CONFIG::SERVER_IDENTIFIER , key) ; }
+Value LinJamConfig::getServer(Identifier key)
+{ return getLeaf(this->configValueTree , CONFIG::SERVER_IDENTIFIER , key) ; }
 
-ValueTree LinJamConfig::addServerConfig(String host , String login , String pass ,
-                                        bool is_anonymous)
+ValueTree LinJamConfig::addServer(String host , String login , String pass ,
+                                  bool is_anonymous)
 {
-  ValueTree server = getServerConfig(host) ;
+  ValueTree server = getServer(host) ;
   if (!server.isValid())
   {
     Identifier host_id = Identifier(CONFIG::SERVER_IDENTIFIER.toString() + "-" +

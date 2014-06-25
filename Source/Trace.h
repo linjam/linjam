@@ -13,8 +13,10 @@
 #define DEBUG_STORE_CONFIG_VB  DEBUG && 0
 #define DEBUG_ADDED_CHANNEL_VB DEBUG && 0
 
-#define EXIT_IMMEDIAYELY    0
-#define CHAT_COMMANDS_BUGGY
+#define DEBUG_EXIT_IMMEDIAYELY       0
+#define DEBUG_LOCALHOST_LOGIN_BUTTON 1
+
+#define BUGGY_CHAT_COMMANDS
 #define ADD_REMOTES         1
 #define UPDATE_VU           0
 
@@ -165,9 +167,14 @@
 #  define DEBUG_TRACE_LOGIN_LOAD                                           \
     Trace::TraceState("Login - currentHost => '" + host + "' - storage " + \
                       ((server.isValid())? "" : "not ") + "found") ;
-#  define DEBUG_TRACE_LOGIN_CLICKED                                                          \
+
+#  define DEBUG_TRACE_LOGIN_BTNS                                                             \
     if      (buttonThatWasClicked == loginButton) Trace::TraceEvent("loginButton clicked") ; \
-    else if (buttonThatWasClicked == anonButton)  Trace::TraceEvent("anonButton clicked") ;
+    else if (buttonThatWasClicked == anonButton)  Trace::TraceEvent("anonButton clicked") ;  \
+    else if (loginButtons.contains((TextButton*)buttonThatWasClicked))                       \
+      Trace::TraceEvent("quick-login button clicked " +                                      \
+          buttonThatWasClicked->getButtonText().trim()) ;
+
 #  define DEBUG_TRACE_CONNECT Trace::TraceState((!IsAgreed())?                               \
                                                 "connecting to " + host :                    \
                                                 "joining "       + host + " as " + login) ;

@@ -153,7 +153,7 @@ Login::Login ()
     this->loginButtons.add(loginButton) ;
 
     addAndMakeVisible(loginButton) ;
-    loginButton->setExplicitFocusOrder(6 + host_n) ; // here be dragons
+    loginButton->setExplicitFocusOrder(6 + host_n) ; // TODO: here be dragons
     loginButton->setButtonText(known_host) ;
     loginButton->addListener(this) ;
   }
@@ -217,6 +217,8 @@ void Login::resized()
 
 void Login::buttonClicked (Button* buttonThatWasClicked)
 {
+DEBUG_TRACE_LOGIN_BTNS
+
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
@@ -301,7 +303,7 @@ void Login::refreshState()
   String    login        =      LinJam::Config->currentLogin.toString() ;
   String    pass         =      LinJam::Config->currentPass.toString() ;
   bool      is_anonymous = bool(LinJam::Config->currentIsAnonymous.getValue()) ;
-  ValueTree server       = LinJam::Config->getServerConfig(host) ;
+  ValueTree server       = LinJam::Config->getServer(host) ;
 
 DEBUG_TRACE_LOGIN_LOAD
 
@@ -336,17 +338,38 @@ void Login::sortLoginButtons()
       this->loginButtons.getUnchecked(host_n)->setBounds(x , y , w , h) ;
     }
 }
-
+#  define DEBUG_TRACE_LOGIN_HOST                                                       \
+    String h  = this->hostText->getText().trim() ; String dbg ;                        \
+    String hn = h.upToLastOccurrenceOf( StringRef(".") , false , true) ;               \
+    String ht = h.fromLastOccurrenceOf( StringRef(".") , false , true)                 \
+                 .upToFirstOccurrenceOf(StringRef(":") , false , true) ;               \
+    String hp = h.fromFirstOccurrenceOf(StringRef(":") , false , true) ;               \
+    Trace::TraceConfig("validating host '" + h + "'"  +                                \
+      "\n  parsed host="      + h  +                                                   \
+      "\n  parsed host_tld="  + ht +                                                   \
+      "\n  parsed host_port=" + hp +                                                   \
+      "\n  is_valid_host="    + String(h .matchesWildcard(NETWORK::HOST_MASK , true) + \
+      "\n  is_valid_url="     + String(hn.containsOnly(   NETWORK::URL_CHARS))       + \
+      "\n  is_valid_tld="     + String(ht.containsOnly(   NETWORK::LETTERS))         + \
+      "\n  is_valid_port="    + String(hp.containsOnly(   NETWORK::DIGITS))           )) ;
+#  define DEBUG_TRACE_LOGIN                                     \
+    if (!validateHost() || !validateLogin() || !validatePass()) \
+      DBG("Login::login() host='" + host + "'"                + \
+          " is_valid_host=" + String(validateHost())          + \
+          " is_valid_login=" + String(validateLogin())        + \
+          " is_valid_pass=" + String(validatePass())) ;
 bool Login::validateHost()
 {
+DEBUG_TRACE_LOGIN_HOST
+
   String host      = this->hostText->getText().trim() ;
   String host_name = host.upToLastOccurrenceOf( StringRef(".") , false , true) ;
   String host_tld  = host.fromLastOccurrenceOf( StringRef(".") , false , true)
                          .upToFirstOccurrenceOf(StringRef(":") , false , true) ;
   String host_port = host.fromFirstOccurrenceOf(StringRef(":") , false , true) ;
 
-  bool is_valid = (host     .matchesWildcard(NETWORK::HOST_VALIDATION_MASK , true) &&
-                   host_name.containsOnly(   NETWORK::VALID_URL_CHARS)             &&
+  bool is_valid = (host     .matchesWildcard(NETWORK::HOST_MASK , true) &&
+                   host_name.containsOnly(   NETWORK::URL_CHARS)             &&
                    host_tld .containsOnly(   NETWORK::LETTERS)                     &&
                    host_port.containsOnly(   NETWORK::DIGITS)                       ) ;
 
@@ -391,6 +414,8 @@ void Login::setCurrentConfig(String host , String login , String pass ,
 
 void Login::login(String host)
 {
+DEBUG_TRACE_LOGIN
+
   String login        = this->loginText  ->getText().trim() ;
   String pass         = this->passText   ->getText().trim() ;
   bool   is_anonymous = this->anonButton ->getToggleState() ;
