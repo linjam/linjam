@@ -15,8 +15,9 @@
 #include <ninjam/njclient.h>
 #include <ninjam/njmisc.h>
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 
+#include "Trace.h"
 #include "LinJamConfig.h"
 #include "MainContent.h"
 
@@ -48,9 +49,9 @@ public:
 
 private:
 
-  static audioStreamer* Audio ;
-  static MainContent*   Gui ;
   static NJClient*      Client ;
+  static MainContent*   Gui ;
+  static audioStreamer* Audio ;
   static float          GuiBeatOffset ;
   static File           SessionDir ;
   static int            PrevStatus ;

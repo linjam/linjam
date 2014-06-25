@@ -11,8 +11,8 @@
 #ifndef _CONSTANTS_H_
 #define _CONSTANTS_H_
 
-#include "LinJam.h"
 
+#include "LinJam.h"
 
 
 class CLIENT
@@ -66,7 +66,12 @@ public:
   static const String            NINJAMER_2050_URL ;
   static const String            NINJAMER_2051_URL ;
   static const String            NINJAMER_2052_URL ;
+#if DEBUG_LOCALHOST_LOGIN_BUTTON
+  static const String            LOCALHOST_2049_URL ;
+  static const int               N_KNOWN_HOSTS = 9 ;
+#else // DEBUG_LOCALHOST_LOGIN_BUTTON
   static const int               N_KNOWN_HOSTS = 8 ;
+#endif // DEBUG_LOCALHOST_LOGIN_BUTTON
   static const Identifier        NINBOT_USER ;
   static const Identifier        JAMBOT_USER ;
   static const int               N_KNOWN_BOTS = 2 ;
@@ -74,10 +79,10 @@ public:
   static const Array<Identifier> KNOWN_BOTS ;
 
   // login
-  static const StringRef HOST_VALIDATION_MASK ;
+  static const StringRef HOST_MASK ;
   static const StringRef LETTERS ;
   static const StringRef DIGITS ;
-  static const StringRef VALID_URL_CHARS ;
+  static const StringRef URL_CHARS ;
 } ;
 
 
@@ -152,9 +157,12 @@ public:
 
   // Mixer
   static const String MIXER_GUI_ID ;
-  static const int    MIXER_H                 = MIXERGROUP_H + PAD2 ;
+  static const int    MIXER_H                 = PAD2 + MIXERGROUP_H ;
+  static const int    RESIZER_W               = PAD  + 2 ;
   static const int    N_STATIC_MIXER_CHILDREN = 7 ;
+  static const int    CHANNEL_SCROLL_BTN_Y    = MIXERGROUP_H + (MIXERGROUP_H / 4) ;
   static const int    CHANNEL_SCROLL_BTN_W    = 24 ;
+  static const int    CHANNEL_SCROLL_BTN_H    = MIXERGROUP_H / 2 ;
 
   // StatusBar
   static const String STATUS_GUI_ID ;

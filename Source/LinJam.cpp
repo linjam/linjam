@@ -16,7 +16,6 @@
 #include "LinJam.h"
 #include "Channel.h"
 #include "Constants.h"
-#include "Trace.h"
 
 
 class LinJamApplication ;
@@ -191,7 +190,7 @@ bool LinJam::IsAgreed() { return bool(Config->currentIsAgreed.getValue()) ; }
 
 int LinJam::OnLicense(int user32 , char* license_text)
 {
-  ValueTree server         = Config->getCurrentServerConfig() ;
+  ValueTree server         = Config->getCurrentServer() ;
   bool should_always_agree = server.isValid() &&
                              bool(server.getProperty(CONFIG::AGREE_IDENTIFIER)) ;
   bool is_agreed           = IsAgreed() || should_always_agree ;
@@ -200,7 +199,7 @@ int LinJam::OnLicense(int user32 , char* license_text)
   if (!is_agreed)
   {
     Gui->license->setLicenseText(CharPointer_UTF8(license_text)) ;
-    Config->setServerConfig() ;
+    Config->setServer() ;
   }
 
 DEBUG_TRACE_LICENSE
@@ -334,7 +333,7 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
 //           mostly because Trace::SanitizeConfig() does not yet handle nested lists
 //           but for clarity there should be a <remote-channels> tree (issue #33)
     Identifier user_id   = Config->encodeUserId(user_name , user_idx) ;
-    ValueTree user_store = Config->getOrCreateRemoteUserConfig(user_id) ;
+    ValueTree user_store = Config->getOrCreateNode(user_id) ;
     if (!user_store.hasProperty(CONFIG::VOLUME_IDENTIFIER))
     {
 DEBUG_TRACE_ADD_REMOTE_USER
@@ -536,9 +535,9 @@ void LinJam::HandleChatCommand(String chat_text)
                            !command.compare(CLIENT::CHATMSG_CMD_BPM)   ||
                            !command.compare(CLIENT::CHATMSG_CMD_BPI)    ) ;
 
-#ifdef CHAT_COMMANDS_BUGGY // (issue #19)
-  Gui->chat->addChatLine(GUI::SERVER_NICK , "commands disabled") ;
-#else // CHAT_COMMANDS_BUGGY
+#ifdef BUGGY_CHAT_COMMANDS // (issue #19)
+  Gui->chat->addChatLine(GUI::SERVER_NICK , "commands disabled") ; return ;
+#endif // CHAT_COMMANDS_BUGGY
 
   if      (is_me_command)
   {
@@ -570,8 +569,6 @@ void LinJam::HandleChatCommand(String chat_text)
     }
   }
   else Gui->chat->addChatLine(GUI::SERVER_NICK , GUI::UNKNOWN_COMMAND_MSG) ;
-
-#endif // CHAT_COMMANDS_BUGGY
 }
 
 void LinJam::AddLocalChannel(Identifier channel_id)
@@ -603,7 +600,7 @@ void LinJam::AddChannel(Identifier mixergroup_id , Identifier channel_id , int c
 DEBUG_TRACE_ADD_CHANNEL
 
   // load stored config for this channel into temporary ChannelConfig data object
-  ValueTree channel_store = Config->getChannelConfig(mixergroup_id , channel_id) ;
+  ValueTree channel_store = Config->getChannel(mixergroup_id , channel_id) ;
   if (!channel_store.isValid()) return ;
 
   // add new channel GUI

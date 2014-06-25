@@ -20,10 +20,11 @@
 #ifndef __JUCE_HEADER_EB46FF61849DA256__
 #define __JUCE_HEADER_EB46FF61849DA256__
 
+
 //[Headers]     -- You can add your own extra header files here --
 
-#include "JuceHeader.h"
 #include "Channels.h"
+#include "JuceHeader.h"
 
 //[/Headers]
 
@@ -73,6 +74,10 @@ private:
   ScopedPointer<TextButton>             nextRemoteScrollButton ;
   ScopedPointer<ResizableEdgeComponent> localsResizer ;
   ScopedPointer<ResizableEdgeComponent> mastersResizer ;
+
+
+  uint8 localScrollZ ;
+  uint8 remoteScrollZ ;
 
 
   void        buttonClicked(      Button* buttonThatWasClicked) override ;

@@ -42,7 +42,13 @@ const String        NETWORK::NINJAMER_2051_URL          = "ninjamer.com:2051" ;
 const String        NETWORK::NINJAMER_2052_URL          = "ninjamer.com:2052" ;
 const Identifier    NETWORK::NINBOT_USER                = "ninbot" ;
 const Identifier    NETWORK::JAMBOT_USER                = "Jambot" ;
+#if ! DEBUG_LOCALHOST_LOGIN_BUTTON
 const String        known_hosts[NETWORK::N_KNOWN_HOSTS] = {
+#else // DEBUG_LOCALHOST_LOGIN_BUTTON
+const String        NETWORK::LOCALHOST_2049_URL         = "localhost:2049" ;
+const String        known_hosts[NETWORK::N_KNOWN_HOSTS] = {
+                        NETWORK::LOCALHOST_2049_URL       ,
+#endif // DEBUG_LOCALHOST_LOGIN_BUTTON
 /*
                         NETWORK::NINJAM_2049_URL          ,
                         NETWORK::NINJAM_2050_URL          ,
@@ -68,10 +74,10 @@ const Array<Identifier> NETWORK::KNOWN_BOTS             =
       Array<Identifier>(known_bots  , NETWORK::N_KNOWN_BOTS) ;
 
 // login
-const StringRef NETWORK::HOST_VALIDATION_MASK = "*.*:*" ;
-const StringRef NETWORK::LETTERS              = "abcdefghijklmnopqrstuvwxyz" ;
-const StringRef NETWORK::DIGITS               = "0123456789" ;
-const StringRef NETWORK::VALID_URL_CHARS      = "0123456789abcdefghijklmnopqrstuvwxyz-." ;
+const StringRef NETWORK::HOST_MASK = "*.*:*" ;
+const StringRef NETWORK::LETTERS   = "abcdefghijklmnopqrstuvwxyz" ;
+const StringRef NETWORK::DIGITS    = "0123456789" ;
+const StringRef NETWORK::URL_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz-." ;
 
 
 /* GUI class public class constants */

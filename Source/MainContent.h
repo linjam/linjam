@@ -10,7 +10,7 @@
 #define _MAIN_CONTENT_H_
 
 
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "JuceHeader.h"
 
 #include "Background.h"
 #include "Login.h"
