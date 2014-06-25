@@ -145,6 +145,9 @@ void Mixer::resized()
     channels_x += GUI::PAD + channels_w ;
   }
 
+  // resizers
+  positionResizers() ;
+
   // scroll buttons
   int  locals_resizer_x               = this->localsResizer ->getX() ;
   int  masters_resizer_x              = this->mastersResizer->getX() ;
@@ -161,12 +164,12 @@ void Mixer::resized()
   }
   if (should_show_next_local_button)
   {
-    int next_local_button_x = locals_resizer_x  - GUI::PAD - GUI::CHANNEL_SCROLL_BTN_W ;
+    int next_local_button_x = locals_resizer_x - GUI::PAD - GUI::CHANNEL_SCROLL_BTN_W ;
     nextLocalScrollButton->setTopLeftPosition(next_local_button_x , GUI::CHANNEL_SCROLL_BTN_Y) ;
   }
   if (should_show_prev_remote_button)
   {
-    int prev_button_x = locals_resizer_x + GUI::RESIZER_W + 1 ;
+    int prev_button_x = locals_resizer_x + GUI::RESIZER_W ;
     prevRemoteScrollButton->setTopLeftPosition(prev_button_x , GUI::CHANNEL_SCROLL_BTN_Y) ;
   }
   if (should_show_next_remote_button)
@@ -178,9 +181,6 @@ void Mixer::resized()
   nextLocalScrollButton ->setVisible(should_show_next_local_button) ;
   prevRemoteScrollButton->setVisible(should_show_prev_remote_button) ;
   nextRemoteScrollButton->setVisible(should_show_next_remote_button) ;
-
-  // resizers
-  positionResizers() ;
 
     //[/UserResized]
 }

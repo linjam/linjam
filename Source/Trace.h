@@ -14,7 +14,7 @@
 #define DEBUG_ADDED_CHANNEL_VB DEBUG && 0
 
 #define DEBUG_EXIT_IMMEDIAYELY       0
-#define DEBUG_LOCALHOST_LOGIN_BUTTON 1
+#define DEBUG_LOCALHOST_LOGIN_BUTTON 0
 
 #define BUGGY_CHAT_COMMANDS
 #define ADD_REMOTES         1
@@ -25,26 +25,26 @@
 
 #  define DEBUG_TRACE_LINJAM_INIT Trace::TraceEvent("initializing") ;
 
-#  define DEBUG_TRACE_AUDIO_INIT_WIN                                                  \
-    String type = "unknown" ; /* this can not be so */                                \
-    if      (if_n == audioStreamer::WINDOWS_AUDIO_ASIO)) type = "ASIO" ;              \
-    else if (if_n == audioStreamer::WINDOWS_AUDIO_KS))   type = "KS" ;                \
-    else if (if_n == audioStreamer::WINDOWS_AUDIO_DS)    type = "DS" ;                \
-    else if (if_n == audioStreamer::WINDOWS_AUDIO_WAVE)  type = "WAVE" ;              \
+#  define DEBUG_TRACE_AUDIO_INIT_WIN                                        \
+    String type = "unknown" ; /* this can not be so */                      \
+    if      (if_n == audioStreamer::WINDOWS_AUDIO_ASIO)  type = "ASIO" ;    \
+    else if (if_n == audioStreamer::WINDOWS_AUDIO_KS)    type = "KS" ;      \
+    else if (if_n == audioStreamer::WINDOWS_AUDIO_DS)    type = "DS" ;      \
+    else if (if_n == audioStreamer::WINDOWS_AUDIO_WAVE)  type = "WAVE" ;    \
     if (Audio) Trace::TraceConfig("using " + type + " audiostreamerobject") ;
-#  define DEBUG_TRACE_AUDIO_INIT_MAC                                               \
+#  define DEBUG_TRACE_AUDIO_INIT_MAC                                     \
     if (Audio) Trace::TraceConfig("using CoreAudio audiostreamerobject") ;
-#  define DEBUG_TRACE_AUDIO_INIT_JACK                                                  \
-    if (Audio) Trace::TraceConfig("using JACK audiostreamer") ;          \
+#  define DEBUG_TRACE_AUDIO_INIT_JACK                                                \
+    if (Audio) Trace::TraceConfig("using JACK audiostreamer") ;                      \
     else       Trace::TraceState("could not connect to JACK - falling back to ALSA") ;
-#  define DEBUG_TRACE_AUDIO_INIT_ALSA                                         \
+#  define DEBUG_TRACE_AUDIO_INIT_ALSA                         \
     if (Audio) Trace::TraceConfig("using ALSA audiostreamer") ;
-#  define DEBUG_TRACE_AUDIO_INIT                                     \
-    if (!Audio) Trace::TraceError("error opening audio device") ;    \
-    else Trace::TraceState("opened audio device at "             +   \
-                           String(Audio->m_srate)  + "Hz "       +   \
-                           String(Audio->m_bps)    + "bps "      +   \
-                           String(Audio->m_innch)  + "in -> "    +   \
+#  define DEBUG_TRACE_AUDIO_INIT                                   \
+    if (!Audio) Trace::TraceError("error opening audio device") ;  \
+    else Trace::TraceState("opened audio device at "             + \
+                           String(Audio->m_srate)  + "Hz "       + \
+                           String(Audio->m_bps)    + "bps "      + \
+                           String(Audio->m_innch)  + "in -> "    + \
                            String(Audio->m_outnch) + "out "      ) ;
 
 #  define DEBUG_TRACE_LOAD_CONFIG                                                       \
@@ -405,7 +405,10 @@
 #else // #if DEBUG_TRACE
 
 #  define DEBUG_TRACE_LINJAM_INIT             ;
-#  define DEBUG_TRACE_JACK_INIT               ;
+#  define DEBUG_TRACE_AUDIO_INIT_WIN          ;
+#  define DEBUG_TRACE_AUDIO_INIT_MAC          ;
+#  define DEBUG_TRACE_AUDIO_INIT_JACK         ;
+#  define DEBUG_TRACE_AUDIO_INIT_ALSA         ;
 #  define DEBUG_TRACE_AUDIO_INIT              ;
 #  define DEBUG_TRACE_LOAD_CONFIG             ;
 #  define DEBUG_TRACE_SANITIZE_CONFIG         ;

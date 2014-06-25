@@ -160,7 +160,7 @@ public:
   static const int    MIXER_H                 = PAD2 + MIXERGROUP_H ;
   static const int    RESIZER_W               = PAD  + 2 ;
   static const int    N_STATIC_MIXER_CHILDREN = 7 ;
-  static const int    CHANNEL_SCROLL_BTN_Y    = MIXERGROUP_H + (MIXERGROUP_H / 4) ;
+  static const int    CHANNEL_SCROLL_BTN_Y    = MIXERGROUP_Y + (MIXERGROUP_H / 4) ;
   static const int    CHANNEL_SCROLL_BTN_W    = 24 ;
   static const int    CHANNEL_SCROLL_BTN_H    = MIXERGROUP_H / 2 ;
 

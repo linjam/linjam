@@ -168,7 +168,35 @@ void LinJam::UpdateGUI()
 }
 
 
+/* getters/setters */
+
+bool LinJam::IsAgreed() { return bool(Config->currentIsAgreed.getValue()) ; }
+
+
 /* helpers */
+
+void LinJam::AddLocalChannel(Identifier channel_id)
+{
+DEBUG_TRACE_NEW_LOCAL_CHANNEL_FAIL
+
+  int max_channels = Client->GetMaxLocalChannels() ; int n_channels = -1 ; int channel_idx ;
+  while (~(channel_idx = Client->EnumLocalChannels(++n_channels))) ;
+  if (n_channels >= max_channels) return ;
+
+  ValueTree store       = ValueTree(channel_id) ;
+  store.setProperty(CONFIG::VOLUME_IDENTIFIER   , CONFIG::DEFAULT_VOLUME    , nullptr) ;
+  store.setProperty(CONFIG::PAN_IDENTIFIER      , CONFIG::DEFAULT_PAN       , nullptr) ;
+  store.setProperty(CONFIG::XMIT_IDENTIFIER     , CONFIG::DEFAULT_IS_XMIT   , nullptr) ;
+  store.setProperty(CONFIG::MUTE_IDENTIFIER     , CONFIG::DEFAULT_IS_MUTE   , nullptr) ;
+  store.setProperty(CONFIG::SOLO_IDENTIFIER     , CONFIG::DEFAULT_IS_SOLO   , nullptr) ;
+  store.setProperty(CONFIG::SOURCE_N_IDENTIFIER , CONFIG::DEFAULT_SOURCE_N  , nullptr) ;
+  store.setProperty(CONFIG::STEREO_IDENTIFIER   , CONFIG::DEFAULT_IS_STEREO , nullptr) ;
+  Config->localChannels.addChild(store , -1 , nullptr) ;
+
+  AddChannel(GUI::LOCAL_MIXERGROUP_IDENTIFIER , channel_id , channel_idx) ;
+
+DEBUG_TRACE_NEW_LOCAL_CHANNEL
+}
 
 void LinJam::SendChat(String chat_text)
 {
@@ -181,11 +209,6 @@ DEBUG_TRACE_CHAT_OUT
 }
 
 
-/* getters/setters */
-
-bool LinJam::IsAgreed() { return bool(Config->currentIsAgreed.getValue()) ; }
-
-
 /* NJClient callbacks */
 
 int LinJam::OnLicense(int user32 , char* license_text)
@@ -194,9 +217,9 @@ int LinJam::OnLicense(int user32 , char* license_text)
   bool should_always_agree = server.isValid() &&
                              bool(server.getProperty(CONFIG::AGREE_IDENTIFIER)) ;
   bool is_agreed           = IsAgreed() || should_always_agree ;
-  Config->currentIsAgreed  = is_agreed ;
 
   if (!is_agreed) Gui->license->setLicenseText(CharPointer_UTF8(license_text)) ;
+  else            Config->currentIsAgreed = false ;
 
 DEBUG_TRACE_LICENSE
 
@@ -296,7 +319,7 @@ if (client_status == NJClient::NJC_STATUS_PRECONNECT)
                                             Gui->background->toBehind(Gui->chat) ;    break ;
     case NJClient::NJC_STATUS_PRECONNECT:   Gui->login     ->toFront(true)  ;
                                             Gui->background->toBehind(Gui->login) ;   break ;
-    default:                                                               break ;
+    default:                                                                          break ;
   }
 
   // status indicator
@@ -571,30 +594,6 @@ void LinJam::HandleChatCommand(String chat_text)
     }
   }
   else Gui->chat->addChatLine(GUI::SERVER_NICK , GUI::UNKNOWN_COMMAND_MSG) ;
-}
-
-void LinJam::AddLocalChannel(Identifier channel_id)
-{
-DEBUG_TRACE_NEW_LOCAL_CHANNEL_FAIL
-
-  int max_channels = Client->GetMaxLocalChannels() ; int n_channels = -1 ; int channel_idx ;
-  while (~(channel_idx = Client->EnumLocalChannels(++n_channels))) ;
-  if (n_channels >= max_channels) return ;
-
- // Identifier channel_id = Config->encodeChannelId(channel_name , channel_idx) ;
-  ValueTree store       = ValueTree(channel_id) ;
-  store.setProperty(CONFIG::VOLUME_IDENTIFIER   , CONFIG::DEFAULT_VOLUME    , nullptr) ;
-  store.setProperty(CONFIG::PAN_IDENTIFIER      , CONFIG::DEFAULT_PAN       , nullptr) ;
-  store.setProperty(CONFIG::XMIT_IDENTIFIER     , CONFIG::DEFAULT_IS_XMIT   , nullptr) ;
-  store.setProperty(CONFIG::MUTE_IDENTIFIER     , CONFIG::DEFAULT_IS_MUTE   , nullptr) ;
-  store.setProperty(CONFIG::SOLO_IDENTIFIER     , CONFIG::DEFAULT_IS_SOLO   , nullptr) ;
-  store.setProperty(CONFIG::SOURCE_N_IDENTIFIER , CONFIG::DEFAULT_SOURCE_N  , nullptr) ;
-  store.setProperty(CONFIG::STEREO_IDENTIFIER   , CONFIG::DEFAULT_IS_STEREO , nullptr) ;
-  Config->localChannels.addChild(store , -1 , nullptr) ;
-
-  AddChannel(GUI::LOCAL_MIXERGROUP_IDENTIFIER , channel_id , channel_idx) ;
-
-DEBUG_TRACE_NEW_LOCAL_CHANNEL
 }
 
 void LinJam::AddChannel(Identifier mixergroup_id , Identifier channel_id , int channel_idx)

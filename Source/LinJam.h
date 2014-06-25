@@ -11,6 +11,10 @@
 #define _LINJAM_H_
 
 
+#ifdef _WIN32
+#  include "audioconfig.h" // TODO: reimplement audioconfig.cpp in this class (issue #27)
+#endif // _WIN32
+
 #include <ninjam/audiostream.h>
 #include <ninjam/njclient.h>
 #include <ninjam/njmisc.h>
@@ -39,6 +43,9 @@ public:
   static void DriveClient() ;
   static void UpdateGUI() ;
 
+  // getters/setters
+  static bool IsAgreed() ;
+
   // helpers
   static void AddLocalChannel(Identifier channel_id) ;
   static void SendChat(       String chat_text) ;
@@ -57,9 +64,6 @@ private:
   static int            PrevStatus ;
   static bool           IsAudioEnabled ;
 
-
-  // getters/setters
-  static bool IsAgreed() ;
 
   // NJClient callbacks
   static int  OnLicense(int user32            , char* license_text) ;

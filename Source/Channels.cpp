@@ -132,7 +132,6 @@ void Channels::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_addButton] -- add your button handler code here..
 
       // TODO: prompt ?
-//       LinJam::AddLocalChannel(String(LinJam::Config->encodeChannelId("" , getNumChannels()))) ;
       LinJam::AddLocalChannel(LinJam::Config->encodeChannelId("" , getNumChannels() + 1 )) ;
 
         //[/UserButtonCode_addButton]

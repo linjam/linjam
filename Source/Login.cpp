@@ -285,9 +285,7 @@ DEBUG_TRACE_LOGIN_BTNS
 
 /* event handlers */
 
-void Login::broughtToFront() {
-DBG("Login::broughtToFront()") ;
-  refreshState() ; }
+void Login::broughtToFront() { refreshState() ; }
 
 void Login::textEditorTextChanged(TextEditor& a_text_editor)
 {
@@ -307,8 +305,6 @@ DBG("Login::valueChanged()=" + login_value.getValue().toString()) ;
 
 void Login::refreshState()
 {
-DBG("Login::refreshState()") ;
-
   if (LinJam::Config == nullptr) return ;
 
   String    host         =      LinJam::Config->currentHost.toString() ;
@@ -317,7 +313,7 @@ DBG("Login::refreshState()") ;
   bool      is_anonymous = bool(LinJam::Config->currentIsAnonymous.getValue()) ;
   ValueTree server       = LinJam::Config->getServer(host) ;
 
-  if (!server.isValid())
+  if (!server.isValid() && !LinJam::IsAgreed()) // TODO: IsAgreed() should always be false when this fires (issue #14)
     // could not connect to currentHost - reset current login state
     LinJam::Config->setCurrentServer(host = "" , login = "" ,
                                      pass = "" , is_anonymous = true) ;
