@@ -68,22 +68,21 @@ private:
 
   ScopedPointer<Channels>               masterChannels ;
   ScopedPointer<Channels>               localChannels ;
-  ScopedPointer<TextButton>             prevLocalScrollButton ;
-  ScopedPointer<TextButton>             nextLocalScrollButton ;
-  ScopedPointer<TextButton>             prevRemoteScrollButton ;
-  ScopedPointer<TextButton>             nextRemoteScrollButton ;
+  ScopedPointer<TextButton>             prevScrollButton ;
+  ScopedPointer<TextButton>             nextScrollButton ;
   ScopedPointer<ResizableEdgeComponent> localsResizer ;
   ScopedPointer<ResizableEdgeComponent> mastersResizer ;
 
 
-  uint8 localScrollZ ;
-  uint8 remoteScrollZ ;
+  uint8 scrollZ ;
 
 
   void        buttonClicked(      Button* buttonThatWasClicked) override ;
   TextButton* addScrollButton(    String button_id) ;
   Channels*   addChannels(        String mixer_group_id) ;
   int         getNumDynamicMixers() ;
+  int         getLocalsResizerNextX() ;
+  int         getMastersResizerNextX() ;
 
     //[/UserVariables]
 

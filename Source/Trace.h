@@ -382,6 +382,21 @@
 #  endif // DEBUG_ADDED_CHANNEL_VB
 #  define DEBUG_TRACE_INVALID_CHANNELID                                 \
     else Trace::TraceError("invalid channel_id '" + channel_id + "'") ;
+#  define DEBUG_TRACE_MIXER_COMPONENTS_VB                                      \
+    String dbg = String(getNumChildComponents()) + " mixer components (" +     \
+        String(GUI::N_STATIC_MIXER_CHILDREN) + " static)=>"  ;                 \
+    for (int n = 0 ; n < getNumChildComponents() ; ++n)                        \
+    {                                                                          \
+      Component* child = getChildComponent(n) ; String id ;                    \
+      if      (child == this->masterChannels)   id = "masterChannels" ;        \
+      else if (child == this->prevScrollButton) id = "prevScrollButton" ;      \
+      else if (child == this->nextScrollButton) id = "nextScrollButton" ;      \
+      else if (child == this->localsResizer)    id = "localsResizer" ;         \
+      else if (child == this->mastersResizer)   id = "mastersResizer" ;        \
+      else                                      id = child->getComponentID() ; \
+      dbg += "\n  component[" + String(n) + "] => " + String(id) ;             \
+    }                                                                          \
+    Trace::TraceVerbose(dbg) ;
 
 #  define DEBUG_TRACE_CHAT_IN                                                          \
     if (chat_user.compare(Config->currentLogin.toString()))                            \
@@ -435,6 +450,7 @@
 #  define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL ;
 #  define DEBUG_TRACE_ADDED_CHANNEL           ;
 #  define DEBUG_TRACE_INVALID_CHANNELID       ;
+#  define DEBUG_TRACE_MIXER_COMPONENTS_VB     ;
 #  define DEBUG_TRACE_CHAT_IN                 ;
 #  define DEBUG_TRACE_CHAT_OUT                ;
 #  define DEBUG_TRACE_CLEAN_SESSION           ;
