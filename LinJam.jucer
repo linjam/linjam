@@ -17,7 +17,6 @@
       <FILE id="QmX4eP" name="Loop.h" compile="0" resource="0" file="Source/Loop.h"/>
       <FILE id="sKUFRy" name="MainContent.h" compile="0" resource="0" file="Source/MainContent.h"/>
       <FILE id="DDFUUa" name="Mixer.h" compile="0" resource="0" file="Source/Mixer.h"/>
-      <FILE id="osPoX6" name="MixerGroup.h" compile="0" resource="0" file="Source/MixerGroup.h"/>
       <FILE id="N6kt6x" name="StatusBar.h" compile="0" resource="0" file="Source/StatusBar.h"/>
       <FILE id="r3GyaJ" name="Trace.h" compile="0" resource="0" file="Source/Trace.h"/>
     </GROUP>
@@ -36,7 +35,6 @@
       <FILE id="j4iSrP" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
       <FILE id="JelDpp" name="MainContent.cpp" compile="1" resource="0" file="Source/MainContent.cpp"/>
       <FILE id="aYeN5b" name="Mixer.cpp" compile="1" resource="0" file="Source/Mixer.cpp"/>
-      <FILE id="EZdojQ" name="MixerGroup.cpp" compile="1" resource="0" file="Source/MixerGroup.cpp"/>
       <FILE id="XO5clN" name="StatusBar.cpp" compile="1" resource="0" file="Source/StatusBar.cpp"/>
       <FILE id="yx0l5v" name="Trace.cpp" compile="1" resource="0" file="Source/Trace.cpp"/>
     </GROUP>

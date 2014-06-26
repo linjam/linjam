@@ -10,15 +10,14 @@
 
 /* public class methods */
 
-void Trace::TraceConfig(String msg)  { if (TraceState())  Dbg("CONFIG"  , msg) ; }
-void Trace::TraceEvent(String msg)   { if (TraceEvs())    Dbg("EVENT"   , msg) ; }
-void Trace::TraceVerbose(String msg) { if (TraceVb())     Dbg("DEBUG"   , msg) ; }
-void Trace::TraceState(String msg)   { if (TraceState())  Dbg("STATE"   , msg) ; }
-void Trace::TraceNetwork(String msg) { if (TraceState())  Dbg("NETWORK" , msg) ; }
-void Trace::TraceError(String msg)   { if (TraceState())  Dbg("ERROR"   , msg) ; }
-void Trace::TraceServer(String msg)  { if (TraceState())  Dbg("SERVER"  , msg) ; }
+void Trace::TraceConfig(String msg)  { if (TraceState())  DBG("[CONFIG]:  " + msg) ; }
+void Trace::TraceEvent(String msg)   { if (TraceEvs())    DBG("[EVENT]:   " + msg) ; }
+void Trace::TraceVerbose(String msg) { if (TraceVb())     DBG("[DEBUG]:   " + msg) ; }
+void Trace::TraceState(String msg)   { if (TraceState())  DBG("[STATE]:   " + msg) ; }
+void Trace::TraceNetwork(String msg) { if (TraceState())  DBG("[NETWORK]: " + msg) ; }
+void Trace::TraceError(String msg)   { if (TraceState())  DBG("[ERROR]:   " + msg) ; }
+void Trace::TraceServer(String msg)  { if (TraceState())  DBG("[SERVER]:  " + msg) ; }
 
-void Trace::Dbg(String type , String msg) { DBG(String("[" + type + "]: " + msg)) ; }
 void Trace::DumpStoreXml(ValueTree store)
 { DBG(String(store.getType()) + " xml=\n" + store.toXmlString()) ; }
 

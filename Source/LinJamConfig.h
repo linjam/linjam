@@ -16,8 +16,7 @@
 #include "Constants.h"
 
 
-class LinJamConfig : public Value::Listener ,
-                     public ValueTree::Listener
+class LinJamConfig : public ValueTree::Listener
 {
 public:
 
@@ -106,7 +105,6 @@ private:
   String    filteredName(String a_name) ;
 
   // event handlers
-  void valueChanged(            Value& a_value)                                     override ;
   void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)          override ;
   void valueTreeChildAdded(     ValueTree& a_parent_tree , ValueTree& a_child_tree) override ;
 

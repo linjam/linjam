@@ -129,10 +129,10 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
   int channels_y = GUI::MIXERGROUP_Y ;
   int channels_w = 0 ;
   int channels_h = GUI::MIXERGROUP_H ;
-  int n_groups   = getNumDynamicMixers() ; Channels* channels ;
+  int n_groups   = getNumDynamicMixers() ;
   for (int group_n = GUI::LOCALS_IDX ; group_n < n_groups ; ++group_n)
   {
-    channels = (Channels*)getChildComponent(group_n) ;
+    Channels* channels = (Channels*)getChildComponent(group_n) ;
 
     // hide scrolled previous remotes
     if (group_n > GUI::LOCALS_IDX && group_n < this->scrollZ) // hidden remotes
@@ -185,7 +185,7 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
 
 /* Mixer class public methods */
 
-Channels* Mixer::getRemoteChannelsGroup(Identifier user_id)
+Channels* Mixer::getRemoteChannels(Identifier user_id)
 {
   Channels* a_component = (Channels*)findChildWithID(user_id) ;
   return (a_component)? a_component : addChannels(String(user_id)) ;
@@ -219,6 +219,31 @@ void Mixer::positionResizers()
   int masters_resizer_x = getMastersResizerNextX() ;
   this->localsResizer ->setTopLeftPosition(locals_resizer_x  , GUI::MIXERGROUP_Y) ;
   this->mastersResizer->setTopLeftPosition(masters_resizer_x , GUI::MIXERGROUP_Y) ;
+}
+
+void Mixer::pruneRemotes(ValueTree active_users)
+{
+  // find GUI elements for parted users
+  for (int user_n = GUI::FIRST_REMOTE_IDX ; user_n < getNumDynamicMixers() ; ++user_n)
+  {
+    Channels*  channels = (Channels*)getChildComponent(user_n) ; ValueTree active_user ;
+    Identifier user_id  = Identifier(channels->getComponentID()) ;
+    if ((active_user = active_users.getChildWithName(user_id)).isValid())
+    {
+      // find GUI elements for removed channels of active user
+      for (int channel_n = 0 ; channel_n < channels->getNumChannels() ; ++channel_n)
+      {
+        Channel* channel      = (Channel*)channels->getChildComponent(channel_n) ;
+        Identifier channel_id = Identifier(channel->getComponentID()) ;
+        if (active_user.getChildWithName(channel_id).isValid()) continue ;
+
+        // delete orphaned GUI elements for removed channel
+        channels->removeChannel(channel) ; --channel_n ;
+      }
+    }
+    // delete orphaned GUI elements for parted user
+    else { removeChannels(channels) ; --user_n ; }
+  }
 }
 
 
@@ -259,6 +284,13 @@ Channels* Mixer::addChannels(String channels_id)
   resized() ;
 
   return channels ;
+}
+
+void Mixer::removeChannels(Channels* channels)
+{
+DEBUG_REMOVE_CHANNELS
+
+  delete channels ; resized() ;
 }
 
 int Mixer::getNumDynamicMixers()

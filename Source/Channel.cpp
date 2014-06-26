@@ -22,7 +22,6 @@
 #include "LinJam.h"
 #include "Constants.h"
 #include "Trace.h"
-#include "MixerGroup.h"
 #include "Mixer.h"
 
 //[/Headers]
@@ -251,6 +250,10 @@ void Channel::buttonClicked (Button* buttonThatWasClicked)
     else if (buttonThatWasClicked == removeButton)
     {
         //[UserButtonCode_removeButton] -- add your button handler code here..
+
+      LinJam::RemoveLocalChannel(Identifier(getComponentID())) ;
+      ((Channels*)getParentComponent())->removeChannel(this) ;
+
         //[/UserButtonCode_removeButton]
     }
 

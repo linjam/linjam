@@ -183,7 +183,7 @@ DEBUG_TRACE_NEW_LOCAL_CHANNEL_FAIL
   while (~(channel_idx = Client->EnumLocalChannels(++n_channels))) ;
   if (n_channels >= max_channels) return ;
 
-  ValueTree store       = ValueTree(channel_id) ;
+  ValueTree store = ValueTree(channel_id) ;
   store.setProperty(CONFIG::VOLUME_IDENTIFIER   , CONFIG::DEFAULT_VOLUME    , nullptr) ;
   store.setProperty(CONFIG::PAN_IDENTIFIER      , CONFIG::DEFAULT_PAN       , nullptr) ;
   store.setProperty(CONFIG::XMIT_IDENTIFIER     , CONFIG::DEFAULT_IS_XMIT   , nullptr) ;
@@ -196,6 +196,12 @@ DEBUG_TRACE_NEW_LOCAL_CHANNEL_FAIL
   AddChannel(GUI::LOCAL_MIXERGROUP_IDENTIFIER , channel_id , channel_idx) ;
 
 DEBUG_TRACE_NEW_LOCAL_CHANNEL
+}
+
+void LinJam::RemoveLocalChannel(Identifier channel_id)
+{
+  Client->DeleteLocalChannel(GetLocalChannelIdx(channel_id)) ;
+  Client->NotifyServerOfChannelChange() ;
 }
 
 void LinJam::SendChat(String chat_text)
@@ -349,43 +355,47 @@ void LinJam::HandleUserInfoChanged()
 {
 DEBUG_TRACE_REMOTE_CHANNELS_VB
 
-  // load remote users state
-  int user_idx = -1 ; char* user_name ; float user_volume ; float user_pan ; bool user_muted ;
-  while (user_name = Client->GetUserState(++user_idx , &user_volume , &user_pan , &user_muted))
+  // fetch remote user states from server
+  ValueTree active_users = ValueTree(GUI::ACTIVEUSERS_IDENTIFIER) ;
+  int user_idx = -1 ; char* user_name ; float volume ; float pan ; bool is_muted ;
+  while (user_name = Client->GetUserState(++user_idx , &volume , &pan , &is_muted))
   {
-    // test if this remote user exists
 // TODO: we are adding remote users directly to the root node for now for simplicity
 //           mostly because Trace::SanitizeConfig() does not yet handle nested lists
 //           but for clarity there should be a <remote-channels> tree (issue #33)
-    Identifier user_id   = Config->encodeUserId(user_name , user_idx) ;
+    Identifier user_id = Config->encodeUserId(user_name , user_idx) ;
+    if (bool(Config->shouldHideBots.getValue()) &&
+        NETWORK::KNOWN_BOTS.contains(user_id)) continue ;
+
+    // get or add remote user storage
     ValueTree user_store = Config->getOrCreateNode(user_id) ;
     if (!user_store.hasProperty(CONFIG::VOLUME_IDENTIFIER))
     {
 DEBUG_TRACE_ADD_REMOTE_USER
 
       // add new remote user
-      user_store.setProperty(CONFIG::VOLUME_IDENTIFIER , user_volume , nullptr) ;
-      user_store.setProperty(CONFIG::PAN_IDENTIFIER    , user_pan    , nullptr) ;
-      user_store.setProperty(CONFIG::MUTE_IDENTIFIER   , user_muted  , nullptr) ;
+      user_store.setProperty(CONFIG::VOLUME_IDENTIFIER , volume   , nullptr) ;
+      user_store.setProperty(CONFIG::PAN_IDENTIFIER    , pan      , nullptr) ;
+      user_store.setProperty(CONFIG::MUTE_IDENTIFIER   , is_muted , nullptr) ;
     }
 
-    if (bool(Config->shouldHideBots.getValue()) &&
-        NETWORK::KNOWN_BOTS.contains(user_id)) continue ;
-
     // get or add remote user GUI
-    Channels* channels = Gui->mixer->getRemoteChannelsGroup(user_id) ;
+    Channels* channels = Gui->mixer->getRemoteChannels(user_id) ;
+
+    // list this user as active for GUI pruning
+    ValueTree active_user = ValueTree(user_id) ;
 
     int channel_n = -1 ; int channel_idx ;
     while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
     {
       // load remote channel state
-      bool  is_rcv ;  float channel_volume ; float channel_pan ; bool is_muted ;
+      bool  is_rcv ;  float channel_volume ; float channel_pan ; bool channel_is_muted ;
       bool  is_solo ; int   output_channel ; bool  is_stereo ;
-      char* channel_name = Client->GetUserChannelState(user_idx        , channel_idx  ,
-                                                       &is_rcv                        ,
-                                                       &channel_volume , &channel_pan ,
-                                                       &is_muted       , &is_solo     ,
-                                                       &output_channel , &is_stereo   ) ;
+      char* channel_name = Client->GetUserChannelState(user_idx          , channel_idx  ,
+                                                       &is_rcv                          ,
+                                                       &channel_volume   , &channel_pan ,
+                                                       &channel_is_muted , &is_solo     ,
+                                                       &output_channel   , &is_stereo   ) ;
 
       // test if this remote channel exists
       Identifier channel_id   = Config->encodeChannelId(channel_name , channel_idx) ;
@@ -405,8 +415,15 @@ DEBUG_TRACE_ADD_REMOTE_USER
       // add remote channel GUI
       if (!channels->findChildWithID(channel_id))
         AddChannel(user_id , channel_id , channel_idx) ;
+
+      // add channel to GUI prune list
+      active_user.addChild(ValueTree(channel_id) , -1 , nullptr) ;
     }
+    // add user to GUI prune list
+    active_users.addChild(active_user , -1 , nullptr) ;
   }
+  // prune user and channel GUIs
+  Gui->mixer->pruneRemotes(active_users) ;
 }
 
 bool LinJam::IsRoomFull()

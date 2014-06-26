@@ -226,9 +226,6 @@
     <ClCompile Include="..\..\Source\Mixer.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\MixerGroup.cpp">
-      <Filter>LinJam\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\StatusBar.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
@@ -1081,9 +1078,6 @@
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Mixer.h">
-      <Filter>LinJam\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\MixerGroup.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\StatusBar.h">

@@ -47,8 +47,9 @@ public:
   static bool IsAgreed() ;
 
   // helpers
-  static void AddLocalChannel(Identifier channel_id) ;
-  static void SendChat(       String chat_text) ;
+  static void AddLocalChannel(   Identifier channel_id) ;
+  static void RemoveLocalChannel(Identifier channel_id) ;
+  static void SendChat(          String chat_text) ;
 
 
   static LinJamConfig* Config ;

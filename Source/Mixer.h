@@ -49,12 +49,13 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  Channels*   getRemoteChannelsGroup(Identifier user_id) ;
-  void        addChannel(            Identifier mixergroup_id ,
-                                     ValueTree  channel_store) ;
-  void        updateChannelVU(       Identifier mixergroup_id ,
-                                     String     channel_id    , double vu) ;
+  Channels*   getRemoteChannels(Identifier user_id) ;
+  void        addChannel(       Identifier mixergroup_id ,
+                                ValueTree  channel_store) ;
+  void        updateChannelVU(  Identifier mixergroup_id ,
+                                String     channel_id    , double vu) ;
   void        positionResizers() ;
+  void        pruneRemotes(     ValueTree active_users) ;
 
     //[/UserMethods]
 
@@ -73,13 +74,13 @@ private:
   ScopedPointer<ResizableEdgeComponent> localsResizer ;
   ScopedPointer<ResizableEdgeComponent> mastersResizer ;
 
-
   uint8 scrollZ ;
 
 
   void        buttonClicked(      Button* buttonThatWasClicked) override ;
   TextButton* addScrollButton(    String button_id) ;
   Channels*   addChannels(        String mixer_group_id) ;
+  void        removeChannels(     Channels* channels) ;
   int         getNumDynamicMixers() ;
   int         getLocalsResizerNextX() ;
   int         getMastersResizerNextX() ;

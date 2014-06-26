@@ -392,22 +392,6 @@ ValueTree LinJamConfig::addServer(String host , String login , String pass ,
 String LinJamConfig::filteredName(String a_string)
 { return a_string.retainCharacters(CONFIG::VALID_NAME_CHARS).replaceCharacter(' ', '-') ; }
 
-void LinJamConfig::valueChanged(Value& a_value)
-{
-/*
-DEBUG_TRACE_CONFIG_VALUE_CHANGED
-
-  bool   a_bool   = bool( a_value.getValue()) ;
-  int    an_int   = int(  a_value.getValue()) ;
-  float  a_float  = float(a_value.getValue()) ;
-  String a_string =       a_value.toString() ;
-
-  if      (a_value.refersToSameSourceAs(this->masterVolume))
-    LinJam::Client->config_mastervolume = a_float ;
-  else if (etc) ;
-*/
-}
-
 void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)
 {
 DEBUG_TRACE_CONFIG_TREE_CHANGED
@@ -419,7 +403,10 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
   double     a_double = double(a_node[key]) ;
   String     a_string =        a_node[key].toString() ;
 
-  // master channels
+
+  /* master channels */
+
+  // configure master channels
   if (node_id == CONFIG::MASTER_IDENTIFIER)
   {
     if      (key == CONFIG::VOLUME_IDENTIFIER)
@@ -453,7 +440,9 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
       node_id == CONFIG::SERVER_IDENTIFIER ||               // but we must guard for now (issue #33)
       node_id == CONFIG::SERVERS_IDENTIFIER)       return ;
 
-  // local and remote channels
+
+  /* local and remote channels */
+
   // TODO: channel name changes (issue #12)
   ValueTree parent_node          = a_node.getParent() ; int channel_idx ;
   bool      should_set_volume    = (key == CONFIG::VOLUME_IDENTIFIER) ;

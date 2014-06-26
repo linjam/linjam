@@ -64,7 +64,6 @@ OBJECTS := \
   $(OBJDIR)/Main_90ebc5c2.o \
   $(OBJDIR)/MainContent_6313eee1.o \
   $(OBJDIR)/Mixer_d95e2aea.o \
-  $(OBJDIR)/MixerGroup_f6fd427f.o \
   $(OBJDIR)/StatusBar_3fb23a2.o \
   $(OBJDIR)/Trace_c9579226.o \
   $(OBJDIR)/juce_core_aff681cc.o \
@@ -153,11 +152,6 @@ $(OBJDIR)/MainContent_6313eee1.o: ../../Source/MainContent.cpp
 $(OBJDIR)/Mixer_d95e2aea.o: ../../Source/Mixer.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Mixer.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/MixerGroup_f6fd427f.o: ../../Source/MixerGroup.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling MixerGroup.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/StatusBar_3fb23a2.o: ../../Source/StatusBar.cpp

@@ -125,7 +125,8 @@ const String     GUI::LOCAL_MIXERGROUP_GUI_ID      = "Local" ;
 const Identifier GUI::LOCAL_MIXERGROUP_IDENTIFIER  = LOCAL_MIXERGROUP_GUI_ID ;
 
 // Mixer
-const String GUI::MIXER_GUI_ID = "mixer-gui" ;
+const String     GUI::MIXER_GUI_ID           = "mixer-gui" ;
+const Identifier GUI::ACTIVEUSERS_IDENTIFIER = "active-users" ;
 
 // StatusBar
 const String GUI::STATUS_GUI_ID = "statusbar-gui" ;

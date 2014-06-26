@@ -152,6 +152,13 @@ void Channels::addChannel(ValueTree channel_store)
   channel->toFront(false) ;
 }
 
+void Channels::removeChannel(Channel* channel)
+{
+DEBUG_REMOVE_CHANNEL
+
+  delete channel ; getParentComponent()->resized() ;
+}
+
 int Channels::getNumChannels()
 { return this->getNumChildComponents() - GUI::N_STATIC_CHANNEL_CHILDREN; }
 
