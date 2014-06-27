@@ -1,15 +1,21 @@
 
-*.ninjam
+# juce
+JuceLibraryCode
 
 # nix
 Builds/Linux/build
 *~
 *.kate-swp
+.kateproject*
 
 # win
 *Debug
 *Release
 lib
+
+# etc
+mk*
+*.ninjam
 
 [Tt]humbs.db
 *.DS_Store

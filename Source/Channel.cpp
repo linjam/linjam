@@ -269,8 +269,9 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
     if (sliderThatWasMoved == panSlider)
     {
         //[UserSliderCode_panSlider] -- add your slider handling code here..
-      double value = sliderThatWasMoved->getValue() ;
-      setChannelConfig(CONFIG::PAN_IDENTIFIER , var(value)) ;
+
+      double pan = sliderThatWasMoved->getValue() ;
+      setChannelConfig(CONFIG::PAN_IDENTIFIER , var(pan)) ;
 
         //[/UserSliderCode_panSlider]
     }
@@ -283,9 +284,9 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
 
-      double value = sliderThatWasMoved->getValue() ;
-      gainLabel->setText(String(int(value)) , juce::dontSendNotification) ;
-      setChannelConfig(CONFIG::VOLUME_IDENTIFIER , var(value)) ;
+      double gain = sliderThatWasMoved->getValue() ;
+      gainLabel->setText(String(int(gain)) , juce::dontSendNotification) ;
+      setChannelConfig(CONFIG::VOLUME_IDENTIFIER , var(gain)) ;
 
         //[/UserSliderCode_gainSlider]
     }
@@ -300,6 +301,8 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 
 void Channel::updateChannelVU(double vu)
 {
+//DBG("Channel::updateChannelVU() vu=" + String(vu) + " " + getComponentID()) ;
+
   this->vuSlider->setValue(vu) ;
   this->vuLabel ->setText(String(int(vu)) , juce::dontSendNotification) ;
   this->vuSlider->setColour(Slider::thumbColourId , ((vu > 0.0)?

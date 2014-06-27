@@ -119,10 +119,10 @@ const String GUI::XMIT_LABEL_TEXT       = "XMIT" ;
 const String GUI::RCV_LABEL_TEXT        = "RCV" ;
 
 // Channels
-const String     GUI::MASTER_MIXERGROUP_GUI_ID     = "Master" ;
-const Identifier GUI::MASTER_MIXERGROUP_IDENTIFIER = MASTER_MIXERGROUP_GUI_ID ;
-const String     GUI::LOCAL_MIXERGROUP_GUI_ID      = "Local" ;
-const Identifier GUI::LOCAL_MIXERGROUP_IDENTIFIER  = LOCAL_MIXERGROUP_GUI_ID ;
+const String     GUI::MASTERS_GUI_ID     = "Master" ;
+const Identifier GUI::MASTERS_IDENTIFIER = MASTERS_GUI_ID ;
+const String     GUI::LOCALS_GUI_ID      = "Local" ;
+const Identifier GUI::LOCALS_IDENTIFIER  = LOCALS_GUI_ID ;
 
 // Mixer
 const String     GUI::MIXER_GUI_ID           = "mixer-gui" ;

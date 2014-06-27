@@ -65,7 +65,7 @@ Channels::Channels (String channels_id)
 
     //[Constructor] You can add your own custom stuff here..
 
-  bool are_local_channels = (Identifier(channels_id) == GUI::LOCAL_MIXERGROUP_IDENTIFIER) ;
+  bool are_local_channels = (Identifier(channels_id) == GUI::LOCALS_IDENTIFIER) ;
   this->addButton    ->setVisible(are_local_channels) ;
   this->channelsLabel->setText(channels_id , juce::dontSendNotification) ;
 
@@ -132,7 +132,7 @@ void Channels::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_addButton] -- add your button handler code here..
 
       // TODO: prompt ?
-      LinJam::AddLocalChannel(LinJam::Config->encodeChannelId("" , getNumChannels() + 1 )) ;
+      LinJam::AddLocalChannel(String::empty) ;
 
         //[/UserButtonCode_addButton]
     }
@@ -147,8 +147,13 @@ void Channels::buttonClicked (Button* buttonThatWasClicked)
 
 void Channels::addChannel(ValueTree channel_store)
 {
+DEBUG_TRACE_ADD_CHANNEL_GUI
+
+  String channel_name = String(channel_store.getType()) ;
+  if (findChildWithID(StringRef(channel_name))) return ;
+
   Channel* channel = new Channel(channel_store) ;
-  this->addChildAndSetID(channel , String(channel_store.getType())) ;
+  this->addChildAndSetID(channel , channel_name) ;
   channel->toFront(false) ;
 }
 
@@ -164,10 +169,12 @@ int Channels::getNumChannels()
 
 void Channels::updateChannelVU(String channel_id , double vu)
 {
+DEBUG_TRACE_INVALID_CHANNELID
+
+  if (channel_id.isEmpty()) return ;
+
   Channel* channel = (Channel*)findChildWithID(StringRef(channel_id)) ;
   if (channel) channel->updateChannelVU(vu) ;
-
-DEBUG_TRACE_INVALID_CHANNELID
 }
 
 //[/MiscUserCode]

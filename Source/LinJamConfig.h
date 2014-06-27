@@ -74,13 +74,19 @@ public:
   String     decodeUserId(   Identifier channel_id) ;
 
   // getters/setters
-  ValueTree getChannel(      Identifier mixergroup_id , Identifier channel_id) ;
+  ValueTree getOrCreateUser(   Identifier user_id , float  volume  ,
+                               float      pan     , bool   is_muted) ;
+  ValueTree getOrCreateChannel(Identifier channels_id                      ,
+                               Identifier channel_id    , float  volume      ,
+                               float      pan           , bool   is_xmit_rcv ,
+                               bool       is_muted      , bool   is_solo     ,
+                               int        source_sink_n , bool   is_stereo   ) ;
+  ValueTree getChannel(        Identifier channels_id , Identifier channel_id) ;
   void      setServer() ;
-  ValueTree getServer(       String host) ;
-  void      setCurrentServer(String host , String login , String pass , bool is_anonymous) ;
+  ValueTree getServer(         String host) ;
+  void      setCurrentServer(  String host , String login , String pass , bool is_anonymous) ;
   ValueTree getCurrentServer() ;
-  void      setShouldAgree(  bool should_agree) ;
-  ValueTree getOrCreateNode( Identifier user_name) ;
+  void      setShouldAgree(    bool should_agree) ;
 
 
 private:
@@ -102,6 +108,7 @@ private:
   Value     getAudio(    Identifier key) ;
   Value     getServer(   Identifier key) ;
   ValueTree addServer(   String host , String login , String pass , bool is_anonymous) ;
+  ValueTree getUser(     Identifier user_id) ;
   String    filteredName(String a_name) ;
 
   // event handlers

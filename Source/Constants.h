@@ -146,14 +146,14 @@ public:
   static const int    VU_OFFSET                 = 120 ;
 
   // Channels
-  static const String     MASTER_MIXERGROUP_GUI_ID ;
-  static const Identifier MASTER_MIXERGROUP_IDENTIFIER ;
-  static const String     LOCAL_MIXERGROUP_GUI_ID ;
-  static const Identifier LOCAL_MIXERGROUP_IDENTIFIER ;
+  static const String     MASTERS_GUI_ID ;
+  static const Identifier MASTERS_IDENTIFIER ;
+  static const String     LOCALS_GUI_ID ;
+  static const Identifier LOCALS_IDENTIFIER ;
   static const int        MIXERGROUP_Y  = PAD ;
   static const int        MIXERGROUP_H  = CHANNEL_H + LABEL_H + PAD3 ;
   static       int        MIXERGROUP_W(int n_channels) { return PAD + (n_channels * (CHANNEL_W + PAD)) ; }
-  static const int        MASTERGROUP_W =                       PAD + (2          * (CHANNEL_W + PAD)) ;
+  static const int        MASTERS_W =                       PAD + (2          * (CHANNEL_W + PAD)) ;
 
   // Mixer
   static const String      MIXER_GUI_ID ;

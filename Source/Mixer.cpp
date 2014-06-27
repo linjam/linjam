@@ -38,8 +38,8 @@ Mixer::Mixer ()
 
     //[UserPreSize]
 
-  this->masterChannels   = addChannels(GUI::MASTER_MIXERGROUP_GUI_ID) ;
-  this->localChannels    = addChannels(GUI::LOCAL_MIXERGROUP_GUI_ID) ;
+  this->masterChannels   = getOrAddChannels(GUI::MASTERS_GUI_ID) ;
+  this->localChannels    = getOrAddChannels(GUI::LOCALS_GUI_ID) ;
   this->prevScrollButton = addScrollButton("prevScrollButton") ;
   this->nextScrollButton = addScrollButton("nextScrollButton") ;
   this->localsResizer    = new ResizableEdgeComponent(localChannels  , nullptr ,
@@ -118,9 +118,9 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
     return ;
 
   // master channels
-  int master_x = getWidth() - GUI::MASTERGROUP_W - GUI::PAD ;
+  int master_x = getWidth() - GUI::MASTERS_W - GUI::PAD ;
   int master_y = GUI::MIXERGROUP_Y ;
-  int master_w = GUI::MASTERGROUP_W ;
+  int master_w = GUI::MASTERS_W ;
   int master_h = GUI::MIXERGROUP_H ;
   this->masterChannels->setBounds(master_x , master_y , master_w , master_h) ;
 
@@ -137,8 +137,10 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
     // hide scrolled previous remotes
     if (group_n > GUI::LOCALS_IDX && group_n < this->scrollZ) // hidden remotes
     {
-      if (group_n == GUI::FIRST_REMOTE_IDX) channels_x += GUI::CHANNEL_SCROLL_BTN_W ;
       channels->setVisible(false) ;
+      if (group_n == GUI::FIRST_REMOTE_IDX)
+        channels_x += GUI::CHANNEL_SCROLL_BTN_W + GUI::RESIZER_W - GUI::PAD ;
+
       continue ;
     }
 
@@ -185,15 +187,14 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
 
 /* Mixer class public methods */
 
-Channels* Mixer::getRemoteChannels(Identifier user_id)
+Channels* Mixer::getOrAddRemoteChannels(String channels_name , ValueTree user_store)
 {
-  Channels* a_component = (Channels*)findChildWithID(user_id) ;
-  return (a_component)? a_component : addChannels(String(user_id)) ;
+  return getOrAddChannels(channels_name) ; // TODO: remote master GUI (issue #34)
 }
 
-void Mixer::addChannel(Identifier channels_id , ValueTree channel_store)
+void Mixer::addChannel(String channels_name , ValueTree channel_store)
 {
-  Channels* channels = (Channels*)findChildWithID(StringRef(String(channels_id))) ;
+  Channels* channels = (Channels*)findChildWithID(StringRef(channels_name)) ;
   if (!channels || !channel_store.isValid()) return ;
 
   channels->addChannel(channel_store) ; resized() ;
@@ -202,13 +203,13 @@ void Mixer::addChannel(Identifier channels_id , ValueTree channel_store)
 
 void Mixer::updateChannelVU(Identifier channels_id , String channel_id , double vu)
 {
-  if      (channels_id == GUI::MASTER_MIXERGROUP_IDENTIFIER)
+  if      (channels_id == GUI::MASTERS_IDENTIFIER)
     masterChannels->updateChannelVU(channel_id , vu) ;
-  else if (channels_id == GUI::LOCAL_MIXERGROUP_IDENTIFIER)
+  else if (channels_id == GUI::LOCALS_IDENTIFIER)
     localChannels ->updateChannelVU(channel_id , vu) ;
   else
   {
-    Channels* channels = (Channels*)findChildWithID(channels_id) ;
+    Channels* channels = getChannels(String(channels_id)) ;
     if (channels) channels->updateChannelVU(channel_id , vu) ;
   }
 }
@@ -275,16 +276,21 @@ TextButton* Mixer::addScrollButton(String button_id)
   return scroll_button ;
 }
 
-Channels* Mixer::addChannels(String channels_id)
+Channels* Mixer::getOrAddChannels(String channels_name)
 {
-  Channels* channels = new Channels(channels_id) ;
-  addChildAndSetID(channels , channels_id) ;
+  Channels* channels = getChannels(channels_name) ; if (channels) return channels ;
+
+  channels = new Channels(channels_name) ;
+  addChildAndSetID(channels , channels_name) ;
   channels->toFront(true) ;
 
   resized() ;
 
   return channels ;
 }
+
+Channels* Mixer::getChannels(String channels_name)
+{ return (Channels*)findChildWithID(StringRef(channels_name)) ; }
 
 void Mixer::removeChannels(Channels* channels)
 {

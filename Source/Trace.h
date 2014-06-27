@@ -2,6 +2,12 @@
 #ifndef _TRACE_H_
 #define _TRACE_H_
 
+
+// features
+#define BUGGY_CHAT_COMMANDS
+#define KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO 1 // NJClient initializes remote channels gain to 1.0
+
+// tracing
 #define DEBUG_TRACE            DEBUG && 1
 #define DEBUG_TRACE_EVENTS     DEBUG && 1
 #define DEBUG_TRACE_STATE      DEBUG && 1
@@ -15,10 +21,6 @@
 
 #define DEBUG_EXIT_IMMEDIAYELY       0
 #define DEBUG_LOCALHOST_LOGIN_BUTTON 0
-
-#define BUGGY_CHAT_COMMANDS
-#define ADD_REMOTES         1
-#define UPDATE_VU           0
 
 
 #if DEBUG_TRACE
@@ -245,18 +247,20 @@
 
 // channels
 #  define DEBUG_TRACE_REMOTE_CHANNELS                                                \
-      String dbg = "found remote user[" + String(u_n) + "] =>" +                     \
+      String dbg = "new remote user[" + String(u_n) + "] =>" +                       \
           "\n  user_name   => " + String(u_name)               +                     \
           "\n  user_volume => " + String(u_vol)                +                     \
           "\n  user_pan    => " + String(u_pan)                +                     \
           "\n  user_mute   => " + String(u_mute) ;                                   \
-      int c_n = -1 ; while (Client->EnumUserChannels(u_n , ++c_n) != -1)             \
+      int c_n = -1 ; while (LinJam::Client->EnumUserChannels(u_n , ++c_n) != -1)     \
       {                                                                              \
         bool c_rcv ;  float c_vol ; float c_pan ; bool c_mute ;                      \
         bool c_solo ; int   c_chan ; bool  c_stereo ;                                \
-        char* c_name = Client->GetUserChannelState(u_n , c_n , &c_rcv  , &c_vol  ,   \
-                                                   &c_pan    , &c_mute , &c_solo ,   \
-                                                   &c_chan   , &c_stereo         ) ; \
+        char* c_name = LinJam::Client->GetUserChannelState(u_n     , c_n     ,       \
+                                                           &c_rcv  , &c_vol  ,       \
+                                                           &c_pan  , &c_mute ,       \
+                                                           &c_solo , &c_chan ,       \
+                                                           &c_stereo         ) ;     \
         dbg += "\n  found remote channel[" + String(c_n) + "] =>" +                  \
                "\n    channel_name   => "  + String(c_name)       +                  \
                "\n    is_rcv         => "  + String(c_rcv)        +                  \
@@ -275,36 +279,51 @@
     while (u_name = Client->GetUserState(++u_n , &u_vol , &u_pan , &u_mute)) \
       { DEBUG_TRACE_REMOTE_CHANNELS }                        }
 #  define DEBUG_TRACE_ADD_REMOTE_USER                                            \
-    int   u_n   = user_idx ; char* u_name = user_name ;                          \
-    float u_vol = volume ;   float u_pan  = pan ;       bool u_mute = is_muted ; \
-    DEBUG_TRACE_REMOTE_CHANNELS                                                  \
+    if (!DEBUG_TRACE_VB)                                                         \
+    {                                                                            \
+      float  u_vol  = volume ; float u_pan  = pan ; bool  u_mute = is_muted ;    \
+      String u_name = String(user_id) ;                                          \
+      int    u_n    = LinJam::Client->GetNumUsers() ; char* c_name ;             \
+      while ((c_name = LinJam::Client->GetUserState(--u_n)))                     \
+        { String name = String(encodeUserId(c_name , u_n)) ;                     \
+          if (!String(user_id).compare(name)) break ; }                          \
+      DEBUG_TRACE_REMOTE_CHANNELS                                                \
+    }                                                                            \
+    else Trace::TraceState("user joined => '" + String(user_id) + "'") ;         \
     Trace::TraceConfig("adding remote user " + String(user_id)) ;
-#  define DEBUG_TRACE_ADD_CHANNEL                                                    \
-    if      (mixergroup_id == GUI::MASTER_MIXERGROUP_IDENTIFIER)                     \
-         Trace::TraceConfig("adding master channel '" + String(channel_id)  + "'") ; \
-    else if (mixergroup_id == GUI::LOCAL_MIXERGROUP_IDENTIFIER)                      \
-         Trace::TraceConfig("adding local channel["   + String(channel_idx) +        \
-                            "] - " + String(channel_id)) ;                           \
-    else Trace::TraceEvent("adding remote channel '"  + String(channel_id)  +        \
-                           "' for '" + String(mixergroup_id) + "'") ;
-#  define DEBUG_TRACE_NEW_LOCAL_CHANNEL_FAIL                                            \
-    int n_chs = -1 ; while (~Client->EnumLocalChannels(++n_chs)) ;                      \
-    if (n_chs >= Client->GetMaxLocalChannels())                                         \
+#  define DEBUG_TRACE_ADD_CHANNEL_GUI                                           \
+    String name = String(channel_store.getType()) ;                             \
+    if (findChildWithID(StringRef(name)))                                       \
+         Trace::TraceError("adding channel '" + name +                          \
+                           "' - GUI already exists for '" + getComponentID()) ; \
+    else if (!getComponentID().compare(GUI::MASTERS_GUI_ID))                    \
+         Trace::TraceEvent("adding master channel '" + name  + "'") ;           \
+    else if (!getComponentID().compare(GUI::LOCALS_GUI_ID))                     \
+         Trace::TraceEvent("adding local channel '"  + name  + "'") ;           \
+    else Trace::TraceEvent("adding remote channel '" + name  +                  \
+                           "' for '" + getComponentID() + "'") ;
+#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL_FAIL                                            \
+    if (!(~GetVacantLocalChannelIdx()))                                                 \
       Trace::TraceError("cannot create new local channel - maximum input channels = " + \
                         String(Client->GetMaxLocalChannels())) ;
-#  define DEBUG_TRACE_NEW_LOCAL_CHANNEL                                    \
-    Trace::TraceEvent("created new local channel[" + String(channel_idx) + \
-                      "] - " + String(channel_id)) ;
-#  define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL                                    \
-    Trace::TraceConfig("configuring local channel "  + channel_name            + \
-        ((should_set_volume)?    "\n  volume    => " + String(volume)    : "") + \
-        ((should_set_pan)?       "\n  pan       => " + String(pan)       : "") + \
-        ((should_set_is_xmit)?   "\n  is_xmit   => " + String(is_xmit)   : "") + \
-        ((should_set_is_muted)?  "\n  is_muted  => " + String(is_muted)  : "") + \
-        ((should_set_is_solo)?   "\n  is_solo   => " + String(is_solo)   : "") + \
-        ((should_set_source_n)?  "\n  source_n  => " + String(source_n)  : "") + \
-        ((should_set_bit_depth)? "\n  bit_depth => " + String(bit_depth) : "") + \
-        ((should_set_is_stereo)? "\n  is_stereo => " + String(is_stereo) : "") ) ;
+#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL                                     \
+    Trace::TraceConfig("created new local channel[" + String(channel_idx) + \
+                       "] - " + String(channel_id)) ;
+#  define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL                                     \
+  int idx ; String channel_status = "unknwon" ;                                   \
+  if      (~(idx = GetLocalChannelIdx(channel_id))) channel_status = "existing" ; \
+  else if (~(idx = GetVacantLocalChannelIdx()))     channel_status = "new" ;      \
+  String dbg ="configuring " + channel_status + " local channel[" +               \
+              String(idx) + "] '" + name + "'" ;                                  \
+  if (!(~idx))             Trace::TraceError("index out of range " + dbg) ;       \
+  else if (DEBUG_TRACE_VB) Trace::TraceConfig(dbg                               + \
+      ((should_set_volume)?    "\n  volume    => " + String(volume)    : "")    + \
+      ((should_set_pan)?       "\n  pan       => " + String(pan)       : "")    + \
+      ((should_set_is_xmit)?   "\n  is_xmit   => " + String(is_xmit)   : "")    + \
+      ((should_set_is_muted)?  "\n  is_muted  => " + String(is_muted)  : "")    + \
+      ((should_set_is_solo)?   "\n  is_solo   => " + String(is_solo)   : "")    + \
+      ((should_set_source_n)?  "\n  source_n  => " + String(source_n)  : "")    + \
+      ((should_set_is_stereo)? "\n  is_stereo => " + String(is_stereo) : "")    ) ;
 #  if DEBUG_ADDED_CHANNEL_VB
 #    define DEBUG_TRACE_ADDED_CHANNEL Trace::TraceEvent(String("channel added =>") + \
     "\n  mixergroup      => " + String(this->configStore.getParent().getType())    + \
@@ -321,9 +340,12 @@
     Trace::TraceEvent("channel added '" + name + "' for " +            \
                       String(this->configStore.getParent().getType())) ;
 #  endif // DEBUG_ADDED_CHANNEL_VB
-#  define DEBUG_TRACE_INVALID_CHANNELID                          \
-    else Trace::TraceError("invalid channel_id '" + channel_id + \
-                           "' for " + getComponentID()) ;
+#  define DEBUG_TRACE_INVALID_CHANNELID                                          \
+    if (channel_id.isEmpty())                                                    \
+      Trace::TraceError("empty channel_id for " + getComponentID()) ;            \
+    else { Channel* channel = (Channel*)findChildWithID(StringRef(channel_id)) ; \
+          if (!channel) Trace::TraceError("invalid channel_id '" + channel_id +  \
+                                          "' for '" + getComponentID() + "'") ;  }
 #  define DEBUG_TRACE_MIXER_COMPONENTS_VB                                      \
     String dbg = String(getNumChildComponents()) + " mixer components (" +     \
         String(GUI::N_STATIC_MIXER_CHILDREN) + " static)=>"  ;                 \
@@ -340,8 +362,9 @@
     }                                                                          \
     Trace::TraceVerbose(dbg) ;
 #  define DEBUG_REMOVE_CHANNELS                                 \
-    Trace::TraceEvent("removing parting user '" +               \
-                      String(channels->getComponentID()) + "'") ;
+    String user_id = channels->getComponentID() ;               \
+    Trace::TraceState("user parted => '" + user_id + "'") ;     \
+    Trace::TraceEvent("removing remote user '" + user_id + "'") ;
 #  define DEBUG_REMOVE_CHANNEL                                                   \
     Trace::TraceEvent("removing channel '" + String(channel->getComponentID()) + \
                       "' for '" + getComponentID() + "'") ;
@@ -389,9 +412,9 @@
 #  define DEBUG_TRACE_REMOTE_CHANNELS         ;
 #  define DEBUG_TRACE_REMOTE_CHANNELS_VB      ;
 #  define DEBUG_TRACE_ADD_REMOTE_USER         ;
-#  define DEBUG_TRACE_ADD_CHANNEL             ;
-#  define DEBUG_TRACE_NEW_LOCAL_CHANNEL_FAIL  ;
-#  define DEBUG_TRACE_NEW_LOCAL_CHANNEL       ;
+#  define DEBUG_TRACE_ADD_CHANNEL_GUI         ;
+#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL_FAIL  ;
+#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL       ;
 #  define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL ;
 #  define DEBUG_TRACE_ADDED_CHANNEL           ;
 #  define DEBUG_TRACE_INVALID_CHANNELID       ;
