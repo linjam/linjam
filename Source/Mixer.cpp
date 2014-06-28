@@ -222,21 +222,22 @@ void Mixer::positionResizers()
   this->mastersResizer->setTopLeftPosition(masters_resizer_x , GUI::MIXERGROUP_Y) ;
 }
 
-void Mixer::pruneRemotes(ValueTree active_users)
+void Mixer::pruneRemotes(NamedValueSet active_users)
 {
   // find GUI elements for parted users
   for (int user_n = GUI::FIRST_REMOTE_IDX ; user_n < getNumDynamicMixers() ; ++user_n)
   {
-    Channels*  channels = (Channels*)getChildComponent(user_n) ; ValueTree active_user ;
+    Channels*  channels = (Channels*)getChildComponent(user_n) ; //ValueTree active_user ;
     Identifier user_id  = Identifier(channels->getComponentID()) ;
-    if ((active_user = active_users.getChildWithName(user_id)).isValid())
+    if (active_users.contains(user_id))
     {
       // find GUI elements for removed channels of active user
       for (int channel_n = 0 ; channel_n < channels->getNumChannels() ; ++channel_n)
       {
-        Channel* channel      = (Channel*)channels->getChildComponent(channel_n) ;
-        Identifier channel_id = Identifier(channel->getComponentID()) ;
-        if (active_user.getChildWithName(channel_id).isValid()) continue ;
+        Channel*    channel         = (Channel*)channels->getChildComponent(channel_n) ;
+        Array<var>* active_channels = active_users[user_id].getArray() ;
+        var         channel_id_var  = var(channel->getComponentID()) ;
+        if (active_channels->contains(channel_id_var)) continue ;
 
         // delete orphaned GUI elements for removed channel
         channels->removeChannel(channel) ; --channel_n ;

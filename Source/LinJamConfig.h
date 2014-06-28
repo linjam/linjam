@@ -68,15 +68,16 @@ public:
 
   // validation
   bool       sanityCheck() ;
+  String     parseUsername(  String user_name) ;
   Identifier encodeChannelId(String     channel_name , int channel_idx) ;
   String     decodeChannelId(Identifier channel_id) ;
   Identifier encodeUserId(   String     channel_name , int user_idx) ;
   String     decodeUserId(   Identifier channel_id) ;
 
   // getters/setters
-  ValueTree getOrCreateUser(   Identifier user_id , float  volume  ,
-                               float      pan     , bool   is_muted) ;
-  ValueTree getOrCreateChannel(Identifier channels_id                      ,
+  ValueTree getOrCreateUser(   Identifier user_id , int   channel_idx ,
+                               float      volume  , float pan         , bool is_muted) ;
+  ValueTree getOrCreateChannel(Identifier channels_id   , int    channel_idx ,
                                Identifier channel_id    , float  volume      ,
                                float      pan           , bool   is_xmit_rcv ,
                                bool       is_muted      , bool   is_solo     ,
@@ -101,15 +102,16 @@ private:
   void      establishSharedStore() ;
 
   // helpers
-  ValueTree getNode(     Identifier tree_node_id) ;
-  Value     getLeaf(     ValueTree parent_node , Identifier child_node_id ,
-                         Identifier key) ;
-  Value     getClient(   Identifier key) ;
-  Value     getAudio(    Identifier key) ;
-  Value     getServer(   Identifier key) ;
-  ValueTree addServer(   String host , String login , String pass , bool is_anonymous) ;
-  ValueTree getUser(     Identifier user_id) ;
-  String    filteredName(String a_name) ;
+  ValueTree  getNode(       Identifier tree_node_id) ;
+  Value      getLeaf(       ValueTree parent_node , Identifier child_node_id ,
+                            Identifier key) ;
+  Value      getClient(     Identifier key) ;
+  Value      getAudio(      Identifier key) ;
+  Value      getServer(     Identifier key) ;
+  ValueTree  addServer(     String host , String login , String pass , bool is_anonymous) ;
+  ValueTree  getUser(       Identifier user_id) ;
+  String     filteredName(  String a_name) ;
+  Identifier saneIdentifier(String name) ;
 
   // event handlers
   void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)          override ;

@@ -53,7 +53,7 @@ public:
   void      addChannel(            String channels_name , ValueTree channel_store) ;
   void      updateChannelVU(       Identifier channels_id , String channel_id , double vu) ;
   void      positionResizers() ;
-  void      pruneRemotes(          ValueTree active_users) ;
+  void      pruneRemotes(          NamedValueSet active_users) ;
 
     //[/UserMethods]
 

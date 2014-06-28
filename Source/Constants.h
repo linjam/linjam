@@ -156,16 +156,15 @@ public:
   static const int        MASTERS_W =                       PAD + (2          * (CHANNEL_W + PAD)) ;
 
   // Mixer
-  static const String      MIXER_GUI_ID ;
-  static const Identifier ACTIVEUSERS_IDENTIFIER ;
-  static const int        MIXER_H                 = PAD2 + MIXERGROUP_H ;
-  static const int        RESIZER_W               = PAD  + 2 ;
-  static const int        N_STATIC_MIXER_CHILDREN = 5 ;
-  static const int        LOCALS_IDX              = 0 ;
-  static const int        FIRST_REMOTE_IDX        = 1 ;
-  static const int        CHANNEL_SCROLL_BTN_Y    = MIXERGROUP_Y + (MIXERGROUP_H / 4) ;
-  static const int        CHANNEL_SCROLL_BTN_W    = 24 ;
-  static const int        CHANNEL_SCROLL_BTN_H    = MIXERGROUP_H / 2 ;
+  static const String MIXER_GUI_ID ;
+  static const int    MIXER_H                 = PAD2 + MIXERGROUP_H ;
+  static const int    RESIZER_W               = PAD  + 2 ;
+  static const int    N_STATIC_MIXER_CHILDREN = 5 ;
+  static const int    LOCALS_IDX              = 0 ;
+  static const int    FIRST_REMOTE_IDX        = 1 ;
+  static const int    CHANNEL_SCROLL_BTN_Y    = MIXERGROUP_Y + (MIXERGROUP_H / 4) ;
+  static const int    CHANNEL_SCROLL_BTN_W    = 24 ;
+  static const int    CHANNEL_SCROLL_BTN_H    = MIXERGROUP_H / 2 ;
 
   // StatusBar
   static const String STATUS_GUI_ID ;

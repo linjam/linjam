@@ -170,6 +170,9 @@ DEBUG_TRACE_SANITY_CHECK
           should_hide_bots_has_value           ) ;
 }
 
+String LinJamConfig::parseUsername(String user_name)
+{ return user_name.upToFirstOccurrenceOf(CONFIG::AT_CHAR , false , true) ; }
+
 Identifier LinJamConfig::encodeChannelId(String channel_name , int channel_idx)
 {
   return ((channel_name.isNotEmpty())?
@@ -182,14 +185,14 @@ String LinJamConfig::decodeChannelId(Identifier channel_id) { return String(chan
 Identifier LinJamConfig::encodeUserId(String user_name , int user_idx)
 {
   return ((user_name.isNotEmpty())?
-             filteredName(user_name.upToFirstOccurrenceOf(CONFIG::AT_CHAR , false , true)) :
+             filteredName(parseUsername(user_name)) :
              CONFIG::DEFAULT_USER_NAME + String(user_idx)) ;
 }
 
 String LinJamConfig::decodeUserId(Identifier user_id) { return String(user_id) ; }
 
-ValueTree LinJamConfig::getOrCreateUser(Identifier user_id , float  volume  ,
-                                        float      pan     , bool   is_muted)
+ValueTree LinJamConfig::getOrCreateUser(Identifier user_id , int   user_idx ,
+                                        float      volume  , float pan      , bool is_muted)
 {
   ValueTree user_store = getUser(user_id) ;
   if (!user_store.isValid())
@@ -197,7 +200,7 @@ ValueTree LinJamConfig::getOrCreateUser(Identifier user_id , float  volume  ,
 DEBUG_TRACE_ADD_REMOTE_USER
 
     // add new remote user
-    user_store = ValueTree(user_id) ;
+    user_store = ValueTree(encodeUserId(String(user_id) , user_idx)) ;
     user_store.setProperty(CONFIG::VOLUME_IDENTIFIER , volume   , nullptr) ;
     user_store.setProperty(CONFIG::PAN_IDENTIFIER    , pan      , nullptr) ;
     user_store.setProperty(CONFIG::MUTE_IDENTIFIER   , is_muted , nullptr) ;
@@ -207,7 +210,7 @@ DEBUG_TRACE_ADD_REMOTE_USER
   return user_store ;
 }
 
-ValueTree LinJamConfig::getOrCreateChannel(Identifier channels_id                        ,
+ValueTree LinJamConfig::getOrCreateChannel(Identifier channels_id   , int    channel_idx ,
                                            Identifier channel_id    , float  volume      ,
                                            float      pan           , bool   is_xmit_rcv ,
                                            bool       is_muted      , bool   is_solo     ,
@@ -217,7 +220,7 @@ ValueTree LinJamConfig::getOrCreateChannel(Identifier channels_id               
   if (!channel_store.isValid())
   {
     // add new channel
-    channel_store = ValueTree(channel_id) ;
+    channel_store = ValueTree(encodeChannelId(String(channel_id) , channel_idx)) ;
     channel_store.setProperty(CONFIG::VOLUME_IDENTIFIER   , volume        , nullptr) ;
     channel_store.setProperty(CONFIG::PAN_IDENTIFIER      , pan           , nullptr) ;
     channel_store.setProperty(CONFIG::XMIT_IDENTIFIER     , is_xmit_rcv   , nullptr) ;
