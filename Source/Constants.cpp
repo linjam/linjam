@@ -125,7 +125,7 @@ const String     GUI::LOCALS_GUI_ID      = "Local" ;
 const Identifier GUI::LOCALS_IDENTIFIER  = LOCALS_GUI_ID ;
 
 // Mixer
-const String     GUI::MIXER_GUI_ID           = "mixer-gui" ;
+const String GUI::MIXER_GUI_ID = "mixer-gui" ;
 
 // StatusBar
 const String GUI::STATUS_GUI_ID = "statusbar-gui" ;
@@ -208,6 +208,8 @@ const String     CONFIG::METRO_KEY           = GUI::METRO_CHANNEL_GUI_ID ;
 const Identifier CONFIG::METRO_IDENTIFIER    = METRO_KEY ;
 const String     CONFIG::LOCALS_KEY          = "local-channels" ;
 const Identifier CONFIG::LOCALS_IDENTIFIER   = LOCALS_KEY ;
+const Identifier CONFIG::USERIDX_KEY         = "user-idx" ;
+const Identifier CONFIG::USERIDX_IDENTIFIER  = USERIDX_KEY ;
 const String     CONFIG::VOLUME_KEY          = "volume" ;
 const Identifier CONFIG::VOLUME_IDENTIFIER   = VOLUME_KEY ;
 const String     CONFIG::PAN_KEY             = "pan" ;

@@ -47,9 +47,15 @@ public:
   static bool IsAgreed() ;
 
   // helpers
-  static void AddLocalChannel(   String channel_name) ;
-  static void RemoveLocalChannel(Identifier channel_id) ;
-  static void SendChat(          String chat_text) ;
+  static void      AddLocalChannel(   String channel_name) ;
+  static void      RemoveLocalChannel(Identifier channel_id) ;
+  static ValueTree AddRemoteChannel(  ValueTree user_store   , Channels* user_channels ,
+                                      String    channel_name , int       channel_idx   ,
+                                      float     volume       , float     pan           ,
+                                      bool      is_rcv       , bool      is_muted      ,
+                                      bool      is_solo      , int       sink_n        ,
+                                      bool      is_stereo                              ) ;
+  static void      SendChat(          String chat_text) ;
 
 
   static LinJamConfig* Config ;
@@ -86,17 +92,17 @@ private:
   static bool  PrepareSessionDirectory() ;
   static void  ConfigureNinjam() ;
   static void  CleanSessionDir() ;
-  static void  HandleChatCommand(    String chat_text) ;
-  static char* GetChannelName(       int channel_idx) ;
+  static void  HandleChatCommand(     String chat_text) ;
+  static char* GetChannelName(        int channel_idx) ;
   static int   GetVacantLocalChannelIdx() ;
-  static int   GetLocalChannelIdx(   Identifier channel_id) ;
-  static int   GetRemoteUserIdx(     Identifier user_id) ;
-  static int   GetRemoteChannelIdx(  int user_idx , Identifier channel_id) ;
-  static void  ConfigureLocalChannel(Identifier channel_id                               ,
-                                     bool should_set_name     , bool should_set_volume   ,
-                                     bool should_set_pan      , bool should_set_is_xmit  ,
-                                     bool should_set_is_muted , bool should_set_is_solo  ,
-                                     bool should_set_source_n , bool should_set_is_stereo) ;
+  static int   GetLocalChannelIdx(    Identifier channel_id) ;
+  static int   GetRemoteUserIdx(      Identifier user_id) ;
+  static int   GetRemoteChannelIdx(   int user_idx , Identifier channel_id) ;
+  static void  ConfigureLocalChannel( Identifier channel_id                               ,
+                                      bool should_set_name     , bool should_set_volume   ,
+                                      bool should_set_pan      , bool should_set_is_xmit  ,
+                                      bool should_set_is_muted , bool should_set_is_solo  ,
+                                      bool should_set_source_n , bool should_set_is_stereo) ;
   static void  ConfigureRemoteUser(   int  user_idx                             ,
                                       bool should_set_volume   , float  volume  ,
                                       bool should_set_pan      , float  pan     ,

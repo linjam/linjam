@@ -317,7 +317,7 @@ void Channel::setChannelConfig(Identifier config_key , var value)
 { this->configStore.setProperty(config_key , value , nullptr) ; }
 
 
-/* MasterChannel class public class methods */
+/* MasterChannels , LocalChannels , RemoteChannels classes private class methods */
 
 MasterChannel::MasterChannel(ValueTree channel_store) : Channel(channel_store)
 {
@@ -325,16 +325,10 @@ MasterChannel::MasterChannel(ValueTree channel_store) : Channel(channel_store)
   this->soloButton  ->setVisible(false) ;
 }
 
-
-/* LocalChannel class public class methods */
-
 LocalChannel::LocalChannel(ValueTree channel_store) : Channel(channel_store)
 {
   this->xmitButton->setButtonText(GUI::XMIT_LABEL_TEXT) ;
 }
-
-
-/* RemoteChannel class public class methods */
 
 RemoteChannel::RemoteChannel(ValueTree channel_store) : Channel(channel_store)
 {

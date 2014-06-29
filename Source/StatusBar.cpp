@@ -54,8 +54,10 @@ StatusBar::StatusBar ()
 
 
     //[UserPreSize]
-    this->statusLLabel->setText("" , dontSendNotification) ;
-    this->statusRLabel->setText("" , dontSendNotification) ;
+
+  this->statusLLabel->setText(String::empty , dontSendNotification) ;
+  this->statusRLabel->setText(String::empty , dontSendNotification) ;
+
     //[/UserPreSize]
 
     setSize (622, 24);
@@ -105,14 +107,6 @@ void StatusBar::resized()
     statusLLabel->setBounds (4, 4, 160, 16);
     statusRLabel->setBounds (getWidth() - 164, 4, 160, 16);
     //[UserResized] Add your own custom resize handling here..
-/*
-  statusLLabel->setBounds(GUI::STATUS_PAD_X , GUI::STATUS_PAD_Y ,
-                          GUI::STATUS_W     , GUI::STATUS_H     ) ;
-  statusRLabel->setBounds(this->getWidth() - GUI::STATUS_PAD_X - GUI::STATUS_W ,
-                          GUI::STATUS_PAD_Y                                    ,
-                          GUI::STATUS_W - GUI::STATUS_PAD_X                    ,
-                          GUI::STATUS_H - GUI::STATUS_PAD_Y                    ) ;
-*/
     //[/UserResized]
 }
 
@@ -122,7 +116,7 @@ void StatusBar::resized()
 
 void StatusBar::setStatusL(String statusText)
 { this->statusLLabel->setText(statusText , juce::dontSendNotification) ; }
-//  void StatusBarComponent::setStatusC(TODO: list of btns) {;} (issue #8)
+
 void StatusBar::setStatusR(String statusText)
 { this->statusRLabel->setText(statusText , juce::dontSendNotification) ; }
 

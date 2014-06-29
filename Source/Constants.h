@@ -254,6 +254,8 @@ public:
   static const Identifier METRO_IDENTIFIER ;
   static const String     LOCALS_KEY ;
   static const Identifier LOCALS_IDENTIFIER ;
+  static const Identifier USERIDX_KEY ;
+  static const Identifier USERIDX_IDENTIFIER ;
   static const String     VOLUME_KEY ;
   static const Identifier VOLUME_IDENTIFIER ;
   static const String     PAN_KEY ;

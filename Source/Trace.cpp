@@ -10,8 +10,9 @@
 
 /* public class methods */
 
-void Trace::TraceConfig(String msg)  { if (TraceState())  DBG("[CONFIG]:  " + msg) ; }
 void Trace::TraceEvent(String msg)   { if (TraceEvs())    DBG("[EVENT]:   " + msg) ; }
+void Trace::TraceConfig(String msg)  { if (TraceState())  DBG("[CONFIG]:  " + msg) ; }
+void Trace::TraceGui(String msg)     { if (TraceEvs())    DBG("[GUI]:     " + msg) ; }
 void Trace::TraceVerbose(String msg) { if (TraceVb())     DBG("[DEBUG]:   " + msg) ; }
 void Trace::TraceState(String msg)   { if (TraceState())  DBG("[STATE]:   " + msg) ; }
 void Trace::TraceNetwork(String msg) { if (TraceState())  DBG("[NETWORK]: " + msg) ; }

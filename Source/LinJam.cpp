@@ -184,22 +184,22 @@ DEBUG_TRACE_ADD_LOCAL_CHANNEL_FAIL
 
   // ensure that a channel with this name does not already exist
   Identifier channel_id = Config->encodeChannelId(channel_name , channel_idx + 1) ;
-  if (Config->getChannel(GUI::LOCALS_IDENTIFIER , channel_id).isValid()) return ;
+  if (Config->doesChannelExist(GUI::LOCALS_IDENTIFIER , String(channel_id))) return ;
 
   // create stored config for this channel
-  ValueTree  channel_store = Config->getOrCreateChannel(GUI::LOCALS_IDENTIFIER    ,
-                                                        channel_idx               ,
-                                                        Identifier(channel_name)  ,
-                                                        CONFIG::DEFAULT_VOLUME    ,
-                                                        CONFIG::DEFAULT_PAN       ,
-                                                        CONFIG::DEFAULT_IS_XMIT   ,
-                                                        CONFIG::DEFAULT_IS_MUTE   ,
-                                                        CONFIG::DEFAULT_IS_SOLO   ,
-                                                        CONFIG::DEFAULT_SOURCE_N  ,
-                                                        CONFIG::DEFAULT_IS_STEREO ) ;
+  ValueTree  channel_store = Config->createChannel(GUI::LOCALS_IDENTIFIER    ,
+                                                   channel_name              ,
+                                                   channel_idx               ,
+                                                   CONFIG::DEFAULT_VOLUME    ,
+                                                   CONFIG::DEFAULT_PAN       ,
+                                                   CONFIG::DEFAULT_IS_XMIT   ,
+                                                   CONFIG::DEFAULT_IS_MUTE   ,
+                                                   CONFIG::DEFAULT_IS_SOLO   ,
+                                                   CONFIG::DEFAULT_SOURCE_N  ,
+                                                   CONFIG::DEFAULT_IS_STEREO ) ;
   if (!channel_store.isValid()) return ;
 
-  // add local Channel GUI and configure NJClient input channel
+  // create local Channel GUI and configure NJClient input channel
   Gui->mixer->addChannel(GUI::LOCALS_GUI_ID , channel_store) ;
   ConfigureLocalChannel(channel_id , true , true , true , true ,
                                      true , true , true , true) ;
@@ -213,6 +213,53 @@ DEBUG_TRACE_REMOVE_LOCAL_CHANNEL
 
   Client->DeleteLocalChannel(GetLocalChannelIdx(channel_id)) ;
   Client->NotifyServerOfChannelChange() ;
+}
+
+ValueTree LinJam::AddRemoteChannel(ValueTree user_store   , Channels* user_channels ,
+                                String    channel_name , int       channel_idx   ,
+                                float     volume       , float     pan           ,
+                                bool      is_rcv       , bool      is_muted      ,
+                                bool      is_solo      , int       sink_n        ,
+                                bool      is_stereo                              )
+{
+#if KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO
+  volume = 0.0f ;
+#endif // KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO
+
+  Identifier user_id  =     user_store.getType() ;
+  int        user_idx = int(user_store[CONFIG::USERIDX_IDENTIFIER]) ;
+
+  // test for pre-existing storage for this channel
+  Identifier channel_id    = Config->encodeChannelId(channel_name , channel_idx + 1) ;
+  ValueTree  channel_store = Config->getChannel(user_id , channel_id) ;
+
+  if (!channel_store.isValid())
+  {
+    // get or create stored config for this channel
+    channel_store = Config->createChannel(user_id   , String(channel_id) , channel_idx ,
+                                          volume    , pan                , is_rcv      ,
+                                          is_muted  , is_solo            , sink_n      ,
+                                          is_stereo                                    ) ;
+    if (!channel_store.isValid()) return ValueTree::invalid ;
+
+    // re-configure NJClient remote channel
+    LinJam::ConfigureRemoteChannel(user_idx , channel_idx        ,
+        true , float(channel_store[CONFIG::VOLUME_IDENTIFIER])   ,
+        true , float(channel_store[CONFIG::PAN_IDENTIFIER])      ,
+        true , float(channel_store[CONFIG::XMIT_IDENTIFIER])     ,
+        true , float(channel_store[CONFIG::MUTE_IDENTIFIER])     ,
+        true , float(channel_store[CONFIG::SOLO_IDENTIFIER])     ,
+        true , float(channel_store[CONFIG::SOURCE_N_IDENTIFIER]) ,
+        true , float(channel_store[CONFIG::STEREO_IDENTIFIER]) ) ;
+  }
+
+  // create remote user and channel GUI
+  if (!user_channels->findChildWithID(StringRef(String(channel_id))))
+    Gui->mixer->addChannel(String(user_id) , channel_store) ;
+
+DEBUG_TRACE_ADD_REMOTE_CHANNEL
+
+  return channel_store ;
 }
 
 void LinJam::SendChat(String chat_text)
@@ -313,7 +360,7 @@ void LinJam::HandleStatusChanged(int client_status)
 {
 DEBUG_TRACE_CONNECT_STATUS
 #ifdef DEBUG_AUTOLOGIN_NYI
-if (client_status == NJClient::NJC_STATUS_PRECONNECT)
+if (!Gui->statusbar->getStatusL().compare(GUI::DISCONNECTED_STATUS_TEXT))
 { Config->setCurrentServer(DEBUG_STATIC_CHANNEL , "nobody" , "" , true) ;
   Connect() ; }
 #endif // DEBUG_AUTOLOGIN_NYI
@@ -371,7 +418,7 @@ void LinJam::HandleUserInfoChanged()
 DEBUG_TRACE_REMOTE_CHANNELS_VB
 
   // initialize dictionary for pruning GUI elements for parted users
-  NamedValueSet active_users ;
+  ValueTree active_users = ValueTree("active-users") ;
 
   // fetch remote user states from server
   int user_idx = -1 ; char* user_c_name ; float volume ; float pan ; bool is_muted ;
@@ -380,65 +427,48 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
 // TODO: we are adding remote users directly to the root node for now for simplicity
 //           mostly because Trace::SanitizeConfig() does not yet handle nested lists
 //           but for clarity there should be a <remote-channels> tree (issue #33)
-    Identifier user_id = Config->encodeUserId(user_c_name , user_idx) ;
-    String user_name   = String(user_id) ;
+    Identifier user_id   = Config->encodeUserId(String(user_c_name) , user_idx) ;
+    String     user_name = String(user_id) ;
     if (bool(Config->shouldHideBots.getValue()) &&
         NETWORK::KNOWN_BOTS.contains(user_id)) continue ;
 
     // get or add remote user storage
-    ValueTree user_store = Config->getOrCreateUser(user_id , user_idx ,
-                                                   volume  , pan      , is_muted) ;
+    ValueTree user_store = Config->getOrCreateUser(user_name , user_idx ,
+                                                   volume    , pan      , is_muted) ;
 
     // get or add remote user channels GUI
-    Channels* user_channels = Gui->mixer->getOrAddRemoteChannels(user_name , user_store) ;
+    Channels* user_channels = Gui->mixer->getOrAddRemoteChannels(user_store) ;
 
     // list this user as active for GUI pruning
-    Array<var> active_channels ;
+    ValueTree active_channels = ValueTree(user_store.getType()) ;
 
     int channel_n = -1 ; int channel_idx ;
     while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
     {
       // load remote channel state
-      bool is_rcv ;   float volume ; float pan ;
-      bool is_muted ; bool is_solo ; int   sink_channel ; bool  is_stereo ;
+      bool  is_rcv ;   float volume ; float pan ;
+      bool  is_muted ; bool is_solo ; int   sink_channel ; bool  is_stereo ;
       char* channel_c_name = Client->GetUserChannelState(user_idx      , channel_idx ,
                                                          &is_rcv                     ,
                                                          &volume       , &pan        ,
                                                          &is_muted     , &is_solo    ,
                                                          &sink_channel , &is_stereo  ) ;
-#if KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO
-      volume = 0.0f ;
-#endif // KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO
+      String channel_name = String(channel_c_name) ;
 
-      // store this remote channel
-      Identifier channel_id    = Config->encodeChannelId(channel_c_name , channel_idx) ;
-      String     channel_name  = String(channel_id) ;
-      ValueTree  channel_store = Config->getOrCreateChannel(user_id      , channel_idx ,
-                                                            channel_id   , volume      ,
-                                                            pan          , is_rcv      ,
-                                                            is_muted     , is_solo     ,
-                                                            sink_channel , is_stereo   ) ;
+      // store , configure , and create GUI for this remote channel
+      ValueTree channel_store = AddRemoteChannel(user_store   , user_channels ,
+                                                 channel_name , channel_idx   ,
+                                                 volume       , pan           ,
+                                                 is_rcv       , is_muted      ,
+                                                 is_solo      , sink_channel  ,
+                                                 is_stereo) ;
       if (!channel_store.isValid()) continue ;
 
-      // re-configure remote channel
-      LinJam::ConfigureRemoteChannel(user_idx , channel_idx        ,
-          true , float(channel_store[CONFIG::VOLUME_IDENTIFIER])   ,
-          true , float(channel_store[CONFIG::PAN_IDENTIFIER])      ,
-          true , float(channel_store[CONFIG::XMIT_IDENTIFIER])     ,
-          true , float(channel_store[CONFIG::MUTE_IDENTIFIER])     ,
-          true , float(channel_store[CONFIG::SOLO_IDENTIFIER])     ,
-          true , float(channel_store[CONFIG::SOURCE_N_IDENTIFIER]) ,
-          true , float(channel_store[CONFIG::STEREO_IDENTIFIER]) ) ;
-
-      // add remote user and channel GUI
-      if (!user_channels->findChildWithID(StringRef(channel_name)))
-        Gui->mixer->addChannel(user_name , channel_store) ;
-
       // add channel to GUI prune list
-      active_channels.add(var(channel_name)) ;
+      active_channels.setProperty(channel_store.getType() , -1 , nullptr) ;
     }
     // add user to GUI prune list
-    active_users.set(user_id , var(active_channels)) ;
+    active_users.addChild(active_channels , -1 , nullptr) ;
   }
   // prune user and channel GUIs
   Gui->mixer->pruneRemotes(active_users) ;

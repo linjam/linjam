@@ -114,7 +114,7 @@ class RemoteChannels : public Channels , public ButtonListener
 {
 public:
 
-  RemoteChannels() ;
+  RemoteChannels(ValueTree user_store) ;
 
 
 private:

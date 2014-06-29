@@ -49,11 +49,11 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  Channels* getOrAddRemoteChannels(String channels_name , ValueTree user_store) ;
+  Channels* getOrAddRemoteChannels(ValueTree user_store) ;
   void      addChannel(            String channels_name , ValueTree channel_store) ;
   void      updateChannelVU(       Identifier channels_id , String channel_id , double vu) ;
   void      positionResizers() ;
-  void      pruneRemotes(          NamedValueSet active_users) ;
+  void      pruneRemotes(          ValueTree active_users) ;
 
     //[/UserMethods]
 
@@ -75,14 +75,15 @@ private:
   uint8 scrollZ ;
 
 
-  void        buttonClicked(         Button* buttonThatWasClicked) override ;
-  TextButton* addScrollButton(       String button_id) ;
-  Channels*   addChannels(           String channels_name) ;
-  Channels*   getChannels(           String channels_name) ;
-  void        removeChannels(        Channels* channels) ;
-  int         getNumDynamicMixers() ;
-  int         getLocalsResizerNextX() ;
-  int         getMastersResizerNextX() ;
+  void      buttonClicked(         Button* buttonThatWasClicked) override ;
+  void      addChannels(           Channels* channels , String channels_name) ;
+  void      addScrollButton(       TextButton* scroll_button , String button_text) ;
+  void      addResizer(            ResizableEdgeComponent* resizer) ;
+  Channels* getChannels(           String channels_name) ;
+  void      removeChannels(        Channels* channels) ;
+  int       getNumDynamicMixers() ;
+  int       getLocalsResizerNextX() ;
+  int       getMastersResizerNextX() ;
 
     //[/UserVariables]
 

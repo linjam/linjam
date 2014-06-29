@@ -68,20 +68,21 @@ public:
 
   // validation
   bool       sanityCheck() ;
-  String     parseUsername(  String user_name) ;
-  Identifier encodeChannelId(String     channel_name , int channel_idx) ;
-  String     decodeChannelId(Identifier channel_id) ;
-  Identifier encodeUserId(   String     channel_name , int user_idx) ;
-  String     decodeUserId(   Identifier channel_id) ;
+  String     parseUsername(   String user_name) ;
+  Identifier encodeChannelId( String     channel_name , int channel_idx) ;
+  String     decodeChannelId( Identifier channel_id) ;
+  Identifier encodeUserId(    String     channel_name , int user_idx) ;
+  String     decodeUserId(    Identifier channel_id) ;
+  bool       doesChannelExist(Identifier channels_id , String channel_id) ;
 
   // getters/setters
-  ValueTree getOrCreateUser(   Identifier user_id , int   channel_idx ,
-                               float      volume  , float pan         , bool is_muted) ;
-  ValueTree getOrCreateChannel(Identifier channels_id   , int    channel_idx ,
-                               Identifier channel_id    , float  volume      ,
-                               float      pan           , bool   is_xmit_rcv ,
-                               bool       is_muted      , bool   is_solo     ,
-                               int        source_sink_n , bool   is_stereo   ) ;
+  ValueTree getOrCreateUser(   String user_name , int   user_idx ,
+                               float  volume    , float pan      , bool is_muted) ;
+  ValueTree createChannel(     Identifier channels_id   , String channel_name ,
+                               int        channel_idx   , float  volume       ,
+                               float      pan           , bool   is_xmit_rcv  ,
+                               bool       is_muted      , bool   is_solo      ,
+                               int        source_sink_n , bool   is_stereo    ) ;
   ValueTree getChannel(        Identifier channels_id , Identifier channel_id) ;
   void      setServer() ;
   ValueTree getServer(         String host) ;

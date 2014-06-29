@@ -123,7 +123,7 @@ void Channels::addChannel(ValueTree channel_store)
 DEBUG_TRACE_ADD_CHANNEL_GUI
 
   String channel_name = String(channel_store.getType()) ;
-  if (findChildWithID(StringRef(channel_name))) return ;
+  if (findChildWithID(StringRef(channel_name)) || channel_name.isEmpty()) return ;
 
   Channel* channel = newChannel(channel_store) ;
   this->addChildAndSetID(channel , channel_name) ;
@@ -163,24 +163,24 @@ void Channels::broughtToFront()
 
 /* MasterChannels , LocalChannels , RemoteChannels classes public class methods */
 
-MasterChannels::MasterChannels() { this->expandButton ->setVisible(false) ; }
+MasterChannels::MasterChannels() { this->expandButton->setVisible(false) ; }
 
 LocalChannels::LocalChannels()
 {
-  this->expandButton ->setColour(TextButton::buttonColourId   , Colour(0xff004000)) ;
-  this->expandButton ->setColour(TextButton::buttonOnColourId , Colour(0xff008000)) ;
-  this->expandButton ->setColour(TextButton::textColourOnId   , Colour(0xff00ff00)) ;
-  this->expandButton ->setColour(TextButton::textColourOffId  , Colour(0xff00ff00)) ;
-  this->expandButton ->addListener(this) ;
+  this->expandButton->setColour(TextButton::buttonColourId   , Colour(0xff004000)) ;
+  this->expandButton->setColour(TextButton::buttonOnColourId , Colour(0xff008000)) ;
+  this->expandButton->setColour(TextButton::textColourOnId   , Colour(0xff00ff00)) ;
+  this->expandButton->setColour(TextButton::textColourOffId  , Colour(0xff00ff00)) ;
+  this->expandButton->addListener(this) ;
 }
 
-RemoteChannels::RemoteChannels()
+RemoteChannels::RemoteChannels(ValueTree user_store)
 {
-  this->expandButton ->setColour(TextButton::buttonColourId   , Colour(0xff404000)) ;
-  this->expandButton ->setColour(TextButton::buttonOnColourId , Colour(0xff808000)) ;
-  this->expandButton ->setColour(TextButton::textColourOnId   , Colour(0xffffff00)) ;
-  this->expandButton ->setColour(TextButton::textColourOffId  , Colour(0xffffff00)) ;
-  this->expandButton ->addListener(this) ;
+  this->expandButton->setColour(TextButton::buttonColourId   , Colour(0xff404000)) ;
+  this->expandButton->setColour(TextButton::buttonOnColourId , Colour(0xff808000)) ;
+  this->expandButton->setColour(TextButton::textColourOnId   , Colour(0xffffff00)) ;
+  this->expandButton->setColour(TextButton::textColourOffId  , Colour(0xffffff00)) ;
+  this->expandButton->addListener(this) ;
   this->isExpanded = false ;
 }
 
@@ -235,15 +235,21 @@ void LocalChannels::removeChannel(Channel* channel)
   int n_channels = getNumChannels() ;
 
 #ifndef BUGGY_ADD_DUPLICATE_LOCAL_CHANNELS
+// untested
   // rename any generic channel names to match their NJClient channelIdx
   for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
   {
-    String channel_name = getChildComponent(channel_n)->getComponentID() ;
+    Channel* channel      = getChildComponent(channel_n) ;
+    String   channel_name = channel->getComponentID() ;
     if (channel_name.startsWith(CONFIG::DEFAULT_CHANNEL_NAME))
     {
-      int channel_idx     = LinJam::GetLocalChannelIdx(Identifier(channel_name)) ;
-      Identifier new_name = Config->encodeChannelId(channel_c_name , channel_idx) ;
-      // TODO: howto rename ValueTree
+      // 'rename' channel store node and set new component ID and label text
+      int        channel_idx = LinJam::GetLocalChannelIdx(Identifier(channel_name)) ;
+      Identifier new_name    = Config->encodeChannelId(channel_c_name , channel_idx) ;
+      ValueTree  new_node    = ValueTree(new_name) ;
+      new_node.copyPropertiesFrom(channel-configStore , nullptr) ;
+      channel->setComponentID(String(new_name)) ;
+      channel->nameLabel->setText(String(new_name)) ;
     }
   }
 #endif // BUGGY_ADD_DUPLICATE_LOCAL_CHANNELS

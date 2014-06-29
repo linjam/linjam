@@ -38,26 +38,27 @@ Mixer::Mixer ()
 
     //[UserPreSize]
 
-  this->masterChannels   = (MasterChannels*)addChannels(GUI::MASTERS_GUI_ID) ;
-  this->localChannels    = (LocalChannels*) addChannels(GUI::LOCALS_GUI_ID) ;
-  this->prevScrollButton = addScrollButton("prevScrollButton") ;
-  this->nextScrollButton = addScrollButton("nextScrollButton") ;
-  this->localsResizer    = new ResizableEdgeComponent(localChannels  , nullptr ,
+  this->masterChannels   = new MasterChannels() ;
+  this->localChannels    = new LocalChannels() ;
+  this->prevScrollButton = new TextButton("prevScrollButton") ;
+  this->nextScrollButton = new TextButton("nextScrollButton") ;
+  this->localsResizer    = new ResizableEdgeComponent(this->localChannels  , nullptr ,
                                                       ResizableEdgeComponent::rightEdge) ;
-  this->mastersResizer   = new ResizableEdgeComponent(masterChannels , nullptr ,
+  this->mastersResizer   = new ResizableEdgeComponent(this->masterChannels , nullptr ,
                                                       ResizableEdgeComponent::leftEdge) ;
-  addAndMakeVisible(this->localsResizer) ;
-  addAndMakeVisible(this->mastersResizer) ;
 
-  this->prevScrollButton->setButtonText(TRANS("<")) ;
-  this->nextScrollButton->setButtonText(TRANS(">")) ;
+  addChannels(    this->masterChannels , GUI::MASTERS_GUI_ID) ;
+  addChannels(    this->localChannels  , GUI::LOCALS_GUI_ID) ;
+  addScrollButton(this->prevScrollButton , "<") ;
+  addScrollButton(this->nextScrollButton , ">") ;
+  addResizer(     this->localsResizer) ;
+  addResizer(     this->mastersResizer) ;
+
   this->masterChannels  ->setAlwaysOnTop(true) ;
   this->prevScrollButton->setAlwaysOnTop(true) ;
   this->nextScrollButton->setAlwaysOnTop(true) ;
   this->localsResizer   ->setAlwaysOnTop(true) ;
   this->mastersResizer  ->setAlwaysOnTop(true) ;
-  this->localsResizer   ->setSize(GUI::RESIZER_W , GUI::MIXERGROUP_H) ;
-  this->mastersResizer  ->setSize(GUI::RESIZER_W , GUI::MIXERGROUP_H) ;
 
     //[/UserPreSize]
 
@@ -187,11 +188,21 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
 
 /* Mixer class public methods */
 
-Channels* Mixer::getOrAddRemoteChannels(String channels_name , ValueTree user_store)
+Channels* Mixer::getOrAddRemoteChannels(ValueTree user_store)
 {
-  Channels* channels = getChannels(channels_name) ; if (channels) return channels ;
+  String    channels_name = String(user_store.getType()) ;
+  Channels* channels      = getChannels(channels_name) ;
 
-  channels = addChannels(channels_name) ;
+  if (!channels)
+  {
+    // create remote user GUI
+    channels = new RemoteChannels(user_store) ;
+    addChannels(channels , channels_name) ;
+
+    // create remote master channel GUI
+    ValueTree channel_store = user_store.getChildWithName(CONFIG::MASTER_IDENTIFIER) ;
+    if (channel_store.isValid()) addChannel(channels_name , channel_store) ;
+  }
 
   return channels ;
 }
@@ -219,22 +230,24 @@ void Mixer::positionResizers()
   this->mastersResizer->setTopLeftPosition(masters_resizer_x , GUI::MIXERGROUP_Y) ;
 }
 
-void Mixer::pruneRemotes(NamedValueSet active_users)
+void Mixer::pruneRemotes(ValueTree active_users)
 {
   // find GUI elements for parted users
   for (int user_n = GUI::FIRST_REMOTE_IDX ; user_n < getNumDynamicMixers() ; ++user_n)
   {
-    Channels*  channels = (Channels*)getChildComponent(user_n) ; //ValueTree active_user ;
-    Identifier user_id  = Identifier(channels->getComponentID()) ;
-    if (active_users.contains(user_id))
+    Channels*  channels        = (Channels*)getChildComponent(user_n) ;
+    Identifier user_id         = Identifier(channels->getComponentID()) ;
+    ValueTree  active_channels = active_users.getChildWithName(user_id) ;
+
+    if (active_channels.isValid())
     {
-      // find GUI elements for removed channels of active user
-      for (int channel_n = 0 ; channel_n < channels->getNumChannels() ; ++channel_n)
+      // find GUI elements for removed channels of active user (first is master)
+      for (int channel_n = 1 ; channel_n < channels->getNumChannels() ; ++channel_n)
       {
-        Channel*    channel         = (Channel*)channels->getChildComponent(channel_n) ;
-        Array<var>* active_channels = active_users[user_id].getArray() ;
-        var         channel_id_var  = var(channel->getComponentID()) ;
-        if (active_channels->contains(channel_id_var)) continue ;
+        Channel*   channel    = (Channel*)channels->getChildComponent(channel_n) ;
+        Identifier channel_id = channel->getComponentID() ;
+
+        if (active_channels.hasProperty(channel_id)) continue ;
 
         // delete orphaned GUI elements for removed channel
         channels->removeChannel(channel) ; --channel_n ;
@@ -260,32 +273,30 @@ void Mixer::buttonClicked(Button* buttonThatWasClicked)
   resized() ;
 }
 
-TextButton* Mixer::addScrollButton(String button_id)
+void Mixer::addChannels(Channels* channels , String channels_name)
 {
-  TextButton* scroll_button = new TextButton(button_id) ;
+  addChildAndSetID(channels , channels_name) ;
+  channels->toFront(true) ;
+
+  resized() ;
+}
+
+void Mixer::addScrollButton(TextButton* scroll_button , String button_text)
+{
   addChildComponent(scroll_button) ;
   scroll_button->addListener(this) ;
+  scroll_button->setButtonText(button_text) ;
   scroll_button->setColour(TextButton::buttonColourId   , Colour(0xff004000)) ;
   scroll_button->setColour(TextButton::buttonOnColourId , Colours::green) ;
   scroll_button->setColour(TextButton::textColourOnId   , Colours::lime) ;
   scroll_button->setColour(TextButton::textColourOffId  , Colours::lime) ;
   scroll_button->setSize(GUI::CHANNEL_SCROLL_BTN_W , GUI::CHANNEL_SCROLL_BTN_H) ;
-
-  return scroll_button ;
 }
 
-Channels* Mixer::addChannels(String channels_name)
+void Mixer::addResizer(ResizableEdgeComponent* resizer)
 {
-  Channels* channels ;
-  if      (!channels_name.compare(GUI::MASTERS_GUI_ID)) channels = new MasterChannels() ;
-  else if (!channels_name.compare(GUI::LOCALS_GUI_ID))  channels = new LocalChannels() ;
-  else                                                  channels = new RemoteChannels() ;
-  addChildAndSetID(channels , channels_name) ;
-  channels->toFront(true) ;
-
-  resized() ;
-
-  return channels ;
+  addAndMakeVisible(resizer) ;
+  resizer->setSize(GUI::RESIZER_W , GUI::MIXERGROUP_H) ;
 }
 
 Channels* Mixer::getChannels(String channels_name)
