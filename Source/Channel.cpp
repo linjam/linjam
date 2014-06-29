@@ -131,18 +131,6 @@ Channel::Channel (ValueTree channel_config)
   int    source_ch = int(    this->configStore[CONFIG::SOURCE_N_IDENTIFIER]) ;
   bool   is_stereo = bool(   this->configStore[CONFIG::STEREO_IDENTIFIER]) ;
 
-  // TODO: subclass this or Channels (issue #29)
-  Identifier mixergroup_id = this->configStore.getParent().getType() ;
-  bool   is_master_channel = (mixergroup_id == CONFIG::MASTERS_IDENTIFIER) ;
-  bool   is_local_channel  = (mixergroup_id == CONFIG::LOCALS_IDENTIFIER) ;
-  String xmit_rcv_text     = ( is_local_channel)?  GUI::XMIT_LABEL_TEXT :
-                             (!is_master_channel)? GUI::RCV_LABEL_TEXT  : "" ;
-  bool is_first_child      = !this->configStore.getParent().indexOf(this->configStore) ;
-  this->removeButton->setVisible(   is_local_channel && !is_first_child) ;
-  this->xmitButton  ->setVisible(  !is_master_channel) ;
-  this->soloButton  ->setVisible(  !is_master_channel) ;
-  this->xmitButton  ->setButtonText(xmit_rcv_text) ;
-
   this->nameLabel   ->setText(           name     , juce::dontSendNotification) ;
   this->gainSlider  ->setValue(          volume) ;
   this->gainLabel   ->setText(String(int(volume)) , juce::dontSendNotification) ;
@@ -153,9 +141,10 @@ Channel::Channel (ValueTree channel_config)
 //   this->sourceLabel ->setText(String(    source_ch , juce::dontSendNotification) ;)) ; // TODO: (issue #25)
 //   this->stereoButton->setToggleState(    is_stereo , juce::dontSendNotification) ;) ;  // TODO: (issue #25)
 
-  this->gainSlider->setDoubleClickReturnValue(true , 0.0) ;
-  this->panSlider ->setDoubleClickReturnValue(true , 0.0) ;
-  this->vuSlider->setInterceptsMouseClicks(false , false) ;
+  this->removeButton->setVisible(false) ;
+  this->gainSlider  ->setDoubleClickReturnValue(true , 0.0) ;
+  this->panSlider   ->setDoubleClickReturnValue(true , 0.0) ;
+  this->vuSlider    ->setInterceptsMouseClicks(false , false) ;
 
 DEBUG_TRACE_ADDED_CHANNEL
 
@@ -219,40 +208,28 @@ void Channel::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
 
-  bool toggleState = buttonThatWasClicked->getToggleState() ; Identifier config_key ;
+  handleButtonClicked(buttonThatWasClicked) ; return ;
 
     //[/UserbuttonClicked_Pre]
 
     if (buttonThatWasClicked == xmitButton)
     {
         //[UserButtonCode_xmitButton] -- add your button handler code here..
-
-      setChannelConfig(CONFIG::XMIT_IDENTIFIER , var(toggleState)) ;
-
         //[/UserButtonCode_xmitButton]
     }
     else if (buttonThatWasClicked == muteButton)
     {
         //[UserButtonCode_muteButton] -- add your button handler code here..
-
-      setChannelConfig(CONFIG::MUTE_IDENTIFIER , var(toggleState)) ;
-
         //[/UserButtonCode_muteButton]
     }
     else if (buttonThatWasClicked == soloButton)
     {
         //[UserButtonCode_soloButton] -- add your button handler code here..
-
-      setChannelConfig(CONFIG::SOLO_IDENTIFIER , var(toggleState)) ;
-
         //[/UserButtonCode_soloButton]
     }
     else if (buttonThatWasClicked == removeButton)
     {
         //[UserButtonCode_removeButton] -- add your button handler code here..
-
-      LinJam::RemoveLocalChannel(Identifier(getComponentID())) ;
-      ((Channels*)getParentComponent())->removeChannel(this) ;
 
         //[/UserButtonCode_removeButton]
     }
@@ -270,6 +247,7 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_panSlider] -- add your slider handling code here..
 
+      // set stored config for this channel pan (configures NJClient implicitly)
       double pan = sliderThatWasMoved->getValue() ;
       setChannelConfig(CONFIG::PAN_IDENTIFIER , var(pan)) ;
 
@@ -278,12 +256,16 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
     else if (sliderThatWasMoved == vuSlider)
     {
         //[UserSliderCode_vuSlider] -- add your slider handling code here..
+
+      // vuSlider control is user read/only
+
         //[/UserSliderCode_vuSlider]
     }
     else if (sliderThatWasMoved == gainSlider)
     {
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
 
+      // set stored config for this channel volume (configures NJClient implicitly)
       double gain = sliderThatWasMoved->getValue() ;
       gainLabel->setText(String(int(gain)) , juce::dontSendNotification) ;
       setChannelConfig(CONFIG::VOLUME_IDENTIFIER , var(gain)) ;
@@ -299,9 +281,13 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+/* Channel class public class methods */
+
 void Channel::updateChannelVU(double vu)
 {
-//DBG("Channel::updateChannelVU() vu=" + String(vu) + " " + getComponentID()) ;
+#if DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
+DBG("Channel::updateChannelVU() vu=" + String(vu) + " " + getParentComponent()->getComponentID() + "->" + getComponentID()) ;
+#endif // DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
 
   this->vuSlider->setValue(vu) ;
   this->vuLabel ->setText(String(int(vu)) , juce::dontSendNotification) ;
@@ -313,8 +299,62 @@ void Channel::updateChannelVU(double vu)
                                                         Colour(0x01008000))) ;
 }
 
+
+/* Channel class private class methods */
+
+void Channel::handleButtonClicked(Button* a_button)
+{
+  // set stored config for this channel (configures NJClient implicitly)
+  if      (a_button == xmitButton)
+    setChannelConfig(CONFIG::XMIT_IDENTIFIER , var(a_button->getToggleState())) ;
+  else if (a_button == muteButton)
+    setChannelConfig(CONFIG::MUTE_IDENTIFIER , var(a_button->getToggleState())) ;
+  else if (a_button == soloButton)
+    setChannelConfig(CONFIG::SOLO_IDENTIFIER , var(a_button->getToggleState())) ;
+}
+
 void Channel::setChannelConfig(Identifier config_key , var value)
 { this->configStore.setProperty(config_key , value , nullptr) ; }
+
+
+/* MasterChannel class public class methods */
+
+MasterChannel::MasterChannel(ValueTree channel_store) : Channel(channel_store)
+{
+  this->xmitButton  ->setVisible(false) ;
+  this->soloButton  ->setVisible(false) ;
+}
+
+
+/* LocalChannel class public class methods */
+
+LocalChannel::LocalChannel(ValueTree channel_store) : Channel(channel_store)
+{
+  this->xmitButton->setButtonText(GUI::XMIT_LABEL_TEXT) ;
+}
+
+
+/* RemoteChannel class public class methods */
+
+RemoteChannel::RemoteChannel(ValueTree channel_store) : Channel(channel_store)
+{
+  this->xmitButton->setButtonText(GUI::RCV_LABEL_TEXT) ;
+}
+
+void LocalChannel::buttonClicked(Button* a_button)
+{
+  handleButtonClicked(a_button) ;
+
+  if (a_button == removeButton)
+  {
+// TODO: must we delete this ValueTree also ?
+    // destroy stored config for this channel (configures NJClient implicitly)
+    this->configStore.getParent().removeChild(this->configStore , nullptr) ;
+
+    // remove this channel GUI
+    ((LocalChannels*)getParentComponent())->removeChannel(this) ;
+  }
+}
 
 //[/MiscUserCode]
 

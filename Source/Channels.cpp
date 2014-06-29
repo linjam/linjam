@@ -31,7 +31,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-Channels::Channels (String channels_id)
+Channels::Channels ()
 {
     addAndMakeVisible (channelsLabel = new Label ("channelsLabel",
                                                   String::empty));
@@ -44,19 +44,14 @@ Channels::Channels (String channels_id)
     channelsLabel->setColour (TextEditor::textColourId, Colour (0x00000000));
     channelsLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (addButton = new TextButton ("addButton"));
-    addButton->setButtonText (TRANS("+"));
-    addButton->addListener (this);
-    addButton->setColour (TextButton::buttonColourId, Colour (0xff004000));
-    addButton->setColour (TextButton::buttonOnColourId, Colours::green);
-    addButton->setColour (TextButton::textColourOnId, Colours::lime);
-    addButton->setColour (TextButton::textColourOffId, Colours::lime);
+    addAndMakeVisible (expandButton = new TextButton ("expandButton"));
+    expandButton->setButtonText (TRANS("+"));
 
 
     //[UserPreSize]
 
   this->channelsLabel->setAlwaysOnTop(true) ;
-  this->addButton->setAlwaysOnTop(true) ;
+  this->expandButton ->setAlwaysOnTop(true) ;
 
     //[/UserPreSize]
 
@@ -64,11 +59,6 @@ Channels::Channels (String channels_id)
 
 
     //[Constructor] You can add your own custom stuff here..
-
-  bool are_local_channels = (Identifier(channels_id) == GUI::LOCALS_IDENTIFIER) ;
-  this->addButton    ->setVisible(are_local_channels) ;
-  this->channelsLabel->setText(channels_id , juce::dontSendNotification) ;
-
     //[/Constructor]
 }
 
@@ -78,7 +68,7 @@ Channels::~Channels()
     //[/Destructor_pre]
 
     channelsLabel = nullptr;
-    addButton = nullptr;
+    expandButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -107,7 +97,7 @@ void Channels::paint (Graphics& g)
 void Channels::resized()
 {
     channelsLabel->setBounds (4, 4, getWidth() - 8, 12);
-    addButton->setBounds (getWidth() - 15, 0, 15, 16);
+    expandButton->setBounds (getWidth() - 15, 0, 15, 16);
     //[UserResized] Add your own custom resize handling here..
 
   int n_channels = getNumChannels() ;
@@ -122,28 +112,11 @@ void Channels::resized()
     //[/UserResized]
 }
 
-void Channels::buttonClicked (Button* buttonThatWasClicked)
-{
-    //[UserbuttonClicked_Pre]
-    //[/UserbuttonClicked_Pre]
-
-    if (buttonThatWasClicked == addButton)
-    {
-        //[UserButtonCode_addButton] -- add your button handler code here..
-
-      // TODO: prompt ?
-      LinJam::AddLocalChannel(String::empty) ;
-
-        //[/UserButtonCode_addButton]
-    }
-
-    //[UserbuttonClicked_Post]
-    //[/UserbuttonClicked_Post]
-}
-
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+/* Channels class public class methods */
 
 void Channels::addChannel(ValueTree channel_store)
 {
@@ -152,7 +125,7 @@ DEBUG_TRACE_ADD_CHANNEL_GUI
   String channel_name = String(channel_store.getType()) ;
   if (findChildWithID(StringRef(channel_name))) return ;
 
-  Channel* channel = new Channel(channel_store) ;
+  Channel* channel = newChannel(channel_store) ;
   this->addChildAndSetID(channel , channel_name) ;
   channel->toFront(false) ;
 }
@@ -165,7 +138,9 @@ DEBUG_REMOVE_CHANNEL
 }
 
 int Channels::getNumChannels()
-{ return this->getNumChildComponents() - GUI::N_STATIC_CHANNEL_CHILDREN; }
+{
+  return this->getNumChildComponents() - GUI::N_STATIC_CHANNEL_CHILDREN ;
+}
 
 void Channels::updateChannelVU(String channel_id , double vu)
 {
@@ -175,6 +150,107 @@ DEBUG_TRACE_INVALID_CHANNELID
 
   Channel* channel = (Channel*)findChildWithID(StringRef(channel_id)) ;
   if (channel) channel->updateChannelVU(vu) ;
+}
+
+
+/* Channels class private class methods */
+
+void Channels::broughtToFront()
+{
+  this->channelsLabel->setText(getComponentID() , juce::dontSendNotification) ;
+}
+
+
+/* MasterChannels , LocalChannels , RemoteChannels classes public class methods */
+
+MasterChannels::MasterChannels() { this->expandButton ->setVisible(false) ; }
+
+LocalChannels::LocalChannels()
+{
+  this->expandButton ->setColour(TextButton::buttonColourId   , Colour(0xff004000)) ;
+  this->expandButton ->setColour(TextButton::buttonOnColourId , Colour(0xff008000)) ;
+  this->expandButton ->setColour(TextButton::textColourOnId   , Colour(0xff00ff00)) ;
+  this->expandButton ->setColour(TextButton::textColourOffId  , Colour(0xff00ff00)) ;
+  this->expandButton ->addListener(this) ;
+}
+
+RemoteChannels::RemoteChannels()
+{
+  this->expandButton ->setColour(TextButton::buttonColourId   , Colour(0xff404000)) ;
+  this->expandButton ->setColour(TextButton::buttonOnColourId , Colour(0xff808000)) ;
+  this->expandButton ->setColour(TextButton::textColourOnId   , Colour(0xffffff00)) ;
+  this->expandButton ->setColour(TextButton::textColourOffId  , Colour(0xffffff00)) ;
+  this->expandButton ->addListener(this) ;
+  this->isExpanded = false ;
+}
+
+
+/* MasterChannels , LocalChannels , RemoteChannels classes private class methods */
+
+void LocalChannels::buttonClicked(Button* a_button)
+{
+  // TODO: prompt ?
+  if (a_button == expandButton) LinJam::AddLocalChannel(String::empty) ;
+}
+
+void RemoteChannels::buttonClicked(Button* a_button)
+{
+  if (a_button == expandButton) toggleExpandChannels() ;
+}
+
+void RemoteChannels::toggleExpandChannels()
+{
+  this->isExpanded = !this->isExpanded ;
+// TODO:
+DBG("toggleExpandChannels() this->isExpanded=" + String(this->isExpanded)) ;
+}
+
+Channel* MasterChannels::newChannel(ValueTree channel_store)
+{
+  return new MasterChannel(channel_store) ;
+}
+
+Channel* LocalChannels::newChannel(ValueTree channel_store)
+{
+  Channel* channel = new LocalChannel(channel_store) ;
+
+  // show/hide remove channel button for this and the first/only channel
+  bool     is_first_channel = !getNumChannels() ;
+  Channel* first_channel    = (is_first_channel)? channel : (Channel*)getChildComponent(0) ;
+  ((LocalChannel*)first_channel)->removeButton->setVisible(true) ;
+  ((LocalChannel*)channel)      ->removeButton->setVisible(!is_first_channel) ;
+
+  return channel ;
+}
+
+Channel* RemoteChannels::newChannel(ValueTree channel_store)
+{
+  return new RemoteChannel(channel_store) ;
+}
+
+void LocalChannels::removeChannel(Channel* channel)
+{
+  ((Channels*)this)->removeChannel(channel) ;
+
+  int n_channels = getNumChannels() ;
+
+#ifndef BUGGY_ADD_DUPLICATE_LOCAL_CHANNELS
+  // rename any generic channel names to match their NJClient channelIdx
+  for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
+  {
+    String channel_name = getChildComponent(channel_n)->getComponentID() ;
+    if (channel_name.startsWith(CONFIG::DEFAULT_CHANNEL_NAME))
+    {
+      int channel_idx     = LinJam::GetLocalChannelIdx(Identifier(channel_name)) ;
+      Identifier new_name = Config->encodeChannelId(channel_c_name , channel_idx) ;
+      // TODO: howto rename ValueTree
+    }
+  }
+#endif // BUGGY_ADD_DUPLICATE_LOCAL_CHANNELS
+
+  // hide remove channel button for only remaining channel
+  if (n_channels == 1)
+    ((LocalChannel*)getChildComponent(0))->removeButton->setVisible(false) ;
 }
 
 //[/MiscUserCode]
@@ -190,9 +266,9 @@ DEBUG_TRACE_INVALID_CHANNELID
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Channels" componentName=""
-                 parentClasses="public Component" constructorParams="String channels_id"
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="0" initialWidth="132" initialHeight="276">
+                 parentClasses="public Component" constructorParams="" variableInitialisers=""
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="132" initialHeight="276">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
@@ -203,10 +279,9 @@ BEGIN_JUCER_METADATA
          labelText="" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="12"
          bold="0" italic="0" justification="12"/>
-  <TEXTBUTTON name="addButton" id="e6ac05f3ca896afc" memberName="addButton"
-              virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" bgColOff="ff004000"
-              bgColOn="ff008000" textCol="ff00ff00" textColOn="ff00ff00" buttonText="+"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+  <TEXTBUTTON name="expandButton" id="e6ac05f3ca896afc" memberName="expandButton"
+              virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" buttonText="+"
+              connectedEdges="0" needsCallback="0" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

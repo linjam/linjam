@@ -97,18 +97,18 @@ private:
                                      bool should_set_pan      , bool should_set_is_xmit  ,
                                      bool should_set_is_muted , bool should_set_is_solo  ,
                                      bool should_set_source_n , bool should_set_is_stereo) ;
-  static void ConfigureRemoteUser(   int  user_idx                             ,
-                                     bool should_set_volume   , float  volume  ,
-                                     bool should_set_pan      , float  pan     ,
-                                     bool should_set_is_muted , bool   is_muted) ;
-  static void ConfigureRemoteChannel(int  user_idx             , int    channel_idx  ,
-                                     bool should_set_volume    , float  volume       ,
-                                     bool should_set_pan       , float  pan          ,
-                                     bool should_set_is_rcv    , bool   is_rcv       ,
-                                     bool should_set_is_muted  , bool   is_muted     ,
-                                     bool should_set_is_solo   , bool   is_solo      ,
-                                     bool should_set_sink_n    , int    sink_n       ,
-                                     bool should_set_is_stereo , bool   is_stereo    ) ;
+  static void  ConfigureRemoteUser(   int  user_idx                             ,
+                                      bool should_set_volume   , float  volume  ,
+                                      bool should_set_pan      , float  pan     ,
+                                      bool should_set_is_muted , bool   is_muted) ;
+  static void  ConfigureRemoteChannel(int  user_idx             , int    channel_idx  ,
+                                      bool should_set_volume    , float  volume       ,
+                                      bool should_set_pan       , float  pan          ,
+                                      bool should_set_is_rcv    , bool   is_rcv       ,
+                                      bool should_set_is_muted  , bool   is_muted     ,
+                                      bool should_set_is_solo   , bool   is_solo      ,
+                                      bool should_set_sink_n    , int    sink_n       ,
+                                      bool should_set_is_stereo , bool   is_stereo    ) ;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;
 } ;

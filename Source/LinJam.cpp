@@ -9,10 +9,6 @@
 */
 
 
-//#define DEBUG_AUTOJOIN_STATIC_CHANNEL
-#define DEBUG_STATIC_CHANNEL "ninjamer.com:2049"
-
-
 #include "LinJam.h"
 #include "Channel.h"
 #include "Constants.h"
@@ -152,6 +148,10 @@ void LinJam::UpdateGUI()
   int user_idx = -1 ; char* user_name ;
   while (user_name = Client->GetUserState(++user_idx))
   {
+#ifdef DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
+DBG("user[" + String(user_idx) + "]=" + String(Config->encodeUserId(user_name , user_idx))) ;
+#endif // DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
+
     Identifier user_id = Config->encodeUserId(user_name , user_idx) ; channel_n = -1 ;
     while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
     {
@@ -159,6 +159,10 @@ void LinJam::UpdateGUI()
       String channel_id   = String(Config->encodeChannelId(channel_name , channel_idx)) ;
       float  channel_vu   = VAL2DB(Client->GetUserChannelPeak(user_idx , channel_idx)) ;
       Gui->mixer->updateChannelVU(user_id , channel_id , channel_vu) ;
+
+#ifdef DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
+DBG("user[" + String(user_idx) + "]=" + String(user_id) + " channel[" + String(channel_n) + "/" + String(channel_idx) + "]="+ channel_id) ;
+#endif // DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
     }
   }
 }
@@ -175,13 +179,17 @@ void LinJam::AddLocalChannel(String channel_name)
 {
 DEBUG_TRACE_ADD_LOCAL_CHANNEL_FAIL
 
+  // ensure that we do not exceed our maximum number of local channels
   int channel_idx = GetVacantLocalChannelIdx() ; if (!(~channel_idx)) return ;
 
-  // load or create stored config for this channel
-  Identifier channel_id    = Config->encodeChannelId(channel_name , channel_idx + 1) ;
+  // ensure that a channel with this name does not already exist
+  Identifier channel_id = Config->encodeChannelId(channel_name , channel_idx + 1) ;
+  if (Config->getChannel(GUI::LOCALS_IDENTIFIER , channel_id).isValid()) return ;
+
+  // create stored config for this channel
   ValueTree  channel_store = Config->getOrCreateChannel(GUI::LOCALS_IDENTIFIER    ,
                                                         channel_idx               ,
-                                                        channel_id                ,
+                                                        Identifier(channel_name)  ,
                                                         CONFIG::DEFAULT_VOLUME    ,
                                                         CONFIG::DEFAULT_PAN       ,
                                                         CONFIG::DEFAULT_IS_XMIT   ,
@@ -201,6 +209,8 @@ DEBUG_TRACE_ADD_LOCAL_CHANNEL
 
 void LinJam::RemoveLocalChannel(Identifier channel_id)
 {
+DEBUG_TRACE_REMOVE_LOCAL_CHANNEL
+
   Client->DeleteLocalChannel(GetLocalChannelIdx(channel_id)) ;
   Client->NotifyServerOfChannelChange() ;
 }
@@ -220,6 +230,10 @@ DEBUG_TRACE_CHAT_OUT
 
 int LinJam::OnLicense(int user32 , char* license_text)
 {
+#ifdef DEBUG_AUTOLOGIN_NYI
+return true ;
+#endif // DEBUG_AUTOLOGIN_NYI
+
   ValueTree server         = Config->getCurrentServer() ;
   bool should_always_agree = server.isValid() &&
                              bool(server.getProperty(CONFIG::AGREE_IDENTIFIER)) ;
@@ -298,11 +312,11 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 void LinJam::HandleStatusChanged(int client_status)
 {
 DEBUG_TRACE_CONNECT_STATUS
-#ifdef DEBUG_AUTOJOIN_STATIC_CHANNEL
+#ifdef DEBUG_AUTOLOGIN_NYI
 if (client_status == NJClient::NJC_STATUS_PRECONNECT)
-{ Config->setCurrentConfig(DEBUG_STATIC_CHANNEL , "nobody" , "" , true) ;
+{ Config->setCurrentServer(DEBUG_STATIC_CHANNEL , "nobody" , "" , true) ;
   Connect() ; }
-#endif // DEBUG_AUTOJOIN_STATIC_CHANNEL
+#endif // DEBUG_AUTOLOGIN_NYI
 
   // server config
   if (client_status == NJClient::NJC_STATUS_OK) Config->setServer() ;

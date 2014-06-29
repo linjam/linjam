@@ -38,8 +38,8 @@ Mixer::Mixer ()
 
     //[UserPreSize]
 
-  this->masterChannels   = getOrAddChannels(GUI::MASTERS_GUI_ID) ;
-  this->localChannels    = getOrAddChannels(GUI::LOCALS_GUI_ID) ;
+  this->masterChannels   = (MasterChannels*)addChannels(GUI::MASTERS_GUI_ID) ;
+  this->localChannels    = (LocalChannels*) addChannels(GUI::LOCALS_GUI_ID) ;
   this->prevScrollButton = addScrollButton("prevScrollButton") ;
   this->nextScrollButton = addScrollButton("nextScrollButton") ;
   this->localsResizer    = new ResizableEdgeComponent(localChannels  , nullptr ,
@@ -189,7 +189,11 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
 
 Channels* Mixer::getOrAddRemoteChannels(String channels_name , ValueTree user_store)
 {
-  return getOrAddChannels(channels_name) ; // TODO: remote master GUI (issue #34)
+  Channels* channels = getChannels(channels_name) ; if (channels) return channels ;
+
+  channels = addChannels(channels_name) ;
+
+  return channels ;
 }
 
 void Mixer::addChannel(String channels_name , ValueTree channel_store)
@@ -203,15 +207,8 @@ void Mixer::addChannel(String channels_name , ValueTree channel_store)
 
 void Mixer::updateChannelVU(Identifier channels_id , String channel_id , double vu)
 {
-  if      (channels_id == GUI::MASTERS_IDENTIFIER)
-    masterChannels->updateChannelVU(channel_id , vu) ;
-  else if (channels_id == GUI::LOCALS_IDENTIFIER)
-    localChannels ->updateChannelVU(channel_id , vu) ;
-  else
-  {
-    Channels* channels = getChannels(String(channels_id)) ;
-    if (channels) channels->updateChannelVU(channel_id , vu) ;
-  }
+  Channels* channels = getChannels(String(channels_id)) ;
+  if (channels) channels->updateChannelVU(channel_id , vu) ;
 }
 
 void Mixer::positionResizers()
@@ -277,11 +274,12 @@ TextButton* Mixer::addScrollButton(String button_id)
   return scroll_button ;
 }
 
-Channels* Mixer::getOrAddChannels(String channels_name)
+Channels* Mixer::addChannels(String channels_name)
 {
-  Channels* channels = getChannels(channels_name) ; if (channels) return channels ;
-
-  channels = new Channels(channels_name) ;
+  Channels* channels ;
+  if      (!channels_name.compare(GUI::MASTERS_GUI_ID)) channels = new MasterChannels() ;
+  else if (!channels_name.compare(GUI::LOCALS_GUI_ID))  channels = new LocalChannels() ;
+  else                                                  channels = new RemoteChannels() ;
   addChildAndSetID(channels , channels_name) ;
   channels->toFront(true) ;
 
@@ -301,13 +299,13 @@ DEBUG_REMOVE_CHANNELS
 }
 
 int Mixer::getNumDynamicMixers()
-{ return getNumChildComponents() - GUI::N_STATIC_MIXER_CHILDREN ; }
+{
+  return getNumChildComponents() - GUI::N_STATIC_MIXER_CHILDREN ;
+}
 
-int Mixer::getLocalsResizerNextX()
-{ return localChannels->getRight() - 1 ; }
+int Mixer::getLocalsResizerNextX() { return localChannels->getRight() - 1 ; }
 
-int Mixer::getMastersResizerNextX()
-{ return masterChannels->getX() - GUI::RESIZER_W + 1 ; }
+int Mixer::getMastersResizerNextX() { return masterChannels->getX() - GUI::RESIZER_W + 1 ; }
 
 //[/MiscUserCode]
 

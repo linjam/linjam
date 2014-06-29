@@ -285,7 +285,7 @@ DEBUG_TRACE_LOGIN_BTNS
 
 /* event handlers */
 
-void Login::broughtToFront() { refreshState() ; }
+void Login::broughtToFront() { preloadState() ; }
 
 void Login::textEditorTextChanged(TextEditor& a_text_editor)
 {
@@ -303,7 +303,7 @@ DBG("Login::valueChanged()=" + login_value.getValue().toString()) ;
 
 /* helpers */
 
-void Login::refreshState()
+void Login::preloadState()
 {
   if (LinJam::Config == nullptr) return ;
 

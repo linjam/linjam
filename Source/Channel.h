@@ -59,14 +59,16 @@ public:
     void sliderValueChanged (Slider* sliderThatWasMoved);
 
 
-
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+protected:
 
   ValueTree configStore ;
 
 
-  void setChannelConfig(Identifier config_key , var value) ;
+  void handleButtonClicked(Button* a_button) ;
+  void setChannelConfig(   Identifier config_key , var value) ;
 
     //[/UserVariables]
 
@@ -89,7 +91,24 @@ private:
 
 //[EndFile] You can add extra defines here...
 
-// TODO: subclass ChannelComponent (eliminating mixergroup_id and xmit_rcv_text) (issue #29)
+class MasterChannel : public Channel
+{
+  friend class MasterChannels ; MasterChannel(ValueTree channel_store) ;
+} ;
+
+class LocalChannel  : public Channel
+{
+  friend class LocalChannels ;
+
+  LocalChannel(ValueTree channel_store) ;
+
+  void buttonClicked(Button* a_button) ;
+} ;
+
+class RemoteChannel : public Channel
+{
+  friend class RemoteChannels ; RemoteChannel(ValueTree channel_store) ;
+} ;
 
 //[/EndFile]
 

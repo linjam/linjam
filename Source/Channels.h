@@ -17,9 +17,8 @@
   ==============================================================================
 */
 
-#ifndef _CHANNELS_H_
-#define _CHANNELS_H_
-
+#ifndef __JUCE_HEADER_8B661D82CCFDE918__
+#define __JUCE_HEADER_8B661D82CCFDE918__
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -33,17 +32,17 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Introjucer.
+    This is the component superclass of channels mixergroups.
 
-    Describe your class and how it works here!
+    It is a container for related Channel mixer slices
+        with an expand/add button.
                                                                     //[/Comments]
 */
-class Channels  : public Component,
-                  public ButtonListener
+class Channels  : public Component
 {
 public:
     //==============================================================================
-    Channels (String channels_id);
+    Channels ();
     ~Channels();
 
     //==============================================================================
@@ -54,21 +53,28 @@ public:
   int  getNumChannels() ;
   void updateChannelVU(String channel_id , double vu) ;
 
-   //[/UserMethods]
+    //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+  void broughtToFront() override ;
+
+
+protected:
+
+  virtual Channel* newChannel(ValueTree channel_store) {}
+
     //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<Label> channelsLabel;
-    ScopedPointer<TextButton> addButton;
+    ScopedPointer<TextButton> expandButton;
 
 
     //==============================================================================
@@ -76,6 +82,51 @@ private:
 };
 
 //[EndFile] You can add extra defines here...
+
+class MasterChannels : public Channels
+{
+public:
+
+  MasterChannels() ;
+
+
+private:
+
+  Channel* newChannel(ValueTree channel_store) override ;
+} ;
+
+
+class LocalChannels : public Channels , public ButtonListener
+{
+public:
+
+  LocalChannels() ;
+  void removeChannel(Channel* channel) ;
+
+private:
+
+  void     buttonClicked(Button* buttonThatWasClicked) ;
+  Channel* newChannel(   ValueTree channel_store) override ;
+} ;
+
+
+class RemoteChannels : public Channels , public ButtonListener
+{
+public:
+
+  RemoteChannels() ;
+
+
+private:
+
+  bool isExpanded ;
+
+
+  void     buttonClicked(       Button* buttonThatWasClicked) ;
+  void     toggleExpandChannels() ;
+  Channel* newChannel(          ValueTree channel_store) override ;
+} ;
+
 //[/EndFile]
 
-#endif // _CHANNELS_H_
+#endif   // __JUCE_HEADER_8B661D82CCFDE918__

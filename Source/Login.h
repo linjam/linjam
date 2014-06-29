@@ -74,7 +74,7 @@ private:
   void valueChanged(         Value& login_value)        override ;
 
   // helpers
-  void refreshState() ;
+  void preloadState() ;
   void sortLoginButtons() ;
   void login() ;
   bool validateHost() ;

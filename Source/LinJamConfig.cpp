@@ -220,7 +220,7 @@ ValueTree LinJamConfig::getOrCreateChannel(Identifier channels_id   , int    cha
   if (!channel_store.isValid())
   {
     // add new channel
-    channel_store = ValueTree(encodeChannelId(String(channel_id) , channel_idx)) ;
+    channel_store = ValueTree(encodeChannelId(String(channel_id) , channel_idx + 1)) ;
     channel_store.setProperty(CONFIG::VOLUME_IDENTIFIER   , volume        , nullptr) ;
     channel_store.setProperty(CONFIG::PAN_IDENTIFIER      , pan           , nullptr) ;
     channel_store.setProperty(CONFIG::XMIT_IDENTIFIER     , is_xmit_rcv   , nullptr) ;
@@ -310,9 +310,15 @@ ValueTree LinJamConfig::sanitizeConfig(ValueTree default_config , ValueTree stor
     // transfer missing node
     if (!stored_child.isValid())
     {
-      default_config.removeChild(default_child , nullptr) ;
-      stored_config.addChild(default_child , -1 , nullptr) ;
-      --child_n ; continue ;
+      // for local channels we transfer the default channel only if none are stored
+      if (default_config.getType() != CONFIG::LOCALS_IDENTIFIER ||
+         !stored_config.getNumChildren())
+      {
+        default_config.removeChild(default_child , nullptr) ;
+        stored_config.addChild(default_child , -1 , nullptr) ;
+        --child_n ;
+      }
+      continue ;
     }
 
     int n_grandchildren = default_child.getNumChildren() ;
@@ -549,14 +555,21 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
 
 void LinJamConfig::valueTreeChildAdded(ValueTree& a_parent_tree , ValueTree& a_child_tree)
 {
-//DBG("valueTreeChildAdded() a_parent_tree=" + a_parent_tree.getType().toString() + " a_child_tree="  + a_child_tree.getType().toString()) ;
+DEBUG_TRACE_CONFIG_TREE_ADDED
 
 // TODO: remotes added to '<remote-channels>' node (issue #33)
 //   a_child_tree.addListener(this) ;
 }
 
+void LinJamConfig::valueTreeChildRemoved(ValueTree& a_parent_tree , ValueTree& a_child_tree)
+{
+DEBUG_TRACE_CONFIG_TREE_REMOVED
+
+  if (a_parent_tree == this->localChannels)
+    LinJam::RemoveLocalChannel(a_child_tree.getType()) ;
+}
+
 // unused ValueTree::Listener interface methods
-void LinJamConfig::valueTreeChildRemoved(ValueTree& a_parent_tree , ValueTree& a_child_tree) {}
 void LinJamConfig::valueTreeChildOrderChanged(ValueTree& a_parent_tree)                      {}
 void LinJamConfig::valueTreeParentChanged(ValueTree& a_tree)                                 {}
 void LinJamConfig::valueTreeRedirected(ValueTree& a_tree)                                    {}

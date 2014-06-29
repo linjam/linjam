@@ -116,13 +116,14 @@ private:
   // event handlers
   void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)          override ;
   void valueTreeChildAdded(     ValueTree& a_parent_tree , ValueTree& a_child_tree) override ;
+  void valueTreeChildRemoved(   ValueTree& a_parent_tree , ValueTree& a_child_tree) override ;
 
   // unused ValueTree::Listener interface methods
 //  void valueTreePropertyChanged (ValueTree &treeWhosePropertyHasChanged, const Identifier &property)=0 override ;
   // This method is called when a property of this node (or of one of its sub-nodes) has changed.
 //  void valueTreeChildAdded(ValueTree& a_parent_tree , ValueTree& a_child_tree)    override ;
   // This method is called when a child sub-tree is added.
-  void valueTreeChildRemoved(ValueTree& a_parent_tree , ValueTree& a_child_tree)  override ;
+//   void valueTreeChildRemoved(ValueTree& a_parent_tree , ValueTree& a_child_tree)  override ;
   // This method is called when a child sub-tree is removed.
   void valueTreeChildOrderChanged(ValueTree& a_parent_tree)                       override ;
   // This method is called when a tree's children have been re-shuffled.

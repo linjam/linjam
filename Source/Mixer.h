@@ -65,8 +65,8 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  ScopedPointer<Channels>               masterChannels ;
-  ScopedPointer<Channels>               localChannels ;
+  ScopedPointer<MasterChannels>         masterChannels ;
+  ScopedPointer<LocalChannels>          localChannels ;
   ScopedPointer<TextButton>             prevScrollButton ;
   ScopedPointer<TextButton>             nextScrollButton ;
   ScopedPointer<ResizableEdgeComponent> localsResizer ;
@@ -77,7 +77,7 @@ private:
 
   void        buttonClicked(         Button* buttonThatWasClicked) override ;
   TextButton* addScrollButton(       String button_id) ;
-  Channels*   getOrAddChannels(      String channels_name) ;
+  Channels*   addChannels(           String channels_name) ;
   Channels*   getChannels(           String channels_name) ;
   void        removeChannels(        Channels* channels) ;
   int         getNumDynamicMixers() ;

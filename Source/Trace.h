@@ -3,9 +3,17 @@
 #define _TRACE_H_
 
 
-// features
-#define BUGGY_CHAT_COMMANDS
+// standard features
+#define BUGGY_CHAT_COMMANDS                      // (issue #)
+#define BUGGY_ADD_DUPLICATE_LOCAL_CHANNELS       // (issue #)
+//#define DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
 #define KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO 1 // NJClient initializes remote channels gain to 1.0
+
+// debug features
+#define DEBUG_EXIT_IMMEDIAYELY       0
+#define DEBUG_LOCALHOST_LOGIN_BUTTON 1
+#define DEBUG_AUTOLOGIN_NYI          1
+#define DEBUG_STATIC_CHANNEL "localhost:2049" // "ninjamer.com:2049"
 
 // tracing
 #define DEBUG_TRACE            DEBUG && 1
@@ -18,9 +26,6 @@
 #define DEBUG_SHARED_CONFIG    DEBUG && 0
 #define DEBUG_STORE_CONFIG_VB  DEBUG && 0
 #define DEBUG_ADDED_CHANNEL_VB DEBUG && 0
-
-#define DEBUG_EXIT_IMMEDIAYELY       0
-#define DEBUG_LOCALHOST_LOGIN_BUTTON 0
 
 
 #if DEBUG_TRACE
@@ -203,6 +208,12 @@
 #  define DEBUG_TRACE_CONFIG_TREE_CHANGED                                          \
     String node = String(a_node.getType()) ; String val = a_node[key].toString() ; \
     Trace::TraceEvent("value changed " + node + "[" + String(key) + "] => " + val) ;
+#  define DEBUG_TRACE_CONFIG_TREE_ADDED                                \
+    Trace::TraceConfig(String(a_child_tree.getType()) + " added to " + \
+                       String(a_parent_tree.getType())) ;
+#  define DEBUG_TRACE_CONFIG_TREE_REMOVED                                  \
+    Trace::TraceConfig(String(a_child_tree.getType()) + " removed from " + \
+                       String(a_parent_tree.getType())) ;
 
 // network
 #  define DEBUG_TRACE_LOGIN_HOST_VB                                                     \
@@ -302,10 +313,16 @@
          Trace::TraceEvent("adding local channel '"  + name  + "'") ;           \
     else Trace::TraceEvent("adding remote channel '" + name  +                  \
                            "' for '" + getComponentID() + "'") ;
-#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL_FAIL                                            \
-    if (!(~GetVacantLocalChannelIdx()))                                                 \
-      Trace::TraceError("cannot create new local channel - maximum input channels = " + \
-                        String(Client->GetMaxLocalChannels())) ;
+#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL_FAIL                                           \
+    int    ch_idx       = GetVacantLocalChannelIdx() ;                                 \
+    String ch_id        = String(Config->encodeChannelId(channel_name , ch_idx + 1)) ; \
+    String max_channels = String(Client->GetMaxLocalChannels()) ;                      \
+    if (!(~ch_idx))                                                                    \
+      Trace::TraceError("cannot create new local channel '" + ch_id +                  \
+                        "' - maximum input channels = " + max_channels) ;              \
+    else if (Config->getChannel(GUI::LOCALS_IDENTIFIER , ch_id).isValid())             \
+      Trace::TraceError("cannot create new local channel '" + ch_id +                  \
+                        "' - channel already exists") ;
 #  define DEBUG_TRACE_ADD_LOCAL_CHANNEL                                     \
     Trace::TraceConfig("created new local channel[" + String(channel_idx) + \
                        "] - " + String(channel_id)) ;
@@ -336,10 +353,12 @@
     "\n  source_ch       => " + String(source_ch)                                  + \
     "\n  is_stereo       => " + String(is_stereo)) ;
 #  else // DEBUG_ADDED_CHANNEL_VB
-#    define DEBUG_TRACE_ADDED_CHANNEL                                  \
-    Trace::TraceEvent("channel added '" + name + "' for " +            \
+#    define DEBUG_TRACE_ADDED_CHANNEL                                 \
+    Trace::TraceEvent("channel added '" + name + "' to " +            \
                       String(this->configStore.getParent().getType())) ;
 #  endif // DEBUG_ADDED_CHANNEL_VB
+#  define DEBUG_TRACE_REMOVE_LOCAL_CHANNEL                               \
+    Trace::TraceEvent("destroying channel '" + String(channel_id) + "'") ;
 #  define DEBUG_TRACE_INVALID_CHANNELID                                          \
     if (channel_id.isEmpty())                                                    \
       Trace::TraceError("empty channel_id for " + getComponentID()) ;            \
@@ -367,7 +386,7 @@
     Trace::TraceEvent("removing remote user '" + user_id + "'") ;
 #  define DEBUG_REMOVE_CHANNEL                                                   \
     Trace::TraceEvent("removing channel '" + String(channel->getComponentID()) + \
-                      "' for '" + getComponentID() + "'") ;
+                      "' from '" + getComponentID() + "'") ;
 
 // chat
 #  define DEBUG_TRACE_CHAT_IN                                                        \
@@ -404,6 +423,8 @@
 #  define DEBUG_TRACE_CONFIG_VALUE            ;
 #  define DEBUG_TRACE_STORE_CONFIG            ;
 #  define DEBUG_TRACE_CONFIG_TREE_CHANGED     ;
+#  define DEBUG_TRACE_CONFIG_TREE_ADDED       ;
+  #define DEBUG_TRACE_CONFIG_TREE_REMOVED     ;
 // network
 #  define DEBUG_TRACE_LOGIN_HOST_VB           ;
 #  define DEBUG_TRACE_CONNECT_STATUS          ;
@@ -417,6 +438,7 @@
 #  define DEBUG_TRACE_ADD_LOCAL_CHANNEL       ;
 #  define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL ;
 #  define DEBUG_TRACE_ADDED_CHANNEL           ;
+#  define DEBUG_TRACE_REMOVE_LOCAL_CHANNEL    ;
 #  define DEBUG_TRACE_INVALID_CHANNELID       ;
 #  define DEBUG_TRACE_MIXER_COMPONENTS_VB     ;
 // chat
