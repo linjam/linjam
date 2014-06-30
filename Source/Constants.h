@@ -270,6 +270,7 @@ public:
   static const Identifier SOURCE_N_IDENTIFIER ;
   static const String     STEREO_KEY ;
   static const Identifier STEREO_IDENTIFIER ;
+  static const Identifier INIT_LOCAL_IDENTIFIER ;
 
   // validation
   static const StringRef VALID_NAME_CHARS ;

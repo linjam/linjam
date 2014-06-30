@@ -471,128 +471,54 @@ ValueTree LinJamConfig::getUser(Identifier user_id)
 String LinJamConfig::filteredName(String a_string)
 { return a_string.retainCharacters(CONFIG::VALID_NAME_CHARS).replaceCharacter(' ', '-') ; }
 
-void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)
+void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier& a_key)
 {
 DEBUG_TRACE_CONFIG_TREE_CHANGED
 
-  // TODO: factor NJClient settings into LinJam class (issue #42)
+  Identifier node_id     = a_node.getType() ;
+  ValueTree  parent_node = a_node.getParent() ;
+  Identifier parent_id   = parent_node.getType() ;
 
-  Identifier node_id  =        a_node.getType() ;
-  bool       a_bool   = bool(  a_node[key]) ;
-  int        an_int   = int(   a_node[key]) ;
-  float      a_float  = float( a_node[key]) ;
-  double     a_double = double(a_node[key]) ;
-  String     a_string =        a_node[key].toString() ;
+  if      (node_id == CONFIG::MASTER_IDENTIFIER)
+    LinJam::ConfigureMasterChannel(a_key) ;
+  else if (node_id == CONFIG::METRO_IDENTIFIER)
+    LinJam::ConfigureMetroChannel(a_key) ;
+  else if (parent_node == this->localChannels)
+    LinJam::ConfigureLocalChannel(a_node , a_key) ;
 
+  else if (node_id   == CONFIG::CLIENT_IDENTIFIER)        return ; // most likely will handle this eventuall
+  else if (parent_id == CONFIG::SUBSCRIPTIONS_IDENTIFIER) return ; // most likely will handle this eventuall
+  else if (node_id   == CONFIG::AUDIO_IDENTIFIER)         return ; // may or may not handle this (issue #12)
+  else if (node_id   == CONFIG::SERVER_IDENTIFIER)        return ; // most likely wont need to handle these
+  else if (parent_id == CONFIG::SERVERS_IDENTIFIER)       return ; // but we must guard for now (issue #33)
 
-  /* master channels */
-
-  // configure master channels
-  if (node_id == CONFIG::MASTER_IDENTIFIER)
-  {
-    if      (key == CONFIG::VOLUME_IDENTIFIER)
-      LinJam::Client->config_mastervolume = (float)DB2VAL(a_double) ;
-    else if (key == CONFIG::PAN_IDENTIFIER)
-      LinJam::Client->config_masterpan    = a_float ;
-    else if (key == CONFIG::MUTE_IDENTIFIER)
-      LinJam::Client->config_mastermute   = a_bool ;
-
-    return ;
-  }
-  if (node_id == CONFIG::METRO_IDENTIFIER)
-  {
-    if      (key == CONFIG::VOLUME_IDENTIFIER)
-      LinJam::Client->config_metronome           = (float)DB2VAL(a_double) ;
-    else if (key == CONFIG::PAN_IDENTIFIER)
-      LinJam::Client->config_metronome_pan       = a_float ;
-    else if (key == CONFIG::MUTE_IDENTIFIER)
-      LinJam::Client->config_metronome_mute      = a_bool ;
-    else if (key == CONFIG::SOURCE_N_IDENTIFIER)
-      LinJam::Client->config_metronome_channel   = an_int ;
-    else if (key == CONFIG::STEREO_IDENTIFIER)
-      LinJam::Client->config_metronome_stereoout = a_bool ;
-
-    return ;
-  }
-
-  if (node_id == CONFIG::CLIENT_IDENTIFIER)        return ; // most likely will handle this eventuall
-  if (node_id == CONFIG::SUBSCRIPTIONS_IDENTIFIER) return ; // most likely will handle this eventuall
-  if (node_id == CONFIG::AUDIO_IDENTIFIER  ||               // most likely wont need to handle these
-      node_id == CONFIG::SERVER_IDENTIFIER ||               // but we must guard for now (issue #33)
-      node_id == CONFIG::SERVERS_IDENTIFIER )      return ;
-
-
-  /* local and remote channels */
-
-  // TODO: channel name changes (issue #12)
-  ValueTree parent_node          = a_node.getParent() ; int channel_idx ;
-  bool      should_set_name      = false ;
-  bool      should_set_volume    = (key == CONFIG::VOLUME_IDENTIFIER) ;
-  bool      should_set_pan       = (key == CONFIG::PAN_IDENTIFIER) ;
-  bool      should_set_is_xmit   = (key == CONFIG::XMIT_IDENTIFIER) ;
-  bool      should_set_is_muted  = (key == CONFIG::MUTE_IDENTIFIER) ;
-  bool      should_set_is_solo   = (key == CONFIG::SOLO_IDENTIFIER) ;
-  bool      should_set_source_n  = (key == CONFIG::SOURCE_N_IDENTIFIER) ;
-//   bool      should_set_bit_depth = (key == CONFIG::SAMPLERATE_IDENTIFIER) ;
-  bool      should_set_is_stereo = (key == CONFIG::STEREO_IDENTIFIER) ;
-
-  // configure local channel
-  if (parent_node == this->localChannels)
-  {
-    LinJam::ConfigureLocalChannel(node_id                                   ,
-                                  should_set_name     , should_set_volume   ,
-                                  should_set_pan      , should_set_is_xmit  ,
-                                  should_set_is_muted , should_set_is_solo  ,
-                                  should_set_source_n , should_set_is_stereo) ;
-    return ;
-  }
-
-  // configure remote master
-  Identifier parent_node_id = parent_node.getType() ; int user_idx ;
-  if (parent_node == this->remoteChannels) // TODO: nyi GUI for these
-  {
-    if (~(user_idx = LinJam::GetRemoteUserIdx(parent_node_id)))
-      LinJam::ConfigureRemoteUser(user_idx                      ,
-                                  should_set_volume   , a_float ,
-                                  should_set_pan      , a_float ,
-                                  should_set_is_muted , a_bool  ) ;
-    return ;
-  }
-
-  // configure remote channel
-  if (parent_node.getParent() == this->remoteChannels              &&
-    ~(user_idx    = LinJam::GetRemoteUserIdx(parent_node_id))      &&
-    ~(channel_idx = LinJam::GetRemoteChannelIdx(user_idx , node_id)))
-    LinJam::ConfigureRemoteChannel(user_idx             , channel_idx ,
-                                   should_set_volume    , a_float     ,
-                                   should_set_pan       , a_float     ,
-                                   should_set_is_xmit   , a_bool      , // aka is_rcv
-                                   should_set_is_muted  , a_bool      ,
-                                   should_set_is_solo   , a_bool      ,
-                                   should_set_source_n  , an_int      , // aka sink_n
-                                   should_set_is_stereo , a_bool      ) ;
+//  else if (node_id == CONFIG::REMOTES_IDENTIFIER) (issue #33)
+  else if (parent_node == this->remoteChannels)
+    LinJam::ConfigureRemoteUser(a_node , a_key) ;
+  else if (parent_node.getParent() == this->remoteChannels)
+    LinJam::ConfigureRemoteChannel(parent_node , a_node , a_key) ;
 }
 
-void LinJamConfig::valueTreeChildAdded(ValueTree& a_parent_tree , ValueTree& a_child_tree)
+void LinJamConfig::valueTreeChildAdded(ValueTree& a_parent_node , ValueTree& a_child_node)
 {
 DEBUG_TRACE_CONFIG_TREE_ADDED
 
 // TODO: remotes added to '<remote-channels>' node (issue #33)
-//   a_child_tree.addListener(this) ;
+//   a_child_node.addListener(this) ;
 }
 
-void LinJamConfig::valueTreeChildRemoved(ValueTree& a_parent_tree , ValueTree& a_child_tree)
+void LinJamConfig::valueTreeChildRemoved(ValueTree& a_parent_node , ValueTree& a_child_node)
 {
 DEBUG_TRACE_CONFIG_TREE_REMOVED
 
-  if (a_parent_tree == this->localChannels)
-    LinJam::RemoveLocalChannel(a_child_tree.getType()) ;
+  if (a_parent_node == this->localChannels)
+    LinJam::RemoveLocalChannel(a_child_node.getType()) ;
 }
 
 // unused ValueTree::Listener interface methods
-void LinJamConfig::valueTreeChildOrderChanged(ValueTree& a_parent_tree)                      {}
-void LinJamConfig::valueTreeParentChanged(ValueTree& a_tree)                                 {}
-void LinJamConfig::valueTreeRedirected(ValueTree& a_tree)                                    {}
+void LinJamConfig::valueTreeChildOrderChanged(ValueTree& a_parent_node)                      {}
+void LinJamConfig::valueTreeParentChanged(ValueTree& a_node)                                 {}
+void LinJamConfig::valueTreeRedirected(ValueTree& a_node)                                    {}
 
 
 

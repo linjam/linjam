@@ -46,7 +46,7 @@ public:
   // getters/setters
   static bool IsAgreed() ;
 
-  // helpers
+  // GUI and server event handlers
   static void      AddLocalChannel(   String channel_name) ;
   static void      RemoveLocalChannel(Identifier channel_id) ;
   static ValueTree AddRemoteChannel(  ValueTree user_store   , Channels* user_channels ,
@@ -80,41 +80,42 @@ private:
                         float** output_buffer , int n_output_channels ,
                         int n_samples         , int sample_rate)      ;
 
-
   // NJClient runtime helpers
   static void HandleStatusChanged(int status) ;
   static void HandleUserInfoChanged() ;
+  static void HandleChatCommand(  String chat_text) ;
   static bool IsRoomFull() ;
 
-  // helpers
+  // state helpers
   static bool  InitializeAudio() ;
   static void  ConfigureAudio() ;
   static bool  PrepareSessionDirectory() ;
   static void  ConfigureNinjam() ;
   static void  CleanSessionDir() ;
-  static void  HandleChatCommand(     String chat_text) ;
+
+  // NJClient config helpers
   static char* GetChannelName(        int channel_idx) ;
   static int   GetVacantLocalChannelIdx() ;
   static int   GetLocalChannelIdx(    Identifier channel_id) ;
   static int   GetRemoteUserIdx(      Identifier user_id) ;
   static int   GetRemoteChannelIdx(   int user_idx , Identifier channel_id) ;
-  static void  ConfigureLocalChannel( Identifier channel_id                               ,
-                                      bool should_set_name     , bool should_set_volume   ,
-                                      bool should_set_pan      , bool should_set_is_xmit  ,
-                                      bool should_set_is_muted , bool should_set_is_solo  ,
-                                      bool should_set_source_n , bool should_set_is_stereo) ;
-  static void  ConfigureRemoteUser(   int  user_idx                             ,
-                                      bool should_set_volume   , float  volume  ,
-                                      bool should_set_pan      , float  pan     ,
-                                      bool should_set_is_muted , bool   is_muted) ;
-  static void  ConfigureRemoteChannel(int  user_idx             , int    channel_idx  ,
-                                      bool should_set_volume    , float  volume       ,
-                                      bool should_set_pan       , float  pan          ,
-                                      bool should_set_is_rcv    , bool   is_rcv       ,
-                                      bool should_set_is_muted  , bool   is_muted     ,
-                                      bool should_set_is_solo   , bool   is_solo      ,
-                                      bool should_set_sink_n    , int    sink_n       ,
-                                      bool should_set_is_stereo , bool   is_stereo    ) ;
+  static void  ConfigureMasterChannel(Identifier a_key) ;
+  static void  ConfigureMetroChannel( Identifier a_key) ;
+  static void  ConfigureLocalChannel( ValueTree channel_store , Identifier a_key) ;
+  static void  ConfigureRemoteUser(   ValueTree user_store , Identifier a_key) ;
+  static void  ConfigureRemoteChannel(ValueTree user_store , ValueTree channel_store ,
+                                      Identifier a_key) ;
+  static bool  ShouldSetName(         Identifier a_key) ;
+  static bool  ShouldSetVolume(       Identifier a_key) ;
+  static bool  ShouldSetPan(          Identifier a_key) ;
+  static bool  ShouldSetIsXmit(       Identifier a_key) ;
+  static bool  ShouldSetIsMuted(      Identifier a_key) ;
+  static bool  ShouldSetIsSolo(       Identifier a_key) ;
+  static bool  ShouldSetSourceN(      Identifier a_key) ;
+  static bool  ShouldSetBitDepth(     Identifier a_key) ;
+  static bool  ShouldSetIsStereo(     Identifier a_key) ;
+  static bool  ShouldSetIsRcv(        Identifier a_key) ;
+  static bool  ShouldSetSinkN(        Identifier a_key) ;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;
 } ;
