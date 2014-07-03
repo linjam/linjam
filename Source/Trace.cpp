@@ -82,10 +82,10 @@ String Trace::SanitizeConfig(ValueTree default_config , ValueTree stored_config 
   }
 
   Array<Identifier> user_keys ;
-  user_keys.add(CONFIG::LOCALS_IDENTIFIER) ;
-//  user_keys.add(CONFIG::REMOTES_IDENTIFIER) ; // TODO:
-  user_keys.add(CONFIG::SUBSCRIPTIONS_IDENTIFIER) ; // TODO:
-  user_keys.add(CONFIG::SERVERS_IDENTIFIER) ;
+  user_keys.add(CONFIG::LOCALS_ID) ;
+//  user_keys.add(CONFIG::REMOTES_ID) ; // TODO:
+  user_keys.add(CONFIG::SUBSCRIPTIONS_ID) ; // TODO:
+  user_keys.add(CONFIG::SERVERS_ID) ;
   if (user_keys.contains(node_name))
   {
     for (int child_n = 0 ; child_n < stored_config.getNumChildren() ; ++child_n)
@@ -124,5 +124,22 @@ void Trace::TraceMissingValue(String a_node_key , String a_value_key)
 
 void Trace::TraceMissingProperty(String a_node_key , String a_property_key)
 { Trace::TraceError("node '" + a_node_key + "' - missing key '" + a_property_key + "'") ; }
+
+void Trace::DbgValueType(String dbg_val_name , var a_var)
+{
+  String dynamic_type ;
+  if      (a_var.isVoid())       dynamic_type = "Void" ;
+  else if (a_var.isUndefined())  dynamic_type = "Undefined" ;
+  else if (a_var.isInt())        dynamic_type = "Int" ;
+  else if (a_var.isInt64())      dynamic_type = "Int64" ;
+  else if (a_var.isBool())       dynamic_type = "Bool" ;
+  else if (a_var.isDouble())     dynamic_type = "Double" ;
+  else if (a_var.isString())     dynamic_type = "String" ;
+  else if (a_var.isObject())     dynamic_type = "Object" ;
+  else if (a_var.isArray())      dynamic_type = "Array" ;
+  else if (a_var.isBinaryData()) dynamic_type = "Binary" ;
+  else if (a_var.isMethod())     dynamic_type = "Method" ;
+  DBG(dbg_val_name + " type is " + dynamic_type) ;
+}
 
 #endif // #if DEBUG_TRACE

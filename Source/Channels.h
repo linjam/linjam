@@ -48,7 +48,7 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  void addChannel(     ValueTree channel_store) ;
+  bool addChannel(     ValueTree channel_store) ;
   void removeChannel(  Channel* channel) ;
   int  getNumChannels() ;
   void updateChannelVU(String channel_id , double vu) ;

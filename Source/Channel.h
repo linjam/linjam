@@ -17,9 +17,8 @@
   ==============================================================================
 */
 
-#ifndef _CHANNEL_H_
-#define _CHANNEL_H_
-
+#ifndef __JUCE_HEADER_321A28830126E8DE__
+#define __JUCE_HEADER_321A28830126E8DE__
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -43,7 +42,7 @@ class Channel  : public Component,
 {
 public:
     //==============================================================================
-    Channel (ValueTree channel_config);
+    Channel (ValueTree channel_store);
     ~Channel();
 
     //==============================================================================
@@ -55,8 +54,8 @@ public:
 
     void paint (Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
     void sliderValueChanged (Slider* sliderThatWasMoved);
+
 
 
 private:
@@ -67,8 +66,8 @@ protected:
   ValueTree configStore ;
 
 
-  void handleButtonClicked(Button* a_button) ;
-  void setChannelConfig(   Identifier config_key , var value) ;
+  void buttonClicked(   Button* a_button) ;
+  void setChannelConfig(Identifier config_key , var value) ;
 
     //[/UserVariables]
 
@@ -93,7 +92,9 @@ protected:
 
 class MasterChannel : public Channel
 {
-  friend class MasterChannels ; MasterChannel(ValueTree channel_store) ;
+  friend class MasterChannels ;
+
+  MasterChannel(ValueTree channel_store) ;
 } ;
 
 class LocalChannel  : public Channel
@@ -101,15 +102,15 @@ class LocalChannel  : public Channel
   friend class LocalChannels ;
 
   LocalChannel(ValueTree channel_store) ;
-
-  void buttonClicked(Button* a_button) ;
 } ;
 
 class RemoteChannel : public Channel
 {
-  friend class RemoteChannels ; RemoteChannel(ValueTree channel_store) ;
+  friend class RemoteChannels ;
+
+  RemoteChannel(ValueTree channel_store) ;
 } ;
 
 //[/EndFile]
 
-#endif // _CHANNEL_H_
+#endif   // __JUCE_HEADER_321A28830126E8DE__

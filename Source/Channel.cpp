@@ -33,22 +33,19 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-Channel::Channel (ValueTree channel_config)
+Channel::Channel (ValueTree channel_store)
 {
     setName ("Channel");
     addAndMakeVisible (xmitButton = new ToggleButton ("xmitButton"));
     xmitButton->setButtonText (TRANS("XMIT"));
-    xmitButton->addListener (this);
     xmitButton->setColour (ToggleButton::textColourId, Colours::grey);
 
     addAndMakeVisible (muteButton = new ToggleButton ("muteButton"));
     muteButton->setButtonText (TRANS("MUTE"));
-    muteButton->addListener (this);
     muteButton->setColour (ToggleButton::textColourId, Colours::grey);
 
     addAndMakeVisible (soloButton = new ToggleButton ("soloButton"));
     soloButton->setButtonText (TRANS("SOLO"));
-    soloButton->addListener (this);
     soloButton->setColour (ToggleButton::textColourId, Colours::grey);
 
     addAndMakeVisible (panSlider = new Slider ("panSlider"));
@@ -104,7 +101,6 @@ Channel::Channel (ValueTree channel_config)
 
     addAndMakeVisible (removeButton = new TextButton ("removeButton"));
     removeButton->setButtonText (TRANS("X"));
-    removeButton->addListener (this);
     removeButton->setColour (TextButton::buttonColourId, Colour (0xff400000));
     removeButton->setColour (TextButton::buttonOnColourId, Colours::maroon);
     removeButton->setColour (TextButton::textColourOnId, Colours::red);
@@ -113,7 +109,7 @@ Channel::Channel (ValueTree channel_config)
 
     //[UserPreSize]
 
-  this->vuSlider ->setSliderStyle(Slider::LinearBarVertical) ;
+  this->vuSlider->setSliderStyle(Slider::LinearBarVertical) ;
 
     //[/UserPreSize]
 
@@ -122,14 +118,14 @@ Channel::Channel (ValueTree channel_config)
 
     //[Constructor] You can add your own custom stuff here..
 
-  String name      = String((this->configStore = channel_config).getType()) ;
-  double volume    = double( this->configStore[CONFIG::VOLUME_IDENTIFIER]) ;
-  double pan       = double( this->configStore[CONFIG::PAN_IDENTIFIER]) ;
-  bool   is_xmit   = bool(   this->configStore[CONFIG::XMIT_IDENTIFIER]) ;
-  bool   is_muted  = bool(   this->configStore[CONFIG::MUTE_IDENTIFIER]) ;
-  bool   is_solo   = bool(   this->configStore[CONFIG::SOLO_IDENTIFIER]) ;
-  int    source_ch = int(    this->configStore[CONFIG::SOURCE_N_IDENTIFIER]) ;
-  bool   is_stereo = bool(   this->configStore[CONFIG::STEREO_IDENTIFIER]) ;
+  String name      = String((this->configStore = channel_store).getType()) ;
+  double volume    = double( this->configStore[CONFIG::VOLUME_ID]) ;
+  double pan       = double( this->configStore[CONFIG::PAN_ID]) ;
+  bool   is_xmit   = bool(   this->configStore[CONFIG::IS_XMIT_ID]) ;
+  bool   is_muted  = bool(   this->configStore[CONFIG::IS_MUTED_ID]) ;
+  bool   is_solo   = bool(   this->configStore[CONFIG::IS_SOLO_ID]) ;
+  int    source_ch = int(    this->configStore[CONFIG::SOURCE_N_ID]) ;
+  bool   is_stereo = bool(   this->configStore[CONFIG::IS_STEREO_ID]) ;
 
   this->nameLabel   ->setText(           name     , juce::dontSendNotification) ;
   this->gainSlider  ->setValue(          volume) ;
@@ -142,9 +138,15 @@ Channel::Channel (ValueTree channel_config)
 //   this->stereoButton->setToggleState(    is_stereo , juce::dontSendNotification) ;) ;  // TODO: (issue #25)
 
   this->removeButton->setVisible(false) ;
+  this->removeButton->addListener(this) ;
+  this->xmitButton  ->addListener(this) ;
+  this->muteButton  ->addListener(this) ;
+  this->soloButton  ->addListener(this) ;
   this->gainSlider  ->setDoubleClickReturnValue(true , 0.0) ;
   this->panSlider   ->setDoubleClickReturnValue(true , 0.0) ;
   this->vuSlider    ->setInterceptsMouseClicks(false , false) ;
+  this->vuSlider    ->setRange(GUI::VU_DB_MIN , GUI::VU_DB_MIN + GUI::VU_DB_RANGE , 0) ;
+  this->gainSlider  ->setRange(GUI::VU_DB_MIN , GUI::VU_DB_MIN + GUI::VU_DB_RANGE , 0) ;
 
 DEBUG_TRACE_ADDED_CHANNEL
 
@@ -204,40 +206,6 @@ void Channel::resized()
     //[/UserResized]
 }
 
-void Channel::buttonClicked (Button* buttonThatWasClicked)
-{
-    //[UserbuttonClicked_Pre]
-
-  handleButtonClicked(buttonThatWasClicked) ; return ;
-
-    //[/UserbuttonClicked_Pre]
-
-    if (buttonThatWasClicked == xmitButton)
-    {
-        //[UserButtonCode_xmitButton] -- add your button handler code here..
-        //[/UserButtonCode_xmitButton]
-    }
-    else if (buttonThatWasClicked == muteButton)
-    {
-        //[UserButtonCode_muteButton] -- add your button handler code here..
-        //[/UserButtonCode_muteButton]
-    }
-    else if (buttonThatWasClicked == soloButton)
-    {
-        //[UserButtonCode_soloButton] -- add your button handler code here..
-        //[/UserButtonCode_soloButton]
-    }
-    else if (buttonThatWasClicked == removeButton)
-    {
-        //[UserButtonCode_removeButton] -- add your button handler code here..
-
-        //[/UserButtonCode_removeButton]
-    }
-
-    //[UserbuttonClicked_Post]
-    //[/UserbuttonClicked_Post]
-}
-
 void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
@@ -249,7 +217,7 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 
       // set stored config for this channel pan (configures NJClient implicitly)
       double pan = sliderThatWasMoved->getValue() ;
-      setChannelConfig(CONFIG::PAN_IDENTIFIER , var(pan)) ;
+      setChannelConfig(CONFIG::PAN_ID , var(pan)) ;
 
         //[/UserSliderCode_panSlider]
     }
@@ -268,7 +236,7 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
       // set stored config for this channel volume (configures NJClient implicitly)
       double gain = sliderThatWasMoved->getValue() ;
       gainLabel->setText(String(int(gain)) , juce::dontSendNotification) ;
-      setChannelConfig(CONFIG::VOLUME_IDENTIFIER , var(gain)) ;
+      setChannelConfig(CONFIG::VOLUME_ID , var(gain)) ;
 
         //[/UserSliderCode_gainSlider]
     }
@@ -285,7 +253,7 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 
 void Channel::updateChannelVU(double vu)
 {
-#if DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
+#ifdef DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
 DBG("Channel::updateChannelVU() vu=" + String(vu) + " " + getParentComponent()->getComponentID() + "->" + getComponentID()) ;
 #endif // DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
 
@@ -302,15 +270,23 @@ DBG("Channel::updateChannelVU() vu=" + String(vu) + " " + getParentComponent()->
 
 /* Channel class private class methods */
 
-void Channel::handleButtonClicked(Button* a_button)
+void Channel::buttonClicked(Button* a_button)
 {
   // set stored config for this channel (configures NJClient implicitly)
   if      (a_button == xmitButton)
-    setChannelConfig(CONFIG::XMIT_IDENTIFIER , var(a_button->getToggleState())) ;
+    setChannelConfig(CONFIG::IS_XMIT_ID  , var(a_button->getToggleState())) ;
   else if (a_button == muteButton)
-    setChannelConfig(CONFIG::MUTE_IDENTIFIER , var(a_button->getToggleState())) ;
+    setChannelConfig(CONFIG::IS_MUTED_ID , var(a_button->getToggleState())) ;
   else if (a_button == soloButton)
-    setChannelConfig(CONFIG::SOLO_IDENTIFIER , var(a_button->getToggleState())) ;
+    setChannelConfig(CONFIG::IS_SOLO_ID  , var(a_button->getToggleState())) ;
+  else if (a_button == removeButton) // LocalChannel only
+  {
+    // destroy stored config for this channel (configures NJClient implicitly)
+    this->configStore.getParent().removeChild(this->configStore , nullptr) ;
+
+    // remove this channel GUI
+    ((LocalChannels*)getParentComponent())->removeChannel(this) ;
+  }
 }
 
 void Channel::setChannelConfig(Identifier config_key , var value)
@@ -335,21 +311,6 @@ RemoteChannel::RemoteChannel(ValueTree channel_store) : Channel(channel_store)
   this->xmitButton->setButtonText(GUI::RCV_LABEL_TEXT) ;
 }
 
-void LocalChannel::buttonClicked(Button* a_button)
-{
-  handleButtonClicked(a_button) ;
-
-  if (a_button == removeButton)
-  {
-// TODO: must we delete this ValueTree also ?
-    // destroy stored config for this channel (configures NJClient implicitly)
-    this->configStore.getParent().removeChild(this->configStore , nullptr) ;
-
-    // remove this channel GUI
-    ((LocalChannels*)getParentComponent())->removeChannel(this) ;
-  }
-}
-
 //[/MiscUserCode]
 
 
@@ -363,24 +324,25 @@ void LocalChannel::buttonClicked(Button* a_button)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Channel" componentName="Channel"
-                 parentClasses="public Component" constructorParams="ValueTree channel_config"
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="0" initialWidth="60" initialHeight="252">
+                 parentClasses="public Component, public ButtonListener, public SliderListener"
+                 constructorParams="ValueTree channel_store" variableInitialisers=""
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="60" initialHeight="252">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <TOGGLEBUTTON name="xmitButton" id="f45f759640162c62" memberName="xmitButton"
                 virtualName="" explicitFocusOrder="0" pos="4 4 36 12" txtcol="ff808080"
-                buttonText="XMIT" connectedEdges="0" needsCallback="1" radioGroupId="0"
+                buttonText="XMIT" connectedEdges="0" needsCallback="0" radioGroupId="0"
                 state="0"/>
   <TOGGLEBUTTON name="muteButton" id="263020526add917" memberName="muteButton"
                 virtualName="" explicitFocusOrder="0" pos="4 20 36 12" txtcol="ff808080"
-                buttonText="MUTE" connectedEdges="0" needsCallback="1" radioGroupId="0"
+                buttonText="MUTE" connectedEdges="0" needsCallback="0" radioGroupId="0"
                 state="0"/>
   <TOGGLEBUTTON name="soloButton" id="3b096c8c7df5c792" memberName="soloButton"
                 virtualName="" explicitFocusOrder="0" pos="4 36 36 12" txtcol="ff808080"
-                buttonText="SOLO" connectedEdges="0" needsCallback="1" radioGroupId="0"
+                buttonText="SOLO" connectedEdges="0" needsCallback="0" radioGroupId="0"
                 state="0"/>
   <SLIDER name="panSlider" id="aa7c4f80abb603e9" memberName="panSlider"
           virtualName="" explicitFocusOrder="0" pos="12 52 36 36" textboxtext="ff808080"
@@ -415,7 +377,7 @@ BEGIN_JUCER_METADATA
   <TEXTBUTTON name="removeButton" id="becd368b728d32c0" memberName="removeButton"
               virtualName="" explicitFocusOrder="0" pos="45 0 15 16" bgColOff="ff400000"
               bgColOn="ff800000" textCol="ffff0000" textColOn="ffff0000" buttonText="X"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
+              connectedEdges="0" needsCallback="0" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

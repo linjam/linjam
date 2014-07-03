@@ -8,28 +8,29 @@
 #define UPDATE_REMOTES
 #define BUGGY_CHAT_COMMANDS                    // (issue #19)
 #define BUGGY_ADD_DUPLICATE_LOCAL_CHANNELS     // (issue #n/a)
+#define BUGGY_DUPLICATE_CHANNEL_NAMES
 //#define DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
+#define BUGGY_EMPTY_OR_DUPLICATE_CHANNEL_NAMES
 #define KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO // NJClient initializes remote channels gain to 1.0
 
+#if DEBUG
 // debug features
-#define DEBUG_EXIT_IMMEDIAYELY       0
-#define DEBUG_LOCALHOST_LOGIN_BUTTON 1
-#define DEBUG_AUTOLOGIN_NYI          1
-// #define DEBUG_STATIC_CHANNEL "localhost:2049"
-#define DEBUG_STATIC_CHANNEL "ninbot.com:2049"
-// #define DEBUG_STATIC_CHANNEL "ninjamer.com:2049"
+//#define DEBUG_EXIT_IMMEDIAYELY
+#define DEBUG_LOCALHOST_LOGIN_BUTTON
+//#define DEBUG_AUTOLOGIN_NYI
+#endif // DEBUG
 
 // tracing
-#define DEBUG_TRACE            DEBUG && 1
-#define DEBUG_TRACE_EVENTS     DEBUG && 1
-#define DEBUG_TRACE_STATE      DEBUG && 1
-#define DEBUG_TRACE_IN         DEBUG && 1
-#define DEBUG_TRACE_OUT        DEBUG && 1
-#define DEBUG_TRACE_VB         DEBUG && 0
-#define DEBUG_SANITIZE_CONFIG  DEBUG && 0
-#define DEBUG_SHARED_CONFIG    DEBUG && 0
-#define DEBUG_STORE_CONFIG_VB  DEBUG && 0
-#define DEBUG_ADDED_CHANNEL_VB DEBUG && 0
+#define DEBUG_TRACE              DEBUG && 1
+#define DEBUG_TRACE_EVENTS       DEBUG && 1
+#define DEBUG_TRACE_STATE        DEBUG && 1
+#define DEBUG_TRACE_IN           DEBUG && 1
+#define DEBUG_TRACE_OUT          DEBUG && 1
+#define DEBUG_TRACE_VB           DEBUG && 0
+#define DEBUG_SANITIZE_CONFIG_VB DEBUG && 0
+#define DEBUG_SHARED_CONFIG      DEBUG && 0
+#define DEBUG_STORE_CONFIG_VB    DEBUG && 0
+#define DEBUG_ADDED_CHANNEL_VB   DEBUG && 0
 
 
 #if DEBUG_TRACE
@@ -91,117 +92,119 @@
 
 // storage
 #  define DEBUG_TRACE_LOAD_CONFIG                                                       \
-    Identifier root_node_id = CONFIG::PERSISTENCE_IDENTIFIER ;                          \
+    Identifier root_node_id = CONFIG::PERSISTENCE_ID ;                                  \
     if (default_config_xml == nullptr || !default_config_xml->hasTagName(root_node_id)) \
-        Trace::TraceConfig("default config invalid") ;                                  \
+        Trace::TraceConfig("default config invalid - bailing") ;                        \
     else Trace::TraceConfig("default config loaded") ;                                  \
     if (stored_config_xml == nullptr)                                                   \
         Trace::TraceConfig("stored config not found - falling back on defaults") ;      \
-    else if (!stored_config_xml->hasTagName(CONFIG::PERSISTENCE_IDENTIFIER))            \
+    else if (!stored_config_xml->hasTagName(CONFIG::PERSISTENCE_ID))                    \
         Trace::TraceConfig("stored config is invalid - falling back on defaults") ;     \
     else Trace::TraceConfig("stored config found") ;
-#  if DEBUG_SANITIZE_CONFIG
-#    define DEBUG_TRACE_SANITIZE_CONFIG                                                 \
-    if      (default_config_xml == nullptr)                                             \
-    { Trace::TraceError("default_config_xml invalid - bailing") ; return ; }            \
-    else if (stored_config_xml != nullptr &&                                            \
-             stored_config_xml->hasTagName(CONFIG::PERSISTENCE_IDENTIFIER))             \
-      Trace::TraceConfig("stored config parsed successfully =>" +                       \
-                        Trace::SanitizeConfig(ValueTree::fromXml(*default_config_xml) , \
-                                              ValueTree::fromXml(*stored_config_xml) , "  ")) ;
-#  else // DEBUG_SANITIZE_CONFIG
+#  if DEBUG_SANITIZE_CONFIG_VB
+#    define DEBUG_TRACE_SANITIZE_CONFIG                                                   \
+    if (!is_stored_config_bogus)                                                          \
+      Trace::TraceConfig("stored config parsed successfully =>" +                         \
+                         Trace::SanitizeConfig(ValueTree::fromXml(*default_config_xml) ,  \
+                                               ValueTree::fromXml(*stored_config_xml)  ,  \
+                                               "  "                                    )) ;
+#  else // DEBUG_SANITIZE_CONFIG_VB
 #    define DEBUG_TRACE_SANITIZE_CONFIG ;
-#  endif // DEBUG_SANITIZE_CONFIG
+#  endif // DEBUG_SANITIZE_CONFIG_VB
 #  if DEBUG_SHARED_CONFIG
-#    define DEBUG_TRACE_CONFIG_TREE                                             \
-    bool valid = tree_node.isValid() ; String n = String(tree_node_id) ;        \
-    Trace::TraceConfig("node '" + n + ((valid)? "' (" : "' (in") + "valid) - ") ;
+#    define DEBUG_TRACE_CONFIG_TREE                                              \
+    bool valid = tree_node.isValid() ; String n = String(tree_node_id) ;         \
+    Trace::TraceConfig("node '" + n + ((valid)? "' (" : "' (in") + "valid) - ")) ;
 #    define DEBUG_TRACE_CONFIG_VALUE                                                \
     bool valid = value_node.isValid() ; String name = String(child_node_id) ;       \
     String k = String(key) ;                                                        \
     Trace::TraceConfig("node '" + name + ((valid)? "' (" : "' (in") + "valid) - " + \
         ((valid && value_node.hasProperty(key))?                                    \
             "has shared value on key '"        + k + "'" :                          \
-            "has dummy value on missing key '" + k + "'")) ;
+            "has dummy value on missing key '" + k + "'"))) ;
 #  else // DEBUG_SHARED_CONFIG
 #    define DEBUG_TRACE_CONFIG_TREE  ;
 #    define DEBUG_TRACE_CONFIG_VALUE ;
 #  endif // DEBUG_SHARED_CONFIG
-#  define DEBUG_TRACE_SANITY_CHECK                                                    \
-    /* subscribed trees */                                                            \
-    if (!auto_subscribe_users_is_valid)                                               \
-      Trace::TraceInvalidNode(CONFIG::SUBSCRIPTIONS_KEY) ;                            \
-    if (!master_channels_is_valid)                                                    \
-      Trace::TraceInvalidNode(CONFIG::MASTERS_KEY) ;                                  \
-    if (!local_channels_is_valid)                                                     \
-      Trace::TraceInvalidNode(CONFIG::LOCALS_KEY) ;                                   \
-    if (!servers_is_valid)                                                            \
-      Trace::TraceInvalidNode(CONFIG::SERVERS_KEY) ;                                  \
-                                                                                      \
-    /* implicitly subscribed values (via above trees) */                              \
-    if (!master_channel_has_volume_property)                                          \
-      Trace::TraceMissingProperty(CONFIG::MASTER_KEY        , CONFIG::VOLUME_KEY) ;   \
-    if (!master_channel_has_pan_property)                                             \
-      Trace::TraceMissingProperty(CONFIG::MASTER_KEY        , CONFIG::PAN_KEY) ;      \
-    if (!master_channel_has_mute_property)                                            \
-      Trace::TraceMissingProperty(CONFIG::MASTER_KEY        , CONFIG::MUTE_KEY) ;     \
-    if (!metro_channel_has_volume_property)                                           \
-      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::VOLUME_KEY) ;   \
-    if (!metro_channel_has_pan_property)                                              \
-      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::PAN_KEY) ;      \
-    if (!metro_channel_has_mute_property)                                             \
-      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::MUTE_KEY) ;     \
-    if (!metro_channel_has_source_property)                                           \
-      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::SOURCE_N_KEY) ; \
-    if (!metro_channel_has_stereo_property)                                           \
-      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::STEREO_KEY) ;   \
-    if (!default_channel_has_volume_property)                                         \
-      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::VOLUME_KEY) ;   \
-    if (!default_channel_has_pan_property)                                            \
-      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::PAN_KEY) ;      \
-    if (!default_channel_has_xmit_property)                                           \
-      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::XMIT_KEY) ;     \
-    if (!default_channel_has_mute_property)                                           \
-      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::MUTE_KEY) ;     \
-    if (!default_channel_has_solo_property)                                           \
-      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::SOLO_KEY) ;     \
-    if (!default_channel_has_source_property)                                         \
-      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::SOURCE_N_KEY) ; \
-    if (!default_channel_has_stereo_property)                                         \
-      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::STEREO_KEY) ;   \
-                                                                                      \
-    /* explicitly subscribed values */                                                \
-    if (!should_save_audio_has_value)                                                 \
-      Trace::TraceMissingValue(CONFIG::CLIENT_KEY , CONFIG::SAVE_AUDIO_KEY) ;         \
-    if (!should_save_log_has_value)                                                   \
-      Trace::TraceMissingValue(CONFIG::CLIENT_KEY , CONFIG::SAVE_LOG_KEY) ;           \
-    if (!debug_level_has_value)                                                       \
-      Trace::TraceMissingValue(CONFIG::CLIENT_KEY , CONFIG::DEBUGLEVEL_KEY) ;         \
-    if (!should_auto_subscribe_has_value)                                             \
-      Trace::TraceMissingValue(CONFIG::CLIENT_KEY , CONFIG::AUTOSUBSCRIBE_KEY) ;      \
-    if (!audio_if_n_has_value)                                                        \
-      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::AUDIO_IF_KEY) ;           \
-    if (!n_inputs_has_value)                                                          \
-      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::N_INPUTS_KEY) ;           \
-    if (!n_outputs_has_value)                                                         \
-      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::N_OUTPUTS_KEY) ;          \
-    if (!bit_depth_has_value)                                                         \
-      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::BITDEPTH_KEY) ;           \
-    if (!sample_rate_has_value)                                                       \
-      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::SAMPLERATE_KEY) ;         \
-    if (!jack_name_has_value)                                                         \
-      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::JACK_NAME_KEY) ;          \
-    if (!current_host_has_value)                                                      \
-      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::HOST_KEY) ;               \
-    if (!current_login_has_value)                                                     \
-      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::LOGIN_KEY) ;              \
-    if (!current_pass_has_value)                                                      \
-      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::PASS_KEY) ;               \
-    if (!current_is_anonymous_has_value)                                              \
-      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::ANON_KEY) ;               \
-    if (!current_is_agreed_has_value)                                                 \
-      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::AGREED_KEY) ;             \
-    if (!should_hide_bots_has_value)                                                  \
+#  define DEBUG_TRACE_SANITY_CHECK                                                      \
+    /* subscribed trees */                                                              \
+    if (!root_is_valid)                                                                 \
+      Trace::TraceInvalidNode(CONFIG::PERSISTENCE_KEY) ;                                \
+    if (!auto_subscribe_users_is_valid)                                                 \
+      Trace::TraceInvalidNode(CONFIG::SUBSCRIPTIONS_KEY) ;                              \
+    if (!master_channels_is_valid)                                                      \
+      Trace::TraceInvalidNode(CONFIG::MASTERS_KEY) ;                                    \
+    if (!local_channels_is_valid)                                                       \
+      Trace::TraceInvalidNode(CONFIG::LOCALS_KEY) ;                                     \
+    if (!servers_is_valid)                                                              \
+      Trace::TraceInvalidNode(CONFIG::SERVERS_KEY) ;                                    \
+                                                                                        \
+    /* implicitly subscribed values (via above trees) */                                \
+    if (!master_channel_has_volume_property)                                            \
+      Trace::TraceMissingProperty(CONFIG::MASTER_KEY        , CONFIG::VOLUME_KEY) ;     \
+    if (!master_channel_has_pan_property)                                               \
+      Trace::TraceMissingProperty(CONFIG::MASTER_KEY        , CONFIG::PAN_KEY) ;        \
+    if (!master_channel_has_mute_property)                                              \
+      Trace::TraceMissingProperty(CONFIG::MASTER_KEY        , CONFIG::IS_MUTED_KEY) ;   \
+    if (!metro_channel_has_volume_property)                                             \
+      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::VOLUME_KEY) ;     \
+    if (!metro_channel_has_pan_property)                                                \
+      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::PAN_KEY) ;        \
+    if (!metro_channel_has_mute_property)                                               \
+      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::IS_MUTED_KEY) ;   \
+    if (!metro_channel_has_source_property)                                             \
+      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::SOURCE_N_KEY) ;   \
+    if (!metro_channel_has_stereo_property)                                             \
+      Trace::TraceMissingProperty(CONFIG::METRO_KEY         , CONFIG::IS_STEREO_KEY) ;  \
+    if (!local_channel_has_channelidx_property)                                         \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::CHANNELIDX_KEY) ; \
+    if (!local_channel_has_volume_property)                                             \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::VOLUME_KEY) ;     \
+    if (!local_channel_has_pan_property)                                                \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::PAN_KEY) ;        \
+    if (!local_channel_has_xmit_property)                                               \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::IS_XMIT_KEY) ;    \
+    if (!local_channel_has_mute_property)                                               \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::IS_MUTED_KEY) ;   \
+    if (!local_channel_has_solo_property)                                               \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::IS_SOLO_KEY) ;    \
+    if (!local_channel_has_source_property)                                             \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::SOURCE_N_KEY) ;   \
+    if (!local_channel_has_stereo_property)                                             \
+      Trace::TraceMissingProperty(CONFIG::INITIAL_LOCAL_KEY , CONFIG::IS_STEREO_KEY) ;  \
+                                                                                        \
+    /* explicitly subscribed values */                                                  \
+    if (!should_save_audio_has_value)                                                   \
+      Trace::TraceMissingValue(CONFIG::CLIENT_KEY , CONFIG::SAVE_AUDIO_KEY) ;           \
+    if (!should_save_log_has_value)                                                     \
+      Trace::TraceMissingValue(CONFIG::CLIENT_KEY , CONFIG::SAVE_LOG_KEY) ;             \
+    if (!debug_level_has_value)                                                         \
+      Trace::TraceMissingValue(CONFIG::CLIENT_KEY , CONFIG::DEBUGLEVEL_KEY) ;           \
+    if (!should_auto_subscribe_has_value)                                               \
+      Trace::TraceMissingValue(CONFIG::CLIENT_KEY , CONFIG::AUTOSUBSCRIBE_KEY) ;        \
+    if (!audio_if_n_has_value)                                                          \
+      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::AUDIO_IF_KEY) ;             \
+    if (!n_inputs_has_value)                                                            \
+      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::N_INPUTS_KEY) ;             \
+    if (!n_outputs_has_value)                                                           \
+      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::N_OUTPUTS_KEY) ;            \
+    if (!bit_depth_has_value)                                                           \
+      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::BITDEPTH_KEY) ;             \
+    if (!sample_rate_has_value)                                                         \
+      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::SAMPLERATE_KEY) ;           \
+    if (!jack_name_has_value)                                                           \
+      Trace::TraceMissingValue(CONFIG::AUDIO_KEY  , CONFIG::JACK_NAME_KEY) ;            \
+    if (!current_host_has_value)                                                        \
+      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::HOST_KEY) ;                 \
+    if (!current_login_has_value)                                                       \
+      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::LOGIN_KEY) ;                \
+    if (!current_pass_has_value)                                                        \
+      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::PASS_KEY) ;                 \
+    if (!current_is_anonymous_has_value)                                                \
+      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::ANON_KEY) ;                 \
+    if (!current_is_agreed_has_value)                                                   \
+      Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::AGREED_KEY) ;               \
+    if (!should_hide_bots_has_value)                                                    \
       Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::BOTS_KEY) ;
 #  if DEBUG_STORE_CONFIG_VB
 #    define DEBUG_TRACE_STORE_CONFIG Trace::TraceConfig("storing config xml=\n" +      \
@@ -209,15 +212,19 @@
 #  else // DEBUG_STORE_CONFIG_VB
 #    define DEBUG_TRACE_STORE_CONFIG Trace::TraceConfig("storing config xml") ;
 #  endif // DEBUG_STORE_CONFIG_VB
-#  define DEBUG_TRACE_CONFIG_TREE_CHANGED                                            \
-    String node = String(a_node.getType()) ; String val = a_node[a_key].toString() ; \
-    Trace::TraceEvent("value changed " + node + "[" + String(a_key) + "] => " + val) ;
-#  define DEBUG_TRACE_CONFIG_TREE_ADDED                                \
-    Trace::TraceConfig("node '" + String(a_child_node.getType()) + "' added to '" + \
-                       String(a_parent_node.getType()) + "'") ;
-#  define DEBUG_TRACE_CONFIG_TREE_REMOVED                                  \
-    Trace::TraceConfig("node '" + String(a_child_node.getType()) + "' removed from '" + \
-                       String(a_parent_node.getType()) + "'") ;
+#  define DEBUG_TRACE_CONFIG_TREE_CHANGED                      \
+    String node   = String(a_node.getType()) ;                 \
+    String parent = String(a_node.getParent().getType()) ;     \
+    String key    = String(a_key) ;                            \
+    String val    = a_node[a_key].toString() ;                 \
+    Trace::TraceEvent("value changed for " + parent + " => " + \
+                      node + "[" + key + "] => " + val) ;
+#  define DEBUG_TRACE_CONFIG_TREE_ADDED                                        \
+    Trace::TraceConfig("node '" + String(a_child_node.getType()) +             \
+                       "' added to '" + String(a_parent_node.getType()) + "'") ;
+#  define DEBUG_TRACE_CONFIG_TREE_REMOVED                                          \
+    Trace::TraceConfig("node '" + String(a_child_node.getType()) +                 \
+                       "' removed from '" + String(a_parent_node.getType()) + "'") ;
 
 // network
 #  define DEBUG_TRACE_LOGIN_HOST_VB                                                     \
@@ -269,9 +276,7 @@
     else if (name.isEmpty())                                                        \
          Trace::TraceError("adding channel GUI for '" + getComponentID() +          \
                            "' - channel name is empty") ;                           \
-    else if (findChildWithID(StringRef(name)))                                      \
-         Trace::TraceError("adding channel GUI for '" + getComponentID() +          \
-                           "' - GUI already exists for channel  '" + name  + "'") ; \
+    else if (findChildWithID(StringRef(name))) ; // already exists                  \
     else if (!getComponentID().compare(GUI::MASTERS_GUI_ID))                        \
          Trace::TraceGui("adding master channel slice '" + name  + "'") ;           \
     else if (!getComponentID().compare(GUI::LOCALS_GUI_ID))                         \
@@ -285,12 +290,17 @@
     if (!(~ch_idx))                                                                    \
       Trace::TraceError("cannot create new local channel '" + ch_id +                  \
                         "' - maximum input channels = " + max_channels) ;              \
-    else if (Config->getChannel(GUI::LOCALS_IDENTIFIER , ch_id).isValid())             \
+    else if (Config->getChannelById(GUI::LOCALS_ID , ch_id).isValid())                 \
       Trace::TraceError("cannot create new local channel '" + ch_id +                  \
                         "' - channel already exists") ;
-#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL                                   \
-    Trace::TraceConfig("created storage for new local channel[" +         \
-                       String(channel_idx) + "] - " + String(channel_id)) ;
+#  define DEBUG_TRACE_ADD_CHANNEL_STORE                                        \
+    String dbgA = "created storage for new " ;                                 \
+    String dbgB = " channel[" + String(channel_idx) +                          \
+                  "] - '" + String(channel_id) + "' " ;                        \
+    if (channels_id == GUI::LOCALS_ID)                                         \
+         Trace::TraceConfig(dbgA + "local" + dbgB) ;                           \
+    else Trace::TraceConfig(dbgA + "remote" + dbgB + "for '" +                 \
+                            String(getUserById(channels_id).getType())  + "'") ;
 #  define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL                                     \
   int idx ; String channel_status = "unknwon" ;                                   \
   if      (~(idx = GetLocalChannelIdx(channel_id))) channel_status = "existing" ; \
@@ -363,7 +373,7 @@
     int u_n = -1 ; char* u_name ; float u_vol ; float u_pan ; bool u_mute ;  \
     while (u_name = Client->GetUserState(++u_n , &u_vol , &u_pan , &u_mute)) \
       { DEBUG_TRACE_REMOTE_CHANNELS }                        }
-#  define DEBUG_TRACE_ADD_REMOTE_USER                                            \
+#  define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                      \
     if (!DEBUG_TRACE_VB)                                                         \
     {                                                                            \
       float  u_vol  = volume ; float u_pan  = pan ; bool  u_mute = is_muted ;    \
@@ -375,39 +385,27 @@
       DEBUG_TRACE_REMOTE_CHANNELS                                                \
     }                                                                            \
     else Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;         \
-    Trace::TraceConfig("adding remote user " + String(user_id)) ;
-#  define DEBUG_TRACE_ADD_REMOTE_CHANNEL                                    \
-    Trace::TraceConfig("created storage for new remote channel[" +          \
-                       String(channel_idx) + "] - '" + String(channel_id) + \
-                       "' for '" + String(user_id)  + "'") ;
-#  define DEBUG_TRACE_CONFIGURE_REMOTE_USER                                       \
-    Identifier user_id = user_store.getType() ;                                   \
-    int        nj_idx  = GetRemoteUserIdx(user_id) ;                              \
-    String     dbg     = "configuring remote user[" + String(user_idx) +          \
-                        "] '" + String(user_id) + "'" ;                           \
-    if      (!(~user_idx))       Trace::TraceError("index out of range " + dbg) ; \
-    else if (user_idx != nj_idx) Trace::TraceError("index mismatch " + dbg) ;     \
-    else if (DEBUG_TRACE_VB)     Trace::TraceConfig(dbg                         + \
-        ((ShouldSetVolume(a_key))?  "\n  volume   => " + String(volume)   : "") + \
-        ((ShouldSetPan(a_key))?     "\n  pan      => " + String(pan)      : "") + \
-        ((ShouldSetIsMuted(a_key))? "\n  is_muted => " + String(is_muted) : "")   ) ;
-#  define DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL                                        \
-    Identifier u_id   = user_store.getType() ;                                        \
-    Identifier ch_id  = channel_store.getType() ;                                     \
-    int        u_idx  = LinJam::GetRemoteUserIdx(u_id) ;                              \
-    int        ch_idx = LinJam::GetRemoteChannelIdx(u_idx , ch_id) ;                  \
-    String dbg = "configuring remote channel[" + String(ch_idx) + "] '" +             \
-                String(ch_id) + "' for user '" + String(u_id) + "'" ;                 \
-    if      (!(~u_idx))      Trace::TraceError("user index out of range " + dbg) ;    \
-    else if (!(~ch_idx))     Trace::TraceError("channel index out of range " + dbg) ; \
-    else if (DEBUG_TRACE_VB) Trace::TraceConfig(dbg                                 + \
-        ((ShouldSetVolume(a_key))?   "\n  volume    => " + String(volume)    : "")  + \
-        ((ShouldSetPan(a_key))?      "\n  pan       => " + String(pan)       : "")  + \
-        ((ShouldSetIsRcv(a_key))?    "\n  is_rcv    => " + String(is_rcv)    : "")  + \
-        ((ShouldSetIsMuted(a_key))?  "\n  is_muted  => " + String(is_muted)  : "")  + \
-        ((ShouldSetIsSolo(a_key))?   "\n  is_solo   => " + String(is_solo)   : "")  + \
-        ((ShouldSetSinkN(a_key))?    "\n  sink_n    => " + String(sink_n)    : "")  + \
-        ((ShouldSetIsStereo(a_key))? "\n  is_stereo => " + String(is_stereo) : "")  ) ;
+    Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;
+#  define DEBUG_TRACE_CONFIGURE_REMOTE                                                   \
+    Identifier u_id  = user_store   .getType() ;                                         \
+    Identifier ch_id = channel_store.getType() ;                                         \
+  /*bool user_mismatch    = user_idx    != GetRemoteUserIdx(u_id) ;                    */\
+  /*bool channel_mismatch = channel_idx != GetRemoteChannelIdx(user_idx , ch_id) ;     */\
+    String dbg = "configuring remote channel[" + String(channel_idx) + "] '" +           \
+                 String(ch_id) + "' for user[" + String(user_idx)    + "] '" +           \
+                 String(u_id) + "'" ;                                                    \
+    if      (!(~user_idx))     Trace::TraceError("user index out of range "    + dbg) ;  \
+  /*else if (user_mismatch)    Trace::TraceError("user index mismatch "        + dbg) ;*/\
+    else if (!(~channel_idx))  Trace::TraceError("channel index out of range " + dbg) ;  \
+  /*else if (channel_mismatch) Trace::TraceError("channel index mismatch "     + dbg) ;*/\
+    else if (DEBUG_TRACE_VB)   Trace::TraceConfig(dbg                                  + \
+        ((should_set_volume)?    "\n  volume    => " + String(volume)    : "")         + \
+        ((should_set_pan)?       "\n  pan       => " + String(pan)       : "")         + \
+        ((should_set_is_rcv)?    "\n  is_rcv    => " + String(is_rcv)    : "")         + \
+        ((should_set_is_muted)?  "\n  is_muted  => " + String(is_muted)  : "")         + \
+        ((should_set_is_solo)?   "\n  is_solo   => " + String(is_solo)   : "")         + \
+        ((should_set_sink_n)?    "\n  sink_n    => " + String(sink_n)    : "")         + \
+        ((should_set_is_stereo)? "\n  is_stereo => " + String(is_stereo) : "")         ) ;
 #  define DEBUG_TRACE_INVALID_CHANNELID                                     \
     if (channel_id.isEmpty())                                               \
       Trace::TraceError("empty channel_id for " + getComponentID() + "'") ; \
@@ -474,7 +472,7 @@
 #  define DEBUG_TRACE_CHANNELS_VB              ;
 #  define DEBUG_TRACE_ADD_CHANNEL_GUI          ;
 #  define DEBUG_TRACE_ADD_LOCAL_CHANNEL_FAIL   ;
-#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL        ;
+#  define DEBUG_TRACE_ADD_CHANNEL_STORE        ;
 #  define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL  ;
 #  define DEBUG_TRACE_ADDED_CHANNEL            ;
 #  define DEBUG_TRACE_REMOVE_LOCAL_CHANNEL     ;
@@ -482,10 +480,8 @@
 #  define DEBUG_REMOVE_CHANNEL                 ;
 #  define DEBUG_TRACE_REMOTE_CHANNELS          ;
 #  define DEBUG_TRACE_REMOTE_CHANNELS_VB       ;
-#  define DEBUG_TRACE_ADD_REMOTE_USER          ;
-#  define DEBUG_TRACE_ADD_REMOTE_CHANNEL       ;
-#  define DEBUG_TRACE_CONFIGURE_REMOTE_USER    ;
-#  define DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL ;
+#  define DEBUG_TRACE_ADD_REMOTE_USER_STORE    ;
+#  define DEBUG_TRACE_CONFIGURE_REMOTE         ;
 #  define DEBUG_TRACE_INVALID_CHANNELID        ;
 #  define DEBUG_TRACE_MIXER_COMPONENTS_VB      ;
 // chat
@@ -515,6 +511,8 @@ public:
   static void   TraceInvalidNode(    String a_node_key) ;
   static void   TraceMissingValue(   String a_node_key , String a_value_key) ;
   static void   TraceMissingProperty(String a_node_key , String a_property_key) ;
+
+  static void   DbgValueType(String val_name , var a_var) ;
 
 
 private:

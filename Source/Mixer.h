@@ -49,11 +49,11 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  Channels* getOrAddRemoteChannels(ValueTree user_store) ;
-  void      addChannel(            String channels_name , ValueTree channel_store) ;
-  void      updateChannelVU(       Identifier channels_id , String channel_id , double vu) ;
-  void      positionResizers() ;
-  void      pruneRemotes(          ValueTree active_users) ;
+  bool addRemoteUser(  ValueTree user_store) ;
+  bool addChannel(     String channels_name , ValueTree channel_store) ;
+  void updateChannelVU(Identifier channels_id , String channel_id , double vu) ;
+  void positionResizers() ;
+  void pruneRemotes(   ValueTree active_users) ;
 
     //[/UserMethods]
 

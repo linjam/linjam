@@ -41,17 +41,20 @@ public:
   Value configAudio ; // string
 
   // channels
-  ValueTree masterChannels ;
-  ValueTree localChannels ;
-  ValueTree remoteChannels ;
+  ValueTree masterChannels ; // children: master , metro channels as below
+  ValueTree localChannels ;  // children: channels as below
+  ValueTree remoteUsers ;    // children: users , grandchildren: channels as below
+/* per-user data - access through above remoteUsers
+  Value     user-idx ;       // int
 /* per-channel data - access through above ValueTrees
-  Value     volume ;        // float
-  Value     pan ;           // float
-  Value     isXmitRcv ;     // bool
-  Value     isMuted ;       // bool
-  Value     isSolo ;        // bool
-  Value     sourceChannel ; // int
-  Value     isStereo ;      // bool
+  Value     channel-idx ;    // int
+  Value     volume ;         // float
+  Value     pan ;            // float
+  Value     isXmitRcv ;      // bool
+  Value     isMuted ;        // bool
+  Value     isSolo ;         // bool
+  Value     sourceChannel ;  // int
+  Value     isStereo ;       // bool
 */
 
   // current server config
@@ -76,19 +79,21 @@ public:
   bool       doesChannelExist(Identifier channels_id , String channel_id) ;
 
   // getters/setters
-  ValueTree getOrCreateUser(   String user_name , int   user_idx ,
-                               float  volume    , float pan      , bool is_muted) ;
-  ValueTree createChannel(     Identifier channels_id   , String channel_name ,
-                               int        channel_idx   , float  volume       ,
-                               float      pan           , bool   is_xmit_rcv  ,
-                               bool       is_muted      , bool   is_solo      ,
-                               int        source_sink_n , bool   is_stereo    ) ;
-  ValueTree getChannel(        Identifier channels_id , Identifier channel_id) ;
+  ValueTree createUser(      String user_name , int   user_idx ,
+                             float  volume    , float pan      , bool is_muted) ;
+  ValueTree createChannel(   Identifier channels_id   , String channel_name ,
+                             int        channel_idx   , float  volume       ,
+                             float      pan           , bool   is_xmit_rcv  ,
+                             bool       is_muted      , bool   is_solo      ,
+                             int        source_sink_n , bool   is_stereo    ) ;
+  ValueTree getUserById(     Identifier user_id) ;
+  ValueTree getChannelByIdx( ValueTree channel_store , int channel_idx) ;
+  ValueTree getChannelById(  Identifier channels_id , Identifier channel_id) ;
   void      setServer() ;
-  ValueTree getServer(         String host) ;
-  void      setCurrentServer(  String host , String login , String pass , bool is_anonymous) ;
+  ValueTree getServer(       String host) ;
+  void      setCurrentServer(String host , String login , String pass , bool is_anonymous) ;
   ValueTree getCurrentServer() ;
-  void      setShouldAgree(    bool should_agree) ;
+  void      setShouldAgree(  bool should_agree) ;
 
 
 private:
@@ -110,7 +115,6 @@ private:
   Value      getAudio(      Identifier key) ;
   Value      getServer(     Identifier key) ;
   ValueTree  addServer(     String host , String login , String pass , bool is_anonymous) ;
-  ValueTree  getUser(       Identifier user_id) ;
   String     filteredName(  String a_name) ;
   Identifier saneIdentifier(String name) ;
 
@@ -133,8 +137,6 @@ private:
   void valueTreeRedirected(ValueTree& a_tree)                                     override ;
   // This method is called when a tree is made to point to a different internal shared object.
 
-
-void DBGConfigValueType(String val_name , var a_var) ;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJamConfig) ;
 } ;

@@ -42,7 +42,24 @@ public:
       this->statusbar   = (StatusBar*)   getChildComponent(GUI::STATUS_GUI_ID) ;
       this->loop        = (Loop*)        getChildComponent(GUI::LOOP_GUI_ID) ;
 
+      this->mainWindow->setTitleBarHeight(GUI::TITLEBAR_H) ;
+//      this->mainWindow->setIcon(const Image &imageToUse) ;
+
+#ifdef _MAC
+      this->mainWindow->setTitleBarButtonsRequired(DocumentWindow::allButtons , true) ;
+#endif // _MAC
+
       this->args = commandLine ; initializeLinJam() ;
+    }
+
+    Component* getContainerComponent(String id)
+    {
+      return this->mainWindow->findChildWithID(StringRef(id)) ;
+    }
+
+    Component* getChildComponent(String id)
+    {
+      return this->mainContent->findChildWithID(StringRef(id)) ;
     }
 
     void initializeLinJam()
@@ -59,11 +76,15 @@ public:
       }
     }
 
-    Component* getContainerComponent(String id)
-    { return this->mainWindow->findChildWithID(StringRef(id)) ; }
+    void setTitle(String title)
+    {
+      this->mainWindow->setName(title) ;
+    }
 
-    Component* getChildComponent(String id)
-    { return this->mainContent->findChildWithID(StringRef(id)) ; }
+    void setTitleCentered(bool should_be_centred)
+    {
+      this->mainWindow->setTitleBarTextCentred(should_be_centred) ;
+    }
 
     void shutdown() override
     {

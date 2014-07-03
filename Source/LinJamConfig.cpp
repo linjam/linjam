@@ -21,22 +21,26 @@ LinJamConfig::LinJamConfig()
   this->configXmlFile = this_binary.getSiblingFile(CONFIG::PERSISTENCE_FILENAME) ;
   XmlElement* default_config_xml = XmlDocument::parse(CONFIG::DEFAULT_CONFIG_XML) ;
   XmlElement* stored_config_xml  = XmlDocument::parse(this->configXmlFile) ;
+  bool is_stored_config_bogus = (stored_config_xml == nullptr ||
+                                !stored_config_xml->hasTagName(CONFIG::PERSISTENCE_ID)) ;
 
 DEBUG_TRACE_LOAD_CONFIG
+
+  if (default_config_xml == nullptr) return ;
+
 DEBUG_TRACE_SANITIZE_CONFIG
 
   // create static config ValueTree
-  if (stored_config_xml == nullptr ||
-     !stored_config_xml->hasTagName(CONFIG::PERSISTENCE_IDENTIFIER))
+  if (is_stored_config_bogus)
     this->configValueTree = ValueTree::fromXml(*default_config_xml) ;
   else
     this->configValueTree = sanitizeConfig(ValueTree::fromXml(*default_config_xml) ,
                                            ValueTree::fromXml(*stored_config_xml)) ;
 
   // set session dir and log file - these are too dangerous to be user-configuraable
-  ValueTree client = this->configValueTree.getChildWithName(CONFIG::CLIENT_IDENTIFIER) ;
-  client.setProperty(CONFIG::SESSIONDIR_IDENTIFIER , CONFIG::SESSIONDIR , nullptr) ;
-  client.setProperty(CONFIG::LOGFILE_IDENTIFIER    , CONFIG::LOGFILE    , nullptr) ;
+  ValueTree client = this->configValueTree.getChildWithName(CONFIG::CLIENT_ID) ;
+  client.setProperty(CONFIG::SESSIONDIR_ID , CONFIG::SESSIONDIR , nullptr) ;
+  client.setProperty(CONFIG::LOGFILE_ID    , CONFIG::LOGFILE    , nullptr) ;
 
   storeConfig() ; delete default_config_xml ; delete stored_config_xml ;
 
@@ -53,131 +57,137 @@ bool LinJamConfig::sanityCheck()
 {
   ValueTree master_channel  = this->masterChannels.getChildWithName(GUI::MASTER_CHANNEL_GUI_ID) ;
   ValueTree metro_channel   = this->masterChannels.getChildWithName(GUI::METRO_CHANNEL_GUI_ID) ;
-  ValueTree default_channel = this->localChannels .getChild(0) ;
+  ValueTree local_channel   = this->localChannels .getChild(0) ;
 
   // subscribed trees
-  bool auto_subscribe_users_is_valid       =
-    autoSubscribeUsers        .isValid()                                 ;
-  bool master_channels_is_valid            =
-    masterChannels            .isValid()                                 ;
-  bool local_channels_is_valid             =
-    localChannels             .isValid()                                 ;
-  bool servers_is_valid                    =
-    servers                   .isValid()                                 ;
+  bool root_is_valid                         =
+    this->configValueTree     .isValid()                                 ;
+  bool auto_subscribe_users_is_valid         =
+    this->autoSubscribeUsers  .isValid()                                 ;
+  bool master_channels_is_valid              =
+    this->masterChannels      .isValid()                                 ;
+  bool local_channels_is_valid               =
+    this->localChannels       .isValid()                                 ;
+  bool servers_is_valid                      =
+    this->servers             .isValid()                                 ;
 
   // implicitly subscribed values (via above trees)
-  bool master_channel_has_volume_property  =
-    master_channel            .hasProperty(CONFIG::VOLUME_IDENTIFIER)   ;
-  bool master_channel_has_pan_property     =
-    master_channel            .hasProperty(CONFIG::PAN_IDENTIFIER)      ;
-  bool master_channel_has_mute_property    =
-    master_channel            .hasProperty(CONFIG::MUTE_IDENTIFIER)     ;
-  bool metro_channel_has_volume_property   =
-    metro_channel             .hasProperty(CONFIG::VOLUME_IDENTIFIER)   ;
-  bool metro_channel_has_pan_property      =
-    metro_channel             .hasProperty(CONFIG::PAN_IDENTIFIER)      ;
-  bool metro_channel_has_mute_property     =
-    metro_channel             .hasProperty(CONFIG::MUTE_IDENTIFIER)     ;
-  bool metro_channel_has_source_property   =
-    metro_channel             .hasProperty(CONFIG::SOURCE_N_IDENTIFIER) ;
-  bool metro_channel_has_stereo_property   =
-    metro_channel             .hasProperty(CONFIG::STEREO_IDENTIFIER)   ;
-  bool default_channel_has_volume_property =
-    default_channel           .hasProperty(CONFIG::VOLUME_IDENTIFIER)   ;
-  bool default_channel_has_pan_property    =
-    default_channel           .hasProperty(CONFIG::PAN_IDENTIFIER)      ;
-  bool default_channel_has_xmit_property   =
-    default_channel           .hasProperty(CONFIG::XMIT_IDENTIFIER)     ;
-  bool default_channel_has_mute_property   =
-    default_channel           .hasProperty(CONFIG::MUTE_IDENTIFIER)     ;
-  bool default_channel_has_solo_property   =
-    default_channel           .hasProperty(CONFIG::SOLO_IDENTIFIER)     ;
-  bool default_channel_has_source_property =
-    default_channel           .hasProperty(CONFIG::SOURCE_N_IDENTIFIER) ;
-  bool default_channel_has_stereo_property =
-    default_channel           .hasProperty(CONFIG::STEREO_IDENTIFIER)   ;
+  bool master_channel_has_volume_property    =
+    master_channel            .hasProperty(CONFIG::VOLUME_ID)            ;
+  bool master_channel_has_pan_property       =
+    master_channel            .hasProperty(CONFIG::PAN_ID)               ;
+  bool master_channel_has_mute_property      =
+    master_channel            .hasProperty(CONFIG::IS_MUTED_ID)          ;
+  bool metro_channel_has_volume_property     =
+    metro_channel             .hasProperty(CONFIG::VOLUME_ID)            ;
+  bool metro_channel_has_pan_property        =
+    metro_channel             .hasProperty(CONFIG::PAN_ID)               ;
+  bool metro_channel_has_mute_property       =
+    metro_channel             .hasProperty(CONFIG::IS_MUTED_ID)          ;
+  bool metro_channel_has_source_property     =
+    metro_channel             .hasProperty(CONFIG::SOURCE_N_ID)          ;
+  bool metro_channel_has_stereo_property     =
+    metro_channel             .hasProperty(CONFIG::IS_STEREO_ID)         ;
+  bool local_channel_has_channelidx_property =
+    local_channel             .hasProperty(CONFIG::CHANNELIDX_ID)        ;
+  bool local_channel_has_volume_property     =
+    local_channel             .hasProperty(CONFIG::VOLUME_ID)            ;
+  bool local_channel_has_pan_property        =
+    local_channel             .hasProperty(CONFIG::PAN_ID)               ;
+  bool local_channel_has_xmit_property       =
+    local_channel             .hasProperty(CONFIG::IS_XMIT_ID)           ;
+  bool local_channel_has_mute_property       =
+    local_channel             .hasProperty(CONFIG::IS_MUTED_ID)          ;
+  bool local_channel_has_solo_property       =
+    local_channel             .hasProperty(CONFIG::IS_SOLO_ID)           ;
+  bool local_channel_has_source_property     =
+    local_channel             .hasProperty(CONFIG::SOURCE_N_ID)          ;
+  bool local_channel_has_stereo_property     =
+    local_channel             .hasProperty(CONFIG::IS_STEREO_ID)         ;
 
   // explicitly subscribed values
-  bool should_save_audio_has_value         =
+  bool should_save_audio_has_value           =
     !this->shouldSaveAudio    .refersToSameSourceAs(this->dummyValue)    ;
-  bool should_save_log_has_value           =
+  bool should_save_log_has_value            =
     !this->shouldSaveLog      .refersToSameSourceAs(this->dummyValue)    ;
-  bool debug_level_has_value               =
+  bool debug_level_has_value                 =
     !this->debugLevel         .refersToSameSourceAs(this->dummyValue)    ;
-  bool should_auto_subscribe_has_value     =
+  bool should_auto_subscribe_has_value       =
     !this->shouldAutoSubscribe.refersToSameSourceAs(this->dummyValue)    ;
-  bool audio_if_n_has_value                =
+  bool audio_if_n_has_value                  =
     !this->audioIfN           .refersToSameSourceAs(this->dummyValue)    ;
-  bool n_inputs_has_value                  =
+  bool n_inputs_has_value                    =
     !this->nInputs            .refersToSameSourceAs(this->dummyValue)    ;
-  bool n_outputs_has_value                 =
+  bool n_outputs_has_value                   =
     !this->nOutputs           .refersToSameSourceAs(this->dummyValue)    ;
-  bool bit_depth_has_value                 =
+  bool bit_depth_has_value                   =
     !this->bitDepth           .refersToSameSourceAs(this->dummyValue)    ;
-  bool sample_rate_has_value               =
+  bool sample_rate_has_value                 =
     !this->sampleRate         .refersToSameSourceAs(this->dummyValue)    ;
-  bool jack_name_has_value                 =
+  bool jack_name_has_value                   =
     !this->jackName           .refersToSameSourceAs(this->dummyValue)    ;
-  bool current_host_has_value              =
+  bool current_host_has_value                =
     !this->currentHost        .refersToSameSourceAs(this->dummyValue)    ;
-  bool current_login_has_value             =
+  bool current_login_has_value               =
     !this->currentLogin       .refersToSameSourceAs(this->dummyValue)    ;
-  bool current_pass_has_value              =
+  bool current_pass_has_value                =
     !this->currentPass        .refersToSameSourceAs(this->dummyValue)    ;
-  bool current_is_anonymous_has_value      =
+  bool current_is_anonymous_has_value        =
     !this->currentIsAnonymous .refersToSameSourceAs(this->dummyValue)    ;
-  bool current_is_agreed_has_value         =
+  bool current_is_agreed_has_value           =
     !this->currentIsAgreed    .refersToSameSourceAs(this->dummyValue)    ;
-  bool should_hide_bots_has_value          =
+  bool should_hide_bots_has_value            =
     !this->shouldHideBots     .refersToSameSourceAs(this->dummyValue)    ;
 
 DEBUG_TRACE_SANITY_CHECK
 
-  return (auto_subscribe_users_is_valid       &&
-          master_channels_is_valid            &&
-          local_channels_is_valid             &&
-          servers_is_valid                    &&
-          master_channel_has_volume_property  &&
-          master_channel_has_pan_property     &&
-          master_channel_has_mute_property    &&
-          metro_channel_has_volume_property   &&
-          metro_channel_has_pan_property      &&
-          metro_channel_has_mute_property     &&
-          metro_channel_has_source_property   &&
-          metro_channel_has_stereo_property   &&
-          default_channel_has_volume_property &&
-          default_channel_has_pan_property    &&
-          default_channel_has_xmit_property   &&
-          default_channel_has_mute_property   &&
-          default_channel_has_solo_property   &&
-          default_channel_has_source_property &&
-          default_channel_has_stereo_property &&
-          should_save_audio_has_value         &&
-          should_save_log_has_value           &&
-          debug_level_has_value               &&
-          should_auto_subscribe_has_value     &&
-          audio_if_n_has_value                &&
-          n_inputs_has_value                  &&
-          n_outputs_has_value                 &&
-          bit_depth_has_value                 &&
-          sample_rate_has_value               &&
-          jack_name_has_value                 &&
-          current_host_has_value              &&
-          current_login_has_value             &&
-          current_pass_has_value              &&
-          current_is_anonymous_has_value      &&
-          current_is_agreed_has_value         &&
-          should_hide_bots_has_value           ) ;
+  return (root_is_valid                           &&
+          auto_subscribe_users_is_valid           &&
+          master_channels_is_valid                &&
+          local_channels_is_valid                 &&
+          servers_is_valid                        &&
+          master_channel_has_volume_property      &&
+          master_channel_has_pan_property         &&
+          master_channel_has_mute_property        &&
+          metro_channel_has_volume_property       &&
+          metro_channel_has_pan_property          &&
+          metro_channel_has_mute_property         &&
+          metro_channel_has_source_property       &&
+          metro_channel_has_stereo_property       &&
+          local_channel_has_channelidx_property   &&
+          local_channel_has_volume_property       &&
+          local_channel_has_pan_property          &&
+          local_channel_has_xmit_property         &&
+          local_channel_has_mute_property         &&
+          local_channel_has_solo_property         &&
+          local_channel_has_source_property       &&
+          local_channel_has_stereo_property       &&
+          should_save_audio_has_value             &&
+          should_save_log_has_value               &&
+          debug_level_has_value                   &&
+          should_auto_subscribe_has_value         &&
+          audio_if_n_has_value                    &&
+          n_inputs_has_value                      &&
+          n_outputs_has_value                     &&
+          bit_depth_has_value                     &&
+          sample_rate_has_value                   &&
+          jack_name_has_value                     &&
+          current_host_has_value                  &&
+          current_login_has_value                 &&
+          current_pass_has_value                  &&
+          current_is_anonymous_has_value          &&
+          current_is_agreed_has_value             &&
+          should_hide_bots_has_value               ) ;
 }
 
 String LinJamConfig::parseUsername(String user_name)
-{ return user_name.upToFirstOccurrenceOf(CONFIG::AT_CHAR , false , true) ; }
+{ return user_name.upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , true) ; }
 
 Identifier LinJamConfig::encodeChannelId(String channel_name , int channel_idx)
 {
   return ((channel_name.isNotEmpty())?
              filteredName(channel_name) :
-             CONFIG::DEFAULT_CHANNEL_NAME + String(channel_idx)) ;
+             CONFIG::DEFAULT_CHANNEL_NAME + String(channel_idx + 1)) ;
 }
 
 String LinJamConfig::decodeChannelId(Identifier channel_id) { return String(channel_id) ; }
@@ -193,38 +203,40 @@ String LinJamConfig::decodeUserId(Identifier user_id) { return String(user_id) ;
 
 bool LinJamConfig::doesChannelExist(Identifier channels_id , String channel_name)
 {
-  Identifier channel_id = encodeChannelId(channel_name , 0) ;
-  return (getChannel(channels_id , channel_id).isValid()) ;
+  Identifier channel_id = encodeChannelId(channel_name , -1) ;
+  return getChannelById(channels_id , channel_id).isValid() ;
 }
 
-ValueTree LinJamConfig::getOrCreateUser(String user_name , int   user_idx ,
-                                        float  volume    , float pan      , bool is_muted)
+ValueTree LinJamConfig::createUser(String user_name , int   user_idx ,
+                                   float  volume    , float pan      , bool is_muted)
 {
   Identifier user_id    = encodeUserId(user_name , user_idx) ;
-  ValueTree  user_store = getUser(user_id) ;
+  ValueTree  user_store = getUserById(user_id) ;
+
   if (!user_store.isValid())
   {
-DEBUG_TRACE_ADD_REMOTE_USER
+#ifdef KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO
+    volume = 0.0f ;
+#endif // KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO
 
     // create new remote user config
-    ValueTree channel_store = ValueTree(CONFIG::MASTER_IDENTIFIER) ;
-    channel_store.setProperty(CONFIG::VOLUME_IDENTIFIER , volume   , nullptr) ;
-    channel_store.setProperty(CONFIG::PAN_IDENTIFIER    , pan      , nullptr) ;
-    channel_store.setProperty(CONFIG::MUTE_IDENTIFIER   , is_muted , nullptr) ;
+    ValueTree channel_store = ValueTree(CONFIG::MASTER_ID) ;
+    channel_store.setProperty(CONFIG::CHANNELIDX_ID , CLIENT::MASTER_IDX      , nullptr) ;
+    channel_store.setProperty(CONFIG::VOLUME_ID     , volume                  , nullptr) ;
+    channel_store.setProperty(CONFIG::PAN_ID        , pan                     , nullptr) ;
+    channel_store.setProperty(CONFIG::IS_XMIT_ID    , CONFIG::DEFAULT_IS_XMIT , nullptr) ;
+    channel_store.setProperty(CONFIG::IS_MUTED_ID   , is_muted                , nullptr) ;
+    channel_store.setProperty(CONFIG::IS_SOLO_ID    , CONFIG::DEFAULT_IS_SOLO , nullptr) ;
 
-/*
-    channel_store.setProperty(CONFIG::XMIT_IDENTIFIER , CONFIG::DEFAULT_IS_XMIT  , nullptr) ;
-    channel_store.setProperty(CONFIG::SOLO_IDENTIFIER , CONFIG::DEFAULT_IS_SOLO  , nullptr) ;
-    channel_store.setProperty(CONFIG::SOURCE_N_IDENTIFIER , CONFIG::DEFAULT_SOURCE_N   , nullptr) ;
-    channel_store.setProperty(CONFIG::STEREO_IDENTIFIER , CONFIG::DEFAULT_IS_STEREO   , nullptr) ;
-*/
-
-
+// TODO: we are adding remote users directly to the root node for now for simplicity
+//           mostly because Trace::SanitizeConfig() does not yet handle nested lists
+//           but for clarity there should be a <remote-channels> tree (issue #33)
     user_store = ValueTree(user_id) ;
     this->configValueTree.addChild(user_store , -1 , nullptr) ;
     user_store.addChild(channel_store , -1 , nullptr) ;
+
+DEBUG_TRACE_ADD_REMOTE_USER_STORE
   }
-  user_store.setProperty(CONFIG::USERIDX_IDENTIFIER , user_idx , nullptr) ;
 
   return user_store ;
 }
@@ -235,42 +247,57 @@ ValueTree LinJamConfig::createChannel(Identifier channels_id   , String channel_
                                       bool       is_muted      , bool   is_solo      ,
                                       int        source_sink_n , bool   is_stereo    )
 {
-  Identifier channel_id   = encodeChannelId(channel_name , channel_idx + 1) ;
-  ValueTree channel_store = getChannel(channels_id , channel_id) ;
+  Identifier channel_id   = encodeChannelId(channel_name , channel_idx) ;
+  ValueTree channel_store = getChannelById(channels_id , channel_id) ;
+
   if (!channel_store.isValid())
   {
+#ifdef KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO
+    if (channels_id != GUI::LOCALS_ID) volume = 0.0f ;
+#endif // KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO
+
     // add new channel
     channel_store = ValueTree(channel_id) ;
-    channel_store.setProperty(CONFIG::VOLUME_IDENTIFIER   , volume        , nullptr) ;
-    channel_store.setProperty(CONFIG::PAN_IDENTIFIER      , pan           , nullptr) ;
-    channel_store.setProperty(CONFIG::XMIT_IDENTIFIER     , is_xmit_rcv   , nullptr) ;
-    channel_store.setProperty(CONFIG::MUTE_IDENTIFIER     , is_muted      , nullptr) ;
-    channel_store.setProperty(CONFIG::SOLO_IDENTIFIER     , is_solo       , nullptr) ;
-    channel_store.setProperty(CONFIG::SOURCE_N_IDENTIFIER , source_sink_n , nullptr) ;
-    channel_store.setProperty(CONFIG::STEREO_IDENTIFIER   , is_stereo     , nullptr) ;
-    if (channels_id == GUI::LOCALS_IDENTIFIER)
+    channel_store.setProperty(CONFIG::CHANNELIDX_ID , channel_idx   , nullptr) ;
+    channel_store.setProperty(CONFIG::VOLUME_ID     , volume        , nullptr) ;
+    channel_store.setProperty(CONFIG::PAN_ID        , pan           , nullptr) ;
+    channel_store.setProperty(CONFIG::IS_XMIT_ID    , is_xmit_rcv   , nullptr) ;
+    channel_store.setProperty(CONFIG::IS_MUTED_ID   , is_muted      , nullptr) ;
+    channel_store.setProperty(CONFIG::IS_SOLO_ID    , is_solo       , nullptr) ;
+    channel_store.setProperty(CONFIG::SOURCE_N_ID   , source_sink_n , nullptr) ;
+    channel_store.setProperty(CONFIG::IS_STEREO_ID  , is_stereo     , nullptr) ;
+    if (channels_id == GUI::LOCALS_ID)
       this->localChannels.addChild(channel_store , -1 , nullptr) ;
     else
     {
       // assume this is a remote channel // TODO: (issue #33)
-      ValueTree user_store = getUser(channels_id) ;
-      if (!user_store.isValid()) channel_store = ValueTree::invalid ;
-      else user_store.addChild(channel_store , -1 , nullptr) ;
+      ValueTree user_store = getUserById(channels_id) ;
+      if (user_store.isValid()) user_store.addChild(channel_store , -1 , nullptr) ;
     }
+
+DEBUG_TRACE_ADD_CHANNEL_STORE
   }
 
   return channel_store ;
 }
 
-ValueTree LinJamConfig::getChannel(Identifier channels_id , Identifier channel_id)
+ValueTree LinJamConfig::getUserById(Identifier user_id)
+{ return this->configValueTree.getChildWithName(user_id) ; }
+
+ValueTree LinJamConfig::getChannelByIdx(ValueTree channel_store , int channel_idx)
 {
-  if      (channels_id == GUI::MASTERS_IDENTIFIER)
+  return channel_store.getChildWithProperty(CONFIG::CHANNELIDX_ID , channel_idx) ;
+}
+
+ValueTree LinJamConfig::getChannelById(Identifier channels_id , Identifier channel_id)
+{
+  if      (channels_id == GUI::MASTERS_ID)
     return this->masterChannels.getChildWithName(channel_id) ;
-  else if (channels_id == GUI::LOCALS_IDENTIFIER)
+  else if (channels_id == GUI::LOCALS_ID)
     return this->localChannels .getChildWithName(channel_id) ;
 
   // assume this is a remote channel // TODO: (issue #33)
-  ValueTree user_store = getUser(channels_id) ;
+  ValueTree user_store = getUserById(channels_id) ;
   return (user_store.isValid())?
              user_store.getChildWithName(channel_id) :
              ValueTree::invalid ;
@@ -285,10 +312,10 @@ void LinJamConfig::setServer()
   bool   is_anonymous = bool(this->currentIsAnonymous.getValue()) ;
 
   ValueTree server = addServer(host , login , pass , is_anonymous) ;
-  server.setProperty(CONFIG::HOST_IDENTIFIER  , host         , nullptr) ;
-  server.setProperty(CONFIG::LOGIN_IDENTIFIER , login        , nullptr) ;
-  server.setProperty(CONFIG::PASS_IDENTIFIER  , pass         , nullptr) ;
-  server.setProperty(CONFIG::ANON_IDENTIFIER  , is_anonymous , nullptr) ;
+  server.setProperty(CONFIG::HOST_ID  , host         , nullptr) ;
+  server.setProperty(CONFIG::LOGIN_ID , login        , nullptr) ;
+  server.setProperty(CONFIG::PASS_ID  , pass         , nullptr) ;
+  server.setProperty(CONFIG::ANON_ID  , is_anonymous , nullptr) ;
 }
 
 void LinJamConfig::setCurrentServer(String host , String login , String pass ,
@@ -305,15 +332,14 @@ ValueTree LinJamConfig::getCurrentServer()
 { return getServer(this->currentHost.toString()) ; }
 
 ValueTree LinJamConfig::getServer(String host)
-{ return this->servers.getChildWithProperty(CONFIG::HOST_IDENTIFIER , var(host)) ; }
+{ return this->servers.getChildWithProperty(CONFIG::HOST_ID , var(host)) ; }
 
 void LinJamConfig::setShouldAgree(bool should_agree)
 {
   // continuation of setServer() after license agreement
-  ValueTree server = getCurrentServer() ;
-  if (!server.isValid()) return ;
+  ValueTree server = getCurrentServer() ; if (!server.isValid()) return ;
 
-  server.setProperty(CONFIG::AGREE_IDENTIFIER , should_agree , nullptr) ;
+  server.setProperty(CONFIG::AGREE_ID , should_agree , nullptr) ;
 }
 
 
@@ -331,7 +357,7 @@ ValueTree LinJamConfig::sanitizeConfig(ValueTree default_config , ValueTree stor
     if (!stored_child.isValid())
     {
       // for local channels we transfer the default channel only if none are stored
-      if (default_config.getType() != CONFIG::LOCALS_IDENTIFIER ||
+      if (default_config.getType() != CONFIG::LOCALS_ID ||
          !stored_config.getNumChildren())
       {
         default_config.removeChild(default_child , nullptr) ;
@@ -364,7 +390,7 @@ void LinJamConfig::storeConfig()
 DEBUG_TRACE_STORE_CONFIG
 
   XmlElement* config_xml = this->configValueTree.createXml() ;
-  XmlElement* client     = config_xml->getChildByName(CONFIG::CLIENT_IDENTIFIER) ;
+  XmlElement* client     = config_xml->getChildByName(CONFIG::CLIENT_ID) ;
 
   // unset session dir and log file - these are too dangerous to be user-configuraable
   client->removeAttribute(CONFIG::SESSIONDIR_KEY) ;
@@ -376,37 +402,40 @@ DEBUG_TRACE_STORE_CONFIG
 
 void LinJamConfig::establishSharedStore()
 {
+  // TODO: the Value objects created here are no longer being used
+  //           although some of the instance vars are used for convenience
+  //           it may be cleaner to use only the tree listener (issue #33)
   // client config
-  this->shouldSaveAudio    .referTo(getClient(CONFIG::SAVE_AUDIO_IDENTIFIER)) ;
-  this->shouldSaveLog      .referTo(getClient(CONFIG::SAVE_LOG_IDENTIFIER)) ;
-  this->debugLevel         .referTo(getClient(CONFIG::DEBUGLEVEL_IDENTIFIER)) ;
-  this->shouldAutoSubscribe.referTo(getClient(CONFIG::AUTOSUBSCRIBE_IDENTIFIER)) ;
-  this->autoSubscribeUsers = getNode(CONFIG::SUBSCRIPTIONS_IDENTIFIER) ;
+  this->shouldSaveAudio    .referTo(getClient(CONFIG::SAVE_AUDIO_ID)) ;
+  this->shouldSaveLog      .referTo(getClient(CONFIG::SAVE_LOG_ID)) ;
+  this->debugLevel         .referTo(getClient(CONFIG::DEBUGLEVEL_ID)) ;
+  this->shouldAutoSubscribe.referTo(getClient(CONFIG::AUTOSUBSCRIBE_ID)) ;
+  this->autoSubscribeUsers = getNode(CONFIG::SUBSCRIPTIONS_ID) ;
 
   // device config
-  this->audioIfN       .referTo(getAudio(CONFIG::AUDIO_IF_IDENTIFIER)) ;
-  this->nInputs        .referTo(getAudio(CONFIG::N_INPUTS_IDENTIFIER)) ;
-  this->nOutputs       .referTo(getAudio(CONFIG::N_OUTPUTS_IDENTIFIER)) ;
-  this->bitDepth       .referTo(getAudio(CONFIG::BITDEPTH_IDENTIFIER)) ;
-  this->sampleRate     .referTo(getAudio(CONFIG::SAMPLERATE_IDENTIFIER)) ;
-  this->jackName       .referTo(getAudio(CONFIG::JACK_NAME_IDENTIFIER)) ;
+  this->audioIfN  .referTo(getAudio(CONFIG::AUDIO_IF_ID)) ;
+  this->nInputs   .referTo(getAudio(CONFIG::N_INPUTS_ID)) ;
+  this->nOutputs  .referTo(getAudio(CONFIG::N_OUTPUTS_ID)) ;
+  this->bitDepth  .referTo(getAudio(CONFIG::BITDEPTH_ID)) ;
+  this->sampleRate.referTo(getAudio(CONFIG::SAMPLERATE_ID)) ;
+  this->jackName  .referTo(getAudio(CONFIG::JACK_NAME_ID)) ;
 
   // login state
-  this->currentHost       .referTo(getServer(CONFIG::HOST_IDENTIFIER)) ;
-  this->currentLogin      .referTo(getServer(CONFIG::LOGIN_IDENTIFIER)) ;
-  this->currentPass       .referTo(getServer(CONFIG::PASS_IDENTIFIER)) ;
-  this->currentIsAnonymous.referTo(getServer(CONFIG::ANON_IDENTIFIER)) ;
-  this->currentIsAgreed   .referTo(getServer(CONFIG::AGREED_IDENTIFIER)) ;
-  this->shouldHideBots    .referTo(getServer(CONFIG::BOTS_IDENTIFIER)) ;
+  this->currentHost       .referTo(getServer(CONFIG::HOST_ID)) ;
+  this->currentLogin      .referTo(getServer(CONFIG::LOGIN_ID)) ;
+  this->currentPass       .referTo(getServer(CONFIG::PASS_ID)) ;
+  this->currentIsAnonymous.referTo(getServer(CONFIG::ANON_ID)) ;
+  this->currentIsAgreed   .referTo(getServer(CONFIG::AGREED_ID)) ;
+  this->shouldHideBots    .referTo(getServer(CONFIG::BOTS_ID)) ;
 
   // channels
-  this->masterChannels = getNode(CONFIG::MASTERS_IDENTIFIER) ;
-  this->localChannels  = getNode(CONFIG::LOCALS_IDENTIFIER) ;
-//   this->remoteChannels = getNode(CONFIG::REMOTES_IDENTIFIER) ; // (issue #33)
-this->remoteChannels = this->configValueTree ; // kludge (issue #33)
+  this->masterChannels = getNode(CONFIG::MASTERS_ID) ;
+  this->localChannels  = getNode(CONFIG::LOCALS_ID) ;
+//   this->remoteUsers = getNode(CONFIG::REMOTES_ID) ; // (issue #33)
+this->remoteUsers = this->configValueTree ; // kludge (issue #33)
 
   // per server user data
-  this->servers        = getNode(CONFIG::SERVERS_IDENTIFIER) ;
+  this->servers = getNode(CONFIG::SERVERS_ID) ;
 
   this->configValueTree.addListener(this) ;
 }
@@ -433,13 +462,13 @@ DEBUG_TRACE_CONFIG_VALUE
 }
 
 Value LinJamConfig::getClient(Identifier key)
-{ return getLeaf(this->configValueTree , CONFIG::CLIENT_IDENTIFIER , key) ; }
+{ return getLeaf(this->configValueTree , CONFIG::CLIENT_ID , key) ; }
 
 Value LinJamConfig::getAudio(Identifier key)
-{ return getLeaf(this->configValueTree , CONFIG::AUDIO_IDENTIFIER  , key) ; }
+{ return getLeaf(this->configValueTree , CONFIG::AUDIO_ID  , key) ; }
 
 Value LinJamConfig::getServer(Identifier key)
-{ return getLeaf(this->configValueTree , CONFIG::SERVER_IDENTIFIER , key) ; }
+{ return getLeaf(this->configValueTree , CONFIG::SERVER_ID , key) ; }
 
 ValueTree LinJamConfig::addServer(String host , String login , String pass ,
                                   bool is_anonymous)
@@ -447,16 +476,16 @@ ValueTree LinJamConfig::addServer(String host , String login , String pass ,
   ValueTree server = getServer(host) ;
   if (!server.isValid())
   {
-    Identifier host_id = Identifier(CONFIG::SERVER_IDENTIFIER.toString() + "-" +
+    Identifier host_id = Identifier(CONFIG::SERVER_ID.toString() + "-" +
                          host.replaceCharacter('.' , '-')
                              .replaceCharacter(':' , '-')) ;
 
     server = ValueTree(host_id) ;
-    server.setProperty(CONFIG::HOST_IDENTIFIER  , host         , nullptr) ;
-    server.setProperty(CONFIG::LOGIN_IDENTIFIER , login        , nullptr) ;
-    server.setProperty(CONFIG::PASS_IDENTIFIER  , pass         , nullptr) ;
-    server.setProperty(CONFIG::ANON_IDENTIFIER  , is_anonymous , nullptr) ;
-    server.setProperty(CONFIG::AGREE_IDENTIFIER , false        , nullptr) ;
+    server.setProperty(CONFIG::HOST_ID  , host         , nullptr) ;
+    server.setProperty(CONFIG::LOGIN_ID , login        , nullptr) ;
+    server.setProperty(CONFIG::PASS_ID  , pass         , nullptr) ;
+    server.setProperty(CONFIG::ANON_ID  , is_anonymous , nullptr) ;
+    server.setProperty(CONFIG::AGREE_ID , false        , nullptr) ;
 
     this->servers        .addChild(server        , -1 , nullptr) ;
     this->configValueTree.addChild(this->servers , -1 , nullptr) ;
@@ -465,38 +494,34 @@ ValueTree LinJamConfig::addServer(String host , String login , String pass ,
   return server ;
 }
 
-ValueTree LinJamConfig::getUser(Identifier user_id)
-{ return this->configValueTree.getChildWithName(user_id) ; }
-
 String LinJamConfig::filteredName(String a_string)
 { return a_string.retainCharacters(CONFIG::VALID_NAME_CHARS).replaceCharacter(' ', '-') ; }
 
 void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier& a_key)
 {
+  Identifier node_id          = a_node     .getType() ;
+  ValueTree  parent_node      = a_node     .getParent() ;
+  Identifier parent_id        = parent_node.getType() ;
+  ValueTree  grandparent_node = parent_node.getParent() ;
+  bool       is_master        = parent_node      == this->masterChannels &&
+                                node_id          == CONFIG::MASTER_ID ;
+  bool       is_metro         = parent_node      == this->masterChannels &&
+                                node_id          == CONFIG::METRO_ID ;
+  bool       is_local         = parent_node      == this->localChannels ;
+  bool       is_remote        = grandparent_node == this->remoteUsers ;
+
 DEBUG_TRACE_CONFIG_TREE_CHANGED
 
-  Identifier node_id     = a_node.getType() ;
-  ValueTree  parent_node = a_node.getParent() ;
-  Identifier parent_id   = parent_node.getType() ;
+  if      (node_id   == CONFIG::CLIENT_ID)        return ; // most likely will handle this eventuall
+  else if (parent_id == CONFIG::SUBSCRIPTIONS_ID) return ; // most likely will handle this eventuall
+  else if (node_id   == CONFIG::AUDIO_ID)         return ; // may or may not handle this (issue #12)
+  else if (node_id   == CONFIG::SERVER_ID)        return ; // most likely wont need to handle these
+  else if (parent_id == CONFIG::SERVERS_ID)       return ; // but we must guard for now (issue #33)
 
-  if      (node_id == CONFIG::MASTER_IDENTIFIER)
-    LinJam::ConfigureMasterChannel(a_key) ;
-  else if (node_id == CONFIG::METRO_IDENTIFIER)
-    LinJam::ConfigureMetroChannel(a_key) ;
-  else if (parent_node == this->localChannels)
-    LinJam::ConfigureLocalChannel(a_node , a_key) ;
-
-  else if (node_id   == CONFIG::CLIENT_IDENTIFIER)        return ; // most likely will handle this eventuall
-  else if (parent_id == CONFIG::SUBSCRIPTIONS_IDENTIFIER) return ; // most likely will handle this eventuall
-  else if (node_id   == CONFIG::AUDIO_IDENTIFIER)         return ; // may or may not handle this (issue #12)
-  else if (node_id   == CONFIG::SERVER_IDENTIFIER)        return ; // most likely wont need to handle these
-  else if (parent_id == CONFIG::SERVERS_IDENTIFIER)       return ; // but we must guard for now (issue #33)
-
-//  else if (node_id == CONFIG::REMOTES_IDENTIFIER) (issue #33)
-  else if (parent_node == this->remoteChannels)
-    LinJam::ConfigureRemoteUser(a_node , a_key) ;
-  else if (parent_node.getParent() == this->remoteChannels)
-    LinJam::ConfigureRemoteChannel(parent_node , a_node , a_key) ;
+  if      (is_master) LinJam::ConfigureMasterChannel(a_key) ;
+  else if (is_metro)  LinJam::ConfigureMetroChannel(a_key) ;
+  else if (is_local)  LinJam::ConfigureLocalChannel(a_node , a_key) ;
+  else if (is_remote) LinJam::ConfigureRemoteChannel(parent_node , a_node , a_key) ;
 }
 
 void LinJamConfig::valueTreeChildAdded(ValueTree& a_parent_node , ValueTree& a_child_node)
@@ -519,23 +544,3 @@ DEBUG_TRACE_CONFIG_TREE_REMOVED
 void LinJamConfig::valueTreeChildOrderChanged(ValueTree& a_parent_node)                      {}
 void LinJamConfig::valueTreeParentChanged(ValueTree& a_node)                                 {}
 void LinJamConfig::valueTreeRedirected(ValueTree& a_node)                                    {}
-
-
-
-// DEBUG
-void LinJamConfig::DBGConfigValueType(String dbg_val_name , var a_var)
-{
-  String dynamic_type ;
-  if      (a_var.isVoid())       dynamic_type = "Void" ;
-  else if (a_var.isUndefined())  dynamic_type = "Undefined" ;
-  else if (a_var.isInt())        dynamic_type = "Int" ;
-  else if (a_var.isInt64())      dynamic_type = "Int64" ;
-  else if (a_var.isBool())       dynamic_type = "Bool" ;
-  else if (a_var.isDouble())     dynamic_type = "Double" ;
-  else if (a_var.isString())     dynamic_type = "String" ;
-  else if (a_var.isObject())     dynamic_type = "Object" ;
-  else if (a_var.isArray())      dynamic_type = "Array" ;
-  else if (a_var.isBinaryData()) dynamic_type = "Binary" ;
-  else if (a_var.isMethod())     dynamic_type = "Method" ;
-  DBG(dbg_val_name + " type is " + dynamic_type) ;
-}

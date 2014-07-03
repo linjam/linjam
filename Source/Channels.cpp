@@ -34,9 +34,9 @@
 Channels::Channels ()
 {
     addAndMakeVisible (channelsLabel = new Label ("channelsLabel",
-                                                  String::empty));
+                                                  TRANS("s")));
     channelsLabel->setFont (Font (12.00f, Font::plain));
-    channelsLabel->setJustificationType (Justification::centredTop);
+    channelsLabel->setJustificationType (Justification::centredBottom);
     channelsLabel->setEditable (false, false, false);
     channelsLabel->setColour (Label::backgroundColourId, Colour (0x00000000));
     channelsLabel->setColour (Label::textColourId, Colours::grey);
@@ -118,16 +118,20 @@ void Channels::resized()
 
 /* Channels class public class methods */
 
-void Channels::addChannel(ValueTree channel_store)
+bool Channels::addChannel(ValueTree channel_store)
 {
 DEBUG_TRACE_ADD_CHANNEL_GUI
 
+  // ensure GUI for this channel does not already exist
   String channel_name = String(channel_store.getType()) ;
-  if (findChildWithID(StringRef(channel_name)) || channel_name.isEmpty()) return ;
+  if (channel_name.isEmpty() || findChildWithID(StringRef(channel_name))) return false ;
 
+  // create channel GUI
   Channel* channel = newChannel(channel_store) ;
   this->addChildAndSetID(channel , channel_name) ;
   channel->toFront(false) ;
+
+  return  true ;
 }
 
 void Channels::removeChannel(Channel* channel)
@@ -201,7 +205,7 @@ void RemoteChannels::buttonClicked(Button* a_button)
 void RemoteChannels::toggleExpandChannels()
 {
   this->isExpanded = !this->isExpanded ;
-// TODO:
+// TODO: (issue #45)
 DBG("toggleExpandChannels() this->isExpanded=" + String(this->isExpanded)) ;
 }
 
@@ -282,9 +286,9 @@ BEGIN_JUCER_METADATA
   <LABEL name="channelsLabel" id="11f182b0c62d16d1" memberName="channelsLabel"
          virtualName="" explicitFocusOrder="0" pos="4 4 8M 12" bkgCol="0"
          textCol="ff808080" outlineCol="0" edTextCol="0" edBkgCol="0"
-         labelText="" editableSingleClick="0" editableDoubleClick="0"
+         labelText="s" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="12"
-         bold="0" italic="0" justification="12"/>
+         bold="0" italic="0" justification="20"/>
   <TEXTBUTTON name="expandButton" id="e6ac05f3ca896afc" memberName="expandButton"
               virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" buttonText="+"
               connectedEdges="0" needsCallback="0" radioGroupId="0"/>

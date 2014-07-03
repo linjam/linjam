@@ -46,22 +46,16 @@ public:
   // getters/setters
   static bool IsAgreed() ;
 
-  // GUI and server event handlers
+  // GUI event handlers
   static void      AddLocalChannel(   String channel_name) ;
   static void      RemoveLocalChannel(Identifier channel_id) ;
-  static ValueTree AddRemoteChannel(  ValueTree user_store   , Channels* user_channels ,
-                                      String    channel_name , int       channel_idx   ,
-                                      float     volume       , float     pan           ,
-                                      bool      is_rcv       , bool      is_muted      ,
-                                      bool      is_solo      , int       sink_n        ,
-                                      bool      is_stereo                              ) ;
   static void      SendChat(          String chat_text) ;
 
 
   static LinJamConfig* Config ;
 
 
-private:
+// private:
 
   static NJClient*      Client ;
   static MainContent*   Gui ;
@@ -88,34 +82,34 @@ private:
 
   // state helpers
   static bool  InitializeAudio() ;
-  static void  ConfigureAudio() ;
+  static void  ConfigureInitialChannels() ;
   static bool  PrepareSessionDirectory() ;
   static void  ConfigureNinjam() ;
   static void  CleanSessionDir() ;
 
+  // server event handlers
+  static ValueTree GetOrAddRemoteUser(   Identifier user_name , int   user_idx ,
+                                         float      volume    , float pan      ,
+                                         bool       is_muted                   ) ;
+  static ValueTree GetOrAddRemoteChannel(Identifier user_id      , int   user_idx    ,
+                                         String     channel_name , int   channel_idx ,
+                                         float      volume       , float pan         ,
+                                         bool       is_rcv       , bool  is_muted    ,
+                                         bool       is_solo      , int   sink_n      ,
+                                         bool       is_stereo                        ) ;
+
   // NJClient config helpers
-  static char* GetChannelName(        int channel_idx) ;
+  static char* GetChannelName(          int channel_idx) ;
   static int   GetVacantLocalChannelIdx() ;
-  static int   GetLocalChannelIdx(    Identifier channel_id) ;
-  static int   GetRemoteUserIdx(      Identifier user_id) ;
-  static int   GetRemoteChannelIdx(   int user_idx , Identifier channel_id) ;
-  static void  ConfigureMasterChannel(Identifier a_key) ;
-  static void  ConfigureMetroChannel( Identifier a_key) ;
-  static void  ConfigureLocalChannel( ValueTree channel_store , Identifier a_key) ;
-  static void  ConfigureRemoteUser(   ValueTree user_store , Identifier a_key) ;
-  static void  ConfigureRemoteChannel(ValueTree user_store , ValueTree channel_store ,
-                                      Identifier a_key) ;
-  static bool  ShouldSetName(         Identifier a_key) ;
-  static bool  ShouldSetVolume(       Identifier a_key) ;
-  static bool  ShouldSetPan(          Identifier a_key) ;
-  static bool  ShouldSetIsXmit(       Identifier a_key) ;
-  static bool  ShouldSetIsMuted(      Identifier a_key) ;
-  static bool  ShouldSetIsSolo(       Identifier a_key) ;
-  static bool  ShouldSetSourceN(      Identifier a_key) ;
-  static bool  ShouldSetBitDepth(     Identifier a_key) ;
-  static bool  ShouldSetIsStereo(     Identifier a_key) ;
-  static bool  ShouldSetIsRcv(        Identifier a_key) ;
-  static bool  ShouldSetSinkN(        Identifier a_key) ;
+  static int   GetLocalChannelIdx(      Identifier channel_id) ;
+  static int   GetRemoteUserIdx(        Identifier user_id) ;
+  static int   GetRemoteChannelIdx(     int user_idx , Identifier channel_id) ;
+  static void  ConfigureMasterChannel(  Identifier a_key) ;
+  static void  ConfigureMetroChannel(   Identifier a_key) ;
+  static void  ConfigureLocalChannel(   ValueTree channel_store , Identifier a_key) ;
+  static void  ConfigureRemoteChannel(  ValueTree  user_store , ValueTree channel_store ,
+                                        Identifier a_key) ;
+
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;
 } ;

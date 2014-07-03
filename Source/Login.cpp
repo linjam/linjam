@@ -268,9 +268,9 @@ DEBUG_TRACE_LOGIN_BTNS
       this->hostText->setText(host) ;
       if (server.isValid())
       {
-        this->loginText ->setText(       server[CONFIG::LOGIN_IDENTIFIER]) ;
-        this->passText  ->setText(       server[CONFIG::PASS_IDENTIFIER]) ;
-        this->anonButton->setToggleState(server[CONFIG::ANON_IDENTIFIER] , juce::dontSendNotification) ;
+        this->loginText ->setText(       server[CONFIG::LOGIN_ID]) ;
+        this->passText  ->setText(       server[CONFIG::PASS_ID]) ;
+        this->anonButton->setToggleState(server[CONFIG::ANON_ID] , juce::dontSendNotification) ;
       }
 
       login() ;

@@ -188,32 +188,34 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
 
 /* Mixer class public methods */
 
-Channels* Mixer::getOrAddRemoteChannels(ValueTree user_store)
+bool Mixer::addRemoteUser(ValueTree user_store)
 {
-  String    channels_name = String(user_store.getType()) ;
-  Channels* channels      = getChannels(channels_name) ;
+  // ensure GUI for this user does not already exist
+  String channels_name = String(user_store.getType()) ;
+  if (getChannels(channels_name)) return false ;
 
-  if (!channels)
-  {
-    // create remote user GUI
-    channels = new RemoteChannels(user_store) ;
-    addChannels(channels , channels_name) ;
+  // create remote user GUI
+  Channels* channels = new RemoteChannels(user_store) ;
+  addChannels(channels , channels_name) ;
 
-    // create remote master channel GUI
-    ValueTree channel_store = user_store.getChildWithName(CONFIG::MASTER_IDENTIFIER) ;
-    if (channel_store.isValid()) addChannel(channels_name , channel_store) ;
-  }
+  // create remote master channel GUI
+  ValueTree channel_store = user_store.getChildWithName(CONFIG::MASTER_ID) ;
+  if (channel_store.isValid()) addChannel(channels_name , channel_store) ;
 
-  return channels ;
+  return true ;
 }
 
-void Mixer::addChannel(String channels_name , ValueTree channel_store)
+bool Mixer::addChannel(String channels_name , ValueTree channel_store)
 {
-  Channels* channels = (Channels*)findChildWithID(StringRef(channels_name)) ;
-  if (!channels || !channel_store.isValid()) return ;
+  // validate remote user GUI and storage
+  Channels* channels = getChannels(channels_name) ;
+  if (!channels || !channel_store.isValid()) return false ;
 
-  channels->addChannel(channel_store) ; resized() ;
+  // create remote channel GUI and re-arrange slices
+  bool was_added = channels->addChannel(channel_store) ; resized() ;
   channels->setSize(GUI::MIXERGROUP_W(channels->getNumChannels()) , GUI::MIXERGROUP_H) ;
+
+  return was_added ;
 }
 
 void Mixer::updateChannelVU(Identifier channels_id , String channel_id , double vu)
