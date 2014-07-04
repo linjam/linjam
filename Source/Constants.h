@@ -20,30 +20,34 @@ class CLIENT
 public:
 
   // NJClient
-  static const String SERVER_FULL_STATUS ;
-  static const uint8  CHATMSG_TYPE_IDX = 0 ;
-  static const uint8  CHATMSG_USER_IDX = 1 ;
-  static const uint8  CHATMSG_MSG_IDX  = 2 ;
-  static const String CHATMSG_TYPE_TOPIC ;
-  static const String CHATMSG_TYPE_MSG ;
-  static const String CHATMSG_TYPE_PRIVMSG ;
-  static const String CHATMSG_TYPE_JOIN ;
-  static const String CHATMSG_TYPE_PART ;
-  static const String CHATMSG_TYPE_ADMIN ;
-  static const String CHATMSG_CMD_ME ;
-  static const String CHATMSG_CMD_MSG ;
-  static const String CHATMSG_CMD_TOPIC ;
-  static const String CHATMSG_CMD_KICK ;
-  static const String CHATMSG_CMD_BPM ;
-  static const String CHATMSG_CMD_BPI ;
-  static const String CHATMSG_CMD_ADMIN ;
+  static const String    SERVER_FULL_STATUS ;
+  static const int       BOT_USERIDX      = 0 ;
+  static const int       BOT_CHANNELIDX   = 0 ;
+  static const uint8     CHATMSG_TYPE_IDX = 0 ;
+  static const uint8     CHATMSG_USER_IDX = 1 ;
+  static const uint8     CHATMSG_MSG_IDX  = 2 ;
+  static const String    CHATMSG_TYPE_TOPIC ;
+  static const String    CHATMSG_TYPE_MSG ;
+  static const String    CHATMSG_TYPE_PRIVMSG ;
+  static const String    CHATMSG_TYPE_JOIN ;
+  static const String    CHATMSG_TYPE_PART ;
+  static const String    CHATMSG_TYPE_ADMIN ;
+  static const String    CHATMSG_CMD_ME ;
+  static const String    CHATMSG_CMD_MSG ;
+  static const String    CHATMSG_CMD_TOPIC ;
+  static const String    CHATMSG_CMD_KICK ;
+  static const String    CHATMSG_CMD_BPM ;
+  static const String    CHATMSG_CMD_BPI ;
+  static const String    CHATMSG_CMD_ADMIN ;
+  static const StringRef CHATMSG_CMD_VOTE ;
 
   // audio
   static char* WIN_INI_FILE ;
 
   // main
-  static const int CLIENT_DRIVER_ID = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
-  static const int GUI_DRIVER_ID    = 1 ; static const int GUI_DRIVER_IVL    = 125 ;
+  static const int CLIENT_TIMER_ID = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
+  static const int GUI_TIMER_HI_ID = 1 ; static const int GUI_UPDATE_HI_IVL = 125 ;
+  static const int GUI_TIMER_LO_ID = 2 ; static const int GUI_UPDATE_LO_IVL = 1000 ;
 
   // config
   static const uint8 MASTER_IDX = 42 ;
@@ -191,7 +195,7 @@ public:
   static const String LOOP_GUI_ID ;
   static const int    LOOP_X               = STATUS_W + PAD3 ;
   static const int    LOOP_H               = STATUS_H ;
-  static const float  BEAT_PROGRESS_OFFSET = CLIENT::GUI_DRIVER_IVL * 0.002 ;
+  static const float  BEAT_PROGRESS_OFFSET = CLIENT::GUI_UPDATE_HI_IVL * 0.002 ;
 } ;
 
 

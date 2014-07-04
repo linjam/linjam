@@ -34,14 +34,16 @@ class LinJam
 public:
 
   // state methods
-  static bool Initialize(NJClient* client , MainContent* mainContent , const String& args) ;
+  static bool Initialize(NJClient*     njClient , MainContent* mainCcontent ,
+                         const String& args                                 ) ;
   static void Connect() ;
   static void Disconnect() ;
   static void Shutdown() ;
 
   // NJClient runtime routines
   static void DriveClient() ;
-  static void UpdateGUI() ;
+  static void UpdateGuiHighPriority() ;
+  static void UpdateGuiLowPriority() ;
 
   // getters/setters
   static bool IsAgreed() ;
@@ -55,15 +57,16 @@ public:
   static LinJamConfig* Config ;
 
 
-// private:
+private:
 
-  static NJClient*      Client ;
-  static MainContent*   Gui ;
-  static audioStreamer* Audio ;
-  static float          GuiBeatOffset ;
-  static File           SessionDir ;
-  static int            PrevStatus ;
-  static bool           IsAudioEnabled ;
+  static NJClient*          Client ;
+  static MainContent*       Gui ;
+  static audioStreamer*     Audio ;
+  static bool               IsAudioEnabled ;
+  static float              GuiBeatOffset ;
+  static File               SessionDir ;
+  static int                PrevStatus ;
+  static String             PrevRecordingTime ;
 
 
   // NJClient callbacks

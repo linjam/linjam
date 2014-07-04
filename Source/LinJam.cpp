@@ -18,7 +18,7 @@
 #include "Constants.h"
 
 
-class LinJamApplication ;
+// class LinJamApplication ;
 
 
 /* LinJam public class variables */
@@ -28,26 +28,27 @@ LinJamConfig* LinJam::Config ;
 
 /* LinJam private class variables */
 
-audioStreamer* LinJam::Audio          = nullptr ; // Initialize()
 NJClient*      LinJam::Client         = nullptr ; // Initialize()
 MainContent*   LinJam::Gui            = nullptr ; // Initialize()
+audioStreamer* LinJam::Audio          = nullptr ; // Initialize()
+bool           LinJam::IsAudioEnabled = false ;   // InitializeAudio()
 float          LinJam::GuiBeatOffset ;            // InitializeAudio()
 File           LinJam::SessionDir ;               // PrepareSessionDirectory()
 int            LinJam::PrevStatus ;               // Initialize()
-bool           LinJam::IsAudioEnabled = false ;   // TODO: use Client->IsAudioRunning() instead ?? (issue #11)
+String         LinJam::PrevRecordingTime ;        // Disconnect()
 
 
 /* LinJam public class methods */
 
 /* state methods */
 
-bool LinJam::Initialize(NJClient* client , MainContent* mainCcontent ,
-                        const String& args)
+bool LinJam::Initialize(NJClient*     njClient , MainContent* mainCcontent ,
+                        const String& args                                 )
 {
 DEBUG_TRACE_LINJAM_INIT
 
-  Client = client ;
-  Gui    = mainCcontent ;
+  Client  = njClient ;
+  Gui     = mainCcontent ;
 
 
 // TODO: parse command line args for autojoin (issue #9)
@@ -99,13 +100,13 @@ DEBUG_TRACE_CONNECT
 
   Gui->statusbar->setStatusL(GUI::CONNECTING_STATUS_TEXT + host) ;
   Client->Connect(host.toRawUTF8() , login.toRawUTF8() , pass.toRawUTF8()) ;
-  IsAudioEnabled = true ;
 }
 
-void LinJam::Disconnect() { IsAudioEnabled = false ; Client->Disconnect() ; }
+void LinJam::Disconnect() { Client->Disconnect() ; PrevRecordingTime = "" ; }
 
 void LinJam::Shutdown()
 {
+  IsAudioEnabled = false ;
   JNL::close_socketlib() ; delete Audio ;
   CleanSessionDir() ;      delete Config ;
 }
@@ -122,7 +123,7 @@ void LinJam::DriveClient()
   if (client_status >= NJClient::NJC_STATUS_OK) while (!Client->Run()) ;
 }
 
-void LinJam::UpdateGUI()
+void LinJam::UpdateGuiHighPriority()
 {
 #ifndef UPDATE_GUI
   return ;
@@ -180,6 +181,25 @@ DBG("user[" + String(user_idx) + "]=" + String(user_id) + " channel[" + String(c
     // update remote master VU
     Gui->mixer->updateChannelVU(user_id , CONFIG::MASTER_KEY , VAL2DB(master_vu)) ;
   }
+}
+
+void LinJam::UpdateGuiLowPriority()
+{
+  if (PrevStatus != NJClient::NJC_STATUS_OK) return ;
+
+  // NOTE: recording time is brittle - it is assuming that the bot exists
+  //       in the first user slot and that the recording time is name of first channel
+  String host           = String(Client->GetHostName()) ;
+  String bpi            = String(Client->GetBPI()) ;
+  String bpm            = String((int)Client->GetActualBPM()) ;
+  bool   server_has_bot = NETWORK::KNOWN_HOSTS.contains(host) ;
+  String recording_time = String(Client->GetUserChannelState(CLIENT::BOT_USERIDX ,
+                                                             CLIENT::BOT_CHANNELIDX)) ;
+  if (server_has_bot && recording_time.compare(PrevRecordingTime) &&
+      PrevRecordingTime.isNotEmpty())
+       Gui->setTitle(host + " - " + bpi + "bpi / " + bpm + "bpm - " + recording_time) ;
+  else Gui->setTitle(host + " - " + bpi + "bpi / " + bpm + "bpm") ;
+  PrevRecordingTime = recording_time ;
 }
 
 
@@ -289,7 +309,24 @@ DEBUG_TRACE_CHAT_IN
     Gui->chat->setTopic(chat_text) ;
   }
   else if (is_bcast_msg)
-    { if (chat_user.isEmpty() || chat_text.isEmpty()) return ; }
+  {
+    if (chat_text.isEmpty()) return ;
+
+    if      (chat_user.isEmpty()) chat_user = GUI::SERVER_NICK ;
+    else if (chat_text.startsWith(CLIENT::CHATMSG_CMD_VOTE))
+    {
+      // customize voting messages
+      chat_text = chat_text.fromFirstOccurrenceOf(StringRef(" ") , false , true).trim() ;
+      String bpi_bpm_cmd = chat_text.upToFirstOccurrenceOf(StringRef(" ") , false , true)
+                                    .trim() ;
+      String bpi_bpm_val = chat_text.fromFirstOccurrenceOf(StringRef(" ") , false , true)
+                                    .trim() ;
+      if (!bpi_bpm_val.containsOnly(NETWORK::DIGITS)) return ; // server rejects this - yes?
+
+      chat_text = chat_user + " votes to set " + bpi_bpm_cmd + " to " + bpi_bpm_val ;
+      chat_user = GUI::SERVER_NICK ;
+    }
+  }
   else if (is_priv_msg)
   {
     if (chat_user.isEmpty() || chat_text.isEmpty()) return ;
@@ -315,8 +352,8 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
   {
     // clear all output buffers
     uint8 n_bytes = n_samples * sizeof(float) ;
-    for (int ch_n = 0 ; ch_n < n_output_channels ; ++ch_n)
-      memset(output_buffer[ch_n] , 0 , n_bytes) ;
+    for (int channel_n = 0 ; channel_n < n_output_channels ; ++channel_n)
+      memset(output_buffer[channel_n] , 0 , n_bytes) ;
   }
   else Client->AudioProc(input_buffer  , n_input_channels  ,
                          output_buffer , n_output_channels ,
@@ -442,7 +479,6 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
         ConfigureRemoteChannel(user_store , channel_store , CONFIG::CONFIG_ALL_ID) ;
       }
 
-
       // add channel to GUI prune list
       active_user_channels.setProperty(channel_store.getType() , -1 , nullptr) ;
     }
@@ -521,6 +557,8 @@ bool LinJam::IsRoomFull()
 
 bool LinJam::InitializeAudio()
 {
+  IsAudioEnabled = false ; if (Audio) delete Audio ;
+
         int   interface_n   = int(Config->audioIfN  .getValue()) ;
         int   n_inputs      = int(Config->nInputs   .getValue()) ;
         int   n_outputs     = int(Config->nOutputs  .getValue()) ;
@@ -561,7 +599,11 @@ DEBUG_TRACE_AUDIO_INIT_ALSA
 #  endif // _MAC
 #endif // _WIN32
 
-  if (Audio) GuiBeatOffset = Audio->m_srate * GUI::BEAT_PROGRESS_OFFSET ;
+  if (Audio)
+  {
+    IsAudioEnabled = true ;
+    GuiBeatOffset = Audio->m_srate * GUI::BEAT_PROGRESS_OFFSET ;
+  }
 
 DEBUG_TRACE_AUDIO_INIT
 

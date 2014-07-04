@@ -34,7 +34,7 @@ class MainContent : public Component
 
 public:
   //==============================================================================
-  MainContent() ;
+  MainContent(DocumentWindow* main_window) ;
   ~MainContent() ;
 
   void paint(Graphics&) ;
@@ -50,6 +50,13 @@ private:
   ScopedPointer<Mixer>      mixer ;
   ScopedPointer<StatusBar>  statusbar ;
   ScopedPointer<Loop>       loop ;
+
+
+  DocumentWindow* mainWindow ;
+  String          appName ;
+
+
+  void setTitle(String title_text) ;
 
   //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContent)

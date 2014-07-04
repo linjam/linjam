@@ -12,8 +12,12 @@
 
 
 //==============================================================================
-MainContent::MainContent()
+MainContent::MainContent(DocumentWindow* main_window)
 {
+  // Main
+  this->mainWindow = main_window ;
+  this->appName    = JUCEApplication::getInstance()->getApplicationName() ;
+
   // MainContent
   this->setName("MainContent") ;
   this->setSize(GUI::CONTENT_W , GUI::CONTENT_H) ;
@@ -143,4 +147,11 @@ void MainContent::resized()
   this->mixer     ->setBounds(mixer_x   , mixer_y   , mixer_w   , mixer_h) ;
   this->statusbar ->setBounds(status_x  , status_y  , status_w  , status_h) ;
   this->loop      ->setBounds(loop_x    , loop_y    , loop_w    , loop_h) ;
+}
+
+void MainContent::setTitle(String title_text)
+{
+if (1) ;
+
+  this->mainWindow->setName(this->appName + " - " + title_text) ;
 }

@@ -71,19 +71,10 @@ public:
       }
       else
       {
-        this->startTimer(CLIENT::CLIENT_DRIVER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
-        this->startTimer(CLIENT::GUI_DRIVER_ID    , CLIENT::GUI_DRIVER_IVL) ;
+        this->startTimer(CLIENT::CLIENT_TIMER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
+        this->startTimer(CLIENT::GUI_TIMER_HI_ID , CLIENT::GUI_UPDATE_HI_IVL) ;
+        this->startTimer(CLIENT::GUI_TIMER_LO_ID , CLIENT::GUI_UPDATE_LO_IVL) ;
       }
-    }
-
-    void setTitle(String title)
-    {
-      this->mainWindow->setName(title) ;
-    }
-
-    void setTitleCentered(bool should_be_centred)
-    {
-      this->mainWindow->setTitleBarTextCentred(should_be_centred) ;
     }
 
     void shutdown() override
@@ -123,7 +114,7 @@ DEBUG_TRACE_SHUTDOWN
                                        Colour (0xff202020) ,
                                        DocumentWindow::allButtons)
         {
-            mainContent = new MainContent() ;
+            mainContent = new MainContent(this) ;
             setContentOwned(mainContent , true) ;
             mainContent->setComponentID(GUI::CONTENT_GUI_ID) ;
             centreWithSize(getWidth() , getHeight()) ;
@@ -164,9 +155,10 @@ DBG("[DEBUG]: EXIT_IMMEDIAYELY defined - bailing") ; this->quit() ;
 
       switch (timerId)
       {
-        case CLIENT::CLIENT_DRIVER_ID: LinJam::DriveClient() ; break ;
-        case CLIENT::GUI_DRIVER_ID:    LinJam::UpdateGUI() ;   break ;
-        default:                                               break ;
+        case CLIENT::GUI_TIMER_LO_ID: LinJam::UpdateGuiLowPriority() ;  break ;
+        case CLIENT::GUI_TIMER_HI_ID: LinJam::UpdateGuiHighPriority() ; break ;
+        case CLIENT::CLIENT_TIMER_ID: LinJam::DriveClient() ;           break ;
+        default:                                                        break ;
       }
     }
 

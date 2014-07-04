@@ -8,19 +8,20 @@
 const String CLIENT::SERVER_FULL_STATUS   = "server full" ;
 
 // chat
-const String CLIENT::CHATMSG_TYPE_TOPIC   = "TOPIC" ;
-const String CLIENT::CHATMSG_TYPE_MSG     = "MSG" ;
-const String CLIENT::CHATMSG_TYPE_PRIVMSG = "PRIVMSG" ;
-const String CLIENT::CHATMSG_TYPE_JOIN    = "JOIN" ;
-const String CLIENT::CHATMSG_TYPE_PART    = "PART" ;
-const String CLIENT::CHATMSG_TYPE_ADMIN   = "ADMIN" ;
-const String CLIENT::CHATMSG_CMD_ME    = "/me " ;
-const String CLIENT::CHATMSG_CMD_MSG   = "/msg " ;
-const String CLIENT::CHATMSG_CMD_TOPIC = "/topic " ;
-const String CLIENT::CHATMSG_CMD_KICK  = "/kick " ;
-const String CLIENT::CHATMSG_CMD_BPM   = "/bpm " ;
-const String CLIENT::CHATMSG_CMD_BPI   = "/bpi " ;
-const String CLIENT::CHATMSG_CMD_ADMIN = "/admin " ;
+const String    CLIENT::CHATMSG_TYPE_TOPIC   = "TOPIC" ;
+const String    CLIENT::CHATMSG_TYPE_MSG     = "MSG" ;
+const String    CLIENT::CHATMSG_TYPE_PRIVMSG = "PRIVMSG" ;
+const String    CLIENT::CHATMSG_TYPE_JOIN    = "JOIN" ;
+const String    CLIENT::CHATMSG_TYPE_PART    = "PART" ;
+const String    CLIENT::CHATMSG_TYPE_ADMIN   = "ADMIN" ;
+const String    CLIENT::CHATMSG_CMD_ME    = "/me " ;
+const String    CLIENT::CHATMSG_CMD_MSG   = "/msg " ;
+const String    CLIENT::CHATMSG_CMD_TOPIC = "/topic " ;
+const String    CLIENT::CHATMSG_CMD_KICK  = "/kick " ;
+const String    CLIENT::CHATMSG_CMD_BPM   = "/bpm " ;
+const String    CLIENT::CHATMSG_CMD_BPI   = "/bpi " ;
+const String    CLIENT::CHATMSG_CMD_ADMIN = "/admin " ;
+const StringRef CLIENT::CHATMSG_CMD_VOTE  = "!vote" ;
 
 // audio
 char* CLIENT::WIN_INI_FILE = "linjam.ini" ;
@@ -231,7 +232,7 @@ const Identifier CONFIG::IS_STEREO_ID   = IS_STEREO_KEY ;
 // defaults
 const String     CONFIG::CONFIG_ALL_KEY       = "configure-all" ;
 const Identifier CONFIG::CONFIG_ALL_ID        = CONFIG_ALL_KEY ;
-const String     CONFIG::INITIAL_LOCAL_KEY    = "default-L " ;
+const String     CONFIG::INITIAL_LOCAL_KEY    = "default-L" ;
 const Identifier CONFIG::INITIAL_LOCAL_ID     = INITIAL_LOCAL_KEY ;
 const String     CONFIG::DEFAULT_CHANNEL_NAME = "channel-" ;
 const String     CONFIG::DEFAULT_USER_NAME    = "user-" ;
@@ -291,7 +292,7 @@ const StringRef CONFIG::USER_IP_SPLIT_CHAR = "@" ;
       "/>"                                    + \
       "</" + MASTERS_KEY   + "><"             + \
       LOCALS_KEY           + "><"             + \
-        INITIAL_LOCAL_KEY                     + \
+        INITIAL_LOCAL_KEY  + " "              + \
           CHANNELIDX_KEY   + "=\"0\" "        + \
           VOLUME_KEY       + "=\"0.0\" "      + \
           PAN_KEY          + "=\"0.0\" "      + \
