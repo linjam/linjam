@@ -351,7 +351,7 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
   if (!IsAudioEnabled)
   {
     // clear all output buffers
-    uint8 n_bytes = n_samples * sizeof(float) ;
+    size_t n_bytes = n_samples * sizeof(float) ;
     for (int channel_n = 0 ; channel_n < n_output_channels ; ++channel_n)
       memset(output_buffer[channel_n] , 0 , n_bytes) ;
   }

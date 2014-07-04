@@ -68,7 +68,7 @@ private:
 
 protected:
 
-  virtual Channel* newChannel(ValueTree channel_store) {}
+  virtual Channel* newChannel(ValueTree channel_store) = 0 ;
 
     //[/UserVariables]
 

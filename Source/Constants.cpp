@@ -131,7 +131,8 @@ const String GUI::MIXER_GUI_ID = "mixer-gui" ;
 const String GUI::STATUS_GUI_ID = "statusbar-gui" ;
 
 // Loop
-const String GUI::LOOP_GUI_ID = "loop-gui" ;
+const String GUI::LOOP_GUI_ID          = "loop-gui" ;
+const float  GUI::BEAT_PROGRESS_OFFSET = CLIENT::GUI_UPDATE_HI_IVL * 0.002 ;
 
 
 /* CONFIG class public class constants */

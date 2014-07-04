@@ -276,7 +276,7 @@
     else if (name.isEmpty())                                                        \
          Trace::TraceError("adding channel GUI for '" + getComponentID() +          \
                            "' - channel name is empty") ;                           \
-    else if (findChildWithID(StringRef(name))) ; // already exists                  \
+    else if (findChildWithID(StringRef(name))) ; /* already exists */               \
     else if (!getComponentID().compare(GUI::MASTERS_GUI_ID))                        \
          Trace::TraceGui("adding master channel slice '" + name  + "'") ;           \
     else if (!getComponentID().compare(GUI::LOCALS_GUI_ID))                         \
@@ -373,19 +373,21 @@
     int u_n = -1 ; char* u_name ; float u_vol ; float u_pan ; bool u_mute ;  \
     while (u_name = Client->GetUserState(++u_n , &u_vol , &u_pan , &u_mute)) \
       { DEBUG_TRACE_REMOTE_CHANNELS }                        }
-#  define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                      \
-    if (!DEBUG_TRACE_VB)                                                         \
-    {                                                                            \
-      float  u_vol  = volume ; float u_pan  = pan ; bool  u_mute = is_muted ;    \
-      String u_name = String(user_id) ;                                          \
-      int    u_n    = LinJam::Client->GetNumUsers() ; char* c_name ;             \
-      while ((c_name = LinJam::Client->GetUserState(--u_n)))                     \
-        { String name = String(encodeUserId(c_name , u_n)) ;                     \
-          if (!String(user_id).compare(name)) break ; }                          \
-      DEBUG_TRACE_REMOTE_CHANNELS                                                \
-    }                                                                            \
-    else Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;         \
+#  if DEBUG_TRACE_VB
+#    define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                    \
+    Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;              \
     Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;
+#  else // DEBUG_TRACE_VB
+#    define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                    \
+    float  u_vol  = volume ; float u_pan  = pan ; bool  u_mute = is_muted ;      \
+    String u_name = String(user_id) ;                                            \
+    int    u_n    = LinJam::Client->GetNumUsers() ; char* c_name ;               \
+    while ((c_name = LinJam::Client->GetUserState(--u_n)))                       \
+      { String name = String(encodeUserId(c_name , u_n)) ;                       \
+        if (!String(user_id).compare(name)) break ; }                            \
+    DEBUG_TRACE_REMOTE_CHANNELS                                                  \
+    Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;
+#  endif // DEBUG_TRACE_VB
 #  define DEBUG_TRACE_CONFIGURE_REMOTE                                                   \
     Identifier u_id  = user_store   .getType() ;                                         \
     Identifier ch_id = channel_store.getType() ;                                         \

@@ -195,7 +195,7 @@ public:
   static const String LOOP_GUI_ID ;
   static const int    LOOP_X               = STATUS_W + PAD3 ;
   static const int    LOOP_H               = STATUS_H ;
-  static const float  BEAT_PROGRESS_OFFSET = CLIENT::GUI_UPDATE_HI_IVL * 0.002 ;
+  static const float  BEAT_PROGRESS_OFFSET ;
 } ;
 
 
