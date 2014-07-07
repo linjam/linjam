@@ -54,6 +54,7 @@ OBJECTS := \
   $(OBJDIR)/Background_ba4a3b7.o \
   $(OBJDIR)/Channel_14ad93e4.o \
   $(OBJDIR)/Channels_84b8f659.o \
+  $(OBJDIR)/ChannelConfig_4569a306.o \
   $(OBJDIR)/Chat_e7196be1.o \
   $(OBJDIR)/Constants_e698e730.o \
   $(OBJDIR)/License_de20cc22.o \
@@ -102,6 +103,11 @@ $(OBJDIR)/Channel_14ad93e4.o: ../../Source/Channel.cpp
 $(OBJDIR)/Channels_84b8f659.o: ../../Source/Channels.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Channels.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ChannelConfig_4569a306.o: ../../Source/ChannelConfig.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ChannelConfig.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Chat_e7196be1.o: ../../Source/Chat.cpp

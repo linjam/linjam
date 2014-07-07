@@ -21,6 +21,7 @@
 
 #include "LinJam.h"
 #include "Constants.h"
+#include "ChannelConfig.h"
 
 //[/Headers]
 
@@ -99,6 +100,12 @@ void Channels::resized()
     channelsLabel->setBounds (4, 4, getWidth() - 8, 12);
     expandButton->setBounds (getWidth() - 15, 0, 15, 16);
     //[UserResized] Add your own custom resize handling here..
+
+  int expand_btn_x = getWidth() - GUI::EXPAND_BTN_W ;
+  int expand_btn_y = 0 ;
+  int expand_btn_w = GUI::EXPAND_BTN_W ;
+  int expand_btn_h = GUI::EXPAND_BTN_H ;
+  this->expandButton->setBounds(expand_btn_x , expand_btn_y , expand_btn_w , expand_btn_h) ;
 
   int n_channels = getNumChannels() ;
   for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
@@ -193,8 +200,21 @@ RemoteChannels::RemoteChannels(ValueTree user_store)
 
 void LocalChannels::buttonClicked(Button* a_button)
 {
-  // TODO: prompt ?
-  if (a_button == expandButton) LinJam::AddLocalChannel(String::empty) ;
+  if (a_button == expandButton)
+  {
+    Component*     mixer         = getParentComponent() ;
+    Component*     mainContent   = mixer->getParentComponent() ;
+    ChannelConfig* channelConfig = new ChannelConfig() ;
+    channelConfig->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
+
+    int modalX = mixer->getX() + getX() + expandButton->getX() + (GUI::EXPAND_BTN_W / 2) ;
+    int modalY = mixer->getY() + getY() + expandButton->getY() + (GUI::EXPAND_BTN_H / 2) ;
+
+    Rectangle<int> modalRect = Rectangle<int>(modalX , modalY , 1 , 1) ;
+    CallOutBox&    modalBox  = CallOutBox::launchAsynchronously(channelConfig ,
+                                                                modalRect     ,
+                                                                mainContent   ) ;
+  }
 }
 
 void RemoteChannels::buttonClicked(Button* a_button)

@@ -8,6 +8,7 @@
       <FILE id="A4xouB" name="Background.h" compile="0" resource="0" file="Source/Background.h"/>
       <FILE id="XeDmZL" name="Channel.h" compile="0" resource="0" file="Source/Channel.h"/>
       <FILE id="SBrFCQ" name="Channels.h" compile="0" resource="0" file="Source/Channels.h"/>
+      <FILE id="MFeN91" name="ChannelConfig.h" compile="0" resource="0" file="Source/ChannelConfig.h"/>
       <FILE id="pNseOT" name="Chat.h" compile="0" resource="0" file="Source/Chat.h"/>
       <FILE id="oLQgCw" name="Constants.h" compile="0" resource="0" file="Source/Constants.h"/>
       <FILE id="xqc9VC" name="License.h" compile="0" resource="0" file="Source/License.h"/>
@@ -24,6 +25,8 @@
       <FILE id="WuNCUn" name="Background.cpp" compile="1" resource="0" file="Source/Background.cpp"/>
       <FILE id="pasbMc" name="Channel.cpp" compile="1" resource="0" file="Source/Channel.cpp"/>
       <FILE id="BwFSNp" name="Channels.cpp" compile="1" resource="0" file="Source/Channels.cpp"/>
+      <FILE id="ZuG12h" name="ChannelConfig.cpp" compile="1" resource="0"
+            file="Source/ChannelConfig.cpp"/>
       <FILE id="CywiEf" name="Chat.cpp" compile="1" resource="0" file="Source/Chat.cpp"/>
       <FILE id="kbS1jT" name="Constants.cpp" compile="1" resource="0" file="Source/Constants.cpp"/>
       <FILE id="HugMKb" name="License.cpp" compile="1" resource="0" file="Source/License.cpp"/>

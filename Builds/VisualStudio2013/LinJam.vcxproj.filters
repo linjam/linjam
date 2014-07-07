@@ -196,6 +196,9 @@
     <ClCompile Include="..\..\Source\Channels.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ChannelConfig.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Chat.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
@@ -1051,6 +1054,9 @@
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Channels.h">
+      <Filter>LinJam\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ChannelConfig.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Chat.h">

@@ -59,6 +59,13 @@ MainContent::MainContent(DocumentWindow* main_window)
   this->loop->setAlwaysOnTop(true) ;
   this->loop->toFront(false) ;
 
+  this->mainWindow->setTitleBarHeight(GUI::TITLEBAR_H) ;
+//  this->mainWindow->setIcon(const Image &imageToUse) ;
+
+#ifdef _MAC
+  this->mainWindow->setTitleBarButtonsRequired(DocumentWindow::allButtons , true) ;
+#endif // _MAC
+
   this->resized() ;
 }
 

@@ -47,7 +47,7 @@ public:
   // main
   static const int CLIENT_TIMER_ID = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
   static const int GUI_TIMER_HI_ID = 1 ; static const int GUI_UPDATE_HI_IVL = 125 ;
-  static const int GUI_TIMER_LO_ID = 2 ; static const int GUI_UPDATE_LO_IVL = 1000 ;
+  static const int GUI_TIMER_LO_ID = 2 ; static const int GUI_UPDATE_LO_IVL = 30000 ;
 
   // config
   static const uint8 MASTER_IDX = 42 ;
@@ -102,9 +102,9 @@ public:
   static const int PAD2    = PAD * 2 ;
   static const int PAD3    = PAD * 3 ;
   static const int PAD4    = PAD * 4 ;
-  static const int LABEL_H = 12 ;
 
   // Main
+  static const int    BORDERS_W   = 2 ;
   static const int    TITLEBAR_H = 24 ;
   static const String AUDIO_INIT_ERROR_MSG ;
   static const String DISCONNECTED_STATUS_TEXT ;
@@ -119,8 +119,8 @@ public:
 
   // MainContent
   static const String CONTENT_GUI_ID ;
-  static const int    CONTENT_W = 630 ;
-  static const int    CONTENT_H = 470 ;
+  static const int    CONTENT_W = 640 - BORDERS_W ;
+  static const int    CONTENT_H = 480 - BORDERS_W - TITLEBAR_H ;
 
   // Background
   static const String BACKGROUND_GUI_ID ;
@@ -138,8 +138,8 @@ public:
   // Chat
   static const String CHAT_GUI_ID ;
   static const String SERVER_NICK ;
-  static const String MOTD_TEXT ;
-  static const String SET_MOTD_TEXT ;
+  static const String TOPIC_TEXT ;
+  static const String SET_TOPIC_TEXT ;
   static const String PM_TEXT ;
   static const String JOINPART_TEXTa ;
   static const String JOIN_TEXT ;
@@ -147,6 +147,9 @@ public:
   static const String JOINPART_TEXTb ;
   static const String UNKNOWN_COMMAND_MSG ;
   static const String INVALID_PM_MSG ;
+  static const int    TOPIC_H               = 16 ;
+  static const int    TOPIC_PADDED_H        = TOPIC_H + PAD2 ;
+  static const int    MIN_SHOW_TOPIC_CHAT_H = 200 ;
 
   // Channel
   static const String MASTER_CHANNEL_GUI_ID ;
@@ -154,7 +157,8 @@ public:
   static const String XMIT_LABEL_TEXT ;
   static const String RCV_LABEL_TEXT ;
   static const int    N_STATIC_CHANNEL_CHILDREN = 2 ;
-  static const int    CHANNEL_Y                 = LABEL_H + PAD2 ;
+  static const int    CHANNEL_LABEL_H           = 12 ;
+  static const int    CHANNEL_Y                 = CHANNEL_LABEL_H + PAD2 ;
   static const int    CHANNEL_W                 = 60 ;
   static const int    CHANNEL_H                 = 252 ;
   static const int    VU_DB_RANGE               = 140 ;
@@ -165,10 +169,14 @@ public:
   static const Identifier MASTERS_ID ;
   static const String     LOCALS_GUI_ID ;
   static const Identifier LOCALS_ID ;
-  static const int        MIXERGROUP_Y  = PAD ;
-  static const int        MIXERGROUP_H  = CHANNEL_H + LABEL_H + PAD3 ;
+  static const int        MIXERGROUP_Y     = PAD ;
+  static const int        MIXERGROUP_H     = CHANNEL_H + CHANNEL_LABEL_H + PAD3 ;
   static       int        MIXERGROUP_W(int n_channels) { return PAD + (n_channels * (CHANNEL_W + PAD)) ; }
-  static const int        MASTERS_W =                       PAD + (2          * (CHANNEL_W + PAD)) ;
+  static const int        MASTERS_W        =                    PAD + (2          * (CHANNEL_W + PAD)) ;
+  static const int        EXPAND_BTN_W     = 15 ;
+  static const int        EXPAND_BTN_H     = 16 ;
+  static const int        CHANNEL_CONFIG_W = 200 ;
+  static const int        CHANNEL_CONFIG_H = 200 ;
 
   // Mixer
   static const String MIXER_GUI_ID ;

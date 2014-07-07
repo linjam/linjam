@@ -187,7 +187,7 @@ Identifier LinJamConfig::encodeChannelId(String channel_name , int channel_idx)
 {
   return ((channel_name.isNotEmpty())?
              filteredName(channel_name) :
-             CONFIG::DEFAULT_CHANNEL_NAME + String(channel_idx + 1)) ;
+             CONFIG::DEFAULT_CHANNEL_NAME + "-" + String(channel_idx + 1)) ;
 }
 
 String LinJamConfig::decodeChannelId(Identifier channel_id) { return String(channel_id) ; }
@@ -196,7 +196,7 @@ Identifier LinJamConfig::encodeUserId(String user_name , int user_idx)
 {
   return ((user_name.isNotEmpty())?
              filteredName(parseUsername(user_name)) :
-             CONFIG::DEFAULT_USER_NAME + String(user_idx)) ;
+             CONFIG::DEFAULT_USER_NAME + "-" + String(user_idx)) ;
 }
 
 String LinJamConfig::decodeUserId(Identifier user_id) { return String(user_id) ; }

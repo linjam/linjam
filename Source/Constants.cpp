@@ -21,7 +21,7 @@ const String    CLIENT::CHATMSG_CMD_KICK  = "/kick " ;
 const String    CLIENT::CHATMSG_CMD_BPM   = "/bpm " ;
 const String    CLIENT::CHATMSG_CMD_BPI   = "/bpi " ;
 const String    CLIENT::CHATMSG_CMD_ADMIN = "/admin " ;
-const StringRef CLIENT::CHATMSG_CMD_VOTE  = "!vote" ;
+const StringRef CLIENT::CHATMSG_CMD_VOTE  = "!vote " ;
 
 // audio
 char* CLIENT::WIN_INI_FILE = "linjam.ini" ;
@@ -102,8 +102,8 @@ const String GUI::LICENSE_GUI_ID = "license-gui" ;
 // Chat
 const String GUI::CHAT_GUI_ID         = "chat-gui" ;
 const String GUI::SERVER_NICK         = "NINJAM" ;
-const String GUI::MOTD_TEXT           = "Topic is: " ;
-const String GUI::SET_MOTD_TEXT       = " sets topic to: " ;
+const String GUI::TOPIC_TEXT          = "Topic is: " ;
+const String GUI::SET_TOPIC_TEXT      = " sets topic to: " ;
 const String GUI::PM_TEXT             = " (whispers)" ;
 const String GUI::JOINPART_TEXTa      = " has " ;
 const String GUI::JOIN_TEXT           = "joined" ;
@@ -235,8 +235,8 @@ const String     CONFIG::CONFIG_ALL_KEY       = "configure-all" ;
 const Identifier CONFIG::CONFIG_ALL_ID        = CONFIG_ALL_KEY ;
 const String     CONFIG::INITIAL_LOCAL_KEY    = "default-L" ;
 const Identifier CONFIG::INITIAL_LOCAL_ID     = INITIAL_LOCAL_KEY ;
-const String     CONFIG::DEFAULT_CHANNEL_NAME = "channel-" ;
-const String     CONFIG::DEFAULT_USER_NAME    = "user-" ;
+const String     CONFIG::DEFAULT_CHANNEL_NAME = "unnamed" ;
+const String     CONFIG::DEFAULT_USER_NAME    = "jammer" ;
 const float      CONFIG::DEFAULT_VOLUME       = 0.0 ;
 const float      CONFIG::DEFAULT_PAN          = 0.0 ;
 const bool       CONFIG::DEFAULT_IS_XMIT      = true ;
@@ -252,6 +252,7 @@ const StringRef CONFIG::USER_IP_SPLIT_CHAR = "@" ;
 // NOTE: when adding nodes or leaves to CONFIG_XML be sure to
 //         * refernce them in LinJamConfig::establishSharedStore()
 //         * verify them in   LinJamConfig::sanityCheck()
+//         * dump them in     Trace::DEBUG_TRACE_REMOTE_CHANNELS
 #define CONFIG_XML "<?xml version=\"1.0\"?><" + \
     PERSISTENCE_KEY        + "><"             + \
       CLIENT_KEY           + " "              + \

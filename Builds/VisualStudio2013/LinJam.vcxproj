@@ -142,6 +142,7 @@
     <ClCompile Include="..\..\Source\Background.cpp"/>
     <ClCompile Include="..\..\Source\Channel.cpp"/>
     <ClCompile Include="..\..\Source\Channels.cpp"/>
+    <ClCompile Include="..\..\Source\ChannelConfig.cpp"/>
     <ClCompile Include="..\..\Source\Chat.cpp"/>
     <ClCompile Include="..\..\Source\Constants.cpp"/>
     <ClCompile Include="..\..\Source\License.cpp"/>
@@ -911,6 +912,7 @@
     <ClInclude Include="..\..\Source\Background.h"/>
     <ClInclude Include="..\..\Source\Channel.h"/>
     <ClInclude Include="..\..\Source\Channels.h"/>
+    <ClInclude Include="..\..\Source\ChannelConfig.h"/>
     <ClInclude Include="..\..\Source\Chat.h"/>
     <ClInclude Include="..\..\Source\Constants.h"/>
     <ClInclude Include="..\..\Source\License.h"/>

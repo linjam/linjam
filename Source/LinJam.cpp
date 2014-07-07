@@ -9,7 +9,7 @@
 */
 
 // #define DEBUG_STATIC_CHANNEL "localhost:2049"
-#define DEBUG_STATIC_CHANNEL "ninbot.com:2052"
+#define DEBUG_STATIC_CHANNEL "ninbot.com:2049"
 // #define DEBUG_STATIC_CHANNEL "ninjamer.com:2049"
 
 
@@ -28,14 +28,16 @@ LinJamConfig* LinJam::Config ;
 
 /* LinJam private class variables */
 
-NJClient*      LinJam::Client         = nullptr ; // Initialize()
-MainContent*   LinJam::Gui            = nullptr ; // Initialize()
-audioStreamer* LinJam::Audio          = nullptr ; // Initialize()
-bool           LinJam::IsAudioEnabled = false ;   // InitializeAudio()
-float          LinJam::GuiBeatOffset ;            // InitializeAudio()
-File           LinJam::SessionDir ;               // PrepareSessionDirectory()
-int            LinJam::PrevStatus ;               // Initialize()
-String         LinJam::PrevRecordingTime ;        // Disconnect()
+NJClient*      LinJam::Client                = nullptr ;      // Initialize()
+MainContent*   LinJam::Gui                   = nullptr ;      // Initialize()
+audioStreamer* LinJam::Audio                 = nullptr ;      // Initialize()
+Array<int>     LinJam::FreeInputChannels     = Array<int>() ; // GetInputChannels() ;
+Array<int>     LinJam::FreeInputChannelPairs = Array<int>() ; // GetInputChannelPairs() ;
+bool           LinJam::IsAudioEnabled        = false ;        // InitializeAudio()
+float          LinJam::GuiBeatOffset ;                        // InitializeAudio()
+File           LinJam::SessionDir ;                           // PrepareSessionDirectory()
+int            LinJam::PrevStatus ;                           // Initialize()
+String         LinJam::PrevRecordingTime ;                    // Disconnect()
 
 
 /* LinJam public class methods */
@@ -152,7 +154,7 @@ void LinJam::UpdateGuiHighPriority()
   int channel_n = -1 ; int channel_idx ;
   while (~(channel_idx = Client->EnumLocalChannels(++channel_n)))
     Gui->mixer->updateChannelVU(GUI::LOCALS_ID                                  ,
-                                String(GetChannelName(channel_idx))             ,
+                                GetLocalChannelName(channel_idx)                ,
                                 VAL2DB(Client->GetLocalChannelPeak(channel_idx))) ;
 
   // remote VU
@@ -193,12 +195,17 @@ void LinJam::UpdateGuiLowPriority()
   String bpi            = String(Client->GetBPI()) ;
   String bpm            = String((int)Client->GetActualBPM()) ;
   bool   server_has_bot = NETWORK::KNOWN_HOSTS.contains(host) ;
-  String recording_time = String(Client->GetUserChannelState(CLIENT::BOT_USERIDX ,
-                                                             CLIENT::BOT_CHANNELIDX)) ;
+  String recording_time = "" ;
+
   if (server_has_bot && recording_time.compare(PrevRecordingTime) &&
       PrevRecordingTime.isNotEmpty())
-       Gui->setTitle(host + " - " + bpi + "bpi / " + bpm + "bpm - " + recording_time) ;
-  else Gui->setTitle(host + " - " + bpi + "bpi / " + bpm + "bpm") ;
+  {
+    int bot_n = NETWORK::N_KNOWN_BOTS ; int bot_idx ;
+    while (bot_n--)
+      if (~(bot_idx = GetRemoteUserIdx(NETWORK::KNOWN_BOTS.getUnchecked(bot_n))))
+        recording_time = " - " + GetRemoteChannelName(bot_idx , CLIENT::BOT_CHANNELIDX) ;
+  }
+  Gui->setTitle(host + " - " + bpi + "bpi / " + bpm + "bpm" + recording_time) ;
   PrevRecordingTime = recording_time ;
 }
 
@@ -207,31 +214,71 @@ void LinJam::UpdateGuiLowPriority()
 
 bool LinJam::IsAgreed() { return bool(Config->currentIsAgreed.getValue()) ; }
 
+Array<int> LinJam::GetFreeInputChannels() { return FreeInputChannels ; }
+
+Array<int> LinJam::GetFreeInputChannelPairs() { return FreeInputChannelPairs ; }
+
 
 /* GUI event handlers */
 
-void LinJam::AddLocalChannel(String channel_name)
+void LinJam::AddLocalChannel(String channel_name , bool is_stereo , int selection_idx)
 {
 DEBUG_TRACE_ADD_LOCAL_CHANNEL_FAIL
+DBG("LinJam::AddLocalChannel() channel_name=" + channel_name +
+" is_stereo=" + String(is_stereo) +
+" selection_idx=" + String(selection_idx) +
+" free_channel=" + String((!is_stereo)? FreeInputChannels[selection_idx] :
+                                        FreeInputChannelPairs[selection_idx])) ;
 
+  int source_n = (!is_stereo)? FreeInputChannels    [selection_idx] :
+                               FreeInputChannelPairs[selection_idx] ;
+
+  // remove selected channel(s) and from free lists
+  if (!is_stereo)
+  {
+    int stereo_list_idx = FreeInputChannelPairs.indexOf(selection_idx) ;
+    FreeInputChannels    .remove(selection_idx) ;
+    FreeInputChannelPairs.remove(stereo_list_idx) ;
+  }
+  else
+  {
+    int mono_list_idx = FreeInputChannels.indexOf(selection_idx) ;
+    FreeInputChannels    .remove(mono_list_idx) ;
+    FreeInputChannels    .remove(mono_list_idx + 1) ;
+    FreeInputChannelPairs.remove(selection_idx) ;
+  }
+
+  // add new local channel(s)
+  if (!is_stereo)
+    CreateLocalChannel(channel_name           , is_stereo , source_n) ;
+  else
+  {
+    CreateLocalChannel(channel_name           , is_stereo , source_n) ;
+    CreateLocalChannel(channel_name + "-pair" , is_stereo , source_n + 1) ;
+  }
+}
+
+void LinJam::CreateLocalChannel(String channel_name , bool is_stereo , int source_n)
+{
   // ensure that we do not exceed our maximum number of local channels
   int channel_idx = GetVacantLocalChannelIdx() ; if (!(~channel_idx)) return ;
 
   // ensure that a channel with this name does not already exist
+  if (!channel_name.compare(CONFIG::DEFAULT_CHANNEL_NAME)) channel_name = String::empty ;
   Identifier channel_id = Config->encodeChannelId(channel_name , channel_idx) ;
   if (Config->doesChannelExist(GUI::LOCALS_ID , String(channel_id))) return ;
 
   // create stored config for this channel
-  ValueTree  channel_store = Config->createChannel(GUI::LOCALS_ID            ,
-                                                   channel_name              ,
-                                                   channel_idx               ,
-                                                   CONFIG::DEFAULT_VOLUME    ,
-                                                   CONFIG::DEFAULT_PAN       ,
-                                                   CONFIG::DEFAULT_IS_XMIT   ,
-                                                   CONFIG::DEFAULT_IS_MUTED  ,
-                                                   CONFIG::DEFAULT_IS_SOLO   ,
-                                                   CONFIG::DEFAULT_SOURCE_N  ,
-                                                   CONFIG::DEFAULT_IS_STEREO ) ;
+  ValueTree channel_store = Config->createChannel(GUI::LOCALS_ID            ,
+                                                  channel_name              ,
+                                                  channel_idx               ,
+                                                  CONFIG::DEFAULT_VOLUME    ,
+                                                  CONFIG::DEFAULT_PAN       ,
+                                                  CONFIG::DEFAULT_IS_XMIT   ,
+                                                  CONFIG::DEFAULT_IS_MUTED  ,
+                                                  CONFIG::DEFAULT_IS_SOLO   ,
+                                                  source_n                  ,
+                                                  is_stereo                 ) ;
   if (!channel_store.isValid()) return ;
 
   // create local Channel GUI and configure NJClient input channel
@@ -302,11 +349,11 @@ DEBUG_TRACE_CHAT_IN
   {
     if (chat_text.isEmpty()) return ;
 
-    if (chat_user.isEmpty()) chat_text = GUI::MOTD_TEXT                 + chat_text ;
-    else                     chat_text = chat_user + GUI::SET_MOTD_TEXT + chat_text ;
-    chat_user = GUI::SERVER_NICK ;
-
     Gui->chat->setTopic(chat_text) ;
+
+    if (chat_user.isEmpty()) chat_text = GUI::TOPIC_TEXT                 + chat_text ;
+    else                     chat_text = chat_user + GUI::SET_TOPIC_TEXT + chat_text ;
+    chat_user = GUI::SERVER_NICK ;
   }
   else if (is_bcast_msg)
   {
@@ -316,15 +363,17 @@ DEBUG_TRACE_CHAT_IN
     else if (chat_text.startsWith(CLIENT::CHATMSG_CMD_VOTE))
     {
       // customize voting messages
-      chat_text = chat_text.fromFirstOccurrenceOf(StringRef(" ") , false , true).trim() ;
-      String bpi_bpm_cmd = chat_text.upToFirstOccurrenceOf(StringRef(" ") , false , true)
-                                    .trim() ;
-      String bpi_bpm_val = chat_text.fromFirstOccurrenceOf(StringRef(" ") , false , true)
-                                    .trim() ;
-      if (!bpi_bpm_val.containsOnly(NETWORK::DIGITS)) return ; // server rejects this - yes?
+      StringArray tokens = StringArray::fromTokens(StringRef(chat_text) , false) ;
+      String bpi_bpm_cmd = tokens[1] ;
+      String bpi_bpm_val = tokens[2] ;
 
-      chat_text = chat_user + " votes to set " + bpi_bpm_cmd + " to " + bpi_bpm_val ;
-      chat_user = GUI::SERVER_NICK ;
+      bool is_bpi_msg = !bpi_bpm_cmd.compare(CLIENT::CHATMSG_CMD_BPI.substring(1).trim()) ;
+      bool is_bpm_msg = !bpi_bpm_cmd.compare(CLIENT::CHATMSG_CMD_BPM.substring(1).trim()) ;
+      if ((is_bpi_msg || is_bpm_msg) && bpi_bpm_val.containsOnly(NETWORK::DIGITS))
+      {
+        chat_text = chat_user + " votes to set " + bpi_bpm_cmd + " to " + bpi_bpm_val ;
+        chat_user = GUI::SERVER_NICK ;
+      }
     }
   }
   else if (is_priv_msg)
@@ -341,6 +390,7 @@ DEBUG_TRACE_CHAT_IN
                 ((is_join_msg)? GUI::JOIN_TEXT : GUI::PART_TEXT) + GUI::JOINPART_TEXTb ;
     chat_user = GUI::SERVER_NICK ;
   }
+
   Gui->chat->addChatLine(chat_user , chat_text) ;
 }
 
@@ -391,6 +441,7 @@ if (!Gui->statusbar->getStatusL().compare(GUI::DISCONNECTED_STATUS_TEXT))
     case NJClient::NJC_STATUS_OK:           Gui->chat      ->toFront(true)  ;
                                             Gui->mixer     ->toFront(false) ;
                                             Gui->loop      ->toFront(false) ;
+                                            UpdateGuiLowPriority() ;
                                             Gui->background->toBehind(Gui->chat) ;    break ;
     case NJClient::NJC_STATUS_PRECONNECT:   Gui->login     ->toFront(true)  ;
                                             Gui->background->toBehind(Gui->login) ;   break ;
@@ -507,8 +558,8 @@ void LinJam::HandleChatCommand(String chat_text)
   bool is_admin_command = (!command.compare(CLIENT::CHATMSG_CMD_ADMIN)) ;
   bool is_user_command  = (!command.compare(CLIENT::CHATMSG_CMD_TOPIC) ||
                            !command.compare(CLIENT::CHATMSG_CMD_KICK)  ||
-                           !command.compare(CLIENT::CHATMSG_CMD_BPM)   ||
-                           !command.compare(CLIENT::CHATMSG_CMD_BPI)    ) ;
+                           !command.compare(CLIENT::CHATMSG_CMD_BPI)   ||
+                           !command.compare(CLIENT::CHATMSG_CMD_BPM)    ) ;
 
 #ifdef BUGGY_CHAT_COMMANDS // (issue #19)
   Gui->chat->addChatLine(GUI::SERVER_NICK , "commands disabled") ; return ;
@@ -602,7 +653,25 @@ DEBUG_TRACE_AUDIO_INIT_ALSA
   if (Audio)
   {
     IsAudioEnabled = true ;
-    GuiBeatOffset = Audio->m_srate * GUI::BEAT_PROGRESS_OFFSET ;
+    GuiBeatOffset  = Audio->m_srate * GUI::BEAT_PROGRESS_OFFSET ;
+
+    // populate input channel names arrays for ChannelConfig per-channel input config GUI
+    int n_input_channels = Audio->m_innch ;
+    FreeInputChannels.clear() ; FreeInputChannelPairs.clear() ;
+    for (int channel_n = 0 ; channel_n < n_input_channels ; ++channel_n)
+    {
+/*
+      String mono_channel = "input "  + String(channel_n) ;
+      String stereo_pair  = "inputs " + String(channel_n) + " & " + String(channel_n + 1) ;
+
+      FreeInputChannels.add(mono_channel) ;
+      if (channel_n % 2 && channel_n < n_input_channels)
+           FreeInputChannelPairs.add(stereo_pair) ;
+*/
+      FreeInputChannels.add(channel_n) ;
+      if (channel_n % 2 && channel_n < n_input_channels)
+           FreeInputChannelPairs.add(channel_n) ;
+    }
   }
 
 DEBUG_TRACE_AUDIO_INIT
@@ -727,14 +796,20 @@ ValueTree LinJam::GetOrAddRemoteChannel(Identifier user_id      , int   user_idx
 
 /* NJClient config helpers */
 
-char* LinJam::GetChannelName(int channel_idx)
+String LinJam::GetLocalChannelName(int channel_idx)
 {
   return Client->GetLocalChannelInfo(channel_idx , NULL , NULL , NULL) ;
 }
 
+String LinJam::GetRemoteChannelName(int user_idx , int channel_idx)
+{
+  return String(Client->GetUserChannelState(user_idx , channel_idx)) ;
+}
+
 int LinJam::GetVacantLocalChannelIdx()
 {
-  int channel_idx = -1 ; while (GetChannelName(++channel_idx)) ;
+  // find the first vancant NJClient local channel slot index
+  int channel_idx = -1 ; while (GetLocalChannelName(++channel_idx).isNotEmpty()) ;
   bool is_vacant_slot = (channel_idx < Client->GetMaxLocalChannels()) ;
 
   return (is_vacant_slot)? channel_idx : -1 ;
@@ -742,13 +817,13 @@ int LinJam::GetVacantLocalChannelIdx()
 
 int LinJam::GetLocalChannelIdx(Identifier channel_id)
 {
-  // find local channel
+  // find local channel slot index
   int channel_n = -1 ; int channel_idx ;
   while (~(channel_idx = LinJam::Client->EnumLocalChannels(++channel_n)))
   {
-    char*  channel_c_name = GetChannelName(channel_idx) ;
-    String channel_name   = String(Config->encodeChannelId(channel_c_name , channel_idx)) ;
-    if (!String(channel_id).compare(channel_name)) break ;
+    String     channel_name = GetLocalChannelName(channel_idx) ;
+    Identifier id           = Config->encodeChannelId(channel_name , channel_idx) ;
+    if (channel_id == id) break ;
   }
 
   return channel_idx ;
@@ -756,7 +831,7 @@ int LinJam::GetLocalChannelIdx(Identifier channel_id)
 
 int LinJam::GetRemoteUserIdx(Identifier user_id)
 {
-  // find remote user
+  // find remote user slot index
   int user_idx = Client->GetNumUsers() ; char* user_c_name ;
   while ((user_c_name = Client->GetUserState(--user_idx)))
   {
@@ -769,7 +844,7 @@ int LinJam::GetRemoteUserIdx(Identifier user_id)
 
 int LinJam::GetRemoteChannelIdx(int user_idx , Identifier channel_id)
 {
-  // find remote channel
+  // find remote channel slot index
   int channel_n = -1 ; int channel_idx ;
   while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
   {

@@ -42,13 +42,6 @@ public:
       this->statusbar   = (StatusBar*)   getChildComponent(GUI::STATUS_GUI_ID) ;
       this->loop        = (Loop*)        getChildComponent(GUI::LOOP_GUI_ID) ;
 
-      this->mainWindow->setTitleBarHeight(GUI::TITLEBAR_H) ;
-//      this->mainWindow->setIcon(const Image &imageToUse) ;
-
-#ifdef _MAC
-      this->mainWindow->setTitleBarButtonsRequired(DocumentWindow::allButtons , true) ;
-#endif // _MAC
-
       this->args = commandLine ; initializeLinJam() ;
     }
 

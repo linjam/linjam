@@ -17,13 +17,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_8B23E8CA1D72080__
-#define __JUCE_HEADER_8B23E8CA1D72080__
+#ifndef __JUCE_HEADER_DEFCDB6137512CFA__
+#define __JUCE_HEADER_DEFCDB6137512CFA__
 
 //[Headers]     -- You can add your own extra header files here --
-
 #include "JuceHeader.h"
-
 //[/Headers]
 
 
@@ -36,49 +34,54 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class Chat  : public Component,
-              public TextEditor::Listener,
-              public LabelListener
+class ChannelConfig  : public Component,
+                       public ButtonListener,
+                       public ComboBoxListener
 {
 public:
     //==============================================================================
-    Chat ();
-    ~Chat();
+    ChannelConfig ();
+    ~ChannelConfig();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-
-  void setTopic(   String topic_text) ;
-  void addChatLine(String chat_user , String chat_text) ;
-
-  void textEditorReturnKeyPressed(TextEditor& a_text_editor) override ;
-
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
-    void labelTextChanged (Label* labelThatHasChanged);
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  String prevTopicText ;
+  void buttonClicked(Button* a_button) ;
+  void createChannelSelectOptions() ;
+  void populateChannelSelect() ;
+
+  StringArray freeInputChannels ;
+  StringArray freeInputChannelPairs ;
+  bool        is_stereo ;
 
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TextEditor> chatText;
-    ScopedPointer<TextEditor> chatEntryText;
-    ScopedPointer<Label> topicLabel;
+    ScopedPointer<Label> nameLabel;
+    ScopedPointer<TextEditor> nameText;
+    ScopedPointer<ToggleButton> monoButton;
+    ScopedPointer<ToggleButton> stereoButton;
+    ScopedPointer<Label> inputLabel;
+    ScopedPointer<ComboBox> channelSelect;
+    ScopedPointer<TextButton> okButton;
+    ScopedPointer<TextButton> cancelButton;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Chat)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ChannelConfig)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_8B23E8CA1D72080__
+#endif   // __JUCE_HEADER_DEFCDB6137512CFA__

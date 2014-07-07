@@ -17,7 +17,7 @@
 // debug features
 //#define DEBUG_EXIT_IMMEDIAYELY
 #define DEBUG_LOCALHOST_LOGIN_BUTTON
-//#define DEBUG_AUTOLOGIN_NYI
+#define DEBUG_AUTOLOGIN_NYI
 #endif // DEBUG
 
 // tracing
@@ -26,7 +26,7 @@
 #define DEBUG_TRACE_STATE        DEBUG && 1
 #define DEBUG_TRACE_IN           DEBUG && 1
 #define DEBUG_TRACE_OUT          DEBUG && 1
-#define DEBUG_TRACE_VB           DEBUG && 0
+#define DEBUG_TRACE_VB           DEBUG && 1
 #define DEBUG_SANITIZE_CONFIG_VB DEBUG && 0
 #define DEBUG_SHARED_CONFIG      DEBUG && 0
 #define DEBUG_STORE_CONFIG_VB    DEBUG && 0
@@ -341,43 +341,43 @@
 #  define DEBUG_REMOVE_CHANNEL                                                   \
     Trace::TraceEvent("removing channel '" + String(channel->getComponentID()) + \
                       "' from '" + getComponentID() + "'") ;
-#  define DEBUG_TRACE_REMOTE_CHANNELS                                                \
-      String dbg = "new remote user[" + String(u_n) + "] =>" +                       \
-          "\n  user_name   => " + String(u_name)               +                     \
-          "\n  user_volume => " + String(u_vol)                +                     \
-          "\n  user_pan    => " + String(u_pan)                +                     \
-          "\n  user_mute   => " + String(u_mute) ;                                   \
-      int c_n = -1 ; while (LinJam::Client->EnumUserChannels(u_n , ++c_n) != -1)     \
-      {                                                                              \
-        bool c_rcv ;  float c_vol ; float c_pan ; bool c_mute ;                      \
-        bool c_solo ; int   c_chan ; bool  c_stereo ;                                \
-        char* c_name = LinJam::Client->GetUserChannelState(u_n     , c_n     ,       \
-                                                           &c_rcv  , &c_vol  ,       \
-                                                           &c_pan  , &c_mute ,       \
-                                                           &c_solo , &c_chan ,       \
-                                                           &c_stereo         ) ;     \
-        dbg += "\n  found remote channel[" + String(c_n) + "] =>" +                  \
-               "\n    channel_name   => "  + String(c_name)       +                  \
-               "\n    is_rcv         => "  + String(c_rcv)        +                  \
-               "\n    channel_volume => "  + String(c_vol)        +                  \
-               "\n    channel_pan    => "  + String(c_pan)        +                  \
-               "\n    channel_mute   => "  + String(c_mute)       +                  \
-               "\n    is_solo        => "  + String(c_solo)       +                  \
-               "\n    output_channel => "  + String(c_chan)       +                  \
-               "\n    is_stereo      => "  + String(c_stereo) ;                      \
-      }                                                                              \
+#  define DEBUG_TRACE_REMOTE_CHANNELS                                            \
+      String dbg = "remote user[" + String(u_n) + "] =>" +                       \
+          "\n  user_name   => " + String(u_name)               +                 \
+          "\n  user_volume => " + String(u_vol)                +                 \
+          "\n  user_pan    => " + String(u_pan)                +                 \
+          "\n  user_mute   => " + String(u_mute) ;                               \
+      int c_n = -1 ; while (LinJam::Client->EnumUserChannels(u_n , ++c_n) != -1) \
+      {                                                                          \
+        bool c_rcv ;  float c_vol ; float c_pan ; bool c_mute ;                  \
+        bool c_solo ; int   c_chan ; bool  c_stereo ;                            \
+        char* c_name = LinJam::Client->GetUserChannelState(u_n     , c_n     ,   \
+                                                           &c_rcv  , &c_vol  ,   \
+                                                           &c_pan  , &c_mute ,   \
+                                                           &c_solo , &c_chan ,   \
+                                                           &c_stereo         ) ; \
+        dbg += "\n  found remote channel[" + String(c_n) + "] =>" +              \
+               "\n    channel_name   => "  + String(c_name)       +              \
+               "\n    is_rcv         => "  + String(c_rcv)        +              \
+               "\n    channel_volume => "  + String(c_vol)        +              \
+               "\n    channel_pan    => "  + String(c_pan)        +              \
+               "\n    channel_mute   => "  + String(c_mute)       +              \
+               "\n    is_solo        => "  + String(c_solo)       +              \
+               "\n    output_channel => "  + String(c_chan)       +              \
+               "\n    is_stereo      => "  + String(c_stereo) ;                  \
+      }                                                                          \
       Trace::TraceState(dbg) ;
-#  define DEBUG_TRACE_REMOTE_CHANNELS_VB if (DEBUG_TRACE_VB) {               \
+#  if DEBUG_TRACE_VB
+#    define DEBUG_TRACE_REMOTE_CHANNELS_VB                                   \
     Trace::TraceServer("user info changed - " +                              \
                        String(Client->GetNumUsers()) + " users") ;           \
     int u_n = -1 ; char* u_name ; float u_vol ; float u_pan ; bool u_mute ;  \
     while (u_name = Client->GetUserState(++u_n , &u_vol , &u_pan , &u_mute)) \
-      { DEBUG_TRACE_REMOTE_CHANNELS }                        }
-#  if DEBUG_TRACE_VB
-#    define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                    \
-    Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;              \
-    Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;
+      { DEBUG_TRACE_REMOTE_CHANNELS }
 #  else // DEBUG_TRACE_VB
+#    define DEBUG_TRACE_REMOTE_CHANNELS_VB ;
+#  endif // DEBUG_TRACE_VB
+#  if DEBUG_TRACE_VB
 #    define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                    \
     float  u_vol  = volume ; float u_pan  = pan ; bool  u_mute = is_muted ;      \
     String u_name = String(user_id) ;                                            \
@@ -386,6 +386,10 @@
       { String name = String(encodeUserId(c_name , u_n)) ;                       \
         if (!String(user_id).compare(name)) break ; }                            \
     DEBUG_TRACE_REMOTE_CHANNELS                                                  \
+    Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;
+#  else // DEBUG_TRACE_VB
+#    define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                    \
+    Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;              \
     Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;
 #  endif // DEBUG_TRACE_VB
 #  define DEBUG_TRACE_CONFIGURE_REMOTE                                                   \

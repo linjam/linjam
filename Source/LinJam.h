@@ -46,12 +46,15 @@ public:
   static void UpdateGuiLowPriority() ;
 
   // getters/setters
-  static bool IsAgreed() ;
+  static bool        IsAgreed() ;
+  static Array<int>  GetFreeInputChannels() ;
+  static Array<int>  GetFreeInputChannelPairs() ;
 
   // GUI event handlers
-  static void      AddLocalChannel(   String channel_name) ;
-  static void      RemoveLocalChannel(Identifier channel_id) ;
-  static void      SendChat(          String chat_text) ;
+  static void AddLocalChannel(   String channel_name , bool is_stereo , int selection_idx) ;
+  static void CreateLocalChannel(String channel_name , bool is_stereo , int source_n) ;
+  static void RemoveLocalChannel(Identifier channel_id) ;
+  static void SendChat(          String chat_text) ;
 
 
   static LinJamConfig* Config ;
@@ -59,23 +62,25 @@ public:
 
 private:
 
-  static NJClient*          Client ;
-  static MainContent*       Gui ;
-  static audioStreamer*     Audio ;
-  static bool               IsAudioEnabled ;
-  static float              GuiBeatOffset ;
-  static File               SessionDir ;
-  static int                PrevStatus ;
-  static String             PrevRecordingTime ;
+  static NJClient*      Client ;
+  static MainContent*   Gui ;
+  static audioStreamer* Audio ;
+  static Array<int>     FreeInputChannels ;
+  static Array<int>     FreeInputChannelPairs ;
+  static bool           IsAudioEnabled ;
+  static float          GuiBeatOffset ;
+  static File           SessionDir ;
+  static int            PrevStatus ;
+  static String         PrevRecordingTime ;
 
 
   // NJClient callbacks
-  static int  OnLicense(int user32            , char* license_text) ;
-  static void OnChatmsg(int user32            , NJClient* instance ,
-                        const char** parms    , int nparms)        ;
+  static int  OnLicense(int user32 , char* license_text) ;
+  static void OnChatmsg(int          user32 , NJClient* instance ,
+                        const char** parms  , int       nparms   ) ;
   static void OnSamples(float** input_buffer  , int n_input_channels  ,
                         float** output_buffer , int n_output_channels ,
-                        int n_samples         , int sample_rate)      ;
+                        int n_samples         , int sample_rate       ) ;
 
   // NJClient runtime helpers
   static void HandleStatusChanged(int status) ;
@@ -102,16 +107,17 @@ private:
                                          bool       is_stereo                        ) ;
 
   // NJClient config helpers
-  static char* GetChannelName(          int channel_idx) ;
-  static int   GetVacantLocalChannelIdx() ;
-  static int   GetLocalChannelIdx(      Identifier channel_id) ;
-  static int   GetRemoteUserIdx(        Identifier user_id) ;
-  static int   GetRemoteChannelIdx(     int user_idx , Identifier channel_id) ;
-  static void  ConfigureMasterChannel(  Identifier a_key) ;
-  static void  ConfigureMetroChannel(   Identifier a_key) ;
-  static void  ConfigureLocalChannel(   ValueTree channel_store , Identifier a_key) ;
-  static void  ConfigureRemoteChannel(  ValueTree  user_store , ValueTree channel_store ,
-                                        Identifier a_key) ;
+  static String GetLocalChannelName(     int channel_idx) ;
+  static String GetRemoteChannelName(    int user_idx , int channel_idx) ;
+  static int    GetVacantLocalChannelIdx() ;
+  static int    GetLocalChannelIdx(      Identifier channel_id) ;
+  static int    GetRemoteUserIdx(        Identifier user_id) ;
+  static int    GetRemoteChannelIdx(     int user_idx , Identifier channel_id) ;
+  static void   ConfigureMasterChannel(  Identifier a_key) ;
+  static void   ConfigureMetroChannel(   Identifier a_key) ;
+  static void   ConfigureLocalChannel(   ValueTree channel_store , Identifier a_key) ;
+  static void   ConfigureRemoteChannel(  ValueTree  user_store , ValueTree channel_store ,
+                                         Identifier a_key) ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;
