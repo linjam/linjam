@@ -101,7 +101,11 @@ class LocalChannels : public Channels , public ButtonListener
 public:
 
   LocalChannels() ;
+
+
+#if DEBUG
   void removeChannel(Channel* channel) ;
+#endif // DEBUG
 
 private:
 
@@ -116,6 +120,10 @@ public:
 
   RemoteChannels(ValueTree user_store) ;
 
+
+#if DEBUG
+  void removeChannel(Channel* channel) ;
+#endif // DEBUG
 
 private:
 

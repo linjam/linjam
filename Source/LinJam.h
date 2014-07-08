@@ -46,14 +46,13 @@ public:
   static void UpdateGuiLowPriority() ;
 
   // getters/setters
-  static bool        IsAgreed() ;
-  static Array<int>  GetFreeInputChannels() ;
-  static Array<int>  GetFreeInputChannelPairs() ;
+  static bool            IsAgreed() ;
+  static SortedSet<int>  GetFreeInputChannels() ;
+  static SortedSet<int>  GetFreeInputChannelPairs() ;
 
   // GUI event handlers
-  static void AddLocalChannel(   String channel_name , bool is_stereo , int selection_idx) ;
-  static void CreateLocalChannel(String channel_name , bool is_stereo , int source_n) ;
-  static void RemoveLocalChannel(Identifier channel_id) ;
+  static bool AddLocalChannel(   String channel_name , bool is_stereo , int selection_idx) ;
+  static void RemoveLocalChannel(ValueTree channel_store) ;
   static void SendChat(          String chat_text) ;
 
 
@@ -65,12 +64,13 @@ private:
   static NJClient*      Client ;
   static MainContent*   Gui ;
   static audioStreamer* Audio ;
-  static Array<int>     FreeInputChannels ;
-  static Array<int>     FreeInputChannelPairs ;
+  static SortedSet<int> FreeInputChannels ;
+  static SortedSet<int> FreeInputChannelPairs ;
   static bool           IsAudioEnabled ;
   static float          GuiBeatOffset ;
   static File           SessionDir ;
   static int            PrevStatus ;
+  static bool           IsInitialized ;
   static String         PrevRecordingTime ;
 
 
@@ -80,7 +80,7 @@ private:
                         const char** parms  , int       nparms   ) ;
   static void OnSamples(float** input_buffer  , int n_input_channels  ,
                         float** output_buffer , int n_output_channels ,
-                        int n_samples         , int sample_rate       ) ;
+                        int     n_samples     , int sample_rate       ) ;
 
   // NJClient runtime helpers
   static void HandleStatusChanged(int status) ;
@@ -95,29 +95,28 @@ private:
   static void  ConfigureNinjam() ;
   static void  CleanSessionDir() ;
 
-  // server event handlers
-  static ValueTree GetOrAddRemoteUser(   Identifier user_name , int   user_idx ,
-                                         float      volume    , float pan      ,
-                                         bool       is_muted                   ) ;
-  static ValueTree GetOrAddRemoteChannel(Identifier user_id      , int   user_idx    ,
-                                         String     channel_name , int   channel_idx ,
-                                         float      volume       , float pan         ,
-                                         bool       is_rcv       , bool  is_muted    ,
-                                         bool       is_solo      , int   sink_n      ,
-                                         bool       is_stereo                        ) ;
+  // config storage helpers
+  static void   CreateLocalChannel(String channel_name , bool is_stereo ,
+                                   int    source_n                      ) ;
 
   // NJClient config helpers
-  static String GetLocalChannelName(     int channel_idx) ;
-  static String GetRemoteChannelName(    int user_idx , int channel_idx) ;
+  static void   InstantiateLocalChannel(   ValueTree channel_store , int channel_idx) ;
+  static int    GetNumActiveChannels() ;
+  static int    GetNumVacantChannels() ;
   static int    GetVacantLocalChannelIdx() ;
-  static int    GetLocalChannelIdx(      Identifier channel_id) ;
-  static int    GetRemoteUserIdx(        Identifier user_id) ;
-  static int    GetRemoteChannelIdx(     int user_idx , Identifier channel_id) ;
-  static void   ConfigureMasterChannel(  Identifier a_key) ;
-  static void   ConfigureMetroChannel(   Identifier a_key) ;
-  static void   ConfigureLocalChannel(   ValueTree channel_store , Identifier a_key) ;
-  static void   ConfigureRemoteChannel(  ValueTree  user_store , ValueTree channel_store ,
-                                         Identifier a_key) ;
+  static String GetLocalChannelClientName( int channel_idx) ;
+  static String GetChannelDisplayName(     ValueTree channels , int channel_idx) ;
+  static String GetLocalChannelDisplayName(int channel_idx) ;
+  static String GetRemoteChannelName(      int user_idx , int channel_idx) ;
+  static int    GetLocalChannelIdx(        Identifier channel_id) ;
+  static int    GetRemoteUserIdx(          Identifier user_id) ;
+  static int    GetRemoteChannelIdx(       int user_idx , Identifier channel_id) ;
+  static void   ConfigureMasterChannel(    Identifier a_key) ;
+  static void   ConfigureMetroChannel(     Identifier a_key) ;
+  static void   ConfigureLocalChannel(     ValueTree channel_store , Identifier a_key ,
+                                           String    new_name                         ) ;
+  static void   ConfigureRemoteChannel(    ValueTree  user_store    ,
+                                           ValueTree  channel_store , Identifier a_key) ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;

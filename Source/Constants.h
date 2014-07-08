@@ -50,7 +50,10 @@ public:
   static const int GUI_TIMER_LO_ID = 2 ; static const int GUI_UPDATE_LO_IVL = 30000 ;
 
   // config
-  static const uint8 MASTER_IDX = 42 ;
+  static const uint8  MASTER_IDX             = 42 ;
+  static const int    STEREO_POSTFIX_N_CHARS = 2 ; // aka STEREO_L_POSTFIX.length()
+  static const String STEREO_L_POSTFIX ;
+  static const String STEREO_R_POSTFIX ;
 } ;
 
 
@@ -165,18 +168,20 @@ public:
   static const int    VU_DB_MIN                 = -120 ;
 
   // Channels
-  static const String     MASTERS_GUI_ID ;
-  static const Identifier MASTERS_ID ;
-  static const String     LOCALS_GUI_ID ;
-  static const Identifier LOCALS_ID ;
-  static const int        MIXERGROUP_Y     = PAD ;
-  static const int        MIXERGROUP_H     = CHANNEL_H + CHANNEL_LABEL_H + PAD3 ;
-  static       int        MIXERGROUP_W(int n_channels) { return PAD + (n_channels * (CHANNEL_W + PAD)) ; }
-  static const int        MASTERS_W        =                    PAD + (2          * (CHANNEL_W + PAD)) ;
-  static const int        EXPAND_BTN_W     = 15 ;
-  static const int        EXPAND_BTN_H     = 16 ;
-  static const int        CHANNEL_CONFIG_W = 200 ;
-  static const int        CHANNEL_CONFIG_H = 200 ;
+  static const  String     MASTERS_GUI_ID ;
+  static const  Identifier MASTERS_ID ;
+  static const  String     LOCALS_GUI_ID ;
+  static const  Identifier LOCALS_ID ;
+  static const  int        EXPAND_BTN_W     = 15 ;
+  static const  int        EXPAND_BTN_H     = 16 ;
+  static const  int        CHANNEL_CONFIG_W = 200 ;
+  static const  int        CHANNEL_CONFIG_H = 200 ;
+  static const  int        MIXERGROUP_Y     = PAD ;
+  static const  int        MIXERGROUP_H     = CHANNEL_H + CHANNEL_LABEL_H + PAD3 ;
+  static inline int        MIXERGROUP_W(int n_channels)
+  {
+    return PAD + (n_channels * (CHANNEL_W + PAD)) ;
+  }
 
   // Mixer
   static const String MIXER_GUI_ID ;

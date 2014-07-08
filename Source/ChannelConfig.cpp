@@ -79,8 +79,8 @@ ChannelConfig::ChannelConfig ()
     channelSelect->setExplicitFocusOrder (4);
     channelSelect->setEditableText (false);
     channelSelect->setJustificationType (Justification::centredLeft);
-    channelSelect->setTextWhenNothingSelected (String::empty);
-    channelSelect->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    channelSelect->setTextWhenNothingSelected (TRANS("(no free channels)"));
+    channelSelect->setTextWhenNoChoicesAvailable (TRANS("(no free channels)"));
     channelSelect->addListener (this);
 
     addAndMakeVisible (okButton = new TextButton ("okButton"));
@@ -100,22 +100,23 @@ ChannelConfig::ChannelConfig ()
 
     //[Constructor] You can add your own custom stuff here..
 
-  nameText->setText(CONFIG::DEFAULT_CHANNEL_NAME) ;
-  channelSelect->setColour(ComboBox::textColourId       , Colours::grey) ;
-  channelSelect->setColour(ComboBox::backgroundColourId , Colours::black) ;
+  this->nameText     ->setText(CONFIG::DEFAULT_CHANNEL_NAME) ;
+  this->nameText     ->setColour(CaretComponent::caretColourId , Colours::white) ;
+  this->channelSelect->setColour(ComboBox::textColourId        , Colours::grey) ;
+  this->channelSelect->setColour(ComboBox::backgroundColourId  , Colours::black) ;
 // TODO: none of these change option colors
-//   channelSelect->setColour(ComboBox::buttonColourId     , Colours::red) ;
-//   channelSelect->setColour(ComboBox::arrowColourId     , Colours::blue) ;
-//   channelSelect->setColour(ComboBox::outlineColourId     , Colours::green) ;
-//   channelSelect->setColour(Label::backgroundColourId , Colours::green) ;
-//   channelSelect->setColour(TextEditor::backgroundColourId , Colours::green) ;
+// this->channelSelect->setColour(ComboBox::buttonColourId , Colours::red) ;
+// this->channelSelect->setColour(ComboBox::arrowColourId , Colours::blue) ;
+// this->channelSelect->setColour(ComboBox::outlineColourId , Colours::green) ;
+// this->channelSelect->setColour(Label::backgroundColourId , Colours::yellow) ;
+// this->channelSelect->setColour(TextEditor::backgroundColourId , Colours::purple) ;
 
   this->is_stereo = false ; createChannelSelectOptions() ; populateChannelSelect() ;
 
-  monoButton  ->addListener(this) ;
-  stereoButton->addListener(this) ;
-  okButton    ->addListener(this) ;
-  cancelButton->addListener(this) ;
+  this->monoButton  ->addListener(this) ;
+  this->stereoButton->addListener(this) ;
+  this->okButton    ->addListener(this) ;
+  this->cancelButton->addListener(this) ;
 
     //[/Constructor]
 }
@@ -205,13 +206,13 @@ void ChannelConfig::buttonClicked(Button* a_button)
 
 void ChannelConfig::createChannelSelectOptions()
 {
-  Array<int> free_channels = LinJam::GetFreeInputChannels() ;
+  SortedSet<int> free_channels = LinJam::GetFreeInputChannels() ;
   for (int free_channel_n = 0 ; free_channel_n < free_channels.size() ; ++free_channel_n)
   {
     int channel_n = free_channels.getUnchecked(free_channel_n) ;
     this->freeInputChannels.add("input " + String(channel_n)) ;
   }
-  Array<int> free_channel_pairs = LinJam::GetFreeInputChannelPairs() ;
+  SortedSet<int> free_channel_pairs = LinJam::GetFreeInputChannelPairs() ;
   for (int free_pair_n = 0 ; free_pair_n < free_channel_pairs.size() ; ++free_pair_n)
   {
     int channel_n = free_channel_pairs.getUnchecked(free_pair_n) ;
@@ -222,11 +223,11 @@ void ChannelConfig::createChannelSelectOptions()
 
 void ChannelConfig::populateChannelSelect()
 {
-  channelSelect->clear() ;
+  this->channelSelect->clear() ;
   if (!this->is_stereo)
-       channelSelect->addItemList(this->freeInputChannels     , 1) ;
-  else channelSelect->addItemList(this->freeInputChannelPairs , 1) ;
-  channelSelect->setSelectedItemIndex(0) ;
+       this->channelSelect->addItemList(this->freeInputChannels     , 1) ;
+  else this->channelSelect->addItemList(this->freeInputChannelPairs , 1) ;
+  this->channelSelect->setSelectedItemIndex(0) ;
 }
 
 //[/MiscUserCode]
@@ -270,7 +271,8 @@ BEGIN_JUCER_METADATA
          fontsize="15" bold="0" italic="0" justification="12"/>
   <COMBOBOX name="channelSelect" id="7a9c3a4f62832f42" memberName="channelSelect"
             virtualName="" explicitFocusOrder="4" pos="24 104 152 16" editable="0"
-            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            layout="33" items="" textWhenNonSelected="(no free channels)"
+            textWhenNoItems="(no free channels)"/>
   <TEXTBUTTON name="okButton" id="504a4ad212ccb744" memberName="okButton" virtualName=""
               explicitFocusOrder="5" pos="34 152 64 24" buttonText="ok" connectedEdges="0"
               needsCallback="0" radioGroupId="0"/>

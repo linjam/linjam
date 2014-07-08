@@ -26,6 +26,13 @@ const StringRef CLIENT::CHATMSG_CMD_VOTE  = "!vote " ;
 // audio
 char* CLIENT::WIN_INI_FILE = "linjam.ini" ;
 
+// config
+const String CLIENT::STEREO_L_POSTFIX = "-L" ;
+const String CLIENT::STEREO_R_POSTFIX = "-R" ;
+
+
+/* NETWORK class public class constants */
+
 // known hosts
 const String        NETWORK::NINJAM_2049_URL            = "test-ninjam-com-2049" ;
 const String        NETWORK::NINJAM_2050_URL            = "test.ninjam.com:2050" ;
@@ -119,10 +126,10 @@ const String GUI::XMIT_LABEL_TEXT       = "XMIT" ;
 const String GUI::RCV_LABEL_TEXT        = "RCV" ;
 
 // Channels
-const String     GUI::MASTERS_GUI_ID = "Master" ;
-const Identifier GUI::MASTERS_ID     = MASTERS_GUI_ID ;
-const String     GUI::LOCALS_GUI_ID  = "Local" ;
-const Identifier GUI::LOCALS_ID      = LOCALS_GUI_ID ;
+const  String     GUI::MASTERS_GUI_ID = "Master" ;
+const  Identifier GUI::MASTERS_ID     = MASTERS_GUI_ID ;
+const  String     GUI::LOCALS_GUI_ID  = "Local" ;
+const  Identifier GUI::LOCALS_ID      = LOCALS_GUI_ID ;
 
 // Mixer
 const String GUI::MIXER_GUI_ID = "mixer-gui" ;

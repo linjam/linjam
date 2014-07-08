@@ -181,7 +181,9 @@ DEBUG_TRACE_SANITY_CHECK
 }
 
 String LinJamConfig::parseUsername(String user_name)
-{ return user_name.upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , true) ; }
+{
+  return user_name.upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , true) ;
+}
 
 Identifier LinJamConfig::encodeChannelId(String channel_name , int channel_idx)
 {
@@ -201,14 +203,8 @@ Identifier LinJamConfig::encodeUserId(String user_name , int user_idx)
 
 String LinJamConfig::decodeUserId(Identifier user_id) { return String(user_id) ; }
 
-bool LinJamConfig::doesChannelExist(Identifier channels_id , String channel_name)
-{
-  Identifier channel_id = encodeChannelId(channel_name , -1) ;
-  return getChannelById(channels_id , channel_id).isValid() ;
-}
-
-ValueTree LinJamConfig::createUser(String user_name , int   user_idx ,
-                                   float  volume    , float pan      , bool is_muted)
+ValueTree LinJamConfig::getOrCreateUser(String user_name , int   user_idx ,
+                                        float  volume    , float pan      , bool is_muted)
 {
   Identifier user_id    = encodeUserId(user_name , user_idx) ;
   ValueTree  user_store = getUserById(user_id) ;
@@ -241,11 +237,11 @@ DEBUG_TRACE_ADD_REMOTE_USER_STORE
   return user_store ;
 }
 
-ValueTree LinJamConfig::createChannel(Identifier channels_id   , String channel_name ,
-                                      int        channel_idx   , float  volume       ,
-                                      float      pan           , bool   is_xmit_rcv  ,
-                                      bool       is_muted      , bool   is_solo      ,
-                                      int        source_sink_n , bool   is_stereo    )
+ValueTree LinJamConfig::getOrCreateChannel(Identifier channels_id   , String channel_name ,
+                                           int        channel_idx   , float  volume       ,
+                                           float      pan           , bool   is_xmit_rcv  ,
+                                           bool       is_muted      , bool   is_solo      ,
+                                           int        source_sink_n , bool   is_stereo    )
 {
   Identifier channel_id   = encodeChannelId(channel_name , channel_idx) ;
   ValueTree channel_store = getChannelById(channels_id , channel_id) ;
@@ -282,7 +278,9 @@ DEBUG_TRACE_ADD_CHANNEL_STORE
 }
 
 ValueTree LinJamConfig::getUserById(Identifier user_id)
-{ return this->configValueTree.getChildWithName(user_id) ; }
+{
+  return this->configValueTree.getChildWithName(user_id) ;
+}
 
 ValueTree LinJamConfig::getChannelByIdx(ValueTree channel_store , int channel_idx)
 {
@@ -329,10 +327,14 @@ void LinJamConfig::setCurrentServer(String host , String login , String pass ,
 }
 
 ValueTree LinJamConfig::getCurrentServer()
-{ return getServer(this->currentHost.toString()) ; }
+{
+  return getServer(this->currentHost.toString()) ;
+}
 
 ValueTree LinJamConfig::getServer(String host)
-{ return this->servers.getChildWithProperty(CONFIG::HOST_ID , var(host)) ; }
+{
+  return this->servers.getChildWithProperty(CONFIG::HOST_ID , var(host)) ;
+}
 
 void LinJamConfig::setShouldAgree(bool should_agree)
 {
@@ -462,13 +464,19 @@ DEBUG_TRACE_CONFIG_VALUE
 }
 
 Value LinJamConfig::getClient(Identifier key)
-{ return getLeaf(this->configValueTree , CONFIG::CLIENT_ID , key) ; }
+{
+  return getLeaf(this->configValueTree , CONFIG::CLIENT_ID , key) ;
+}
 
 Value LinJamConfig::getAudio(Identifier key)
-{ return getLeaf(this->configValueTree , CONFIG::AUDIO_ID  , key) ; }
+{
+  return getLeaf(this->configValueTree , CONFIG::AUDIO_ID  , key) ;
+}
 
 Value LinJamConfig::getServer(Identifier key)
-{ return getLeaf(this->configValueTree , CONFIG::SERVER_ID , key) ; }
+{
+  return getLeaf(this->configValueTree , CONFIG::SERVER_ID , key) ;
+}
 
 ValueTree LinJamConfig::addServer(String host , String login , String pass ,
                                   bool is_anonymous)
@@ -495,7 +503,9 @@ ValueTree LinJamConfig::addServer(String host , String login , String pass ,
 }
 
 String LinJamConfig::filteredName(String a_string)
-{ return a_string.retainCharacters(CONFIG::VALID_NAME_CHARS).replaceCharacter(' ', '-') ; }
+{
+  return a_string.retainCharacters(CONFIG::VALID_NAME_CHARS).replaceCharacter(' ', '-') ;
+}
 
 void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier& a_key)
 {
@@ -520,7 +530,7 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
 
   if      (is_master) LinJam::ConfigureMasterChannel(a_key) ;
   else if (is_metro)  LinJam::ConfigureMetroChannel(a_key) ;
-  else if (is_local)  LinJam::ConfigureLocalChannel(a_node , a_key) ;
+  else if (is_local)  LinJam::ConfigureLocalChannel(a_node , a_key , String::empty) ;
   else if (is_remote) LinJam::ConfigureRemoteChannel(parent_node , a_node , a_key) ;
 }
 
@@ -536,8 +546,7 @@ void LinJamConfig::valueTreeChildRemoved(ValueTree& a_parent_node , ValueTree& a
 {
 DEBUG_TRACE_CONFIG_TREE_REMOVED
 
-  if (a_parent_node == this->localChannels)
-    LinJam::RemoveLocalChannel(a_child_node.getType()) ;
+  if (a_parent_node == this->localChannels) LinJam::RemoveLocalChannel(a_child_node) ;
 }
 
 // unused ValueTree::Listener interface methods

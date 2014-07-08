@@ -114,29 +114,24 @@ void Mixer::resized()
 
 DEBUG_TRACE_MIXER_COMPONENTS_VB
 
-  if (this->masterChannels   == nullptr || this->localChannels    == nullptr ||
-      this->prevScrollButton == nullptr || this->nextScrollButton == nullptr  )
-    return ;
-
   // master channels
-  int master_x = getWidth() - GUI::MASTERS_W - GUI::PAD ;
-  int master_y = GUI::MIXERGROUP_Y ;
-  int master_w = GUI::MASTERS_W ;
-  int master_h = GUI::MIXERGROUP_H ;
-  this->masterChannels->setBounds(master_x , master_y , master_w , master_h) ;
+  int masters_x = getWidth() - this->masterChannels->getWidth() - GUI::PAD ;
+  int masters_y = GUI::MIXERGROUP_Y ;
+  int masters_w = this->masterChannels->getWidth() ;
+  int masters_h = GUI::MIXERGROUP_H ;
+  this->masterChannels->setBounds(masters_x , masters_y , masters_w , masters_h) ;
 
   // local and remote channels
   int channels_x = GUI::PAD ;
   int channels_y = GUI::MIXERGROUP_Y ;
-  int channels_w = 0 ;
-  int channels_h = GUI::MIXERGROUP_H ;
   int n_groups   = getNumDynamicMixers() ;
   for (int group_n = GUI::LOCALS_IDX ; group_n < n_groups ; ++group_n)
   {
     Channels* channels = (Channels*)getChildComponent(group_n) ;
 
+#ifndef FADE_HIDDEN_REMOTES
     // hide scrolled previous remotes
-    if (group_n > GUI::LOCALS_IDX && group_n < this->scrollZ) // hidden remotes
+    if (group_n > GUI::LOCALS_IDX && group_n < this->scrollZ)
     {
       channels->setVisible(false) ;
       if (group_n == GUI::FIRST_REMOTE_IDX)
@@ -145,17 +140,31 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
       continue ;
     }
 
-    // position visible channels
-    channels_w = GUI::MIXERGROUP_W(channels->getNumChannels()) ;
-    channels->setBounds(channels_x , channels_y , channels_w , channels_h) ;
-
-    // increment next channel position
-    channels_x += GUI::PAD + channels_w ;
+    // position visible channels and increment next channel position
+    channels->setTopLeftPosition(channels_x , channels_y) ;
+    channels_x += GUI::PAD + channels->getWidth() ;
 
     // hide scrolled next remotes
     int masters_resizer_x = getMastersResizerNextX() ;
-    channels->setVisible(channels_x <= masters_resizer_x && group_n == n_groups - 1 ||
-                         channels_x <= masters_resizer_x - GUI::CHANNEL_SCROLL_BTN_W ) ;
+    channels->setVisible(channels_x <= masters_resizer_x) ;
+#else // FADE_HIDDEN_REMOTES
+    // hide scrolled previous remotes
+    if (group_n > GUI::LOCALS_IDX && group_n < this->scrollZ)
+    {
+      if (group_n < this->scrollZ - 1)
+        channels_x += GUI::CHANNEL_SCROLL_BTN_W + GUI::RESIZER_W - GUI::PAD
+- GUI::PAD + channels->getWidth() ;
+      else{ channels->setVisible(false) ; continue ; }
+    }
+
+    // hide scrolled next remotes
+    int masters_resizer_x = getMastersResizerNextX() ;
+    channels->setVisible(channels_x <= masters_resizer_x) ;
+
+    // position visible channels and increment next channel position
+    channels->setTopLeftPosition(channels_x , channels_y) ;
+    channels_x += GUI::PAD + channels->getWidth() ;
+#endif // FADE_HIDDEN_REMOTES
   }
 
   // resizers
@@ -168,12 +177,12 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
   bool should_show_next_scroll_button = (channels_x > masters_resizer_x) ;
   if (should_show_prev_scroll_button)
   {
-    int prev_button_x = locals_resizer_x + GUI::RESIZER_W ;
+    int prev_button_x = locals_resizer_x + GUI::RESIZER_W - 1 ;
     prevScrollButton->setTopLeftPosition(prev_button_x , GUI::CHANNEL_SCROLL_BTN_Y) ;
   }
   if (should_show_next_scroll_button)
   {
-    int next_button_x = masters_resizer_x - GUI::CHANNEL_SCROLL_BTN_W ;
+    int next_button_x = masters_resizer_x - GUI::CHANNEL_SCROLL_BTN_W + 1 ;
     nextScrollButton->setTopLeftPosition(next_button_x , GUI::CHANNEL_SCROLL_BTN_Y) ;
   }
   prevScrollButton->setVisible(should_show_prev_scroll_button) ;
@@ -211,9 +220,9 @@ bool Mixer::addChannel(String channels_name , ValueTree channel_store)
   Channels* channels = getChannels(channels_name) ;
   if (!channels || !channel_store.isValid()) return false ;
 
-  // create remote channel GUI and re-arrange slices
-  bool was_added = channels->addChannel(channel_store) ; resized() ;
-  channels->setSize(GUI::MIXERGROUP_W(channels->getNumChannels()) , GUI::MIXERGROUP_H) ;
+  // create remote channel GUI and update mixer layout
+  bool was_added = channels->addChannel(channel_store) ;
+  if (channels != this->masterChannels) resized() ;
 
   return was_added ;
 }
@@ -263,23 +272,24 @@ void Mixer::pruneRemotes(ValueTree active_users)
 
 /* Mixer class private methods */
 
-void Mixer::buttonClicked(Button* buttonThatWasClicked)
+void Mixer::buttonClicked(Button* a_button)
 {
+  // shift scroll position by one channels group
   int n_remotes = getNumDynamicMixers() - GUI::FIRST_REMOTE_IDX ;
-  if      (buttonThatWasClicked == prevScrollButton)
-    --this->scrollZ ;
-  else if (buttonThatWasClicked == nextScrollButton && this->scrollZ < n_remotes)
-    ++this->scrollZ ;
+  if      (a_button == prevScrollButton)                              --this->scrollZ ;
+  else if (a_button == nextScrollButton && this->scrollZ < n_remotes) ++this->scrollZ ;
   else return ;
 
+  // update mixer layout
   resized() ;
 }
 
 void Mixer::addChannels(Channels* channels , String channels_name)
 {
-  addChildAndSetID(channels , channels_name) ;
-  channels->toFront(true) ;
+  // add channels group to the mixer
+  addChildAndSetID(channels , channels_name) ; channels->toFront(true) ;
 
+  // update mixer layout
   resized() ;
 }
 
@@ -302,12 +312,15 @@ void Mixer::addResizer(ResizableEdgeComponent* resizer)
 }
 
 Channels* Mixer::getChannels(String channels_name)
-{ return (Channels*)findChildWithID(StringRef(channels_name)) ; }
+{
+  return (Channels*)findChildWithID(StringRef(channels_name)) ;
+}
 
 void Mixer::removeChannels(Channels* channels)
 {
 DEBUG_REMOVE_CHANNELS
 
+  // destroy channels group and update mixer layout
   delete channels ; resized() ;
 }
 

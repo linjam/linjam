@@ -21,6 +21,11 @@
 #define __JUCE_HEADER_321A28830126E8DE__
 
 //[Headers]     -- You can add your own extra header files here --
+/*
+#if DEBUG
+#  include "Trace.h"
+#endif // DEBUG
+*/
 
 #include "JuceHeader.h"
 
@@ -47,7 +52,11 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-
+/*
+#if DEBUG_TRACE
+  friend class Trace ;
+#endif // DEBUG_TRACE
+*/
   void updateChannelVU(double vu) ;
 
     //[/UserMethods]

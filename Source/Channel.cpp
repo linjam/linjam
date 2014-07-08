@@ -134,10 +134,7 @@ Channel::Channel (ValueTree channel_store)
   this->xmitButton  ->setToggleState(    is_xmit  , juce::dontSendNotification) ;
   this->muteButton  ->setToggleState(    is_muted , juce::dontSendNotification) ;
   this->soloButton  ->setToggleState(    is_solo  , juce::dontSendNotification) ;
-//   this->sourceLabel ->setText(String(    source_ch , juce::dontSendNotification) ;)) ; // TODO: (issue #25)
-//   this->stereoButton->setToggleState(    is_stereo , juce::dontSendNotification) ;) ;  // TODO: (issue #25)
 
-  this->removeButton->setVisible(false) ;
   this->removeButton->addListener(this) ;
   this->xmitButton  ->addListener(this) ;
   this->muteButton  ->addListener(this) ;
@@ -290,13 +287,16 @@ void Channel::buttonClicked(Button* a_button)
 }
 
 void Channel::setChannelConfig(Identifier config_key , var value)
-{ this->configStore.setProperty(config_key , value , nullptr) ; }
+{
+  this->configStore.setProperty(config_key , value , nullptr) ;
+}
 
 
 /* MasterChannels , LocalChannels , RemoteChannels classes private class methods */
 
 MasterChannel::MasterChannel(ValueTree channel_store) : Channel(channel_store)
 {
+  this->removeButton->setVisible(false) ;
   this->xmitButton  ->setVisible(false) ;
   this->soloButton  ->setVisible(false) ;
 }
@@ -308,7 +308,8 @@ LocalChannel::LocalChannel(ValueTree channel_store) : Channel(channel_store)
 
 RemoteChannel::RemoteChannel(ValueTree channel_store) : Channel(channel_store)
 {
-  this->xmitButton->setButtonText(GUI::RCV_LABEL_TEXT) ;
+  this->removeButton->setVisible(false) ;
+  this->xmitButton  ->setButtonText(GUI::RCV_LABEL_TEXT) ;
 }
 
 //[/MiscUserCode]

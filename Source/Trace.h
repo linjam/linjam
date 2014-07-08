@@ -7,10 +7,8 @@
 #define UPDATE_GUI
 #define UPDATE_REMOTES
 #define BUGGY_CHAT_COMMANDS                    // (issue #19)
-#define BUGGY_ADD_DUPLICATE_LOCAL_CHANNELS     // (issue #n/a)
-#define BUGGY_DUPLICATE_CHANNEL_NAMES
-//#define DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
-#define BUGGY_EMPTY_OR_DUPLICATE_CHANNEL_NAMES
+#define BUGGY_DUPLICATE_CHANNEL_NAMES          // (issue #46)
+//#define DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG // (issue #46)
 #define KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO // NJClient initializes remote channels gain to 1.0
 
 #if DEBUG
@@ -26,7 +24,7 @@
 #define DEBUG_TRACE_STATE        DEBUG && 1
 #define DEBUG_TRACE_IN           DEBUG && 1
 #define DEBUG_TRACE_OUT          DEBUG && 1
-#define DEBUG_TRACE_VB           DEBUG && 1
+#define DEBUG_TRACE_VB           DEBUG && 0
 #define DEBUG_SANITIZE_CONFIG_VB DEBUG && 0
 #define DEBUG_SHARED_CONFIG      DEBUG && 0
 #define DEBUG_STORE_CONFIG_VB    DEBUG && 0
@@ -212,13 +210,13 @@
 #  else // DEBUG_STORE_CONFIG_VB
 #    define DEBUG_TRACE_STORE_CONFIG Trace::TraceConfig("storing config xml") ;
 #  endif // DEBUG_STORE_CONFIG_VB
-#  define DEBUG_TRACE_CONFIG_TREE_CHANGED                      \
-    String node   = String(a_node.getType()) ;                 \
-    String parent = String(a_node.getParent().getType()) ;     \
-    String key    = String(a_key) ;                            \
-    String val    = a_node[a_key].toString() ;                 \
-    Trace::TraceEvent("value changed for " + parent + " => " + \
-                      node + "[" + key + "] => " + val) ;
+#  define DEBUG_TRACE_CONFIG_TREE_CHANGED                       \
+    String node   = String(a_node.getType()) ;                  \
+    String parent = String(a_node.getParent().getType()) ;      \
+    String key    = String(a_key) ;                             \
+    String val    = a_node[a_key].toString() ;                  \
+    Trace::TraceConfig("value changed for " + parent + " => " + \
+                       node + "[" + key + "] => " + val) ;
 #  define DEBUG_TRACE_CONFIG_TREE_ADDED                                        \
     Trace::TraceConfig("node '" + String(a_child_node.getType()) +             \
                        "' added to '" + String(a_parent_node.getType()) + "'") ;
@@ -251,48 +249,69 @@
                                        ht.isNotEmpty())                               + \
       "\n  is_valid_port="    + String(hp.containsOnly(   NETWORK::DIGITS)    &&        \
                                        hp.isNotEmpty())                               ) ;
-#  define DEBUG_TRACE_CONNECT_STATUS                                           \
-    String host_name = Client->GetHostName() ;                                 \
-    switch (client_status)                                                     \
-    {                                                                          \
-      case -3: Trace::TraceNetwork("NJC_STATUS_DISCONNECTED") ;        break ; \
-      case -2: Trace::TraceNetwork((IsAgreed())?                               \
-                   "NJC_STATUS_INVALIDAUTH" : "LICENSE_PENDING") ;     break ; \
-      case -1: Trace::TraceNetwork("NJC_STATUS_CANTCONNECT") ;         break ; \
-      case  0: Trace::TraceNetwork("NJC_STATUS_OK") ;                          \
-               Trace::TraceServer("connected to host: " + host_name) ; break ; \
-      case  1: Trace::TraceNetwork("NJC_STATUS_PRECONNECT") ;          break ; \
-      default:                                                         break ; \
-    }                                                                          \
-    if (Client->GetErrorStr()[0])                                              \
+#  define DEBUG_TRACE_CONNECT_STATUS                                             \
+    String host_name = Client->GetHostName() ;                                   \
+    switch (client_status)                                                       \
+    {                                                                            \
+      case -3: Trace::TraceNetwork("NJC_STATUS_DISCONNECTED") ;          break ; \
+      case -2: Trace::TraceNetwork((IsAgreed())?                                 \
+                   "NJC_STATUS_INVALIDAUTH" : "LICENSE_PENDING") ;       break ; \
+      case -1: Trace::TraceNetwork("NJC_STATUS_CANTCONNECT") ;           break ; \
+      case  0: Trace::TraceNetwork("NJC_STATUS_OK") ;                            \
+               Trace::TraceServer("connected to host: " + host_name) ;   break ; \
+      case  1: Trace::TraceNetwork("NJC_STATUS_PRECONNECT") ;            break ; \
+      default: Trace::TraceNetwork("Status: " + String(client_status)) ; break ; \
+    }                                                                            \
+    if (Client->GetErrorStr()[0])                                                \
       Trace::TraceServer("Error: " + String(Client->GetErrorStr())) ;
 
 // channels
-#  define DEBUG_TRACE_ADD_CHANNEL_GUI                                               \
-    String name = String(channel_store.getType()) ;                                 \
-    if (!channel_store.isValid())                                                   \
-         Trace::TraceError("adding channel GUI for '" + getComponentID() +          \
-                           "' - channel store is invalid") ;                        \
-    else if (name.isEmpty())                                                        \
-         Trace::TraceError("adding channel GUI for '" + getComponentID() +          \
-                           "' - channel name is empty") ;                           \
-    else if (findChildWithID(StringRef(name))) ; /* already exists */               \
-    else if (!getComponentID().compare(GUI::MASTERS_GUI_ID))                        \
-         Trace::TraceGui("adding master channel slice '" + name  + "'") ;           \
-    else if (!getComponentID().compare(GUI::LOCALS_GUI_ID))                         \
-         Trace::TraceGui("adding local channel slice '"  + name  + "'") ;           \
-    else Trace::TraceGui("adding remote channel slice '" + name  + "' for '" +      \
-                         String(channel_store.getParent().getType()) + "'") ;
-#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL_FAIL                                           \
-    int    ch_idx       = GetVacantLocalChannelIdx() ;                                 \
-    String ch_id        = String(Config->encodeChannelId(channel_name , ch_idx + 1)) ; \
-    String max_channels = String(Client->GetMaxLocalChannels()) ;                      \
-    if (!(~ch_idx))                                                                    \
-      Trace::TraceError("cannot create new local channel '" + ch_id +                  \
-                        "' - maximum input channels = " + max_channels) ;              \
-    else if (Config->getChannelById(GUI::LOCALS_ID , ch_id).isValid())                 \
-      Trace::TraceError("cannot create new local channel '" + ch_id +                  \
-                        "' - channel already exists") ;
+#  define DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL                          \
+    String name = String(channel_store.getType()) ;                 \
+    String dbg = "adding channel slice '" + name  + "' to '" +      \
+                 getComponentID() + "' channels - " ;               \
+    if (!channel_store.isValid())                                   \
+      Trace::TraceError("error " + dbg + "channel store invalid") ; \
+    else if (name.isEmpty())                                        \
+      Trace::TraceError("error " + dbg + "channel name empty") ;
+#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL                                           \
+    int    n_vacant = GetNumVacantChannels() ;                                    \
+    String type     = (!is_stereo)? "mono" : "stereo" ;                           \
+    int    ch_n     = ((!is_stereo)? FreeInputChannels[set_idx] :                 \
+                                     FreeInputChannelPairs[set_idx]) ;            \
+    bool   no_chs   = (!is_stereo && n_vacant < 1 || is_stereo && n_vacant < 2) ; \
+    String dbg = "adding new local " + type + " input[" + String(ch_n - 1)      + \
+                 "] '" + channel_name + "' at set_idx[" + String(set_idx) + "]" ; \
+    if      (!(~set_idx))                                                         \
+         Trace::TraceError("error " + dbg + " - invalid index") ;                 \
+    else if (no_chs && ch_n || !no_chs && !ch_n)                                  \
+         Trace::TraceError("error " + dbg + " - corrupted free-set state") ;      \
+    else if (no_chs)                                                              \
+         Trace::TraceError("error " + dbg + " - no free channels") ;              \
+    else Trace::TraceEvent(dbg) ;
+#  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB                                             \
+    SortedSet<int> monos   = FreeInputChannels ;     int n_monos   = monos.size() ;   \
+    SortedSet<int> stereos = FreeInputChannelPairs ; int n_stereos = stereos.size() ; \
+    String dump = String(n_monos)   + " FreeInputChannels     = [" ;                  \
+    for (int i = 0 ; i < n_monos ; ++i)   dump += String(monos[i])   + " " ;          \
+    Trace::TraceVerbose(dump + "]") ;                                                 \
+    dump        = String(n_stereos) + " FreeInputChannelPairs = [" ;                  \
+    for (int i = 0 ; i < n_stereos ; ++i) dump += String(stereos[i]) + " " ;          \
+    Trace::TraceVerbose(dump + "]") ;
+#  define DEBUG_TRACE_CREATE_LOCAL_CHANNEL                                              \
+    int    ch_idx        = GetVacantLocalChannelIdx() ;                                 \
+    String ch_id         = String(Config->encodeChannelId(channel_name , ch_idx + 1)) ; \
+    int    n_chars       = CLIENT::STEREO_POSTFIX_N_CHARS ;                             \
+    if (is_stereo) ch_id = ch_id.dropLastCharacters(n_chars) ;                          \
+    String max           = String(Client->GetMaxLocalChannels()) ;                      \
+    String channel_type  = (!is_stereo)? "mono" : "stereo" ;                            \
+    String dbg = "creating new local " + channel_type +                                 \
+                 " channel[" + String(ch_idx) + "] '" + ch_id ;                         \
+    if (!(~ch_idx))                                                                     \
+         Trace::TraceError("error " + dbg + "' - "  + max + " input channels max") ;    \
+    else if (Config->getChannelById(GUI::LOCALS_ID , ch_id).isValid())                  \
+         Trace::TraceConfig(dbg + "' - channel storage already exists") ;               \
+    else Trace::TraceConfig(dbg + "'") ;
 #  define DEBUG_TRACE_ADD_CHANNEL_STORE                                        \
     String dbgA = "created storage for new " ;                                 \
     String dbgB = " channel[" + String(channel_idx) +                          \
@@ -301,6 +320,15 @@
          Trace::TraceConfig(dbgA + "local" + dbgB) ;                           \
     else Trace::TraceConfig(dbgA + "remote" + dbgB + "for '" +                 \
                             String(getUserById(channels_id).getType())  + "'") ;
+#  define DEBUG_TRACE_INSTANTIATE_LOCAL_CHANNEL                             \
+    String name         = String(channel_store.getType()) ;                 \
+    bool   is_stereo    = bool(channel_store[CONFIG::IS_STEREO_ID]) ;       \
+    int    n_chars      = CLIENT::STEREO_POSTFIX_N_CHARS ;                  \
+    if (is_stereo) name = name.dropLastCharacters(n_chars) ;                \
+    String dbg = "instantiating new local channel[" + String(channel_idx) ; \
+    if (!channel_store.isValid())                                           \
+         Trace::TraceError("error " + dbg + "] - invalid config") ;         \
+    else Trace::TraceState(dbg + "] '" + name + "'") ;
 #  define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL                                     \
   int idx ; String channel_status = "unknwon" ;                                   \
   if      (~(idx = GetLocalChannelIdx(channel_id))) channel_status = "existing" ; \
@@ -332,21 +360,31 @@
     Trace::TraceGui("added channel slice '" + name + "' to '" +            \
                     String(this->configStore.getParent().getType()) + "'") ;
 #  endif // DEBUG_ADDED_CHANNEL_VB
-#  define DEBUG_TRACE_REMOVE_LOCAL_CHANNEL                               \
-    Trace::TraceEvent("destroying channel '" + String(channel_id) + "'") ;
+#  define DEBUG_TRACE_REMOVE_LOCAL_CHANNEL                                      \
+    Trace::TraceEvent("destroying channel["                                   + \
+                      channel_store[CONFIG::CHANNELIDX_ID].toString() + "] '" + \
+                      String(channel_store.getType()) + "'"                   ) ;
 #  define DEBUG_REMOVE_CHANNELS                                 \
     String user_id = channels->getComponentID() ;               \
     Trace::TraceState("user parted => '" + user_id + "'") ;     \
     Trace::TraceEvent("removing remote user '" + user_id + "'") ;
-#  define DEBUG_REMOVE_CHANNEL                                                   \
-    Trace::TraceEvent("removing channel '" + String(channel->getComponentID()) + \
-                      "' from '" + getComponentID() + "'") ;
+#  define DEBUG_REMOVE_CHANNEL                                                \
+    bool   is_stereo     = bool(ch->configStore[CONFIG::IS_STEREO_ID]) ;      \
+    String channel_type  = (!is_stereo)? "mono" : "stereo" ;                  \
+    int    n_chars       = CLIENT::STEREO_POSTFIX_N_CHARS ;                   \
+    String channel_name  = (!is_stereo)? ch->getComponentID() :               \
+                           ch->getComponentID().dropLastCharacters(n_chars) ; \
+    String channels_name = getComponentID() ;                                 \
+    Trace::TraceGui("removing " + channel_type + " channel '" +               \
+                    channel_name + "' from '" + channels_name + "' channels") ;
 #  define DEBUG_TRACE_REMOTE_CHANNELS                                            \
-      String dbg = "remote user[" + String(u_n) + "] =>" +                       \
-          "\n  user_name   => " + String(u_name)               +                 \
-          "\n  user_volume => " + String(u_vol)                +                 \
-          "\n  user_pan    => " + String(u_pan)                +                 \
-          "\n  user_mute   => " + String(u_mute) ;                               \
+      String hidden  = (hide_bots && NETWORK::KNOWN_BOTS.contains(u_id))?        \
+                       " (bot hidden)" : "" ;                                    \
+      String dbg = "remote user[" + String(u_n) + "] =>" + hidden +              \
+          "\n  user_name   => "   + String(u_name)                +              \
+          "\n  user_volume => "   + String(u_vol)                 +              \
+          "\n  user_pan    => "   + String(u_pan)                 +              \
+          "\n  user_mute   => "   + String(u_mute) ;                             \
       int c_n = -1 ; while (LinJam::Client->EnumUserChannels(u_n , ++c_n) != -1) \
       {                                                                          \
         bool c_rcv ;  float c_vol ; float c_pan ; bool c_mute ;                  \
@@ -368,20 +406,31 @@
       }                                                                          \
       Trace::TraceState(dbg) ;
 #  if DEBUG_TRACE_VB
-#    define DEBUG_TRACE_REMOTE_CHANNELS_VB                                   \
-    Trace::TraceServer("user info changed - " +                              \
-                       String(Client->GetNumUsers()) + " users") ;           \
-    int u_n = -1 ; char* u_name ; float u_vol ; float u_pan ; bool u_mute ;  \
-    while (u_name = Client->GetUserState(++u_n , &u_vol , &u_pan , &u_mute)) \
-      { DEBUG_TRACE_REMOTE_CHANNELS }
+#    define DEBUG_TRACE_REMOTE_CHANNELS_VB                                          \
+    bool has_bot   = NETWORK::KNOWN_HOSTS.contains(String(Client->GetHostName())) ; \
+    bool hide_bots = has_bot && bool(Config->shouldHideBots.getValue()) ;           \
+    Trace::TraceServer("user info changed - " +                                     \
+                       String(Client->GetNumUsers()) + " users") ;                  \
+    int u_n = -1 ; char* u_name ; float u_vol ; float u_pan ; bool u_mute ;         \
+    while (u_name = Client->GetUserState(++u_n , &u_vol , &u_pan , &u_mute))        \
+    {                                                                               \
+      Identifier u_id = Config->encodeUserId(String(u_name) , u_n) ;                \
+      DEBUG_TRACE_REMOTE_CHANNELS                                                   \
+    }
 #  else // DEBUG_TRACE_VB
 #    define DEBUG_TRACE_REMOTE_CHANNELS_VB ;
 #  endif // DEBUG_TRACE_VB
 #  if DEBUG_TRACE_VB
 #    define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                    \
-    float  u_vol  = volume ; float u_pan  = pan ; bool  u_mute = is_muted ;      \
-    String u_name = String(user_id) ;                                            \
-    int    u_n    = LinJam::Client->GetNumUsers() ; char* c_name ;               \
+    char*      host      = LinJam::Client->GetHostName() ;                       \
+    bool       has_bot   = NETWORK::KNOWN_HOSTS.contains(String(host)) ;         \
+    bool       hide_bots = has_bot && bool(this->shouldHideBots.getValue()) ;    \
+    Identifier u_id      = user_id ;                                             \
+    String     u_name    = String(user_id) ;                                     \
+    float      u_vol     = volume ;                                              \
+    float      u_pan     = pan ;                                                 \
+    bool       u_mute    = is_muted ; char* c_name ;                             \
+    int        u_n       = LinJam::Client->GetNumUsers() ;                       \
     while ((c_name = LinJam::Client->GetUserState(--u_n)))                       \
       { String name = String(encodeUserId(c_name , u_n)) ;                       \
         if (!String(user_id).compare(name)) break ; }                            \
@@ -412,26 +461,39 @@
         ((should_set_is_solo)?   "\n  is_solo   => " + String(is_solo)   : "")         + \
         ((should_set_sink_n)?    "\n  sink_n    => " + String(sink_n)    : "")         + \
         ((should_set_is_stereo)? "\n  is_stereo => " + String(is_stereo) : "")         ) ;
-#  define DEBUG_TRACE_INVALID_CHANNELID                                     \
-    if (channel_id.isEmpty())                                               \
-      Trace::TraceError("empty channel_id for " + getComponentID() + "'") ; \
-    else if (!findChildWithID(StringRef(channel_id)))                       \
-      Trace::TraceError("unknown channel_id '" + channel_id +               \
-                        "' for '" + getComponentID() + "'") ;
-#  define DEBUG_TRACE_MIXER_COMPONENTS_VB                                      \
-    String dbg = String(getNumChildComponents()) + " mixer components (" +     \
-        String(GUI::N_STATIC_MIXER_CHILDREN) + " static)=>"  ;                 \
-    for (int n = 0 ; n < getNumChildComponents() ; ++n)                        \
-    {                                                                          \
-      Component* child = getChildComponent(n) ; String id ;                    \
-      if      (child == this->masterChannels)   id = "masterChannels" ;        \
-      else if (child == this->prevScrollButton) id = "prevScrollButton" ;      \
-      else if (child == this->nextScrollButton) id = "nextScrollButton" ;      \
-      else if (child == this->localsResizer)    id = "localsResizer" ;         \
-      else if (child == this->mastersResizer)   id = "mastersResizer" ;        \
-      else                                      id = child->getComponentID() ; \
-      dbg += "\n  component[" + String(n) + "] => " + String(id) ;             \
-    }                                                                          \
+/* configStore is private to Channels base class
+#  define DEBUG_TRACE_INVALID_CHANNELID                                               \
+/ * TODO: maybe? if VUs were listening on a store value then this trace * /             \
+/ *       and the chain ofupdateChannelVU() methods would be unnecessary * /            \
+    Channel* ch = (Channel*)findChildWithID(StringRef(channel_id)) ; String dbg ;     \
+    / * ignore stereo pair 'phantom' channels * /                                       \
+    if (!bool(ch->configStore[CONFIG::IS_STEREO_ID])  &&                              \
+        !int( ch->configStore[CONFIG::SOURCE_N_ID]) % 2)                              \
+    {                                                                                 \
+      if (channel_id.isEmpty()) dbg = "empty" ; else if (!ch) dbg = "unknown" ;       \
+      if (dbg.isNotEmpty())                                                           \
+        Trace::TraceError("error updating VU meter - " + dbg + " channel_id '"      + \
+                          channel_id + "' for '" + getComponentID() + "' channels") ; \
+    }
+*/
+#  define DEBUG_TRACE_MIXER_COMPONENTS_VB                                         \
+    if (this->masterChannels   == nullptr || this->localChannels    == nullptr || \
+        this->prevScrollButton == nullptr || this->nextScrollButton == nullptr  ) \
+      Trace::TraceVerbose("mixer resized - GUI not ready") ;                      \
+    String dbg = "mixer resized " + String(getNumChildComponents())    +          \
+                 " mixer components ("                                 +          \
+                 String(GUI::N_STATIC_MIXER_CHILDREN) + " static) =>"  ;          \
+    for (int n = 0 ; n < getNumChildComponents() ; ++n)                           \
+    {                                                                             \
+      Component* child = getChildComponent(n) ; String id ;                       \
+      if      (child == this->masterChannels)   id = "masterChannels" ;           \
+      else if (child == this->prevScrollButton) id = "prevScrollButton" ;         \
+      else if (child == this->nextScrollButton) id = "nextScrollButton" ;         \
+      else if (child == this->localsResizer)    id = "localsResizer" ;            \
+      else if (child == this->mastersResizer)   id = "mastersResizer" ;           \
+      else                                      id = child->getComponentID() ;    \
+      dbg += "\n  component[" + String(n) + "] => " + String(id) ;                \
+    }                                                                             \
     Trace::TraceVerbose(dbg) ;
 
 // chat
@@ -447,52 +509,55 @@
 #else // #if DEBUG_TRACE
 
 // state
-#  define DEBUG_TRACE_LINJAM_INIT              ;
-#  define DEBUG_TRACE_LOGIN_LOAD               ;
-#  define DEBUG_TRACE_LOGIN_BTNS               ;
-#  define DEBUG_TRACE_CONNECT                  ;
-#  define DEBUG_TRACE_LICENSE_CLICKED          ;
-#  define DEBUG_TRACE_LICENSE                  ;
-#  define DEBUG_TRACE_CLEAN_SESSION            ;
-#  define DEBUG_TRACE_SHUTDOWN                 ;
+#  define DEBUG_TRACE_LINJAM_INIT               ;
+#  define DEBUG_TRACE_LOGIN_LOAD                ;
+#  define DEBUG_TRACE_LOGIN_BTNS                ;
+#  define DEBUG_TRACE_CONNECT                   ;
+#  define DEBUG_TRACE_LICENSE_CLICKED           ;
+#  define DEBUG_TRACE_LICENSE                   ;
+#  define DEBUG_TRACE_CLEAN_SESSION             ;
+#  define DEBUG_TRACE_SHUTDOWN                  ;
 // audio
-#  define DEBUG_TRACE_AUDIO_INIT_WIN           ;
-#  define DEBUG_TRACE_AUDIO_INIT_MAC           ;
-#  define DEBUG_TRACE_AUDIO_INIT_JACK          ;
-#  define DEBUG_TRACE_AUDIO_INIT_ALSA          ;
-#  define DEBUG_TRACE_AUDIO_INIT               ;
+#  define DEBUG_TRACE_AUDIO_INIT_WIN            ;
+#  define DEBUG_TRACE_AUDIO_INIT_MAC            ;
+#  define DEBUG_TRACE_AUDIO_INIT_JACK           ;
+#  define DEBUG_TRACE_AUDIO_INIT_ALSA           ;
+#  define DEBUG_TRACE_AUDIO_INIT                ;
 // storage
-#  define DEBUG_TRACE_LOAD_CONFIG              ;
-#  define DEBUG_TRACE_SANITIZE_CONFIG          ;
-#  define DEBUG_TRACE_CONFIG_TREE              ;
-#  define DEBUG_TRACE_SANITY_CHECK             ;
-#  define DEBUG_TRACE_CONFIG_VALUE             ;
-#  define DEBUG_TRACE_STORE_CONFIG             ;
-#  define DEBUG_TRACE_CONFIG_TREE_CHANGED      ;
-#  define DEBUG_TRACE_CONFIG_TREE_ADDED        ;
-  #define DEBUG_TRACE_CONFIG_TREE_REMOVED      ;
+#  define DEBUG_TRACE_LOAD_CONFIG               ;
+#  define DEBUG_TRACE_SANITIZE_CONFIG           ;
+#  define DEBUG_TRACE_CONFIG_TREE               ;
+#  define DEBUG_TRACE_SANITY_CHECK              ;
+#  define DEBUG_TRACE_CONFIG_VALUE              ;
+#  define DEBUG_TRACE_STORE_CONFIG              ;
+#  define DEBUG_TRACE_CONFIG_TREE_CHANGED       ;
+#  define DEBUG_TRACE_CONFIG_TREE_ADDED         ;
+  #define DEBUG_TRACE_CONFIG_TREE_REMOVED       ;
 // network
-#  define DEBUG_TRACE_LOGIN_HOST_VB            ;
-#  define DEBUG_TRACE_CONNECT_STATUS           ;
+#  define DEBUG_TRACE_LOGIN_HOST_VB             ;
+#  define DEBUG_TRACE_CONNECT_STATUS            ;
 // channels
-#  define DEBUG_TRACE_CHANNELS_VB              ;
-#  define DEBUG_TRACE_ADD_CHANNEL_GUI          ;
-#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL_FAIL   ;
-#  define DEBUG_TRACE_ADD_CHANNEL_STORE        ;
-#  define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL  ;
-#  define DEBUG_TRACE_ADDED_CHANNEL            ;
-#  define DEBUG_TRACE_REMOVE_LOCAL_CHANNEL     ;
-#  define DEBUG_REMOVE_CHANNELS                ;
-#  define DEBUG_REMOVE_CHANNEL                 ;
-#  define DEBUG_TRACE_REMOTE_CHANNELS          ;
-#  define DEBUG_TRACE_REMOTE_CHANNELS_VB       ;
-#  define DEBUG_TRACE_ADD_REMOTE_USER_STORE    ;
-#  define DEBUG_TRACE_CONFIGURE_REMOTE         ;
-#  define DEBUG_TRACE_INVALID_CHANNELID        ;
-#  define DEBUG_TRACE_MIXER_COMPONENTS_VB      ;
+#  define DEBUG_TRACE_CHANNELS_VB               ;
+#  define DEBUG_TRACE_ADD_CHANNEL_GUI           ;
+#  define DEBUG_TRACE_ADD_LOCAL_CHANNEL         ;
+#  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB       ;
+#  define DEBUG_TRACE_CREATE_LOCAL_CHANNEL      ;
+#  define DEBUG_TRACE_ADD_CHANNEL_STORE         ;
+#  define DEBUG_TRACE_INSTANTIATE_LOCAL_CHANNEL ;
+#  define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL   ;
+#  define DEBUG_TRACE_ADDED_CHANNEL             ;
+#  define DEBUG_TRACE_REMOVE_LOCAL_CHANNEL      ;
+#  define DEBUG_REMOVE_CHANNELS                 ;
+#  define DEBUG_REMOVE_CHANNEL                  ;
+#  define DEBUG_TRACE_REMOTE_CHANNELS           ;
+#  define DEBUG_TRACE_REMOTE_CHANNELS_VB        ;
+#  define DEBUG_TRACE_ADD_REMOTE_USER_STORE     ;
+#  define DEBUG_TRACE_CONFIGURE_REMOTE          ;
+//#  define DEBUG_TRACE_INVALID_CHANNELID         ;
+#  define DEBUG_TRACE_MIXER_COMPONENTS_VB       ;
 // chat
-#  define DEBUG_TRACE_CHAT_IN                  ;
-#  define DEBUG_TRACE_CHAT_OUT                 ;
+#  define DEBUG_TRACE_CHAT_IN                   ;
+#  define DEBUG_TRACE_CHAT_OUT                  ;
 
 #endif // #if DEBUG_TRACE
 

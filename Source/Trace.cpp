@@ -115,9 +115,7 @@ String Trace::SanitizeConfig(ValueTree default_config , ValueTree stored_config 
 }
 
 void Trace::TraceInvalidNode(String a_node_key)
-{
-DBG("TraceInvalidNode()") ;
-  Trace::TraceError("node '" + a_node_key + "' invalid") ; }
+{ Trace::TraceError("node '" + a_node_key + "' invalid") ; }
 
 void Trace::TraceMissingValue(String a_node_key , String a_value_key)
 { Trace::TraceError("node '" + a_node_key + "' - missing key '" + a_value_key + "'") ; }

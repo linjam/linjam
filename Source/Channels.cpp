@@ -56,10 +56,12 @@ Channels::Channels ()
 
     //[/UserPreSize]
 
-    setSize (132, 276);
+    setSize (67, 276);
 
 
     //[Constructor] You can add your own custom stuff here..
+  // prevent empty local group from collapsing (-1 forces resize on first addition)
+//   channels->setSize(GUI::MIXERGROUP_W(1) - 1 , GUI::MIXERGROUP_H) ;
     //[/Constructor]
 }
 
@@ -107,14 +109,21 @@ void Channels::resized()
   int expand_btn_h = GUI::EXPAND_BTN_H ;
   this->expandButton->setBounds(expand_btn_x , expand_btn_y , expand_btn_w , expand_btn_h) ;
 
+  // resize this container
   int n_channels = getNumChannels() ;
+  int channels_w = GUI::MIXERGROUP_W((n_channels)? n_channels : 1) ;
+  int channels_h = GUI::MIXERGROUP_H ;
+  setSize(channels_w , channels_h) ;
+
+  // shift child channels
   for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
   {
     int channel_x = GUI::MIXERGROUP_W(channel_n) ;
     getChildComponent(channel_n)->setTopLeftPosition(channel_x , GUI::CHANNEL_Y) ;
   }
 
-  if (n_channels) ((Mixer*)getParentComponent())->positionResizers() ;
+  // update mixer layout
+  Mixer* mixer = (Mixer*)getParentComponent() ; if (mixer) mixer->resized() ;
 
     //[/UserResized]
 }
@@ -127,25 +136,31 @@ void Channels::resized()
 
 bool Channels::addChannel(ValueTree channel_store)
 {
-DEBUG_TRACE_ADD_CHANNEL_GUI
+DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL
 
   // ensure GUI for this channel does not already exist
   String channel_name = String(channel_store.getType()) ;
   if (channel_name.isEmpty() || findChildWithID(StringRef(channel_name))) return false ;
+
+  // hide stereo pair 'phantom' channels
+  if (bool(channel_store[CONFIG::IS_STEREO_ID])  &&
+      int( channel_store[CONFIG::SOURCE_N_ID]) % 2) return true ;
 
   // create channel GUI
   Channel* channel = newChannel(channel_store) ;
   this->addChildAndSetID(channel , channel_name) ;
   channel->toFront(false) ;
 
-  return  true ;
+  // resize and shift channel slices
+  resized() ;
+
+  return true ;
 }
 
 void Channels::removeChannel(Channel* channel)
 {
-DEBUG_REMOVE_CHANNEL
-
-  delete channel ; getParentComponent()->resized() ;
+  // destroy channel and shift channel slices
+  delete channel ; resized() ;
 }
 
 int Channels::getNumChannels()
@@ -155,7 +170,21 @@ int Channels::getNumChannels()
 
 void Channels::updateChannelVU(String channel_id , double vu)
 {
-DEBUG_TRACE_INVALID_CHANNELID
+//DEBUG_TRACE_INVALID_CHANNELID
+Channel* ch = (Channel*)findChildWithID(StringRef(channel_id)) ; String dbg ;     \
+if (channel_id.isEmpty()) dbg = "empty" ; else if (!ch) dbg = "unknown" ;       \
+if (dbg.isNotEmpty())                                                              \
+  Trace::TraceError("error updating VU meter - " + dbg + " channel_id '"          +   \
+                    channel_id + "' for '" + getComponentID() + "' channels") ; \
+
+
+
+
+
+
+
+
+
 
   if (channel_id.isEmpty()) return ;
 
@@ -236,15 +265,7 @@ Channel* MasterChannels::newChannel(ValueTree channel_store)
 
 Channel* LocalChannels::newChannel(ValueTree channel_store)
 {
-  Channel* channel = new LocalChannel(channel_store) ;
-
-  // show/hide remove channel button for this and the first/only channel
-  bool     is_first_channel = !getNumChannels() ;
-  Channel* first_channel    = (is_first_channel)? channel : (Channel*)getChildComponent(0) ;
-  ((LocalChannel*)first_channel)->removeButton->setVisible(true) ;
-  ((LocalChannel*)channel)      ->removeButton->setVisible(!is_first_channel) ;
-
-  return channel ;
+  return new LocalChannel(channel_store) ;
 }
 
 Channel* RemoteChannels::newChannel(ValueTree channel_store)
@@ -252,15 +273,17 @@ Channel* RemoteChannels::newChannel(ValueTree channel_store)
   return new RemoteChannel(channel_store) ;
 }
 
+#if DEBUG
 void LocalChannels::removeChannel(Channel* channel)
 {
+LocalChannel* ch = (LocalChannel*)channel ; DEBUG_REMOVE_CHANNEL
+
   ((Channels*)this)->removeChannel(channel) ;
 
-  int n_channels = getNumChannels() ;
-
-#ifndef BUGGY_ADD_DUPLICATE_LOCAL_CHANNELS
-// untested
+#ifndef BUGGY_DUPLICATE_CHANNEL_NAMES
+// untested (issue #46)
   // rename any generic channel names to match their NJClient channelIdx
+  int n_channels = getNumChannels() ;
   for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
   {
     Channel* channel      = getChildComponent(channel_n) ;
@@ -276,12 +299,15 @@ void LocalChannels::removeChannel(Channel* channel)
       channel->nameLabel->setText(String(new_name)) ;
     }
   }
-#endif // BUGGY_ADD_DUPLICATE_LOCAL_CHANNELS
-
-  // hide remove channel button for only remaining channel
-  if (n_channels == 1)
-    ((LocalChannel*)getChildComponent(0))->removeButton->setVisible(false) ;
+#endif // BUGGY_DUPLICATE_CHANNEL_NAMES
 }
+void RemoteChannels::removeChannel(Channel* channel)
+{
+RemoteChannel* ch = (RemoteChannel*)channel ; DEBUG_REMOVE_CHANNEL
+
+  ((Channels*)this)->removeChannel(channel) ;
+}
+#endif // DEBUG
 
 //[/MiscUserCode]
 
@@ -298,7 +324,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="Channels" componentName=""
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="132" initialHeight="276">
+                 fixedSize="0" initialWidth="67" initialHeight="276">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
