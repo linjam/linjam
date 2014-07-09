@@ -170,21 +170,7 @@ int Channels::getNumChannels()
 
 void Channels::updateChannelVU(String channel_id , double vu)
 {
-//DEBUG_TRACE_INVALID_CHANNELID
-Channel* ch = (Channel*)findChildWithID(StringRef(channel_id)) ; String dbg ;     \
-if (channel_id.isEmpty()) dbg = "empty" ; else if (!ch) dbg = "unknown" ;       \
-if (dbg.isNotEmpty())                                                              \
-  Trace::TraceError("error updating VU meter - " + dbg + " channel_id '"          +   \
-                    channel_id + "' for '" + getComponentID() + "' channels") ; \
-
-
-
-
-
-
-
-
-
+DEBUG_TRACE_INVALID_CHANNELID
 
   if (channel_id.isEmpty()) return ;
 

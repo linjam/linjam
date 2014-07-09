@@ -309,8 +309,6 @@ public:
   // defaults
   static const String     CONFIG_ALL_KEY ;
   static const Identifier CONFIG_ALL_ID ;
-  static const String     INITIAL_LOCAL_KEY ;
-  static const Identifier INITIAL_LOCAL_ID ;
   static const String     DEFAULT_NAME ;
   static const String     DEFAULT_CHANNEL_NAME ;
   static const String     DEFAULT_USER_NAME ;

@@ -5,10 +5,14 @@
 #include "Trace.h"
 
 
-
 #if DEBUG_TRACE
 
-/* public class methods */
+/* Trace class private class variables */
+
+Array<String> Trace::UnknowwnChannels = Array<String>() ;
+
+
+/* Trace class public class methods */
 
 void Trace::TraceEvent(String msg)   { if (TraceEvs())    DBG("[EVENT]:   " + msg) ; }
 void Trace::TraceConfig(String msg)  { if (TraceState())  DBG("[CONFIG]:  " + msg) ; }
@@ -23,7 +27,7 @@ void Trace::DumpStoreXml(ValueTree store)
 { DBG(String(store.getType()) + " xml=\n" + store.toXmlString()) ; }
 
 
-/* private class methods */
+/* Trace class private class methods */
 
 bool Trace::SanityCheck() { return true ; }
 

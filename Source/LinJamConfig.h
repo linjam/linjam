@@ -103,7 +103,9 @@ private:
   Value       dummyValue ;
 
 
+  // validation
   ValueTree sanitizeConfig(ValueTree default_config , ValueTree stored_config) ;
+  bool      sanityCheckChannels(ValueTree channels) ;
   void      storeConfig() ;
   void      establishSharedStore() ;
 
@@ -116,7 +118,6 @@ private:
   Value      getServer(     Identifier key) ;
   ValueTree  addServer(     String host , String login , String pass , bool is_anonymous) ;
   String     filteredName(  String a_name) ;
-  Identifier saneIdentifier(String name) ;
 
   // event handlers
   void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)          override ;

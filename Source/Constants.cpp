@@ -240,8 +240,6 @@ const Identifier CONFIG::IS_STEREO_ID   = IS_STEREO_KEY ;
 // defaults
 const String     CONFIG::CONFIG_ALL_KEY       = "configure-all" ;
 const Identifier CONFIG::CONFIG_ALL_ID        = CONFIG_ALL_KEY ;
-const String     CONFIG::INITIAL_LOCAL_KEY    = "default-L" ;
-const Identifier CONFIG::INITIAL_LOCAL_ID     = INITIAL_LOCAL_KEY ;
 const String     CONFIG::DEFAULT_CHANNEL_NAME = "unnamed" ;
 const String     CONFIG::DEFAULT_USER_NAME    = "jammer" ;
 const float      CONFIG::DEFAULT_VOLUME       = 0.0 ;
@@ -260,58 +258,47 @@ const StringRef CONFIG::USER_IP_SPLIT_CHAR = "@" ;
 //         * refernce them in LinJamConfig::establishSharedStore()
 //         * verify them in   LinJamConfig::sanityCheck()
 //         * dump them in     Trace::DEBUG_TRACE_REMOTE_CHANNELS
-#define CONFIG_XML "<?xml version=\"1.0\"?><" + \
-    PERSISTENCE_KEY        + "><"             + \
-      CLIENT_KEY           + " "              + \
-        SAVE_AUDIO_KEY     + "=\"-1\" "       + \
-        SAVE_LOG_KEY       + "=\"false\" "    + \
-        DEBUGLEVEL_KEY     + "=\"0\" "        + \
-        AUTOSUBSCRIBE_KEY  + "=\"1\" "        + \
-      "/><"                                   + \
-      AUDIO_KEY            + " "              + \
-        AUDIO_IF_KEY       + "=\"0\" "        + \
-        N_INPUTS_KEY       + "=\"2\" "        + \
-        N_OUTPUTS_KEY      + "=\"2\" "        + \
-        BITDEPTH_KEY       + "=\"16\" "       + \
-        SAMPLERATE_KEY     + "=\"48000\" "    + \
-        JACK_NAME_KEY      + "=\"linjam\" "   + \
-      "/><"                                   + \
-      SERVER_KEY           + " "              + \
-        HOST_KEY           + "=\"\" "         + \
-        LOGIN_KEY          + "=\"\" "         + \
-        PASS_KEY           + "=\"\" "         + \
-        ANON_KEY           + "=\"true\" "     + \
-        AGREED_KEY         + "=\"false\" "    + \
-        BOTS_KEY           + "=\"true\" "     + \
-      "/><"                                   + \
-      SERVERS_KEY          + " /><"           + \
-      SUBSCRIPTIONS_KEY    + " /><"           + \
-      MASTERS_KEY          + "><"             + \
-        MASTER_KEY         + " "              + \
-          VOLUME_KEY       + "=\"0.0\" "      + \
-          PAN_KEY          + "=\"0.0\" "      + \
-          IS_MUTED_KEY     + "=\"false\" "    + \
-      "/><"                                   + \
-        METRO_KEY          + " "              + \
-          VOLUME_KEY       + "=\"0.0\" "      + \
-          PAN_KEY          + "=\"0.0\" "      + \
-          IS_MUTED_KEY     + "=\"false\" "    + \
-          SOURCE_N_KEY     + "=\"0\" "        + \
-          IS_STEREO_KEY    + "=\"true\" "     + \
-      "/>"                                    + \
-      "</" + MASTERS_KEY   + "><"             + \
-      LOCALS_KEY           + "><"             + \
-        INITIAL_LOCAL_KEY  + " "              + \
-          CHANNELIDX_KEY   + "=\"0\" "        + \
-          VOLUME_KEY       + "=\"0.0\" "      + \
-          PAN_KEY          + "=\"0.0\" "      + \
-          IS_XMIT_KEY      + "=\"true\" "     + \
-          IS_MUTED_KEY     + "=\"false\" "    + \
-          IS_SOLO_KEY      + "=\"false\" "    + \
-          SOURCE_N_KEY     + "=\"0\" "        + \
-          IS_STEREO_KEY    + "=\"false\" "    + \
-        "/>"                                  + \
-      "</" + LOCALS_KEY    + "><"             + \
-      REMOTES_KEY          + "/>"             + \
-    "</" + PERSISTENCE_KEY + ">"
+#define CONFIG_XML "<?xml version=\"1.0\"?><"   + \
+    PERSISTENCE_KEY          + "><"             + \
+      CLIENT_KEY             + " "              + \
+        SAVE_AUDIO_KEY       + "=\"-1\" "       + \
+        SAVE_LOG_KEY         + "=\"false\" "    + \
+        DEBUGLEVEL_KEY       + "=\"0\" "        + \
+        AUTOSUBSCRIBE_KEY    + "=\"1\" "        + \
+      "/><"                                     + \
+      AUDIO_KEY              + " "              + \
+        AUDIO_IF_KEY         + "=\"0\" "        + \
+        N_INPUTS_KEY         + "=\"2\" "        + \
+        N_OUTPUTS_KEY        + "=\"2\" "        + \
+        BITDEPTH_KEY         + "=\"16\" "       + \
+        SAMPLERATE_KEY       + "=\"48000\" "    + \
+        JACK_NAME_KEY        + "=\"linjam\" "   + \
+      "/><"                                     + \
+      SERVER_KEY             + " "              + \
+        HOST_KEY             + "=\"\" "         + \
+        LOGIN_KEY            + "=\"\" "         + \
+        PASS_KEY             + "=\"\" "         + \
+        ANON_KEY             + "=\"true\" "     + \
+        AGREED_KEY           + "=\"false\" "    + \
+        BOTS_KEY             + "=\"true\" "     + \
+      "/><"                                     + \
+      SERVERS_KEY            + " /><"           + \
+      SUBSCRIPTIONS_KEY      + " /><"           + \
+      MASTERS_KEY            + "><"             + \
+        MASTER_KEY           + " "              + \
+          VOLUME_KEY         + "=\"0.0\" "      + \
+          PAN_KEY            + "=\"0.0\" "      + \
+          IS_MUTED_KEY       + "=\"false\" "    + \
+      "/><"                                     + \
+        METRO_KEY            + " "              + \
+          VOLUME_KEY         + "=\"0.0\" "      + \
+          PAN_KEY            + "=\"0.0\" "      + \
+          IS_MUTED_KEY       + "=\"false\" "    + \
+          SOURCE_N_KEY       + "=\"0\" "        + \
+          IS_STEREO_KEY      + "=\"true\" "     + \
+      "/>"                                      + \
+      "</" + MASTERS_KEY     + "><"             + \
+      LOCALS_KEY             + " /><"           + \
+      REMOTES_KEY            + " />"            + \
+    "</" + PERSISTENCE_KEY   + ">"
 const String CONFIG::DEFAULT_CONFIG_XML = String(CONFIG_XML) ;

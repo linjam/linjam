@@ -100,13 +100,14 @@ private:
                                    int    source_n                      ) ;
 
   // NJClient config helpers
-  static void   InstantiateLocalChannel(   ValueTree channel_store , int channel_idx) ;
+  static void   InstantiateLocalChannel(   ValueTree channel_store) ;
   static int    GetNumActiveChannels() ;
   static int    GetNumVacantChannels() ;
   static int    GetVacantLocalChannelIdx() ;
   static String GetLocalChannelClientName( int channel_idx) ;
   static String GetChannelDisplayName(     ValueTree channels , int channel_idx) ;
   static String GetLocalChannelDisplayName(int channel_idx) ;
+  static String GetRemoteUserName(         int user_idx) ;
   static String GetRemoteChannelName(      int user_idx , int channel_idx) ;
   static int    GetLocalChannelIdx(        Identifier channel_id) ;
   static int    GetRemoteUserIdx(          Identifier user_id) ;
