@@ -21,11 +21,6 @@
 #define __JUCE_HEADER_321A28830126E8DE__
 
 //[Headers]     -- You can add your own extra header files here --
-/*
-#if DEBUG
-#  include "Trace.h"
-#endif // DEBUG
-*/
 
 #include "JuceHeader.h"
 
@@ -43,7 +38,8 @@
 */
 class Channel  : public Component,
                  public ButtonListener,
-                 public SliderListener
+                 public SliderListener,
+                 public LabelListener
 {
 public:
     //==============================================================================
@@ -52,11 +48,11 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-/*
-#if DEBUG_TRACE
-  friend class Trace ;
-#endif // DEBUG_TRACE
-*/
+
+#if DEBUG
+friend class Channels ;
+#endif // DEBUG
+
   void updateChannelVU(double vu) ;
 
     //[/UserMethods]
@@ -64,18 +60,22 @@ public:
     void paint (Graphics& g);
     void resized();
     void sliderValueChanged (Slider* sliderThatWasMoved);
+    void labelTextChanged (Label* labelThatHasChanged);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
+  void buttonClicked(Button* a_button) ;
+
+
 protected:
 
   ValueTree configStore ;
 
 
-  void buttonClicked(   Button* a_button) ;
+  bool handleButtonClicked(Button* a_button) ;
   void setChannelConfig(Identifier config_key , var value) ;
 
     //[/UserVariables]
@@ -91,6 +91,7 @@ protected:
     ScopedPointer<Label> gainLabel;
     ScopedPointer<Label> nameLabel;
     ScopedPointer<TextButton> removeButton;
+    ScopedPointer<TextButton> configButton;
 
 
     //==============================================================================
@@ -111,6 +112,11 @@ class LocalChannel  : public Channel
   friend class LocalChannels ;
 
   LocalChannel(ValueTree channel_store) ;
+
+
+private:
+
+  void buttonClicked(Button* a_button) ;
 } ;
 
 class RemoteChannel : public Channel

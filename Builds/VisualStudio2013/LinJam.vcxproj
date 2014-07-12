@@ -141,8 +141,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Background.cpp"/>
     <ClCompile Include="..\..\Source\Channel.cpp"/>
-    <ClCompile Include="..\..\Source\Channels.cpp"/>
     <ClCompile Include="..\..\Source\ChannelConfig.cpp"/>
+    <ClCompile Include="..\..\Source\Channels.cpp"/>
     <ClCompile Include="..\..\Source\Chat.cpp"/>
     <ClCompile Include="..\..\Source\Constants.cpp"/>
     <ClCompile Include="..\..\Source\License.cpp"/>
@@ -154,7 +154,7 @@
     <ClCompile Include="..\..\Source\MainContent.cpp"/>
     <ClCompile Include="..\..\Source\Mixer.cpp"/>
     <ClCompile Include="..\..\Source\StatusBar.cpp"/>
-    <ClCompile Include="..\..\Source\Trace.cpp"/>
+    <ClCompile Include="..\..\Source\Trace\Trace.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharacterFunctions.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
@@ -911,8 +911,8 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\Background.h"/>
     <ClInclude Include="..\..\Source\Channel.h"/>
-    <ClInclude Include="..\..\Source\Channels.h"/>
     <ClInclude Include="..\..\Source\ChannelConfig.h"/>
+    <ClInclude Include="..\..\Source\Channels.h"/>
     <ClInclude Include="..\..\Source\Chat.h"/>
     <ClInclude Include="..\..\Source\Constants.h"/>
     <ClInclude Include="..\..\Source\License.h"/>
@@ -923,7 +923,6 @@
     <ClInclude Include="..\..\Source\MainContent.h"/>
     <ClInclude Include="..\..\Source\Mixer.h"/>
     <ClInclude Include="..\..\Source\StatusBar.h"/>
-    <ClInclude Include="..\..\Source\Trace.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_ASCII.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_UTF8.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_UTF16.h"/>

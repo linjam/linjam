@@ -53,8 +53,8 @@ endif
 OBJECTS := \
   $(OBJDIR)/Background_ba4a3b7.o \
   $(OBJDIR)/Channel_14ad93e4.o \
-  $(OBJDIR)/Channels_84b8f659.o \
   $(OBJDIR)/ChannelConfig_4569a306.o \
+  $(OBJDIR)/Channels_84b8f659.o \
   $(OBJDIR)/Chat_e7196be1.o \
   $(OBJDIR)/Constants_e698e730.o \
   $(OBJDIR)/License_de20cc22.o \
@@ -66,7 +66,7 @@ OBJECTS := \
   $(OBJDIR)/MainContent_6313eee1.o \
   $(OBJDIR)/Mixer_d95e2aea.o \
   $(OBJDIR)/StatusBar_3fb23a2.o \
-  $(OBJDIR)/Trace_c9579226.o \
+  $(OBJDIR)/Trace_fd3024bc.o \
   $(OBJDIR)/juce_core_aff681cc.o \
   $(OBJDIR)/juce_data_structures_bdd6d488.o \
   $(OBJDIR)/juce_events_79b2840.o \
@@ -100,14 +100,14 @@ $(OBJDIR)/Channel_14ad93e4.o: ../../Source/Channel.cpp
 	@echo "Compiling Channel.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/Channels_84b8f659.o: ../../Source/Channels.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Channels.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/ChannelConfig_4569a306.o: ../../Source/ChannelConfig.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ChannelConfig.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Channels_84b8f659.o: ../../Source/Channels.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Channels.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Chat_e7196be1.o: ../../Source/Chat.cpp
@@ -165,7 +165,7 @@ $(OBJDIR)/StatusBar_3fb23a2.o: ../../Source/StatusBar.cpp
 	@echo "Compiling StatusBar.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/Trace_c9579226.o: ../../Source/Trace.cpp
+$(OBJDIR)/Trace_fd3024bc.o: ../../Source/Trace/Trace.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Trace.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"

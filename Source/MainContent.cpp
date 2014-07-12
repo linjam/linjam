@@ -8,7 +8,7 @@
 
 #include "Constants.h"
 #include "MainContent.h"
-#include "Trace.h"
+#include "./Trace/Trace.h"
 
 
 //==============================================================================

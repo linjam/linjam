@@ -51,7 +51,8 @@ public:
 
   bool addRemoteUser(  ValueTree user_store) ;
   bool addChannel(     String channels_name , ValueTree channel_store) ;
-  void updateChannelVU(Identifier channels_id , String channel_id , double vu) ;
+  void renameChannel(  String channels_name , Identifier channel_id) ;
+  void updateChannelVU(String channels_name , Identifier channel_id , double vu) ;
   void positionResizers() ;
   void pruneRemotes(   ValueTree active_users) ;
 

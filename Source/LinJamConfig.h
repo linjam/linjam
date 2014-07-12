@@ -71,29 +71,27 @@ public:
 
   // validation
   bool       sanityCheck() ;
-  String     parseUsername(   String user_name) ;
-  Identifier encodeChannelId( String     channel_name , int channel_idx) ;
-  String     decodeChannelId( Identifier channel_id) ;
-  Identifier encodeUserId(    String     channel_name , int user_idx) ;
-  String     decodeUserId(    Identifier channel_id) ;
+  Identifier makeChannelId(int channel_idx) ;
+  String     parseUsername(    String user_name) ;
+  Identifier encodeUserId(     String channel_name , int user_idx) ;
 
   // getters/setters
-  ValueTree getOrCreateUser(   String user_name , int   user_idx ,
-                               float  volume    , float pan      , bool is_muted) ;
-  ValueTree getOrCreateChannel(Identifier channels_id   , String channel_name ,
-                               int        channel_idx   , float  volume       ,
-                               float      pan           , bool   is_xmit_rcv  ,
-                               bool       is_muted      , bool   is_solo      ,
-                               int        source_sink_n , bool   is_stereo    ) ;
-  ValueTree getUserById(       Identifier user_id) ;
-  ValueTree getChannelByIdx(   ValueTree channel_store , int channel_idx) ;
-  ValueTree getChannelById(    Identifier channels_id , Identifier channel_id) ;
+  ValueTree getOrCreateUser(     String user_name , int   user_idx ,
+                                 float  volume    , float pan      , bool is_muted) ;
+  ValueTree getOrCreateChannel(  Identifier channels_id   , String channel_name ,
+                                 int        channel_idx   , float  volume       ,
+                                 float      pan           , bool   is_xmit_rcv  ,
+                                 bool       is_muted      , bool   is_solo      ,
+                                 int        source_sink_n , bool   is_stereo    ) ;
+  ValueTree getUserById(         Identifier user_id) ;
+  ValueTree getChannelByIdx(     ValueTree channel_store , int channel_idx) ;
+  ValueTree getChannelById(      Identifier channels_id , Identifier channel_id) ;
   void      setServer() ;
-  ValueTree getServer(         String host) ;
-  void      setCurrentServer(  String host         , String login , String pass ,
-                               bool   is_anonymous                              ) ;
+  ValueTree getServer(           String host) ;
+  void      setCurrentServer(    String host         , String login , String pass ,
+                                 bool   is_anonymous                              ) ;
   ValueTree getCurrentServer() ;
-  void      setShouldAgree(    bool should_agree) ;
+  void      setServerShouldAgree(bool should_agree) ;
 
 
 private:
@@ -104,20 +102,20 @@ private:
 
 
   // validation
-  ValueTree sanitizeConfig(ValueTree default_config , ValueTree stored_config) ;
+  ValueTree sanitizeConfig(     ValueTree default_config , ValueTree stored_config) ;
   bool      sanityCheckChannels(ValueTree channels) ;
   void      storeConfig() ;
   void      establishSharedStore() ;
 
   // helpers
-  ValueTree  getNode(       Identifier tree_node_id) ;
-  Value      getLeaf(       ValueTree parent_node , Identifier child_node_id ,
-                            Identifier key) ;
-  Value      getClient(     Identifier key) ;
-  Value      getAudio(      Identifier key) ;
-  Value      getServer(     Identifier key) ;
-  ValueTree  addServer(     String host , String login , String pass , bool is_anonymous) ;
-  String     filteredName(  String a_name) ;
+  ValueTree  getNode(     Identifier tree_node_id) ;
+  Value      getLeaf(     ValueTree parent_node , Identifier child_node_id ,
+                          Identifier key) ;
+  Value      getClient(   Identifier key) ;
+  Value      getAudio(    Identifier key) ;
+  Value      getServer(   Identifier key) ;
+  ValueTree  addServer(   String host , String login , String pass , bool is_anonymous) ;
+  String     filteredName(String a_name) ;
 
   // event handlers
   void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)          override ;

@@ -8,14 +8,20 @@
   ==============================================================================
 */
 
-// #define DEBUG_STATIC_CHANNEL "localhost:2049"
-#define DEBUG_STATIC_CHANNEL "ninbot.com:2051"
-// #define DEBUG_STATIC_CHANNEL "ninjamer.com:2050"
-
-
 #include "LinJam.h"
 #include "Channel.h"
 #include "Constants.h"
+
+
+#if DEBUG
+#  include "./Trace/TraceLinJam.h"
+
+#  ifdef DEBUG_AUTOLOGIN
+// #  define DEBUG_STATIC_CHANNEL "localhost:2049"
+#    define DEBUG_STATIC_CHANNEL "ninbot.com:2052"
+// #  define DEBUG_STATIC_CHANNEL "ninjamer.com:2050"
+#  endif // DEBUG_AUTOLOGIN
+#endif // DEBUG
 
 
 /* LinJam public class variables */
@@ -143,45 +149,38 @@ void LinJam::UpdateGuiHighPriority()
   Gui->statusbar->setStatusR(String(bpi) + " bpi @ " + String(bpm) + " bpm") ;
 
   // master VU
-  ValueTree metro_store = Config->getChannelById(GUI::MASTERS_ID , CONFIG::METRO_KEY) ;
+  ValueTree metro_store = Config->getChannelById(GUI::MASTERS_ID , CONFIG::METRO_ID) ;
   double    master_vu   = VAL2DB(Client->GetOutputPeak()) ;
   double    metro_vu    = (bool(metro_store[CONFIG::IS_MUTED_ID]))? GUI::VU_DB_MIN :
                           (discrete_progress * GUI::VU_DB_RANGE) + GUI::VU_DB_MIN ;
-  Gui->mixer->updateChannelVU(GUI::MASTERS_ID , CONFIG::MASTER_KEY , master_vu) ;
-  Gui->mixer->updateChannelVU(GUI::MASTERS_ID , CONFIG::METRO_KEY  , metro_vu) ;
+  Gui->mixer->updateChannelVU(GUI::MASTERS_GUI_ID , CONFIG::MASTER_ID , master_vu) ;
+  Gui->mixer->updateChannelVU(GUI::MASTERS_GUI_ID , CONFIG::METRO_ID  , metro_vu) ;
 
   // local VU
   int channel_n = -1 ; int channel_idx ;
   while (~(channel_idx = Client->EnumLocalChannels(++channel_n)))
-    Gui->mixer->updateChannelVU(GUI::LOCALS_ID                                  ,
-                                GetLocalChannelDisplayName(channel_idx)         ,
-                                VAL2DB(Client->GetLocalChannelPeak(channel_idx))) ;
+  {
+    Identifier channel_id = Config->makeChannelId(channel_idx) ;
+    float  vu             = VAL2DB(Client->GetLocalChannelPeak(channel_idx)) ;
+    Gui->mixer->updateChannelVU(GUI::LOCALS_GUI_ID , channel_id , vu) ;
+  }
 
   // remote VU
   int user_idx = -1 ; String user_name ;
   while ((user_name = GetRemoteUserName(++user_idx)).isNotEmpty())
   {
-#ifdef DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
-DBG("user[" + String(user_idx) + "]=" + String(Config->encodeUserId(user_name , user_idx))) ;
-#endif // DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
-
-    Identifier user_id   = Config->encodeUserId(user_name , user_idx) ;
+    user_name            = String(Config->encodeUserId(user_name , user_idx)) ;
     float      master_vu = 0.0f ; channel_n = -1 ;
     while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
     {
       // update remote channel VU
-      String channel_name = GetRemoteChannelName(user_idx , channel_idx) ;
-      String channel_id   = String(Config->encodeChannelId(channel_name , channel_idx)) ;
-      float  channel_vu   = Client->GetUserChannelPeak(user_idx , channel_idx) ;
-      master_vu += channel_vu ;
-      Gui->mixer->updateChannelVU(user_id , channel_id , VAL2DB(channel_vu)) ;
-
-#ifdef DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
-DBG("user[" + String(user_idx) + "]=" + String(user_id) + " channel[" + String(channel_n) + "/" + String(channel_idx) + "]="+ channel_id) ;
-#endif // DEBUG_DUPLICATE_CHANNEL_NAMES_VU_BUG
+      Identifier channel_id = Config->makeChannelId(channel_idx) ;
+      float  channel_vu     = Client->GetUserChannelPeak(user_idx , channel_idx) ;
+      master_vu            += channel_vu ;
+      Gui->mixer->updateChannelVU(user_name , channel_id , VAL2DB(channel_vu)) ;
     }
     // update remote master VU
-    Gui->mixer->updateChannelVU(user_id , CONFIG::MASTER_KEY , VAL2DB(master_vu)) ;
+    Gui->mixer->updateChannelVU(user_name , CONFIG::MASTER_ID , VAL2DB(master_vu)) ;
   }
 }
 
@@ -199,11 +198,15 @@ void LinJam::UpdateGuiLowPriority()
 
   if (server_has_bot)
   {
-    int bot_n = NETWORK::N_KNOWN_BOTS ; int bot_idx ;
-    while (bot_n--)
-      if (~(bot_idx = GetRemoteUserIdx(NETWORK::KNOWN_BOTS.getUnchecked(bot_n))))
+    for (int bot_n = 0 ; bot_n < NETWORK::N_KNOWN_BOTS ; ++bot_n)
+    {
+      ValueTree user_store = Config->getUserById(NETWORK::KNOWN_BOTS.getUnchecked(bot_n)) ;
+      if (user_store.isValid())
+      {
+        int bot_idx    = int(user_store[CONFIG::USERIDX_ID]) ;
         recording_time = " - " + GetRemoteChannelName(bot_idx , CLIENT::BOT_CHANNELIDX) ;
-
+      }
+    }
     bool has_recording_time_changed = recording_time.compare(PrevRecordingTime) ;
     bool is_this_first_pass         = PrevRecordingTime.isEmpty() ;
     bool should_show_recording_time = (has_recording_time_changed && !is_this_first_pass) ;
@@ -218,7 +221,16 @@ void LinJam::UpdateGuiLowPriority()
 
 /* getters/setters */
 
-bool LinJam::IsAgreed() { return bool(Config->currentIsAgreed.getValue()) ; }
+bool LinJam::IsAgreed()
+{
+  ValueTree server              = Config->getCurrentServer() ;
+  bool      should_always_agree = server.isValid() &&
+                                  bool(server.getProperty(CONFIG::AGREE_ID)) ;
+  bool      is_agreed           = bool(Config->currentIsAgreed.getValue()) ||
+                                  should_always_agree ;
+
+  return is_agreed ;
+}
 
 SortedSet<int> LinJam::GetFreeInputChannels() { return FreeInputChannels ; }
 
@@ -227,29 +239,29 @@ SortedSet<int> LinJam::GetFreeInputChannelPairs() { return FreeInputChannelPairs
 
 /* GUI event handlers */
 
-bool LinJam::AddLocalChannel(String channel_name , bool is_stereo , int set_idx)
+bool LinJam::AddLocalChannel(String channel_name , bool is_stereo , int source_n)
 {
 DEBUG_TRACE_ADD_LOCAL_CHANNEL
 
-  // extract source_n from the appropriate free list (set members are 1-based)
-  int freeset_member = (!is_stereo)? FreeInputChannels    [set_idx] :
-                                     FreeInputChannelPairs[set_idx] ;
-  int source_n       = freeset_member - 1 ;
-
   // sanity check
+  bool is_valid_source           = source_n >= 0 ;
+  bool is_slot_vacant            = !IsConfiguredChannel(source_n) ;
   int  n_vacant_channels         = GetNumVacantChannels() ;
   bool are_sufficient_n_channels = (!is_stereo && n_vacant_channels >= 1 ||
                                      is_stereo && n_vacant_channels >= 2) ;
-  if (!(~set_idx)                ||                  // empty list or invalid index
-      !are_sufficient_n_channels || !freeset_member) // corrupted list or xml
-    return false ;                                   // (no free channels)
+  if (!is_valid_source         || // empty list or non-existent source
+      !is_slot_vacant          || // corrupted list or insane xml
+      !are_sufficient_n_channels) // corrupted list or insane xml
+    return false ;
 
   // remove selected channel(s) from free lists
+  int freeset_member = source_n + 1 ; // set members are 1-based - source_n == channel_idx
   if (!is_stereo)
   {
-    int pair_member = (freeset_member % 2)? freeset_member : freeset_member - 1 ;
+    int stereo_master_member = (source_n % 2)? freeset_member - 1 : freeset_member ;
+
     FreeInputChannels    .removeValue(freeset_member) ;
-    FreeInputChannelPairs.removeValue(freeset_member) ;
+    FreeInputChannelPairs.removeValue(stereo_master_member) ;
   }
   else
   {
@@ -258,18 +270,28 @@ DEBUG_TRACE_ADD_LOCAL_CHANNEL
     FreeInputChannelPairs.removeValue(freeset_member) ;
   }
 
-  // add new local channel(s)
-  CreateLocalChannel(channel_name , is_stereo , source_n) ;
+DEBUG_TRACE_DUMP_FREE_INPUTS_VB
+DEBUG_TRACE_CREATE_LOCAL_CHANNEL
 
-// DEBUG_TRACE_DUMP_FREE_INPUTS_VB
-    SortedSet<int> monos   = FreeInputChannels ;     int n_monos   = monos.size() ;
-    SortedSet<int> stereos = FreeInputChannelPairs ; int n_stereos = stereos.size() ;
-    String dump = "AddLocalChannel() " + String(n_monos)   + " FreeInputChannels     = [" ;
-    for (int i = 0 ; i < n_monos ; ++i)   dump += String(monos[i])   + " " ;
-    DBG(dump.trim() + "]") ;
-    dump        = "AddLocalChannel() " + String(n_stereos) + " FreeInputChannelPairs = [" ;
-    for (int i = 0 ; i < n_stereos ; ++i) dump += String(stereos[i]) + " " ;
-    DBG(dump.trim() + "]") ;
+  // create local channel storage
+  ValueTree channel_store = Config->getOrCreateChannel(GUI::LOCALS_ID           ,
+                                                       channel_name             ,
+                                                       source_n                 ,
+                                                       CONFIG::DEFAULT_VOLUME   ,
+                                                       CONFIG::DEFAULT_PAN      ,
+                                                       CONFIG::DEFAULT_IS_XMIT  ,
+                                                       CONFIG::DEFAULT_IS_MUTED ,
+                                                       CONFIG::DEFAULT_IS_SOLO  ,
+                                                       source_n                 ,
+                                                       is_stereo                ) ;
+
+DEBUG_TRACE_INSTANTIATE_LOCAL_CHANNEL
+
+  if (!channel_store.isValid()) return false ;
+
+  // create local Channel GUI and configure NJClient input channel
+  Gui->mixer->addChannel(GUI::LOCALS_GUI_ID , channel_store) ;
+  ConfigureLocalChannel(channel_store , CONFIG::CONFIG_ALL_ID) ;
 
   return true ;
 }
@@ -283,17 +305,17 @@ DEBUG_TRACE_REMOVE_LOCAL_CHANNEL
   bool channel_idx    = int( channel_store[CONFIG::CHANNELIDX_ID]) ;
   int  source_n       = int( channel_store[CONFIG::SOURCE_N_ID]) ;
   bool is_stereo      = bool(channel_store[CONFIG::IS_STEREO_ID]) ;
-  int  freeset_member = source_n + 1 ; // set members are 1-based
+  int  freeset_member = source_n + 1 ; // set members are 1-based - source_n == channel_idx
 
   // add removed channel(s) to free lists
   if (!is_stereo)
   {
-    // pair is source +1 if this source could be the base of a stereo pair (source_n even)
-    // pair is source -1 if this source could be the pair of a stereo pair (source_n odd)
-    int stereo_pair_member = freeset_member + 1 - (2 * (source_n % 2)) ;
+    // make stereo selection available only if both this and its potential pair are free
+    int mono_pair_member   = (source_n % 2)? freeset_member - 1 : freeset_member + 1 ;
+    int stereo_pair_member = (source_n % 2)? freeset_member - 1 : freeset_member ;
 
     FreeInputChannels.add(freeset_member) ;
-    if (FreeInputChannels.contains(stereo_pair_member))
+    if (FreeInputChannels.contains(mono_pair_member))
       FreeInputChannelPairs.add(stereo_pair_member) ;
 
     Client->DeleteLocalChannel(channel_idx) ;
@@ -305,21 +327,12 @@ DEBUG_TRACE_REMOVE_LOCAL_CHANNEL
     FreeInputChannelPairs.add(freeset_member) ;
 
     Client->DeleteLocalChannel(channel_idx) ;
-    String pair_name = String(channel_store.getType()) + CLIENT::STEREO_R_POSTFIX ;
-    Client->DeleteLocalChannel(GetLocalChannelIdx(pair_name)) ;
+    Client->DeleteLocalChannel(channel_idx + 1) ;
   }
 
   Client->NotifyServerOfChannelChange() ;
 
-// DEBUG_TRACE_DUMP_FREE_INPUTS_VB
-    SortedSet<int> monos   = FreeInputChannels ;     int n_monos   = monos.size() ;
-    SortedSet<int> stereos = FreeInputChannelPairs ; int n_stereos = stereos.size() ;
-    String dump = "RemoveLocalChannel() " + String(n_monos)   + " FreeInputChannels     = [" ;
-    for (int i = 0 ; i < n_monos ; ++i)   dump += String(monos[i])   + " " ;
-    DBG(dump.trim() + "]") ;
-    dump        = "RemoveLocalChannel() " + String(n_stereos) + " FreeInputChannelPairs = [" ;
-    for (int i = 0 ; i < n_stereos ; ++i) dump += String(stereos[i]) + " " ;
-    DBG(dump.trim() + "]") ;
+DEBUG_TRACE_DUMP_FREE_INPUTS_VB
 }
 
 void LinJam::SendChat(String chat_text)
@@ -339,20 +352,11 @@ DEBUG_TRACE_CHAT_OUT
 
 int LinJam::OnLicense(int user32 , char* license_text)
 {
-#ifdef DEBUG_AUTOLOGIN_NYI
-  return true ;
-#endif // DEBUG_AUTOLOGIN_NYI
-
-  ValueTree server         = Config->getCurrentServer() ;
-  bool should_always_agree = server.isValid() &&
-                             bool(server.getProperty(CONFIG::AGREE_ID)) ;
-  bool is_agreed           = IsAgreed() || should_always_agree ;
-
-  if (!is_agreed) Gui->license->setLicenseText(CharPointer_UTF8(license_text)) ;
+  if (!IsAgreed()) Gui->license->setLicenseText(CharPointer_UTF8(license_text)) ;
 
 DEBUG_TRACE_LICENSE
 
-  return is_agreed ;
+  return IsAgreed() ;
 }
 
 void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , int nparms)
@@ -442,23 +446,25 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 void LinJam::HandleStatusChanged(int client_status)
 {
 DEBUG_TRACE_CONNECT_STATUS
-#ifdef DEBUG_AUTOLOGIN_NYI
-if (!Gui->statusbar->getStatusL().compare(GUI::DISCONNECTED_STATUS_TEXT))
+#ifdef DEBUG_AUTOLOGIN
+if (client_status == NJClient::NJC_STATUS_PRECONNECT)
 { Config->setCurrentServer(DEBUG_STATIC_CHANNEL , "nobody" , "" , true) ;
-  Connect() ; }
-#endif // DEBUG_AUTOLOGIN_NYI
+  LinJam::Config->currentIsAgreed = true ; Connect() ; }
+#endif // DEBUG_AUTOLOGIN
 
   // server config
   if (client_status == NJClient::NJC_STATUS_OK) Config->setServer() ;
 
   // status indicator
-  String host = Client->GetHostName() ; String status_text ;
+  String client_error_msg = CharPointer_UTF8(Client->GetErrorStr()) ;
+  bool   is_room_full     = !client_error_msg.compare(CLIENT::SERVER_FULL_STATUS) ;
+  String host             = Client->GetHostName() ; String status_text ;
   switch (client_status)
   {
     case NJClient::NJC_STATUS_DISCONNECTED:
       status_text = GUI::DISCONNECTED_STATUS_TEXT ;                    break ;
     case NJClient::NJC_STATUS_INVALIDAUTH:
-      status_text = (IsAgreed())? ((IsRoomFull())?
+      status_text = (IsAgreed())? ((is_room_full)?
                     GUI::ROOM_FULL_STATUS_TEXT :
                     GUI::INVALID_AUTH_STATUS_TEXT) :
                     GUI::PENDING_LICENSE_STATUS_TEXT ;                 break ;
@@ -505,14 +511,14 @@ if (!Gui->statusbar->getStatusL().compare(GUI::DISCONNECTED_STATUS_TEXT))
 void LinJam::HandleUserInfoChanged()
 {
 #ifndef UPDATE_REMOTES
-  return ;
+return ;
 #endif // UPDATE_REMOTES
 DEBUG_TRACE_REMOTE_CHANNELS_VB
 
   bool server_has_bot   = NETWORK::KNOWN_HOSTS.contains(String(Client->GetHostName())) ;
   bool should_hide_bots = server_has_bot && bool(Config->shouldHideBots.getValue()) ;
 
-  // initialize dictionary for pruning GUI elements for parted users
+  // initialize dictionary for pruning parted users GUI elements
   ValueTree active_users = ValueTree("active-users") ;
 
   // fetch remote user states from server
@@ -520,65 +526,82 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
   bool   is_rcv ;     bool  is_solo ; int   sink_n ; bool is_stereo ; int user_idx = -1 ;
   while ((user_name = GetRemoteUserName(++user_idx)).isNotEmpty())
   {
-    Identifier user_id = Config->encodeUserId(user_name , user_idx) ;
+    Identifier user_id   = Config->encodeUserId(user_name , user_idx) ;
+    String     user_name = String(user_id) ;
     if (should_hide_bots && NETWORK::KNOWN_BOTS.contains(user_id)) continue ;
 
     // get or create remote user storage
     Client->GetUserState(user_idx , &volume , &pan , &is_muted) ;
-    ValueTree user_store = Config->getOrCreateUser(String(user_id) , user_idx ,
-                                                   volume          , pan      , is_muted) ;
-    String    user_name  = String(user_id = user_store.getType()) ;
+    ValueTree user_store = Config->getOrCreateUser(user_name , user_idx ,
+                                                   volume    , pan      , is_muted) ;
+    user_name            = String(user_id = user_store.getType()) ;
     if (!user_store.isValid()) continue ;
 
-    // create remote user GUI
-    bool user_gui_was_added = Gui->mixer->addRemoteUser(user_store) ;
+    // update stored NJClient remote user index
+    user_store.setProperty(CONFIG::USERIDX_ID , user_idx , nullptr) ;
 
-    // list this user as active for GUI pruning
-    ValueTree active_user_channels = ValueTree(user_id) ;
+    // create remote user GUI
+    if (Gui->mixer->addRemoteUser(user_store))
+    {
+      // create remote master channel storage
+      ValueTree master_store = Config->getOrCreateChannel(user_id                  ,
+                                                          CONFIG::MASTER_KEY       ,
+                                                          CLIENT::MASTER_IDX       ,
+                                                          volume                   ,
+                                                          pan                      ,
+                                                          CONFIG::DEFAULT_IS_XMIT  ,
+                                                          is_muted                 ,
+                                                          CONFIG::DEFAULT_IS_SOLO  ,
+                                                          CLIENT::MASTER_IDX       ,
+                                                          CONFIG::DEFAULT_IS_STEREO) ;
+
+      // create remote master channel GUI and restore stored NJClient user state
+      if (Gui->mixer->addChannel(user_name , master_store))
+        ConfigureRemoteChannel(user_store , master_store , CONFIG::CONFIG_ALL_ID) ;
+    }
+
+    // initialize array for pruning removed channels GUI elements
+    Array<var> active_channels = Array<var>() ;
 
     int channel_n = -1 ; int channel_idx ;
     while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
     {
       // load remote channel state
-      String channel_name = GetRemoteChannelName(user_idx , channel_idx) ;
       Client->GetUserChannelState(user_idx , channel_idx , &is_rcv    ,
                                   &volume  , &pan        , &is_muted  ,
                                   &is_solo , &sink_n     , &is_stereo ) ;
 
+#ifndef FAUX_STEREO_REMOTES_NYI
+      is_stereo = false ;
+#endif
+
       // get or create remote channel storage
-      Identifier channel_id    = Config->encodeChannelId(channel_name , channel_idx) ;
-      ValueTree  channel_store = Config->getOrCreateChannel(user_id     , channel_name ,
-                                                            channel_idx , volume       ,
-                                                            pan         , is_rcv       ,
-                                                            is_muted    , is_solo      ,
-                                                            sink_n      , is_stereo    ) ;
+      String    channel_name  = GetRemoteChannelName(user_idx , channel_idx) ;
+      ValueTree channel_store = Config->getOrCreateChannel(user_id     , channel_name ,
+                                                           channel_idx , volume       ,
+                                                           pan         , is_rcv       ,
+                                                           is_muted    , is_solo      ,
+                                                           sink_n      , is_stereo    ) ;
       if (!channel_store.isValid()) continue ;
 
-      // create remote channel GUI
+      // create remote channel GUI and restore stored NJClient remote channel state
       if (Gui->mixer->addChannel(user_name , channel_store))
-      {
-        // update stored NJClient remote channel index
-        channel_store.setProperty(CONFIG::CHANNELIDX_ID , channel_idx , nullptr) ;
-
-        // restore stored NJClient remote channel state
         ConfigureRemoteChannel(user_store , channel_store , CONFIG::CONFIG_ALL_ID) ;
+      // or rename existing channel
+      else if (channel_name.compare(GetChannelName(channel_store)))
+      {
+        channel_store.setProperty(CONFIG::CHANNELNAME_ID , channel_name , nullptr) ;
+        Gui->mixer->renameChannel(user_name , channel_store.getType()) ;
       }
 
+      // update NJClient remote channel index
+      channel_store.setProperty(CONFIG::CHANNELIDX_ID , channel_idx , nullptr) ;
+
       // add channel to GUI prune list
-      active_user_channels.setProperty(channel_store.getType() , -1 , nullptr) ;
+      active_channels.add(var(String(channel_store.getType()))) ;
     }
     // add user to GUI prune list
-    active_users.addChild(active_user_channels , -1 , nullptr) ;
-
-    if (user_gui_was_added)
-    {
-      // update stored NJClient remote user index
-      user_store.setProperty(CONFIG::USERIDX_ID , user_idx , nullptr) ;
-
-      // restore stored NJClient remote user master state
-      ValueTree master_store = Config->getChannelById(user_id , CONFIG::MASTER_ID) ;
-      ConfigureRemoteChannel(user_store , master_store , CONFIG::CONFIG_ALL_ID) ;
-    }
+    active_users.setProperty(user_id , active_channels , nullptr) ;
   }
   // prune user and channel GUIs
   Gui->mixer->pruneRemotes(active_users) ;
@@ -631,12 +654,6 @@ void LinJam::HandleChatCommand(String chat_text)
   else Gui->chat->addChatLine(GUI::SERVER_NICK , GUI::UNKNOWN_COMMAND_MSG) ;
 }
 
-bool LinJam::IsRoomFull()
-{
-  String err = String(CharPointer_UTF8(Client->GetErrorStr())) ;
-  return (err.isNotEmpty() && !err.compare(CLIENT::SERVER_FULL_STATUS)) ;
-}
-
 
 /* state helpers */
 
@@ -644,13 +661,13 @@ bool LinJam::InitializeAudio()
 {
   IsAudioEnabled = false ; if (Audio) delete Audio ;
 
-        int   interface_n   = int(Config->audioIfN  .getValue()) ;
-        int   n_inputs      = int(Config->nInputs   .getValue()) ;
-        int   n_outputs     = int(Config->nOutputs  .getValue()) ;
-        int   bit_depth     = int(Config->bitDepth  .getValue()) ;
-        int   sample_rate   = int(Config->sampleRate.getValue()) ;
-  const char* jack_name     =     Config->jackName  .toString().toRawUTF8() ;
-        char* config_string = "" ;
+  int    interface_n   = int(Config->audioIfN  .getValue()) ;
+  int    n_inputs      = int(Config->nInputs   .getValue()) ;
+  int    n_outputs     = int(Config->nOutputs  .getValue()) ;
+  int    bit_depth     = int(Config->bitDepth  .getValue()) ;
+  int    sample_rate   = int(Config->sampleRate.getValue()) ;
+  String jack_name     =     Config->jackName  .toString() ;
+  char*  config_string = "" ;
 
 #ifdef _WIN32
   audioStreamer::WinAudioIf if_n = (audioStreamer::WinAudioIf)interface_n ;
@@ -660,8 +677,8 @@ DEBUG_TRACE_AUDIO_INIT_WIN
 
 #else // _WIN32
 #  ifdef _MAC
-  Audio = create_audioStreamer_CoreAudio(&config_string , sample_rate ,
-                                         n_inputs , bit_depth , OnSamples) ;
+  Audio = create_audioStreamer_CoreAudio(&config_string , sample_rate , n_inputs ,
+                                         bit_depth      , OnSamples              ) ;
 
 DEBUG_TRACE_AUDIO_INIT_MAC
 
@@ -669,8 +686,8 @@ DEBUG_TRACE_AUDIO_INIT_MAC
   switch (interface_n)
   {
     case 0: // JACK
-      Audio = create_audioStreamer_JACK(jack_name , n_inputs , n_outputs ,
-                                        OnSamples , Client) ;
+      Audio = create_audioStreamer_JACK(jack_name.toRawUTF8() , n_inputs , n_outputs ,
+                                        OnSamples             , Client               ) ;
 
 DEBUG_TRACE_AUDIO_INIT_JACK
 
@@ -709,8 +726,8 @@ DEBUG_TRACE_AUDIO_INIT
 void LinJam::ConfigureInitialChannels()
 {
   // add master and metro channel GUI mixers and configure NJClient master channels
-  ValueTree master_store = Config->masterChannels.getChildWithName(GUI::MASTER_CHANNEL_GUI_ID) ;
-  ValueTree metro_store  = Config->masterChannels.getChildWithName(GUI::METRO_CHANNEL_GUI_ID) ;
+  ValueTree master_store = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::MASTER_ID) ;
+  ValueTree metro_store  = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID) ;
   Gui->mixer->addChannel(GUI::MASTERS_GUI_ID , master_store) ;
   Gui->mixer->addChannel(GUI::MASTERS_GUI_ID , metro_store) ;
   ConfigureMasterChannel(CONFIG::CONFIG_ALL_ID) ;
@@ -721,7 +738,7 @@ void LinJam::ConfigureInitialChannels()
   for (int channel_n = 0 ; channel_n < channels.getNumChildren() ; ++channel_n)
   {
     ValueTree channel_store = Config->localChannels.getChild(channel_n) ;
-    String    channel_name  = String(channel_store.getType()) ;
+    String    channel_name  =      channel_store[CONFIG::CHANNELNAME_ID].toString() ;
     bool      is_stereo     = bool(channel_store[CONFIG::IS_STEREO_ID]) ;
     int       channel_idx   = int( channel_store[CONFIG::CHANNELIDX_ID]) ;
 
@@ -781,64 +798,14 @@ DEBUG_TRACE_CLEAN_SESSION
   File this_dir    = this_binary.getParentDirectory() ;
   if (!SessionDir.isDirectory() || !SessionDir.isAChildOf(this_dir)) return ;
 
-  // NOTE: the *.ninjam directories created when save_loca_audio == -1 (delete ASAP)
+  // TODO: the *.ninjam directories created when save_loca_audio == -1 (delete ASAP)
   //           are not being deleted implicitly as they presumably should be (issue #32)
   DirectoryIterator session_dir_iter(SessionDir , false , "*.*" , File::findFilesAndDirectories) ;
   while (session_dir_iter.next()) session_dir_iter.getFile().deleteRecursively() ;
 }
 
 
-/* config storage helpers */
-
-void LinJam::CreateLocalChannel(String channel_name , bool is_stereo , int source_n)
-{
-DEBUG_TRACE_CREATE_LOCAL_CHANNEL
-
-  // ensure that we do not exceed our maximum number of local channels
-  int channel_idx = GetVacantLocalChannelIdx() ; if (!(~channel_idx)) return ;
-
-  // create local channel storage
-  if (!channel_name.compare(CONFIG::DEFAULT_CHANNEL_NAME)) channel_name = String::empty ;
-  Identifier channel_id    = Config->encodeChannelId(channel_name , channel_idx) ;
-  ValueTree  channel_store = Config->getOrCreateChannel(GUI::LOCALS_ID           ,
-                                                        channel_name             ,
-                                                        channel_idx              ,
-                                                        CONFIG::DEFAULT_VOLUME   ,
-                                                        CONFIG::DEFAULT_PAN      ,
-                                                        CONFIG::DEFAULT_IS_XMIT  ,
-                                                        CONFIG::DEFAULT_IS_MUTED ,
-                                                        CONFIG::DEFAULT_IS_SOLO  ,
-                                                        source_n                 ,
-                                                        is_stereo                ) ;
-  InstantiateLocalChannel(channel_store) ;
-}
-
-
 /* NJClient config helpers */
-
-void LinJam::InstantiateLocalChannel(ValueTree channel_store)
-{
-DEBUG_TRACE_INSTANTIATE_LOCAL_CHANNEL
-
-  if (!channel_store.isValid()) return ;
-
-  // create local Channel GUI and configure NJClient input channel
-  Gui->mixer->addChannel(GUI::LOCALS_GUI_ID , channel_store) ;
-  Identifier channel_id        = channel_store.getType() ;
-  String     channel_name      = String(channel_id) ;
-  if (is_stereo) channel_name += CLIENT::STEREO_L_POSTFIX ;
-  ConfigureLocalChannel(channel_store , CONFIG::CONFIG_ALL_ID , channel_name) ;
-
-  if (is_stereo)
-  {
-    String     pair_name     = String(channel_id) + CLIENT::STEREO_R_POSTFIX ;
-    ValueTree  pair_store    = channel_store.createCopy() ;
-    int        pair_source_n = int(pair_store[CONFIG::SOURCE_N_ID]) + 1 ;
-
-    pair_store.setProperty(CONFIG::SOURCE_N_ID , pair_source_n , nullptr) ;
-    ConfigureLocalChannel(pair_store , CONFIG::CONFIG_ALL_ID , pair_name) ;
-  }
-}
 
 int LinJam::GetNumActiveChannels()
 {
@@ -854,85 +821,46 @@ int LinJam::GetNumVacantChannels()
 int LinJam::GetVacantLocalChannelIdx()
 {
   // find the first vacant NJClient local channel slot index
-  int channel_idx = -1 ; while (GetLocalChannelClientName(++channel_idx).isNotEmpty()) ;
+  int channel_idx = -1 ; while (IsConfiguredChannel(++channel_idx)) ;
   bool is_vacant_slot = (channel_idx < Audio->m_innch) ;
 
   return (is_vacant_slot)? channel_idx : -1 ;
 }
 
+String LinJam::GetChannelName(ValueTree channel_store)
+{
+  return channel_store[CONFIG::CHANNELNAME_ID].toString() ;
+}
+
 String LinJam::GetLocalChannelClientName(int channel_idx)
 {
-  return Client->GetLocalChannelInfo(channel_idx , NULL , NULL , NULL) ;
-}
-
-String LinJam::GetChannelDisplayName(ValueTree channels , int channel_idx)
-{
-  ValueTree channel_store = Config->getChannelByIdx(channels , channel_idx) ;
-  return String(channel_store.getType()) ; ;
-}
-
-String LinJam::GetLocalChannelDisplayName(int channel_idx)
-{
-  return GetChannelDisplayName(Config->localChannels , channel_idx) ;
+  return CharPointer_UTF8(Client->GetLocalChannelInfo(channel_idx , NULL , NULL , NULL)) ;
 }
 
 String LinJam::GetRemoteUserName(int user_idx)
 {
-  return String(CharPointer_UTF8(Client->GetUserState(user_idx))) ;
+  return CharPointer_UTF8(Client->GetUserState(user_idx)) ;
 }
 
 String LinJam::GetRemoteChannelName(int user_idx , int channel_idx)
 {
-  return String(CharPointer_UTF8(Client->GetUserChannelState(user_idx , channel_idx))) ;
+  return CharPointer_UTF8(Client->GetUserChannelState(user_idx , channel_idx)) ;
 }
 
-int LinJam::GetLocalChannelIdx(Identifier channel_id)
+bool LinJam::IsConfiguredChannel(int channel_idx)
 {
-  // find local channel slot index
-  int channel_n = -1 ; int channel_idx ;
-  while (~(channel_idx = Client->EnumLocalChannels(++channel_n)))
-  {
-    String     channel_name = GetLocalChannelClientName(channel_idx) ;
-    Identifier id           = Config->encodeChannelId(channel_name , channel_idx) ;
-    if (channel_id == id) break ;
-  }
-
-  return channel_idx ;
-}
-
-int LinJam::GetRemoteUserIdx(Identifier user_id)
-{
-  // find remote user slot index
-  int user_idx = Client->GetNumUsers() ; String user_name ;
-  while ((user_name = GetRemoteUserName(--user_idx)).isNotEmpty())
-    if (user_id == Config->encodeUserId(user_name , user_idx)) break ;
-
-  return user_idx ;
-}
-
-int LinJam::GetRemoteChannelIdx(int user_idx , Identifier channel_id)
-{
-  // find remote channel slot index
-  int channel_n = -1 ; int channel_idx ;
-  while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
-  {
-    String     channel_name = GetRemoteChannelName(user_idx , channel_idx) ;
-    Identifier id           = Config->encodeChannelId(channel_name , channel_idx) ;
-    if (channel_id == id) break ;
-  }
-
-  return channel_idx ;
+  return GetLocalChannelClientName(channel_idx).isNotEmpty() ;
 }
 
 void LinJam::ConfigureMasterChannel(Identifier a_key)
 {
-  ValueTree channel_store = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::MASTER_ID) ;
-  if (!channel_store.isValid()) return ;
+  ValueTree master_store = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::MASTER_ID) ;
+  if (!master_store.isValid()) return ;
 
   // load stored config for this channel
-  float volume   = float(channel_store[CONFIG::VOLUME_ID]) ;
-  float pan      = float(channel_store[CONFIG::PAN_ID]) ;
-  bool  is_muted = bool( channel_store[CONFIG::IS_MUTED_ID]) ;
+  float volume   = float(master_store[CONFIG::VOLUME_ID]) ;
+  float pan      = float(master_store[CONFIG::PAN_ID]) ;
+  bool  is_muted = bool( master_store[CONFIG::IS_MUTED_ID]) ;
 
   // determine which NJClient channel params to modify
   bool should_set_all      = (a_key == CONFIG::CONFIG_ALL_ID) ;
@@ -948,15 +876,15 @@ void LinJam::ConfigureMasterChannel(Identifier a_key)
 
 void LinJam::ConfigureMetroChannel(Identifier a_key)
 {
-  ValueTree channel_store = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID) ;
-  if (!channel_store.isValid()) return ;
+  ValueTree metro_store = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID) ;
+  if (!metro_store.isValid()) return ;
 
   // load stored config for this channel
-  float volume    = float(channel_store[CONFIG::VOLUME_ID]) ;
-  float pan       = float(channel_store[CONFIG::PAN_ID]) ;
-  bool  is_muted  = bool( channel_store[CONFIG::IS_MUTED_ID]) ;
-  int   source_n  = int(  channel_store[CONFIG::SOURCE_N_ID]) ;
-  bool  is_stereo = bool( channel_store[CONFIG::IS_STEREO_ID]) ;
+  float volume    = float(metro_store[CONFIG::VOLUME_ID]) ;
+  float pan       = float(metro_store[CONFIG::PAN_ID]) ;
+  bool  is_muted  = bool( metro_store[CONFIG::IS_MUTED_ID]) ;
+  int   source_n  = int(  metro_store[CONFIG::SOURCE_N_ID]) ;
+  bool  is_stereo = bool( metro_store[CONFIG::IS_STEREO_ID]) ;
 
   // determine which NJClient channel params to modify
   bool should_set_all       = (a_key == CONFIG::CONFIG_ALL_ID) ;
@@ -974,25 +902,26 @@ void LinJam::ConfigureMetroChannel(Identifier a_key)
   if (should_set_is_stereo) Client->config_metronome_stereoout = is_stereo ;
 }
 
-void LinJam::ConfigureLocalChannel(ValueTree channel_store , Identifier a_key ,
-                                   String    new_name                         )
+void LinJam::ConfigureLocalChannel(ValueTree channel_store , Identifier a_key)
 {
   if (!channel_store.isValid() || a_key == CONFIG::CHANNELIDX_ID) return ;
 
   // load stored config for this channel
-  Identifier channel_id =       channel_store.getType() ;
-  float      volume     = float(channel_store[CONFIG::VOLUME_ID]) ;
-  float      pan        = float(channel_store[CONFIG::PAN_ID]) ;
-  bool       is_xmit    = bool( channel_store[CONFIG::IS_XMIT_ID]) ;
-  bool       is_muted   = bool( channel_store[CONFIG::IS_MUTED_ID]) ;
-  bool       is_solo    = bool( channel_store[CONFIG::IS_SOLO_ID]) ;
-  int        source_n   = int(  channel_store[CONFIG::SOURCE_N_ID]) ;
-  int        bit_depth  = int(  channel_store[CONFIG::BITDEPTH_ID]) ;
-  bool       is_stereo  = bool( channel_store[CONFIG::IS_STEREO_ID]) ;
+  float      volume            = float(channel_store[CONFIG::VOLUME_ID]) ;
+  float      pan               = float(channel_store[CONFIG::PAN_ID]) ;
+  bool       is_xmit           = bool( channel_store[CONFIG::IS_XMIT_ID]) ;
+  bool       is_muted          = bool( channel_store[CONFIG::IS_MUTED_ID]) ;
+  bool       is_solo           = bool( channel_store[CONFIG::IS_SOLO_ID]) ;
+  int        source_n          = int(  channel_store[CONFIG::SOURCE_N_ID]) ;
+  int        bit_depth         = int(  channel_store[CONFIG::BITDEPTH_ID]) ;
+  bool       is_stereo         = bool( channel_store[CONFIG::IS_STEREO_ID]) ;
+  String     channel_name      =       channel_store[CONFIG::CHANNELNAME_ID].toString() ;
+  if (is_stereo) channel_name += (source_n % 2)? CLIENT::STEREO_R_POSTFIX :
+                                                 CLIENT::STEREO_L_POSTFIX ;
 
   // determine which NJClient channel params to modify
   bool should_set_all       = (a_key == CONFIG::CONFIG_ALL_ID) ;
-  bool should_set_name      = (should_set_all || false) ; // TODO: (issue #23)
+  bool should_set_name      = (should_set_all || a_key == CONFIG::CHANNELNAME_ID) ;
   bool should_set_volume    = (should_set_all || a_key == CONFIG::VOLUME_ID) ;
   bool should_set_pan       = (should_set_all || a_key == CONFIG::PAN_ID) ;
   bool should_set_is_xmit   = (should_set_all || a_key == CONFIG::IS_XMIT_ID) ;
@@ -1004,37 +933,38 @@ void LinJam::ConfigureLocalChannel(ValueTree channel_store , Identifier a_key ,
 
 DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
 
-  // find NJClient channel_idx for existing or new channel
-  int channel_idx ; if (!(~(channel_idx = GetLocalChannelIdx(channel_id))) &&
-                        !(~(channel_idx = GetVacantLocalChannelIdx()))      ) return ;
-
-  channel_store.setProperty(CONFIG::CHANNELIDX_ID , channel_idx , nullptr) ;
-
   // convert channel name from juce::String into non-const char*
-  char* name = NULL ; WDL_String name_wdl ;
+  char* new_name = NULL ; WDL_String name_wdl ;
   if (should_set_name)
   {
-    // TODO: name changes will not yet persist (issue #23)
-    //       for now this is only to set the NJClient name
-    //       to something other than the stored name (e.g. stereo-L)
-    Identifier new_id = Config->encodeChannelId(new_name , channel_idx) ;
-    name_wdl.Set(String(new_id).toRawUTF8()) ; name = name_wdl.Get() ;
+    name_wdl.Set(channel_name.toRawUTF8()) ; new_name = name_wdl.Get() ;
   }
 
   // configure NJClient local channel
   if (should_set_name || should_set_source_n || should_set_bit_depth || should_set_is_xmit)
-    Client->SetLocalChannelInfo(channel_idx          , name      ,
+    Client->SetLocalChannelInfo(source_n             , new_name  ,
                                 should_set_source_n  , source_n  ,
                                 should_set_bit_depth , bit_depth ,
                                 should_set_is_xmit   , is_xmit   ) ;
 
   if (should_set_volume || should_set_pan || should_set_is_muted || should_set_is_solo)
-    Client->SetLocalChannelMonitoring(channel_idx                                 ,
+    Client->SetLocalChannelMonitoring(source_n                                    ,
                                       should_set_volume   , (float)DB2VAL(volume) ,
                                       should_set_pan      , pan                   ,
                                       should_set_is_muted , is_muted              ,
                                       should_set_is_solo  , is_solo               ) ;
   Client->NotifyServerOfChannelChange() ;
+
+  if (is_stereo && !(source_n % 2))
+  {
+    ValueTree slave_store    = channel_store.createCopy() ;
+    int       slave_source_n = int(slave_store[CONFIG::SOURCE_N_ID]) + 1 ;
+
+    // TODO: transitioning to drop CHANNELIDX_ID (channel_idx == source_n)
+    slave_store.setProperty(CONFIG::CHANNELIDX_ID , slave_source_n , nullptr) ;
+    slave_store.setProperty(CONFIG::SOURCE_N_ID , slave_source_n , nullptr) ;
+    ConfigureLocalChannel(slave_store , a_key) ;
+  }
 }
 
 void LinJam::ConfigureRemoteChannel(ValueTree  user_store , ValueTree channel_store ,
@@ -1044,18 +974,17 @@ void LinJam::ConfigureRemoteChannel(ValueTree  user_store , ValueTree channel_st
        a_key == CONFIG::CHANNELIDX_ID) return ;
 
   // load stored config for this channel
-  Identifier user_id     = user_store   .getType() ;
-  Identifier channel_id  = channel_store.getType() ;
-  int        user_idx    = int(  user_store   [CONFIG::USERIDX_ID]) ;
-  int        channel_idx = int(  channel_store[CONFIG::CHANNELIDX_ID]) ;
-  int        channel_n   = -1 ;
-  float      volume      = float(channel_store[CONFIG::VOLUME_ID]) ;
-  float      pan         = float(channel_store[CONFIG::PAN_ID]) ;
-  bool       is_rcv      = bool( channel_store[CONFIG::IS_XMIT_ID]) ;
-  bool       is_muted    = bool( channel_store[CONFIG::IS_MUTED_ID]) ;
-  bool       is_solo     = bool( channel_store[CONFIG::IS_SOLO_ID]) ;
-  int        sink_n      = int(  channel_store[CONFIG::SOURCE_N_ID]) ;
-  bool       is_stereo   = bool( channel_store[CONFIG::IS_STEREO_ID]) ;
+  Identifier user_id      =       user_store   .getType() ;
+  String     channel_name =       channel_store[CONFIG::CHANNELNAME_ID].toString() ;
+  int        user_idx     = int(  user_store   [CONFIG::USERIDX_ID]) ;
+  int        channel_idx  = int(  channel_store[CONFIG::CHANNELIDX_ID]) ;
+  float      volume       = float(channel_store[CONFIG::VOLUME_ID]) ;
+  float      pan          = float(channel_store[CONFIG::PAN_ID]) ;
+  bool       is_rcv       = bool( channel_store[CONFIG::IS_XMIT_ID]) ;
+  bool       is_muted     = bool( channel_store[CONFIG::IS_MUTED_ID]) ;
+  bool       is_solo      = bool( channel_store[CONFIG::IS_SOLO_ID]) ;
+  int        sink_n       = int(  channel_store[CONFIG::SOURCE_N_ID]) ;
+  bool       is_stereo    = bool( channel_store[CONFIG::IS_STEREO_ID]) ;
 
   // determine which NJClient channel params to modify
   bool should_set_all       = (a_key == CONFIG::CONFIG_ALL_ID) ;
@@ -1069,44 +998,36 @@ void LinJam::ConfigureRemoteChannel(ValueTree  user_store , ValueTree channel_st
 
 DEBUG_TRACE_CONFIGURE_REMOTE
 
-  if (user_idx    != GetRemoteUserIdx(user_id) ||
-      channel_idx != GetRemoteChannelIdx(user_idx , channel_id)) return ;
-
-  if (channel_id == CONFIG::MASTER_ID)
+  if (channel_idx == CLIENT::MASTER_IDX)
   {
-    if      ((should_set_is_rcv && !is_rcv) || (should_set_is_solo && is_solo))
-      // apply user master pseudo rcv or solo control to all user channels
-      while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
-        Client->SetUserChannelState(user_idx           , channel_idx              ,
-                                    should_set_is_rcv  , is_rcv                   ,
-                                    false              , CONFIG::DEFAULT_VOLUME   ,
-                                    false              , CONFIG::DEFAULT_PAN      ,
-                                    false              , CONFIG::DEFAULT_IS_MUTED ,
-                                    should_set_is_solo , is_solo                  ,
-                                    false              , CONFIG::DEFAULT_SOURCE_N ,
-                                    false              , CONFIG::DEFAULT_IS_STEREO) ;
-    else if ((should_set_is_rcv && is_rcv) || (should_set_is_solo && !is_solo))
-      // restore per channel rcv or solo state
-      while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
-      {
-        channel_store = Config->getChannelByIdx(user_store , channel_idx) ;
-        ConfigureRemoteChannel(user_store , channel_store , a_key) ;
-      }
-    else if (should_set_volume || should_set_pan || should_set_is_muted)
+    int channel_n = -1 ;
+    if      (should_set_volume || should_set_pan || should_set_is_muted)
       // configure NJClient remote master channel
       Client->SetUserState(user_idx                                    ,
                            should_set_volume   , (float)DB2VAL(volume) ,
                            should_set_pan      , pan                   ,
                            should_set_is_muted , is_muted              ) ;
+    else if (should_set_is_rcv || should_set_is_solo)
+      // apply user master pseudo rcv or solo control over all user channels
+      while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
+      {
+        channel_store = Config->getChannelByIdx(user_store , channel_idx) ;
+        ConfigureRemoteChannel(user_store , channel_store , a_key) ;
+      }
   }
   else
-    // configure NJClient remote channel
-    Client->SetUserChannelState(user_idx             , channel_idx           ,
-                                should_set_is_rcv    , is_rcv                ,
-                                should_set_volume    , (float)DB2VAL(volume) ,
-                                should_set_pan       , pan                   ,
-                                should_set_is_muted  , is_muted              ,
-                                should_set_is_solo   , is_solo               ,
-                                should_set_sink_n    , sink_n                ,
-                                should_set_is_stereo , is_stereo             ) ;
+  {
+    // configure NJClient remote channel allowing master overrides
+    ValueTree master_store   = Config->getChannelByIdx(user_store , CLIENT::MASTER_IDX) ;
+    bool      is_master_rcv  = bool(master_store[CONFIG::IS_XMIT_ID]) ;
+    bool      is_master_solo = bool(master_store[CONFIG::IS_SOLO_ID]) ;
+    Client->SetUserChannelState(user_idx             , channel_idx               ,
+                                should_set_is_rcv    , is_rcv && is_master_rcv   ,
+                                should_set_volume    , (float)DB2VAL(volume)     ,
+                                should_set_pan       , pan                       ,
+                                should_set_is_muted  , is_muted                  ,
+                                should_set_is_solo   , is_solo || is_master_solo ,
+                                should_set_sink_n    , sink_n                    ,
+                                should_set_is_stereo , is_stereo                 ) ;
+  }
 }

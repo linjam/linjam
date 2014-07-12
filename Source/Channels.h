@@ -51,7 +51,7 @@ public:
   bool addChannel(     ValueTree channel_store) ;
   void removeChannel(  Channel* channel) ;
   int  getNumChannels() ;
-  void updateChannelVU(String channel_id , double vu) ;
+  void updateChannelVU(Identifier channel_id , double vu) ;
 
     //[/UserMethods]
 
@@ -103,10 +103,6 @@ public:
   LocalChannels() ;
 
 
-#if DEBUG
-  void removeChannel(Channel* channel) ;
-#endif // DEBUG
-
 private:
 
   void     buttonClicked(Button* buttonThatWasClicked) ;
@@ -120,10 +116,8 @@ public:
 
   RemoteChannels(ValueTree user_store) ;
 
+  void renameChannel(Identifier channel_id) ;
 
-#if DEBUG
-  void removeChannel(Channel* channel) ;
-#endif // DEBUG
 
 private:
 

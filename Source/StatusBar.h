@@ -47,10 +47,6 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-#ifdef DEBUG_AUTOLOGIN_NYI
-String getStatusL() { return this->statusLLabel->getText() ; }
-#endif // DEBUG_AUTOLOGIN_NYI
-
   void setStatusL(String statusText) ;
   void setStatusR(String statusText) ;
 

@@ -20,7 +20,6 @@
 //[Headers] You can add your own extra header files here...
 
 #include "Constants.h"
-#include "Trace.h"
 #include "LinJam.h"
 
 //[/Headers]
@@ -29,6 +28,11 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+
+#if DEBUG
+#  include "./Trace/TraceMixer.h"
+#endif // DEBUG
+
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -200,36 +204,40 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
 bool Mixer::addRemoteUser(ValueTree user_store)
 {
   // ensure GUI for this user does not already exist
-  String channels_name = String(user_store.getType()) ;
-  if (getChannels(channels_name)) return false ;
+  String user_name = String(user_store.getType()) ;
+  if (getChannels(user_name)) return false ;
 
   // create remote user GUI
   Channels* channels = new RemoteChannels(user_store) ;
-  addChannels(channels , channels_name) ;
+  addChannels(channels , user_name) ;
 
-  // create remote master channel GUI
-  ValueTree channel_store = user_store.getChildWithName(CONFIG::MASTER_ID) ;
-  if (channel_store.isValid()) addChannel(channels_name , channel_store) ;
+DEBUG_TRACE_ADD_REMOTE_USER
 
   return true ;
 }
 
 bool Mixer::addChannel(String channels_name , ValueTree channel_store)
 {
-  // validate remote user GUI and storage
+  // validate channels group GUI and storage
   Channels* channels = getChannels(channels_name) ;
   if (!channels || !channel_store.isValid()) return false ;
 
-  // create remote channel GUI and update mixer layout
+  // create channel GUI and update mixer layout
   bool was_added = channels->addChannel(channel_store) ;
   if (channels != this->masterChannels) resized() ;
 
   return was_added ;
 }
 
-void Mixer::updateChannelVU(Identifier channels_id , String channel_id , double vu)
+void Mixer::renameChannel(String channels_name , Identifier channel_id)
 {
-  Channels* channels = getChannels(String(channels_id)) ;
+  RemoteChannels* channels = (RemoteChannels*)getChannels(channels_name) ;
+  if (channels) channels->renameChannel(channel_id) ;
+}
+
+void Mixer::updateChannelVU(String channels_name , Identifier channel_id , double vu)
+{
+  Channels* channels = getChannels(channels_name) ;
   if (channels) channels->updateChannelVU(channel_id , vu) ;
 }
 
@@ -246,22 +254,22 @@ void Mixer::pruneRemotes(ValueTree active_users)
   // find GUI elements for parted users
   for (int user_n = GUI::FIRST_REMOTE_IDX ; user_n < getNumDynamicMixers() ; ++user_n)
   {
-    Channels*  channels        = (Channels*)getChildComponent(user_n) ;
-    Identifier user_id         = Identifier(channels->getComponentID()) ;
-    ValueTree  active_channels = active_users.getChildWithName(user_id) ;
+    RemoteChannels* channels        = (RemoteChannels*)getChildComponent(user_n) ;
+    Identifier      user_id         = Identifier(channels->getComponentID()) ;
+    Array<var>*     active_channels = active_users[user_id].getArray() ;
 
-    if (active_channels.isValid())
+    if (active_users.hasProperty(user_id))
     {
       // find GUI elements for removed channels of active user (first is master)
       for (int channel_n = 1 ; channel_n < channels->getNumChannels() ; ++channel_n)
       {
-        Channel*   channel    = (Channel*)channels->getChildComponent(channel_n) ;
-        Identifier channel_id = channel->getComponentID() ;
+        Component* channel    = channels->getChildComponent(channel_n) ;
+        var        channel_id = var(channel->getComponentID()) ;
 
-        if (active_channels.hasProperty(channel_id)) continue ;
+        if (active_channels->contains(channel_id)) continue ;
 
         // delete orphaned GUI elements for removed channel
-        channels->removeChannel(channel) ; --channel_n ;
+        channels->removeChannel((RemoteChannel*)channel) ; --channel_n ;
       }
     }
     // delete orphaned GUI elements for parted user

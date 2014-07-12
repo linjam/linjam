@@ -12,6 +12,11 @@
 #include "LinJamConfig.h"
 
 
+#if DEBUG
+#  include "./Trace/TraceLinJamConfig.h"
+#endif // DEBUG
+
+
 /* LinJamConfig public class methods */
 
 LinJamConfig::LinJamConfig()
@@ -75,12 +80,16 @@ bool LinJamConfig::sanityCheck()
     this->servers             .isValid()                              ;
 
   // implicitly subscribed values (via above trees)
+  bool master_channel_has_name_property   =
+    master_channel            .hasProperty(CONFIG::CHANNELNAME_ID)    ;
   bool master_channel_has_volume_property =
     master_channel            .hasProperty(CONFIG::VOLUME_ID)         ;
   bool master_channel_has_pan_property    =
     master_channel            .hasProperty(CONFIG::PAN_ID)            ;
   bool master_channel_has_mute_property   =
     master_channel            .hasProperty(CONFIG::IS_MUTED_ID)       ;
+  bool metro_channel_has_name_property    =
+    metro_channel             .hasProperty(CONFIG::CHANNELNAME_ID)    ;
   bool metro_channel_has_volume_property  =
     metro_channel             .hasProperty(CONFIG::VOLUME_ID)         ;
   bool metro_channel_has_pan_property     =
@@ -138,9 +147,11 @@ DEBUG_TRACE_SANITY_CHECK
           local_channels_is_valid                 &&
 //           remote_users_is_valid                &&
           servers_is_valid                        &&
+          master_channel_has_name_property        &&
           master_channel_has_volume_property      &&
           master_channel_has_pan_property         &&
           master_channel_has_mute_property        &&
+          metro_channel_has_name_property         &&
           metro_channel_has_volume_property       &&
           metro_channel_has_pan_property          &&
           metro_channel_has_mute_property         &&
@@ -164,28 +175,20 @@ DEBUG_TRACE_SANITY_CHECK
           should_hide_bots_has_value               ) ;
 }
 
+Identifier LinJamConfig::makeChannelId(int channel_idx)
+{
+  return Identifier(CONFIG::CHANNEL_BASE_ID + "-" + String(channel_idx)) ;
+}
+
 String LinJamConfig::parseUsername(String user_name)
 {
   return user_name.upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , true) ;
 }
 
-Identifier LinJamConfig::encodeChannelId(String channel_name , int channel_idx)
-{
-  return ((channel_name.isNotEmpty())?
-             filteredName(channel_name) :
-             CONFIG::DEFAULT_CHANNEL_NAME + "-" + String(channel_idx + 1)) ;
-}
-
-String LinJamConfig::decodeChannelId(Identifier channel_id) { return String(channel_id) ; }
-
 Identifier LinJamConfig::encodeUserId(String user_name , int user_idx)
 {
-  return ((user_name.isNotEmpty())?
-             filteredName(parseUsername(user_name)) :
-             CONFIG::DEFAULT_USER_NAME + "-" + String(user_idx)) ;
+  return filteredName(parseUsername(user_name)) ;
 }
-
-String LinJamConfig::decodeUserId(Identifier user_id) { return String(user_id) ; }
 
 ValueTree LinJamConfig::getOrCreateUser(String user_name , int   user_idx ,
                                         float  volume    , float pan      , bool is_muted)
@@ -195,27 +198,10 @@ ValueTree LinJamConfig::getOrCreateUser(String user_name , int   user_idx ,
 
   if (!user_store.isValid())
   {
-#ifdef KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO
-    volume = 0.0f ;
-#endif // KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO
-
-    // create new remote user config
-    ValueTree channel_store = ValueTree(CONFIG::MASTER_ID) ;
-    channel_store.setProperty(CONFIG::CHANNELIDX_ID , CLIENT::MASTER_IDX      , nullptr) ;
-    channel_store.setProperty(CONFIG::VOLUME_ID     , volume                  , nullptr) ;
-    channel_store.setProperty(CONFIG::PAN_ID        , pan                     , nullptr) ;
-    channel_store.setProperty(CONFIG::IS_XMIT_ID    , CONFIG::DEFAULT_IS_XMIT , nullptr) ;
-    channel_store.setProperty(CONFIG::IS_MUTED_ID   , is_muted                , nullptr) ;
-    channel_store.setProperty(CONFIG::IS_SOLO_ID    , CONFIG::DEFAULT_IS_SOLO , nullptr) ;
-
-// TODO: we are adding remote users directly to the root node for now for simplicity
-//           mostly because Trace::SanitizeConfig() does not yet handle nested lists
-//           but for clarity there should be a <remote-channels> tree (issue #33)
     user_store = ValueTree(user_id) ;
-    this->configValueTree.addChild(user_store , -1 , nullptr) ;
-    user_store.addChild(channel_store , -1 , nullptr) ;
+    this->remoteUsers.addChild(user_store , -1 , nullptr) ;
 
-//DEBUG_TRACE_ADD_REMOTE_USER_STORE // TODO: syntax error String <-> bool deal
+DEBUG_TRACE_ADD_REMOTE_USER_STORE
   }
 
   return user_store ;
@@ -227,25 +213,28 @@ ValueTree LinJamConfig::getOrCreateChannel(Identifier channels_id   , String cha
                                            bool       is_muted      , bool   is_solo      ,
                                            int        source_sink_n , bool   is_stereo    )
 {
-  Identifier channel_id   = encodeChannelId(channel_name , channel_idx) ;
-  ValueTree channel_store = getChannelById(channels_id , channel_id) ;
+  Identifier channel_id    = (channel_idx == CLIENT::MASTER_IDX)?
+                             channel_name                       :
+                             makeChannelId(channel_idx)       ;
+  ValueTree  channel_store = getChannelById(channels_id , channel_id) ;
 
   if (!channel_store.isValid())
   {
 #ifdef KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO
-    if (channels_id != GUI::LOCALS_ID) volume = 0.0f ;
+    volume = 0.0f ;
 #endif // KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO
 
     // add new channel
     channel_store = ValueTree(channel_id) ;
-    channel_store.setProperty(CONFIG::CHANNELIDX_ID , channel_idx   , nullptr) ;
-    channel_store.setProperty(CONFIG::VOLUME_ID     , volume        , nullptr) ;
-    channel_store.setProperty(CONFIG::PAN_ID        , pan           , nullptr) ;
-    channel_store.setProperty(CONFIG::IS_XMIT_ID    , is_xmit_rcv   , nullptr) ;
-    channel_store.setProperty(CONFIG::IS_MUTED_ID   , is_muted      , nullptr) ;
-    channel_store.setProperty(CONFIG::IS_SOLO_ID    , is_solo       , nullptr) ;
-    channel_store.setProperty(CONFIG::SOURCE_N_ID   , source_sink_n , nullptr) ;
-    channel_store.setProperty(CONFIG::IS_STEREO_ID  , is_stereo     , nullptr) ;
+    channel_store.setProperty(CONFIG::CHANNELIDX_ID  , channel_idx   , nullptr) ;
+    channel_store.setProperty(CONFIG::CHANNELNAME_ID , channel_name  , nullptr) ;
+    channel_store.setProperty(CONFIG::VOLUME_ID      , volume        , nullptr) ;
+    channel_store.setProperty(CONFIG::PAN_ID         , pan           , nullptr) ;
+    channel_store.setProperty(CONFIG::IS_XMIT_ID     , is_xmit_rcv   , nullptr) ;
+    channel_store.setProperty(CONFIG::IS_MUTED_ID    , is_muted      , nullptr) ;
+    channel_store.setProperty(CONFIG::IS_SOLO_ID     , is_solo       , nullptr) ;
+    channel_store.setProperty(CONFIG::SOURCE_N_ID    , source_sink_n , nullptr) ;
+    channel_store.setProperty(CONFIG::IS_STEREO_ID   , is_stereo     , nullptr) ;
     if (channels_id == GUI::LOCALS_ID)
       this->localChannels.addChild(channel_store , -1 , nullptr) ;
     else
@@ -266,23 +255,19 @@ ValueTree LinJamConfig::getUserById(Identifier user_id)
   return this->configValueTree.getChildWithName(user_id) ;
 }
 
-ValueTree LinJamConfig::getChannelByIdx(ValueTree channel_store , int channel_idx)
+ValueTree LinJamConfig::getChannelByIdx(ValueTree channels_store , int channel_idx)
 {
-  return channel_store.getChildWithProperty(CONFIG::CHANNELIDX_ID , channel_idx) ;
+  return channels_store.getChildWithProperty(CONFIG::CHANNELIDX_ID , channel_idx) ;
 }
 
 ValueTree LinJamConfig::getChannelById(Identifier channels_id , Identifier channel_id)
 {
-  if      (channels_id == GUI::MASTERS_ID)
-    return this->masterChannels.getChildWithName(channel_id) ;
-  else if (channels_id == GUI::LOCALS_ID)
-    return this->localChannels .getChildWithName(channel_id) ;
+  ValueTree channels_store ;
+  if      (channels_id == GUI::MASTERS_ID) channels_store = this->masterChannels ;
+  else if (channels_id == GUI::LOCALS_ID)  channels_store = this->localChannels ;
+  else                                     channels_store = getUserById(channels_id) ;
 
-  // assume this is a remote channel // TODO: (issue #33)
-  ValueTree user_store = getUserById(channels_id) ;
-  return (user_store.isValid())?
-             user_store.getChildWithName(channel_id) :
-             ValueTree::invalid ;
+  return channels_store.getChildWithName(channel_id) ;
 }
 
 void LinJamConfig::setServer()
@@ -301,7 +286,7 @@ void LinJamConfig::setServer()
 }
 
 void LinJamConfig::setCurrentServer(String host , String login , String pass ,
-                                    bool   is_anonymous)
+                                    bool   is_anonymous                      )
 {
   this->currentHost        = host ;
   this->currentLogin       = login ;
@@ -320,7 +305,7 @@ ValueTree LinJamConfig::getServer(String host)
   return this->servers.getChildWithProperty(CONFIG::HOST_ID , var(host)) ;
 }
 
-void LinJamConfig::setShouldAgree(bool should_agree)
+void LinJamConfig::setServerShouldAgree(bool should_agree)
 {
   // continuation of setServer() after license agreement
   ValueTree server = getCurrentServer() ; if (!server.isValid()) return ;
@@ -453,6 +438,9 @@ void LinJamConfig::establishSharedStore()
   // channels
   this->masterChannels = getNode(CONFIG::MASTERS_ID) ;
   this->localChannels  = getNode(CONFIG::LOCALS_ID) ;
+// TODO: we are adding remote users directly to the root node for now for simplicity
+//           mostly because Trace::SanitizeConfig() does not yet handle nested lists
+//           but for clarity there should be a <remote-channels> tree (issue #33)
 //   this->remoteUsers = getNode(CONFIG::REMOTES_ID) ; // (issue #33)
 this->remoteUsers = this->configValueTree ; // kludge (issue #33)
 
@@ -479,8 +467,8 @@ Value LinJamConfig::getLeaf(ValueTree parent_node , Identifier child_node_id ,
 DEBUG_TRACE_CONFIG_VALUE
 
   return (value_node.isValid() && value_node.hasProperty(key))?
-              value_node.getPropertyAsValue(key , nullptr) :
-              this->dummyValue ;
+         value_node.getPropertyAsValue(key , nullptr)         :
+         this->dummyValue                                     ;
 }
 
 Value LinJamConfig::getClient(Identifier key)
@@ -505,8 +493,8 @@ ValueTree LinJamConfig::addServer(String host , String login , String pass ,
   if (!server.isValid())
   {
     Identifier host_id = Identifier(CONFIG::SERVER_ID.toString() + "-" +
-                         host.replaceCharacter('.' , '-')
-                             .replaceCharacter(':' , '-')) ;
+                                    host.replaceCharacter('.' , '-')
+                                        .replaceCharacter(':' , '-')) ;
 
     server = ValueTree(host_id) ;
     server.setProperty(CONFIG::HOST_ID  , host         , nullptr) ;
@@ -550,7 +538,7 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
 
   if      (is_master) LinJam::ConfigureMasterChannel(a_key) ;
   else if (is_metro)  LinJam::ConfigureMetroChannel(a_key) ;
-  else if (is_local)  LinJam::ConfigureLocalChannel(a_node , a_key , String::empty) ;
+  else if (is_local)  LinJam::ConfigureLocalChannel(a_node , a_key) ;
   else if (is_remote) LinJam::ConfigureRemoteChannel(parent_node , a_node , a_key) ;
 }
 

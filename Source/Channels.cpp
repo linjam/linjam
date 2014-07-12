@@ -29,6 +29,11 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+
+#if DEBUG
+#  include "./Trace/TraceChannels.h"
+#endif // DEBUG
+
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -60,8 +65,6 @@ Channels::Channels ()
 
 
     //[Constructor] You can add your own custom stuff here..
-  // prevent empty local group from collapsing (-1 forces resize on first addition)
-//   channels->setSize(GUI::MIXERGROUP_W(1) - 1 , GUI::MIXERGROUP_H) ;
     //[/Constructor]
 }
 
@@ -148,7 +151,7 @@ DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL
 
   // create channel GUI
   Channel* channel = newChannel(channel_store) ;
-  this->addChildAndSetID(channel , channel_name) ;
+  addChildAndSetID(channel , channel_name) ;
   channel->toFront(false) ;
 
   // resize and shift channel slices
@@ -159,22 +162,20 @@ DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL
 
 void Channels::removeChannel(Channel* channel)
 {
-  // destroy channel and shift channel slices
+DEBUG_REMOVE_CHANNEL
+
+  // destroy channel , resize , and shift channel slices
   delete channel ; resized() ;
 }
 
 int Channels::getNumChannels()
 {
-  return this->getNumChildComponents() - GUI::N_STATIC_CHANNEL_CHILDREN ;
+  return getNumChildComponents() - GUI::N_STATIC_CHANNELS_CHILDREN ;
 }
 
-void Channels::updateChannelVU(String channel_id , double vu)
+void Channels::updateChannelVU(Identifier channel_id , double vu)
 {
-DEBUG_TRACE_INVALID_CHANNELID
-
-  if (channel_id.isEmpty()) return ;
-
-  Channel* channel = (Channel*)findChildWithID(StringRef(channel_id)) ;
+  Channel* channel = (Channel*)findChildWithID(StringRef(String(channel_id))) ;
   if (channel) channel->updateChannelVU(vu) ;
 }
 
@@ -240,6 +241,7 @@ void RemoteChannels::buttonClicked(Button* a_button)
 void RemoteChannels::toggleExpandChannels()
 {
   this->isExpanded = !this->isExpanded ;
+
 // TODO: (issue #45)
 DBG("toggleExpandChannels() this->isExpanded=" + String(this->isExpanded)) ;
 }
@@ -259,41 +261,15 @@ Channel* RemoteChannels::newChannel(ValueTree channel_store)
   return new RemoteChannel(channel_store) ;
 }
 
-#if DEBUG
-void LocalChannels::removeChannel(Channel* channel)
+void RemoteChannels::renameChannel(Identifier channel_id)
 {
-LocalChannel* ch = (LocalChannel*)channel ; DEBUG_REMOVE_CHANNEL
-
-  ((Channels*)this)->removeChannel(channel) ;
-
-#ifndef BUGGY_DUPLICATE_CHANNEL_NAMES
-// untested (issue #46)
-  // rename any generic channel names to match their NJClient channelIdx
-  int n_channels = getNumChannels() ;
-  for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
+  RemoteChannel* channel = (RemoteChannel*)findChildWithID(StringRef(String(channel_id))) ;
+  if (channel)
   {
-    Channel* channel      = getChildComponent(channel_n) ;
-    String   channel_name = channel->getComponentID() ;
-    if (channel_name.startsWith(CONFIG::DEFAULT_CHANNEL_NAME))
-    {
-      // 'rename' channel store node and set new component ID and label text
-      int        channel_idx = LinJam::GetLocalChannelIdx(Identifier(channel_name)) ;
-      Identifier new_name    = Config->encodeChannelId(channel_c_name , channel_idx) ;
-      ValueTree  new_node    = ValueTree(new_name) ;
-      new_node.copyPropertiesFrom(channel-configStore , nullptr) ;
-      channel->setComponentID(String(new_name)) ;
-      channel->nameLabel->setText(String(new_name)) ;
-    }
+    String new_name = channel->configStore[CONFIG::CHANNELNAME_ID].toString() ;
+    channel->nameLabel->setText(new_name , juce::dontSendNotification) ;
   }
-#endif // BUGGY_DUPLICATE_CHANNEL_NAMES
 }
-void RemoteChannels::removeChannel(Channel* channel)
-{
-RemoteChannel* ch = (RemoteChannel*)channel ; DEBUG_REMOVE_CHANNEL
-
-  ((Channels*)this)->removeChannel(channel) ;
-}
-#endif // DEBUG
 
 //[/MiscUserCode]
 

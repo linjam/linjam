@@ -15,7 +15,11 @@
 
 #include "Constants.h"
 #include "MainContent.h"
-#include "Trace.h"
+
+
+#if DEBUG
+#  include "./Trace/TraceMain.h"
+#endif // DEBUG
 
 
 //==============================================================================

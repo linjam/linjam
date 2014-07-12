@@ -51,7 +51,7 @@ ChannelConfig::ChannelConfig ()
     nameText->setPopupMenuEnabled (false);
     nameText->setColour (TextEditor::textColourId, Colours::grey);
     nameText->setColour (TextEditor::backgroundColourId, Colours::black);
-    nameText->setText (TRANS("unnamed"));
+    nameText->setText (String::empty);
 
     addAndMakeVisible (monoButton = new ToggleButton ("monoButton"));
     monoButton->setExplicitFocusOrder (2);
@@ -194,9 +194,13 @@ void ChannelConfig::buttonClicked(Button* a_button)
   if      (has_toggle_state_changed) populateChannelSelect() ;
   else if (a_button == okButton)
   {
-    String channel_name = this->nameText->getText() ;
-    int    selection_n  = this->channelSelect->getSelectedItemIndex() ;
-    LinJam::AddLocalChannel(channel_name , this->is_stereo , selection_n) ;
+    String channel_name   = this->nameText->getText() ;
+    int    selection_n    = this->channelSelect->getSelectedItemIndex() ;
+    int    freeset_member = (!is_stereo)? this->freeInputChannelNs    [selection_n] :
+                                          this->freeInputChannelPairNs[selection_n] ;
+
+    // create new local channel (set members are 1-based - source_n == channel_idx)
+    LinJam::AddLocalChannel(channel_name , this->is_stereo , freeset_member - 1) ;
 
     ((CallOutBox*)getParentComponent())->dismiss() ;
   }
@@ -206,18 +210,21 @@ void ChannelConfig::buttonClicked(Button* a_button)
 
 void ChannelConfig::createChannelSelectOptions()
 {
-  SortedSet<int> free_channels = LinJam::GetFreeInputChannels() ;
-  for (int free_channel_n = 0 ; free_channel_n < free_channels.size() ; ++free_channel_n)
+  this->freeInputChannelNs = LinJam::GetFreeInputChannels() ;
+  int n_channels           = this->freeInputChannelNs.size() ;
+  for (int free_channel_n = 0 ; free_channel_n < n_channels ; ++free_channel_n)
   {
-    int channel_n = free_channels.getUnchecked(free_channel_n) ;
-    this->freeInputChannels.add("input " + String(channel_n)) ;
+    int channel_n = this->freeInputChannelNs.getUnchecked(free_channel_n) ;
+    this->freeInputChannelOptions.add("input " + String(channel_n)) ;
   }
-  SortedSet<int> free_channel_pairs = LinJam::GetFreeInputChannelPairs() ;
-  for (int free_pair_n = 0 ; free_pair_n < free_channel_pairs.size() ; ++free_pair_n)
+
+  this->freeInputChannelPairNs = LinJam::GetFreeInputChannelPairs() ;
+  n_channels                   = this->freeInputChannelPairNs.size() ;
+  for (int free_pair_n = 0 ; free_pair_n < n_channels ; ++free_pair_n)
   {
-    int channel_n = free_channel_pairs.getUnchecked(free_pair_n) ;
-    this->freeInputChannelPairs.add("inputs " + String(channel_n)    +
-                                    " & "     + String(channel_n + 1)) ;
+    int channel_n = this->freeInputChannelPairNs.getUnchecked(free_pair_n) ;
+    this->freeInputChannelPairOptions.add("inputs " + String(channel_n)    +
+                                          " & "     + String(channel_n + 1)) ;
   }
 }
 
@@ -225,8 +232,8 @@ void ChannelConfig::populateChannelSelect()
 {
   this->channelSelect->clear() ;
   if (!this->is_stereo)
-       this->channelSelect->addItemList(this->freeInputChannels     , 1) ;
-  else this->channelSelect->addItemList(this->freeInputChannelPairs , 1) ;
+       this->channelSelect->addItemList(this->freeInputChannelOptions     , 1) ;
+  else this->channelSelect->addItemList(this->freeInputChannelPairOptions , 1) ;
   this->channelSelect->setSelectedItemIndex(0) ;
 }
 
@@ -254,7 +261,7 @@ BEGIN_JUCER_METADATA
          fontsize="15" bold="0" italic="0" justification="12"/>
   <TEXTEDITOR name="nameText" id="f721d2f898b8b762" memberName="nameText" virtualName=""
               explicitFocusOrder="1" pos="24 44 152 16" textcol="ff808080"
-              bkgcol="ff000000" initialText="unnamed" multiline="0" retKeyStartsLine="0"
+              bkgcol="ff000000" initialText="" multiline="0" retKeyStartsLine="0"
               readonly="0" scrollbars="0" caret="1" popupmenu="0"/>
   <TOGGLEBUTTON name="monoButton" id="f830997aaae8295f" memberName="monoButton"
                 virtualName="" explicitFocusOrder="2" pos="34 64 64 16" txtcol="ff808080"

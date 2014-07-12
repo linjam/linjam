@@ -18,14 +18,18 @@
 */
 
 //[Headers] You can add your own extra header files here...
-#include "LinJam.h" // TODO: use persistent config instead (issue #6)
-#include "Trace.h"
 //[/Headers]
 
+#include "LinJam.h"
 #include "License.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+
+#if DEBUG
+#  include "./Trace/TraceLicense.h"
+#endif // DEBUG
+
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -149,7 +153,7 @@ DEBUG_TRACE_LICENSE_CLICKED
         //[UserButtonCode_alwaysButton] -- add your button handler code here..
 
       bool should_always_agree = is_agreed = this->alwaysButton->getToggleState() ;
-      LinJam::Config->setShouldAgree(should_always_agree) ;
+      LinJam::Config->setServerShouldAgree(should_always_agree) ;
 
         //[/UserButtonCode_alwaysButton]
     }
@@ -157,7 +161,7 @@ DEBUG_TRACE_LICENSE_CLICKED
 
     //[UserbuttonClicked_Post]
 
-  LinJam::Config->currentIsAgreed = is_agreed ; // TODO: (issue #14)
+  LinJam::Config->currentIsAgreed = is_agreed ;
   LinJam::Disconnect() ; if (is_agreed) LinJam::Connect() ;
 
     //[/UserbuttonClicked_Post]

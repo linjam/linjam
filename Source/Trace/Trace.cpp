@@ -1,7 +1,6 @@
 
-//#include <ninjam/njclient.h>
-#include "Constants.h"
-#include "LinJam.h"
+#include "../Constants.h"
+#include "../LinJam.h"
 #include "Trace.h"
 
 
@@ -26,14 +25,48 @@ void Trace::TraceServer(String msg)  { if (TraceState())  DBG("[SERVER]:  " + ms
 void Trace::DumpStoreXml(ValueTree store)
 { DBG(String(store.getType()) + " xml=\n" + store.toXmlString()) ; }
 
+String Trace::DumpStoredChannels()
+{
+  String    dump     = "\n  localChannels =>" ;
+  ValueTree channels = LinJam::Config->localChannels ;
+  ValueTree users    = LinJam::Config->remoteUsers ;
 
-/* Trace class private class methods */
+  for (int ch_n = 0 ; ch_n < channels.getNumChildren() ; ++ch_n)
+    dump += "\n    " + channels.getChild(ch_n)[CONFIG::CHANNELNAME_ID].toString() ;
 
-bool Trace::SanityCheck() { return true ; }
+  dump += "\n  remoteChannels =>" ;
+  for (int user_n = 0 ; user_n < users.getNumChildren() ; ++user_n)
+  {
+    channels = users.getChild(user_n) ;
+    /* TODO: KLUDGE (issue #33) nyi remote-channels node */
+    if (!channels.hasProperty(CONFIG::USERIDX_ID)) continue ;
 
-bool Trace::TraceEvs()   { return (DEBUG_TRACE_EVENTS || !SanityCheck()) ; }
-bool Trace::TraceVb()    { return (DEBUG_TRACE_VB     || !SanityCheck()) ; }
-bool Trace::TraceState() { return (DEBUG_TRACE_STATE  || !SanityCheck()) ; }
+    for (int ch_n = 0 ; ch_n < channels.getNumChildren() ; ++ch_n)
+      dump += "\n    " + String(channels.getType()) + " "                +
+              channels.getChild(ch_n)[CONFIG::CHANNELNAME_ID].toString() ;
+  }
+
+  return dump ;
+}
+
+String Trace::DumpClientChannels()
+{
+  String dump = "\n  client locals =>" ; int channel_n = -1 ; int channel_idx ;
+  while (~(channel_idx = LinJam::Client->EnumLocalChannels(++channel_n)))
+    dump += "\n    " + LinJam::GetLocalChannelClientName(channel_idx) ;
+
+  dump = "\n  client remotes =>" ;
+  int user_idx = LinJam::Client->GetNumUsers() ; String user_name ;
+  while ((user_name = LinJam::GetRemoteUserName(--user_idx)).isNotEmpty())
+  {
+    dump = "\n    " + user_name + " =>" ;
+    int channel_n = -1 ; int channel_idx ;
+    while (~(channel_idx = LinJam::Client->EnumUserChannels(user_idx , ++channel_n)))
+      dump += "\n      " + LinJam::GetRemoteChannelName(user_idx , channel_idx) ;
+  }
+
+  return dump ;
+}
 
 String Trace::SanitizeConfig(ValueTree default_config , ValueTree stored_config ,
                              String pad)
@@ -143,5 +176,14 @@ void Trace::DbgValueType(String dbg_val_name , var a_var)
   else if (a_var.isMethod())     dynamic_type = "Method" ;
   DBG(dbg_val_name + " type is " + dynamic_type) ;
 }
+
+
+/* Trace class private class methods */
+
+bool Trace::SanityCheck() { return true ; }
+
+bool Trace::TraceEvs()   { return (DEBUG_TRACE_EVENTS || !SanityCheck()) ; }
+bool Trace::TraceVb()    { return (DEBUG_TRACE_VB     || !SanityCheck()) ; }
+bool Trace::TraceState() { return (DEBUG_TRACE_STATE  || !SanityCheck()) ; }
 
 #endif // #if DEBUG_TRACE

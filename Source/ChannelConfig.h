@@ -59,10 +59,14 @@ private:
   void buttonClicked(Button* a_button) ;
   void createChannelSelectOptions() ;
   void populateChannelSelect() ;
+  void submit() ;
 
-  StringArray freeInputChannels ;
-  StringArray freeInputChannelPairs ;
-  bool        is_stereo ;
+
+  SortedSet<int> freeInputChannelNs ;
+  SortedSet<int> freeInputChannelPairNs ;
+  StringArray    freeInputChannelOptions ;
+  StringArray    freeInputChannelPairOptions ;
+  bool           is_stereo ;
 
     //[/UserVariables]
 

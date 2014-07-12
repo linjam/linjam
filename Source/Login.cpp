@@ -21,7 +21,6 @@
 
 #include "LinJam.h"
 #include "Constants.h"
-#include "Trace.h"
 
 //[/Headers]
 
@@ -29,6 +28,11 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+
+#if DEBUG
+#  include "./Trace/TraceLogin.h"
+#endif // DEBUG
+
 //[/MiscUserDefs]
 
 //==============================================================================

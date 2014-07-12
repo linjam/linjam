@@ -136,8 +136,8 @@
       <Filter Name="Headers">
         <File RelativePath="..\..\Source\Background.h"/>
         <File RelativePath="..\..\Source\Channel.h"/>
-        <File RelativePath="..\..\Source\Channels.h"/>
         <File RelativePath="..\..\Source\ChannelConfig.h"/>
+        <File RelativePath="..\..\Source\Channels.h"/>
         <File RelativePath="..\..\Source\Chat.h"/>
         <File RelativePath="..\..\Source\Constants.h"/>
         <File RelativePath="..\..\Source\License.h"/>
@@ -148,13 +148,12 @@
         <File RelativePath="..\..\Source\MainContent.h"/>
         <File RelativePath="..\..\Source\Mixer.h"/>
         <File RelativePath="..\..\Source\StatusBar.h"/>
-        <File RelativePath="..\..\Source\Trace.h"/>
       </Filter>
       <Filter Name="Source">
         <File RelativePath="..\..\Source\Background.cpp"/>
         <File RelativePath="..\..\Source\Channel.cpp"/>
-        <File RelativePath="..\..\Source\Channels.cpp"/>
         <File RelativePath="..\..\Source\ChannelConfig.cpp"/>
+        <File RelativePath="..\..\Source\Channels.cpp"/>
         <File RelativePath="..\..\Source\Chat.cpp"/>
         <File RelativePath="..\..\Source\Constants.cpp"/>
         <File RelativePath="..\..\Source\License.cpp"/>
@@ -166,7 +165,7 @@
         <File RelativePath="..\..\Source\MainContent.cpp"/>
         <File RelativePath="..\..\Source\Mixer.cpp"/>
         <File RelativePath="..\..\Source\StatusBar.cpp"/>
-        <File RelativePath="..\..\Source\Trace.cpp"/>
+        <File RelativePath="..\..\Source\Trace\Trace.cpp"/>
       </Filter>
     </Filter>
     <Filter Name="Juce Modules">

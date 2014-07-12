@@ -21,13 +21,17 @@
 
 #include "JuceHeader.h"
 
-#include "Trace.h"
 #include "LinJamConfig.h"
 #include "MainContent.h"
 
 
 class LinJam
 {
+#if DEBUG
+  friend class Trace ;
+#endif // DEBUG
+
+
   friend class LinJamConfig ;
 
 
@@ -83,41 +87,32 @@ private:
                         int     n_samples     , int sample_rate       ) ;
 
   // NJClient runtime helpers
-  static void HandleStatusChanged(int status) ;
+  static void HandleStatusChanged( int status) ;
   static void HandleUserInfoChanged() ;
-  static void HandleChatCommand(  String chat_text) ;
+  static void HandleChatCommand(   String chat_text) ;
   static bool IsRoomFull() ;
 
   // state helpers
-  static bool  InitializeAudio() ;
-  static void  ConfigureInitialChannels() ;
-  static bool  PrepareSessionDirectory() ;
-  static void  ConfigureNinjam() ;
-  static void  CleanSessionDir() ;
-
-  // config storage helpers
-  static void   CreateLocalChannel(String channel_name , bool is_stereo ,
-                                   int    source_n                      ) ;
+  static bool InitializeAudio() ;
+  static void ConfigureInitialChannels() ;
+  static bool PrepareSessionDirectory() ;
+  static void ConfigureNinjam() ;
+  static void CleanSessionDir() ;
 
   // NJClient config helpers
-  static void   InstantiateLocalChannel(   ValueTree channel_store) ;
   static int    GetNumActiveChannels() ;
   static int    GetNumVacantChannels() ;
   static int    GetVacantLocalChannelIdx() ;
-  static String GetLocalChannelClientName( int channel_idx) ;
-  static String GetChannelDisplayName(     ValueTree channels , int channel_idx) ;
-  static String GetLocalChannelDisplayName(int channel_idx) ;
-  static String GetRemoteUserName(         int user_idx) ;
-  static String GetRemoteChannelName(      int user_idx , int channel_idx) ;
-  static int    GetLocalChannelIdx(        Identifier channel_id) ;
-  static int    GetRemoteUserIdx(          Identifier user_id) ;
-  static int    GetRemoteChannelIdx(       int user_idx , Identifier channel_id) ;
-  static void   ConfigureMasterChannel(    Identifier a_key) ;
-  static void   ConfigureMetroChannel(     Identifier a_key) ;
-  static void   ConfigureLocalChannel(     ValueTree channel_store , Identifier a_key ,
-                                           String    new_name                         ) ;
-  static void   ConfigureRemoteChannel(    ValueTree  user_store    ,
-                                           ValueTree  channel_store , Identifier a_key) ;
+  static String GetChannelName(           ValueTree channel_store) ;
+  static String GetLocalChannelClientName(int channel_idx) ;
+  static String GetRemoteUserName(        int user_idx) ;
+  static String GetRemoteChannelName(     int user_idx , int channel_idx) ;
+  static bool   IsConfiguredChannel(      int channel_idx) ;
+  static void   ConfigureMasterChannel(   Identifier a_key) ;
+  static void   ConfigureMetroChannel(    Identifier a_key) ;
+  static void   ConfigureLocalChannel(    ValueTree  channel_store , Identifier a_key) ;
+  static void   ConfigureRemoteChannel(   ValueTree  user_store    ,
+                                          ValueTree  channel_store , Identifier a_key) ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;

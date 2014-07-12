@@ -159,13 +159,15 @@ public:
   static const String METRO_CHANNEL_GUI_ID ;
   static const String XMIT_LABEL_TEXT ;
   static const String RCV_LABEL_TEXT ;
-  static const int    N_STATIC_CHANNEL_CHILDREN = 2 ;
-  static const int    CHANNEL_LABEL_H           = 12 ;
-  static const int    CHANNEL_Y                 = CHANNEL_LABEL_H + PAD2 ;
-  static const int    CHANNEL_W                 = 60 ;
-  static const int    CHANNEL_H                 = 252 ;
-  static const int    VU_DB_RANGE               = 140 ;
-  static const int    VU_DB_MIN                 = -120 ;
+  static const int    N_STATIC_CHANNELS_CHILDREN = 2 ;
+  static const int    CHANNEL_LABEL_H            = 12 ;
+  static const int    CHANNEL_Y                  = CHANNEL_LABEL_H + PAD2 ;
+  static const int    CHANNEL_W                  = 60 ;
+  static const int    CHANNEL_H                  = 252 ;
+  static const int    CONFIG_BTN_W               = 15 ;
+  static const int    CONFIG_BTN_H               = 16 ;
+  static const int    VU_DB_RANGE                = 140 ;
+  static const int    VU_DB_MIN                  = -120 ;
 
   // Channels
   static const  String     MASTERS_GUI_ID ;
@@ -277,6 +279,7 @@ public:
   static const Identifier SERVERS_ID ;
 
   // channels
+  static const Identifier CONFIG_ALL_ID ;
   static const String     MASTERS_KEY ;
   static const Identifier MASTERS_ID ;
   static const String     MASTER_KEY ;
@@ -291,6 +294,8 @@ public:
   static const Identifier USERIDX_ID ;
   static const String     CHANNELIDX_KEY ;
   static const Identifier CHANNELIDX_ID ;
+  static const String     CHANNELNAME_KEY ;
+  static const Identifier CHANNELNAME_ID ;
   static const String     VOLUME_KEY ;
   static const Identifier VOLUME_ID ;
   static const String     PAN_KEY ;
@@ -307,20 +312,17 @@ public:
   static const Identifier IS_STEREO_ID ;
 
   // defaults
-  static const String     CONFIG_ALL_KEY ;
-  static const Identifier CONFIG_ALL_ID ;
-  static const String     DEFAULT_NAME ;
-  static const String     DEFAULT_CHANNEL_NAME ;
-  static const String     DEFAULT_USER_NAME ;
-  static const float      DEFAULT_VOLUME ;
-  static const float      DEFAULT_PAN ;
-  static const bool       DEFAULT_IS_XMIT ;
-  static const bool       DEFAULT_IS_MUTED ;
-  static const bool       DEFAULT_IS_SOLO ;
-  static const int        DEFAULT_SOURCE_N ;
-  static const bool       DEFAULT_IS_STEREO ;
-  static const int        DEFAULT_AUDIO_IF = audioStreamer::WINDOWS_AUDIO_ASIO ;
-  static const String     DEFAULT_CONFIG_XML ;
+  static const String CHANNEL_BASE_ID ;
+  static const String DEFAULT_CHANNEL_NAME ;
+  static const float  DEFAULT_VOLUME ;
+  static const float  DEFAULT_PAN ;
+  static const bool   DEFAULT_IS_XMIT ;
+  static const bool   DEFAULT_IS_MUTED ;
+  static const bool   DEFAULT_IS_SOLO ;
+  static const int    DEFAULT_SOURCE_N ;
+  static const bool   DEFAULT_IS_STEREO ;
+  static const int    DEFAULT_AUDIO_IF = audioStreamer::WINDOWS_AUDIO_ASIO ;
+  static const String DEFAULT_CONFIG_XML ;
 
   // validation
   static const StringRef VALID_NAME_CHARS ;

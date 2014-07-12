@@ -7,8 +7,8 @@
     <GROUP id="{51F23963-7F0B-17B4-72A3-B564BDD36515}" name="Headers">
       <FILE id="A4xouB" name="Background.h" compile="0" resource="0" file="Source/Background.h"/>
       <FILE id="XeDmZL" name="Channel.h" compile="0" resource="0" file="Source/Channel.h"/>
-      <FILE id="SBrFCQ" name="Channels.h" compile="0" resource="0" file="Source/Channels.h"/>
       <FILE id="MFeN91" name="ChannelConfig.h" compile="0" resource="0" file="Source/ChannelConfig.h"/>
+      <FILE id="SBrFCQ" name="Channels.h" compile="0" resource="0" file="Source/Channels.h"/>
       <FILE id="pNseOT" name="Chat.h" compile="0" resource="0" file="Source/Chat.h"/>
       <FILE id="oLQgCw" name="Constants.h" compile="0" resource="0" file="Source/Constants.h"/>
       <FILE id="xqc9VC" name="License.h" compile="0" resource="0" file="Source/License.h"/>
@@ -19,14 +19,13 @@
       <FILE id="sKUFRy" name="MainContent.h" compile="0" resource="0" file="Source/MainContent.h"/>
       <FILE id="DDFUUa" name="Mixer.h" compile="0" resource="0" file="Source/Mixer.h"/>
       <FILE id="N6kt6x" name="StatusBar.h" compile="0" resource="0" file="Source/StatusBar.h"/>
-      <FILE id="r3GyaJ" name="Trace.h" compile="0" resource="0" file="Source/Trace.h"/>
     </GROUP>
     <GROUP id="{F298109F-8531-F160-2BC9-F72C3764B7EF}" name="Source">
       <FILE id="WuNCUn" name="Background.cpp" compile="1" resource="0" file="Source/Background.cpp"/>
       <FILE id="pasbMc" name="Channel.cpp" compile="1" resource="0" file="Source/Channel.cpp"/>
-      <FILE id="BwFSNp" name="Channels.cpp" compile="1" resource="0" file="Source/Channels.cpp"/>
       <FILE id="ZuG12h" name="ChannelConfig.cpp" compile="1" resource="0"
             file="Source/ChannelConfig.cpp"/>
+      <FILE id="BwFSNp" name="Channels.cpp" compile="1" resource="0" file="Source/Channels.cpp"/>
       <FILE id="CywiEf" name="Chat.cpp" compile="1" resource="0" file="Source/Chat.cpp"/>
       <FILE id="kbS1jT" name="Constants.cpp" compile="1" resource="0" file="Source/Constants.cpp"/>
       <FILE id="HugMKb" name="License.cpp" compile="1" resource="0" file="Source/License.cpp"/>
@@ -39,7 +38,7 @@
       <FILE id="JelDpp" name="MainContent.cpp" compile="1" resource="0" file="Source/MainContent.cpp"/>
       <FILE id="aYeN5b" name="Mixer.cpp" compile="1" resource="0" file="Source/Mixer.cpp"/>
       <FILE id="XO5clN" name="StatusBar.cpp" compile="1" resource="0" file="Source/StatusBar.cpp"/>
-      <FILE id="yx0l5v" name="Trace.cpp" compile="1" resource="0" file="Source/Trace.cpp"/>
+      <FILE id="mMho7r" name="Trace.cpp" compile="1" resource="0" file="Source/Trace/Trace.cpp"/>
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>

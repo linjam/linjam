@@ -193,10 +193,10 @@
     <ClCompile Include="..\..\Source\Channel.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Channels.cpp">
+    <ClCompile Include="..\..\Source\ChannelConfig.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ChannelConfig.cpp">
+    <ClCompile Include="..\..\Source\Channels.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Chat.cpp">
@@ -232,7 +232,7 @@
     <ClCompile Include="..\..\Source\StatusBar.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Trace.cpp">
+    <ClCompile Include="..\..\Source\Trace\Trace.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharacterFunctions.cpp">
@@ -1053,10 +1053,10 @@
     <ClInclude Include="..\..\Source\Channel.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Channels.h">
+    <ClInclude Include="..\..\Source\ChannelConfig.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ChannelConfig.h">
+    <ClInclude Include="..\..\Source\Channels.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Chat.h">
@@ -1087,9 +1087,6 @@
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\StatusBar.h">
-      <Filter>LinJam\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Trace.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_ASCII.h">
