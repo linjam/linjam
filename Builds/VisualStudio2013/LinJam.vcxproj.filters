@@ -202,9 +202,6 @@
     <ClCompile Include="..\..\Source\Chat.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Constants.cpp">
-      <Filter>LinJam\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\License.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>

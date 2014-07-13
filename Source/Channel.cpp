@@ -56,6 +56,22 @@ Channel::Channel (ValueTree channel_store)
     soloButton->setButtonText (TRANS("SOLO"));
     soloButton->setColour (ToggleButton::textColourId, Colours::grey);
 
+    addAndMakeVisible (removeButton = new TextButton ("removeButton"));
+    removeButton->setExplicitFocusOrder (4);
+    removeButton->setButtonText (TRANS("X"));
+    removeButton->setColour (TextButton::buttonColourId, Colour (0xff400000));
+    removeButton->setColour (TextButton::buttonOnColourId, Colours::maroon);
+    removeButton->setColour (TextButton::textColourOnId, Colours::red);
+    removeButton->setColour (TextButton::textColourOffId, Colours::red);
+
+    addAndMakeVisible (configButton = new TextButton ("configButton"));
+    configButton->setExplicitFocusOrder (5);
+    configButton->setButtonText (TRANS("?"));
+    configButton->setColour (TextButton::buttonColourId, Colour (0xff404000));
+    configButton->setColour (TextButton::buttonOnColourId, Colours::olive);
+    configButton->setColour (TextButton::textColourOnId, Colours::yellow);
+    configButton->setColour (TextButton::textColourOffId, Colours::yellow);
+
     addAndMakeVisible (panSlider = new Slider ("panSlider"));
     panSlider->setExplicitFocusOrder (6);
     panSlider->setRange (-1, 1, 0);
@@ -65,14 +81,6 @@ Channel::Channel (ValueTree channel_store)
     panSlider->setColour (Slider::textBoxBackgroundColourId, Colours::black);
     panSlider->addListener (this);
 
-    addAndMakeVisible (vuSlider = new Slider ("vuSlider"));
-    vuSlider->setRange (-120, 20, 0);
-    vuSlider->setSliderStyle (Slider::LinearBar);
-    vuSlider->setTextBoxStyle (Slider::NoTextBox, true, 48, 12);
-    vuSlider->setColour (Slider::textBoxTextColourId, Colours::grey);
-    vuSlider->setColour (Slider::textBoxBackgroundColourId, Colour (0x00000000));
-    vuSlider->addListener (this);
-
     addAndMakeVisible (gainSlider = new Slider ("gainSlider"));
     gainSlider->setExplicitFocusOrder (7);
     gainSlider->setRange (-120, 20, 0);
@@ -81,6 +89,25 @@ Channel::Channel (ValueTree channel_store)
     gainSlider->setColour (Slider::textBoxTextColourId, Colours::grey);
     gainSlider->setColour (Slider::textBoxBackgroundColourId, Colour (0x00000000));
     gainSlider->addListener (this);
+
+    addAndMakeVisible (nameLabel = new Label ("nameLabel",
+                                              TRANS("channel name")));
+    nameLabel->setExplicitFocusOrder (8);
+    nameLabel->setFont (Font (12.00f, Font::plain));
+    nameLabel->setJustificationType (Justification::centred);
+    nameLabel->setEditable (true, true, true);
+    nameLabel->setColour (Label::textColourId, Colours::grey);
+    nameLabel->setColour (TextEditor::textColourId, Colours::black);
+    nameLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    nameLabel->addListener (this);
+
+    addAndMakeVisible (vuSlider = new Slider ("vuSlider"));
+    vuSlider->setRange (-120, 20, 0);
+    vuSlider->setSliderStyle (Slider::LinearBar);
+    vuSlider->setTextBoxStyle (Slider::NoTextBox, true, 48, 12);
+    vuSlider->setColour (Slider::textBoxTextColourId, Colours::grey);
+    vuSlider->setColour (Slider::textBoxBackgroundColourId, Colour (0x00000000));
+    vuSlider->addListener (this);
 
     addAndMakeVisible (vuLabel = new Label ("vuLabel",
                                             TRANS("-120")));
@@ -100,33 +127,6 @@ Channel::Channel (ValueTree channel_store)
     gainLabel->setColour (TextEditor::textColourId, Colours::black);
     gainLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (nameLabel = new Label ("nameLabel",
-                                              TRANS("channel name")));
-    nameLabel->setExplicitFocusOrder (8);
-    nameLabel->setFont (Font (12.00f, Font::plain));
-    nameLabel->setJustificationType (Justification::centred);
-    nameLabel->setEditable (true, true, true);
-    nameLabel->setColour (Label::textColourId, Colours::grey);
-    nameLabel->setColour (TextEditor::textColourId, Colours::black);
-    nameLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    nameLabel->addListener (this);
-
-    addAndMakeVisible (removeButton = new TextButton ("removeButton"));
-    removeButton->setExplicitFocusOrder (4);
-    removeButton->setButtonText (TRANS("X"));
-    removeButton->setColour (TextButton::buttonColourId, Colour (0xff400000));
-    removeButton->setColour (TextButton::buttonOnColourId, Colours::maroon);
-    removeButton->setColour (TextButton::textColourOnId, Colours::red);
-    removeButton->setColour (TextButton::textColourOffId, Colours::red);
-
-    addAndMakeVisible (configButton = new TextButton ("configButton"));
-    configButton->setExplicitFocusOrder (5);
-    configButton->setButtonText (TRANS("?"));
-    configButton->setColour (TextButton::buttonColourId, Colour (0xff404000));
-    configButton->setColour (TextButton::buttonOnColourId, Colours::olive);
-    configButton->setColour (TextButton::textColourOnId, Colours::yellow);
-    configButton->setColour (TextButton::textColourOffId, Colours::yellow);
-
 
     //[UserPreSize]
 
@@ -138,6 +138,7 @@ Channel::Channel (ValueTree channel_store)
 
 
     //[Constructor] You can add your own custom stuff here..
+
   this->configStore   = channel_store ;
   String channel_name =         this->configStore[CONFIG::CHANNELNAME_ID].toString() ;
   double volume       = double( this->configStore[CONFIG::VOLUME_ID]) ;
@@ -145,7 +146,7 @@ Channel::Channel (ValueTree channel_store)
   bool   is_xmit      = bool(   this->configStore[CONFIG::IS_XMIT_ID]) ;
   bool   is_muted     = bool(   this->configStore[CONFIG::IS_MUTED_ID]) ;
   bool   is_solo      = bool(   this->configStore[CONFIG::IS_SOLO_ID]) ;
-  int    source_ch    = int(    this->configStore[CONFIG::SOURCE_N_ID]) ;
+  int    source_n     = int(    this->configStore[CONFIG::SOURCE_N_ID]) ;
   bool   is_stereo    = bool(   this->configStore[CONFIG::IS_STEREO_ID]) ;
 
   this->nameLabel   ->setText(           channel_name , juce::dontSendNotification) ;
@@ -157,6 +158,7 @@ Channel::Channel (ValueTree channel_store)
   this->soloButton  ->setToggleState(    is_solo      , juce::dontSendNotification) ;
 
   this->removeButton->addListener(this) ;
+  this->configButton->addListener(this) ;
   this->xmitButton  ->addListener(this) ;
   this->muteButton  ->addListener(this) ;
   this->soloButton  ->addListener(this) ;
@@ -179,14 +181,14 @@ Channel::~Channel()
     xmitButton = nullptr;
     muteButton = nullptr;
     soloButton = nullptr;
-    panSlider = nullptr;
-    vuSlider = nullptr;
-    gainSlider = nullptr;
-    vuLabel = nullptr;
-    gainLabel = nullptr;
-    nameLabel = nullptr;
     removeButton = nullptr;
     configButton = nullptr;
+    panSlider = nullptr;
+    gainSlider = nullptr;
+    nameLabel = nullptr;
+    vuSlider = nullptr;
+    vuLabel = nullptr;
+    gainLabel = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -214,14 +216,14 @@ void Channel::resized()
     xmitButton->setBounds (4, 4, 36, 12);
     muteButton->setBounds (4, 20, 36, 12);
     soloButton->setBounds (4, 36, 36, 12);
-    panSlider->setBounds (12, 52, 36, 36);
-    vuSlider->setBounds (4, 92, 24, 128);
-    gainSlider->setBounds (32, 92, 24, 128);
-    vuLabel->setBounds (4, 224, 24, 12);
-    gainLabel->setBounds (32, 224, 24, 12);
-    nameLabel->setBounds (4, 236, 52, 12);
     removeButton->setBounds (45, 0, 15, 16);
     configButton->setBounds (45, 16, 15, 16);
+    panSlider->setBounds (12, 52, 36, 36);
+    gainSlider->setBounds (32, 92, 24, 128);
+    nameLabel->setBounds (4, 236, 52, 12);
+    vuSlider->setBounds (4, 92, 24, 128);
+    vuLabel->setBounds (4, 224, 24, 12);
+    gainLabel->setBounds (32, 224, 24, 12);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -231,7 +233,7 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
     //[UsersliderValueChanged_Pre]
     //[/UsersliderValueChanged_Pre]
 
-    if (sliderThatWasMoved == panSlider)
+    if (sliderThatWasMoved == this->panSlider)
     {
         //[UserSliderCode_panSlider] -- add your slider handling code here..
 
@@ -241,15 +243,7 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 
         //[/UserSliderCode_panSlider]
     }
-    else if (sliderThatWasMoved == vuSlider)
-    {
-        //[UserSliderCode_vuSlider] -- add your slider handling code here..
-
-      // vuSlider control is user read/only
-
-        //[/UserSliderCode_vuSlider]
-    }
-    else if (sliderThatWasMoved == gainSlider)
+    else if (sliderThatWasMoved == this->gainSlider)
     {
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
 
@@ -259,6 +253,14 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
       setChannelConfig(CONFIG::VOLUME_ID , var(gain)) ;
 
         //[/UserSliderCode_gainSlider]
+    }
+    else if (sliderThatWasMoved == this->vuSlider)
+    {
+        //[UserSliderCode_vuSlider] -- add your slider handling code here..
+
+      // vuSlider control is user read/only
+
+        //[/UserSliderCode_vuSlider]
     }
 
     //[UsersliderValueChanged_Post]
@@ -270,11 +272,11 @@ void Channel::labelTextChanged (Label* labelThatHasChanged)
     //[UserlabelTextChanged_Pre]
     //[/UserlabelTextChanged_Pre]
 
-    if (labelThatHasChanged == nameLabel)
+    if (labelThatHasChanged == this->nameLabel)
     {
         //[UserLabelCode_nameLabel] -- add your label text handling code here..
 
-      setChannelConfig(CONFIG::CHANNELNAME_ID , var(nameLabel->getText())) ;
+      setChannelConfig(CONFIG::CHANNELNAME_ID , var(this->nameLabel->getText())) ;
 
         //[/UserLabelCode_nameLabel]
     }
@@ -312,11 +314,11 @@ void Channel::buttonClicked(Button* a_button) { handleButtonClicked(a_button) ; 
 bool Channel::handleButtonClicked(Button* a_button)
 {
   // set stored config for this channel (configures NJClient implicitly)
-  if      (a_button == xmitButton)
+  if      (a_button == this->xmitButton)
     setChannelConfig(CONFIG::IS_XMIT_ID  , var(a_button->getToggleState())) ;
-  else if (a_button == muteButton)
+  else if (a_button == this->muteButton)
     setChannelConfig(CONFIG::IS_MUTED_ID , var(a_button->getToggleState())) ;
-  else if (a_button == soloButton)
+  else if (a_button == this->soloButton)
     setChannelConfig(CONFIG::IS_SOLO_ID  , var(a_button->getToggleState())) ;
   else return false ;
 
@@ -358,21 +360,19 @@ void LocalChannel::buttonClicked(Button* a_button)
 {
   if (handleButtonClicked(a_button)) return ;
 
-  if      (a_button == removeButton) // LocalChannel only
+  if      (a_button == this->removeButton)
   {
-    // destroy stored config for this channel (configures NJClient implicitly)
+    // destroy stored config for this channel
+    // (configures NJClient and removes this GUI asynchronously)
     this->configStore.getParent().removeChild(this->configStore , nullptr) ;
-
-    // remove this channel GUI
-    ((LocalChannels*)getParentComponent())->removeChannel((LocalChannel*)this) ;
   }
-  else if (a_button == configButton) // LocalChannel only
+  else if (a_button == this->configButton)
   {
+    ChannelConfig* channelConfig = new ChannelConfig(this->configStore) ;
     Component*     mixer         = getParentComponent()->getParentComponent() ;
     Component*     mainContent   = mixer->getParentComponent() ;
-    ChannelConfig* channelConfig = new ChannelConfig() ;
-    channelConfig->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
 
+    channelConfig->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
     int modalX = mixer->getX() + getX() + configButton->getX() + (GUI::CONFIG_BTN_W / 2) ;
     int modalY = mixer->getY() + getY() + configButton->getY() + (GUI::CONFIG_BTN_H / 2) ;
 
@@ -416,19 +416,32 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="3" pos="4 36 36 12" txtcol="ff808080"
                 buttonText="SOLO" connectedEdges="0" needsCallback="0" radioGroupId="0"
                 state="0"/>
+  <TEXTBUTTON name="removeButton" id="becd368b728d32c0" memberName="removeButton"
+              virtualName="" explicitFocusOrder="4" pos="45 0 15 16" bgColOff="ff400000"
+              bgColOn="ff800000" textCol="ffff0000" textColOn="ffff0000" buttonText="X"
+              connectedEdges="0" needsCallback="0" radioGroupId="0"/>
+  <TEXTBUTTON name="configButton" id="f0a56a4ebe614916" memberName="configButton"
+              virtualName="" explicitFocusOrder="5" pos="45 16 15 16" bgColOff="ff404000"
+              bgColOn="ff808000" textCol="ffffff00" textColOn="ffffff00" buttonText="?"
+              connectedEdges="0" needsCallback="0" radioGroupId="0"/>
   <SLIDER name="panSlider" id="aa7c4f80abb603e9" memberName="panSlider"
           virtualName="" explicitFocusOrder="6" pos="12 52 36 36" textboxtext="ff808080"
           textboxbkgd="ff000000" min="-1" max="1" int="0" style="Rotary"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="0" textBoxHeight="12"
           skewFactor="1"/>
-  <SLIDER name="vuSlider" id="fbb656fdc87f46ed" memberName="vuSlider" virtualName=""
-          explicitFocusOrder="0" pos="4 92 24 128" textboxtext="ff808080"
-          textboxbkgd="0" min="-120" max="20" int="0" style="LinearBar"
-          textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="48"
-          textBoxHeight="12" skewFactor="1"/>
   <SLIDER name="gainSlider" id="e34ef13291b2ec40" memberName="gainSlider"
           virtualName="" explicitFocusOrder="7" pos="32 92 24 128" textboxtext="ff808080"
           textboxbkgd="0" min="-120" max="20" int="0" style="LinearVertical"
+          textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="48"
+          textBoxHeight="12" skewFactor="1"/>
+  <LABEL name="nameLabel" id="66bafa468220da02" memberName="nameLabel"
+         virtualName="" explicitFocusOrder="8" pos="4 236 52 12" textCol="ff808080"
+         edTextCol="ff000000" edBkgCol="0" labelText="channel name" editableSingleClick="1"
+         editableDoubleClick="1" focusDiscardsChanges="1" fontname="Default font"
+         fontsize="12" bold="0" italic="0" justification="36"/>
+  <SLIDER name="vuSlider" id="fbb656fdc87f46ed" memberName="vuSlider" virtualName=""
+          explicitFocusOrder="0" pos="4 92 24 128" textboxtext="ff808080"
+          textboxbkgd="0" min="-120" max="20" int="0" style="LinearBar"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="48"
           textBoxHeight="12" skewFactor="1"/>
   <LABEL name="vuLabel" id="cdc1fb3056af7c9b" memberName="vuLabel" virtualName=""
@@ -441,19 +454,6 @@ BEGIN_JUCER_METADATA
          edTextCol="ff000000" edBkgCol="0" labelText="-120" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="10" bold="0" italic="0" justification="36"/>
-  <LABEL name="nameLabel" id="66bafa468220da02" memberName="nameLabel"
-         virtualName="" explicitFocusOrder="8" pos="4 236 52 12" textCol="ff808080"
-         edTextCol="ff000000" edBkgCol="0" labelText="channel name" editableSingleClick="1"
-         editableDoubleClick="1" focusDiscardsChanges="1" fontname="Default font"
-         fontsize="12" bold="0" italic="0" justification="36"/>
-  <TEXTBUTTON name="removeButton" id="becd368b728d32c0" memberName="removeButton"
-              virtualName="" explicitFocusOrder="4" pos="45 0 15 16" bgColOff="ff400000"
-              bgColOn="ff800000" textCol="ffff0000" textColOn="ffff0000" buttonText="X"
-              connectedEdges="0" needsCallback="0" radioGroupId="0"/>
-  <TEXTBUTTON name="configButton" id="f0a56a4ebe614916" memberName="configButton"
-              virtualName="" explicitFocusOrder="5" pos="45 16 15 16" bgColOff="ff404000"
-              bgColOn="ff808000" textCol="ffffff00" textColOn="ffffff00" buttonText="?"
-              connectedEdges="0" needsCallback="0" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

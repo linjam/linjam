@@ -204,22 +204,20 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
 bool Mixer::addRemoteUser(ValueTree user_store)
 {
   // ensure GUI for this user does not already exist
-  String user_name = String(user_store.getType()) ;
-  if (getChannels(user_name)) return false ;
+  Identifier user_id = user_store.getType() ; if (getChannels(user_id)) return false ;
 
   // create remote user GUI
-  Channels* channels = new RemoteChannels(user_store) ;
-  addChannels(channels , user_name) ;
+  addChannels(new RemoteChannels(user_store) , user_id) ;
 
 DEBUG_TRACE_ADD_REMOTE_USER
 
   return true ;
 }
 
-bool Mixer::addChannel(String channels_name , ValueTree channel_store)
+bool Mixer::addChannel(Identifier channels_id , ValueTree channel_store)
 {
   // validate channels group GUI and storage
-  Channels* channels = getChannels(channels_name) ;
+  Channels* channels = getChannels(channels_id) ;
   if (!channels || !channel_store.isValid()) return false ;
 
   // create channel GUI and update mixer layout
@@ -229,15 +227,21 @@ bool Mixer::addChannel(String channels_name , ValueTree channel_store)
   return was_added ;
 }
 
-void Mixer::renameChannel(String channels_name , Identifier channel_id)
+void Mixer::renameChannel(Identifier channels_id , Identifier channel_id)
 {
-  RemoteChannels* channels = (RemoteChannels*)getChannels(channels_name) ;
+  Channels* channels = getChannels(channels_id) ;
   if (channels) channels->renameChannel(channel_id) ;
 }
 
-void Mixer::updateChannelVU(String channels_name , Identifier channel_id , double vu)
+void Mixer::removeChannel(Identifier channels_id , Identifier channel_id)
 {
-  Channels* channels = getChannels(channels_name) ;
+  Channels* channels = getChannels(channels_id) ;
+  if (channels) channels->removeChannel(channel_id) ;
+}
+
+void Mixer::updateChannelVU(Identifier channels_id , Identifier channel_id , double vu)
+{
+  Channels* channels = getChannels(channels_id) ;
   if (channels) channels->updateChannelVU(channel_id , vu) ;
 }
 
@@ -269,7 +273,7 @@ void Mixer::pruneRemotes(ValueTree active_users)
         if (active_channels->contains(channel_id)) continue ;
 
         // delete orphaned GUI elements for removed channel
-        channels->removeChannel((RemoteChannel*)channel) ; --channel_n ;
+        removeChannel(user_id , Identifier(channel_id.toString())) ; --channel_n ;
       }
     }
     // delete orphaned GUI elements for parted user
@@ -292,10 +296,10 @@ void Mixer::buttonClicked(Button* a_button)
   resized() ;
 }
 
-void Mixer::addChannels(Channels* channels , String channels_name)
+void Mixer::addChannels(Channels* channels , Identifier channels_id)
 {
   // add channels group to the mixer
-  addChildAndSetID(channels , channels_name) ; channels->toFront(true) ;
+  addChildAndSetID(channels , String(channels_id)) ; channels->toFront(true) ;
 
   // update mixer layout
   resized() ;
@@ -319,9 +323,9 @@ void Mixer::addResizer(ResizableEdgeComponent* resizer)
   resizer->setSize(GUI::RESIZER_W , GUI::MIXERGROUP_H) ;
 }
 
-Channels* Mixer::getChannels(String channels_name)
+Channels* Mixer::getChannels(Identifier channels_id)
 {
-  return (Channels*)findChildWithID(StringRef(channels_name)) ;
+  return (Channels*)findChildWithID(StringRef(String(channels_id))) ;
 }
 
 void Mixer::removeChannels(Channels* channels)

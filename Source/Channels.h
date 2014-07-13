@@ -49,7 +49,8 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
   bool addChannel(     ValueTree channel_store) ;
-  void removeChannel(  Channel* channel) ;
+  void renameChannel(  Identifier channel_id) ;
+  void removeChannel(  Identifier channel_id) ;
   int  getNumChannels() ;
   void updateChannelVU(Identifier channel_id , double vu) ;
 
@@ -69,6 +70,7 @@ private:
 protected:
 
   virtual Channel* newChannel(ValueTree channel_store) = 0 ;
+          Channel* getChannel(Identifier channel_id) ;
 
     //[/UserVariables]
 
@@ -115,8 +117,6 @@ class RemoteChannels : public Channels , public ButtonListener
 public:
 
   RemoteChannels(ValueTree user_store) ;
-
-  void renameChannel(Identifier channel_id) ;
 
 
 private:

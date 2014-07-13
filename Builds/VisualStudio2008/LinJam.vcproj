@@ -155,7 +155,6 @@
         <File RelativePath="..\..\Source\ChannelConfig.cpp"/>
         <File RelativePath="..\..\Source\Channels.cpp"/>
         <File RelativePath="..\..\Source\Chat.cpp"/>
-        <File RelativePath="..\..\Source\Constants.cpp"/>
         <File RelativePath="..\..\Source\License.cpp"/>
         <File RelativePath="..\..\Source\LinJam.cpp"/>
         <File RelativePath="..\..\Source\LinJamConfig.cpp"/>

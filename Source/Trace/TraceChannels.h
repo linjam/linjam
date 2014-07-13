@@ -3,25 +3,30 @@
 
 /* channels */
 
-#define DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL                       \
-  String name = String(channel_store.getType()) ;              \
-  String dbg  = " adding channel slice '" + name  + "' to '" + \
-                getComponentID() + "' channels" ;              \
-  if (!channel_store.isValid())                                \
-    Trace::TraceError("channel store invalid" + dbg) ;         \
-  else if (name.isEmpty())                                     \
-    Trace::TraceError("channel name empty" + dbg) ;            \
-  else if (bool(channel_store[CONFIG::IS_STEREO_ID])  &&       \
-           int( channel_store[CONFIG::SOURCE_N_ID]) % 2)       \
+#define DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL                                      \
+  String dbg  = " adding channel slice '" + String(channel_store.getType()) + \
+                "' to '" + getComponentID() + "' channels" ;                  \
+  if (!channel_store.isValid())                                               \
+    Trace::TraceError("channel store invalid" + dbg) ;                        \
+  else if (bool(channel_store[CONFIG::IS_STEREO_ID])  &&                      \
+           int( channel_store[CONFIG::SOURCE_N_ID]) % 2)                      \
     Trace::TraceGui(dbg + " (hidden stereo slave)") ;
 
-#define DEBUG_REMOVE_CHANNEL                                                \
-  bool   is_stereo     = bool(channel->configStore[CONFIG::IS_STEREO_ID]) ; \
-  String channel_type  = (!is_stereo)? "mono" : "stereo" ;                  \
-  String channels_name = getComponentID() ;                                 \
-  Trace::TraceGui("removing " + channel_type + " channel '" +               \
-                  channel->getComponentID()  + "' from '"   +               \
-                  channels_name + "' channels") ;
+#define DEBUG_TRACE_RENAME_CHANNEL                                                \
+  Channel* ch   = getChannel(channel_id) ;                                        \
+  String   name = (ch)? ch->configStore[CONFIG::CHANNELNAME_ID].toString() : "" ; \
+  String   dbg  = "renaming channel '" + String(channel_id) + "'" ;               \
+  if (ch) Trace::TraceGui(dbg + " to '" + name + "'") ;                           \
+  else    Trace::TraceError("no such channel " + dbg) ;
+
+#define DEBUG_TRACE_REMOVE_CHANNEL                                              \
+  Channel* ch           = getChannel(channel_id) ;                              \
+  bool     is_stereo    = ch && bool(ch->configStore[CONFIG::IS_STEREO_ID]) ;   \
+  String   channel_type = (ch)? ((!is_stereo)? "mono" : "stereo") : "unknown" ; \
+  String   dbg          = "removing "   + channel_type                        + \
+                          " channel '"  + String(channel_id)                  + \
+                          "' from '"    + getComponentID()     + "' channels" ; \
+  if (ch) Trace::TraceGui(dbg) ; else Trace::TraceError(dbg) ;
 
 #define DEBUG_TRACE_INVALID_CHANNELID                                            \
 /* TODO: maybe? if VUs were listening on a store value then this trace  */       \

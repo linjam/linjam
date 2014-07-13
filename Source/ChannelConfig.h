@@ -40,7 +40,7 @@ class ChannelConfig  : public Component,
 {
 public:
     //==============================================================================
-    ChannelConfig ();
+    ChannelConfig (ValueTree config_store);
     ~ChannelConfig();
 
     //==============================================================================
@@ -56,17 +56,21 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  void buttonClicked(Button* a_button) ;
-  void createChannelSelectOptions() ;
-  void populateChannelSelect() ;
-  void submit() ;
+  void   buttonClicked(             Button* a_button) ;
+  String makeMonoSelectOption(      int channel_n) ;
+  String makeStereoSelectOption(    int channel_n) ;
+  void   createChannelSelectOptions() ;
+  void   populateChannelSelect() ;
 
 
   SortedSet<int> freeInputChannelNs ;
   SortedSet<int> freeInputChannelPairNs ;
   StringArray    freeInputChannelOptions ;
   StringArray    freeInputChannelPairOptions ;
-  bool           is_stereo ;
+  ValueTree      configStore ;
+  bool           isNewChannel ;
+  int            sourceN ;
+  bool           isStereo ;
 
     //[/UserVariables]
 

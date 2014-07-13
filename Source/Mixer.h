@@ -50,9 +50,10 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
   bool addRemoteUser(  ValueTree user_store) ;
-  bool addChannel(     String channels_name , ValueTree channel_store) ;
-  void renameChannel(  String channels_name , Identifier channel_id) ;
-  void updateChannelVU(String channels_name , Identifier channel_id , double vu) ;
+  bool addChannel(     Identifier channels_id , ValueTree channel_store) ;
+  void renameChannel(  Identifier channels_id , Identifier channel_id) ;
+  void removeChannel(  Identifier channels_id , Identifier channel_id) ;
+  void updateChannelVU(Identifier channels_id , Identifier channel_id , double vu) ;
   void positionResizers() ;
   void pruneRemotes(   ValueTree active_users) ;
 
@@ -77,10 +78,10 @@ private:
 
 
   void      buttonClicked(         Button* buttonThatWasClicked) override ;
-  void      addChannels(           Channels* channels , String channels_name) ;
+  void      addChannels(           Channels* channels , Identifier channels_id) ;
   void      addScrollButton(       TextButton* scroll_button , String button_text) ;
   void      addResizer(            ResizableEdgeComponent* resizer) ;
-  Channels* getChannels(           String channels_name) ;
+  Channels* getChannels(           Identifier channels_id) ;
   void      removeChannels(        Channels* channels) ;
   int       getNumDynamicMixers() ;
   int       getLocalsResizerNextX() ;

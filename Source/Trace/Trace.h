@@ -46,6 +46,7 @@ public:
 
   static void TraceEvent(  String msg) ;
   static void TraceConfig( String msg) ;
+  static void TraceClient( String msg) ;
   static void TraceGui(    String msg) ;
   static void TraceVerbose(String msg) ;
   static void TraceState(  String msg) ;

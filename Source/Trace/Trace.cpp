@@ -15,6 +15,7 @@ Array<String> Trace::UnknowwnChannels = Array<String>() ;
 
 void Trace::TraceEvent(String msg)   { if (TraceEvs())    DBG("[EVENT]:   " + msg) ; }
 void Trace::TraceConfig(String msg)  { if (TraceState())  DBG("[CONFIG]:  " + msg) ; }
+void Trace::TraceClient(String msg)  { if (TraceState())  DBG("[CLIENT]:  " + msg) ; }
 void Trace::TraceGui(String msg)     { if (TraceEvs())    DBG("[GUI]:     " + msg) ; }
 void Trace::TraceVerbose(String msg) { if (TraceVb())     DBG("[DEBUG]:   " + msg) ; }
 void Trace::TraceState(String msg)   { if (TraceState())  DBG("[STATE]:   " + msg) ; }

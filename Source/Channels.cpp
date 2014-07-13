@@ -106,6 +106,7 @@ void Channels::resized()
     expandButton->setBounds (getWidth() - 15, 0, 15, 16);
     //[UserResized] Add your own custom resize handling here..
 
+  // position expand button
   int expand_btn_x = getWidth() - GUI::EXPAND_BTN_W ;
   int expand_btn_y = 0 ;
   int expand_btn_w = GUI::EXPAND_BTN_W ;
@@ -142,8 +143,8 @@ bool Channels::addChannel(ValueTree channel_store)
 DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL
 
   // ensure GUI for this channel does not already exist
-  String channel_name = String(channel_store.getType()) ;
-  if (channel_name.isEmpty() || findChildWithID(StringRef(channel_name))) return false ;
+  Identifier channel_id = channel_store.getType() ;
+  if (!channel_store.isValid() || getChannel(channel_id)) return false ;
 
   // hide stereo pair 'phantom' channels
   if (bool(channel_store[CONFIG::IS_STEREO_ID])  &&
@@ -151,7 +152,7 @@ DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL
 
   // create channel GUI
   Channel* channel = newChannel(channel_store) ;
-  addChildAndSetID(channel , channel_name) ;
+  addChildAndSetID(channel , String(channel_id)) ;
   channel->toFront(false) ;
 
   // resize and shift channel slices
@@ -160,12 +161,23 @@ DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL
   return true ;
 }
 
-void Channels::removeChannel(Channel* channel)
+void Channels::renameChannel(Identifier channel_id)
 {
-DEBUG_REMOVE_CHANNEL
+DEBUG_TRACE_RENAME_CHANNEL
+
+  Channel* channel = getChannel(channel_id) ; if (!channel) return ;
+
+  String new_name = channel->configStore[CONFIG::CHANNELNAME_ID].toString() ;
+  channel->nameLabel->setText(new_name , juce::dontSendNotification) ;
+}
+
+void Channels::removeChannel(Identifier channel_id)
+{
+DEBUG_TRACE_REMOVE_CHANNEL
 
   // destroy channel , resize , and shift channel slices
-  delete channel ; resized() ;
+  Component* channel = getChannel(channel_id) ;
+  if (channel) { delete channel ; resized() ; }
 }
 
 int Channels::getNumChannels()
@@ -175,7 +187,7 @@ int Channels::getNumChannels()
 
 void Channels::updateChannelVU(Identifier channel_id , double vu)
 {
-  Channel* channel = (Channel*)findChildWithID(StringRef(String(channel_id))) ;
+  Channel* channel = getChannel(channel_id) ;
   if (channel) channel->updateChannelVU(vu) ;
 }
 
@@ -185,6 +197,14 @@ void Channels::updateChannelVU(Identifier channel_id , double vu)
 void Channels::broughtToFront()
 {
   this->channelsLabel->setText(getComponentID() , juce::dontSendNotification) ;
+}
+
+
+/* Channels class protected class methods */
+
+Channel* Channels::getChannel(Identifier channel_id)
+{
+  return (Channel*)findChildWithID(StringRef(String(channel_id))) ;
 }
 
 
@@ -216,15 +236,15 @@ RemoteChannels::RemoteChannels(ValueTree user_store)
 
 void LocalChannels::buttonClicked(Button* a_button)
 {
-  if (a_button == expandButton)
+  if (a_button == this->expandButton)
   {
     Component*     mixer         = getParentComponent() ;
     Component*     mainContent   = mixer->getParentComponent() ;
-    ChannelConfig* channelConfig = new ChannelConfig() ;
+    ChannelConfig* channelConfig = new ChannelConfig(LinJam::Config->newChannel()) ;
     channelConfig->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
 
-    int modalX = mixer->getX() + getX() + expandButton->getX() + (GUI::EXPAND_BTN_W / 2) ;
-    int modalY = mixer->getY() + getY() + expandButton->getY() + (GUI::EXPAND_BTN_H / 2) ;
+    int modalX = mixer->getX() + getX() + this->expandButton->getX() + GUI::EXPAND_BTN_XC ;
+    int modalY = mixer->getY() + getY() + this->expandButton->getY() + GUI::EXPAND_BTN_YC ;
 
     Rectangle<int> modalRect = Rectangle<int>(modalX , modalY , 1 , 1) ;
     CallOutBox&    modalBox  = CallOutBox::launchAsynchronously(channelConfig ,
@@ -235,7 +255,7 @@ void LocalChannels::buttonClicked(Button* a_button)
 
 void RemoteChannels::buttonClicked(Button* a_button)
 {
-  if (a_button == expandButton) toggleExpandChannels() ;
+  if (a_button == this->expandButton) toggleExpandChannels() ;
 }
 
 void RemoteChannels::toggleExpandChannels()
@@ -259,16 +279,6 @@ Channel* LocalChannels::newChannel(ValueTree channel_store)
 Channel* RemoteChannels::newChannel(ValueTree channel_store)
 {
   return new RemoteChannel(channel_store) ;
-}
-
-void RemoteChannels::renameChannel(Identifier channel_id)
-{
-  RemoteChannel* channel = (RemoteChannel*)findChildWithID(StringRef(String(channel_id))) ;
-  if (channel)
-  {
-    String new_name = channel->configStore[CONFIG::CHANNELNAME_ID].toString() ;
-    channel->nameLabel->setText(new_name , juce::dontSendNotification) ;
-  }
 }
 
 //[/MiscUserCode]

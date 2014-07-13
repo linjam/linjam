@@ -56,7 +56,6 @@ OBJECTS := \
   $(OBJDIR)/ChannelConfig_4569a306.o \
   $(OBJDIR)/Channels_84b8f659.o \
   $(OBJDIR)/Chat_e7196be1.o \
-  $(OBJDIR)/Constants_e698e730.o \
   $(OBJDIR)/License_de20cc22.o \
   $(OBJDIR)/LinJam_a166dece.o \
   $(OBJDIR)/LinJamConfig_8af59670.o \
@@ -113,11 +112,6 @@ $(OBJDIR)/Channels_84b8f659.o: ../../Source/Channels.cpp
 $(OBJDIR)/Chat_e7196be1.o: ../../Source/Chat.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Chat.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Constants_e698e730.o: ../../Source/Constants.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Constants.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/License_de20cc22.o: ../../Source/License.cpp

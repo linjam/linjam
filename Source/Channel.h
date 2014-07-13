@@ -84,14 +84,14 @@ protected:
     ScopedPointer<ToggleButton> xmitButton;
     ScopedPointer<ToggleButton> muteButton;
     ScopedPointer<ToggleButton> soloButton;
-    ScopedPointer<Slider> panSlider;
-    ScopedPointer<Slider> vuSlider;
-    ScopedPointer<Slider> gainSlider;
-    ScopedPointer<Label> vuLabel;
-    ScopedPointer<Label> gainLabel;
-    ScopedPointer<Label> nameLabel;
     ScopedPointer<TextButton> removeButton;
     ScopedPointer<TextButton> configButton;
+    ScopedPointer<Slider> panSlider;
+    ScopedPointer<Slider> gainSlider;
+    ScopedPointer<Label> nameLabel;
+    ScopedPointer<Slider> vuSlider;
+    ScopedPointer<Label> vuLabel;
+    ScopedPointer<Label> gainLabel;
 
 
     //==============================================================================

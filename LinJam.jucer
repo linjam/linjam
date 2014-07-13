@@ -27,7 +27,6 @@
             file="Source/ChannelConfig.cpp"/>
       <FILE id="BwFSNp" name="Channels.cpp" compile="1" resource="0" file="Source/Channels.cpp"/>
       <FILE id="CywiEf" name="Chat.cpp" compile="1" resource="0" file="Source/Chat.cpp"/>
-      <FILE id="kbS1jT" name="Constants.cpp" compile="1" resource="0" file="Source/Constants.cpp"/>
       <FILE id="HugMKb" name="License.cpp" compile="1" resource="0" file="Source/License.cpp"/>
       <FILE id="ZHvRfB" name="LinJam.cpp" compile="1" resource="0" file="Source/LinJam.cpp"/>
       <FILE id="Bgn7uP" name="LinJamConfig.cpp" compile="1" resource="0"

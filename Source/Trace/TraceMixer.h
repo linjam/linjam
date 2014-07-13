@@ -3,8 +3,8 @@
 
 /* channels */
 
-#define DEBUG_TRACE_ADD_REMOTE_USER                       \
-  Trace::TraceEvent("user joined => '" + user_name + "'") ;
+#define DEBUG_TRACE_ADD_REMOTE_USER                             \
+  Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;
 
 #define DEBUG_REMOVE_CHANNELS                                 \
   String user_id = channels->getComponentID() ;               \

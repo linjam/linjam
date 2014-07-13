@@ -12,8 +12,8 @@
 #define _LINJAMCONFIG_H_
 
 
-#include "LinJam.h"
 #include "Constants.h"
+#include "JuceHeader.h"
 
 
 class LinJamConfig : public ValueTree::Listener
@@ -29,7 +29,7 @@ public:
   Value     shouldSaveLog ;       // bool
   Value     debugLevel ;          // int
   Value     shouldAutoSubscribe ; // bool
-  ValueTree autoSubscribeUsers ; // probably wont use this
+  ValueTree autoSubscribeUsers ;  // probably wont use this
 
   // device config
   Value audioIfN ;    // int
@@ -45,16 +45,17 @@ public:
   ValueTree localChannels ;  // children: channels as below
   ValueTree remoteUsers ;    // children: users , grandchildren: channels as below
 /* per-user data - access through above remoteUsers
-  Value     user-idx ;       // int
+  Value     user-idx         // int
 /* per-channel data - access through above ValueTrees
-  Value     channel-idx ;    // int
-  Value     volume ;         // float
-  Value     pan ;            // float
-  Value     isXmitRcv ;      // bool
-  Value     isMuted ;        // bool
-  Value     isSolo ;         // bool
-  Value     sourceChannel ;  // int
-  Value     isStereo ;       // bool
+  Value     channel-name     // string
+  Value     channel-idx      // int
+  Value     volume           // float
+  Value     pan              // float
+  Value     is-xmitrcv       // bool
+  Value     is-muted         // bool
+  Value     is-solo          // bool
+  Value     source-channel-n // int
+  Value     is-stereo        // bool
 */
 
   // current server config
@@ -65,17 +66,35 @@ public:
   Value currentIsAgreed ;    // bool // TODO: ?? this exists only so OnLicense doesnt block (issue #14)
   Value shouldHideBots ;     // bool
 
-  // per server config (subtree)
+  // per server config
   ValueTree servers ;
-
+/*
+  Value     host             // string
+  Value     login            // string
+  Value     pass             // string
+  Value     is-anonymous     // bool
+  Value     should-agree     // bool
+  Value     should-hide-bots // bool
+*/
 
   // validation
   bool       sanityCheck() ;
+  String     parseUsername(String user_name) ;
+  Identifier encodeUserId( String channel_name , int user_idx) ;
   Identifier makeChannelId(int channel_idx) ;
-  String     parseUsername(    String user_name) ;
-  Identifier encodeUserId(     String channel_name , int user_idx) ;
 
   // getters/setters
+  ValueTree newChannel(          String channel_name  = CONFIG::DEFAULT_CHANNEL_NAME ,
+                                 int    channel_idx   = CONFIG::DEFAULT_SOURCE_N     ,
+                                 float  volume        = CONFIG::DEFAULT_VOLUME       ,
+                                 float  pan           = CONFIG::DEFAULT_PAN          ,
+                                 bool   is_xmit_rcv   = CONFIG::DEFAULT_IS_XMIT      ,
+                                 bool   is_muted      = CONFIG::DEFAULT_IS_MUTED     ,
+                                 bool   is_solo       = CONFIG::DEFAULT_IS_SOLO      ,
+                                 int    source_sink_n = CONFIG::DEFAULT_SOURCE_N     ,
+                                 bool   is_stereo     = CONFIG::DEFAULT_IS_STEREO    ) ;
+  ValueTree setChannel(          Identifier channels_id   , Identifier new_id ,
+                                 ValueTree  channel_store                     ) ;
   ValueTree getOrCreateUser(     String user_name , int   user_idx ,
                                  float  volume    , float pan      , bool is_muted) ;
   ValueTree getOrCreateChannel(  Identifier channels_id   , String channel_name ,

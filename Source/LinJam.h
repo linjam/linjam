@@ -50,12 +50,12 @@ public:
   static void UpdateGuiLowPriority() ;
 
   // getters/setters
-  static bool            IsAgreed() ;
-  static SortedSet<int>  GetFreeInputChannels() ;
-  static SortedSet<int>  GetFreeInputChannelPairs() ;
+  static bool           IsAgreed() ;
+  static SortedSet<int> GetFreeInputChannels() ;
+  static SortedSet<int> GetFreeInputChannelPairs() ;
 
   // GUI event handlers
-  static bool AddLocalChannel(   String channel_name , bool is_stereo , int selection_idx) ;
+  static bool AddLocalChannel(   ValueTree channel_store) ;
   static void RemoveLocalChannel(ValueTree channel_store) ;
   static void SendChat(          String chat_text) ;
 

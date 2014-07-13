@@ -144,7 +144,6 @@
     <ClCompile Include="..\..\Source\ChannelConfig.cpp"/>
     <ClCompile Include="..\..\Source\Channels.cpp"/>
     <ClCompile Include="..\..\Source\Chat.cpp"/>
-    <ClCompile Include="..\..\Source\Constants.cpp"/>
     <ClCompile Include="..\..\Source\License.cpp"/>
     <ClCompile Include="..\..\Source\LinJam.cpp"/>
     <ClCompile Include="..\..\Source\LinJamConfig.cpp"/>

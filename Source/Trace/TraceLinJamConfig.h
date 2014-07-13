@@ -172,7 +172,7 @@
 #define DEBUG_TRACE_ADD_CHANNEL_STORE                                       \
   String dbgA = "created storage for new " ;                                \
   String dbgB = " " + String(channel_id) + " '" + channel_name + "' " ;     \
-  if (channels_id == GUI::LOCALS_ID)                                        \
+  if (channels_id == CONFIG::LOCALS_ID)                                     \
        Trace::TraceConfig(dbgA + "local"  + dbgB) ;                         \
   else Trace::TraceConfig(dbgA + "remote" + dbgB + "for '" +                \
                           String(getUserById(channels_id).getType()) + "'") ;
