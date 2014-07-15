@@ -13,14 +13,19 @@
   Trace::TraceState((IsAgreed())? "agreeing to license" :            \
                                   "prompting for license agreement") ;
 
-#define DEBUG_TRACE_CLEAN_SESSION                                              \
+#ifdef CLEAN_SESSION
+#  define DEBUG_TRACE_CLEAN_SESSION                                            \
   File thisfile     = File::getSpecialLocation(File::currentExecutableFile) ;  \
   File thisdir      = thisfile.getParentDirectory() ;                          \
   String sessiondir = SessionDir.getFullPathName() ;                           \
   if (!SessionDir.isDirectory() || !SessionDir.isAChildOf(thisdir))            \
       Trace::TraceError("session directory '" + sessiondir + "' is invalid") ; \
   else Trace::TraceState("cleaning session directory '" + sessiondir + "'") ;
-
+#else // CLEAN_SESSION
+#  define DEBUG_TRACE_CLEAN_SESSION                                               \
+  String sessiondir = SessionDir.getFullPathName() ;                              \
+  Trace::TraceState("cleaning session directory '" + sessiondir + "' (disabled)") ;
+#endif // CLEAN_SESSION
 
 /* audio */
 
@@ -213,7 +218,7 @@
   if (!is_master)                                                                      \
   {                                                                                    \
     ValueTree store     = Config->getChannelByIdx(user_store , CLIENT::MASTER_IDX) ;   \
-    bool master_rcv_or  = !bool(store[CONFIG::IS_XMIT_ID]) ;                           \
+    bool master_rcv_or  = !bool(store[CONFIG::IS_XMIT_RCV_ID]) ;                           \
     bool master_solo_or = bool(store[CONFIG::IS_SOLO_ID]) ;                            \
     is_rcv              = is_rcv  && !master_rcv_or ;                                  \
     is_solo             = is_solo || master_solo_or ;                                  \
@@ -256,7 +261,7 @@
 /* chat */
 
 #define DEBUG_TRACE_CHAT_IN                                                        \
-  if (chat_user.compare(Config->currentLogin.toString()))                          \
+  if (chat_user.compare(Config->login.toString()))                                 \
     Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 
 #define DEBUG_TRACE_CHAT_OUT                                                    \

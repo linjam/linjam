@@ -129,7 +129,7 @@ String Trace::SanitizeConfig(ValueTree default_config , ValueTree stored_config 
     for (int child_n = 0 ; child_n < stored_config.getNumChildren() ; ++child_n)
     {
       ValueTree  stored_child  = stored_config .getChild(child_n) ;
-      Identifier node_name     = stored_child   .getType() ;
+      Identifier node_name     = stored_child  .getType() ;
       ValueTree  default_child = default_config.getChildWithName(node_name) ;
       int        n_children    = stored_child  .getNumChildren() ;
       int        n_properties  = stored_child  .getNumProperties() ;
@@ -159,23 +159,37 @@ void Trace::TraceMissingValue(String a_node_key , String a_value_key)
 { Trace::TraceError("node '" + a_node_key + "' - missing key '" + a_value_key + "'") ; }
 
 void Trace::TraceMissingProperty(String a_node_key , String a_property_key)
-{ Trace::TraceError("node '" + a_node_key + "' - missing key '" + a_property_key + "'") ; }
+{ Trace::TraceError("node '" + a_node_key + "' - missing property '" + a_property_key + "'") ; }
 
-void Trace::DbgValueType(String dbg_val_name , var a_var)
+void Trace::TraceTypeMismatch(String a_node_key    , String a_property_key ,
+                              String expected_type , var    a_var          )
+{ Trace::TraceError("type mismatch - " + a_node_key + "[" + a_property_key + "]" +
+                    " expected => " + expected_type + " got => " + VarType(a_var)) ; }
+
+String Trace::VarType(var a_var)
 {
-  String dynamic_type ;
-  if      (a_var.isVoid())       dynamic_type = "Void" ;
-  else if (a_var.isUndefined())  dynamic_type = "Undefined" ;
-  else if (a_var.isInt())        dynamic_type = "Int" ;
-  else if (a_var.isInt64())      dynamic_type = "Int64" ;
-  else if (a_var.isBool())       dynamic_type = "Bool" ;
-  else if (a_var.isDouble())     dynamic_type = "Double" ;
-  else if (a_var.isString())     dynamic_type = "String" ;
-  else if (a_var.isObject())     dynamic_type = "Object" ;
-  else if (a_var.isArray())      dynamic_type = "Array" ;
-  else if (a_var.isBinaryData()) dynamic_type = "Binary" ;
-  else if (a_var.isMethod())     dynamic_type = "Method" ;
-  DBG(dbg_val_name + " type is " + dynamic_type) ;
+  String dynamic_type = "unknown" ;
+
+  if      (a_var.isVoid())       dynamic_type = "void" ;
+  else if (a_var.isUndefined())  dynamic_type = "undefined" ;
+  else if (a_var.isInt())        dynamic_type = "int" ;
+  else if (a_var.isInt64())      dynamic_type = "int64" ;
+  else if (a_var.isBool())       dynamic_type = "bool" ;
+  else if (a_var.isDouble())     dynamic_type = "double" ;
+  else if (a_var.isString())     dynamic_type = "string" ;
+  else if (a_var.isObject())     dynamic_type = "object" ;
+  else if (a_var.isArray())      dynamic_type = "array" ;
+  else if (a_var.isBinaryData()) dynamic_type = "binary" ;
+  else if (a_var.isMethod())     dynamic_type = "method" ;
+
+  return dynamic_type ;
+}
+
+String Trace::DumpVar(String val_name , var a_var)
+{
+  return "key => "     + val_name      .paddedRight(' ' , 20) +
+         " type => "   + VarType(a_var).paddedRight(' ' , 10) +
+         " value => "  + a_var.toString() ;
 }
 
 

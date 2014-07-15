@@ -143,7 +143,7 @@ Channel::Channel (ValueTree channel_store)
   String channel_name =         this->configStore[CONFIG::CHANNELNAME_ID].toString() ;
   double volume       = double( this->configStore[CONFIG::VOLUME_ID]) ;
   double pan          = double( this->configStore[CONFIG::PAN_ID]) ;
-  bool   is_xmit      = bool(   this->configStore[CONFIG::IS_XMIT_ID]) ;
+  bool   is_xmit      = bool(   this->configStore[CONFIG::IS_XMIT_RCV_ID]) ;
   bool   is_muted     = bool(   this->configStore[CONFIG::IS_MUTED_ID]) ;
   bool   is_solo      = bool(   this->configStore[CONFIG::IS_SOLO_ID]) ;
   int    source_n     = int(    this->configStore[CONFIG::SOURCE_N_ID]) ;
@@ -315,11 +315,11 @@ bool Channel::handleButtonClicked(Button* a_button)
 {
   // set stored config for this channel (configures NJClient implicitly)
   if      (a_button == this->xmitButton)
-    setChannelConfig(CONFIG::IS_XMIT_ID  , var(a_button->getToggleState())) ;
+    setChannelConfig(CONFIG::IS_XMIT_RCV_ID , var(a_button->getToggleState())) ;
   else if (a_button == this->muteButton)
-    setChannelConfig(CONFIG::IS_MUTED_ID , var(a_button->getToggleState())) ;
+    setChannelConfig(CONFIG::IS_MUTED_ID    , var(a_button->getToggleState())) ;
   else if (a_button == this->soloButton)
-    setChannelConfig(CONFIG::IS_SOLO_ID  , var(a_button->getToggleState())) ;
+    setChannelConfig(CONFIG::IS_SOLO_ID     , var(a_button->getToggleState())) ;
   else return false ;
 
   return true ;

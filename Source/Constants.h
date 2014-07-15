@@ -16,59 +16,104 @@
 
 
 // NOTE: when adding nodes or leaves to CONFIG_XML be sure to
-//         * note the datatype in   LinJamConfig.h
-//         * verify them in         LinJamConfig::sanityCheck()
-//         * dump them in           Trace::DEBUG_TRACE_SANITY_CHECK
-//                                  Trace::DEBUG_TRACE_SANITY_CHECK_CHANNEL
-//                                  Trace::DEBUG_TRACE_ADDED_CHANNEL
-//                                  Trace::TRACE_CONFIGURE_LOCAL_CHANNEL_VB
-//                                  Trace::DEBUG_TRACE_REMOTE_CHANNELS
-//                                  Trace::DEBUG_TRACE_CONFIGURE_REMOTE
-#define CONFIG_XML "<?xml version=\"1.0\"?><"              + \
-    PERSISTENCE_KEY          + "><"                        + \
-      CLIENT_KEY             + " "                         + \
-        SAVE_AUDIO_KEY       + "=\"-1\" "                  + \
-        SAVE_LOG_KEY         + "=\"false\" "               + \
-        DEBUGLEVEL_KEY       + "=\"0\" "                   + \
-        AUTOSUBSCRIBE_KEY    + "=\"1\" "                   + \
-      "/><"                                                + \
-      AUDIO_KEY              + " "                         + \
-        AUDIO_IF_KEY         + "=\"0\" "                   + \
-        N_INPUTS_KEY         + "=\"2\" "                   + \
-        N_OUTPUTS_KEY        + "=\"2\" "                   + \
-        BITDEPTH_KEY         + "=\"16\" "                  + \
-        SAMPLERATE_KEY       + "=\"48000\" "               + \
-        JACK_NAME_KEY        + "=\"linjam\" "              + \
-      "/><"                                                + \
-      SERVER_KEY             + " "                         + \
-        HOST_KEY             + "=\"\" "                    + \
-        LOGIN_KEY            + "=\"\" "                    + \
-        PASS_KEY             + "=\"\" "                    + \
-        ANON_KEY             + "=\"true\" "                + \
-        AGREED_KEY           + "=\"false\" "               + \
-        BOTS_KEY             + "=\"true\" "                + \
-      "/><"                                                + \
-      SERVERS_KEY            + " /><"                      + \
-      SUBSCRIPTIONS_KEY      + " /><"                      + \
-      MASTERS_KEY            + "><"                        + \
-        MASTER_KEY           + " "                         + \
-          CHANNELNAME_KEY    + "=\"" + MASTER_KEY + "\" "  + \
-          VOLUME_KEY         + "=\"0.0\" "                 + \
-          PAN_KEY            + "=\"0.0\" "                 + \
-          IS_MUTED_KEY       + "=\"false\" "               + \
-      "/><"                                                + \
-        METRO_KEY            + " "                         + \
-          CHANNELNAME_KEY    + "=\"" + METRO_KEY  + "\" "  + \
-          VOLUME_KEY         + "=\"0.0\" "                 + \
-          PAN_KEY            + "=\"0.0\" "                 + \
-          IS_MUTED_KEY       + "=\"false\" "               + \
-          SOURCE_N_KEY       + "=\"0\" "                   + \
-          IS_STEREO_KEY      + "=\"true\" "                + \
-      "/>"                                                 + \
-      "</" + MASTERS_KEY     + "><"                        + \
-      LOCALS_KEY             + " /><"                      + \
-      REMOTES_KEY            + " />"                       + \
-    "</" + PERSISTENCE_KEY   + ">"
+//         * store the datatype in   #define CONFIG_TYPES_XML
+//         * restore the datatype in LinJamConfig::applyVarTypeInfo()
+//         * note the datatype in    LinJamConfig.h
+//         * verify data and type in LinJamConfig::sanityCheck() or sanityCheckChannels()
+//         * dump data in            #define DEBUG_CONFIG_TYPES_VB
+//                                   #define DEBUG_TRACE_SANITY_CHECK
+//                                   #define DEBUG_TRACE_SANITY_CHECK_CHANNEL
+//                                   #define DEBUG_TRACE_ADDED_CHANNEL
+//                                   #define TRACE_CONFIGURE_LOCAL_CHANNEL_VB
+//                                   #define DEBUG_TRACE_REMOTE_CHANNELS
+//                                   #define DEBUG_TRACE_CONFIGURE_REMOTE
+#define CONFIG_XML "<?xml version=\"1.0\"?><"                                 + \
+  PERSISTENCE_KEY          + "><"                                             + \
+    CLIENT_KEY             + " "                                              + \
+      SAVE_AUDIO_KEY       + "=\"" + String(DEFAULT_SAVE_AUDIO)       + "\" " + \
+      SAVE_LOG_KEY         + "=\"" + String(DEFAULT_SAVE_LOG)         + "\" " + \
+      DEBUGLEVEL_KEY       + "=\"" + String(DEFAULT_DEBUGLEVEL)       + "\" " + \
+      AUTOSUBSCRIBE_KEY    + "=\"" + String(DEFAULT_AUTOSUBSCRIBE)    + "\" " + \
+    "/><"                                                                     + \
+    AUDIO_KEY              + " "                                              + \
+      AUDIO_IF_KEY         + "=\"" + String(DEFAULT_AUDIO_IF)         + "\" " + \
+      N_INPUTS_KEY         + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
+      N_OUTPUTS_KEY        + "=\"" + String(DEFAULT_N_OUTPUTS)        + "\" " + \
+      BITDEPTH_KEY         + "=\"" + String(DEFAULT_BITDEPTH)         + "\" " + \
+      SAMPLERATE_KEY       + "=\"" + String(DEFAULT_SAMPLERATE)       + "\" " + \
+      JACK_NAME_KEY        + "=\"" + String(DEFAULT_JACK_NAME)        + "\" " + \
+    "/><"                                                                     + \
+    SERVER_KEY             + " "                                              + \
+      HOST_KEY             + "=\"" + String(DEFAULT_HOST)             + "\" " + \
+      LOGIN_KEY            + "=\"" + String(DEFAULT_LOGIN)            + "\" " + \
+      PASS_KEY             + "=\"" + String(DEFAULT_PASS)             + "\" " + \
+      IS_ANON_KEY          + "=\"" + String(DEFAULT_IS_ANON)          + "\" " + \
+      IS_AGREED_KEY        + "=\"" + String(DEFAULT_IS_AGREED)        + "\" " + \
+      SHOULD_AGREE_KEY     + "=\"" + String(DEFAULT_SHOULD_AGREE)     + "\" " + \
+      SHOULD_HIDE_BOTS_KEY + "=\"" + String(DEFAULT_SHOULD_HIDE_BOTS) + "\" " + \
+    "/><"                                                                     + \
+    SERVERS_KEY            + " /><"                                           + \
+    SUBSCRIPTIONS_KEY      + " /><"                                           + \
+    MASTERS_KEY            + "><"                                             + \
+      MASTER_KEY           + " "                                              + \
+        CHANNELNAME_KEY    + "=\"" + String(MASTER_KEY)               + "\" " + \
+        VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME)           + "\" " + \
+        PAN_KEY            + "=\"" + String(DEFAULT_PAN)              + "\" " + \
+        IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED)         + "\" " + \
+    "/><"                                                                     + \
+      METRO_KEY            + " "                                              + \
+        CHANNELNAME_KEY    + "=\"" + String(METRO_KEY)                + "\" " + \
+        VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME)           + "\" " + \
+        PAN_KEY            + "=\"" + String(DEFAULT_PAN)              + "\" " + \
+        IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED)         + "\" " + \
+        SOURCE_N_KEY       + "=\"" + String(DEFAULT_SOURCE_N)         + "\" " + \
+        IS_STEREO_KEY      + "=\"" + String(DEFAULT_IS_STEREO)        + "\" " + \
+    "/>"                                                                      + \
+    "</" + MASTERS_KEY     + "><"                                             + \
+    LOCALS_KEY             + " /><"                                           + \
+    REMOTES_KEY            + " />"                                            + \
+  "</" + PERSISTENCE_KEY   + ">"
+
+#define CONFIG_TYPES_XML "<?xml version=\"1.0\"?><"          + \
+  PERSISTENCE_TYPES_KEY        + "><"                        + \
+    CLIENT_KEY                 + " "                         + \
+      SAVE_AUDIO_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      SAVE_LOG_KEY             + "=\"" + BOOL_TYPE   + "\" " + \
+      DEBUGLEVEL_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      AUTOSUBSCRIBE_KEY        + "=\"" + INT_TYPE    + "\" " + \
+    "/><"                                                    + \
+    AUDIO_KEY                  + " "                         + \
+      AUDIO_IF_KEY             + "=\"" + INT_TYPE    + "\" " + \
+      N_INPUTS_KEY             + "=\"" + INT_TYPE    + "\" " + \
+      N_OUTPUTS_KEY            + "=\"" + INT_TYPE    + "\" " + \
+      BITDEPTH_KEY             + "=\"" + INT_TYPE    + "\" " + \
+      SAMPLERATE_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      JACK_NAME_KEY            + "=\"" + STRING_TYPE + "\" " + \
+    "/><"                                                    + \
+    SERVER_KEY                 + " "                         + \
+      HOST_KEY                 + "=\"" + STRING_TYPE + "\" " + \
+      LOGIN_KEY                + "=\"" + STRING_TYPE + "\" " + \
+      PASS_KEY                 + "=\"" + STRING_TYPE + "\" " + \
+      IS_ANON_KEY              + "=\"" + BOOL_TYPE   + "\" " + \
+      IS_AGREED_KEY            + "=\"" + BOOL_TYPE   + "\" " + \
+      SHOULD_AGREE_KEY         + "=\"" + BOOL_TYPE   + "\" " + \
+      SHOULD_HIDE_BOTS_KEY     + "=\"" + BOOL_TYPE   + "\" " + \
+    "/><"                                                    + \
+    CHANNELS_KEY               + " "                         + \
+      CHANNELNAME_KEY          + "=\"" + STRING_TYPE + "\" " + \
+      CHANNELIDX_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      VOLUME_KEY               + "=\"" + DOUBLE_TYPE + "\" " + \
+      PAN_KEY                  + "=\"" + DOUBLE_TYPE + "\" " + \
+      IS_XMIT_RCV_KEY          + "=\"" + BOOL_TYPE   + "\" " + \
+      IS_MUTED_KEY             + "=\"" + BOOL_TYPE   + "\" " + \
+      IS_SOLO_KEY              + "=\"" + BOOL_TYPE   + "\" " + \
+      SOURCE_N_KEY             + "=\"" + INT_TYPE    + "\" " + \
+      IS_STEREO_KEY            + "=\"" + BOOL_TYPE   + "\" " + \
+    "/><"                                                    + \
+    USERS_KEY                  + " "                         + \
+      USERIDX_KEY              + "=\"" + INT_TYPE    + "\" " + \
+    "/>"                                                     + \
+  "</" + PERSISTENCE_TYPES_KEY + ">"
 
 
 namespace CLIENT
@@ -167,15 +212,16 @@ namespace CONFIG
 {
 // NOTE: many of these *_KEY *_ID pairs maybe redundant or unused (issue #30)
 
-  // config root
-  static const String     PERSISTENCE_FILENAME = "linjam.xml" ;
-  static const String     PERSISTENCE_KEY      = "linjam-data" ;
-  static const Identifier PERSISTENCE_ID       = PERSISTENCE_KEY ;
+  // config root keys
+  static const String     PERSISTENCE_FILENAME  = "linjam.xml" ;
+  static const String     PERSISTENCE_KEY       = "linjam-data" ;
+  static const Identifier PERSISTENCE_ID        = PERSISTENCE_KEY ;
+  static const String     PERSISTENCE_TYPES_KEY = PERSISTENCE_KEY + "-types" ;
 
-  // client config
+  // client config keys
   static const String     CLIENT_KEY        = "client" ;
   static const Identifier CLIENT_ID         = CLIENT_KEY ;
-  static const String     SAVE_AUDIO_KEY    = "should-save-audio" ;
+  static const String     SAVE_AUDIO_KEY    = "save-audio" ;
   static const Identifier SAVE_AUDIO_ID     = SAVE_AUDIO_KEY ;
   static const String     SAVE_LOG_KEY      = "should-save-log" ;
   static const Identifier SAVE_LOG_ID       = SAVE_LOG_KEY ;
@@ -192,7 +238,7 @@ namespace CONFIG
   static const String     SUBSCRIPTIONS_KEY = "subscriptions" ;
   static const Identifier SUBSCRIPTIONS_ID  = SUBSCRIPTIONS_KEY ;
 
-  // device config
+  // device config keys
   static const String     AUDIO_KEY      = "audio" ;
   static const Identifier AUDIO_ID       = AUDIO_KEY ;
   static const String     AUDIO_IF_KEY   = "audio-if-n" ;
@@ -208,27 +254,27 @@ namespace CONFIG
   static const String     JACK_NAME_KEY  = "jack-name" ;
   static const Identifier JACK_NAME_ID   = JACK_NAME_KEY ;
 
-  // network config
-  static const String     SERVER_KEY  = "server" ;
-  static const Identifier SERVER_ID   = SERVER_KEY ;
-  static const String     HOST_KEY    = "host" ;
-  static const Identifier HOST_ID     = HOST_KEY ;
-  static const String     LOGIN_KEY   = "login" ;
-  static const Identifier LOGIN_ID    = LOGIN_KEY ;
-  static const String     PASS_KEY    = "pass" ;
-  static const Identifier PASS_ID     = PASS_KEY ;
-  static const String     ANON_KEY    = "is-anonymous" ;
-  static const Identifier ANON_ID     = ANON_KEY ;
-  static const String     AGREED_KEY  = "is-agreed" ;
-  static const Identifier AGREED_ID   = AGREED_KEY ;
-  static const String     AGREE_KEY   = "should-agree" ;
-  static const Identifier AGREE_ID    = AGREE_KEY ;
-  static const String     BOTS_KEY    = "should-hide-bots" ;
-  static const Identifier BOTS_ID     = BOTS_KEY ;
-  static const String     SERVERS_KEY = "servers" ;
-  static const Identifier SERVERS_ID  = SERVERS_KEY ;
+  // network config keys
+  static const String     SERVER_KEY           = "server" ;
+  static const Identifier SERVER_ID            = SERVER_KEY ;
+  static const String     HOST_KEY             = "host" ;
+  static const Identifier HOST_ID              = HOST_KEY ;
+  static const String     LOGIN_KEY            = "login" ;
+  static const Identifier LOGIN_ID             = LOGIN_KEY ;
+  static const String     PASS_KEY             = "pass" ;
+  static const Identifier PASS_ID              = PASS_KEY ;
+  static const String     IS_ANON_KEY          = "is-anonymous" ;
+  static const Identifier IS_ANON_ID           = IS_ANON_KEY ;
+  static const String     IS_AGREED_KEY        = "is-agreed" ;
+  static const Identifier IS_AGREED_ID         = IS_AGREED_KEY ;
+  static const String     SHOULD_AGREE_KEY     = "should-agree" ;
+  static const Identifier SHOULD_AGREE_ID      = SHOULD_AGREE_KEY ;
+  static const String     SHOULD_HIDE_BOTS_KEY = "should-hide-bots" ;
+  static const Identifier SHOULD_HIDE_BOTS_ID  = SHOULD_HIDE_BOTS_KEY ;
+  static const String     SERVERS_KEY          = "servers" ;
+  static const Identifier SERVERS_ID           = SERVERS_KEY ;
 
-  // channels
+  // channel config keys
   static const Identifier CONFIG_ALL_ID   = "configure-all" ;
   static const String     MASTERS_KEY     = "master-channels" ;
   static const Identifier MASTERS_ID      = MASTERS_KEY ;
@@ -240,7 +286,7 @@ namespace CONFIG
   static const Identifier LOCALS_ID       = LOCALS_KEY ;
   static const String     REMOTES_KEY     = "remote-channels" ;
   static const Identifier REMOTES_ID      = REMOTES_KEY ;
-  static const Identifier USERIDX_KEY     = "user-idx" ;
+  static const String     USERIDX_KEY     = "user-idx" ;
   static const Identifier USERIDX_ID      = USERIDX_KEY ;
   static const String     CHANNELIDX_KEY  = "channel-idx" ;
   static const Identifier CHANNELIDX_ID   = CHANNELIDX_KEY ;
@@ -250,8 +296,8 @@ namespace CONFIG
   static const Identifier VOLUME_ID       = VOLUME_KEY ;
   static const String     PAN_KEY         = "pan" ;
   static const Identifier PAN_ID          = PAN_KEY ;
-  static const String     IS_XMIT_KEY     = "should-xmit-rcv" ;
-  static const Identifier IS_XMIT_ID      = IS_XMIT_KEY ;
+  static const String     IS_XMIT_RCV_KEY = "should-xmit-rcv" ;
+  static const Identifier IS_XMIT_RCV_ID  = IS_XMIT_RCV_KEY ;
   static const String     IS_MUTED_KEY    = "is-muted" ;
   static const Identifier IS_MUTED_ID     = IS_MUTED_KEY ;
   static const String     IS_SOLO_KEY     = "is-solo" ;
@@ -261,17 +307,50 @@ namespace CONFIG
   static const String     IS_STEREO_KEY   = "is-stereo" ;
   static const Identifier IS_STEREO_ID    = IS_STEREO_KEY ;
 
-  // defaults
+  // client config defaults
+  static const int  DEFAULT_SAVE_AUDIO    = -1 ;
+  static const bool DEFAULT_SAVE_LOG      = false ;
+  static const int  DEFAULT_DEBUGLEVEL    = 0 ;
+  static const int  DEFAULT_AUTOSUBSCRIBE = 1 ;
+
+  // audio config defaults
+  static const int    DEFAULT_AUDIO_IF   = 0 ;
+  static const int    DEFAULT_N_INPUTS   = 2 ;
+  static const int    DEFAULT_N_OUTPUTS  = 2 ;
+  static const int    DEFAULT_BITDEPTH   = 16 ;
+  static const int    DEFAULT_SAMPLERATE = 48000 ;
+  static const String DEFAULT_JACK_NAME  = "LinJam" ;
+
+  // login config defaults
+  static const String DEFAULT_HOST             = "" ;
+  static const String DEFAULT_LOGIN            = "" ;
+  static const String DEFAULT_PASS             = "" ;
+  static const bool   DEFAULT_IS_ANON          = true ;
+  static const bool   DEFAULT_IS_AGREED        = false ;
+  static const bool   DEFAULT_SHOULD_AGREE     = false ;
+  static const bool   DEFAULT_SHOULD_HIDE_BOTS = true ;
+
+  // channel config defaults
   static const Identifier NEWCHANNEL_ID        = "new-channel" ;
   static const String     CHANNEL_BASE_ID      = "channel" ;
   static const String     DEFAULT_CHANNEL_NAME = "unnamed" ;
+  static const String     CHANNELS_KEY         = "channels" ;
+  static const Identifier CHANNELS_ID          = CHANNELS_KEY ;
+  static const String     USERS_KEY            = "users" ;
+  static const Identifier USERS_ID             = USERS_KEY ;
   static const float      DEFAULT_VOLUME       = 0.0 ;
   static const float      DEFAULT_PAN          = 0.0 ;
-  static const bool       DEFAULT_IS_XMIT      = true ;
+  static const bool       DEFAULT_IS_XMIT_RCV  = true ;
   static const bool       DEFAULT_IS_MUTED     = false ;
   static const bool       DEFAULT_IS_SOLO      = false ;
   static const int        DEFAULT_SOURCE_N     = 0 ;
   static const bool       DEFAULT_IS_STEREO    = false ;
+
+  // config types
+  static const String BOOL_TYPE   = "bool" ;
+  static const String DOUBLE_TYPE = "double" ;
+  static const String INT_TYPE    = "int" ;
+  static const String STRING_TYPE = "string" ;
 
   // validation
   static const StringRef VALID_NAME_CHARS   = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- " ;
@@ -279,6 +358,43 @@ namespace CONFIG
 
   // config storage
   static const String DEFAULT_CONFIG_XML = String(CONFIG_XML) ;
+  static const String CONFIG_TYPES       = String(CONFIG_TYPES_XML) ;
+/*
+  static const ValueTree DEFAULT_CONFIG     = ValueTree(PERSISTENCE_DEFAULTS_ID) ;
+               ValueTree client_defaults    = ValueTree(CLIENT_ID) ;
+               ValueTree audio_defaults     = ValueTree(AUDIO_ID) ;
+               ValueTree server_defaults    = ValueTree(SERVER_ID) ;
+               ValueTree channel_defaults   = ValueTree(CHANNELS_ID) ;
+  CONFIG::DEFAULT_CONFIG.addChild(client_defaults  , -1 , nullptr) ;
+  CONFIG::DEFAULT_CONFIG.addChild(audio_defaults   , -1 , nullptr) ;
+  CONFIG::DEFAULT_CONFIG.addChild(server_defaults  , -1 , nullptr) ;
+  CONFIG::DEFAULT_CONFIG.addChild(channel_defaults , -1 , nullptr) ;
+  client_defaults .setProperty(SAVE_AUDIO_ID        , DEFAULT_SAVE_AUDIO       , nullptr) ;
+  client_defaults .setProperty(SAVE_LOG_ID          , DEFAULT_SAVE_LOG         , nullptr) ;
+  client_defaults .setProperty(DEBUGLEVEL_ID        , DEFAULT_DEBUGLEVEL       , nullptr) ;
+  client_defaults .setProperty(AUTOSUBSCRIBE_ID     , DEFAULT_AUTOSUBSCRIBE    , nullptr) ;
+  audio_defaults  .setProperty(AUDIO_IF_ID          , DEFAULT_AUDIO_IF         , nullptr) ;
+  audio_defaults  .setProperty(N_INPUTS_ID          , DEFAULT_N_INPUTS         , nullptr) ;
+  audio_defaults  .setProperty(N_OUTPUTS_ID         , DEFAULT_N_OUTPUTS        , nullptr) ;
+  audio_defaults  .setProperty(BITDEPTH_ID          , DEFAULT_BITDEPTH         , nullptr) ;
+  audio_defaults  .setProperty(SAMPLERATE_ID        , DEFAULT_SAMPLERATE       , nullptr) ;
+  audio_defaults  .setProperty(JACK_NAME_ID         , DEFAULT_JACK_NAME        , nullptr) ;
+  server_defaults .setProperty(HOST_ID              , DEFAULT_HOST             , nullptr) ;
+  server_defaults .setProperty(LOGIN_ID             , DEFAULT_LOGIN            , nullptr) ;
+  server_defaults .setProperty(PASS_ID              , DEFAULT_PASS             , nullptr) ;
+  server_defaults .setProperty(IS_ANON_ID           , DEFAULT_IS_ANON          , nullptr) ;
+  server_defaults .setProperty(IS_AGREED_ID         , DEFAULT_IS_AGREED        , nullptr) ;
+  server_defaults .setProperty(SHOULD_HIDE_BOTS_KEY , DEFAULT_SHOULD_HIDE_BOTS , nullptr) ;
+  channel_defaults.setProperty(CHANNELNAME_ID       , DEFAULT_CHANNEL_NAME     , nullptr) ;
+  channel_defaults.setProperty(CHANNELIDX_ID        , 42                       , nullptr) ;
+  channel_defaults.setProperty(VOLUME_ID            , DEFAULT_VOLUME           , nullptr) ;
+  channel_defaults.setProperty(PAN_ID               , DEFAULT_PAN              , nullptr) ;
+  channel_defaults.setProperty(IS_XMIT_RCV_ID       , DEFAULT_IS_XMIT_RCV      , nullptr) ;
+  channel_defaults.setProperty(IS_MUTED_ID          , DEFAULT_IS_MUTED         , nullptr) ;
+  channel_defaults.setProperty(IS_SOLO_ID           , DEFAULT_IS_SOLO          , nullptr) ;
+  channel_defaults.setProperty(SOURCE_N_ID          , DEFAULT_SOURCE_N         , nullptr) ;
+  channel_defaults.setProperty(IS_STEREO_ID         , DEFAULT_IS_STEREO        , nullptr) ;
+*/
 }
 
 

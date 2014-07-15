@@ -192,14 +192,6 @@ void Channels::updateChannelVU(Identifier channel_id , double vu)
 }
 
 
-/* Channels class private class methods */
-
-void Channels::broughtToFront()
-{
-  this->channelsLabel->setText(getComponentID() , juce::dontSendNotification) ;
-}
-
-
 /* Channels class protected class methods */
 
 Channel* Channels::getChannel(Identifier channel_id)
@@ -210,10 +202,15 @@ Channel* Channels::getChannel(Identifier channel_id)
 
 /* MasterChannels , LocalChannels , RemoteChannels classes public class methods */
 
-MasterChannels::MasterChannels() { this->expandButton->setVisible(false) ; }
+MasterChannels::MasterChannels()
+{
+  this->channelsLabel->setText(GUI::MASTERS_LABEL_TEXT , juce::dontSendNotification) ;
+  this->expandButton->setVisible(false) ;
+}
 
 LocalChannels::LocalChannels()
 {
+  this->channelsLabel->setText(GUI::LOCALS_LABEL_TEXT , juce::dontSendNotification) ;
   this->expandButton->setColour(TextButton::buttonColourId   , Colour(0xff004000)) ;
   this->expandButton->setColour(TextButton::buttonOnColourId , Colour(0xff008000)) ;
   this->expandButton->setColour(TextButton::textColourOnId   , Colour(0xff00ff00)) ;
@@ -223,6 +220,7 @@ LocalChannels::LocalChannels()
 
 RemoteChannels::RemoteChannels(ValueTree user_store)
 {
+  this->channelsLabel->setText(String(user_store.getType()) , juce::dontSendNotification) ;
   this->expandButton->setColour(TextButton::buttonColourId   , Colour(0xff404000)) ;
   this->expandButton->setColour(TextButton::buttonOnColourId , Colour(0xff808000)) ;
   this->expandButton->setColour(TextButton::textColourOnId   , Colour(0xffffff00)) ;

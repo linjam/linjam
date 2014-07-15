@@ -79,7 +79,7 @@ ChannelConfig::ChannelConfig (ValueTree config_store)
     channelSelect->setExplicitFocusOrder (4);
     channelSelect->setEditableText (false);
     channelSelect->setJustificationType (Justification::centredLeft);
-    channelSelect->setTextWhenNothingSelected (TRANS("(no free channels)"));
+    channelSelect->setTextWhenNothingSelected (TRANS("(select channel)"));
     channelSelect->setTextWhenNoChoicesAvailable (TRANS("(no free channels)"));
     channelSelect->addListener (this);
 
@@ -116,12 +116,17 @@ ChannelConfig::ChannelConfig (ValueTree config_store)
 // this->channelSelect->setColour(TextEditor::backgroundColourId , Colours::purple) ;
 
   // set initial channel state and populate input select options
-  this->configStore  = config_store ;
-  this->isNewChannel = (config_store.getType() == CONFIG::NEWCHANNEL_ID) ;
-  this->sourceN      = int( configStore[CONFIG::SOURCE_N_ID]) ;
-  this->isStereo     = bool(configStore[CONFIG::IS_STEREO_ID]) ;
-  nameText->setText(configStore[CONFIG::CHANNELNAME_ID].toString()) ;
-  stereoButton->setToggleState(this->isStereo , juce::dontSendNotification) ;
+  this->configStore       =      config_store ;
+  Identifier channel_id   =      config_store.getType() ;
+  String     channel_name =      configStore[CONFIG::CHANNELNAME_ID].toString() ;
+  this->sourceN           = int( configStore[CONFIG::SOURCE_N_ID]) ;
+  this->isStereo          = bool(configStore[CONFIG::IS_STEREO_ID]) ;
+  this->isSelectedStereo  = this->isStereo ;
+  this->isNewChannel      = (channel_id == CONFIG::NEWCHANNEL_ID) ;
+
+  nameText    ->setText(       channel_name) ;
+  stereoButton->setToggleState(this->isSelectedStereo , juce::dontSendNotification) ;
+
   createChannelSelectOptions() ; populateChannelSelect() ;
 
     //[/Constructor]
@@ -195,18 +200,18 @@ void ChannelConfig::buttonClicked(Button* a_button)
 {
   if      (a_button == this->monoButton || a_button == this->stereoButton)
   {
-    bool was_stereo               = this->isStereo ;
-    this->isStereo                = this->stereoButton->getToggleState() ;
-    bool has_stereo_state_changed = (was_stereo != this->isStereo) ;
-    if (has_stereo_state_changed) populateChannelSelect() ;
+    bool was_selected_stereo          = this->isSelectedStereo ;
+    this->isSelectedStereo            = this->stereoButton->getToggleState() ;
+    bool has_stereo_selection_changed = (was_selected_stereo != this->isSelectedStereo) ;
+    if (has_stereo_selection_changed) populateChannelSelect() ;
   }
   else if (a_button == this->okButton)
   {
-    String channel_name   = this->nameText->getText() ;
-    int    selection_n    = this->channelSelect->getSelectedItemIndex() ;
-    bool   is_stereo      = this->isStereo ;
-    int    source_n       = (!is_stereo)? this->freeInputChannelNs    [selection_n] :
-                                          this->freeInputChannelPairNs[selection_n] ;
+    String channel_name = this->nameText->getText() ;
+    int    selection_n  = this->channelSelect->getSelectedItemIndex() ;
+    bool   is_stereo    = this->isSelectedStereo ;
+    int    source_n     = (!is_stereo)? this->freeInputChannelNs    [selection_n] :
+                                        this->freeInputChannelPairNs[selection_n] ;
 
     // update existing channel asynchronously
     this->configStore.setProperty(CONFIG::CHANNELNAME_ID , channel_name , nullptr) ;
@@ -215,10 +220,8 @@ void ChannelConfig::buttonClicked(Button* a_button)
 
     // or create new local channel
     if (this->isNewChannel)
-    {
-      Identifier new_id = LinJam::Config->makeChannelId(source_n) ;
-      LinJam::Config->setChannel(CONFIG::LOCALS_ID , new_id , this->configStore) ;
-    }
+      LinJam::Config->setChannel(LinJam::Config->localChannels , this->configStore ,
+                                 LinJam::Config->makeChannelId(source_n)           ) ;
 
     ((CallOutBox*)getParentComponent())->dismiss() ;
   }
@@ -247,8 +250,22 @@ void ChannelConfig::createChannelSelectOptions()
   // include current config option for existing channel
   if (!this->isNewChannel)
   {
-    this->freeInputChannelNs    .add(this->sourceN) ; if (this->isStereo)
-    this->freeInputChannelPairNs.add(this->sourceN) ;
+    if (!this->isStereo)
+    {
+      // make stereo selection available only if this source's potential pair is free
+      int  mono_pair_source_n   = LinJam::GetMonoPairSourceN(  this->sourceN) ;
+      int  stereo_pair_source_n = LinJam::GetStereoPairSourceN(this->sourceN) ;
+      bool is_pair_available    = this->freeInputChannelNs.contains(mono_pair_source_n) ;
+
+      this->freeInputChannelNs    .add(this->sourceN) ; if (is_pair_available)
+      this->freeInputChannelPairNs.add(stereo_pair_source_n) ;
+    }
+    else
+    {
+      this->freeInputChannelNs    .add(this->sourceN) ;
+      this->freeInputChannelNs    .add(this->sourceN + 1) ;
+      this->freeInputChannelPairNs.add(this->sourceN) ;
+    }
   }
 
   int n_channels      = this->freeInputChannelNs.size() ;
@@ -270,16 +287,18 @@ void ChannelConfig::createChannelSelectOptions()
 void ChannelConfig::populateChannelSelect()
 {
   this->channelSelect->clear() ;
-  if (!this->isStereo)
-       this->channelSelect->addItemList(this->freeInputChannelOptions     , 1) ;
-  else this->channelSelect->addItemList(this->freeInputChannelPairOptions , 1) ;
+  StringArray options = (!this->isSelectedStereo)           ?
+                          this->freeInputChannelOptions     :
+                          this->freeInputChannelPairOptions ;
+  this->channelSelect->addItemList(options , 1) ;
 
-
-  // include current config option for existing channel
-  int preselection_n = (this->isNewChannel)                                    ? 0 :
-                           ((!this->isStereo)                                      ?
-                              this->freeInputChannelNs    .indexOf(this->sourceN)  :
-                              this->freeInputChannelPairNs.indexOf(this->sourceN)) ;
+  // pre-select current config option for existing channel or de-select
+  bool has_stereo_state_changed = (this->isStereo != this->isSelectedStereo) ;
+  int  preselection_n = (this->isNewChannel)                                 ? 0 :
+                          (has_stereo_state_changed)                            ? -1 :
+                            (!this->isSelectedStereo)                                ?
+                              this->freeInputChannelNs    .indexOf(this->sourceN)    :
+                              this->freeInputChannelPairNs.indexOf(this->sourceN)    ;
   this->channelSelect->setSelectedItemIndex(preselection_n) ;
 }
 

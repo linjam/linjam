@@ -71,6 +71,7 @@ private:
   bool           isNewChannel ;
   int            sourceN ;
   bool           isStereo ;
+  bool           isSelectedStereo ;
 
     //[/UserVariables]
 

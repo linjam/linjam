@@ -55,11 +55,14 @@ public:
   static SortedSet<int> GetFreeInputChannelPairs() ;
 
   // GUI event handlers
-  static bool AddLocalChannel(   ValueTree channel_store) ;
-  static void RemoveLocalChannel(ValueTree channel_store) ;
-  static void SendChat(          String chat_text) ;
+  static void SendChat(String chat_text) ;
 
+  // NJClient config helpers
+  static bool ValidateAddLocalChannel(ValueTree channel_store) ;
+  static int  GetMonoPairSourceN(     int source_n) ;
+  static int  GetStereoPairSourceN(   int source_n) ;
 
+  // persistent configuration storage
   static LinJamConfig* Config ;
 
 
@@ -99,6 +102,10 @@ private:
   static void ConfigureNinjam() ;
   static void CleanSessionDir() ;
 
+  // GUI event handlers
+  static bool AddLocalChannel(   ValueTree channel_store) ;
+  static void RemoveLocalChannel(ValueTree channel_store) ;
+
   // NJClient config helpers
   static int    GetNumActiveChannels() ;
   static int    GetNumVacantChannels() ;
@@ -108,6 +115,7 @@ private:
   static String GetRemoteUserName(        int user_idx) ;
   static String GetRemoteChannelName(     int user_idx , int channel_idx) ;
   static bool   IsConfiguredChannel(      int channel_idx) ;
+  static float  ComputeFauxStereoPan(     float panX2 , bool is_slave_channel) ;
   static void   ConfigureMasterChannel(   Identifier a_key) ;
   static void   ConfigureMetroChannel(    Identifier a_key) ;
   static void   ConfigureLocalChannel(    ValueTree  channel_store , Identifier a_key) ;

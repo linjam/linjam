@@ -274,7 +274,8 @@ DEBUG_TRACE_LOGIN_BTNS
       {
         this->loginText ->setText(       server[CONFIG::LOGIN_ID]) ;
         this->passText  ->setText(       server[CONFIG::PASS_ID]) ;
-        this->anonButton->setToggleState(server[CONFIG::ANON_ID] , juce::dontSendNotification) ;
+        this->anonButton->setToggleState(server[CONFIG::IS_ANON_ID] ,
+                                         juce::dontSendNotification ) ;
       }
 
       login() ;
@@ -311,11 +312,11 @@ void Login::preloadState()
 {
   if (LinJam::Config == nullptr) return ;
 
-  String    host         =      LinJam::Config->currentHost.toString() ;
-  String    login        =      LinJam::Config->currentLogin.toString() ;
-  String    pass         =      LinJam::Config->currentPass.toString() ;
-  bool      is_anonymous = bool(LinJam::Config->currentIsAnonymous.getValue()) ;
-  ValueTree server       = LinJam::Config->getServer(host) ;
+  String    host         =      LinJam::Config->host.toString() ;
+  String    login        =      LinJam::Config->login.toString() ;
+  String    pass         =      LinJam::Config->pass.toString() ;
+  bool      is_anonymous = bool(LinJam::Config->isAnonymous.getValue()) ;
+  ValueTree server       =      LinJam::Config->getServer(host) ;
 
   if (!server.isValid() && !LinJam::IsAgreed()) // TODO: IsAgreed() should always be false when this fires (issue #14)
     // could not connect to currentHost - reset current login state

@@ -161,7 +161,7 @@ DEBUG_TRACE_LICENSE_CLICKED
 
     //[UserbuttonClicked_Post]
 
-  LinJam::Config->currentIsAgreed = is_agreed ;
+  LinJam::Config->isAgreed = is_agreed ;
   LinJam::Disconnect() ; if (is_agreed) LinJam::Connect() ;
 
     //[/UserbuttonClicked_Post]

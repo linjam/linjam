@@ -25,11 +25,11 @@ public:
 
 
   // client config
-  Value     shouldSaveAudio ;     // bool
-  Value     shouldSaveLog ;       // bool
-  Value     debugLevel ;          // int
-  Value     shouldAutoSubscribe ; // bool
-  ValueTree autoSubscribeUsers ;  // probably wont use this
+  Value     saveAudio ;          // int
+  Value     shouldSaveLog ;      // bool
+  Value     debugLevel ;         // int
+  Value     autoSubscribe ;      // int
+  ValueTree autoSubscribeUsers ; // probably wont use this
 
   // device config
   Value audioIfN ;    // int
@@ -59,12 +59,13 @@ public:
 */
 
   // current server config
-  Value currentHost ;        // string
-  Value currentLogin ;       // string
-  Value currentPass ;        // string
-  Value currentIsAnonymous ; // bool
-  Value currentIsAgreed ;    // bool // TODO: ?? this exists only so OnLicense doesnt block (issue #14)
-  Value shouldHideBots ;     // bool
+  Value host ;           // string
+  Value login ;          // string
+  Value pass ;           // string
+  Value isAnonymous ;    // bool
+  Value isAgreed ;       // bool // TODO: ?? this exists only so OnLicense doesnt block (issue #14)
+  Value shouldAgree ;    // bool // TODO: unused
+  Value shouldHideBots ; // bool
 
   // per server config
   ValueTree servers ;
@@ -80,7 +81,8 @@ public:
   // validation
   bool       sanityCheck() ;
   String     parseUsername(String user_name) ;
-  Identifier encodeUserId( String channel_name , int user_idx) ;
+  Identifier makeHostId(   String host_name) ;
+  Identifier makeUserId(   String channel_name , int user_idx) ;
   Identifier makeChannelId(int channel_idx) ;
 
   // getters/setters
@@ -88,26 +90,29 @@ public:
                                  int    channel_idx   = CONFIG::DEFAULT_SOURCE_N     ,
                                  float  volume        = CONFIG::DEFAULT_VOLUME       ,
                                  float  pan           = CONFIG::DEFAULT_PAN          ,
-                                 bool   is_xmit_rcv   = CONFIG::DEFAULT_IS_XMIT      ,
-                                 bool   is_muted      = CONFIG::DEFAULT_IS_MUTED     ,
-                                 bool   is_solo       = CONFIG::DEFAULT_IS_SOLO      ,
                                  int    source_sink_n = CONFIG::DEFAULT_SOURCE_N     ,
+                                 bool   is_muted      = CONFIG::DEFAULT_IS_MUTED     ,
+                                 bool   is_xmit_rcv   = CONFIG::DEFAULT_IS_XMIT_RCV  ,
+                                 bool   is_solo       = CONFIG::DEFAULT_IS_SOLO      ,
                                  bool   is_stereo     = CONFIG::DEFAULT_IS_STEREO    ) ;
-  ValueTree setChannel(          Identifier channels_id   , Identifier new_id ,
-                                 ValueTree  channel_store                     ) ;
-  ValueTree getOrCreateUser(     String user_name , int   user_idx ,
+  ValueTree setChannel(          ValueTree  channels_store , ValueTree channel_store ,
+                                 Identifier new_id                                   ) ;
+  ValueTree getOrAddRemoteUser(  String user_name , int   user_idx ,
                                  float  volume    , float pan      , bool is_muted) ;
+/*
   ValueTree getOrCreateChannel(  Identifier channels_id   , String channel_name ,
                                  int        channel_idx   , float  volume       ,
                                  float      pan           , bool   is_xmit_rcv  ,
                                  bool       is_muted      , bool   is_solo      ,
                                  int        source_sink_n , bool   is_stereo    ) ;
+*/
+  ValueTree addRemoteChannel(    ValueTree  channels_store , ValueTree  channel_store) ;
   ValueTree getUserById(         Identifier user_id) ;
   ValueTree getChannelByIdx(     ValueTree channel_store , int channel_idx) ;
   ValueTree getChannelById(      Identifier channels_id , Identifier channel_id) ;
   void      setServer() ;
-  ValueTree getServer(           String host) ;
-  void      setCurrentServer(    String host         , String login , String pass ,
+  ValueTree getServer(           String host_name) ;
+  void      setCurrentServer(    String host_name    , String login , String pass ,
                                  bool   is_anonymous                              ) ;
   ValueTree getCurrentServer() ;
   void      setServerShouldAgree(bool should_agree) ;
@@ -122,6 +127,7 @@ private:
 
   // validation
   ValueTree sanitizeConfig(     ValueTree default_config , ValueTree stored_config) ;
+  void      restoreVarTypeInfo( ValueTree store) ;
   bool      sanityCheckChannels(ValueTree channels) ;
   void      storeConfig() ;
   void      establishSharedStore() ;
@@ -133,7 +139,8 @@ private:
   Value      getClient(   Identifier key) ;
   Value      getAudio(    Identifier key) ;
   Value      getServer(   Identifier key) ;
-  ValueTree  addServer(   String host , String login , String pass , bool is_anonymous) ;
+  ValueTree  addServer(   String host_name , String login       ,
+                          String pass      , bool   is_anonymous) ;
   String     filteredName(String a_name) ;
 
   // event handlers

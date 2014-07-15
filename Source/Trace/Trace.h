@@ -26,6 +26,7 @@
 #define DEBUG_TRACE_OUT                  DEBUG && 1
 #define DEBUG_TRACE_VB                   DEBUG && 1
 #define TRACE_SANITIZE_CONFIG            DEBUG_TRACE_VB && 0
+#define TRACE_CONFIG_TYPES               DEBUG_TRACE_VB && 0
 #define TRACE_SHARED_CONFIG              DEBUG_TRACE_VB && 0
 #define TRACE_STORE_CONFIG_VB            DEBUG_TRACE_VB && 0
 #define TRACE_DUMP_FREE_INPUTS           DEBUG_TRACE_VB && 1
@@ -63,8 +64,11 @@ public:
   static void   TraceInvalidNode(    String a_node_key) ;
   static void   TraceMissingValue(   String a_node_key , String a_value_key) ;
   static void   TraceMissingProperty(String a_node_key , String a_property_key) ;
+  static void   TraceTypeMismatch(   String a_node_key    , String a_property_key ,
+                                     String expected_type , var    a_var          ) ;
+  static String VarType(             var a_var) ;
+  static String DumpVar(             String val_name , var a_var) ;
 
-  static void   DbgValueType(String val_name , var a_var) ;
 
 
 private:
