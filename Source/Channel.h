@@ -39,6 +39,7 @@
 class Channel  : public Component,
                  public ButtonListener,
                  public SliderListener,
+                 public Value::Listener,
                  public LabelListener
 {
 public:
@@ -67,12 +68,15 @@ friend class Channels ;
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  void buttonClicked(Button* a_button) ;
+  void buttonClicked(Button* a_button) override ;
+  void valueChanged( Value& a_value)   override ;
+  void setStereoState() ;
 
 
 protected:
 
   ValueTree configStore ;
+  Value     stereoStatus ;
 
 
   bool handleButtonClicked(Button* a_button) ;
@@ -89,6 +93,7 @@ protected:
     ScopedPointer<Slider> panSlider;
     ScopedPointer<Slider> gainSlider;
     ScopedPointer<Label> nameLabel;
+    ScopedPointer<Label> stereoLabel;
     ScopedPointer<Slider> vuSlider;
     ScopedPointer<Label> vuLabel;
     ScopedPointer<Label> gainLabel;

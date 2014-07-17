@@ -373,49 +373,51 @@ void Login::login()
 
 bool Login::validateHost()
 {
-DEBUG_TRACE_LOGIN_HOST_VB
+  String host           = this->hostText->getText().trim() ;
+  String server         = host  .upToFirstOccurrenceOf(StringRef(":") , false , true) ;
+  String name           = server.upToLastOccurrenceOf( StringRef(".") , false , true) ;
+  String tld            = server.fromLastOccurrenceOf( StringRef(".") , false , true) ;
+  String port           = host  .fromFirstOccurrenceOf(StringRef(":") , false , true) ;
 
-  String host      = this->hostText->getText().trim() ;
-  String host_name = host.upToLastOccurrenceOf( StringRef(".") , false , true) ;
-  String host_tld  = host.fromLastOccurrenceOf( StringRef(".") , false , true)
-                         .upToFirstOccurrenceOf(StringRef(":") , false , true) ;
-  String host_port = host.fromFirstOccurrenceOf(StringRef(":") , false , true) ;
+  bool   is_localhost   = !NETWORK::LOCALHOST_HOSTNAME.compare(server) ;
+  bool   is_known_host  = NETWORK::KNOWN_HOSTS.contains(host) ;
 
-  bool is_valid = (NETWORK::KNOWN_HOSTS.contains(host) ||
-                  (host     .matchesWildcard(NETWORK::HOST_MASK , true) &&
-                   host_name.containsOnly(   NETWORK::URL_CHARS)        &&
-                   host_tld .containsOnly(   NETWORK::LETTERS)          &&
-                   host_port.containsOnly(   NETWORK::DIGITS)           &&
-                   host_name.isNotEmpty()                               &&
-                   host_tld .isNotEmpty()                               &&
-                   host_port.isNotEmpty()                               )) ;
+  bool   has_valid_form = host.matchesWildcard(NETWORK::HOST_MASK , true) ;
+  bool   is_valid_name  = name.containsOnly(   NETWORK::URL_CHARS) && name.isNotEmpty() ;
+  bool   is_valid_tld   = tld .containsOnly(   NETWORK::LETTERS)   && tld .isNotEmpty() ;
+  bool   is_valid_port  = port.containsOnly(   NETWORK::DIGITS)    && port.isNotEmpty() ;
+  bool   is_custom_host = has_valid_form && is_valid_name && is_valid_tld && is_valid_port ;
 
-  Colour border_color = (is_valid)? Colours::white : Colours::red ;
+  bool   is_valid_host  = is_localhost || is_known_host || is_custom_host ;
+
+  Colour border_color = (is_valid_host)? Colours::white : Colours::red ;
   this->hostText->setColour(TextEditor::outlineColourId , border_color) ;
 
-  return is_valid ;
+DEBUG_TRACE_LOGIN_HOST_VB
+
+  return is_valid_host ;
 }
 
 bool Login::validateLogin()
 {
-  bool is_valid = this->loginText->getText().trim().containsNonWhitespaceChars() ;
+  bool  is_valid_login = this->loginText->getText().trim().containsNonWhitespaceChars() ;
+  Colour border_color  = (is_valid_login)? Colours::white : Colours::red ;
 
-  Colour border_color = (is_valid)? Colours::white : Colours::red ;
   this->loginText->setColour(TextEditor::outlineColourId , border_color) ;
 
-  return is_valid ;
+  return is_valid_login ;
 }
 
 bool Login::validatePass()
 {
-  String pass         = this->passText->getText().trim() ;
-  bool   is_anonymous = this->anonButton ->getToggleState() ;
-  bool   is_valid     = is_anonymous || pass.containsNonWhitespaceChars() ;
+  String pass          = this->passText->getText().trim() ;
+  bool   is_anonymous  = this->anonButton ->getToggleState() ;
+  bool   is_valid_pass = is_anonymous || pass.containsNonWhitespaceChars() ;
+  Colour border_color  = (is_valid_pass)? Colours::white : Colours::red ;
 
-  Colour border_color = (is_valid)? Colours::white : Colours::red ;
   this->passText->setColour(TextEditor::outlineColourId , border_color) ;
 
-  return is_valid ;
+  return is_valid_pass ;
 }
 
 //[/MiscUserCode]

@@ -55,7 +55,7 @@ public:
   Value     is-muted         // bool
   Value     is-solo          // bool
   Value     source-channel-n // int
-  Value     is-stereo        // bool
+  Value     stereo-status    // int
 */
 
   // current server config
@@ -80,42 +80,33 @@ public:
 
   // validation
   bool       sanityCheck() ;
-  String     parseUsername(String user_name) ;
-  Identifier makeHostId(   String host_name) ;
-  Identifier makeUserId(   String channel_name , int user_idx) ;
-  Identifier makeChannelId(int channel_idx) ;
+  String     parseUsername(  String user_name) ;
+  Identifier makeHostId(     String host_name) ;
+  Identifier makeUserId(     String channel_name , int user_idx) ;
+  Identifier makeChannelId(  int channel_idx) ;
+  String     trimStereoName( String channel_name) ;
+  int        setRemoteStereo(ValueTree user_store , ValueTree channel_store) ;
 
   // getters/setters
-  ValueTree newChannel(          String channel_name  = CONFIG::DEFAULT_CHANNEL_NAME ,
-                                 int    channel_idx   = CONFIG::DEFAULT_SOURCE_N     ,
-                                 float  volume        = CONFIG::DEFAULT_VOLUME       ,
-                                 float  pan           = CONFIG::DEFAULT_PAN          ,
-                                 int    source_sink_n = CONFIG::DEFAULT_SOURCE_N     ,
-                                 bool   is_muted      = CONFIG::DEFAULT_IS_MUTED     ,
-                                 bool   is_xmit_rcv   = CONFIG::DEFAULT_IS_XMIT_RCV  ,
-                                 bool   is_solo       = CONFIG::DEFAULT_IS_SOLO      ,
-                                 bool   is_stereo     = CONFIG::DEFAULT_IS_STEREO    ) ;
-  ValueTree setChannel(          ValueTree  channels_store , ValueTree channel_store ,
-                                 Identifier new_id                                   ) ;
-  ValueTree getOrAddRemoteUser(  String user_name , int   user_idx ,
-                                 float  volume    , float pan      , bool is_muted) ;
-/*
-  ValueTree getOrCreateChannel(  Identifier channels_id   , String channel_name ,
-                                 int        channel_idx   , float  volume       ,
-                                 float      pan           , bool   is_xmit_rcv  ,
-                                 bool       is_muted      , bool   is_solo      ,
-                                 int        source_sink_n , bool   is_stereo    ) ;
-*/
-  ValueTree addRemoteChannel(    ValueTree  channels_store , ValueTree  channel_store) ;
-  ValueTree getUserById(         Identifier user_id) ;
-  ValueTree getChannelByIdx(     ValueTree channel_store , int channel_idx) ;
-  ValueTree getChannelById(      Identifier channels_id , Identifier channel_id) ;
+  ValueTree newChannel(           String channel_name = CONFIG::DEFAULT_CHANNEL_NAME ,
+                                  int    channel_idx  = CONFIG::DEFAULT_CHANNEL_IDX  ) ;
+  ValueTree addChannel(           ValueTree channels_store , ValueTree new_store ,
+                                  int       channel_idx                          ) ;
+  void      destroyChannel(       ValueTree channels_store , ValueTree channel_store) ;
+  ValueTree getOrAddRemoteUser(   String user_name , int user_idx) ;
+  ValueTree getOrAddRemoteChannel(Identifier user_id     , String channel_name        ,
+                                  int        channel_idx = CONFIG::DEFAULT_CHANNEL_IDX) ;
+  ValueTree getUserById(          Identifier user_id) ;
+  ValueTree getChannelById(       Identifier channels_id , Identifier channel_id) ;
+  ValueTree getChannelByIdx(      ValueTree channels_store , int channel_idx) ;
+  ValueTree getChannelByName(     ValueTree channels_store , String channel_n) ;
+  ValueTree getUserMasterChannel( ValueTree user_store) ;
   void      setServer() ;
-  ValueTree getServer(           String host_name) ;
-  void      setCurrentServer(    String host_name    , String login , String pass ,
-                                 bool   is_anonymous                              ) ;
+  ValueTree getServer(            String host_name) ;
+  void      setCurrentServer(     String host_name    , String login , String pass ,
+                                  bool   is_anonymous                              ) ;
   ValueTree getCurrentServer() ;
-  void      setServerShouldAgree(bool should_agree) ;
+  void      setServerShouldAgree( bool should_agree) ;
 
 
 private:
@@ -131,6 +122,7 @@ private:
   bool      sanityCheckChannels(ValueTree channels) ;
   void      storeConfig() ;
   void      establishSharedStore() ;
+  void      setStereo(          ValueTree channel_store , int stereo_status) ;
 
   // helpers
   ValueTree  getNode(     Identifier tree_node_id) ;
@@ -144,23 +136,19 @@ private:
   String     filteredName(String a_name) ;
 
   // event handlers
-  void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)          override ;
-  void valueTreeChildAdded(     ValueTree& a_parent_tree , ValueTree& a_child_tree) override ;
-  void valueTreeChildRemoved(   ValueTree& a_parent_tree , ValueTree& a_child_tree) override ;
+  void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key) override ;
 
   // unused ValueTree::Listener interface methods
-//  void valueTreePropertyChanged (ValueTree &treeWhosePropertyHasChanged, const Identifier &property)=0 override ;
-  // This method is called when a property of this node (or of one of its sub-nodes) has changed.
-//  void valueTreeChildAdded(ValueTree& a_parent_tree , ValueTree& a_child_tree)    override ;
-  // This method is called when a child sub-tree is added.
-//   void valueTreeChildRemoved(ValueTree& a_parent_tree , ValueTree& a_child_tree)  override ;
-  // This method is called when a child sub-tree is removed.
-  void valueTreeChildOrderChanged(ValueTree& a_parent_tree)                       override ;
-  // This method is called when a tree's children have been re-shuffled.
-  void valueTreeParentChanged(ValueTree& a_tree)                                  override ;
-  // This method is called when a tree has been added or removed from a parent node.
-  void valueTreeRedirected(ValueTree& a_tree)                                     override ;
-  // This method is called when a tree is made to point to a different internal shared object.
+  // called when a child sub-tree is added.
+  void valueTreeChildAdded(ValueTree& a_parent_node , ValueTree& a_node)   override {}
+  // called when a child sub-tree is removed.
+  void valueTreeChildRemoved(ValueTree& a_parent_node , ValueTree& a_node) override {}
+  // called when a tree's children have been re-shuffled.
+  void valueTreeChildOrderChanged(ValueTree& a_parent_node)                override {} ;
+  // called when a tree has been added or removed from a parent node.
+  void valueTreeParentChanged(ValueTree& a_node)                           override {} ;
+  // called when a tree is made to point to a different internal shared object.
+  void valueTreeRedirected(ValueTree& a_node)                              override {} ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJamConfig) ;

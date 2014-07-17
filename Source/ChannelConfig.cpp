@@ -108,19 +108,14 @@ ChannelConfig::ChannelConfig (ValueTree config_store)
   this->nameText     ->setColour(CaretComponent::caretColourId , Colours::white) ;
   this->channelSelect->setColour(ComboBox::textColourId        , Colours::grey) ;
   this->channelSelect->setColour(ComboBox::backgroundColourId  , Colours::black) ;
-// TODO: none of these change option colors
-// this->channelSelect->setColour(ComboBox::buttonColourId , Colours::red) ;
-// this->channelSelect->setColour(ComboBox::arrowColourId , Colours::blue) ;
-// this->channelSelect->setColour(ComboBox::outlineColourId , Colours::green) ;
-// this->channelSelect->setColour(Label::backgroundColourId , Colours::yellow) ;
-// this->channelSelect->setColour(TextEditor::backgroundColourId , Colours::purple) ;
+  // TODO: change option colors
 
   // set initial channel state and populate input select options
-  this->configStore       =      config_store ;
-  Identifier channel_id   =      config_store.getType() ;
-  String     channel_name =      configStore[CONFIG::CHANNELNAME_ID].toString() ;
-  this->sourceN           = int( configStore[CONFIG::SOURCE_N_ID]) ;
-  this->isStereo          = bool(configStore[CONFIG::IS_STEREO_ID]) ;
+  this->configStore       =     config_store ;
+  Identifier channel_id   =     config_store.getType() ;
+  String     channel_name =     configStore[CONFIG::CHANNELNAME_ID].toString() ;
+  this->sourceN           = int(configStore[CONFIG::SOURCE_N_ID]) ;
+  this->isStereo          = int(configStore[CONFIG::STEREO_ID]) != CONFIG::MONO ;
   this->isSelectedStereo  = this->isStereo ;
   this->isNewChannel      = (channel_id == CONFIG::NEWCHANNEL_ID) ;
 
@@ -207,21 +202,21 @@ void ChannelConfig::buttonClicked(Button* a_button)
   }
   else if (a_button == this->okButton)
   {
-    String channel_name = this->nameText->getText() ;
-    int    selection_n  = this->channelSelect->getSelectedItemIndex() ;
-    bool   is_stereo    = this->isSelectedStereo ;
-    int    source_n     = (!is_stereo)? this->freeInputChannelNs    [selection_n] :
-                                        this->freeInputChannelPairNs[selection_n] ;
+    String channel_name  = this->nameText->getText() ;
+    int    selection_n   = this->channelSelect->getSelectedItemIndex() ;
+    bool   is_stereo     = this->isSelectedStereo ;
+    int    stereo_status = (is_stereo)? CONFIG::STEREO_L : CONFIG::MONO ;
+    int    source_n      = (!is_stereo)? this->freeInputChannelNs    [selection_n] :
+                                         this->freeInputChannelPairNs[selection_n] ;
 
     // update existing channel asynchronously
-    this->configStore.setProperty(CONFIG::CHANNELNAME_ID , channel_name , nullptr) ;
-    this->configStore.setProperty(CONFIG::IS_STEREO_ID   , is_stereo    , nullptr) ;
-    this->configStore.setProperty(CONFIG::SOURCE_N_ID    , source_n     , nullptr) ;
+    this->configStore.setProperty(CONFIG::CHANNELNAME_ID , channel_name  , nullptr) ;
+    this->configStore.setProperty(CONFIG::CHANNELIDX_ID  , source_n      , nullptr) ;
+    this->configStore.setProperty(CONFIG::SOURCE_N_ID    , source_n      , nullptr) ;
+    this->configStore.setProperty(CONFIG::STEREO_ID      , stereo_status , nullptr) ;
 
     // or create new local channel
-    if (this->isNewChannel)
-      LinJam::Config->setChannel(LinJam::Config->localChannels , this->configStore ,
-                                 LinJam::Config->makeChannelId(source_n)           ) ;
+    if (this->isNewChannel) LinJam::AddLocalChannel(this->configStore) ;
 
     ((CallOutBox*)getParentComponent())->dismiss() ;
   }
@@ -343,8 +338,7 @@ BEGIN_JUCER_METADATA
          fontsize="15" bold="0" italic="0" justification="12"/>
   <COMBOBOX name="channelSelect" id="7a9c3a4f62832f42" memberName="channelSelect"
             virtualName="" explicitFocusOrder="4" pos="24 104 152 16" editable="0"
-            layout="33" items="" textWhenNonSelected="(no free channels)"
-            textWhenNoItems="(no free channels)"/>
+            layout="33" items="" textWhenNonSelected="(select channel)" textWhenNoItems="(no free channels)"/>
   <TEXTBUTTON name="okButton" id="504a4ad212ccb744" memberName="okButton" virtualName=""
               explicitFocusOrder="5" pos="34 152 64 24" buttonText="ok" connectedEdges="0"
               needsCallback="0" radioGroupId="0"/>

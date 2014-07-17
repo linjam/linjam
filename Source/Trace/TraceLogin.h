@@ -17,28 +17,21 @@
 
 /* network */
 
-#define DEBUG_TRACE_LOGIN_HOST_VB                                                     \
-  String h  = this->hostText->getText().trim() ; String dbg ;                         \
-  String hn = h.upToLastOccurrenceOf( StringRef(".") , false , true) ;                \
-  String ht = h.fromLastOccurrenceOf( StringRef(".") , false , true)                  \
-               .upToFirstOccurrenceOf(StringRef(":") , false , true) ;                \
-  String hp = h.fromFirstOccurrenceOf(StringRef(":") , false , true) ;                \
-  bool valid = (NETWORK::KNOWN_HOSTS.contains(h)                                ||    \
-               (h                   .matchesWildcard(NETWORK::HOST_MASK , true) &&    \
-                hn                  .containsOnly(   NETWORK::URL_CHARS)        &&    \
-                ht                  .containsOnly(   NETWORK::LETTERS)          &&    \
-                hp                  .containsOnly(   NETWORK::DIGITS)           )) ;  \
-  if (valid) Trace::TraceVerbose("validated host '"        + h + "'") ;               \
-  else       Trace::TraceVerbose("error validating host '" + h + "'" +                \
-    "\n  parsed host="      + h  +                                                    \
-    "\n  parsed host_tld="  + ht +                                                    \
-    "\n  parsed host_port=" + hp +                                                    \
-    "\n  is_known_host="    + String(NETWORK::KNOWN_HOSTS.contains(h))              + \
-    "\n  is_valid_host="    + String(h .matchesWildcard(NETWORK::HOST_MASK , true)) + \
-    "\n  is_valid_url="     + String(hn.containsOnly(   NETWORK::URL_CHARS) &&        \
-                                     hn.isNotEmpty())                               + \
-    "\n  is_valid_tld="     + String(ht.containsOnly(   NETWORK::LETTERS)   &&        \
-                                     ht.isNotEmpty())                               + \
-    "\n  is_valid_port="    + String(hp.containsOnly(   NETWORK::DIGITS)    &&        \
-                                     hp.isNotEmpty())                               ) ;
-
+#if TRACE_LOGIN_HOST
+#  define DEBUG_TRACE_LOGIN_HOST_VB                                                \
+  if (is_valid_host) Trace::TraceVerbose("validated host '"        + host + "'") ; \
+  else               Trace::TraceVerbose("error validating host '" + host + "'"  + \
+    "\n  parsed server '"   + server + "'"                                       + \
+    "\n  parsed name   '"   + name   + "'"                                       + \
+    "\n  parsed tld    '"   + tld    + "'"                                       + \
+    "\n  parsed port   '"   + port   + "'"                                       + \
+    "\n  is_localhost   = " + String(is_localhost)                               + \
+    "\n  is_known_host  = " + String(is_known_host)                              + \
+    "\n  is_custom_host = " + String(is_custom_host)                             + \
+    "\n  has_valid_form = " + String(has_valid_form)                             + \
+    "\n  is_valid_name  = " + String(is_valid_name)                              + \
+    "\n  is_valid_tld   = " + String(is_valid_tld)                               + \
+    "\n  is_valid_port  = " + String(is_valid_port)                              ) ;
+#else // TRACE_LOGIN_HOST
+#  define DEBUG_TRACE_LOGIN_HOST_VB ;
+#endif // TRACE_LOGIN_HOST

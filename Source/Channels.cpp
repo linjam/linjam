@@ -147,8 +147,7 @@ DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL
   if (!channel_store.isValid() || getChannel(channel_id)) return false ;
 
   // hide stereo pair 'phantom' channels
-  if (bool(channel_store[CONFIG::IS_STEREO_ID])  &&
-      int( channel_store[CONFIG::SOURCE_N_ID]) % 2) return true ;
+  if (int(channel_store[CONFIG::STEREO_ID]) == CONFIG::STEREO_R) return true ;
 
   // create channel GUI
   Channel* channel = newChannel(channel_store) ;
@@ -158,22 +157,26 @@ DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL
   // resize and shift channel slices
   resized() ;
 
+DEBUG_TRACE_ADD_CHANNEL_GUI
+
   return true ;
 }
 
 void Channels::renameChannel(Identifier channel_id)
 {
-DEBUG_TRACE_RENAME_CHANNEL
+DEBUG_TRACE_RENAME_CHANNEL_GUI
 
   Channel* channel = getChannel(channel_id) ; if (!channel) return ;
 
   String new_name = channel->configStore[CONFIG::CHANNELNAME_ID].toString() ;
   channel->nameLabel->setText(new_name , juce::dontSendNotification) ;
+
+DEBUG_TRACE_DUMP_CHANNELS_GUI_VB
 }
 
 void Channels::removeChannel(Identifier channel_id)
 {
-DEBUG_TRACE_REMOVE_CHANNEL
+DEBUG_TRACE_REMOVE_CHANNEL_GUI
 
   // destroy channel , resize , and shift channel slices
   Component* channel = getChannel(channel_id) ;
@@ -189,6 +192,8 @@ void Channels::updateChannelVU(Identifier channel_id , double vu)
 {
   Channel* channel = getChannel(channel_id) ;
   if (channel) channel->updateChannelVU(vu) ;
+
+DEBUG_TRACE_VU_GUI_VB
 }
 
 

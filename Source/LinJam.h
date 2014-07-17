@@ -55,12 +55,14 @@ public:
   static SortedSet<int> GetFreeInputChannelPairs() ;
 
   // GUI event handlers
+  static bool AddLocalChannel(   ValueTree channel_store) ;
+  static void RemoveLocalChannel(ValueTree channel_store) ;
   static void SendChat(String chat_text) ;
 
   // NJClient config helpers
-  static bool ValidateAddLocalChannel(ValueTree channel_store) ;
   static int  GetMonoPairSourceN(     int source_n) ;
   static int  GetStereoPairSourceN(   int source_n) ;
+
 
   // persistent configuration storage
   static LinJamConfig* Config ;
@@ -74,7 +76,7 @@ private:
   static SortedSet<int> FreeInputChannels ;
   static SortedSet<int> FreeInputChannelPairs ;
   static bool           IsAudioEnabled ;
-  static float          GuiBeatOffset ;
+  static double         GuiBeatOffset ;
   static File           SessionDir ;
   static int            PrevStatus ;
   static bool           IsInitialized ;
@@ -102,25 +104,21 @@ private:
   static void ConfigureNinjam() ;
   static void CleanSessionDir() ;
 
-  // GUI event handlers
-  static bool AddLocalChannel(   ValueTree channel_store) ;
-  static void RemoveLocalChannel(ValueTree channel_store) ;
-
   // NJClient config helpers
   static int    GetNumActiveChannels() ;
   static int    GetNumVacantChannels() ;
   static int    GetVacantLocalChannelIdx() ;
-  static String GetChannelName(           ValueTree channel_store) ;
-  static String GetLocalChannelClientName(int channel_idx) ;
-  static String GetRemoteUserName(        int user_idx) ;
-  static String GetRemoteChannelName(     int user_idx , int channel_idx) ;
-  static bool   IsConfiguredChannel(      int channel_idx) ;
-  static float  ComputeFauxStereoPan(     float panX2 , bool is_slave_channel) ;
-  static void   ConfigureMasterChannel(   Identifier a_key) ;
-  static void   ConfigureMetroChannel(    Identifier a_key) ;
-  static void   ConfigureLocalChannel(    ValueTree  channel_store , Identifier a_key) ;
-  static void   ConfigureRemoteChannel(   ValueTree  user_store    ,
-                                          ValueTree  channel_store , Identifier a_key) ;
+  static String GetStoredChannelName(      ValueTree channel_store) ;
+  static String GetLocalChannelClientName( int channel_idx) ;
+  static String GetRemoteUserName(         int user_idx) ;
+  static String GetRemoteChannelClientName(int user_idx , int channel_idx) ;
+  static bool   IsConfiguredChannel(       int channel_idx) ;
+  static float  ComputeStereoPan(          float pan , int stereo_status) ;
+  static void   ConfigureMasterChannel(    Identifier a_key) ;
+  static void   ConfigureMetroChannel(     Identifier a_key) ;
+  static void   ConfigureLocalChannel(     ValueTree  channel_store , Identifier a_key) ;
+  static void   ConfigureRemoteChannel(    ValueTree  user_store    ,
+                                           ValueTree  channel_store , Identifier a_key) ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;

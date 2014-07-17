@@ -17,14 +17,13 @@
 
 // NOTE: when adding nodes or leaves to CONFIG_XML be sure to
 //         * store the datatype in   #define CONFIG_TYPES_XML
-//         * restore the datatype in LinJamConfig::applyVarTypeInfo()
+//         * if new node switch in   LinJamConfig::restoreVarTypeInfo()
 //         * note the datatype in    LinJamConfig.h
 //         * verify data and type in LinJamConfig::sanityCheck() or sanityCheckChannels()
-//         * dump data in            #define DEBUG_CONFIG_TYPES_VB
-//                                   #define DEBUG_TRACE_SANITY_CHECK
+//         * dump data in            #define DEBUG_TRACE_SANITY_CHECK or
 //                                   #define DEBUG_TRACE_SANITY_CHECK_CHANNEL
-//                                   #define DEBUG_TRACE_ADDED_CHANNEL
-//                                   #define TRACE_CONFIGURE_LOCAL_CHANNEL_VB
+//                                   #define DEBUG_TRACE_ADD_CHANNEL_GUI
+//                                   #define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
 //                                   #define DEBUG_TRACE_REMOTE_CHANNELS
 //                                   #define DEBUG_TRACE_CONFIGURE_REMOTE
 #define CONFIG_XML "<?xml version=\"1.0\"?><"                                 + \
@@ -67,7 +66,7 @@
         PAN_KEY            + "=\"" + String(DEFAULT_PAN)              + "\" " + \
         IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED)         + "\" " + \
         SOURCE_N_KEY       + "=\"" + String(DEFAULT_SOURCE_N)         + "\" " + \
-        IS_STEREO_KEY      + "=\"" + String(DEFAULT_IS_STEREO)        + "\" " + \
+        STEREO_KEY         + "=\"" + String(DEFAULT_STEREO_STATUS)    + "\" " + \
     "/>"                                                                      + \
     "</" + MASTERS_KEY     + "><"                                             + \
     LOCALS_KEY             + " /><"                                           + \
@@ -108,7 +107,7 @@
       IS_MUTED_KEY             + "=\"" + BOOL_TYPE   + "\" " + \
       IS_SOLO_KEY              + "=\"" + BOOL_TYPE   + "\" " + \
       SOURCE_N_KEY             + "=\"" + INT_TYPE    + "\" " + \
-      IS_STEREO_KEY            + "=\"" + BOOL_TYPE   + "\" " + \
+      STEREO_KEY               + "=\"" + INT_TYPE    + "\" " + \
     "/><"                                                    + \
     USERS_KEY                  + " "                         + \
       USERIDX_KEY              + "=\"" + INT_TYPE    + "\" " + \
@@ -148,7 +147,6 @@ namespace CLIENT
   static const int GUI_TIMER_LO_ID = 2 ; static const int GUI_UPDATE_LO_IVL = 30000 ;
 
   // config
-  static const uint8  MASTER_IDX             = 42 ;
   static const String STEREO_L_POSTFIX       = "-L" ;
   static const String STEREO_R_POSTFIX       = "-R" ;
   static const int    STEREO_POSTFIX_N_CHARS = STEREO_L_POSTFIX.length() ;
@@ -158,6 +156,8 @@ namespace CLIENT
 namespace NETWORK
 {
   // known hosts
+  static const String            LOCALHOST_HOSTNAME         = "localhost" ;
+  static const String            LOCALHOST_2049_URL         = LOCALHOST_HOSTNAME + ":2049" ;
   static const String            NINJAM_2049_URL            = "test-ninjam-com-2049" ;
   static const String            NINJAM_2050_URL            = "test.ninjam.com:2050" ;
   static const String            NINJAM_2051_URL            = "test.ninjam.com:2051" ;
@@ -180,7 +180,6 @@ namespace NETWORK
   static const String            known_hosts[N_KNOWN_HOSTS] = {
 #else // DEBUG_LOCALHOST_LOGIN_BUTTON
   static const int               N_KNOWN_HOSTS              = 9 ;
-  static const String            LOCALHOST_2049_URL         = "localhost:2049" ;
   static const String            known_hosts[N_KNOWN_HOSTS] = {
                                      LOCALHOST_2049_URL       ,
 #endif // DEBUG_LOCALHOST_LOGIN_BUTTON
@@ -304,8 +303,11 @@ namespace CONFIG
   static const Identifier IS_SOLO_ID      = IS_SOLO_KEY ;
   static const String     SOURCE_N_KEY    = "source-channel-n" ;
   static const Identifier SOURCE_N_ID     = SOURCE_N_KEY ;
-  static const String     IS_STEREO_KEY   = "is-stereo" ;
-  static const Identifier IS_STEREO_ID    = IS_STEREO_KEY ;
+  static const String     STEREO_KEY      = "stereo-status" ;
+  static const Identifier STEREO_ID       = STEREO_KEY ;
+  static const int        MONO            =  0 ;
+  static const int        STEREO_L        = -1 ;
+  static const int        STEREO_R        = +1 ;
 
   // client config defaults
   static const int  DEFAULT_SAVE_AUDIO    = -1 ;
@@ -331,20 +333,22 @@ namespace CONFIG
   static const bool   DEFAULT_SHOULD_HIDE_BOTS = true ;
 
   // channel config defaults
-  static const Identifier NEWCHANNEL_ID        = "new-channel" ;
-  static const String     CHANNEL_BASE_ID      = "channel" ;
-  static const String     DEFAULT_CHANNEL_NAME = "unnamed" ;
-  static const String     CHANNELS_KEY         = "channels" ;
-  static const Identifier CHANNELS_ID          = CHANNELS_KEY ;
-  static const String     USERS_KEY            = "users" ;
-  static const Identifier USERS_ID             = USERS_KEY ;
-  static const float      DEFAULT_VOLUME       = 0.0 ;
-  static const float      DEFAULT_PAN          = 0.0 ;
-  static const bool       DEFAULT_IS_XMIT_RCV  = true ;
-  static const bool       DEFAULT_IS_MUTED     = false ;
-  static const bool       DEFAULT_IS_SOLO      = false ;
-  static const int        DEFAULT_SOURCE_N     = 0 ;
-  static const bool       DEFAULT_IS_STEREO    = false ;
+  static const Identifier NEWCHANNEL_ID         = "new-channel" ;
+  static const String     CHANNEL_BASE_ID       = "channel" ;
+  static const String     CHANNELS_KEY          = "channels" ;
+  static const Identifier CHANNELS_ID           = CHANNELS_KEY ;
+  static const String     USERS_KEY             = "users" ;
+  static const Identifier USERS_ID              = USERS_KEY ;
+  static const String     DEFAULT_CHANNEL_NAME  = "unnamed" ;
+  static const int        DEFAULT_CHANNEL_IDX   = 42 ; // this is o/c outside bounds
+  static const int        MASTER_CHANNEL_IDX    = DEFAULT_CHANNEL_IDX ;
+  static const float      DEFAULT_VOLUME        = 0.0f ;
+  static const float      DEFAULT_PAN           = 0.0f ;
+  static const bool       DEFAULT_IS_XMIT_RCV   = true ;
+  static const bool       DEFAULT_IS_MUTED      = false ;
+  static const bool       DEFAULT_IS_SOLO       = false ;
+  static const int        DEFAULT_SOURCE_N      = 0 ;
+  static const int        DEFAULT_STEREO_STATUS = MONO ;
 
   // config types
   static const String BOOL_TYPE   = "bool" ;
@@ -359,42 +363,6 @@ namespace CONFIG
   // config storage
   static const String DEFAULT_CONFIG_XML = String(CONFIG_XML) ;
   static const String CONFIG_TYPES       = String(CONFIG_TYPES_XML) ;
-/*
-  static const ValueTree DEFAULT_CONFIG     = ValueTree(PERSISTENCE_DEFAULTS_ID) ;
-               ValueTree client_defaults    = ValueTree(CLIENT_ID) ;
-               ValueTree audio_defaults     = ValueTree(AUDIO_ID) ;
-               ValueTree server_defaults    = ValueTree(SERVER_ID) ;
-               ValueTree channel_defaults   = ValueTree(CHANNELS_ID) ;
-  CONFIG::DEFAULT_CONFIG.addChild(client_defaults  , -1 , nullptr) ;
-  CONFIG::DEFAULT_CONFIG.addChild(audio_defaults   , -1 , nullptr) ;
-  CONFIG::DEFAULT_CONFIG.addChild(server_defaults  , -1 , nullptr) ;
-  CONFIG::DEFAULT_CONFIG.addChild(channel_defaults , -1 , nullptr) ;
-  client_defaults .setProperty(SAVE_AUDIO_ID        , DEFAULT_SAVE_AUDIO       , nullptr) ;
-  client_defaults .setProperty(SAVE_LOG_ID          , DEFAULT_SAVE_LOG         , nullptr) ;
-  client_defaults .setProperty(DEBUGLEVEL_ID        , DEFAULT_DEBUGLEVEL       , nullptr) ;
-  client_defaults .setProperty(AUTOSUBSCRIBE_ID     , DEFAULT_AUTOSUBSCRIBE    , nullptr) ;
-  audio_defaults  .setProperty(AUDIO_IF_ID          , DEFAULT_AUDIO_IF         , nullptr) ;
-  audio_defaults  .setProperty(N_INPUTS_ID          , DEFAULT_N_INPUTS         , nullptr) ;
-  audio_defaults  .setProperty(N_OUTPUTS_ID         , DEFAULT_N_OUTPUTS        , nullptr) ;
-  audio_defaults  .setProperty(BITDEPTH_ID          , DEFAULT_BITDEPTH         , nullptr) ;
-  audio_defaults  .setProperty(SAMPLERATE_ID        , DEFAULT_SAMPLERATE       , nullptr) ;
-  audio_defaults  .setProperty(JACK_NAME_ID         , DEFAULT_JACK_NAME        , nullptr) ;
-  server_defaults .setProperty(HOST_ID              , DEFAULT_HOST             , nullptr) ;
-  server_defaults .setProperty(LOGIN_ID             , DEFAULT_LOGIN            , nullptr) ;
-  server_defaults .setProperty(PASS_ID              , DEFAULT_PASS             , nullptr) ;
-  server_defaults .setProperty(IS_ANON_ID           , DEFAULT_IS_ANON          , nullptr) ;
-  server_defaults .setProperty(IS_AGREED_ID         , DEFAULT_IS_AGREED        , nullptr) ;
-  server_defaults .setProperty(SHOULD_HIDE_BOTS_KEY , DEFAULT_SHOULD_HIDE_BOTS , nullptr) ;
-  channel_defaults.setProperty(CHANNELNAME_ID       , DEFAULT_CHANNEL_NAME     , nullptr) ;
-  channel_defaults.setProperty(CHANNELIDX_ID        , 42                       , nullptr) ;
-  channel_defaults.setProperty(VOLUME_ID            , DEFAULT_VOLUME           , nullptr) ;
-  channel_defaults.setProperty(PAN_ID               , DEFAULT_PAN              , nullptr) ;
-  channel_defaults.setProperty(IS_XMIT_RCV_ID       , DEFAULT_IS_XMIT_RCV      , nullptr) ;
-  channel_defaults.setProperty(IS_MUTED_ID          , DEFAULT_IS_MUTED         , nullptr) ;
-  channel_defaults.setProperty(IS_SOLO_ID           , DEFAULT_IS_SOLO          , nullptr) ;
-  channel_defaults.setProperty(SOURCE_N_ID          , DEFAULT_SOURCE_N         , nullptr) ;
-  channel_defaults.setProperty(IS_STEREO_ID         , DEFAULT_IS_STEREO        , nullptr) ;
-*/
 }
 
 
@@ -512,7 +480,7 @@ namespace GUI
   static const String LOOP_GUI_ID          = "loop-gui" ;
   static const int    LOOP_X               = STATUS_W + PAD3 ;
   static const int    LOOP_H               = STATUS_H ;
-  static const float  BEAT_PROGRESS_OFFSET = CLIENT::GUI_UPDATE_HI_IVL * 0.002 ;
+  static const double BEAT_PROGRESS_OFFSET = CLIENT::GUI_UPDATE_HI_IVL * 0.002 ;
 }
 
 #endif // _CONSTANTS_H_

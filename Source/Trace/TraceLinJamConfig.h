@@ -100,7 +100,7 @@
   if (!metro_channel_has_source_property)                                             \
     Trace::TraceMissingProperty(CONFIG::METRO_KEY  , CONFIG::SOURCE_N_KEY) ;          \
   if (!metro_channel_has_stereo_property)                                             \
-    Trace::TraceMissingProperty(CONFIG::METRO_KEY  , CONFIG::IS_STEREO_KEY) ;         \
+    Trace::TraceMissingProperty(CONFIG::METRO_KEY  , CONFIG::STEREO_KEY) ;            \
                                                                                       \
   /* explicitly subscribed values */                                                  \
   if (!should_save_audio_has_value)                                                   \
@@ -167,9 +167,9 @@
   if (!metro_source_is_int)                                                           \
     Trace::TraceTypeMismatch(CONFIG::METRO_KEY   , CONFIG::SOURCE_N_KEY             , \
                              CONFIG::INT_TYPE    , metro[CONFIG::SOURCE_N_KEY]) ;     \
-  if (!metro_stereo_is_bool)                                                          \
-    Trace::TraceTypeMismatch(CONFIG::METRO_KEY   , CONFIG::IS_STEREO_KEY            , \
-                             CONFIG::BOOL_TYPE   , metro[CONFIG::IS_STEREO_KEY]) ;    \
+  if (!metro_stereo_is_int)                                                           \
+    Trace::TraceTypeMismatch(CONFIG::METRO_KEY   , CONFIG::STEREO_KEY               , \
+                             CONFIG::INT_TYPE    , metro[CONFIG::STEREO_KEY]) ;       \
   if (!save_audio_is_int)                                                             \
     Trace::TraceTypeMismatch(CONFIG::CLIENT_KEY  , CONFIG::SAVE_AUDIO_KEY           , \
                              CONFIG::INT_TYPE    , this->saveAudio.getValue()) ;      \
@@ -249,7 +249,7 @@
   if (!channel_has_source_property)                                                    \
     Trace::TraceMissingProperty(channel_name , CONFIG::SOURCE_N_KEY) ;                 \
   if (!channel_has_stereo_property)                                                    \
-    Trace::TraceMissingProperty(channel_name , CONFIG::IS_STEREO_KEY) ;                \
+    Trace::TraceMissingProperty(channel_name , CONFIG::STEREO_KEY) ;                   \
                                                                                        \
   if (!channel_name_is_string)                                                         \
     Trace::TraceTypeMismatch(channel_name , CONFIG::CHANNELNAME_KEY ,                  \
@@ -275,9 +275,9 @@
   if (!channel_source_is_int)                                                          \
     Trace::TraceTypeMismatch(channel_name , CONFIG::SOURCE_N_KEY    ,                  \
                              CONFIG::INT_TYPE    , channel[CONFIG::SOURCE_N_ID]) ;     \
-  if (!channel_stereo_is_bool)                                                         \
-    Trace::TraceTypeMismatch(channel_name , CONFIG::IS_STEREO_KEY   ,                  \
-                             CONFIG::BOOL_TYPE   , channel[CONFIG::IS_STEREO_ID]) ;    \
+  if (!channel_stereo_is_int)                                                          \
+    Trace::TraceTypeMismatch(channel_name , CONFIG::STEREO_KEY   ,                     \
+                             CONFIG::INT_TYPE   , channel[CONFIG::STEREO_ID]) ;        \
                                                                                        \
   if (!channel_has_channelname_property || !channel_has_channelidx_property ||         \
       !channel_has_volume_property      || !channel_has_pan_property        ||         \
@@ -301,35 +301,71 @@
   Trace::TraceConfig("value changed for " + parent + " => " + \
                      node + "[" + key + "] => " + val) ;
 
-#define DEBUG_TRACE_CONFIG_TREE_ADDED                                       \
-  Trace::TraceEvent("node '" + String(a_child_node.getType()) +             \
-                    "' added to '" + String(a_parent_node.getType()) + "'") ;
-
-#define DEBUG_TRACE_CONFIG_TREE_REMOVED                                         \
-  Trace::TraceEvent("node '" + String(a_child_node.getType()) +                 \
-                    "' removed from '" + String(a_parent_node.getType()) + "'") ;
-
 
 /* channels */
 
-#define DEBUG_TRACE_ADD_CHANNEL_STORE                                       \
-  String dbgA = "created storage for new " ;                                \
-  String dbgB = " " + String(channel_id) + " '" + channel_name + "' " ;     \
-  if (channels_id == CONFIG::LOCALS_ID)                                     \
+#define DEBUG_TRACE_MONO_STATUS                                                         \
+  bool   is_new    = !getChannelByName(user_store , channel_name).isValid() ;           \
+  String pair_name = (has_l_pair)? l_pair_name : l_pair_name ;                          \
+  if (has_orphaned_pair) Trace::TraceConfig("setting remote channel '" + pair_name    + \
+                                            "' status to MONO") ;                       \
+  if (is_new)            Trace::TraceConfig("adding remote channel '"  + channel_name + \
+                                            "' as MONO") ;                              \
+  else                   Trace::TraceConfig("setting remote channel '" + channel_name + \
+                                            "' status to MONO") ;
+
+#define DEBUG_TRACE_STEREO_STATUS                                                     \
+  bool   is_new      = !getChannelByName(user_store , channel_name).isValid() ;       \
+  String status      = (stereo_status == CONFIG::STEREO_L)? "STEREO_L" : "STEREO_R" ; \
+  String pair_status = (pair_stereo_status == CONFIG::STEREO_L)?                      \
+                       "STEREO_L" : "STEREO_R" ;                                      \
+  String pair_error  = (!is_paired)? " (unpaired)" : "" ;                             \
+  if (is_paired) Trace::TraceConfig("setting remote channel '" + pair_name          + \
+                                    "' status to " + pair_status) ;                   \
+  if (is_new)    Trace::TraceConfig("adding remote channel '"  + channel_name       + \
+                                    "' as " + status) ;                               \
+  else           Trace::TraceConfig("setting remote channel '" + channel_name       + \
+                                    "' status to " + status) ;
+
+#define DEBUG_TRACE_ADD_CHANNEL_STORE                                               \
+  String user_id      = String(channels_store.getType()) ;                          \
+  String channel_id   = String(makeChannelId(channel_idx)) ;                        \
+  String channel_name = LinJam::GetStoredChannelName(new_node) ;                    \
+  bool   is_local     = channels_store == this->localChannels ;                     \
+  String group        = (is_local)? "local" : "remote" ;                            \
+  String dbgA         = "created storage for new " ;                                \
+  String dbgB         = group + " " + channel_id + " '" + channel_name + "'" ;      \
+  if      (!channels_store.isValid())                                               \
+       Trace::TraceError("invlaid parent creating channel storage for '" + dbgB) ;  \
+  else if (!new_node.isValid())                                                     \
+       Trace::TraceError("invlaid node creating " + user_id + " channel storage") ; \
+  if (new_node.getParent() == channels_store)                                       \
+       Trace::TraceConfig("storage already exists for " + dbgB) ;                   \
+  else if (is_local)                                                                \
+       Trace::TraceConfig(dbgA + dbgB) ;                                            \
+  else Trace::TraceConfig(dbgA + dbgB + " for '" + user_id + "'") ;
+
+#define DEBUG_TRACE_DESTROY_CHANNEL_STORE                                   \
+  String channel_id   = String(channel_store.getType()) ;                   \
+  String channel_name = channel_store[CONFIG::CHANNELNAME_ID].toString() ;  \
+  String user_id      = String(channels_store.getType()) ;                  \
+  String dbgA         = "destroyed storage for " ;                          \
+  String dbgB         = " " + channel_id + " '" + channel_name + "' " ;     \
+  if (channels_store == this->localChannels)                                \
        Trace::TraceConfig(dbgA + "local"  + dbgB) ;                         \
-  else Trace::TraceConfig(dbgA + "remote" + dbgB + "for '" +                \
-                          String(getUserById(channels_id).getType()) + "'") ;
+  else Trace::TraceConfig(dbgA + "remote" + dbgB + "for '" + user_id + "'") ;
 
 #define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                        \
+  Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;                \
   Trace::TraceConfig("created storage for new remote user " + String(user_id)) ; \
   if (TRACE_ADD_REMOTES_VB)                                                      \
   {                                                                              \
     char*      host      = LinJam::Client->GetHostName() ;                       \
     bool       has_bot   = NETWORK::KNOWN_HOSTS.contains(String(host)) ;         \
     bool       hide_bots = has_bot && bool(this->shouldHideBots.getValue()) ;    \
-    float      u_vol     = volume ;                                              \
-    float      u_pan     = pan ;                                                 \
-    bool       u_mute    = is_muted ;                                            \
+    float      u_vol     = CONFIG::DEFAULT_VOLUME ;                              \
+    bool       u_mute    = CONFIG::DEFAULT_IS_MUTED ;                            \
+    float      u_pan     = CONFIG::DEFAULT_PAN ;                                 \
     int        u_idx     = -1 ; String u_name ; Identifier u_id ;                \
     while ((u_name = LinJam::GetRemoteUserName(++u_idx)).isNotEmpty())           \
       { u_id = makeUserId(u_name , u_idx) ; if (user_id == u_id) break ; }       \

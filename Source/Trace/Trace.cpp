@@ -63,7 +63,7 @@ String Trace::DumpClientChannels()
     dump = "\n    " + user_name + " =>" ;
     int channel_n = -1 ; int channel_idx ;
     while (~(channel_idx = LinJam::Client->EnumUserChannels(user_idx , ++channel_n)))
-      dump += "\n      " + LinJam::GetRemoteChannelName(user_idx , channel_idx) ;
+      dump += "\n      " + LinJam::GetRemoteChannelClientName(user_idx , channel_idx) ;
   }
 
   return dump ;
