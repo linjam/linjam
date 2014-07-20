@@ -54,8 +54,6 @@ public:
 friend class Channels ;
 #endif // DEBUG
 
-  void updateChannelVU(double vu) ;
-
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -68,19 +66,25 @@ friend class Channels ;
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  void buttonClicked(Button* a_button) override ;
-  void valueChanged( Value& a_value)   override ;
-  void setStereoState() ;
+  Value channelName ;
+  Value stereoStatus ;
+  Value vuLeft ;
+  Value vuRight ;
 
+
+  void buttonClicked(   Button* a_button) override ;
+  void valueChanged(    Value& a_value)   override ;
+  void updateChannelVU( Slider* a_vu_slider , Label* a_vu_label , double vu) ;
+  void setChannelConfig(Identifier config_key , var value) ;
+  void renameChannel() ;
 
 protected:
 
   ValueTree configStore ;
-  Value     stereoStatus ;
 
 
   bool handleButtonClicked(Button* a_button) ;
-  void setChannelConfig(Identifier config_key , var value) ;
+  void setStereoState() ;
 
     //[/UserVariables]
 
@@ -94,9 +98,10 @@ protected:
     ScopedPointer<Slider> gainSlider;
     ScopedPointer<Label> nameLabel;
     ScopedPointer<Label> stereoLabel;
-    ScopedPointer<Slider> vuSlider;
-    ScopedPointer<Label> vuLabel;
-    ScopedPointer<Label> gainLabel;
+    ScopedPointer<Slider> vuLeftSlider;
+    ScopedPointer<Slider> vuRightSlider;
+    ScopedPointer<Label> vuLeftLabel;
+    ScopedPointer<Label> vuRightLabel;
 
 
     //==============================================================================
@@ -117,9 +122,6 @@ class LocalChannel  : public Channel
   friend class LocalChannels ;
 
   LocalChannel(ValueTree channel_store) ;
-
-
-private:
 
   void buttonClicked(Button* a_button) ;
 } ;

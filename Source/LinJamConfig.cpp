@@ -17,7 +17,7 @@
 #endif // DEBUG
 
 
-/* LinJamConfig public class methods */
+/* LinJamConfig class public class methods */
 
 LinJamConfig::LinJamConfig()
 {
@@ -59,7 +59,7 @@ DEBUG_TRACE_SANITIZE_CONFIG
 LinJamConfig::~LinJamConfig() { storeConfig() ; }
 
 
-/* LinJamConfig public instance methods */
+/* LinJamConfig class public instance methods */
 
 /* validation */
 
@@ -85,26 +85,36 @@ bool LinJamConfig::sanityCheck()
 //   bool are_remote_channels_sane = sanityCheckChannels(this->remoteUsers) ; // TODO: (issue #33)
 
   // implicitly subscribed values (via above trees)
-  bool master_channel_has_name_property   =
+  bool master_channel_has_name_property    =
     master_channel            .hasProperty(CONFIG::CHANNELNAME_ID) ;
-  bool master_channel_has_volume_property =
+  bool master_channel_has_volume_property  =
     master_channel            .hasProperty(CONFIG::VOLUME_ID)      ;
-  bool master_channel_has_pan_property    =
+  bool master_channel_has_pan_property     =
     master_channel            .hasProperty(CONFIG::PAN_ID)         ;
-  bool master_channel_has_mute_property   =
+  bool master_channel_has_mute_property    =
     master_channel            .hasProperty(CONFIG::IS_MUTED_ID)    ;
-  bool metro_channel_has_name_property    =
+  bool master_channel_has_stereo_property   =
+    master_channel            .hasProperty(CONFIG::STEREO_ID)      ;
+  bool master_channel_has_vuleft_property  =
+    master_channel            .hasProperty(CONFIG::VU_LEFT_ID)     ;
+  bool master_channel_has_vuright_property =
+    master_channel            .hasProperty(CONFIG::VU_RIGHT_ID)    ;
+  bool metro_channel_has_name_property     =
     metro_channel             .hasProperty(CONFIG::CHANNELNAME_ID) ;
-  bool metro_channel_has_volume_property  =
+  bool metro_channel_has_volume_property   =
     metro_channel             .hasProperty(CONFIG::VOLUME_ID)      ;
-  bool metro_channel_has_pan_property     =
+  bool metro_channel_has_pan_property      =
     metro_channel             .hasProperty(CONFIG::PAN_ID)         ;
-  bool metro_channel_has_mute_property    =
+  bool metro_channel_has_mute_property     =
     metro_channel             .hasProperty(CONFIG::IS_MUTED_ID)    ;
-  bool metro_channel_has_source_property  =
+  bool metro_channel_has_source_property   =
     metro_channel             .hasProperty(CONFIG::SOURCE_N_ID)    ;
-  bool metro_channel_has_stereo_property  =
+  bool metro_channel_has_stereo_property   =
     metro_channel             .hasProperty(CONFIG::STEREO_ID)      ;
+  bool metro_channel_has_vuleft_property   =
+    metro_channel             .hasProperty(CONFIG::VU_LEFT_ID)     ;
+  bool metro_channel_has_vuright_property  =
+    metro_channel             .hasProperty(CONFIG::VU_RIGHT_ID)    ;
 
   // explicitly subscribed values
   bool should_save_audio_has_value     =
@@ -147,12 +157,17 @@ bool LinJamConfig::sanityCheck()
   bool master_volume_is_double  = master_channel[CONFIG::VOLUME_ID]     .isDouble() ;
   bool master_pan_is_double     = master_channel[CONFIG::PAN_ID]        .isDouble() ;
   bool master_mute_is_bool      = master_channel[CONFIG::IS_MUTED_ID]   .isBool()   ;
+  bool master_stereo_is_int     = master_channel[CONFIG::STEREO_ID]     .isInt()    ;
+  bool master_vuleft_is_double  = master_channel[CONFIG::VU_LEFT_ID]    .isDouble() ;
+  bool master_vuright_is_double = master_channel[CONFIG::VU_RIGHT_ID]   .isDouble() ;
   bool metro_name_is_string     = metro_channel [CONFIG::CHANNELNAME_ID].isString() ;
   bool metro_volume_is_double   = metro_channel [CONFIG::VOLUME_ID]     .isDouble() ;
   bool metro_pan_is_double      = metro_channel [CONFIG::PAN_ID]        .isDouble() ;
   bool metro_mute_is_bool       = metro_channel [CONFIG::IS_MUTED_ID]   .isBool()   ;
   bool metro_source_is_int      = metro_channel [CONFIG::SOURCE_N_ID]   .isInt()    ;
   bool metro_stereo_is_int      = metro_channel [CONFIG::STEREO_ID]     .isInt()    ;
+  bool metro_vuleft_is_double   = metro_channel [CONFIG::VU_LEFT_ID]    .isDouble() ;
+  bool metro_vuright_is_double  = metro_channel [CONFIG::VU_RIGHT_ID]   .isDouble() ;
   bool save_audio_is_int        = this->saveAudio     .getValue()       .isInt()    ;
   bool save_log_is_bool         = this->shouldSaveLog .getValue()       .isBool()   ;
   bool deuglevel_is_int         = this->debugLevel    .getValue()       .isInt()    ;
@@ -173,47 +188,55 @@ bool LinJamConfig::sanityCheck()
 
 DEBUG_TRACE_SANITY_CHECK
 
-  return (root_is_valid                     && auto_subscribe_users_is_valid      &&
-          master_channels_is_valid          && local_channels_is_valid            &&
-          remote_users_is_valid             && servers_is_valid                   &&
+  return (root_is_valid                      && auto_subscribe_users_is_valid      &&
+          master_channels_is_valid           && local_channels_is_valid            &&
+          remote_users_is_valid              && servers_is_valid                   &&
 
-          are_local_channels_sane           && //are_remote_channels_sane           &&
+          are_local_channels_sane            && //are_remote_channels_sane           &&
 
-          master_channel_has_name_property  && master_channel_has_volume_property &&
-          master_channel_has_pan_property   && master_channel_has_mute_property   &&
-          metro_channel_has_name_property   && metro_channel_has_volume_property  &&
-          metro_channel_has_pan_property    && metro_channel_has_mute_property    &&
-          metro_channel_has_source_property && metro_channel_has_stereo_property  &&
+          master_channel_has_name_property   && master_channel_has_volume_property &&
+          master_channel_has_pan_property    && master_channel_has_mute_property   &&
+          master_channel_has_stereo_property && master_channel_has_vuleft_property &&
+          master_channel_has_vuleft_property                                       &&
 
-          should_save_audio_has_value       && should_save_log_has_value          &&
-          debug_level_has_value             && should_auto_subscribe_has_value    &&
+          metro_channel_has_name_property    && metro_channel_has_volume_property  &&
+          metro_channel_has_pan_property     && metro_channel_has_mute_property    &&
+          metro_channel_has_source_property  && metro_channel_has_stereo_property  &&
+          metro_channel_has_vuleft_property  && metro_channel_has_vuleft_property  &&
 
-          audio_if_n_has_value              && n_inputs_has_value                 &&
-          n_outputs_has_value               && bit_depth_has_value                &&
-          sample_rate_has_value             && jack_name_has_value                &&
+          should_save_audio_has_value        && should_save_log_has_value          &&
+          debug_level_has_value              && should_auto_subscribe_has_value    &&
 
-          host_has_value                    && login_has_value                    &&
-          pass_has_value                    && is_anonymous_has_value             &&
-          is_agreed_has_value               && should_agree_has_value             &&
-          should_hide_bots_has_value        &&
+          audio_if_n_has_value               && n_inputs_has_value                 &&
+          n_outputs_has_value                && bit_depth_has_value                &&
+          sample_rate_has_value              && jack_name_has_value                &&
 
-          master_name_is_string             && master_volume_is_double            &&
-          master_pan_is_double              && master_mute_is_bool                &&
-          metro_name_is_string              && metro_volume_is_double             &&
-          metro_pan_is_double               && metro_mute_is_bool                 &&
-          metro_source_is_int               && metro_stereo_is_int                &&
+          host_has_value                     && login_has_value                    &&
+          pass_has_value                     && is_anonymous_has_value             &&
+          is_agreed_has_value                && should_agree_has_value             &&
+          should_hide_bots_has_value                                               &&
 
-          save_audio_is_int                 && save_log_is_bool                   &&
-          deuglevel_is_int                  && autosubscribe_is_int               &&
+          master_name_is_string              && master_volume_is_double            &&
+          master_pan_is_double               && master_mute_is_bool                &&
+          master_stereo_is_int               && master_vuleft_is_double            &&
+          master_vuright_is_double                                                 &&
 
-          audio_ifn_is_int                  && n_inputs_is_int                    &&
-          n_outputs_is_int                  && bitdepth_is_int                    &&
-          samplerate_is_int                 && jack_name_is_string                &&
+          metro_name_is_string               && metro_volume_is_double             &&
+          metro_pan_is_double                && metro_mute_is_bool                 &&
+          metro_source_is_int                && metro_stereo_is_int                &&
+          metro_vuleft_is_double             && metro_vuright_is_double            &&
 
-          host_name_is_string               && login_is_string                    &&
-          pass_is_string                    && is_anon_is_bool                    &&
-          is_agreed_is_bool                 && should_agree_is_bool               &&
-          should_hide_bots_is_bool                                                 ) ;
+          save_audio_is_int                  && save_log_is_bool                   &&
+          deuglevel_is_int                   && autosubscribe_is_int               &&
+
+          audio_ifn_is_int                   && n_inputs_is_int                    &&
+          n_outputs_is_int                   && bitdepth_is_int                    &&
+          samplerate_is_int                  && jack_name_is_string                &&
+
+          host_name_is_string                && login_is_string                    &&
+          pass_is_string                     && is_anon_is_bool                    &&
+          is_agreed_is_bool                  && should_agree_is_bool               &&
+          should_hide_bots_is_bool                                                  ) ;
 }
 
 String LinJamConfig::parseUsername(String user_name)
@@ -242,44 +265,49 @@ Identifier LinJamConfig::makeChannelId(int channel_idx)
 
 String LinJamConfig::trimStereoName(String channel_name)
 {
-  return channel_name.dropLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
+  String stereo_postfix = channel_name.getLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
+
+  return (stereo_postfix != CLIENT::STEREO_L_POSTFIX &&
+          stereo_postfix != CLIENT::STEREO_R_POSTFIX  )? channel_name  :
+          channel_name.dropLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
 }
 
-int LinJamConfig::setRemoteStereo(ValueTree user_store , ValueTree channel_store)
+String LinJamConfig::makeStereoName(String channel_name , int stereo_status)
+{
+  return trimStereoName(channel_name) +
+         ((stereo_status == CONFIG::STEREO_L)? CLIENT::STEREO_L_POSTFIX :
+          (stereo_status == CONFIG::STEREO_R)? CLIENT::STEREO_R_POSTFIX : "") ;
+}
+
+void LinJamConfig::setStereo(ValueTree channel_store , int stereo_status)
+{
+  channel_store.setProperty(CONFIG::STEREO_ID , stereo_status , nullptr) ;
+}
+
+int LinJamConfig::parseStereoStatus(String channel_name)
 {
   // determine faux-stereo stereo status based on channel name
+  String postfix = channel_name.getLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
+  return (!postfix.compare(CLIENT::STEREO_L_POSTFIX))? CONFIG::STEREO_L :
+         (!postfix.compare(CLIENT::STEREO_R_POSTFIX))? CONFIG::STEREO_R :
+                                                       CONFIG::MONO     ;
+}
+
+int LinJamConfig::setRemoteStereo(ValueTree user_store        , ValueTree channel_store ,
+                                  String    prev_channel_name                           )
+{
   String channel_name  = channel_store[CONFIG::CHANNELNAME_ID].toString() ;
-  String postfix       = channel_name.getLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
-  int    stereo_status = (!postfix.compare(CLIENT::STEREO_L_POSTFIX))? CONFIG::STEREO_L :
-                         (!postfix.compare(CLIENT::STEREO_R_POSTFIX))? CONFIG::STEREO_R :
-                                                                       CONFIG::MONO     ;
+  int    stereo_status = parseStereoStatus(channel_name) ;
+  int    prev_status   = parseStereoStatus(prev_channel_name) ;
 
   // ensure remote faux-stereo channels are paired
-  if (stereo_status == CONFIG::MONO)
+  if (stereo_status != CONFIG::MONO)
   {
-    // set to mono any lone channel with name matching this channel_name + either_postfix
-    String    l_pair_name          = channel_name + CLIENT::STEREO_L_POSTFIX ;
-    String    r_pair_name          = channel_name + CLIENT::STEREO_R_POSTFIX ;
-    ValueTree l_pair_channel_store = getChannelByName(user_store , l_pair_name) ;
-    ValueTree r_pair_channel_store = getChannelByName(user_store , r_pair_name) ;
-    bool      has_l_pair           = l_pair_channel_store.isValid() ;
-    bool      has_r_pair           = r_pair_channel_store.isValid() ;
-    bool      has_orphaned_pair    = has_l_pair != has_r_pair ;
-    if (has_orphaned_pair)
-    {
-      if      (has_l_pair) setStereo(l_pair_channel_store , CONFIG::MONO) ;
-      else if (has_r_pair) setStereo(r_pair_channel_store , CONFIG::MONO) ;
-    }
-
-DEBUG_TRACE_MONO_STATUS
-  }
-  else
-  {
-    // set to stereo channel with name matching this channel_name + opposite_postfix
-    // TODO: to ignore duplicate names this assumes that stereo pairs are contiguous
+    // find channel with name matching this channel_name + opposite_postfix
+    // to ignore duplicate names this assumes that stereo pairs are contiguous
     String expected_pair_name = trimStereoName(channel_name) ;
     int    channel_idx        = int(channel_store[CONFIG::CHANNELIDX_ID]) ;
-    int pair_stereo_status ; int expected_pair_idx ;
+    int    pair_stereo_status ; int expected_pair_idx ;
     if      (stereo_status == CONFIG::STEREO_L)
     {
       pair_stereo_status  = CONFIG::STEREO_R ;
@@ -296,10 +324,34 @@ DEBUG_TRACE_MONO_STATUS
     ValueTree pair_store = getChannelByIdx(user_store , expected_pair_idx) ;
     String    pair_name  = pair_store[CONFIG::CHANNELNAME_ID].toString() ;
     bool      is_paired  = !pair_name.compare(expected_pair_name) ;
-    if (is_paired) setStereo(pair_store , pair_stereo_status) ;
-    else stereo_status = CONFIG::MONO ;
 
 DEBUG_TRACE_STEREO_STATUS
+
+    // set matched pair channel stereo status to stereo
+    if (is_paired) setStereo(pair_store , pair_stereo_status) ;
+    else stereo_status = CONFIG::MONO ;
+  }
+
+  if (stereo_status == CONFIG::MONO && stereo_status != prev_status)
+  {
+    // find channel with name matching prev_channel_name + either_postfix
+    channel_name = prev_channel_name.dropLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
+    String    l_pair_name          = channel_name + CLIENT::STEREO_L_POSTFIX ;
+    String    r_pair_name          = channel_name + CLIENT::STEREO_R_POSTFIX ;
+    ValueTree l_pair_channel_store = getChannelByName(user_store , l_pair_name) ;
+    ValueTree r_pair_channel_store = getChannelByName(user_store , r_pair_name) ;
+    bool      has_l_pair           = l_pair_channel_store.isValid() ;
+    bool      has_r_pair           = r_pair_channel_store.isValid() ;
+    bool      has_orphaned_pair    = has_l_pair != has_r_pair ;
+
+DEBUG_TRACE_MONO_STATUS
+
+    if (has_orphaned_pair)
+    {
+      // set orphaned pair channel stereo status to mono
+      if      (has_l_pair) setStereo(l_pair_channel_store , CONFIG::MONO) ;
+      else if (has_r_pair) setStereo(r_pair_channel_store , CONFIG::MONO) ;
+    }
   }
 
   // set this channel stereo status
@@ -322,6 +374,8 @@ ValueTree LinJamConfig::newChannel(String channel_name , int channel_idx)
          .setProperty(CONFIG::IS_MUTED_ID    , CONFIG::DEFAULT_IS_MUTED      , nullptr)
          .setProperty(CONFIG::IS_SOLO_ID     , CONFIG::DEFAULT_IS_SOLO       , nullptr)
          .setProperty(CONFIG::SOURCE_N_ID    , CONFIG::DEFAULT_SOURCE_N      , nullptr)
+         .setProperty(CONFIG::VU_LEFT_ID     , CONFIG::DEFAULT_VU            , nullptr)
+         .setProperty(CONFIG::VU_RIGHT_ID    , CONFIG::DEFAULT_VU            , nullptr)
          .setProperty(CONFIG::STEREO_ID      , CONFIG::DEFAULT_STEREO_STATUS , nullptr) ;
 }
 
@@ -376,10 +430,21 @@ ValueTree LinJamConfig::getOrAddRemoteChannel(Identifier user_id      ,
     // add new channel to store
     channel_store = newChannel(channel_name , channel_idx) ;
     channel_store = addChannel(user_store , channel_store , channel_idx) ;
-    setRemoteStereo(user_store , channel_store) ;
   }
 
   return channel_store ;
+}
+
+ValueTree LinJamConfig::cloneTempSlaveChannel(ValueTree channel_store)
+{
+  ValueTree slave_channel_store = channel_store.createCopy() ;
+  int       slave_source_n      = int(slave_channel_store[CONFIG::SOURCE_N_ID]) + 1 ;
+
+  slave_channel_store.setProperty(CONFIG::CHANNELIDX_ID , slave_source_n   , nullptr) ;
+  slave_channel_store.setProperty(CONFIG::SOURCE_N_ID   , slave_source_n   , nullptr) ;
+  slave_channel_store.setProperty(CONFIG::STEREO_ID     , CONFIG::STEREO_R , nullptr) ;
+
+  return slave_channel_store ;
 }
 
 ValueTree LinJamConfig::getUserById(Identifier user_id)
@@ -402,9 +467,9 @@ ValueTree LinJamConfig::getChannelByIdx(ValueTree channels_store , int channel_i
   return channels_store.getChildWithProperty(CONFIG::CHANNELIDX_ID , channel_idx) ;
 }
 
-ValueTree LinJamConfig::getChannelByName(ValueTree channels_store , String channel_n)
+ValueTree LinJamConfig::getChannelByName(ValueTree channels_store , String channel_name)
 {
-  return channels_store.getChildWithProperty(CONFIG::CHANNELNAME_ID , channel_n) ;
+  return channels_store.getChildWithProperty(CONFIG::CHANNELNAME_ID , channel_name) ;
 }
 
 ValueTree LinJamConfig::getUserMasterChannel(ValueTree user_store)
@@ -454,7 +519,7 @@ void LinJamConfig::setServerShouldAgree(bool should_agree)
 }
 
 
-/* LinJamConfig private instance methods */
+/* LinJamConfig class private instance methods */
 
 /* validation */
 
@@ -560,25 +625,29 @@ DEBUG_TRACE_SANITY_CHECK_USER
   {
     ValueTree channel = channels.getChild(channel_n) ;
 
-    bool channel_has_channelname_property = channel.hasProperty(CONFIG::CHANNELNAME_ID)  ;
-    bool channel_has_channelidx_property  = channel.hasProperty(CONFIG::CHANNELIDX_ID)   ;
-    bool channel_has_volume_property      = channel.hasProperty(CONFIG::VOLUME_ID)       ;
-    bool channel_has_pan_property         = channel.hasProperty(CONFIG::PAN_ID)          ;
-    bool channel_has_xmit_property        = channel.hasProperty(CONFIG::IS_XMIT_RCV_ID)  ;
-    bool channel_has_mute_property        = channel.hasProperty(CONFIG::IS_MUTED_ID)     ;
-    bool channel_has_solo_property        = channel.hasProperty(CONFIG::IS_SOLO_ID)      ;
-    bool channel_has_source_property      = channel.hasProperty(CONFIG::SOURCE_N_ID)     ;
-    bool channel_has_stereo_property      = channel.hasProperty(CONFIG::STEREO_ID)       ;
+    bool channel_has_channelname_property = channel.hasProperty(CONFIG::CHANNELNAME_ID) ;
+    bool channel_has_channelidx_property  = channel.hasProperty(CONFIG::CHANNELIDX_ID)  ;
+    bool channel_has_volume_property      = channel.hasProperty(CONFIG::VOLUME_ID)      ;
+    bool channel_has_pan_property         = channel.hasProperty(CONFIG::PAN_ID)         ;
+    bool channel_has_xmit_property        = channel.hasProperty(CONFIG::IS_XMIT_RCV_ID) ;
+    bool channel_has_mute_property        = channel.hasProperty(CONFIG::IS_MUTED_ID)    ;
+    bool channel_has_solo_property        = channel.hasProperty(CONFIG::IS_SOLO_ID)     ;
+    bool channel_has_source_property      = channel.hasProperty(CONFIG::SOURCE_N_ID)    ;
+    bool channel_has_stereo_property      = channel.hasProperty(CONFIG::STEREO_ID)      ;
+    bool channel_has_vuleft_property      = channel.hasProperty(CONFIG::VU_LEFT_ID)     ;
+    bool channel_has_vuright_property     = channel.hasProperty(CONFIG::VU_RIGHT_ID)    ;
 
-    bool channel_name_is_string   = channel[CONFIG::CHANNELNAME_ID].isString() ;
-    bool channel_idx_is_int       = channel[CONFIG::CHANNELIDX_ID] .isInt()    ;
-    bool channel_volume_is_double = channel[CONFIG::VOLUME_ID]     .isDouble() ;
-    bool channel_pan_is_double    = channel[CONFIG::PAN_ID]        .isDouble() ;
-    bool channel_xmit_is_bool     = channel[CONFIG::IS_XMIT_RCV_ID].isBool()   ;
-    bool channel_mute_is_bool     = channel[CONFIG::IS_MUTED_ID]   .isBool()   ;
-    bool channel_solo_is_bool     = channel[CONFIG::IS_SOLO_ID]    .isBool()   ;
-    bool channel_source_is_int    = channel[CONFIG::SOURCE_N_ID]   .isInt()    ;
-    bool channel_stereo_is_int    = channel[CONFIG::STEREO_ID]     .isInt()    ;
+    bool channel_name_is_string    = channel[CONFIG::CHANNELNAME_ID].isString() ;
+    bool channel_idx_is_int        = channel[CONFIG::CHANNELIDX_ID] .isInt()    ;
+    bool channel_volume_is_double  = channel[CONFIG::VOLUME_ID]     .isDouble() ;
+    bool channel_pan_is_double     = channel[CONFIG::PAN_ID]        .isDouble() ;
+    bool channel_xmit_is_bool      = channel[CONFIG::IS_XMIT_RCV_ID].isBool()   ;
+    bool channel_mute_is_bool      = channel[CONFIG::IS_MUTED_ID]   .isBool()   ;
+    bool channel_solo_is_bool      = channel[CONFIG::IS_SOLO_ID]    .isBool()   ;
+    bool channel_source_is_int     = channel[CONFIG::SOURCE_N_ID]   .isInt()    ;
+    bool channel_stereo_is_int     = channel[CONFIG::STEREO_ID]     .isInt()    ;
+    bool channel_vuleft_is_double  = channel[CONFIG::VU_LEFT_ID]    .isDouble() ;
+    bool channel_vuright_is_double = channel[CONFIG::VU_RIGHT_ID]   .isDouble() ;
 
 DEBUG_TRACE_SANITY_CHECK_CHANNEL
 
@@ -587,13 +656,15 @@ DEBUG_TRACE_SANITY_CHECK_CHANNEL
          channel_has_volume_property      && channel_has_pan_property        &&
          channel_has_xmit_property        && channel_has_mute_property       &&
          channel_has_solo_property        && channel_has_source_property     &&
-         channel_has_stereo_property                                          ) ;
+         channel_has_stereo_property      && channel_has_vuleft_property     &&
+         channel_has_vuright_property                                         ) ;
 
-    bool do_types_match = (channel_name_is_string                              &&
-                           channel_idx_is_int      && channel_volume_is_double &&
-                           channel_pan_is_double   && channel_xmit_is_bool     &&
-                           channel_mute_is_bool    && channel_solo_is_bool     &&
-                           channel_source_is_int   && channel_stereo_is_int     ) ;
+    bool do_types_match = (channel_name_is_string    && channel_idx_is_int       &&
+                           channel_volume_is_double  && channel_pan_is_double    &&
+                           channel_xmit_is_bool      && channel_mute_is_bool     &&
+                           channel_solo_is_bool      && channel_source_is_int    &&
+                           channel_stereo_is_int     && channel_vuleft_is_double &&
+                           channel_vuright_is_double                              ) ;
 
     if (!is_channel_sane)
     {
@@ -662,11 +733,6 @@ this->remoteUsers = this->configValueTree ; // kludge (issue #33)
 
   // per server user data
   this->servers = getNode(CONFIG::SERVERS_ID) ;
-}
-
-void LinJamConfig::setStereo(ValueTree channel_store , int stereo_status) // private
-{
-  channel_store.setProperty(CONFIG::STEREO_ID , stereo_status , nullptr) ;
 }
 
 

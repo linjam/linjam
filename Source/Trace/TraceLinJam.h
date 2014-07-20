@@ -109,41 +109,46 @@
   Trace::TraceState("instantiating local " + type +          \
                     " " + ch_id + " '" + channel_name + "'") ;
 
-#define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL                                           \
-  int    ch_idx    = int(channel_store[CONFIG::CHANNELIDX_ID]) ;                      \
-  bool   is_new    = !IsConfiguredChannel(ch_idx) ;                                   \
-  bool   is_stereo = stereo_status != CONFIG::MONO ;                                  \
-  String type      = (!is_stereo)? "mono" : "stereo" ;                                \
-  String dbg       = String((is_new)? "new" : "existing") + " local " + type  + " " + \
-                     String(channel_store.getType()) + " '" + channel_name + "'" ;    \
-  if (is_new && !(~GetVacantLocalChannelIdx()))                                       \
-  {                                                                                   \
-    Trace::TraceError("no available channels configuring " + dbg) ;                   \
-    if (TRACE_CONFIGURE_LOCAL_CHANNEL_VB)                                             \
-      DBG(Trace::DumpStoredChannels() + Trace::DumpClientChannels()) ;                \
-  }                                                                                   \
-  else if (a_key == CONFIG::SOURCE_N_ID)                                              \
-    if (channel_store.getType() != Config->makeChannelId(source_n))                   \
-         Trace::TraceClient("re-instantiating " + dbg) ;                              \
-    else Trace::TraceError("ID unchanged - needlessly re-instantiating " + dbg) ;     \
-  else                                                                                \
-  {                                                                                   \
-    if (stereo_status == CONFIG::STEREO_L) dbg += " and its stereo pair" ;            \
-    String stereo = String(stereo_status)                               +             \
-                    ((stereo_status == CONFIG::MONO)    ? " (MONO)"     :             \
-                     (stereo_status == CONFIG::STEREO_L)? " (STEREO_L)" :             \
-                     (stereo_status == CONFIG::STEREO_R)? " (STEREO_R)" : "") ;       \
-    if (TRACE_CONFIGURE_LOCAL_CHANNEL_VB)  dbg +=                                     \
-      ((should_set_name)?      "\n  name          => " + channel_name      : "") +    \
-      ((should_set_volume)?    "\n  volume        => " + String(volume)    : "") +    \
-      ((should_set_pan)?       "\n  pan           => " + String(pan)       : "") +    \
-      ((should_set_is_xmit)?   "\n  is_xmit       => " + String(is_xmit)   : "") +    \
-      ((should_set_is_muted)?  "\n  is_muted      => " + String(is_muted)  : "") +    \
-      ((should_set_is_solo)?   "\n  is_solo       => " + String(is_solo)   : "") +    \
-      ((should_set_source_n)?  "\n  source_n      => " + String(source_n)  : "") +    \
-      ((should_set_bit_depth)? "\n  bit_depth     => " + String(bit_depth) : "") +    \
-      ((should_set_stereo)?    "\n  stereo_status => " + stereo            : "") ;    \
-    Trace::TraceClient("configuring " + dbg) ;                                        \
+#define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL                                          \
+  String ch_name   = channel_store[CONFIG::CHANNELNAME_ID].toString() ;              \
+  int    ch_idx    = int(channel_store[CONFIG::CHANNELIDX_ID]) ;                     \
+  bool   is_new    = !IsConfiguredChannel(ch_idx) ;                                  \
+  int    status    = int(channel_store[CONFIG::STEREO_ID]) ;                         \
+  bool   is_stereo = status != CONFIG::MONO ;                                        \
+  String type      = (!is_stereo)? "mono" : "stereo" ;                               \
+  String dbg       = String((is_new)? "new" : "existing") + " local " + type + " " + \
+                     String(channel_store.getType()) + " '" + ch_name + "'" ;        \
+  if (is_new && !(~GetVacantLocalChannelIdx()))                                      \
+  {                                                                                  \
+    Trace::TraceError("no available channels configuring " + dbg) ;                  \
+    if (TRACE_CONFIGURE_LOCAL_CHANNEL_VB)                                            \
+      DBG(Trace::DumpStoredChannels() + Trace::DumpClientChannels()) ;               \
+  }                                                                                  \
+  else if (a_key == CONFIG::SOURCE_N_ID)                                             \
+    if (channel_store.getType() != Config->makeChannelId(source_n))                  \
+         Trace::TraceClient("re-instantiating " + dbg) ;                             \
+    else Trace::TraceError("ID unchanged - needlessly re-instantiating " + dbg) ;    \
+  else                                                                               \
+  {                                                                                  \
+    String pann   = String(pan) + ((status == CONFIG::MONO)       ? "" :             \
+                    " (" + String(ComputeStereoPan(pan , status)) +                  \
+                    " faux-stereo)") ;                                               \
+    String stereo = String(is_stereo)                               +                \
+                    ((status == CONFIG::MONO)    ? " (MONO)"     :                   \
+                     (status == CONFIG::STEREO_L)? " (STEREO_L)" :                   \
+                     (status == CONFIG::STEREO_R)? " (STEREO_R)" : "") ;             \
+    if (status == CONFIG::STEREO_L) dbg += " and its stereo pair" ;                  \
+    if (TRACE_CONFIGURE_LOCAL_CHANNEL_VB)  dbg +=                                    \
+      ((should_set_name)?      "\n  name      => " + ch_name           : "") +       \
+      ((should_set_volume)?    "\n  volume    => " + String(volume)    : "") +       \
+      ((should_set_pan)?       "\n  pan       => " + pann              : "") +       \
+      ((should_set_is_xmit)?   "\n  is_xmit   => " + String(is_xmit)   : "") +       \
+      ((should_set_is_muted)?  "\n  is_muted  => " + String(is_muted)  : "") +       \
+      ((should_set_is_solo)?   "\n  is_solo   => " + String(is_solo)   : "") +       \
+      ((should_set_source_n)?  "\n  source_n  => " + String(source_n)  : "") +       \
+      ((should_set_bit_depth)? "\n  bit_depth => " + String(bit_depth) : "") +       \
+      ((should_set_stereo)?    "\n  is_stereo => " + stereo            : "") ;       \
+    Trace::TraceClient("configuring " + dbg) ;                                       \
   }
 
 #define DEBUG_TRACE_REMOVE_LOCAL_CHANNEL                                      \
@@ -162,7 +167,7 @@
   for (int i = 0 ; i < n_stereos ; ++i) dump += String(stereos[i]) + " " ;          \
   Trace::TraceVerbose(dump.trim() + "]") ;
 #else // TRACE_DUMP_FREE_INPUTS
-#  define DEBUG_TRACE_DUMP_FREE_INPUTS ;
+#  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB ;
 #endif // TRACE_DUMP_FREE_INPUTS
 
 #define DEBUG_TRACE_REMOTE_CHANNELS                                           \
@@ -212,37 +217,43 @@
 #  define DEBUG_TRACE_REMOTE_CHANNELS_VB ;
 #endif // TRACE_REMOTES
 
-#define DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL                                            \
-  String dbg     = "configuring remote " + String(channel_store.getType()) +            \
-                   " '" + channel_name + "' for user[" + String(user_idx)  +            \
-                   "] '" + String(user_id) + "'" ;                                      \
-  String stereo  = String(stereo_status)                               +                \
-                   ((stereo_status == CONFIG::MONO)    ? " (MONO)"     :                \
-                    (stereo_status == CONFIG::STEREO_L)? " (STEREO_L)" :                \
-                    (stereo_status == CONFIG::STEREO_R)? " (STEREO_R)" : "") ;          \
-  bool is_master = (channel_idx == CONFIG::MASTER_CHANNEL_IDX) ;                        \
-  if (!is_master)                                                                       \
-  {                                                                                     \
-    ValueTree store     = Config->getUserMasterChannel(user_store) ;                    \
-    bool master_rcv_or  = !bool(store[CONFIG::IS_XMIT_RCV_ID]) ;                        \
-    bool master_solo_or = bool(store[CONFIG::IS_SOLO_ID]) ;                             \
-    is_rcv              = is_rcv  && !master_rcv_or ;                                   \
-    is_solo             = is_solo || master_solo_or ;                                   \
-    if (master_rcv_or)  dbg += " (master rcv override)" ;                               \
-    if (master_solo_or) dbg += " (master solo override)" ;                              \
-  }                                                                                     \
-  if      (!(~user_idx))    Trace::TraceError("user index out of range "    + dbg) ;    \
-  else if (!(~channel_idx)) Trace::TraceError("channel index out of range " + dbg) ;    \
-  else if (DEBUG_TRACE_VB)  Trace::TraceClient(dbg                           +          \
-      ((should_set_volume)?   "\n  volume    => " + String(volume)    : "") +           \
-      ((should_set_pan)?      "\n  pan       => " + String(pan)       : "") +           \
-      ((should_set_is_rcv)?   "\n  is_rcv    => " + String(is_rcv)    : "") +           \
-      ((should_set_is_muted)? "\n  is_muted  => " + String(is_muted)  : "") +           \
-      ((should_set_is_solo)?  "\n  is_solo   => " + String(is_solo)   : "") +           \
-      ((should_set_sink_n)?   "\n  sink_n    => " + String(sink_n)    : "") +           \
-      ((should_set_stereo)?   "\n  stereo_status => " + stereo        : "") ) ;         \
-  if (is_master && !should_set_volume && !should_set_pan && !should_set_is_muted &&     \
-     (should_set_is_rcv || should_set_is_solo))                                         \
+#define DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL                                               \
+  Identifier user_id       =       user_store   .getType() ;                               \
+  String     channel_name  =       channel_store[CONFIG::CHANNELNAME_ID].toString() ;      \
+  String     dbg           = "configuring remote " + String(channel_store.getType()) +     \
+                             " '" + channel_name + "' for user[" + String(user_idx)  +     \
+                             "] '" + String(user_id) + "'" ;                               \
+  String     pann          = String(pan) + ((stereo_status == CONFIG::MONO)? "" :          \
+                             " (" + String(ComputeStereoPan(pan , stereo_status)) +        \
+                             " faux-stereo)") ;                                            \
+  String     stereo        = String(is_stereo)                                   +         \
+                             ((stereo_status == CONFIG::MONO)    ? " (MONO)"     :         \
+                              (stereo_status == CONFIG::STEREO_L)? " (STEREO_L)" :         \
+                              (stereo_status == CONFIG::STEREO_R)? " (STEREO_R)" : "") ;   \
+  if (stereo_status == CONFIG::STEREO_L) dbg += " and its stereo pair" ;                   \
+  bool is_master = (channel_idx == CONFIG::MASTER_CHANNEL_IDX) ;                           \
+  if (!is_master)                                                                          \
+  {                                                                                        \
+    ValueTree store     = Config->getUserMasterChannel(user_store) ;                       \
+    bool master_rcv_or  = !bool(store[CONFIG::IS_XMIT_RCV_ID]) ;                           \
+    bool master_solo_or = bool(store[CONFIG::IS_SOLO_ID]) ;                                \
+    is_rcv              = is_rcv  && !master_rcv_or ;                                      \
+    is_solo             = is_solo || master_solo_or ;                                      \
+    if (master_rcv_or)  dbg += " (master rcv override)" ;                                  \
+    if (master_solo_or) dbg += " (master solo override)" ;                                 \
+  }                                                                                        \
+  if      (!(~user_idx))    Trace::TraceError("user index out of range "    + dbg) ;       \
+  else if (!(~channel_idx)) Trace::TraceError("channel index out of range " + dbg) ;       \
+  else if (TRACE_CONFIGURE_REMOTE_CHANNEL_VB) Trace::TraceClient(dbg         +             \
+      ((should_set_volume)?   "\n  volume    => " + String(volume)    : "") +              \
+      ((should_set_pan)?      "\n  pan       => " + pann              : "") +              \
+      ((should_set_is_rcv)?   "\n  is_rcv    => " + String(is_rcv)    : "") +              \
+      ((should_set_is_muted)? "\n  is_muted  => " + String(is_muted)  : "") +              \
+      ((should_set_is_solo)?  "\n  is_solo   => " + String(is_solo)   : "") +              \
+      ((should_set_sink_n)?   "\n  sink_n    => " + String(sink_n)    : "") +              \
+      ((should_set_stereo)?   "\n  is_stereo => " + stereo            : "") ) ;            \
+  if (is_master && !should_set_volume && !should_set_pan && !should_set_is_muted &&        \
+     (should_set_is_rcv || should_set_is_solo))                                            \
       Trace::TraceClient("applying user master pseudo control over all user channels") ;
 
 

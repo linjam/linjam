@@ -48,11 +48,9 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  bool addChannel(     ValueTree channel_store) ;
-  void renameChannel(  Identifier channel_id) ;
-  void removeChannel(  Identifier channel_id) ;
+  bool addChannel(    ValueTree channel_store) ;
+  void removeChannel( Identifier channel_id) ;
   int  getNumChannels() ;
-  void updateChannelVU(Identifier channel_id , double vu) ;
 
     //[/UserMethods]
 

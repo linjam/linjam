@@ -17,10 +17,11 @@
 
 // NOTE: when adding nodes or leaves to CONFIG_XML be sure to
 //         * store the datatype in   #define CONFIG_TYPES_XML
-//         * if new node switch in   LinJamConfig::restoreVarTypeInfo()
 //         * note the datatype in    LinJamConfig.h
+//         * if new node switch in   LinJamConfig::restoreVarTypeInfo()
 //         * verify data and type in LinJamConfig::sanityCheck() or sanityCheckChannels()
-//         * dump data in            #define DEBUG_TRACE_SANITY_CHECK or
+//         * if channel param add to LinJamConfig::newChannel()
+//         * optionally dump data in #define DEBUG_TRACE_SANITY_CHECK or
 //                                   #define DEBUG_TRACE_SANITY_CHECK_CHANNEL
 //                                   #define DEBUG_TRACE_ADD_CHANNEL_GUI
 //                                   #define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
@@ -59,6 +60,9 @@
         VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME)           + "\" " + \
         PAN_KEY            + "=\"" + String(DEFAULT_PAN)              + "\" " + \
         IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED)         + "\" " + \
+        STEREO_KEY         + "=\"" + String(STEREO)                   + "\" " + \
+        VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU)               + "\" " + \
+        VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU)               + "\" " + \
     "/><"                                                                     + \
       METRO_KEY            + " "                                              + \
         CHANNELNAME_KEY    + "=\"" + String(METRO_KEY)                + "\" " + \
@@ -66,7 +70,9 @@
         PAN_KEY            + "=\"" + String(DEFAULT_PAN)              + "\" " + \
         IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED)         + "\" " + \
         SOURCE_N_KEY       + "=\"" + String(DEFAULT_SOURCE_N)         + "\" " + \
-        STEREO_KEY         + "=\"" + String(DEFAULT_STEREO_STATUS)    + "\" " + \
+        STEREO_KEY         + "=\"" + String(STEREO)                   + "\" " + \
+        VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU)               + "\" " + \
+        VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU)               + "\" " + \
     "/>"                                                                      + \
     "</" + MASTERS_KEY     + "><"                                             + \
     LOCALS_KEY             + " /><"                                           + \
@@ -108,6 +114,8 @@
       IS_SOLO_KEY              + "=\"" + BOOL_TYPE   + "\" " + \
       SOURCE_N_KEY             + "=\"" + INT_TYPE    + "\" " + \
       STEREO_KEY               + "=\"" + INT_TYPE    + "\" " + \
+      VU_LEFT_KEY              + "=\"" + DOUBLE_TYPE + "\" " + \
+      VU_RIGHT_KEY             + "=\"" + DOUBLE_TYPE + "\" " + \
     "/><"                                                    + \
     USERS_KEY                  + " "                         + \
       USERIDX_KEY              + "=\"" + INT_TYPE    + "\" " + \
@@ -145,6 +153,10 @@ namespace CLIENT
   static const int CLIENT_TIMER_ID = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
   static const int GUI_TIMER_HI_ID = 1 ; static const int GUI_UPDATE_HI_IVL = 125 ;
   static const int GUI_TIMER_LO_ID = 2 ; static const int GUI_UPDATE_LO_IVL = 30000 ;
+
+  // vu
+  static const double VU_DB_RANGE = 140.0 ;
+  static const double VU_DB_MIN   = -120.0 ;
 
   // config
   static const String STEREO_L_POSTFIX       = "-L" ;
@@ -301,13 +313,18 @@ namespace CONFIG
   static const Identifier IS_MUTED_ID     = IS_MUTED_KEY ;
   static const String     IS_SOLO_KEY     = "is-solo" ;
   static const Identifier IS_SOLO_ID      = IS_SOLO_KEY ;
-  static const String     SOURCE_N_KEY    = "source-channel-n" ;
+  static const String     SOURCE_N_KEY    = "source-sink-n" ;
   static const Identifier SOURCE_N_ID     = SOURCE_N_KEY ;
   static const String     STEREO_KEY      = "stereo-status" ;
   static const Identifier STEREO_ID       = STEREO_KEY ;
-  static const int        MONO            =  0 ;
-  static const int        STEREO_L        = -1 ;
-  static const int        STEREO_R        = +1 ;
+  static const int        MONO            =  0 ; // default NJClient mono
+  static const int        STEREO_L        = -1 ; // faux-stereo pairs
+  static const int        STEREO_R        = +1 ; // faux-stereo pairs
+  static const int        STEREO          = 42 ; // masters and metro
+  static const String     VU_LEFT_KEY     = "vu-left" ;
+  static const Identifier VU_LEFT_ID      = VU_LEFT_KEY ;
+  static const String     VU_RIGHT_KEY    = "vu-right" ;
+  static const Identifier VU_RIGHT_ID     = VU_RIGHT_KEY ;
 
   // client config defaults
   static const int  DEFAULT_SAVE_AUDIO    = -1 ;
@@ -349,6 +366,7 @@ namespace CONFIG
   static const bool       DEFAULT_IS_SOLO       = false ;
   static const int        DEFAULT_SOURCE_N      = 0 ;
   static const int        DEFAULT_STEREO_STATUS = MONO ;
+  static const double     DEFAULT_VU            = -120.0 ;
 
   // config types
   static const String BOOL_TYPE   = "bool" ;
@@ -434,8 +452,6 @@ namespace GUI
   static const int    CHANNEL_H                  = 252 ;
   static const int    CONFIG_BTN_W               = 15 ;
   static const int    CONFIG_BTN_H               = 16 ;
-  static const int    VU_DB_RANGE                = 140 ;
-  static const int    VU_DB_MIN                  = -120 ;
 
   // Channels
   static const  String     MASTERS_LABEL_TEXT = "Master" ;

@@ -18,13 +18,16 @@
 #  define DEBUG_TRACE_DUMP_CHANNELS_GUI_VB ;
 #endif // TRACE_DUMP_CHANNELS_GUI
 
-#define DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL                                      \
-  String dbg  = "adding channel slice '" + String(channel_store.getType()) +  \
-                "' to '" + getComponentID() + "' channels" ;                  \
-  if (!channel_store.isValid())                                               \
-    Trace::TraceError("channel store invalid " + dbg) ;                       \
-  else if (int(channel_store[CONFIG::STEREO_ID]) == CONFIG::STEREO_R)         \
-    Trace::TraceGui(dbg + " (hidden stereo slave)") ;
+#define DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL                                   \
+  String ch_id        = String(channel_store.getType()) ;                  \
+  String ch_name      = channel_store[CONFIG::CHANNELNAME_ID].toString() ; \
+  int    stereo_state = int(channel_store[CONFIG::STEREO_ID]) ;            \
+  String dbg   = "adding channel slice " + ch_id + " '" + ch_name +        \
+                 "' to '" + getComponentID() + "' channels" ;              \
+  if (!channel_store.isValid())                                            \
+    Trace::TraceError("channel store invalid " + dbg) ;                    \
+  else if (!getChannel(ch_id) && stereo_state == CONFIG::STEREO_R)         \
+    Trace::TraceGui(dbg + " (hidden)") ;
 
 #if TRACE_ADD_CHANNEL_GUI_VB
 #  define DEBUG_TRACE_ADD_CHANNEL_GUI                                           \
@@ -47,58 +50,26 @@
   DEBUG_TRACE_DUMP_CHANNELS_GUI_VB
 #endif // TRACE_ADD_CHANNEL_GUI_VB
 
-#define DEBUG_TRACE_RENAME_CHANNEL_GUI                                                \
-  Channel* ch       = getChannel(channel_id) ;                                        \
-  String   prevname = (ch)? ch->nameLabel->getText() : "" ;                           \
-  String   newname  = (ch)? ch->configStore[CONFIG::CHANNELNAME_ID].toString() : "" ; \
-  String   dbg      = "renaming channel '" + String(channel_id) + "'" ;               \
-  if (prevname.compare(newname))                                                      \
-    if (ch) Trace::TraceGui(dbg + " from '" + prevname + "' to '" + newname + "'") ;  \
-    else    Trace::TraceError("no such channel " + dbg) ;
+#define DEBUG_TRACE_RENAME_CHANNEL_GUI                                       \
+  Trace::TraceGui("renaming channel " + getComponentID() +                   \
+                  " from '" + this->nameLabel->getText() +                   \
+                  "' to '"  + this->channelName.getValue().toString() + "'") ;
 
 #define DEBUG_TRACE_REMOVE_CHANNEL_GUI                                                    \
   Channel* ch           = getChannel(channel_id) ;                                        \
   bool     is_stereo    = ch && int(ch->configStore[CONFIG::STEREO_ID]) != CONFIG::MONO ; \
   String   channel_type = (ch)? ((!is_stereo)? "mono" : "stereo") : "unknown" ;           \
-  String   dbg          = "removing "   + channel_type                        +           \
-                          " channel '"  + String(channel_id)                  +           \
-                          "' from '"    + getComponentID()     + "' channels" ;           \
+  String   channel_name = (ch)? ch->configStore[CONFIG::CHANNELNAME_ID].toString() : "" ; \
+  String   dbg          = "removing " + channel_type                             +        \
+                          " channel " + String(channel_id) + " '" + channel_name +        \
+                          "' from '"  + getComponentID()   + "' channels" ;               \
   if (ch) Trace::TraceGui(dbg) ; else Trace::TraceError(dbg) ;                            \
   DEBUG_TRACE_DUMP_CHANNELS_GUI_VB
 
-#define DEBUG_TRACE_INVALID_CHANNELID                                            \
-/* TODO: maybe? if VUs were listening on a store value then this trace  */       \
-/*       and the chain ofupdateChannelVU() methods would be unnecessary */       \
-  Channel* ch  = (Channel*)findChildWithID(StringRef(channel_name)) ;            \
-  String   dbg = ((channel_name.isEmpty())? "empty" : ((!ch)? "unknown" : "")) + \
-                 String(" channel_name '") + channel_name                      + \
-                 "' updating VU for '"     + getComponentID() + "' channels"   + \
-                 Trace::DumpStoredChannels()                                   + \
-                 "\n  " + getComponentID() + " GUI Channels =>" ;                \
-  for (int ch_n = 0 ; ch_n < getNumChannels() ; ++ch_n)                          \
-    dbg += "\n    " + getChildComponent(ch_n)->getComponentID() ;                \
-  if ((channel_name.isEmpty() || !ch) &&                                         \
-     !Trace::UnknowwnChannels.contains(channel_name))                            \
-  /* && ignore stereo pair 'phantom' channels            */                      \
-  /* TODO: configStore is private to Channels base class */                      \
-  /* (!bool(ch->configStore[CONFIG::IS_STEREO_ID])  ||   */                      \
-  /*  !int( ch->configStore[CONFIG::SOURCE_N_ID]) % 2)   */                      \
-  {                                                                              \
-    Trace::TraceError(dbg) ; Trace::UnknowwnChannels.add(channel_name) ;         \
-  }
-
-
-/* vu */
-
-#if 0
-#  define DEBUG_TRACE_VU_GUI_VB                                                  \
-  String name = (!!channel)? "'" + channel->nameLabel->getText() + "'" : "n/a" ; \
-  Trace::TraceGui("updating VU for "                                           + \
-                  getComponentID()  .paddedRight(' ' , 18).substring(0 , 18)   + \
-                  String(channel_id).paddedRight(' ' , 12)                     + \
-                  name              .paddedRight(' ' , 12).substring(0 , 12)   + \
-                  String((int)vu)   .paddedRight(' ' ,  6)                     + \
-                  ((!!channel)? "" : " (hidden)")) ;
-#else // TRACE_VU_GUI
-#  define DEBUG_TRACE_VU_GUI_VB ;
-#endif // TRACE_VU_GUI
+#define DEBUG_TRACE_STEREO_STATE_GUI                                         \
+  int stereo_status = int(this->stereoStatus.getValue()) ;                   \
+  Trace::TraceGui(String(this->configStore.getParent().getType())          + \
+                  " channel '" + this->nameLabel->getText() + "' is "      + \
+                  ((stereo_status == CONFIG::MONO)    ? "MONO"     :         \
+                   (stereo_status == CONFIG::STEREO_L)? "STEREO_L" :         \
+                   (stereo_status == CONFIG::STEREO_R)? "STEREO_R" : "NFG")) ;

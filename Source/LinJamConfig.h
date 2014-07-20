@@ -49,13 +49,15 @@ public:
 /* per-channel data - access through above ValueTrees
   Value     channel-name     // string
   Value     channel-idx      // int
-  Value     volume           // float
-  Value     pan              // float
+  Value     volume           // double
+  Value     pan              // double
   Value     is-xmitrcv       // bool
   Value     is-muted         // bool
   Value     is-solo          // bool
-  Value     source-channel-n // int
+  Value     source-sink-n    // int
   Value     stereo-status    // int
+  Value     vu-left          // double
+  Value     vu-right         // double
 */
 
   // current server config
@@ -80,12 +82,16 @@ public:
 
   // validation
   bool       sanityCheck() ;
-  String     parseUsername(  String user_name) ;
-  Identifier makeHostId(     String host_name) ;
-  Identifier makeUserId(     String channel_name , int user_idx) ;
-  Identifier makeChannelId(  int channel_idx) ;
-  String     trimStereoName( String channel_name) ;
-  int        setRemoteStereo(ValueTree user_store , ValueTree channel_store) ;
+  String     parseUsername(    String user_name) ;
+  Identifier makeHostId(       String host_name) ;
+  Identifier makeUserId(       String channel_name , int user_idx) ;
+  Identifier makeChannelId(    int channel_idx) ;
+  String     trimStereoName(   String channel_name) ;
+  String     makeStereoName(   String channel_name , int stereo_status) ;
+  int        parseStereoStatus(String channel_name) ;
+  void       setStereo(        ValueTree channel_store , int stereo_status) ;
+  int        setRemoteStereo(  ValueTree user_store        , ValueTree channel_store ,
+                               String    prev_channel_name                           ) ;
 
   // getters/setters
   ValueTree newChannel(           String channel_name = CONFIG::DEFAULT_CHANNEL_NAME ,
@@ -96,10 +102,11 @@ public:
   ValueTree getOrAddRemoteUser(   String user_name , int user_idx) ;
   ValueTree getOrAddRemoteChannel(Identifier user_id     , String channel_name        ,
                                   int        channel_idx = CONFIG::DEFAULT_CHANNEL_IDX) ;
+  ValueTree cloneTempSlaveChannel(ValueTree channel_store) ;
   ValueTree getUserById(          Identifier user_id) ;
   ValueTree getChannelById(       Identifier channels_id , Identifier channel_id) ;
   ValueTree getChannelByIdx(      ValueTree channels_store , int channel_idx) ;
-  ValueTree getChannelByName(     ValueTree channels_store , String channel_n) ;
+  ValueTree getChannelByName(     ValueTree channels_store , String channel_name) ;
   ValueTree getUserMasterChannel( ValueTree user_store) ;
   void      setServer() ;
   ValueTree getServer(            String host_name) ;
@@ -122,7 +129,6 @@ private:
   bool      sanityCheckChannels(ValueTree channels) ;
   void      storeConfig() ;
   void      establishSharedStore() ;
-  void      setStereo(          ValueTree channel_store , int stereo_status) ;
 
   // helpers
   ValueTree  getNode(     Identifier tree_node_id) ;

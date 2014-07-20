@@ -24,6 +24,10 @@
 #include "Mixer.h"
 #include "ChannelConfig.h"
 
+#if DEBUG
+#  include "./Trace/TraceChannels.h"
+#endif // DEBUG
+
 //[/Headers]
 
 #include "Channel.h"
@@ -105,36 +109,47 @@ Channel::Channel (ValueTree channel_store)
     stereoLabel->setColour (TextEditor::textColourId, Colours::black);
     stereoLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (vuSlider = new Slider ("vuSlider"));
-    vuSlider->setRange (-120, 20, 0);
-    vuSlider->setSliderStyle (Slider::LinearBar);
-    vuSlider->setTextBoxStyle (Slider::NoTextBox, true, 48, 12);
-    vuSlider->setColour (Slider::textBoxTextColourId, Colours::grey);
-    vuSlider->setColour (Slider::textBoxBackgroundColourId, Colour (0x00000000));
-    vuSlider->addListener (this);
+    addAndMakeVisible (vuLeftSlider = new Slider ("vuLeftSlider"));
+    vuLeftSlider->setRange (-120, 20, 0);
+    vuLeftSlider->setSliderStyle (Slider::LinearBar);
+    vuLeftSlider->setTextBoxStyle (Slider::NoTextBox, true, 48, 12);
+    vuLeftSlider->setColour (Slider::textBoxTextColourId, Colours::grey);
+    vuLeftSlider->setColour (Slider::textBoxBackgroundColourId, Colour (0x00000000));
+    vuLeftSlider->addListener (this);
 
-    addAndMakeVisible (vuLabel = new Label ("vuLabel",
-                                            TRANS("-120")));
-    vuLabel->setFont (Font (10.00f, Font::plain));
-    vuLabel->setJustificationType (Justification::centred);
-    vuLabel->setEditable (false, false, false);
-    vuLabel->setColour (Label::textColourId, Colours::grey);
-    vuLabel->setColour (TextEditor::textColourId, Colours::black);
-    vuLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (vuRightSlider = new Slider ("vuRightSlider"));
+    vuRightSlider->setRange (-120, 20, 0);
+    vuRightSlider->setSliderStyle (Slider::LinearBar);
+    vuRightSlider->setTextBoxStyle (Slider::NoTextBox, true, 48, 12);
+    vuRightSlider->setColour (Slider::textBoxTextColourId, Colours::grey);
+    vuRightSlider->setColour (Slider::textBoxBackgroundColourId, Colour (0x00000000));
+    vuRightSlider->addListener (this);
 
-    addAndMakeVisible (gainLabel = new Label ("gainLabel",
-                                              TRANS("-120")));
-    gainLabel->setFont (Font (10.00f, Font::plain));
-    gainLabel->setJustificationType (Justification::centred);
-    gainLabel->setEditable (false, false, false);
-    gainLabel->setColour (Label::textColourId, Colours::grey);
-    gainLabel->setColour (TextEditor::textColourId, Colours::black);
-    gainLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (vuLeftLabel = new Label ("vuLeftLabel",
+                                                TRANS("-120")));
+    vuLeftLabel->setFont (Font (10.00f, Font::plain));
+    vuLeftLabel->setJustificationType (Justification::centred);
+    vuLeftLabel->setEditable (false, false, false);
+    vuLeftLabel->setColour (Label::textColourId, Colours::grey);
+    vuLeftLabel->setColour (TextEditor::textColourId, Colours::black);
+    vuLeftLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
+    addAndMakeVisible (vuRightLabel = new Label ("vuRightLabel",
+                                                 TRANS("-120")));
+    vuRightLabel->setFont (Font (10.00f, Font::plain));
+    vuRightLabel->setJustificationType (Justification::centred);
+    vuRightLabel->setEditable (false, false, false);
+    vuRightLabel->setColour (Label::textColourId, Colours::grey);
+    vuRightLabel->setColour (TextEditor::textColourId, Colours::black);
+    vuRightLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
 
     //[UserPreSize]
 
-  this->vuSlider->setSliderStyle(Slider::LinearBarVertical) ;
+  this->vuLeftSlider ->setSliderStyle(Slider::LinearBarVertical) ;
+  this->vuRightSlider->setSliderStyle(Slider::LinearBarVertical) ;
+  this->vuLeftSlider ->setValue(CLIENT::VU_DB_MIN) ;
+  this->vuRightSlider->setValue(CLIENT::VU_DB_MIN) ;
 
     //[/UserPreSize]
 
@@ -143,38 +158,53 @@ Channel::Channel (ValueTree channel_store)
 
     //[Constructor] You can add your own custom stuff here..
 
-  this->configStore  = channel_store ;
-  this->stereoStatus.referTo(channel_store.getPropertyAsValue(CONFIG::STEREO_ID , nullptr)) ;
-  setStereoState() ;
+  String channel_name =        channel_store[CONFIG::CHANNELNAME_ID].toString() ;
+  double volume       = double(channel_store[CONFIG::VOLUME_ID]) ;
+  double pan          = double(channel_store[CONFIG::PAN_ID]) ;
+  bool   is_xmit      = bool(  channel_store[CONFIG::IS_XMIT_RCV_ID]) ;
+  bool   is_muted     = bool(  channel_store[CONFIG::IS_MUTED_ID]) ;
+  bool   is_solo      = bool(  channel_store[CONFIG::IS_SOLO_ID]) ;
+  int    source_n     = int(   channel_store[CONFIG::SOURCE_N_ID]) ;
+  double vu_min       = 0.0 ;
+  double vu_max       = CLIENT::VU_DB_RANGE ;
+  double gain_min     = CLIENT::VU_DB_MIN ;
+  double gain_max     = CLIENT::VU_DB_MIN + CLIENT::VU_DB_RANGE ;
 
-  String channel_name  =        channel_store[CONFIG::CHANNELNAME_ID].toString() ;
-  double volume        = double(channel_store[CONFIG::VOLUME_ID]) ;
-  double pan           = double(channel_store[CONFIG::PAN_ID]) ;
-  bool   is_xmit       = bool(  channel_store[CONFIG::IS_XMIT_RCV_ID]) ;
-  bool   is_muted      = bool(  channel_store[CONFIG::IS_MUTED_ID]) ;
-  bool   is_solo       = bool(  channel_store[CONFIG::IS_SOLO_ID]) ;
-  int    source_n      = int(   channel_store[CONFIG::SOURCE_N_ID]) ;
+  this->nameLabel ->setText(       channel_name , juce::dontSendNotification) ;
+  this->gainSlider->setValue(      volume) ;
+  this->panSlider ->setValue(      pan) ;
+  this->xmitButton->setToggleState(is_xmit      , juce::dontSendNotification) ;
+  this->muteButton->setToggleState(is_muted     , juce::dontSendNotification) ;
+  this->soloButton->setToggleState(is_solo      , juce::dontSendNotification) ;
 
-  this->nameLabel   ->setText(           channel_name , juce::dontSendNotification) ;
-  this->gainSlider  ->setValue(          volume) ;
-  this->gainLabel   ->setText(String(int(volume))     , juce::dontSendNotification) ;
-  this->panSlider   ->setValue(          pan) ;
-  this->xmitButton  ->setToggleState(    is_xmit      , juce::dontSendNotification) ;
-  this->muteButton  ->setToggleState(    is_muted     , juce::dontSendNotification) ;
-  this->soloButton  ->setToggleState(    is_solo      , juce::dontSendNotification) ;
+  this->gainSlider   ->setDoubleClickReturnValue(true , 0.0) ;
+  this->panSlider    ->setDoubleClickReturnValue(true , 0.0) ;
+  this->vuLeftSlider ->setInterceptsMouseClicks(false , false) ;
+  this->vuRightSlider->setInterceptsMouseClicks(false , false) ;
+  this->vuLeftSlider ->setRange(vu_min   , vu_max   , 0) ;
+  this->vuRightSlider->setRange(vu_min   , vu_max   , 0) ;
+  this->gainSlider   ->setRange(gain_min , gain_max , 0) ;
 
-  this->gainSlider  ->setDoubleClickReturnValue(true , 0.0) ;
-  this->panSlider   ->setDoubleClickReturnValue(true , 0.0) ;
-  this->vuSlider    ->setInterceptsMouseClicks(false , false) ;
-  this->vuSlider    ->setRange(GUI::VU_DB_MIN , GUI::VU_DB_MIN + GUI::VU_DB_RANGE , 0) ;
-  this->gainSlider  ->setRange(GUI::VU_DB_MIN , GUI::VU_DB_MIN + GUI::VU_DB_RANGE , 0) ;
-
-  this->stereoStatus .addListener(this) ;
   this->removeButton->addListener(this) ;
   this->configButton->addListener(this) ;
   this->xmitButton  ->addListener(this) ;
   this->muteButton  ->addListener(this) ;
   this->soloButton  ->addListener(this) ;
+
+  // establish shared config storage and listeners
+  this->configStore  = channel_store ;
+  Value name_value   = channel_store.getPropertyAsValue(CONFIG::CHANNELNAME_ID , nullptr) ;
+  Value stereo_value = channel_store.getPropertyAsValue(CONFIG::STEREO_ID      , nullptr) ;
+  Value vu_l_value   = channel_store.getPropertyAsValue(CONFIG::VU_LEFT_ID     , nullptr) ;
+  Value vu_r_value   = channel_store.getPropertyAsValue(CONFIG::VU_RIGHT_ID    , nullptr) ;
+  this->channelName .referTo(name_value) ;
+  this->stereoStatus.referTo(stereo_value) ;
+  this->vuLeft      .referTo(vu_l_value) ;
+  this->vuRight     .referTo(vu_r_value) ;
+  this->channelName .addListener(this) ;
+  this->stereoStatus.addListener(this) ;
+  this->vuLeft      .addListener(this) ;
+  this->vuRight     .addListener(this) ;
 
     //[/Constructor]
 }
@@ -193,9 +223,10 @@ Channel::~Channel()
     gainSlider = nullptr;
     nameLabel = nullptr;
     stereoLabel = nullptr;
-    vuSlider = nullptr;
-    vuLabel = nullptr;
-    gainLabel = nullptr;
+    vuLeftSlider = nullptr;
+    vuRightSlider = nullptr;
+    vuLeftLabel = nullptr;
+    vuRightLabel = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -226,13 +257,25 @@ void Channel::resized()
     removeButton->setBounds (45, 0, 15, 16);
     configButton->setBounds (45, 16, 15, 16);
     panSlider->setBounds (12, 52, 36, 36);
-    gainSlider->setBounds (32, 92, 24, 128);
+    gainSlider->setBounds (22, 92, 16, 128);
     nameLabel->setBounds (4, 236, 52, 12);
     stereoLabel->setBounds (12, 72, 36, 12);
-    vuSlider->setBounds (4, 92, 24, 128);
-    vuLabel->setBounds (4, 224, 24, 12);
-    gainLabel->setBounds (32, 224, 24, 12);
+    vuLeftSlider->setBounds (6, 92, 16, 128);
+    vuRightSlider->setBounds (38, 92, 16, 128);
+    vuLeftLabel->setBounds (4, 224, 24, 12);
+    vuRightLabel->setBounds (32, 224, 24, 12);
     //[UserResized] Add your own custom resize handling here..
+
+  bool is_mono   = int(this->stereoStatus.getValue()) == CONFIG::MONO ;
+  bool is_master = this->configStore.getParent().getType() == CONFIG::MASTERS_ID &&
+                   this->configStore            .getType() == CONFIG::MASTER_ID   ;
+
+  if (is_mono && !is_master)
+  {
+    vuLeftSlider->setBounds(6  , 92 , 24 , 128) ;
+    gainSlider  ->setBounds(32 , 92 , 24 , 128) ;
+  }
+
     //[/UserResized]
 }
 
@@ -257,18 +300,19 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 
       // set stored config for this channel volume (configures NJClient implicitly)
       double gain = sliderThatWasMoved->getValue() ;
-      gainLabel->setText(String(int(gain)) , juce::dontSendNotification) ;
       setChannelConfig(CONFIG::VOLUME_ID , var(gain)) ;
 
         //[/UserSliderCode_gainSlider]
     }
-    else if (sliderThatWasMoved == vuSlider)
+    else if (sliderThatWasMoved == vuLeftSlider)
     {
-        //[UserSliderCode_vuSlider] -- add your slider handling code here..
-
-      // vuSlider control is user read/only
-
-        //[/UserSliderCode_vuSlider]
+        //[UserSliderCode_vuLeftSlider] -- add your slider handling code here..
+        //[/UserSliderCode_vuLeftSlider]
+    }
+    else if (sliderThatWasMoved == vuRightSlider)
+    {
+        //[UserSliderCode_vuRightSlider] -- add your slider handling code here..
+        //[/UserSliderCode_vuRightSlider]
     }
 
     //[UsersliderValueChanged_Post]
@@ -284,6 +328,7 @@ void Channel::labelTextChanged (Label* labelThatHasChanged)
     {
         //[UserLabelCode_nameLabel] -- add your label text handling code here..
 
+      // store new channel name (configures NJClient asynchronously)
       setChannelConfig(CONFIG::CHANNELNAME_ID , var(this->nameLabel->getText())) ;
 
         //[/UserLabelCode_nameLabel]
@@ -297,42 +342,57 @@ void Channel::labelTextChanged (Label* labelThatHasChanged)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-/* Channel class public class methods */
 
-void Channel::updateChannelVU(double vu)
-{
-  this->vuSlider->setValue(vu) ;
-  this->vuLabel ->setText(String(int(vu)) , juce::dontSendNotification) ;
-  this->vuSlider->setColour(Slider::thumbColourId , (vu > 0.0)          ?
-                                                    Colours::red        :
-                                                    Colour(0xFFBBBBFF)) ;
-  this->vuSlider->setColour(Slider::trackColourId , (vu > 0.0)          ?
-                                                    Colour(0x01800000)  :
-                                                    Colour(0x01008000)) ;
-}
-
-
-/* Channel class private class methods */
+/* Channel class private instance methods */
 
 void Channel::buttonClicked(Button* a_button) { handleButtonClicked(a_button) ; }
 
 void Channel::valueChanged(Value& a_value)
 {
-  if (a_value.refersToSameSourceAs(this->stereoStatus)) setStereoState() ;
+  if      (a_value.refersToSameSourceAs(this->vuLeft))
+    updateChannelVU(this->vuLeftSlider  , this->vuLeftLabel  ,
+                    double(this->vuLeft.getValue())) ;
+
+  else if (a_value.refersToSameSourceAs(this->vuRight))
+    updateChannelVU(this->vuRightSlider , this->vuRightLabel ,
+                    double(this->vuRight.getValue())) ;
+
+  else if (a_value.refersToSameSourceAs(this->stereoStatus)) setStereoState() ;
+
+  else if (a_value.refersToSameSourceAs(this->channelName)) renameChannel() ;
 }
 
-void Channel::setStereoState()
+void Channel::updateChannelVU(Slider* a_vu_slider , Label* a_vu_label , double vu)
 {
-  bool is_stereo = int(this->stereoStatus.getValue()) != CONFIG::MONO ;
-  this->stereoLabel->setVisible(is_stereo) ;
+  bool is_metro     = this->configStore.getType() == CONFIG::METRO_ID ;
+  bool is_saturated = vu > 120.0 && !is_metro ;
+  String label_text = String(int(vu - CLIENT::VU_DB_RANGE)) ;
 
-  String channel_name = this->configStore[CONFIG::CHANNELNAME_ID].toString() ;
-  if (is_stereo) channel_name = LinJam::Config->trimStereoName(channel_name) ;
-  this->nameLabel->setText(channel_name , juce::dontSendNotification) ;
+  a_vu_slider->setValue(vu) ;
+  a_vu_label ->setText(label_text , juce::dontSendNotification) ;
+  a_vu_slider->setColour(Slider::thumbColourId , (is_saturated)      ?
+                                                 Colours::red        :
+                                                 Colour(0xFFBBBBFF)) ;
+  a_vu_slider->setColour(Slider::trackColourId , (is_saturated)      ?
+                                                 Colour(0x01800000)  :
+                                                 Colour(0x01008000)) ;
+}
+
+void Channel::setChannelConfig(Identifier config_key , var value)
+{
+  this->configStore.setProperty(config_key , value , nullptr) ;
+}
+
+void Channel::renameChannel()
+{
+DEBUG_TRACE_RENAME_CHANNEL_GUI
+
+  String new_name = this->channelName.getValue().toString() ;
+  this->nameLabel->setText(new_name , juce::dontSendNotification) ;
 }
 
 
-/* Channel class protected class methods */
+/* Channel class protected instance methods */
 
 bool Channel::handleButtonClicked(Button* a_button)
 {
@@ -348,9 +408,27 @@ bool Channel::handleButtonClicked(Button* a_button)
   return true ;
 }
 
-void Channel::setChannelConfig(Identifier config_key , var value)
+void Channel::setStereoState()
 {
-  this->configStore.setProperty(config_key , value , nullptr) ;
+DEBUG_TRACE_STEREO_STATE_GUI
+
+  bool is_stereo = int(this->stereoStatus.getValue()) != CONFIG::MONO ;
+  bool is_metro  = this->configStore.getType() == CONFIG::METRO_ID ;
+
+  // show/hide stereo-only components
+  this->stereoLabel  ->setVisible(is_stereo) ;
+  this->vuRightSlider->setVisible(is_stereo) ;
+  this->vuRightLabel ->setVisible(is_stereo && !is_metro) ;
+
+  // set channel name
+  String channel_name   = this->configStore[CONFIG::CHANNELNAME_ID].toString() ;
+  String stereo_postfix = channel_name.getLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
+
+  if (is_stereo && !stereo_postfix.compare(CLIENT::STEREO_L_POSTFIX))
+    channel_name = LinJam::Config->trimStereoName(channel_name) ;
+  this->nameLabel->setText(channel_name , juce::dontSendNotification) ;
+
+  resized() ;
 }
 
 
@@ -362,22 +440,40 @@ MasterChannel::MasterChannel(ValueTree channel_store) : Channel(channel_store)
   this->configButton->setVisible(false) ;
   this->xmitButton  ->setVisible(false) ;
   this->soloButton  ->setVisible(false) ;
+  this->stereoLabel ->setVisible(true) ;
+  this->nameLabel   ->setEditable(false , false , false) ;
+
+  // metro VU used as loop progress indicator
+  if (this->configStore.getType() == CONFIG::METRO_ID)
+  {
+    this->vuLeftSlider ->setRange(0.0 , 1.0 , 0.0) ;
+    this->vuRightSlider->setRange(0.0 , 1.0 , 0.0) ;
+    this->vuLeftLabel  ->setVisible(false) ;
+    this->vuRightLabel ->setVisible(false) ;
+  }
+
+  setStereoState() ;
 }
 
 LocalChannel::LocalChannel(ValueTree channel_store) : Channel(channel_store)
 {
-  this->xmitButton ->setButtonText(GUI::XMIT_LABEL_TEXT) ;
+  this->xmitButton->setButtonText(GUI::XMIT_LABEL_TEXT) ;
+
+  setStereoState() ;
 }
 
 RemoteChannel::RemoteChannel(ValueTree channel_store) : Channel(channel_store)
 {
+  this->nameLabel   ->setEditable(false , false , false) ;
   this->removeButton->setVisible(false) ;
   this->configButton->setVisible(false) ;
   this->xmitButton  ->setButtonText(GUI::RCV_LABEL_TEXT) ;
+
+  setStereoState() ;
 }
 
 
-/* LocalChannel class private class methods */
+/* LocalChannel class private instance methods */
 
 void LocalChannel::buttonClicked(Button* a_button)
 {
@@ -450,7 +546,7 @@ BEGIN_JUCER_METADATA
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="0" textBoxHeight="12"
           skewFactor="1"/>
   <SLIDER name="gainSlider" id="e34ef13291b2ec40" memberName="gainSlider"
-          virtualName="" explicitFocusOrder="7" pos="32 92 24 128" textboxtext="ff808080"
+          virtualName="" explicitFocusOrder="7" pos="22 92 16 128" textboxtext="ff808080"
           textboxbkgd="0" min="-120" max="20" int="0" style="LinearVertical"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="48"
           textBoxHeight="12" skewFactor="1"/>
@@ -464,17 +560,22 @@ BEGIN_JUCER_METADATA
          edTextCol="ff000000" edBkgCol="0" labelText="ST" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="10" bold="1" italic="0" justification="36"/>
-  <SLIDER name="vuSlider" id="fbb656fdc87f46ed" memberName="vuSlider" virtualName=""
-          explicitFocusOrder="0" pos="4 92 24 128" textboxtext="ff808080"
+  <SLIDER name="vuLeftSlider" id="fbb656fdc87f46ed" memberName="vuLeftSlider"
+          virtualName="" explicitFocusOrder="0" pos="6 92 16 128" textboxtext="ff808080"
           textboxbkgd="0" min="-120" max="20" int="0" style="LinearBar"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="48"
           textBoxHeight="12" skewFactor="1"/>
-  <LABEL name="vuLabel" id="cdc1fb3056af7c9b" memberName="vuLabel" virtualName=""
-         explicitFocusOrder="0" pos="4 224 24 12" textCol="ff808080" edTextCol="ff000000"
-         edBkgCol="0" labelText="-120" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="10"
-         bold="0" italic="0" justification="36"/>
-  <LABEL name="gainLabel" id="4bb31261e6795ae1" memberName="gainLabel"
+  <SLIDER name="vuRightSlider" id="31c942b6caa362dd" memberName="vuRightSlider"
+          virtualName="" explicitFocusOrder="0" pos="38 92 16 128" textboxtext="ff808080"
+          textboxbkgd="0" min="-120" max="20" int="0" style="LinearBar"
+          textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="48"
+          textBoxHeight="12" skewFactor="1"/>
+  <LABEL name="vuLeftLabel" id="cdc1fb3056af7c9b" memberName="vuLeftLabel"
+         virtualName="" explicitFocusOrder="0" pos="4 224 24 12" textCol="ff808080"
+         edTextCol="ff000000" edBkgCol="0" labelText="-120" editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="10" bold="0" italic="0" justification="36"/>
+  <LABEL name="vuRightLabel" id="4bb31261e6795ae1" memberName="vuRightLabel"
          virtualName="" explicitFocusOrder="0" pos="32 224 24 12" textCol="ff808080"
          edTextCol="ff000000" edBkgCol="0" labelText="-120" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"

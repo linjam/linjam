@@ -51,9 +51,7 @@ public:
 
   bool addRemoteUser(  ValueTree user_store) ;
   bool addChannel(     Identifier channels_id , ValueTree channel_store) ;
-  void renameChannel(  Identifier channels_id , Identifier channel_id) ;
   void removeChannel(  Identifier channels_id , Identifier channel_id) ;
-  void updateChannelVU(Identifier channels_id , Identifier channel_id , double vu) ;
   void positionResizers() ;
   void pruneRemotes(   ValueTree active_users) ;
 

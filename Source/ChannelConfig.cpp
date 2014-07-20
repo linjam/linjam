@@ -205,7 +205,7 @@ void ChannelConfig::buttonClicked(Button* a_button)
     String channel_name  = this->nameText->getText() ;
     int    selection_n   = this->channelSelect->getSelectedItemIndex() ;
     bool   is_stereo     = this->isSelectedStereo ;
-    int    stereo_status = (is_stereo)? CONFIG::STEREO_L : CONFIG::MONO ;
+    int    stereo_status = (!is_stereo)? CONFIG::MONO : CONFIG::STEREO_L ;
     int    source_n      = (!is_stereo)? this->freeInputChannelNs    [selection_n] :
                                          this->freeInputChannelPairNs[selection_n] ;
 

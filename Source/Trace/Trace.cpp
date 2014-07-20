@@ -13,15 +13,15 @@ Array<String> Trace::UnknowwnChannels = Array<String>() ;
 
 /* Trace class public class methods */
 
-void Trace::TraceEvent(String msg)   { if (TraceEvs())    DBG("[EVENT]:   " + msg) ; }
-void Trace::TraceConfig(String msg)  { if (TraceState())  DBG("[CONFIG]:  " + msg) ; }
-void Trace::TraceClient(String msg)  { if (TraceState())  DBG("[CLIENT]:  " + msg) ; }
-void Trace::TraceGui(String msg)     { if (TraceEvs())    DBG("[GUI]:     " + msg) ; }
-void Trace::TraceVerbose(String msg) { if (TraceVb())     DBG("[DEBUG]:   " + msg) ; }
-void Trace::TraceState(String msg)   { if (TraceState())  DBG("[STATE]:   " + msg) ; }
-void Trace::TraceNetwork(String msg) { if (TraceState())  DBG("[NETWORK]: " + msg) ; }
-void Trace::TraceError(String msg)   { if (TraceState())  DBG("[ERROR]:   " + msg) ; }
-void Trace::TraceServer(String msg)  { if (TraceState())  DBG("[SERVER]:  " + msg) ; }
+void Trace::TraceEvent(String msg)   { if (DEBUG_TRACE_EVENTS) DBG("[EVENT]:   " + msg) ; }
+void Trace::TraceConfig(String msg)  { if (DEBUG_TRACE_STATE)  DBG("[CONFIG]:  " + msg) ; }
+void Trace::TraceClient(String msg)  { if (DEBUG_TRACE_STATE)  DBG("[CLIENT]:  " + msg) ; }
+void Trace::TraceGui(String msg)     { if (DEBUG_TRACE_EVENTS) DBG("[GUI]:     " + msg) ; }
+void Trace::TraceVerbose(String msg) { if (DEBUG_TRACE_VB)     DBG("[DEBUG]:   " + msg) ; }
+void Trace::TraceState(String msg)   { if (DEBUG_TRACE_STATE)  DBG("[STATE]:   " + msg) ; }
+void Trace::TraceNetwork(String msg) { if (DEBUG_TRACE_STATE)  DBG("[NETWORK]: " + msg) ; }
+void Trace::TraceError(String msg)   { if (DEBUG_TRACE_STATE)  DBG("[ERROR]:   " + msg) ; }
+void Trace::TraceServer(String msg)  { if (DEBUG_TRACE_STATE)  DBG("[SERVER]:  " + msg) ; }
 
 void Trace::DumpStoreXml(ValueTree store)
 { DBG(String(store.getType()) + " xml=\n" + store.toXmlString()) ; }
@@ -152,19 +152,30 @@ String Trace::SanitizeConfig(ValueTree default_config , ValueTree stored_config 
   return dbg ;
 }
 
-void Trace::TraceInvalidNode(String a_node_key)
-{ Trace::TraceError("node '" + a_node_key + "' invalid") ; }
+void Trace::TraceInvalidNode(String a_node_name)
+{ Trace::TraceError("node '" + a_node_name + "' invalid") ; }
 
-void Trace::TraceMissingValue(String a_node_key , String a_value_key)
-{ Trace::TraceError("node '" + a_node_key + "' - missing key '" + a_value_key + "'") ; }
+void Trace::TraceMissingValue(String a_node_name , String a_value_name)
+{ Trace::TraceError("node '" + a_node_name + "' - missing key '" + a_value_name + "'") ; }
 
-void Trace::TraceMissingProperty(String a_node_key , String a_property_key)
-{ Trace::TraceError("node '" + a_node_key + "' - missing property '" + a_property_key + "'") ; }
+void Trace::TraceMissingProperty(String a_node_name      , String a_property_name ,
+                                 String parent_node_name                          )
+{
+  if (parent_node_name.isNotEmpty()) parent_node_name += " " ;
+  Trace::TraceError(parent_node_name         + "node '"        + a_node_name +
+                    "' - missing property '" + a_property_name + "'") ;
+}
 
-void Trace::TraceTypeMismatch(String a_node_key    , String a_property_key ,
-                              String expected_type , var    a_var          )
-{ Trace::TraceError("type mismatch - " + a_node_key + "[" + a_property_key + "]" +
-                    " expected => " + expected_type + " got => " + VarType(a_var)) ; }
+void Trace::TraceTypeMismatch(String a_node_name      , String a_property_name ,
+                              String expected_type    , var    a_var           ,
+                              String parent_node_name                          )
+{
+  if (parent_node_name.isNotEmpty()) parent_node_name += " " ;
+  Trace::TraceError("type mismatch - " + parent_node_name + a_node_name         +
+                    "["                + a_property_name  + "] => "             +
+                    VarType(a_var)     + " (expected "     + expected_type + ")") ;
+}
+
 
 String Trace::VarType(var a_var)
 {
@@ -191,14 +202,5 @@ String Trace::DumpVar(String val_name , var a_var)
          " type => "   + VarType(a_var).paddedRight(' ' , 10) +
          " value => "  + a_var.toString() ;
 }
-
-
-/* Trace class private class methods */
-
-bool Trace::SanityCheck() { return true ; }
-
-bool Trace::TraceEvs()   { return (DEBUG_TRACE_EVENTS || !SanityCheck()) ; }
-bool Trace::TraceVb()    { return (DEBUG_TRACE_VB     || !SanityCheck()) ; }
-bool Trace::TraceState() { return (DEBUG_TRACE_STATE  || !SanityCheck()) ; }
 
 #endif // #if DEBUG_TRACE

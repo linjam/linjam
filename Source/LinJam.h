@@ -92,10 +92,12 @@ private:
                         int     n_samples     , int sample_rate       ) ;
 
   // NJClient runtime helpers
-  static void HandleStatusChanged( int status) ;
-  static void HandleUserInfoChanged() ;
-  static void HandleChatCommand(   String chat_text) ;
-  static bool IsRoomFull() ;
+  static void   HandleStatusChanged( int status) ;
+  static void   HandleUserInfoChanged() ;
+  static void   UpdateLoopProgress() ;
+  static void   UpdateVuMeters() ;
+  static void   UpdateRecordingTime() ;
+  static void   HandleChatCommand(   String chat_text) ;
 
   // state helpers
   static bool InitializeAudio() ;

@@ -136,7 +136,7 @@ void Channels::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-/* Channels class public class methods */
+/* Channels class public instance methods */
 
 bool Channels::addChannel(ValueTree channel_store)
 {
@@ -146,8 +146,8 @@ DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL
   Identifier channel_id = channel_store.getType() ;
   if (!channel_store.isValid() || getChannel(channel_id)) return false ;
 
-  // hide stereo pair 'phantom' channels
-  if (int(channel_store[CONFIG::STEREO_ID]) == CONFIG::STEREO_R) return true ;
+  // hide stereo slave channels
+  if (int(channel_store[CONFIG::STEREO_ID]) == CONFIG::STEREO_R) return false ;
 
   // create channel GUI
   Channel* channel = newChannel(channel_store) ;
@@ -160,18 +160,6 @@ DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL
 DEBUG_TRACE_ADD_CHANNEL_GUI
 
   return true ;
-}
-
-void Channels::renameChannel(Identifier channel_id)
-{
-DEBUG_TRACE_RENAME_CHANNEL_GUI
-
-  Channel* channel = getChannel(channel_id) ; if (!channel) return ;
-
-  String new_name = channel->configStore[CONFIG::CHANNELNAME_ID].toString() ;
-  channel->nameLabel->setText(new_name , juce::dontSendNotification) ;
-
-DEBUG_TRACE_DUMP_CHANNELS_GUI_VB
 }
 
 void Channels::removeChannel(Identifier channel_id)
@@ -188,16 +176,8 @@ int Channels::getNumChannels()
   return getNumChildComponents() - GUI::N_STATIC_CHANNELS_CHILDREN ;
 }
 
-void Channels::updateChannelVU(Identifier channel_id , double vu)
-{
-  Channel* channel = getChannel(channel_id) ;
-  if (channel) channel->updateChannelVU(vu) ;
 
-DEBUG_TRACE_VU_GUI_VB
-}
-
-
-/* Channels class protected class methods */
+/* Channels class protected instance methods */
 
 Channel* Channels::getChannel(Identifier channel_id)
 {
@@ -235,7 +215,7 @@ RemoteChannels::RemoteChannels(ValueTree user_store)
 }
 
 
-/* MasterChannels , LocalChannels , RemoteChannels classes private class methods */
+/* MasterChannels , LocalChannels , RemoteChannels classes private instance methods */
 
 void LocalChannels::buttonClicked(Button* a_button)
 {

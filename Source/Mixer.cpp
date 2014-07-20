@@ -199,7 +199,7 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-/* Mixer class public methods */
+/* Mixer class public instence methods */
 
 bool Mixer::addRemoteUser(ValueTree user_store)
 {
@@ -222,27 +222,15 @@ bool Mixer::addChannel(Identifier channels_id , ValueTree channel_store)
 
   // create channel GUI and update mixer layout
   bool was_added = channels->addChannel(channel_store) ;
-  if (channels != this->masterChannels) resized() ;
+  if (was_added && channels != this->masterChannels) resized() ;
 
   return was_added ;
-}
-
-void Mixer::renameChannel(Identifier channels_id , Identifier channel_id)
-{
-  Channels* channels = getChannels(channels_id) ;
-  if (channels) channels->renameChannel(channel_id) ;
 }
 
 void Mixer::removeChannel(Identifier channels_id , Identifier channel_id)
 {
   Channels* channels = getChannels(channels_id) ;
   if (channels) channels->removeChannel(channel_id) ;
-}
-
-void Mixer::updateChannelVU(Identifier channels_id , Identifier channel_id , double vu)
-{
-  Channels* channels = getChannels(channels_id) ;
-  if (channels) channels->updateChannelVU(channel_id , vu) ;
 }
 
 void Mixer::positionResizers()
@@ -282,7 +270,7 @@ void Mixer::pruneRemotes(ValueTree active_users)
 }
 
 
-/* Mixer class private methods */
+/* Mixer class private instance methods */
 
 void Mixer::buttonClicked(Button* a_button)
 {
