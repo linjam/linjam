@@ -59,11 +59,6 @@ public:
   static void RemoveLocalChannel(ValueTree channel_store) ;
   static void SendChat(String chat_text) ;
 
-  // NJClient config helpers
-  static int  GetMonoPairSourceN(     int source_n) ;
-  static int  GetStereoPairSourceN(   int source_n) ;
-
-
   // persistent configuration storage
   static LinJamConfig* Config ;
 
@@ -107,7 +102,7 @@ private:
   static void CleanSessionDir() ;
 
   // NJClient config helpers
-  static int    GetNumActiveChannels() ;
+  static int    GetNumInputChannels() ;
   static int    GetNumVacantChannels() ;
   static int    GetVacantLocalChannelIdx() ;
   static String GetStoredChannelName(      ValueTree channel_store) ;
@@ -115,6 +110,11 @@ private:
   static String GetRemoteUserName(         int user_idx) ;
   static String GetRemoteChannelClientName(int user_idx , int channel_idx) ;
   static bool   IsConfiguredChannel(       int channel_idx) ;
+  static double AddDecibels(               double l_vu , double r_vu) ;
+  static void   ComputePannedVus(          double pan , double* l_vu , double* r_vu) ;
+  static void   ScalePannedMonoVus(        double  vu_mono , double  pan ,
+                                           double* l_vu    , double* r_vu) ;
+
   static float  ComputeStereoPan(          float pan , int stereo_status) ;
   static void   ConfigureMasterChannel(    Identifier a_key) ;
   static void   ConfigureMetroChannel(     Identifier a_key) ;

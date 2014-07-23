@@ -158,7 +158,7 @@ Channel::Channel (ValueTree channel_store)
 
     //[Constructor] You can add your own custom stuff here..
 
-  String channel_name =        channel_store[CONFIG::CHANNELNAME_ID].toString() ;
+  String channel_name =        channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;
   double volume       = double(channel_store[CONFIG::VOLUME_ID]) ;
   double pan          = double(channel_store[CONFIG::PAN_ID]) ;
   bool   is_xmit      = bool(  channel_store[CONFIG::IS_XMIT_RCV_ID]) ;
@@ -193,10 +193,10 @@ Channel::Channel (ValueTree channel_store)
 
   // establish shared config storage and listeners
   this->configStore  = channel_store ;
-  Value name_value   = channel_store.getPropertyAsValue(CONFIG::CHANNELNAME_ID , nullptr) ;
-  Value stereo_value = channel_store.getPropertyAsValue(CONFIG::STEREO_ID      , nullptr) ;
-  Value vu_l_value   = channel_store.getPropertyAsValue(CONFIG::VU_LEFT_ID     , nullptr) ;
-  Value vu_r_value   = channel_store.getPropertyAsValue(CONFIG::VU_RIGHT_ID    , nullptr) ;
+  Value name_value   = getValueObject(CONFIG::CHANNEL_NAME_ID) ;
+  Value stereo_value = getValueObject(CONFIG::STEREO_ID) ;
+  Value vu_l_value   = getValueObject(CONFIG::VU_LEFT_ID) ;
+  Value vu_r_value   = getValueObject(CONFIG::VU_RIGHT_ID) ;
   this->channelName .referTo(name_value) ;
   this->stereoStatus.referTo(stereo_value) ;
   this->vuLeft      .referTo(vu_l_value) ;
@@ -329,7 +329,7 @@ void Channel::labelTextChanged (Label* labelThatHasChanged)
         //[UserLabelCode_nameLabel] -- add your label text handling code here..
 
       // store new channel name (configures NJClient asynchronously)
-      setChannelConfig(CONFIG::CHANNELNAME_ID , var(this->nameLabel->getText())) ;
+      setChannelConfig(CONFIG::CHANNEL_NAME_ID , var(this->nameLabel->getText())) ;
 
         //[/UserLabelCode_nameLabel]
     }
@@ -364,9 +364,10 @@ void Channel::valueChanged(Value& a_value)
 
 void Channel::updateChannelVU(Slider* a_vu_slider , Label* a_vu_label , double vu)
 {
-  bool is_metro     = this->configStore.getType() == CONFIG::METRO_ID ;
-  bool is_saturated = vu > 120.0 && !is_metro ;
-  String label_text = String(int(vu - CLIENT::VU_DB_RANGE)) ;
+  double actual_vu    = vu + CLIENT::VU_DB_MIN ;
+  bool   is_metro     = this->configStore.getType() == CONFIG::METRO_ID ;
+  bool   is_saturated = actual_vu >= 0.0 && !is_metro ;
+  String label_text   = String(int(actual_vu)) ;
 
   a_vu_slider->setValue(vu) ;
   a_vu_label ->setText(label_text , juce::dontSendNotification) ;
@@ -378,17 +379,22 @@ void Channel::updateChannelVU(Slider* a_vu_slider , Label* a_vu_label , double v
                                                  Colour(0x01008000)) ;
 }
 
-void Channel::setChannelConfig(Identifier config_key , var value)
-{
-  this->configStore.setProperty(config_key , value , nullptr) ;
-}
-
 void Channel::renameChannel()
 {
 DEBUG_TRACE_RENAME_CHANNEL_GUI
 
   String new_name = this->channelName.getValue().toString() ;
   this->nameLabel->setText(new_name , juce::dontSendNotification) ;
+}
+
+Value Channel::getValueObject(Identifier a_key)
+{
+  return this->configStore.getPropertyAsValue(a_key , nullptr) ;
+}
+
+void Channel::setChannelConfig(Identifier config_key , var value)
+{
+  this->configStore.setProperty(config_key , value , nullptr) ;
 }
 
 
@@ -421,7 +427,7 @@ DEBUG_TRACE_STEREO_STATE_GUI
   this->vuRightLabel ->setVisible(is_stereo && !is_metro) ;
 
   // set channel name
-  String channel_name   = this->configStore[CONFIG::CHANNELNAME_ID].toString() ;
+  String channel_name   = this->channelName.getValue().toString() ;
   String stereo_postfix = channel_name.getLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
 
   if (is_stereo && !stereo_postfix.compare(CLIENT::STEREO_L_POSTFIX))

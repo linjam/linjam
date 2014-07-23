@@ -113,13 +113,13 @@ ChannelConfig::ChannelConfig (ValueTree config_store)
   // set initial channel state and populate input select options
   this->configStore       =     config_store ;
   Identifier channel_id   =     config_store.getType() ;
-  String     channel_name =     configStore[CONFIG::CHANNELNAME_ID].toString() ;
+  String     channel_name =     configStore[CONFIG::CHANNEL_NAME_ID].toString() ;
   this->sourceN           = int(configStore[CONFIG::SOURCE_N_ID]) ;
   this->isStereo          = int(configStore[CONFIG::STEREO_ID]) != CONFIG::MONO ;
   this->isSelectedStereo  = this->isStereo ;
   this->isNewChannel      = (channel_id == CONFIG::NEWCHANNEL_ID) ;
 
-  nameText    ->setText(       channel_name) ;
+  nameText    ->setText(channel_name) ;
   stereoButton->setToggleState(this->isSelectedStereo , juce::dontSendNotification) ;
 
   createChannelSelectOptions() ; populateChannelSelect() ;
@@ -210,10 +210,9 @@ void ChannelConfig::buttonClicked(Button* a_button)
                                          this->freeInputChannelPairNs[selection_n] ;
 
     // update existing channel asynchronously
-    this->configStore.setProperty(CONFIG::CHANNELNAME_ID , channel_name  , nullptr) ;
-    this->configStore.setProperty(CONFIG::CHANNELIDX_ID  , source_n      , nullptr) ;
-    this->configStore.setProperty(CONFIG::SOURCE_N_ID    , source_n      , nullptr) ;
-    this->configStore.setProperty(CONFIG::STEREO_ID      , stereo_status , nullptr) ;
+    this->configStore.setProperty(CONFIG::CHANNEL_NAME_ID , channel_name  , nullptr) ;
+    this->configStore.setProperty(CONFIG::SOURCE_N_ID     , source_n      , nullptr) ;
+    this->configStore.setProperty(CONFIG::STEREO_ID       , stereo_status , nullptr) ;
 
     // or create new local channel
     if (this->isNewChannel) LinJam::AddLocalChannel(this->configStore) ;
@@ -242,27 +241,6 @@ void ChannelConfig::createChannelSelectOptions()
   this->freeInputChannelNs     = LinJam::GetFreeInputChannels() ;
   this->freeInputChannelPairNs = LinJam::GetFreeInputChannelPairs() ;
 
-  // include current config option for existing channel
-  if (!this->isNewChannel)
-  {
-    if (!this->isStereo)
-    {
-      // make stereo selection available only if this source's potential pair is free
-      int  mono_pair_source_n   = LinJam::GetMonoPairSourceN(  this->sourceN) ;
-      int  stereo_pair_source_n = LinJam::GetStereoPairSourceN(this->sourceN) ;
-      bool is_pair_available    = this->freeInputChannelNs.contains(mono_pair_source_n) ;
-
-      this->freeInputChannelNs    .add(this->sourceN) ; if (is_pair_available)
-      this->freeInputChannelPairNs.add(stereo_pair_source_n) ;
-    }
-    else
-    {
-      this->freeInputChannelNs    .add(this->sourceN) ;
-      this->freeInputChannelNs    .add(this->sourceN + 1) ;
-      this->freeInputChannelPairNs.add(this->sourceN) ;
-    }
-  }
-
   int n_channels      = this->freeInputChannelNs.size() ;
   int n_channel_pairs = this->freeInputChannelPairNs.size() ;
 
@@ -290,10 +268,10 @@ void ChannelConfig::populateChannelSelect()
   // pre-select current config option for existing channel or de-select
   bool has_stereo_state_changed = (this->isStereo != this->isSelectedStereo) ;
   int  preselection_n = (this->isNewChannel)                                 ? 0 :
-                          (has_stereo_state_changed)                            ? -1 :
-                            (!this->isSelectedStereo)                                ?
-                              this->freeInputChannelNs    .indexOf(this->sourceN)    :
-                              this->freeInputChannelPairNs.indexOf(this->sourceN)    ;
+                        (!this->isSelectedStereo)                                ?
+                          this->freeInputChannelNs    .indexOf(this->sourceN)    :
+                          this->freeInputChannelPairNs.indexOf(this->sourceN)    ;
+  if (!(~preselection_n)) preselection_n = 0 ;
   this->channelSelect->setSelectedItemIndex(preselection_n) ;
 }
 

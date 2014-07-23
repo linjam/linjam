@@ -32,15 +32,14 @@
 #define TRACE_SHARED_CONFIG               DEBUG_TRACE_VB && 0
 #define TRACE_STORE_CONFIG_VB             DEBUG_TRACE_VB && 0
 #define TRACE_LOGIN_HOST                  DEBUG_TRACE_VB && 0
-#define TRACE_DUMP_FREE_INPUTS            DEBUG_TRACE_VB && 0
-#define TRACE_DUMP_CHANNELS_GUI           DEBUG_TRACE_VB && 0
+#define TRACE_DUMP_FREE_INPUTS            DEBUG_TRACE_VB && 1
+#define TRACE_DUMP_CHANNELS_GUI           DEBUG_TRACE_VB && 1
 #define TRACE_CONFIGURE_LOCAL_CHANNEL_VB  DEBUG_TRACE_VB && 1
 #define TRACE_CONFIGURE_REMOTE_CHANNEL_VB DEBUG_TRACE_VB && 1
-#define TRACE_ADD_CHANNEL_GUI_VB          DEBUG_TRACE_VB && 0
+#define TRACE_ADD_CHANNEL_GUI_VB          DEBUG_TRACE_VB && 1
 #define TRACE_REMOTES                     DEBUG_TRACE_VB && 0
 #define TRACE_ADD_REMOTES_VB              DEBUG_TRACE_VB && 0
 #define TRACE_MIXER_COMPONENTS            DEBUG_TRACE_VB && 0
-#define TRACE_VU_GUI                      DEBUG_TRACE_VB && 1
 
 
 class Trace

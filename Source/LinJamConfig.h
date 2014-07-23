@@ -49,6 +49,7 @@ public:
 /* per-channel data - access through above ValueTrees
   Value     channel-name     // string
   Value     channel-idx      // int
+  Value     stereo-pair-idx  // int
   Value     volume           // double
   Value     pan              // double
   Value     is-xmitrcv       // bool
@@ -96,16 +97,15 @@ public:
   // getters/setters
   ValueTree newChannel(           String channel_name = CONFIG::DEFAULT_CHANNEL_NAME ,
                                   int    channel_idx  = CONFIG::DEFAULT_CHANNEL_IDX  ) ;
-  ValueTree addChannel(           ValueTree channels_store , ValueTree new_store ,
-                                  int       channel_idx                          ) ;
+  ValueTree addChannel(           ValueTree channels_store , ValueTree new_store) ;
   void      destroyChannel(       ValueTree channels_store , ValueTree channel_store) ;
   ValueTree getOrAddRemoteUser(   String user_name , int user_idx) ;
   ValueTree getOrAddRemoteChannel(Identifier user_id     , String channel_name        ,
                                   int        channel_idx = CONFIG::DEFAULT_CHANNEL_IDX) ;
-  ValueTree cloneTempSlaveChannel(ValueTree channel_store) ;
   ValueTree getUserById(          Identifier user_id) ;
   ValueTree getChannelById(       Identifier channels_id , Identifier channel_id) ;
   ValueTree getChannelByIdx(      ValueTree channels_store , int channel_idx) ;
+  ValueTree getChannelByPairIdx(  ValueTree channels_store , int pair_idx) ;
   ValueTree getChannelByName(     ValueTree channels_store , String channel_name) ;
   ValueTree getUserMasterChannel( ValueTree user_store) ;
   void      setServer() ;

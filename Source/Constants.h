@@ -56,7 +56,7 @@
     SUBSCRIPTIONS_KEY      + " /><"                                           + \
     MASTERS_KEY            + "><"                                             + \
       MASTER_KEY           + " "                                              + \
-        CHANNELNAME_KEY    + "=\"" + String(MASTER_KEY)               + "\" " + \
+        CHANNEL_NAME_KEY   + "=\"" + String(MASTER_KEY)               + "\" " + \
         VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME)           + "\" " + \
         PAN_KEY            + "=\"" + String(DEFAULT_PAN)              + "\" " + \
         IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED)         + "\" " + \
@@ -65,7 +65,7 @@
         VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU)               + "\" " + \
     "/><"                                                                     + \
       METRO_KEY            + " "                                              + \
-        CHANNELNAME_KEY    + "=\"" + String(METRO_KEY)                + "\" " + \
+        CHANNEL_NAME_KEY   + "=\"" + String(METRO_KEY)                + "\" " + \
         VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME)           + "\" " + \
         PAN_KEY            + "=\"" + String(DEFAULT_PAN)              + "\" " + \
         IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED)         + "\" " + \
@@ -104,9 +104,13 @@
       SHOULD_AGREE_KEY         + "=\"" + BOOL_TYPE   + "\" " + \
       SHOULD_HIDE_BOTS_KEY     + "=\"" + BOOL_TYPE   + "\" " + \
     "/><"                                                    + \
+    USERS_KEY                  + " "                         + \
+      USER_IDX_KEY             + "=\"" + INT_TYPE    + "\" " + \
+    "/><"                                                    + \
     CHANNELS_KEY               + " "                         + \
-      CHANNELNAME_KEY          + "=\"" + STRING_TYPE + "\" " + \
-      CHANNELIDX_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      CHANNEL_NAME_KEY         + "=\"" + STRING_TYPE + "\" " + \
+      CHANNEL_IDX_KEY          + "=\"" + INT_TYPE    + "\" " + \
+      PAIR_IDX_KEY             + "=\"" + INT_TYPE    + "\" " + \
       VOLUME_KEY               + "=\"" + DOUBLE_TYPE + "\" " + \
       PAN_KEY                  + "=\"" + DOUBLE_TYPE + "\" " + \
       IS_XMIT_RCV_KEY          + "=\"" + BOOL_TYPE   + "\" " + \
@@ -116,9 +120,6 @@
       STEREO_KEY               + "=\"" + INT_TYPE    + "\" " + \
       VU_LEFT_KEY              + "=\"" + DOUBLE_TYPE + "\" " + \
       VU_RIGHT_KEY             + "=\"" + DOUBLE_TYPE + "\" " + \
-    "/><"                                                    + \
-    USERS_KEY                  + " "                         + \
-      USERIDX_KEY              + "=\"" + INT_TYPE    + "\" " + \
     "/>"                                                     + \
   "</" + PERSISTENCE_TYPES_KEY + ">"
 
@@ -286,45 +287,43 @@ namespace CONFIG
   static const Identifier SERVERS_ID           = SERVERS_KEY ;
 
   // channel config keys
-  static const Identifier CONFIG_ALL_ID   = "configure-all" ;
-  static const String     MASTERS_KEY     = "master-channels" ;
-  static const Identifier MASTERS_ID      = MASTERS_KEY ;
-  static const String     MASTER_KEY      = "master" ;
-  static const Identifier MASTER_ID       = MASTER_KEY ;
-  static const String     METRO_KEY       = "metronome" ;
-  static const Identifier METRO_ID        = METRO_KEY ;
-  static const String     LOCALS_KEY      = "local-channels" ;
-  static const Identifier LOCALS_ID       = LOCALS_KEY ;
-  static const String     REMOTES_KEY     = "remote-channels" ;
-  static const Identifier REMOTES_ID      = REMOTES_KEY ;
-  static const String     USERIDX_KEY     = "user-idx" ;
-  static const Identifier USERIDX_ID      = USERIDX_KEY ;
-  static const String     CHANNELIDX_KEY  = "channel-idx" ;
-  static const Identifier CHANNELIDX_ID   = CHANNELIDX_KEY ;
-  static const String     CHANNELNAME_KEY = "channel-name" ;
-  static const Identifier CHANNELNAME_ID  = CHANNELNAME_KEY ;
-  static const String     VOLUME_KEY      = "volume" ;
-  static const Identifier VOLUME_ID       = VOLUME_KEY ;
-  static const String     PAN_KEY         = "pan" ;
-  static const Identifier PAN_ID          = PAN_KEY ;
-  static const String     IS_XMIT_RCV_KEY = "should-xmit-rcv" ;
-  static const Identifier IS_XMIT_RCV_ID  = IS_XMIT_RCV_KEY ;
-  static const String     IS_MUTED_KEY    = "is-muted" ;
-  static const Identifier IS_MUTED_ID     = IS_MUTED_KEY ;
-  static const String     IS_SOLO_KEY     = "is-solo" ;
-  static const Identifier IS_SOLO_ID      = IS_SOLO_KEY ;
-  static const String     SOURCE_N_KEY    = "source-sink-n" ;
-  static const Identifier SOURCE_N_ID     = SOURCE_N_KEY ;
-  static const String     STEREO_KEY      = "stereo-status" ;
-  static const Identifier STEREO_ID       = STEREO_KEY ;
-  static const int        MONO            =  0 ; // default NJClient mono
-  static const int        STEREO_L        = -1 ; // faux-stereo pairs
-  static const int        STEREO_R        = +1 ; // faux-stereo pairs
-  static const int        STEREO          = 42 ; // masters and metro
-  static const String     VU_LEFT_KEY     = "vu-left" ;
-  static const Identifier VU_LEFT_ID      = VU_LEFT_KEY ;
-  static const String     VU_RIGHT_KEY    = "vu-right" ;
-  static const Identifier VU_RIGHT_ID     = VU_RIGHT_KEY ;
+  static const Identifier CONFIG_INIT_ID   = "configure-all" ;
+  static const String     MASTERS_KEY      = "master-channels" ;
+  static const Identifier MASTERS_ID       = MASTERS_KEY ;
+  static const String     MASTER_KEY       = "master" ;
+  static const Identifier MASTER_ID        = MASTER_KEY ;
+  static const String     METRO_KEY        = "metronome" ;
+  static const Identifier METRO_ID         = METRO_KEY ;
+  static const String     LOCALS_KEY       = "local-channels" ;
+  static const Identifier LOCALS_ID        = LOCALS_KEY ;
+  static const String     REMOTES_KEY      = "remote-channels" ;
+  static const Identifier REMOTES_ID       = REMOTES_KEY ;
+  static const String     USER_IDX_KEY     = "user-idx" ;
+  static const Identifier USER_IDX_ID      = USER_IDX_KEY ;
+  static const String     CHANNEL_NAME_KEY = "channel-name" ;
+  static const Identifier CHANNEL_NAME_ID  = CHANNEL_NAME_KEY ;
+  static const String     CHANNEL_IDX_KEY  = "channel-idx" ;
+  static const Identifier CHANNEL_IDX_ID   = CHANNEL_IDX_KEY ;
+  static const String     PAIR_IDX_KEY     = "stereo-pair-idx" ;
+  static const Identifier PAIR_IDX_ID      = PAIR_IDX_KEY ;
+  static const String     VOLUME_KEY       = "volume" ;
+  static const Identifier VOLUME_ID        = VOLUME_KEY ;
+  static const String     PAN_KEY          = "pan" ;
+  static const Identifier PAN_ID           = PAN_KEY ;
+  static const String     IS_XMIT_RCV_KEY  = "should-xmit-rcv" ;
+  static const Identifier IS_XMIT_RCV_ID   = IS_XMIT_RCV_KEY ;
+  static const String     IS_MUTED_KEY     = "is-muted" ;
+  static const Identifier IS_MUTED_ID      = IS_MUTED_KEY ;
+  static const String     IS_SOLO_KEY      = "is-solo" ;
+  static const Identifier IS_SOLO_ID       = IS_SOLO_KEY ;
+  static const String     SOURCE_N_KEY     = "source-sink-n" ;
+  static const Identifier SOURCE_N_ID      = SOURCE_N_KEY ;
+  static const String     STEREO_KEY       = "stereo-status" ;
+  static const Identifier STEREO_ID        = STEREO_KEY ;
+  static const String     VU_LEFT_KEY      = "vu-left" ;
+  static const Identifier VU_LEFT_ID       = VU_LEFT_KEY ;
+  static const String     VU_RIGHT_KEY     = "vu-right" ;
+  static const Identifier VU_RIGHT_ID      = VU_RIGHT_KEY ;
 
   // client config defaults
   static const int  DEFAULT_SAVE_AUDIO    = -1 ;
@@ -365,6 +364,10 @@ namespace CONFIG
   static const bool       DEFAULT_IS_MUTED      = false ;
   static const bool       DEFAULT_IS_SOLO       = false ;
   static const int        DEFAULT_SOURCE_N      = 0 ;
+  static const int        MONO             =  0 ; // default NJClient mono
+  static const int        STEREO_L         = -1 ; // faux-stereo pairs
+  static const int        STEREO_R         = +1 ; // faux-stereo pairs
+  static const int        STEREO           = 42 ; // masters and metro
   static const int        DEFAULT_STEREO_STATUS = MONO ;
   static const double     DEFAULT_VU            = -120.0 ;
 

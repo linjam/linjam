@@ -160,43 +160,40 @@ bool LinJam::AddLocalChannel(ValueTree channel_store)
 {
 DEBUG_TRACE_ADD_LOCAL_CHANNEL
 
-  bool source_n  = bool(channel_store[CONFIG::SOURCE_N_ID]) ;
-  bool is_stereo = int( channel_store[CONFIG::STEREO_ID]) != CONFIG::MONO ;
+  int  channel_idx = int(channel_store[CONFIG::CHANNEL_IDX_ID]) ;
+  int  source_n    = int(channel_store[CONFIG::SOURCE_N_ID]) ;
+  bool is_stereo   = int(channel_store[CONFIG::STEREO_ID]) != CONFIG::MONO ;
 
   // sanity check
-  bool is_valid_source           = source_n >= 0 ;
-  bool is_slot_vacant            = !IsConfiguredChannel(source_n) ;
+  int  max_n_channels            = Client->GetMaxLocalChannels() ;
+  bool is_valid_channel_idx      = channel_idx >= 0 && channel_idx < max_n_channels ;
+  bool does_channel_exist        = IsConfiguredChannel(channel_idx) ;
+  bool is_valid_source_n         = source_n >= 0 && source_n < GetNumInputChannels() ;
   int  n_vacant_channels         = GetNumVacantChannels() ;
-  bool are_sufficient_n_channels = (!is_stereo && n_vacant_channels >= 1 ||
-                                     is_stereo && n_vacant_channels >= 2) ;
-  if (!is_valid_source         || // empty free list or non-existent input source
-      !is_slot_vacant          || // corrupted free list or insane storeage xml
-      !are_sufficient_n_channels) // corrupted free list or insane storeage xml
+  bool are_sufficient_n_channels = (!is_stereo && n_vacant_channels >= 1) ||
+                                    (is_stereo && n_vacant_channels >= 2)  ;
+  if (does_channel_exist || !is_valid_source_n || !are_sufficient_n_channels)
     return false ;
 
-  // add new channel to store
-  channel_store = Config->addChannel(Config->localChannels , channel_store , source_n) ;
-  if (!channel_store.isValid()) return false ;
+  // assign NJClient channel index for new unstored local channel
+  if (!is_valid_channel_idx)
+  {
+    channel_idx = GetVacantLocalChannelIdx() ;
+    channel_store.setProperty(CONFIG::CHANNEL_IDX_ID , channel_idx , nullptr) ;
+  }
 
-  // remove selected channel(s) from free lists
-  if (!is_stereo)
-  {
-    FreeInputChannels    .removeValue(source_n) ;
-    FreeInputChannelPairs.removeValue(GetStereoPairSourceN(source_n)) ;
-  }
-  else
-  {
-    FreeInputChannels    .removeValue(source_n) ;
-    FreeInputChannels    .removeValue(source_n + 1) ;
-    FreeInputChannelPairs.removeValue(source_n) ;
-  }
+  // add new channel to store
+  channel_store = Config->addChannel(Config->localChannels , channel_store) ;
+  if (!channel_store.isValid()) return false ;
 
 DEBUG_TRACE_DUMP_FREE_INPUTS_VB
 DEBUG_TRACE_INSTANTIATE_LOCAL_CHANNEL
 
-  // create local Channel GUI and configure NJClient input channel
+  // create local Channel GUI
   Gui->mixer->addChannel(GUI::LOCALS_GUI_ID , channel_store) ;
-  ConfigureLocalChannel(channel_store , CONFIG::CONFIG_ALL_ID) ;
+
+  // configure NJClient
+  ConfigureLocalChannel(channel_store , CONFIG::CONFIG_INIT_ID) ;
 
   return true ;
 }
@@ -207,32 +204,17 @@ void LinJam::RemoveLocalChannel(ValueTree channel_store)
 
 DEBUG_TRACE_REMOVE_LOCAL_CHANNEL
 
-  int  source_n  = int(channel_store[CONFIG::CHANNELIDX_ID]) ;
-  bool is_stereo = int(channel_store[CONFIG::STEREO_ID]) != CONFIG::MONO ;
-
-  // add removed channel(s) to free lists
-  if (!is_stereo)
-  {
-    // make stereo selection available only if both this and its potential pair are free
-    bool is_pair_available = FreeInputChannels.contains(GetMonoPairSourceN(source_n)) ;
-
-    FreeInputChannels    .add(source_n) ; if (is_pair_available)
-    FreeInputChannelPairs.add(GetStereoPairSourceN(source_n)) ;
-  }
-  else
-  {
-    FreeInputChannels    .add(source_n) ;
-    FreeInputChannels    .add(source_n + 1) ;
-    FreeInputChannelPairs.add(source_n) ;
-  }
+  Identifier channel_id  = channel_store.getType() ;
+  int        channel_idx = int(channel_store[CONFIG::CHANNEL_IDX_ID]) ;
+  int        pair_idx    = int(channel_store[CONFIG::PAIR_IDX_ID]) ;
 
   // configure NJClient
-  Client->DeleteLocalChannel(source_n) ; if (is_stereo)
-  Client->DeleteLocalChannel(source_n + 1) ;
+  Client->DeleteLocalChannel(channel_idx) ;
+  Client->DeleteLocalChannel(pair_idx) ;
+
   Client->NotifyServerOfChannelChange() ;
 
   // destroy channel GUI
-  Identifier channel_id = Config->makeChannelId(source_n) ;
   Gui->mixer->removeChannel(GUI::LOCALS_GUI_ID , channel_id) ;
 
   // destroy channel storage
@@ -249,19 +231,6 @@ DEBUG_TRACE_CHAT_OUT
 
   if (chat_text.startsWith("/")) HandleChatCommand(chat_text) ;
   else Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_MSG.toRawUTF8() , chat_text.toRawUTF8()) ;
-}
-
-
-/* NJClient config helpers */
-
-int LinJam::GetMonoPairSourceN(int source_n)
-{
-  return (source_n % 2)? source_n - 1 : source_n + 1 ;
-}
-
-int LinJam::GetStereoPairSourceN(int source_n)
-{
-  return (source_n % 2)? source_n - 1 : source_n ;
 }
 
 
@@ -454,7 +423,7 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
     if (!user_store.isValid()) continue ;
 
     // update stored NJClient remote user index
-    user_store.setProperty(CONFIG::USERIDX_ID , user_idx , nullptr) ;
+    user_store.setProperty(CONFIG::USER_IDX_ID , user_idx , nullptr) ;
 
     // create remote user GUI
     if (Gui->mixer->addRemoteUser(user_store))
@@ -465,10 +434,7 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
 
       // create remote master channel GUI and restore stored NJClient user state
       if (Gui->mixer->addChannel(user_id , master_store))
-      {
-        Config->setStereo(master_store , CONFIG::STEREO_L) ;
-        ConfigureRemoteChannel(user_store , master_store , CONFIG::CONFIG_ALL_ID) ;
-      }
+        ConfigureRemoteChannel(user_store , master_store , CONFIG::CONFIG_INIT_ID) ;
     }
 
     // initialize array for pruning removed channels GUI elements
@@ -486,16 +452,16 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
 
       // rename existing channel (and GUI asynchronously)
       if (channel_name.compare(stored_name))
-        channel_store.setProperty(CONFIG::CHANNELNAME_ID , channel_name , nullptr) ;
+        channel_store.setProperty(CONFIG::CHANNEL_NAME_ID , channel_name , nullptr) ;
 
       // update faux-stereo status (configures NJClient and GUI asynchronously)
       int stereo_status = Config->setRemoteStereo(user_store , channel_store , stored_name) ;
 
       // create remote channel GUI and restore stored NJClient remote channel state
       if (Gui->mixer->addChannel(user_id , channel_store))
-        ConfigureRemoteChannel(user_store , channel_store , CONFIG::CONFIG_ALL_ID) ;
+        ConfigureRemoteChannel(user_store , channel_store , CONFIG::CONFIG_INIT_ID) ;
 
-      // add channel to GUI prune list unless hidden stereo slave channel
+      // add channel to GUI prune list unless hidden stereo pair channel
       if (stereo_status != CONFIG::STEREO_R)
         active_channels.add(var(String(channel_store.getType()))) ;
     }
@@ -550,41 +516,37 @@ void LinJam::UpdateVuMeters()
   int channel_n = -1 ; int channel_idx ;
   while (~(channel_idx = Client->EnumLocalChannels(++channel_n)))
   {
-    ValueTree  channel_store = Config->getChannelByIdx(Config->localChannels , channel_idx) ;
-    double     local_vu      = VAL2DB(Client->GetLocalChannelPeak(channel_idx)) -
-                               CLIENT::VU_DB_MIN ;
-    int        stereo_status = int(channel_store[CONFIG::STEREO_ID]) ;
+    ValueTree channel_store = Config->getChannelByIdx(Config->localChannels , channel_idx) ;
+    double    local_pan     = double(channel_store[CONFIG::PAN_ID]) ;
+    double    local_vu_l    = VAL2DB(Client->GetLocalChannelPeak(channel_idx)) -
+                              CLIENT::VU_DB_MIN ;
+    int       stereo_status = int(channel_store[CONFIG::STEREO_ID]) ;
+    bool      pan_left      = local_pan < 0.0 ;
+    bool      pan_right     = local_pan > 0.0 ;
+    if (!channel_store.isValid()) continue ;
 
-    if (channel_store.isValid())
+    if (stereo_status == CONFIG::MONO)
     {
-      // compensate local left for local pan right
-      double local_pan = double(channel_store[CONFIG::PAN_ID]) ;
-      if (local_pan > 0.0) local_vu *= (1.0 - local_pan) ;
+      channel_store.setProperty(CONFIG::VU_LEFT_ID , local_vu_l , nullptr) ;
 
-      channel_store.setProperty(CONFIG::VU_LEFT_ID , local_vu , nullptr) ;
-      master_vu_l += local_vu ;
-
-      // compensate master right for local pan left
-      if (stereo_status == CONFIG::MONO)
-        if (local_pan < 0.0) master_vu_r += local_vu * (1.0 + local_pan) ;
-        else                 master_vu_r += local_vu ;
+      // compensate master for local channel pan
+      ScalePannedMonoVus(local_vu_l , local_pan , &master_vu_l , &master_vu_r) ; // mutates
     }
-    else
+    else if (stereo_status == CONFIG::STEREO_L)
     {
-      // ensure this channel has a matching master stereo pair channel
-      String channel_name  = GetLocalChannelClientName(channel_idx) ;
-      String stereo_name   = Config->trimStereoName(channel_name) ;
-      channel_store        = Config->getChannelByName(Config->localChannels , stereo_name) ;
-      int    stereo_status = int(channel_store[CONFIG::STEREO_ID]) ;
+      // ensure this faux-stereo channel has a matching faux-stereo pair channel
+      int    pair_idx   = int(channel_store[CONFIG::PAIR_IDX_ID]) ;
+      double local_vu_r = VAL2DB(Client->GetLocalChannelPeak(pair_idx)) -
+                          CLIENT::VU_DB_MIN ;
 
-      if (channel_store.isValid() && stereo_status == CONFIG::STEREO_L)
-      {
-        // compensate local right for local pan left
-        double local_pan = double(channel_store[CONFIG::PAN_ID]) ;
-        if (local_pan < 0.0) local_vu *= (1.0 + local_pan) ;
-        channel_store.setProperty(CONFIG::VU_RIGHT_ID , local_vu , nullptr) ;
-        master_vu_r += local_vu ;
-      }
+      // compensate for pan
+      ComputePannedVus(local_pan , &local_vu_l , &local_vu_r) ; // mutates
+
+      // update local channel VUs asynchronously
+      channel_store.setProperty(CONFIG::VU_LEFT_ID  , local_vu_l , nullptr) ;
+      master_vu_l = AddDecibels(master_vu_l , local_vu_l) ;
+      channel_store.setProperty(CONFIG::VU_RIGHT_ID , local_vu_r , nullptr) ;
+      master_vu_r = AddDecibels(master_vu_r , local_vu_r) ;
     }
   }
 
@@ -601,62 +563,56 @@ void LinJam::UpdateVuMeters()
 
     while (~(channel_idx = Client->EnumUserChannels(user_idx , ++channel_n)))
     {
-      // update remote channel VUs asynchronously
       ValueTree channel_store = Config->getChannelByIdx(user_store , channel_idx) ;
+      double    remote_pan    = double(channel_store[CONFIG::PAN_ID]) ;
+      double    remote_vu_l   = VAL2DB(Client->GetUserChannelPeak(user_idx , channel_idx)) -
+                                CLIENT::VU_DB_MIN ;
+      int       stereo_status = int(channel_store[CONFIG::STEREO_ID]) ;
       if (!channel_store.isValid()) continue ;
 
-      double remote_pan    = double(channel_store[CONFIG::PAN_ID]) ;
-      double remote_vu     = VAL2DB(Client->GetUserChannelPeak(user_idx , channel_idx)) -
-                             CLIENT::VU_DB_MIN ;
-      int    stereo_status = int(channel_store[CONFIG::STEREO_ID]) ;
       if (stereo_status == CONFIG::MONO)
       {
-        channel_store.setProperty(CONFIG::VU_LEFT_ID , remote_vu , nullptr) ;
+        channel_store.setProperty(CONFIG::VU_LEFT_ID , remote_vu_l , nullptr) ;
 
         // compensate remote master for remote channel pan
-        if (remote_pan > 0.0) remote_master_vu_l += remote_vu * (1.0 - remote_pan) ;
-        else                  remote_master_vu_l += remote_vu ;
-        if (remote_pan < 0.0) remote_master_vu_r += remote_vu * (1.0 + remote_pan) ;
-        else                  remote_master_vu_r += remote_vu ;
+        ScalePannedMonoVus(remote_vu_l         , remote_pan         ,
+                           &remote_master_vu_l , &remote_master_vu_r) ; // mutates
       }
       else if (stereo_status == CONFIG::STEREO_L)
       {
-        // compensate remote left for pan right
-        if (remote_pan > 0.0) remote_vu *= (1.0 - remote_pan) ;
+        // ensure this faux-stereo channel has a matching faux-stereo pair channel
+        int    pair_idx    = int(channel_store[CONFIG::PAIR_IDX_ID]) ;
+        double remote_vu_r = VAL2DB(Client->GetUserChannelPeak(user_idx , pair_idx)) -
+                             CLIENT::VU_DB_MIN ;
 
-        channel_store.setProperty(CONFIG::VU_LEFT_ID , remote_vu , nullptr) ;
-        remote_master_vu_l += remote_vu ;
-      }
-      else if (stereo_status == CONFIG::STEREO_R)
-      {
-        // ensure this channel has a matching master stereo pair channel
-        String channel_name = channel_store[CONFIG::CHANNELNAME_ID].toString() ;
-        String pair_name    = Config->makeStereoName(channel_name , CONFIG::STEREO_L) ;
-        channel_store       = Config->getChannelByName(user_store , pair_name) ;
-        bool   is_unpaired  = int(channel_store[CONFIG::STEREO_ID]) != CONFIG::STEREO_L ;
+        // compensate for pan
+        ComputePannedVus(remote_pan , &remote_vu_l , &remote_vu_r) ; // mutates
 
-        if (!channel_store.isValid() || is_unpaired) continue ;
-
-        // compensate remote right for pan left
-        remote_pan = double(channel_store[CONFIG::PAN_ID]) ;
-        if (remote_pan < 0.0) remote_vu *= (1.0 + remote_pan) ;
-        channel_store.setProperty(CONFIG::VU_RIGHT_ID , remote_vu , nullptr) ;
-        remote_master_vu_r += remote_vu ;
+        // update remote channel VUs asynchronously
+        channel_store.setProperty(CONFIG::VU_LEFT_ID  , remote_vu_l , nullptr) ;
+        remote_master_vu_l = AddDecibels(remote_master_vu_l , remote_vu_l) ;
+        channel_store.setProperty(CONFIG::VU_RIGHT_ID , remote_vu_r , nullptr) ;
+        remote_master_vu_r = AddDecibels(remote_master_vu_r , remote_vu_r) ;
       }
     }
 
     // update remote master VUs asynchronously
     ValueTree remote_master_store = Config->getChannelById(user_id , CONFIG::MASTER_ID) ;
     double    remote_master_pan   = double(remote_master_store[CONFIG::PAN_ID]) ;
+    if (!remote_master_store.isValid()) continue ;
 
     // compensate remote master for remote master pan
-    if (remote_master_pan > 0.0) remote_master_vu_l *= (1.0 - remote_master_pan) ;
-    if (remote_master_pan < 0.0) remote_master_vu_r *= (1.0 + remote_master_pan) ;
+    if (remote_master_pan > 0.0)
+      ScalePannedMonoVus( remote_master_vu_l , remote_master_pan  ,
+                         &remote_master_vu_l , &remote_master_vu_r) ; // mutates
+    if (remote_master_pan < 0.0)
+      ScalePannedMonoVus( remote_master_vu_r , remote_master_pan  ,
+                         &remote_master_vu_l , &remote_master_vu_r) ; // mutates
 
     remote_master_store.setProperty(CONFIG::VU_LEFT_ID  , remote_master_vu_l , nullptr) ;
     remote_master_store.setProperty(CONFIG::VU_RIGHT_ID , remote_master_vu_r , nullptr) ;
-    master_vu_l += remote_master_vu_l ;
-    master_vu_r += remote_master_vu_r ;
+    master_vu_l = AddDecibels(master_vu_l , remote_master_vu_l) ;
+    master_vu_r = AddDecibels(master_vu_r , remote_master_vu_r) ;
   }
 
 
@@ -666,16 +622,10 @@ void LinJam::UpdateVuMeters()
   double    master_pan   = double(master_store[CONFIG::PAN_ID]) ;
 
   // compensate master for master pan
-  if (master_pan > 0.0) master_vu_l *= (1.0 - master_pan) ;
-  if (master_pan < 0.0) master_vu_r *= (1.0 + master_pan) ;
-
-  // TODO: this is cheese - ideally libninjam would provide stereo master VU
-  double master_mono_vu   = VAL2DB(Client->GetOutputPeak()) - CLIENT::VU_DB_MIN ;
-  double master_mono_vu_l = master_mono_vu ;
-  double master_mono_vu_r = master_mono_vu ;
-  if      (master_vu_l < master_vu_r) master_mono_vu_l *= (master_vu_l / master_vu_r) ;
-  else if (master_vu_r < master_vu_l) master_mono_vu_r *= (master_vu_r / master_vu_l) ;
-  master_vu_l = master_mono_vu_l ; master_vu_r = master_mono_vu_r ;
+  if (master_pan > 0.0)
+    ScalePannedMonoVus(master_vu_l , master_pan , &master_vu_l , &master_vu_r) ; // mutates
+  if (master_pan < 0.0)
+    ScalePannedMonoVus(master_vu_r , master_pan , &master_vu_l , &master_vu_r) ; // mutates
 
   master_store.setProperty(CONFIG::VU_LEFT_ID  , master_vu_l , nullptr) ;
   master_store.setProperty(CONFIG::VU_RIGHT_ID , master_vu_r , nullptr) ;
@@ -704,7 +654,7 @@ void LinJam::UpdateRecordingTime()
       ValueTree user_store = Config->getUserById(NETWORK::KNOWN_BOTS.getUnchecked(bot_n)) ;
       if (!user_store.isValid()) continue ;
 
-      int bot_idx    = int(user_store[CONFIG::USERIDX_ID]) ;
+      int bot_idx    = int(user_store[CONFIG::USER_IDX_ID]) ;
       recording_time = GetRemoteChannelClientName(bot_idx , CLIENT::BOT_CHANNELIDX) ;
     }
     bool has_recording_time_changed = recording_time.compare(PrevRecordingTime) ;
@@ -834,15 +784,15 @@ DEBUG_TRACE_AUDIO_INIT
 
 void LinJam::ConfigureInitialChannels()
 {
-DEBUG_TRACE_INITIAL_CHANNELS
-
   // add master and metro channel GUI mixers and configure NJClient master channels
   ValueTree master_store = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::MASTER_ID) ;
   ValueTree metro_store  = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID) ;
   Gui->mixer->addChannel(GUI::MASTERS_GUI_ID , master_store) ;
   Gui->mixer->addChannel(GUI::MASTERS_GUI_ID , metro_store) ;
-  ConfigureMasterChannel(CONFIG::CONFIG_ALL_ID) ;
-  ConfigureMetroChannel( CONFIG::CONFIG_ALL_ID) ;
+  ConfigureMasterChannel(CONFIG::CONFIG_INIT_ID) ;
+  ConfigureMetroChannel( CONFIG::CONFIG_INIT_ID) ;
+
+DEBUG_TRACE_INITIAL_CHANNELS
 
   // add local Channel GUI mixers and configure NJClient input channels
   ValueTree channels = Config->localChannels ;
@@ -916,29 +866,26 @@ DEBUG_TRACE_CLEAN_SESSION
 
 /* NJClient config helpers */
 
-int LinJam::GetNumActiveChannels()
-{
-  int n_channels = -1 ; while (~Client->EnumLocalChannels(++n_channels)) ;
-  return n_channels ;
-}
+int LinJam::GetNumInputChannels() { return Audio->m_innch ; }
 
 int LinJam::GetNumVacantChannels()
 {
-  return Audio->m_innch - GetNumActiveChannels() ;
+  int n_active_channels = -1 ; while (~Client->EnumLocalChannels(++n_active_channels)) ;
+  return Audio->m_innch - n_active_channels ;
 }
 
 int LinJam::GetVacantLocalChannelIdx()
 {
   // find the first vacant NJClient local channel slot index
   int channel_idx = -1 ; while (IsConfiguredChannel(++channel_idx)) ;
-  bool is_vacant_slot = (channel_idx < Audio->m_innch) ;
+  bool is_vacant_slot = (channel_idx < GetNumInputChannels()) ;
 
   return (is_vacant_slot)? channel_idx : -1 ;
 }
 
 String LinJam::GetStoredChannelName(ValueTree channel_store)
 {
-  return channel_store[CONFIG::CHANNELNAME_ID].toString() ;
+  return channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;
 }
 
 String LinJam::GetLocalChannelClientName(int channel_idx)
@@ -961,12 +908,55 @@ bool LinJam::IsConfiguredChannel(int channel_idx)
   return GetLocalChannelClientName(channel_idx).isNotEmpty() ;
 }
 
+double LinJam::AddDecibels(double vu_l , double vu_r)
+{
+  return 10 * log10(pow(10.0 , (vu_l / 10.0)) + pow(10.0 , (vu_r / 10.0))) ;
+}
+
+void LinJam::ComputePannedVus(double pan , double* vu_l , double* vu_r)
+{
+  double vu_l_in = *vu_l ;
+  double vu_r_in = *vu_r ;
+
+  if (pan > 0.0) // pan right
+  {
+    // decrease left contribution to left vu
+    *vu_l *= log10(10.0 * (1.0 - pan)) ;
+    // increase left contribution to right vu
+    *vu_r = AddDecibels(vu_r_in , vu_l_in * pan) ;
+  }
+
+  if (pan < 0.0) // pan left
+  {
+    // increase right contribution to left vu
+    *vu_l = AddDecibels(vu_l_in , vu_r_in * -pan) ;
+    // decrease right contribution to right vu
+    *vu_r *= log10(10.0 * (1.0 + pan)) ;
+  }
+
+  // cap underflows
+  if (isnan(*vu_l)) *vu_l = 0.0 ;
+  if (isnan(*vu_r)) *vu_r = 0.0 ;
+  if (vu_l_in == 0.0 && vu_r_in == 0.0) *vu_l = *vu_r = 0.0 ;
+}
+
+void LinJam::ScalePannedMonoVus(double vu_mono , double pan , double* vu_l , double* vu_r)
+{
+  // compute panned mono channel contributions to left and right VU master meters
+  *vu_l = (pan > 0.0)? vu_mono * log10(10.0 * (1.0 - pan)) : vu_mono ; // pan_left
+  *vu_r = (pan < 0.0)? vu_mono * log10(10.0 * (1.0 + pan)) : vu_mono ; // pan right
+
+  // cap underflows
+  if (isnan(*vu_l)) *vu_l = 0.0 ;
+  if (isnan(*vu_r)) *vu_r = 0.0 ;
+}
+
 float LinJam::ComputeStereoPan(float pan , int stereo_status)
 {
-  bool is_mono_channel  = stereo_status == CONFIG::MONO ;
-  bool is_slave_channel = stereo_status == CONFIG::STEREO_R ;
+  bool is_mono_channel = stereo_status == CONFIG::MONO ;
+  bool is_pair_channel = stereo_status == CONFIG::STEREO_R ;
   return (is_mono_channel)? pan                                         :
-                            (!is_slave_channel)                         ?
+                            (!is_pair_channel)                         ?
                               ((pan <= 0.0)? -1.0 : -1.0 + (pan * 2.0)) :
                               ((pan >= 0.0)? +1.0 : +1.0 + (pan * 2.0)) ;
 }
@@ -982,10 +972,10 @@ void LinJam::ConfigureMasterChannel(Identifier a_key)
   bool  is_muted = bool( master_store[CONFIG::IS_MUTED_ID]) ;
 
   // determine which NJClient channel params to modify
-  bool should_set_all      = (a_key == CONFIG::CONFIG_ALL_ID) ;
-  bool should_set_volume   = (should_set_all || a_key == CONFIG::VOLUME_ID) ;
-  bool should_set_pan      = (should_set_all || a_key == CONFIG::PAN_ID) ;
-  bool should_set_is_muted = (should_set_all || a_key == CONFIG::IS_MUTED_ID) ;
+  bool should_init_all      = (a_key == CONFIG::CONFIG_INIT_ID) ;
+  bool should_set_volume    = (should_init_all || a_key == CONFIG::VOLUME_ID) ;
+  bool should_set_pan       = (should_init_all || a_key == CONFIG::PAN_ID) ;
+  bool should_set_is_muted  = (should_init_all || a_key == CONFIG::IS_MUTED_ID) ;
 
   // configure NJClient master channel
   if (should_set_volume)   Client->config_mastervolume = (float)DB2VAL(volume) ;
@@ -1006,12 +996,12 @@ void LinJam::ConfigureMetroChannel(Identifier a_key)
   bool  is_stereo = int(  metro_store[CONFIG::STEREO_ID]) != CONFIG::MONO ;
 
   // determine which NJClient channel params to modify
-  bool should_set_all       = (a_key == CONFIG::CONFIG_ALL_ID) ;
-  bool should_set_volume    = (should_set_all || a_key == CONFIG::VOLUME_ID) ;
-  bool should_set_pan       = (should_set_all || a_key == CONFIG::PAN_ID) ;
-  bool should_set_is_muted  = (should_set_all || a_key == CONFIG::IS_MUTED_ID) ;
-  bool should_set_source_n  = (should_set_all || a_key == CONFIG::SOURCE_N_ID) ;
-  bool should_set_stereo    = (should_set_all || a_key == CONFIG::STEREO_ID) ;
+  bool should_init_all      = (a_key == CONFIG::CONFIG_INIT_ID) ;
+  bool should_set_volume    = (should_init_all || a_key == CONFIG::VOLUME_ID) ;
+  bool should_set_pan       = (should_init_all || a_key == CONFIG::PAN_ID) ;
+  bool should_set_is_muted  = (should_init_all || a_key == CONFIG::IS_MUTED_ID) ;
+  bool should_set_source_n  = (should_init_all || a_key == CONFIG::SOURCE_N_ID) ;
+  bool should_set_stereo    = (should_init_all || a_key == CONFIG::STEREO_ID) ;
 
   // configure NJClient metro channel
   if (should_set_volume)    Client->config_metronome           = (float)DB2VAL(volume) ;
@@ -1023,10 +1013,13 @@ void LinJam::ConfigureMetroChannel(Identifier a_key)
 
 void LinJam::ConfigureLocalChannel(ValueTree channel_store , Identifier a_key)
 {
-  if (!channel_store.isValid()   || a_key == CONFIG::CHANNELIDX_ID ||
-     a_key == CONFIG::VU_LEFT_ID || a_key == CONFIG::VU_RIGHT_ID    ) return ;
+  if (!channel_store.isValid()                                       ||
+     a_key == CONFIG::CHANNEL_IDX_ID || a_key == CONFIG::PAIR_IDX_ID ||
+     a_key == CONFIG::VU_LEFT_ID     || a_key == CONFIG::VU_RIGHT_ID  ) return ;
 
   // load stored config for this channel
+  int    channel_idx   = int(  channel_store[CONFIG::CHANNEL_IDX_ID]) ;
+  int    pair_idx      = int(  channel_store[CONFIG::PAIR_IDX_ID]) ;
   float  volume        = float(channel_store[CONFIG::VOLUME_ID]) ;
   float  pan           = float(channel_store[CONFIG::PAN_ID]) ;
   bool   is_xmit       = bool( channel_store[CONFIG::IS_XMIT_RCV_ID]) ;
@@ -1035,105 +1028,130 @@ void LinJam::ConfigureLocalChannel(ValueTree channel_store , Identifier a_key)
   int    source_n      = int(  channel_store[CONFIG::SOURCE_N_ID]) ;
   int    bit_depth     = int(  channel_store[CONFIG::BITDEPTH_ID]) ;
   int    stereo_status = int(  channel_store[CONFIG::STEREO_ID]) ;
+  String channel_name  = channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;
+         channel_name  = Config->makeStereoName(channel_name , stereo_status) ;
 
   // determine which NJClient channel params to modify
-  bool should_set_all       = a_key == CONFIG::CONFIG_ALL_ID ;
-  bool should_set_name      = a_key == CONFIG::CHANNELNAME_ID || should_set_all ;
-  bool should_set_volume    = a_key == CONFIG::VOLUME_ID      || should_set_all ;
-  bool should_set_pan       = a_key == CONFIG::PAN_ID         ||
-                              a_key == CONFIG::STEREO_ID      || should_set_all ;
-  bool should_set_is_xmit   = a_key == CONFIG::IS_XMIT_RCV_ID || should_set_all ;
-  bool should_set_is_muted  = a_key == CONFIG::IS_MUTED_ID    || should_set_all ;
-  bool should_set_is_solo   = a_key == CONFIG::IS_SOLO_ID     || should_set_all ;
-  bool should_set_source_n  = /* special case below */           should_set_all ;
-  bool should_set_bit_depth = a_key == CONFIG::BITDEPTH_ID    || should_set_all ;
-  bool should_set_stereo    = a_key == CONFIG::STEREO_ID      || should_set_all ;
+  bool should_init_all      = a_key == CONFIG::CONFIG_INIT_ID ;
+  bool should_set_name      = a_key == CONFIG::CHANNEL_NAME_ID || should_init_all ;
+  bool should_set_volume    = a_key == CONFIG::VOLUME_ID       || should_init_all ;
+  bool should_set_pan       = a_key == CONFIG::PAN_ID          ||
+                              a_key == CONFIG::STEREO_ID       || should_init_all ;
+  bool should_set_is_xmit   = a_key == CONFIG::IS_XMIT_RCV_ID  || should_init_all ;
+  bool should_set_is_muted  = a_key == CONFIG::IS_MUTED_ID     || should_init_all ;
+  bool should_set_is_solo   = a_key == CONFIG::IS_SOLO_ID      || should_init_all ;
+  bool should_set_source_n  = a_key == CONFIG::SOURCE_N_ID     || should_init_all ;
+  bool should_set_bit_depth = a_key == CONFIG::BITDEPTH_ID     || should_init_all ;
+  bool should_set_stereo    = a_key == CONFIG::STEREO_ID       || should_init_all ;
 
 DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
 
-  if (a_key == CONFIG::SOURCE_N_ID)
-  {
-    // handle special case of input source change
-    // ValueTree and GUI IDs are based on source_n and ValueTree can not be renamed
-    // so we must clobber existing first then re-create
-    Identifier current_id = channel_store.getType() ;
-    Identifier new_id     = Config->makeChannelId(source_n) ;
-
-    ValueTree new_channel_store = ValueTree(new_id) ;
-    new_channel_store.copyPropertiesFrom(channel_store                    , nullptr) ;
-    new_channel_store.setProperty(       CONFIG::CHANNELIDX_ID , source_n , nullptr) ;
-    new_channel_store.setProperty(       CONFIG::SOURCE_N_ID   , source_n , nullptr) ;
-    RemoveLocalChannel(channel_store) ; AddLocalChannel(new_channel_store) ;
-
-    return ;
-  }
-
+  // handle name change
   char* new_name = NULL ; WDL_String name_wdl ;
   if (should_set_name)
   {
-    String channel_name = channel_store[CONFIG::CHANNELNAME_ID].toString() ;
-    channel_name        = Config->makeStereoName(channel_name , stereo_status) ;
-
     // convert channel name from juce::String into non-const char*
     name_wdl.Set(channel_name.toRawUTF8()) ; new_name = name_wdl.Get() ;
   }
 
-  // TODO: handle mono/stereo conversion (should_set_stereo?) (issue #53)
   // handle faux-stereo panning
   if (should_set_pan) pan = ComputeStereoPan(pan , stereo_status) ;
 
   // configure NJClient local channel
   if (should_set_name || should_set_source_n || should_set_bit_depth || should_set_is_xmit)
-    Client->SetLocalChannelInfo(source_n             , new_name  ,
-                                should_set_all       , source_n  ,
+    Client->SetLocalChannelInfo(channel_idx          , new_name  ,
+                                should_set_source_n  , source_n  ,
                                 should_set_bit_depth , bit_depth ,
                                 should_set_is_xmit   , is_xmit   ) ;
-
   if (should_set_volume || should_set_pan || should_set_is_muted || should_set_is_solo)
-    Client->SetLocalChannelMonitoring(source_n                                    ,
+    Client->SetLocalChannelMonitoring(channel_idx                                 ,
                                       should_set_volume   , (float)DB2VAL(volume) ,
                                       should_set_pan      , pan                   ,
                                       should_set_is_muted , is_muted              ,
                                       should_set_is_solo  , is_solo               ) ;
-  Client->NotifyServerOfChannelChange() ;
 
   // configure faux-stereo pair implicitly
   if (stereo_status == CONFIG::STEREO_L)
   {
-    ValueTree slave_channel_store = Config->cloneTempSlaveChannel(channel_store) ;
-    ConfigureLocalChannel(slave_channel_store , a_key) ;
+    if (should_set_stereo)
+    {
+      // handle mono->stereo conversion
+      if (~(pair_idx = GetVacantLocalChannelIdx()))
+      {
+        a_key = CONFIG::CONFIG_INIT_ID ;
+        channel_store.setProperty(CONFIG::PAIR_IDX_ID , pair_idx     , nullptr) ;
+      }
+      else
+      {
+        channel_store.setProperty(CONFIG::STEREO_ID   , CONFIG::MONO , nullptr) ;
+
+        return ;
+      }
+    }
+
+    // force mono conversion bypassing configuration of pair to be deleted (fires next case)
+    if (a_key == CONFIG::SOURCE_N_ID && source_n % 2)
+      channel_store.setProperty(CONFIG::STEREO_ID , CONFIG::MONO , nullptr) ;
+    // configure unstored pair channel
+    else
+    {
+      ValueTree pair_store    = channel_store.createCopy() ;
+      String    pair_name     = Config->makeStereoName(channel_name , CONFIG::STEREO_R) ;
+      int       pair_source_n = source_n + 1 ;
+
+      pair_store.setProperty(CONFIG::CHANNEL_NAME_ID , pair_name        , nullptr) ;
+      pair_store.setProperty(CONFIG::CHANNEL_IDX_ID  , pair_idx         , nullptr) ;
+      pair_store.setProperty(CONFIG::SOURCE_N_ID     , pair_source_n    , nullptr) ;
+      pair_store.setProperty(CONFIG::STEREO_ID       , CONFIG::STEREO_R , nullptr) ;
+
+      ConfigureLocalChannel(pair_store , a_key) ;
+    }
+
+    // update client channels names on mono->stereo conversion
+    if (should_set_stereo)
+      channel_store.setProperty(CONFIG::CHANNEL_NAME_ID , channel_name , nullptr) ;
   }
+  // handle stereo->mono conversion
+  else if (stereo_status == CONFIG::MONO && should_set_stereo)
+  {
+    Client->DeleteLocalChannel(pair_idx) ;
+    channel_store.setProperty(CONFIG::PAIR_IDX_ID , CONFIG::DEFAULT_CHANNEL_IDX , nullptr) ;
+    channel_store.setProperty(CONFIG::CHANNEL_NAME_ID , channel_name , nullptr) ;
+  }
+
+  Client->NotifyServerOfChannelChange() ;
 }
 
 void LinJam::ConfigureRemoteChannel(ValueTree  user_store , ValueTree channel_store ,
                                     Identifier a_key                                )
 {
-  if (!user_store.isValid()          || !channel_store.isValid()       ||
-     a_key == CONFIG::CHANNELNAME_ID || a_key == CONFIG::CHANNELIDX_ID ||
-     a_key == CONFIG::VU_LEFT_ID     || a_key == CONFIG::VU_RIGHT_ID    ) return ;
+  if (!user_store.isValid()           || !channel_store.isValid()     ||
+     a_key == CONFIG::CHANNEL_NAME_ID                                 ||
+     a_key == CONFIG::CHANNEL_IDX_ID  || a_key == CONFIG::PAIR_IDX_ID ||
+     a_key == CONFIG::VU_LEFT_ID      || a_key == CONFIG::VU_RIGHT_ID  ) return ;
 
   // load stored config for this channel
-  int        user_idx      = int(  user_store   [CONFIG::USERIDX_ID]) ;
-  int        channel_idx   = int(  channel_store[CONFIG::CHANNELIDX_ID]) ;
-  float      volume        = float(channel_store[CONFIG::VOLUME_ID]) ;
-  float      pan           = float(channel_store[CONFIG::PAN_ID]) ;
-  bool       is_rcv        = bool( channel_store[CONFIG::IS_XMIT_RCV_ID]) ;
-  bool       is_muted      = bool( channel_store[CONFIG::IS_MUTED_ID]) ;
-  bool       is_solo       = bool( channel_store[CONFIG::IS_SOLO_ID]) ;
-  int        sink_n        = 0 ; // TODO: not yet clear how to handle remote sink_n
-  int        stereo_status = int(  channel_store[CONFIG::STEREO_ID]) ;                           \
-  bool       is_stereo     = true ;
+  int   user_idx      = int(  user_store   [CONFIG::USER_IDX_ID]) ;
+  int   channel_idx   = int(  channel_store[CONFIG::CHANNEL_IDX_ID]) ;
+  int   pair_idx      = int(  channel_store[CONFIG::PAIR_IDX_ID]) ;
+  float volume        = float(channel_store[CONFIG::VOLUME_ID]) ;
+  float pan           = float(channel_store[CONFIG::PAN_ID]) ;
+  bool  is_rcv        = bool( channel_store[CONFIG::IS_XMIT_RCV_ID]) ;
+  bool  is_muted      = bool( channel_store[CONFIG::IS_MUTED_ID]) ;
+  bool  is_solo       = bool( channel_store[CONFIG::IS_SOLO_ID]) ;
+  int   sink_n        = 0 ; // TODO: not yet clear how to handle remote sink_n
+  int   stereo_status = int(  channel_store[CONFIG::STEREO_ID]) ;                           \
+  bool  is_stereo     = true ;
 
   // determine which NJClient channel params to modify
-  bool should_set_all      = a_key == CONFIG::CONFIG_ALL_ID ;
-  bool should_set_volume   = a_key == CONFIG::VOLUME_ID      || should_set_all ;
+  bool should_init_all     = a_key == CONFIG::CONFIG_INIT_ID ;
+  bool should_set_volume   = a_key == CONFIG::VOLUME_ID      || should_init_all ;
   bool should_set_pan      = a_key == CONFIG::PAN_ID         ||
-                             a_key == CONFIG::STEREO_ID      || should_set_all ;
-  bool should_set_is_rcv   = a_key == CONFIG::IS_XMIT_RCV_ID || should_set_all ;
-  bool should_set_is_muted = a_key == CONFIG::IS_MUTED_ID    || should_set_all ;
-  bool should_set_is_solo  = a_key == CONFIG::IS_SOLO_ID     || should_set_all ;
-  bool should_set_sink_n   = a_key == CONFIG::SOURCE_N_ID    || should_set_all ;
-  bool should_set_stereo   = a_key == CONFIG::STEREO_ID      || should_set_all ;
+                             a_key == CONFIG::STEREO_ID      || should_init_all ;
+  bool should_set_is_rcv   = a_key == CONFIG::IS_XMIT_RCV_ID || should_init_all ;
+  bool should_set_is_muted = a_key == CONFIG::IS_MUTED_ID    || should_init_all ;
+  bool should_set_is_solo  = a_key == CONFIG::IS_SOLO_ID     || should_init_all ;
+  bool should_set_stereo   = a_key == CONFIG::STEREO_ID      || should_init_all ;
 
 DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL
 
@@ -1163,20 +1181,23 @@ DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL
     ValueTree master_store   = Config->getUserMasterChannel(user_store) ;
     bool      is_master_rcv  = bool(master_store[CONFIG::IS_XMIT_RCV_ID]) ;
     bool      is_master_solo = bool(master_store[CONFIG::IS_SOLO_ID]) ;
-    Client->SetUserChannelState(user_idx             , channel_idx               ,
-                                should_set_is_rcv    , is_rcv && is_master_rcv   ,
-                                should_set_volume    , (float)DB2VAL(volume)     ,
-                                should_set_pan       , pan                       ,
-                                should_set_is_muted  , is_muted                  ,
-                                should_set_is_solo   , is_solo || is_master_solo ,
-                                should_set_all       , sink_n                    ,
-                                should_set_all       , is_stereo                 ) ;
+    Client->SetUserChannelState(user_idx            , channel_idx               ,
+                                should_set_is_rcv   , is_rcv && is_master_rcv   ,
+                                should_set_volume   , (float)DB2VAL(volume)     ,
+                                should_set_pan      , pan                       ,
+                                should_set_is_muted , is_muted                  ,
+                                should_set_is_solo  , is_solo || is_master_solo ,
+                                should_init_all     , sink_n                    ,
+                                should_init_all     , is_stereo                 ) ;
 
     // configure faux-stereo pair implicitly
     if (stereo_status == CONFIG::STEREO_L)
     {
-      ValueTree slave_store = Config->cloneTempSlaveChannel(channel_store) ;
-      ConfigureRemoteChannel(user_store , slave_store , a_key) ;
+      int       pair_idx   = int(channel_store[CONFIG::PAIR_IDX_ID]) ;
+      ValueTree pair_store = Config->getChannelByIdx(user_store , pair_idx) ;
+      if (should_set_stereo || should_init_all)
+        ConfigureRemoteChannel(user_store , pair_store , CONFIG::CONFIG_INIT_ID) ;
+      else pair_store.setProperty(a_key , channel_store[a_key] , nullptr) ;
     }
   }
 }

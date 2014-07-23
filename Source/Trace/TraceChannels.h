@@ -18,35 +18,37 @@
 #  define DEBUG_TRACE_DUMP_CHANNELS_GUI_VB ;
 #endif // TRACE_DUMP_CHANNELS_GUI
 
-#define DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL                                   \
-  String ch_id        = String(channel_store.getType()) ;                  \
-  String ch_name      = channel_store[CONFIG::CHANNELNAME_ID].toString() ; \
-  int    stereo_state = int(channel_store[CONFIG::STEREO_ID]) ;            \
-  String dbg   = "adding channel slice " + ch_id + " '" + ch_name +        \
-                 "' to '" + getComponentID() + "' channels" ;              \
-  if (!channel_store.isValid())                                            \
-    Trace::TraceError("channel store invalid " + dbg) ;                    \
-  else if (!getChannel(ch_id) && stereo_state == CONFIG::STEREO_R)         \
+#define DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL                                    \
+  String ch_id        = String(channel_store.getType()) ;                   \
+  String ch_name      = channel_store[CONFIG::CHANNEL_NAME_ID].toString() ; \
+  int    stereo_state = int(channel_store[CONFIG::STEREO_ID]) ;             \
+  String dbg   = "adding channel slice " + ch_id + " '" + ch_name +         \
+                 "' to '" + getComponentID() + "' channels" ;               \
+  if (!channel_store.isValid())                                             \
+    Trace::TraceError("channel store invalid " + dbg) ;                     \
+  else if (!getChannel(ch_id) && stereo_state == CONFIG::STEREO_R)          \
     Trace::TraceGui(dbg + " (hidden)") ;
 
 #if TRACE_ADD_CHANNEL_GUI_VB
-#  define DEBUG_TRACE_ADD_CHANNEL_GUI                                           \
-  Trace::TraceGui(String("added channel slice " + String(channel_id) + " =>") + \
-    "\n  mixer_group  => " + String(getComponentID())                         + \
-    "\n  channel_name => " + channel_store[CONFIG::CHANNELNAME_ID].toString() + \
-    "\n  volume       => " + channel_store[CONFIG::VOLUME_ID].toString()      + \
-    "\n  pan          => " + channel_store[CONFIG::PAN_ID].toString()         + \
-    "\n  is_xmit      => " + channel_store[CONFIG::IS_XMIT_RCV_ID].toString() + \
-    "\n  is_muted     => " + channel_store[CONFIG::IS_MUTED_ID].toString()    + \
-    "\n  is_solo      => " + channel_store[CONFIG::IS_SOLO_ID].toString()     + \
-    "\n  source_ch    => " + channel_store[CONFIG::SOURCE_N_ID].toString()    + \
-    "\n  stereo_state => " + channel_store[CONFIG::STEREO_ID].toString()) ;     \
+#  define DEBUG_TRACE_ADD_CHANNEL_GUI                                            \
+  Trace::TraceGui(String("added channel slice " + String(channel_id) + " =>")  + \
+    "\n  mixer_group  => " + String(getComponentID())                          + \
+    "\n  channel_name => " + channel_store[CONFIG::CHANNEL_NAME_ID].toString() + \
+    "\n  channel_idx  => " + channel_store[CONFIG::CHANNEL_IDX_ID].toString()  + \
+    "\n  pair_idx     => " + channel_store[CONFIG::PAIR_IDX_ID].toString()     + \
+    "\n  volume       => " + channel_store[CONFIG::VOLUME_ID].toString()       + \
+    "\n  pan          => " + channel_store[CONFIG::PAN_ID].toString()          + \
+    "\n  is_xmit      => " + channel_store[CONFIG::IS_XMIT_RCV_ID].toString()  + \
+    "\n  is_muted     => " + channel_store[CONFIG::IS_MUTED_ID].toString()     + \
+    "\n  is_solo      => " + channel_store[CONFIG::IS_SOLO_ID].toString()      + \
+    "\n  source_ch    => " + channel_store[CONFIG::SOURCE_N_ID].toString()     + \
+    "\n  stereo_state => " + channel_store[CONFIG::STEREO_ID].toString()) ;      \
   DEBUG_TRACE_DUMP_CHANNELS_GUI_VB
 #else // TRACE_ADD_CHANNEL_GUI_VB
-#  define DEBUG_TRACE_ADD_CHANNEL_GUI                                  \
-  Trace::TraceGui("added channel slice " + String(channel_id) + " '" + \
-                  channel_store[CONFIG::CHANNELNAME_ID].toString()   + \
-                  "' to '" + String(getComponentID()) + "'") ;         \
+#  define DEBUG_TRACE_ADD_CHANNEL_GUI                                   \
+  Trace::TraceGui("added channel slice " + String(channel_id) + " '"  + \
+                  channel_store[CONFIG::CHANNEL_NAME_ID].toString()   + \
+                  "' to '" + String(getComponentID()) + "'") ;          \
   DEBUG_TRACE_DUMP_CHANNELS_GUI_VB
 #endif // TRACE_ADD_CHANNEL_GUI_VB
 
@@ -55,21 +57,24 @@
                   " from '" + this->nameLabel->getText() +                   \
                   "' to '"  + this->channelName.getValue().toString() + "'") ;
 
-#define DEBUG_TRACE_REMOVE_CHANNEL_GUI                                                    \
-  Channel* ch           = getChannel(channel_id) ;                                        \
-  bool     is_stereo    = ch && int(ch->configStore[CONFIG::STEREO_ID]) != CONFIG::MONO ; \
-  String   channel_type = (ch)? ((!is_stereo)? "mono" : "stereo") : "unknown" ;           \
-  String   channel_name = (ch)? ch->configStore[CONFIG::CHANNELNAME_ID].toString() : "" ; \
-  String   dbg          = "removing " + channel_type                             +        \
-                          " channel " + String(channel_id) + " '" + channel_name +        \
-                          "' from '"  + getComponentID()   + "' channels" ;               \
-  if (ch) Trace::TraceGui(dbg) ; else Trace::TraceError(dbg) ;                            \
+#define DEBUG_TRACE_REMOVE_CHANNEL_GUI                                                     \
+  Channel* ch           = getChannel(channel_id) ;                                         \
+  bool     is_stereo    = ch && int(ch->configStore[CONFIG::STEREO_ID]) != CONFIG::MONO ;  \
+  String   channel_type = (ch)? ((!is_stereo)? "mono" : "stereo") : "unknown" ;            \
+  String   channel_name = (ch)? ch->configStore[CONFIG::CHANNEL_NAME_ID].toString() : "" ; \
+  String   dbg          = "removing " + channel_type                             +         \
+                          " channel " + String(channel_id) + " '" + channel_name +         \
+                          "' from '"  + getComponentID()   + "' channels" ;                \
+  if (ch) Trace::TraceGui(dbg) ; else Trace::TraceError(dbg) ;                             \
   DEBUG_TRACE_DUMP_CHANNELS_GUI_VB
 
-#define DEBUG_TRACE_STEREO_STATE_GUI                                         \
-  int stereo_status = int(this->stereoStatus.getValue()) ;                   \
-  Trace::TraceGui(String(this->configStore.getParent().getType())          + \
-                  " channel '" + this->nameLabel->getText() + "' is "      + \
-                  ((stereo_status == CONFIG::MONO)    ? "MONO"     :         \
-                   (stereo_status == CONFIG::STEREO_L)? "STEREO_L" :         \
-                   (stereo_status == CONFIG::STEREO_R)? "STEREO_R" : "NFG")) ;
+#define DEBUG_TRACE_STEREO_STATE_GUI                                                  \
+  int        stereo_status = int(this->stereoStatus.getValue()) ;                     \
+  Identifier parent_id     = (!this->configStore.getParent().isValid())? "orphan" :   \
+                             this->configStore.getParent().getType() ;                \
+  Trace::TraceGui(String(parent_id) + " channel '" + this->nameLabel->getText()     + \
+                  "' stereo status is "                                             + \
+                  ((stereo_status == CONFIG::MONO)    ? "MONO"     :                  \
+                   (stereo_status == CONFIG::STEREO_L)? "STEREO_L" :                  \
+                   (stereo_status == CONFIG::STEREO_R)? "STEREO_R" :                  \
+                   (stereo_status == CONFIG::STEREO)  ? "STEREO"   : "NFG")) ;

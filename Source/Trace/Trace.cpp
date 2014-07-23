@@ -28,23 +28,23 @@ void Trace::DumpStoreXml(ValueTree store)
 
 String Trace::DumpStoredChannels()
 {
-  String    dump     = "\n  localChannels =>" ;
+  String    dump     = "  localChannels =>" ;
   ValueTree channels = LinJam::Config->localChannels ;
   ValueTree users    = LinJam::Config->remoteUsers ;
 
   for (int ch_n = 0 ; ch_n < channels.getNumChildren() ; ++ch_n)
-    dump += "\n    " + channels.getChild(ch_n)[CONFIG::CHANNELNAME_ID].toString() ;
+    dump += "\n    " + channels.getChild(ch_n)[CONFIG::CHANNEL_NAME_ID].toString() ;
 
   dump += "\n  remoteChannels =>" ;
   for (int user_n = 0 ; user_n < users.getNumChildren() ; ++user_n)
   {
     channels = users.getChild(user_n) ;
     /* TODO: KLUDGE (issue #33) nyi remote-channels node */
-    if (!channels.hasProperty(CONFIG::USERIDX_ID)) continue ;
+    if (!channels.hasProperty(CONFIG::USER_IDX_ID)) continue ;
 
     for (int ch_n = 0 ; ch_n < channels.getNumChildren() ; ++ch_n)
       dump += "\n    " + String(channels.getType()) + " "                +
-              channels.getChild(ch_n)[CONFIG::CHANNELNAME_ID].toString() ;
+              channels.getChild(ch_n)[CONFIG::CHANNEL_NAME_ID].toString() ;
   }
 
   return dump ;
@@ -56,11 +56,11 @@ String Trace::DumpClientChannels()
   while (~(channel_idx = LinJam::Client->EnumLocalChannels(++channel_n)))
     dump += "\n    " + LinJam::GetLocalChannelClientName(channel_idx) ;
 
-  dump = "\n  client remotes =>" ;
+  dump =+ "\n  client remotes =>" ;
   int user_idx = LinJam::Client->GetNumUsers() ; String user_name ;
   while ((user_name = LinJam::GetRemoteUserName(--user_idx)).isNotEmpty())
   {
-    dump = "\n    " + user_name + " =>" ;
+    dump += "\n    " + user_name + " =>" ;
     int channel_n = -1 ; int channel_idx ;
     while (~(channel_idx = LinJam::Client->EnumUserChannels(user_idx , ++channel_n)))
       dump += "\n      " + LinJam::GetRemoteChannelClientName(user_idx , channel_idx) ;
