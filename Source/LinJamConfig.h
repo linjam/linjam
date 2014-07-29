@@ -25,67 +25,102 @@ public:
 
 
   // client config
-  Value     saveAudio ;          // int
-  Value     shouldSaveLog ;      // bool
-  Value     debugLevel ;         // int
-  Value     autoSubscribe ;      // int
-  ValueTree autoSubscribeUsers ; // probably wont use this
+  ValueTree client ;
+  ValueTree subscriptions ;
+/*
+  Value     saveAudio ;     // int
+  Value     shouldSaveLog ; // bool
+  Value     debugLevel ;    // int
+  Value     autoSubscribe ; // int
+*/
+  // audio device config
+  ValueTree audio ;
+/*
+  var       win-audio-if-n    // int (audioStreamer::WinAudioIf enum)
+  var       asio-driver       // int
+  var       asio-input0       // int
+  var       asio-input1       // int
+  var       asio-output0      // int
+  var       asio-output1      // int
+  var       ks-input          // int
+  var       ks-output         // int
+  var       ks-sample-rate    // int
+  var       ks-bit-depth      // int
+  var       ks-block-size     // int
+  var       ks-n-blocks       // int
+  var       ds-input0         // int
+  var       ds-input1         // int
+  var       ds-input2         // int
+  var       ds-input3         // int
+  var       ds-output0        // int
+  var       ds-output1        // int
+  var       ds-output2        // int
+  var       ds-output3        // int
+  var       ds-sample-rate    // int
+  var       ds-bit-depth      // int
+  var       ds-block-size     // int
+  var       ds-n-blocks       // int
+  var       wave-input        // int
+  var       wave-output       // int
+  var       wave-sample-rate  // int
+  var       wave-bit-depth    // int
+  var       wave-block-size   // int
+  var       wave-n-blocks     // int
+  var       mac-n-inputs ;    // int
+  var       mac-sample-rate ; // int
+  var       mac-bit-depth ;   // int
+  var       jack-n-inputs ;   // int
+  var       jack-n-outputs ;  // int
+  var       jack-name ;       // string
+*/
 
-  // device config
-  Value audioIfN ;    // int
-  Value bitDepth ;    // int
-  Value sampleRate ;  // int
-  Value nInputs ;     // int
-  Value nOutputs ;    // int
-  Value jackName ;    // string
-  Value configAudio ; // string
+  // login config
+  ValueTree server ;
+  Value     host ;           // string
+  Value     login ;          // string
+  Value     pass ;           // string
+  Value     isAnonymous ;    // bool
+  Value     isAgreed ;       // bool // TODO: ?? this exists only so OnLicense doesnt block (issue #14)
+  Value     shouldAgree ;    // bool // TODO: unused
+  Value     shouldHideBots ; // bool // TODO: this needs a new catagory e.g. <linjam-features>
+
+  // per server config
+  ValueTree servers ;
+/*
+  var       host             // string
+  var       login            // string
+  var       pass             // string
+  var       is-anonymous     // bool
+  var       should-agree     // bool
+  var       should-hide-bots // bool
+*/
 
   // channels
   ValueTree masterChannels ; // children: master , metro channels as below
   ValueTree localChannels ;  // children: channels as below
   ValueTree remoteUsers ;    // children: users , grandchildren: channels as below
 /* per-user data - access through above remoteUsers
-  Value     user-idx         // int
-/* per-channel data - access through above ValueTrees
-  Value     channel-name     // string
-  Value     channel-idx      // int
-  Value     stereo-pair-idx  // int
-  Value     volume           // double
-  Value     pan              // double
-  Value     is-xmitrcv       // bool
-  Value     is-muted         // bool
-  Value     is-solo          // bool
-  Value     source-sink-n    // int
-  Value     stereo-status    // int
-  Value     vu-left          // double
-  Value     vu-right         // double
-*/
-
-  // current server config
-  Value host ;           // string
-  Value login ;          // string
-  Value pass ;           // string
-  Value isAnonymous ;    // bool
-  Value isAgreed ;       // bool // TODO: ?? this exists only so OnLicense doesnt block (issue #14)
-  Value shouldAgree ;    // bool // TODO: unused
-  Value shouldHideBots ; // bool
-
-  // per server config
-  ValueTree servers ;
-/*
-  Value     host             // string
-  Value     login            // string
-  Value     pass             // string
-  Value     is-anonymous     // bool
-  Value     should-agree     // bool
-  Value     should-hide-bots // bool
+  var       user-idx         // int
+/* per-channel data - access through above *Channels
+  var       channel-name     // string
+  var       channel-idx      // int
+  var       stereo-pair-idx  // int
+  var       volume           // double
+  var       pan              // double
+  var       is-xmitrcv       // bool
+  var       is-muted         // bool
+  var       is-solo          // bool
+  var       source-sink-n    // int
+  var       stereo-status    // int
+  var       vu-left          // double
+  var       vu-right         // double
 */
 
   // validation
-  bool       sanityCheck() ;
+  bool       isConfigSane() ;
   String     parseUsername(    String user_name) ;
   Identifier makeHostId(       String host_name) ;
-  Identifier makeUserId(       String channel_name , int user_idx) ;
+  Identifier makeUserId(       String channel_name) ;
   Identifier makeChannelId(    int channel_idx) ;
   String     trimStereoName(   String channel_name) ;
   String     makeStereoName(   String channel_name , int stereo_status) ;
@@ -99,7 +134,7 @@ public:
                                   int    channel_idx  = CONFIG::DEFAULT_CHANNEL_IDX  ) ;
   ValueTree addChannel(           ValueTree channels_store , ValueTree new_store) ;
   void      destroyChannel(       ValueTree channels_store , ValueTree channel_store) ;
-  ValueTree getOrAddRemoteUser(   String user_name , int user_idx) ;
+  ValueTree getOrAddRemoteUser(   String user_name) ;
   ValueTree getOrAddRemoteChannel(Identifier user_id     , String channel_name        ,
                                   int        channel_idx = CONFIG::DEFAULT_CHANNEL_IDX) ;
   ValueTree getUserById(          Identifier user_id) ;
@@ -124,11 +159,13 @@ private:
 
 
   // validation
-  ValueTree sanitizeConfig(     ValueTree default_config , ValueTree stored_config) ;
-  void      restoreVarTypeInfo( ValueTree store) ;
-  bool      sanityCheckChannels(ValueTree channels) ;
+  void      initialize() ;
+  ValueTree sanitizeConfig(    ValueTree default_config , ValueTree stored_config) ;
+  void      restoreVarTypeInfo(ValueTree store) ;
+  void      sanitizeChannels(  ValueTree channels) ;
   void      storeConfig() ;
   void      establishSharedStore() ;
+  bool      sanityCheck() ;
 
   // helpers
   ValueTree  getNode(     Identifier tree_node_id) ;

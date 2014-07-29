@@ -23,10 +23,7 @@
 #include "Constants.h"
 #include "Mixer.h"
 #include "ChannelConfig.h"
-
-#if DEBUG
-#  include "./Trace/TraceChannels.h"
-#endif // DEBUG
+#include "./Trace/TraceChannels.h"
 
 //[/Headers]
 
@@ -164,7 +161,6 @@ Channel::Channel (ValueTree channel_store)
   bool   is_xmit      = bool(  channel_store[CONFIG::IS_XMIT_RCV_ID]) ;
   bool   is_muted     = bool(  channel_store[CONFIG::IS_MUTED_ID]) ;
   bool   is_solo      = bool(  channel_store[CONFIG::IS_SOLO_ID]) ;
-  int    source_n     = int(   channel_store[CONFIG::SOURCE_N_ID]) ;
   double vu_min       = 0.0 ;
   double vu_max       = CLIENT::VU_DB_RANGE ;
   double gain_min     = CLIENT::VU_DB_MIN ;
@@ -367,7 +363,7 @@ void Channel::updateChannelVU(Slider* a_vu_slider , Label* a_vu_label , double v
   double actual_vu    = vu + CLIENT::VU_DB_MIN ;
   bool   is_metro     = this->configStore.getType() == CONFIG::METRO_ID ;
   bool   is_saturated = actual_vu >= 0.0 && !is_metro ;
-  String label_text   = String(int(actual_vu)) ;
+  String label_text   = String((vu <= CLIENT::VU_DB_RANGE)? int(actual_vu) : '\u221E') ;
 
   a_vu_slider->setValue(vu) ;
   a_vu_label ->setText(label_text , juce::dontSendNotification) ;
@@ -494,14 +490,14 @@ void LocalChannel::buttonClicked(Button* a_button)
     Component*     mixer         = getParentComponent()->getParentComponent() ;
     Component*     mainContent   = mixer->getParentComponent() ;
 
-    channelConfig->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
+    // compute CallOutBox arrow target posistion
     int modalX = mixer->getX() + getX() + configButton->getX() + (GUI::CONFIG_BTN_W / 2) ;
     int modalY = mixer->getY() + getY() + configButton->getY() + (GUI::CONFIG_BTN_H / 2) ;
+    juce::Rectangle<int> modalRect = juce::Rectangle<int>(modalX , modalY , 1 , 1) ;
 
-    Rectangle<int> modalRect = Rectangle<int>(modalX , modalY , 1 , 1) ;
-    CallOutBox&    modalBox  = CallOutBox::launchAsynchronously(channelConfig ,
-                                                                modalRect     ,
-                                                                mainContent   ) ;
+    // instantiate ChannelConfig as CallOutBox
+    channelConfig->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
+    CallOutBox::launchAsynchronously(channelConfig , modalRect , mainContent) ;
   }
 }
 

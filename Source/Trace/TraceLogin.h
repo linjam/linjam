@@ -1,4 +1,6 @@
-#include "Trace.h"
+#if DEBUG
+
+#  include "Trace.h"
 
 
 /* state */
@@ -35,3 +37,13 @@
 #else // TRACE_LOGIN_HOST
 #  define DEBUG_TRACE_LOGIN_HOST_VB ;
 #endif // TRACE_LOGIN_HOST
+
+#else // DEBUG
+
+// state
+#define DEBUG_TRACE_LOGIN_LOAD    ;
+#define DEBUG_TRACE_LOGIN_BTNS    ;
+// network
+#define DEBUG_TRACE_LOGIN_HOST_VB ;
+
+#endif // DEBUG

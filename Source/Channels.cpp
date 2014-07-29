@@ -22,6 +22,7 @@
 #include "LinJam.h"
 #include "Constants.h"
 #include "ChannelConfig.h"
+#include "./Trace/TraceChannels.h"
 
 //[/Headers]
 
@@ -29,11 +30,6 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
-
-#if DEBUG
-#  include "./Trace/TraceChannels.h"
-#endif // DEBUG
-
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -221,18 +217,18 @@ void LocalChannels::buttonClicked(Button* a_button)
 {
   if (a_button == this->expandButton)
   {
+    ChannelConfig* channelConfig = new ChannelConfig(LinJam::Config->newChannel()) ;
     Component*     mixer         = getParentComponent() ;
     Component*     mainContent   = mixer->getParentComponent() ;
-    ChannelConfig* channelConfig = new ChannelConfig(LinJam::Config->newChannel()) ;
-    channelConfig->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
 
+    // compute CallOutBox arrow target posistion
     int modalX = mixer->getX() + getX() + this->expandButton->getX() + GUI::EXPAND_BTN_XC ;
     int modalY = mixer->getY() + getY() + this->expandButton->getY() + GUI::EXPAND_BTN_YC ;
+    juce::Rectangle<int> modalRect = juce::Rectangle<int>(modalX , modalY , 1 , 1) ;
 
-    Rectangle<int> modalRect = Rectangle<int>(modalX , modalY , 1 , 1) ;
-    CallOutBox&    modalBox  = CallOutBox::launchAsynchronously(channelConfig ,
-                                                                modalRect     ,
-                                                                mainContent   ) ;
+    // instantiate ChannelConfig as CallOutBox
+    channelConfig->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
+    CallOutBox::launchAsynchronously(channelConfig , modalRect , mainContent) ;
   }
 }
 

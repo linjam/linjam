@@ -1,4 +1,13 @@
+#if DEBUG
+
 #include "Trace.h"
+
+
+#ifdef DEBUG_AUTOLOGIN
+//#define DEBUG_STATIC_CHANNEL "localhost:2049"
+#  define DEBUG_STATIC_CHANNEL "ninbot.com:2052"
+// #define DEBUG_STATIC_CHANNEL "ninjamer.com:2049"
+#endif // DEBUG_AUTOLOGIN
 
 
 /* state */
@@ -29,16 +38,17 @@
 
 /* audio */
 
-#define DEBUG_TRACE_AUDIO_INIT_WIN                                        \
-  String type = "unknown" ; /* this can not be so */                      \
-  if      (if_n == audioStreamer::WINDOWS_AUDIO_ASIO)  type = "ASIO" ;    \
-  else if (if_n == audioStreamer::WINDOWS_AUDIO_KS)    type = "KS" ;      \
-  else if (if_n == audioStreamer::WINDOWS_AUDIO_DS)    type = "DS" ;      \
-  else if (if_n == audioStreamer::WINDOWS_AUDIO_WAVE)  type = "WAVE" ;    \
-  if (Audio) Trace::TraceConfig("using " + type + " audiostreamerobject") ;
+#define DEBUG_TRACE_AUDIO_INIT_WIN                                              \
+  audioStreamer::WinAudioIf if_n = (audioStreamer::WinAudioIf)win_interface_n ; \
+  String type = "unknown" ; /* this can not be so */                            \
+  if      (if_n == audioStreamer::WINDOWS_AUDIO_ASIO)  type = "ASIO" ;          \
+  else if (if_n == audioStreamer::WINDOWS_AUDIO_KS)    type = "KS" ;            \
+  else if (if_n == audioStreamer::WINDOWS_AUDIO_DS)    type = "DS" ;            \
+  else if (if_n == audioStreamer::WINDOWS_AUDIO_WAVE)  type = "WAVE" ;          \
+  if (Audio) Trace::TraceConfig("using " + type + " audiostreamer") ;
 
 #define DEBUG_TRACE_AUDIO_INIT_MAC                                     \
-  if (Audio) Trace::TraceConfig("using CoreAudio audiostreamerobject") ;
+  if (Audio) Trace::TraceConfig("using CoreAudio audiostreamer") ;
 
 #define DEBUG_TRACE_AUDIO_INIT_JACK                                                \
   if (Audio) Trace::TraceConfig("using JACK audiostreamer") ;                      \
@@ -272,3 +282,33 @@
                       chat_text.upToFirstOccurrenceOf(" " , false , false) :    \
                       CLIENT::CHATMSG_TYPE_MSG)) ;
 
+#else // DEBUG
+
+// state
+#define DEBUG_TRACE_LINJAM_INIT               ;
+#define DEBUG_TRACE_CONNECT                   ;
+#define DEBUG_TRACE_LICENSE                   ;
+#  define DEBUG_TRACE_CLEAN_SESSION           ;
+// audio
+#define DEBUG_TRACE_AUDIO_INIT_WIN            ;
+#define DEBUG_TRACE_AUDIO_INIT_MAC            ;
+#define DEBUG_TRACE_AUDIO_INIT_JACK           ;
+#define DEBUG_TRACE_AUDIO_INIT_ALSA           ;
+#define DEBUG_TRACE_AUDIO_INIT                ;
+// network
+#define DEBUG_TRACE_CONNECT_STATUS            ;
+// channels
+#define DEBUG_TRACE_INITIAL_CHANNELS          ;
+#define DEBUG_TRACE_ADD_LOCAL_CHANNEL         ;
+#define DEBUG_TRACE_INSTANTIATE_LOCAL_CHANNEL ;
+#define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL   ;
+#define DEBUG_TRACE_REMOVE_LOCAL_CHANNEL      ;
+#define DEBUG_TRACE_DUMP_FREE_INPUTS_VB       ;
+#define DEBUG_TRACE_REMOTE_CHANNELS           ;
+#define DEBUG_TRACE_REMOTE_CHANNELS_VB        ;
+#define DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL  ;
+// chat
+#define DEBUG_TRACE_CHAT_IN                   ;
+#define DEBUG_TRACE_CHAT_OUT                  ;
+
+#endif // DEBUG

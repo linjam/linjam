@@ -2,23 +2,23 @@
 #ifndef _TRACE_H_
 #define _TRACE_H_
 
+#if DEBUG
 
 // standard features
-#define UPDATE_LOOP_PROGRESS_GUI
-#define UPDATE_VU_METERS_GUI
-#define UPDATE_RECORDING_TIME_GUI
-#define UPDATE_REMOTES
-#define BUGGY_CHAT_COMMANDS                    // (issue #19)
-#define KLUDGE_SET_INITIAL_REMOTE_GAIN_TO_ZERO // NJClient initializes remote channels gain to 1.0
+//#define NO_UPDATE_LOOP_PROGRESS_GUI
+//#define NO_UPDATE_VU_METERS_GUI
+//#define NO_UPDATE_RECORDING_TIME_GUI
+//#define NO_UPDATE_REMOTES
+//#define ACCEPT_CHAT_COMMANDS         // (issue #19)
+//#define CLEAN_SESSION
 //#define FADE_HIDDEN_REMOTES
-//#define FAUX_STEREO_REMOTES_NYI
 
-#if DEBUG
+
 // debug features
 //#define DEBUG_EXIT_IMMEDIAYELY
 #define DEBUG_LOCALHOST_LOGIN_BUTTON
 #define DEBUG_AUTOLOGIN
-#endif // DEBUG
+
 
 // tracing
 #define DEBUG_TRACE                       DEBUG && 1
@@ -45,8 +45,6 @@
 class Trace
 {
 public:
-
-#if DEBUG_TRACE
 
   static Array<String> UnknowwnChannels ;
 
@@ -77,8 +75,7 @@ public:
 
   static String VarType(             var a_var) ;
   static String DumpVar(             String val_name , var a_var) ;
-
-#endif // DEBUG_TRACE
 } ;
 
+#endif // DEBUG
 #endif // _TRACE_H_

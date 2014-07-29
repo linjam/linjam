@@ -10,9 +10,16 @@
 #ifndef _LINJAM_H_
 #define _LINJAM_H_
 
-
 #ifdef _WIN32
-#  include "audioconfig.h" // TODO: reimplement audioconfig.cpp in this class (issue #27)
+#  include <windows.h>
+#  include <stdio.h>
+#  include <WDL/string.h>
+#  include <WDL/ptrlist.h>
+#  include <ninjam/audiostream.h>
+
+#  ifndef NO_SUPPORT_ASIO
+#    include <ninjam/njasiodrv/njasiodrv_if.h>
+#  endif // NO_SUPPORT_ASIO
 #endif // _WIN32
 
 #include <ninjam/audiostream.h>
@@ -87,12 +94,12 @@ private:
                         int     n_samples     , int sample_rate       ) ;
 
   // NJClient runtime helpers
-  static void   HandleStatusChanged( int status) ;
-  static void   HandleUserInfoChanged() ;
-  static void   UpdateLoopProgress() ;
-  static void   UpdateVuMeters() ;
-  static void   UpdateRecordingTime() ;
-  static void   HandleChatCommand(   String chat_text) ;
+  static void HandleStatusChanged( int status) ;
+  static void HandleUserInfoChanged() ;
+  static void UpdateLoopProgress() ;
+  static void UpdateVuMeters() ;
+  static void UpdateRecordingTime() ;
+  static void HandleChatCommand(   String chat_text) ;
 
   // state helpers
   static bool InitializeAudio() ;
@@ -114,7 +121,6 @@ private:
   static void   ComputePannedVus(          double pan , double* l_vu , double* r_vu) ;
   static void   ScalePannedMonoVus(        double  vu_mono , double  pan ,
                                            double* l_vu    , double* r_vu) ;
-
   static float  ComputeStereoPan(          float pan , int stereo_status) ;
   static void   ConfigureMasterChannel(    Identifier a_key) ;
   static void   ConfigureMetroChannel(     Identifier a_key) ;

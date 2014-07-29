@@ -18,18 +18,16 @@
 */
 
 //[Headers] You can add your own extra header files here...
-//[/Headers]
 
 #include "LinJam.h"
+#include "./Trace/TraceLicense.h"
+
+//[/Headers]
+
 #include "License.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
-
-#if DEBUG
-#  include "./Trace/TraceLicense.h"
-#endif // DEBUG
-
 //[/MiscUserDefs]
 
 //==============================================================================

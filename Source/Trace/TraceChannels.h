@@ -1,4 +1,6 @@
-#include "Trace.h"
+#if DEBUG
+
+#  include "Trace.h"
 
 
 /* channels */
@@ -78,3 +80,15 @@
                    (stereo_status == CONFIG::STEREO_L)? "STEREO_L" :                  \
                    (stereo_status == CONFIG::STEREO_R)? "STEREO_R" :                  \
                    (stereo_status == CONFIG::STEREO)  ? "STEREO"   : "NFG")) ;
+
+#else // DEBUG
+
+// channels
+#define DEBUG_TRACE_DUMP_CHANNELS_GUI_VB ;
+#define DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL ;
+#define DEBUG_TRACE_ADD_CHANNEL_GUI      ;
+#define DEBUG_TRACE_RENAME_CHANNEL_GUI   ;
+#define DEBUG_TRACE_REMOVE_CHANNEL_GUI   ;
+#define DEBUG_TRACE_STEREO_STATE_GUI     ;
+
+#endif // DEBUG

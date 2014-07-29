@@ -1,10 +1,9 @@
+#if DEBUG
 
-#include "../Constants.h"
-#include "../LinJam.h"
-#include "Trace.h"
+#  include "../Constants.h"
+#  include "../LinJam.h"
+#  include "Trace.h"
 
-
-#if DEBUG_TRACE
 
 /* Trace class private class variables */
 
@@ -96,7 +95,6 @@ String Trace::SanitizeConfig(ValueTree default_config , ValueTree stored_config 
     ValueTree  default_child = default_config.getChild(child_n) ;
     Identifier node_name     = default_child.getType() ;
     ValueTree  stored_child  = stored_config.getChildWithName(node_name) ;
-    int        n_children    = default_child.getNumChildren() ;
     int        n_properties  = default_child.getNumProperties() ;
 
     if (n_properties)
@@ -203,4 +201,4 @@ String Trace::DumpVar(String val_name , var a_var)
          " value => "  + a_var.toString() ;
 }
 
-#endif // #if DEBUG_TRACE
+#endif // #if DEBUG

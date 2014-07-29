@@ -9,17 +9,14 @@
 */
 
 
-// NOTE: arrange that "windows.h" be included before "JuceHeader.h" in all contexts
-//         and arrange to include "JuceHeader.h" before any "*Component.h"
+// NOTE: in order to avoid "multiple definitions of WinMain()" compiler error
+//         arrange that "windows.h" be included before "JuceHeader.h" in all contexts
+//       also arrange to include "JuceHeader.h" before any "*Component.h"
 #include "LinJam.h" // includes "windows.h" and "JuceHeader.h"
-
 #include "Constants.h"
 #include "MainContent.h"
+#include "./Trace/TraceMain.h"
 
-
-#if DEBUG
-#  include "./Trace/TraceMain.h"
-#endif // DEBUG
 
 
 //==============================================================================

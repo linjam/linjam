@@ -1,5 +1,5 @@
-#include "Trace.h"
-
+#if DEBUG
+#  include "Trace.h"
 
 /* channels */
 
@@ -37,3 +37,13 @@
 #else // TRACE_MIXER_COMPONENTS
 #  define DEBUG_TRACE_MIXER_COMPONENTS_VB ;
 #endif // TRACE_MIXER_COMPONENTS
+
+#else // DEBUG
+
+// channels
+#define DEBUG_TRACE_ADD_REMOTE_USER     ;
+#define DEBUG_REMOVE_CHANNELS           ;
+// mixer
+#define DEBUG_TRACE_MIXER_COMPONENTS_VB ;
+
+#endif // DEBUG

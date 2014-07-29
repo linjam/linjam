@@ -8,7 +8,6 @@
 
 #include "Constants.h"
 #include "MainContent.h"
-#include "./Trace/Trace.h"
 
 
 //==============================================================================
@@ -158,7 +157,5 @@ void MainContent::resized()
 
 void MainContent::setTitle(String title_text)
 {
-if (1) ;
-
   this->mainWindow->setName(this->appName + " - " + title_text) ;
 }

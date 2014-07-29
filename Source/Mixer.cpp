@@ -19,8 +19,9 @@
 
 //[Headers] You can add your own extra header files here...
 
-#include "Constants.h"
 #include "LinJam.h"
+#include "Constants.h"
+#include "./Trace/TraceMixer.h"
 
 //[/Headers]
 
@@ -28,11 +29,6 @@
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
-
-#if DEBUG
-#  include "./Trace/TraceMixer.h"
-#endif // DEBUG
-
 //[/MiscUserDefs]
 
 //==============================================================================

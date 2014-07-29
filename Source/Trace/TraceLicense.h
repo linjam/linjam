@@ -1,4 +1,6 @@
-#include "Trace.h"
+#if  DEBUG
+
+#  include "Trace.h"
 
 
 /* state */
@@ -9,3 +11,9 @@
   else if (btn == agreeButton)  Trace::TraceEvent("agreeButton clicked") ;  \
   else if (btn == alwaysButton) Trace::TraceEvent("alwaysButton clicked") ;
 
+#else // DEBUG
+
+// state
+#define DEBUG_TRACE_LICENSE_CLICKED ;
+
+#endif // DEBUG
