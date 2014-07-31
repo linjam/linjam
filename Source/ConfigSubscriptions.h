@@ -17,14 +17,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_8B661D82CCFDE918__
-#define __JUCE_HEADER_8B661D82CCFDE918__
+#ifndef __JUCE_HEADER_2F4D86CC6EC233C__
+#define __JUCE_HEADER_2F4D86CC6EC233C__
 
 //[Headers]     -- You can add your own extra header files here --
-
-#include "Channel.h"
 #include "JuceHeader.h"
-
 //[/Headers]
 
 
@@ -32,102 +29,45 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    This is the component superclass of channels mixergroups.
+    An auto-generated component, created by the Introjucer.
 
-    It is a container for related Channel mixer slices
-        with an expand/add button.
+    Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class Channels  : public Component
+class ConfigSubscriptions  : public Component,
+                             public ButtonListener
 {
 public:
     //==============================================================================
-    Channels ();
-    ~Channels();
+    ConfigSubscriptions ();
+    ~ConfigSubscriptions();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-
-  bool addChannel(    ValueTree channel_store) ;
-  void removeChannel( Identifier channel_id) ;
-  int  getNumChannels() ;
-
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
+    void buttonClicked (Button* buttonThatWasClicked);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-
-
-protected:
-
-  virtual Channel* newChannel(ValueTree channel_store) = 0 ;
-          Channel* getChannel(Identifier channel_id) ;
-
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> channelsLabel;
-    ScopedPointer<TextButton> addButton;
-    ScopedPointer<TextButton> configButton;
-    ScopedPointer<TextButton> expandButton;
+    ScopedPointer<Label> debugLevelLabel;
+    ScopedPointer<ToggleButton> saveLogButton;
+    ScopedPointer<ToggleButton> saveLogButton2;
+    ScopedPointer<TextEditor> textEditor;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Channels)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigSubscriptions)
 };
 
 //[EndFile] You can add extra defines here...
-
-class MasterChannels : public Channels , public ButtonListener
-{
-public:
-
-  MasterChannels() ;
-
-
-private:
-
-  void     buttonClicked(Button* buttonThatWasClicked) ;
-  Channel* newChannel(ValueTree channel_store) override ;
-} ;
-
-
-class LocalChannels : public Channels , public ButtonListener
-{
-public:
-
-  LocalChannels() ;
-
-
-private:
-
-  void     buttonClicked(Button* buttonThatWasClicked) ;
-  Channel* newChannel(   ValueTree channel_store) override ;
-} ;
-
-
-class RemoteChannels : public Channels , public ButtonListener
-{
-public:
-
-  RemoteChannels(ValueTree user_store) ;
-
-
-private:
-
-  bool isExpanded ;
-
-
-  void     buttonClicked(       Button* buttonThatWasClicked) ;
-  void     toggleExpandChannels() ;
-  Channel* newChannel(          ValueTree channel_store) override ;
-} ;
-
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_8B661D82CCFDE918__
+#endif   // __JUCE_HEADER_2F4D86CC6EC233C__

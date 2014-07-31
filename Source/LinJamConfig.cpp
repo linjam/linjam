@@ -288,16 +288,16 @@ ValueTree LinJamConfig::getUserMasterChannel(ValueTree user_store)
 void LinJamConfig::setServer()
 {
   // copy volatile login state to persistent storage
-  String host         =      this->host.toString() ;
-  String login        =      this->login.toString() ;
-  String pass         =      this->pass.toString() ;
-  bool   is_anonymous = bool(this->isAnonymous.getValue()) ;
+  String host         =      this->server[CONFIG::HOST_ID].toString() ;
+  String login        =      this->server[CONFIG::LOGIN_ID].toString() ;
+  String pass         =      this->server[CONFIG::PASS_ID].toString() ;
+  bool   is_anonymous = bool(this->server[CONFIG::IS_ANONYMOUS_ID]) ;
 
-  ValueTree server = addServer(host , login , pass , is_anonymous) ;
-  server.setProperty(CONFIG::HOST_ID    , host         , nullptr) ;
-  server.setProperty(CONFIG::LOGIN_ID   , login        , nullptr) ;
-  server.setProperty(CONFIG::PASS_ID    , pass         , nullptr) ;
-  server.setProperty(CONFIG::IS_ANON_ID , is_anonymous , nullptr) ;
+  ValueTree server = getOrAddServer(host , login , pass , is_anonymous) ;
+  server.setProperty(CONFIG::HOST_ID         , host         , nullptr) ;
+  server.setProperty(CONFIG::LOGIN_ID        , login        , nullptr) ;
+  server.setProperty(CONFIG::PASS_ID         , pass         , nullptr) ;
+  server.setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr) ;
 }
 
 ValueTree LinJamConfig::getServer(String host_name)
@@ -305,18 +305,23 @@ ValueTree LinJamConfig::getServer(String host_name)
   return this->servers.getChildWithProperty(CONFIG::HOST_ID , var(host_name)) ;
 }
 
-void LinJamConfig::setCurrentServer(String host_name , String login        ,
-                                    String pass      , bool   is_anonymous )
+void LinJamConfig::setCurrentServer(String host_name , String login       ,
+                                    String pass      , bool   is_anonymous)
 {
-  this->host        = host_name ;
-  this->login       = login ;
-  this->pass        = (is_anonymous)? "" : pass ;
-  this->isAnonymous = is_anonymous ;
-  this->isAgreed    = false ;
-  this->shouldAgree = false ;
+  if (is_anonymous) pass = "" ;
+
+  this->server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr) ;
+  this->server.setProperty(CONFIG::LOGIN_ID        , login        , nullptr) ;
+  this->server.setProperty(CONFIG::PASS_ID         , pass         , nullptr) ;
+  this->server.setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr) ;
+  this->server.setProperty(CONFIG::IS_AGREED_ID    , false        , nullptr) ;
+  this->server.setProperty(CONFIG::SHOULD_AGREE_ID , false        , nullptr) ;
 }
 
-ValueTree LinJamConfig::getCurrentServer() { return getServer(this->host.toString()) ; }
+ValueTree LinJamConfig::getCurrentServer()
+{
+  return getServer(this->server[CONFIG::HOST_ID].toString()) ;
+}
 
 void LinJamConfig::setServerShouldAgree(bool should_agree)
 {
@@ -515,44 +520,32 @@ DEBUG_TRACE_STORE_CONFIG
 void LinJamConfig::establishSharedStore()
 {
   // client config
-  this->client        = getNode(CONFIG::CLIENT_ID) ;
-  this->subscriptions = getNode(CONFIG::SUBSCRIPTIONS_ID) ;
-/*
-  this->saveAudio    .referTo(getClient(CONFIG::SAVE_AUDIO_ID)) ;
-  this->shouldSaveLog.referTo(getClient(CONFIG::SAVE_LOG_ID)) ;
-  this->debugLevel   .referTo(getClient(CONFIG::DEBUGLEVEL_ID)) ;
-  this->autoSubscribe.referTo(getClient(CONFIG::AUTOSUBSCRIBE_ID)) ;
-*/
-  // device config
-  this->audio = getNode(CONFIG::AUDIO_ID) ;
-/*
-  this->nInputs   .referTo(getAudio(CONFIG::N_INPUTS_ID)) ;
-  this->nOutputs  .referTo(getAudio(CONFIG::N_OUTPUTS_ID)) ;
-  this->bitDepth  .referTo(getAudio(CONFIG::BITDEPTH_ID)) ;
-  this->sampleRate.referTo(getAudio(CONFIG::SAMPLERATE_ID)) ;
-  this->jackName  .referTo(getAudio(CONFIG::JACK_NAME_ID)) ;
-  this->audioIfN  .referTo(getAudio(CONFIG::WIN_AUDIO_IF_ID)) ;
-*/
-  // login state
-  this->server = getNode(CONFIG::SERVER_ID) ;
-  this->host          .referTo(getServer(CONFIG::HOST_ID)) ;
-  this->login         .referTo(getServer(CONFIG::LOGIN_ID)) ;
-  this->pass          .referTo(getServer(CONFIG::PASS_ID)) ;
-  this->isAnonymous   .referTo(getServer(CONFIG::IS_ANON_ID)) ;
-  this->isAgreed      .referTo(getServer(CONFIG::IS_AGREED_ID)) ;
-  this->shouldAgree   .referTo(getServer(CONFIG::SHOULD_AGREE_ID)) ;
-  this->shouldHideBots.referTo(getServer(CONFIG::SHOULD_HIDE_BOTS_ID)) ;
+  this->client        = this->configValueTree.getChildWithName(CONFIG::CLIENT_ID) ;
+  this->subscriptions = this->configValueTree.getChildWithName(CONFIG::SUBSCRIPTIONS_ID) ;
 
+  // device config
+  this->audio = this->configValueTree.getChildWithName(CONFIG::AUDIO_ID) ;
+
+  // login state
+  this->server = this->configValueTree.getChildWithName(CONFIG::SERVER_ID) ;
+/*
+  this->host          .referTo(server(CONFIG::HOST_ID)) ; 
+  this->login         .referTo(server(CONFIG::LOGIN_ID)) ;
+  this->pass          .referTo(server(CONFIG::PASS_ID)) ;
+  this->isAnonymous   .referTo(server(CONFIG::IS_ANON_ID)) ;
+  this->isAgreed      .referTo(server(CONFIG::IS_AGREED_ID)) ;
+  this->shouldAgree   .referTo(server(CONFIG::SHOULD_AGREE_ID)) ;
+*/
   // per server user data
-  this->servers = getNode(CONFIG::SERVERS_ID) ;
+  this->servers = this->configValueTree.getChildWithName(CONFIG::SERVERS_ID) ;
 
   // channels
-  this->masterChannels = getNode(CONFIG::MASTERS_ID) ;
-  this->localChannels  = getNode(CONFIG::LOCALS_ID) ;
+  this->masterChannels = this->configValueTree.getChildWithName(CONFIG::MASTERS_ID) ;
+  this->localChannels  = this->configValueTree.getChildWithName(CONFIG::LOCALS_ID) ;
 // TODO: we are adding remote users directly to the root node for now for simplicity
 //           mostly because Trace::SanitizeConfig() does not yet handle nested lists
 //           but for clarity there should be a <remote-channels> tree (issue #33)
-//   this->remoteUsers = getNode(CONFIG::REMOTES_ID) ; // (issue #33)
+//   this->remoteUsers = this->configValueTree.getChildWithName(CONFIG::REMOTES_ID) ;
 this->remoteUsers = this->configValueTree ; // kludge (issue #33)
 }
 
@@ -582,7 +575,7 @@ DEBUG_TRACE_SANITY_CHECK // modifies is_valid
 
 
 /* helpers */
-
+/*
 ValueTree LinJamConfig::getNode(Identifier tree_node_id)
 {
   ValueTree tree_node = this->configValueTree.getChildWithName(tree_node_id) ;
@@ -618,9 +611,9 @@ Value LinJamConfig::getServer(Identifier key)
 {
   return getLeaf(this->configValueTree , CONFIG::SERVER_ID , key) ;
 }
-
-ValueTree LinJamConfig::addServer(String host_name , String login        ,
-                                  String pass      , bool   is_anonymous )
+*/
+ValueTree LinJamConfig::getOrAddServer(String host_name , String login        ,
+                                       String pass      , bool   is_anonymous )
 {
   ValueTree server = getServer(host_name) ;
   if (!server.isValid())
@@ -629,7 +622,7 @@ ValueTree LinJamConfig::addServer(String host_name , String login        ,
     server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr) ;
     server.setProperty(CONFIG::LOGIN_ID        , login        , nullptr) ;
     server.setProperty(CONFIG::PASS_ID         , pass         , nullptr) ;
-    server.setProperty(CONFIG::IS_ANON_ID      , is_anonymous , nullptr) ;
+    server.setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr) ;
     server.setProperty(CONFIG::SHOULD_AGREE_ID , false        , nullptr) ;
 
     this->servers        .addChild(server        , -1 , nullptr) ;

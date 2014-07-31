@@ -141,9 +141,13 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Background.cpp"/>
     <ClCompile Include="..\..\Source\Channel.cpp"/>
-    <ClCompile Include="..\..\Source\ChannelConfig.cpp"/>
     <ClCompile Include="..\..\Source\Channels.cpp"/>
     <ClCompile Include="..\..\Source\Chat.cpp"/>
+    <ClCompile Include="..\..\Source\ConfigAudio.cpp"/>
+    <ClCompile Include="..\..\Source\ConfigChannel.cpp"/>
+    <ClCompile Include="..\..\Source\ConfigClient.cpp"/>
+    <ClCompile Include="..\..\Source\ConfigNinjam.cpp"/>
+    <ClCompile Include="..\..\Source\ConfigSubscriptions.cpp"/>
     <ClCompile Include="..\..\Source\License.cpp"/>
     <ClCompile Include="..\..\Source\LinJam.cpp"/>
     <ClCompile Include="..\..\Source\LinJamConfig.cpp"/>
@@ -910,9 +914,13 @@
   <ItemGroup>
     <ClInclude Include="..\..\Source\Background.h"/>
     <ClInclude Include="..\..\Source\Channel.h"/>
-    <ClInclude Include="..\..\Source\ChannelConfig.h"/>
     <ClInclude Include="..\..\Source\Channels.h"/>
     <ClInclude Include="..\..\Source\Chat.h"/>
+    <ClInclude Include="..\..\Source\ConfigAudio.h"/>
+    <ClInclude Include="..\..\Source\ConfigChannel.h"/>
+    <ClInclude Include="..\..\Source\ConfigClient.h"/>
+    <ClInclude Include="..\..\Source\ConfigNinjam.h"/>
+    <ClInclude Include="..\..\Source\ConfigSubscriptions.h"/>
     <ClInclude Include="..\..\Source\Constants.h"/>
     <ClInclude Include="..\..\Source\License.h"/>
     <ClInclude Include="..\..\Source\LinJam.h"/>
@@ -1234,6 +1242,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_core\juce_module_info"/>
+    <None Include="..\..\JuceLibraryCode\modules\juce_data_structures\values\juce_ValueTree.cpp~"/>
     <None Include="..\..\JuceLibraryCode\modules\juce_data_structures\juce_module_info"/>
     <None Include="..\..\JuceLibraryCode\modules\juce_events\juce_module_info"/>
     <None Include="..\..\JuceLibraryCode\modules\juce_graphics\juce_module_info"/>

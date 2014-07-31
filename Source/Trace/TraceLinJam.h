@@ -5,7 +5,7 @@
 
 #ifdef DEBUG_AUTOLOGIN
 //#define DEBUG_STATIC_CHANNEL "localhost:2049"
-#  define DEBUG_STATIC_CHANNEL "ninbot.com:2052"
+#  define DEBUG_STATIC_CHANNEL "ninbot.com:2050"
 // #define DEBUG_STATIC_CHANNEL "ninjamer.com:2049"
 #endif // DEBUG_AUTOLOGIN
 
@@ -273,7 +273,7 @@
 /* chat */
 
 #define DEBUG_TRACE_CHAT_IN                                                        \
-  if (chat_user.compare(Config->login.toString()))                                 \
+  if (chat_user.compare(Config->server[CONFIG::LOGIN_ID].toString()))              \
     Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 
 #define DEBUG_TRACE_CHAT_OUT                                                    \

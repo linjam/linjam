@@ -29,7 +29,6 @@
 #define DEBUG_TRACE_VB                    DEBUG && 1
 #define TRACE_SANITIZE_CONFIG             DEBUG_TRACE_VB && 0
 #define TRACE_CONFIG_TYPES                DEBUG_TRACE_VB && 0
-#define TRACE_SHARED_CONFIG               DEBUG_TRACE_VB && 0
 #define TRACE_STORE_CONFIG_VB             DEBUG_TRACE_VB && 0
 #define TRACE_LOGIN_HOST                  DEBUG_TRACE_VB && 0
 #define TRACE_DUMP_FREE_INPUTS            DEBUG_TRACE_VB && 1

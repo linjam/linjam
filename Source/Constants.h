@@ -14,25 +14,34 @@
 #include <ninjam/audiostream.h>
 #include "JuceHeader.h"
 
+/*\ CAVEATS:
+|*|  when adding GUI components to Channels be sure to mind N_STATIC_CHANNELS_CHILDREN
+|*|    and when adding GUI components to Mixer be sure to mind N_STATIC_MIXER_CHILDREN
+|*|    or else segfault is a near certainty
+|*|
+|*|  when adding nodes or properties to CONFIG_XML be sure to
+|*|         * document them in                     LinJamConfig.h
+|*|         * denote property datatypes in         #define CONFIG_TYPES_XML
+|*|         * switch on nodes in                   LinJamConfig::restoreVarTypeInfo()
+|*|         * verify nodes in                      LinJamConfig::sanityCheck()
+|*|         * if channel property - verify data in LinJamConfig::sanityCheckChannels()
+|*|                                 and add to     LinJamConfig::newChannel()
+|*|         * optionally dump data or errors in    #define DEBUG_TRACE_SANITY_CHECK
+|*|                                                #define DEBUG_TRACE_SANITY_CHECK_CHANNEL
+|*|                                                #define DEBUG_TRACE_ADD_CHANNEL_GUI
+|*|                                                #define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
+|*|                                                #define DEBUG_TRACE_REMOTE_CHANNELS
+|*|                                                #define DEBUG_TRACE_CONFIGURE_REMOTE
+\*/
 
-// NOTE: when adding nodes or leaves to CONFIG_XML be sure to
-//         * store the datatype in   #define CONFIG_TYPES_XML
-//         * note the datatype in    LinJamConfig.h
-//         * verify data and type in LinJamConfig::sanityCheck() or sanityCheckChannels()
-//         * if new node switch in   LinJamConfig::restoreVarTypeInfo()
-//         * if channel param add to LinJamConfig::newChannel()
-//         * optionally dump data in #define DEBUG_TRACE_SANITY_CHECK or
-//                                   #define DEBUG_TRACE_SANITY_CHECK_CHANNEL
-//                                   #define DEBUG_TRACE_ADD_CHANNEL_GUI
-//                                   #define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
-//                                   #define DEBUG_TRACE_REMOTE_CHANNELS
-//                                   #define DEBUG_TRACE_CONFIGURE_REMOTE
+
 #define CONFIG_XML "<?xml version=\"1.0\"?><"                                 + \
   PERSISTENCE_KEY          + "><"                                             + \
     CLIENT_KEY             + " "                                              + \
       SAVE_AUDIO_KEY       + "=\"" + String(DEFAULT_SAVE_AUDIO)       + "\" " + \
       SAVE_LOG_KEY         + "=\"" + String(DEFAULT_SAVE_LOG)         + "\" " + \
       DEBUGLEVEL_KEY       + "=\"" + String(DEFAULT_DEBUGLEVEL)       + "\" " + \
+      SHOULD_HIDE_BOTS_KEY + "=\"" + String(DEFAULT_SHOULD_HIDE_BOTS) + "\" " + \
       AUTOSUBSCRIBE_KEY    + "=\"" + String(DEFAULT_AUTOSUBSCRIBE)    + "\" " + \
     "/><"                                                                     + \
     AUDIO_KEY              + " "                                              + \
@@ -45,7 +54,7 @@
       KS_INPUT_KEY         + "=\"" + String(DEFAULT_KS_INPUT)         + "\" " + \
       KS_OUTPUT_KEY        + "=\"" + String(DEFAULT_KS_OUTPUT)        + "\" " + \
       KS_SAMPLERATE_KEY    + "=\"" + String(DEFAULT_KS_SAMPLERATE)    + "\" " + \
-      KS_BITDEPTH_KEY      + "=\"" + String(DEFAULT_KS_BITDEPTH)      + "\" " + \
+      KS_BITDEPTH_KEY      + "=\"" + String(DEFAULT_BITDEPTH)         + "\" " + \
       KS_BLOCKSIZE_KEY     + "=\"" + String(DEFAULT_KS_BLOCKSIZE)     + "\" " + \
       KS_NBLOCKS_KEY       + "=\"" + String(DEFAULT_KS_N_BLOCKS)      + "\" " + \
       DS_INPUT0_KEY        + "=\"" + String(DEFAULT_DS_INPUT0)        + "\" " + \
@@ -57,18 +66,19 @@
       DS_OUTPUT2_KEY       + "=\"" + String(DEFAULT_DS_OUTPUT2)       + "\" " + \
       DS_OUTPUT3_KEY       + "=\"" + String(DEFAULT_DS_OUTPUT3)       + "\" " + \
       DS_SAMPLERATE_KEY    + "=\"" + String(DEFAULT_DS_SAMPLERATE)    + "\" " + \
-      DS_BITDEPTH_KEY      + "=\"" + String(DEFAULT_DS_BITDEPTH)      + "\" " + \
+      DS_BITDEPTH_KEY      + "=\"" + String(DEFAULT_BITDEPTH)         + "\" " + \
       DS_BLOCKSIZE_KEY     + "=\"" + String(DEFAULT_DS_BLOCKSIZE)     + "\" " + \
       DS_NBLOCKS_KEY       + "=\"" + String(DEFAULT_DS_N_BLOCKS)      + "\" " + \
       WAVE_INPUT_KEY       + "=\"" + String(DEFAULT_WAVE_INPUT)       + "\" " + \
       WAVE_OUTPUT_KEY      + "=\"" + String(DEFAULT_WAVE_OUTPUT)      + "\" " + \
       WAVE_SAMPLERATE_KEY  + "=\"" + String(DEFAULT_WAVE_SAMPLERATE)  + "\" " + \
-      WAVE_BITDEPTH_KEY    + "=\"" + String(DEFAULT_WAVE_BITDEPTH)    + "\" " + \
+      WAVE_BITDEPTH_KEY    + "=\"" + String(DEFAULT_BITDEPTH)         + "\" " + \
       WAVE_BLOCKSIZE_KEY   + "=\"" + String(DEFAULT_WAVE_BLOCKSIZE)   + "\" " + \
       WAVE_NBLOCKS_KEY     + "=\"" + String(DEFAULT_WAVE_N_BLOCKS)    + "\" " + \
       MAC_NINPUTS_KEY      + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
       MAC_SAMPLERATE_KEY   + "=\"" + String(DEFAULT_SAMPLERATE)       + "\" " + \
       MAC_BITDEPTH_KEY     + "=\"" + String(DEFAULT_BITDEPTH)         + "\" " + \
+      NIX_AUDIO_IF_KEY     + "=\"" + String(DEFAULT_NIX_AUDIO_IF)     + "\" " + \
       JACK_NINPUTS_KEY     + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
       JACK_NOUTPUTS_KEY    + "=\"" + String(DEFAULT_N_OUTPUTS)        + "\" " + \
       JACK_NAME_KEY        + "=\"" + String(DEFAULT_JACK_NAME)        + "\" " + \
@@ -77,10 +87,9 @@
       HOST_KEY             + "=\"" + String(DEFAULT_HOST)             + "\" " + \
       LOGIN_KEY            + "=\"" + String(DEFAULT_LOGIN)            + "\" " + \
       PASS_KEY             + "=\"" + String(DEFAULT_PASS)             + "\" " + \
-      IS_ANON_KEY          + "=\"" + String(DEFAULT_IS_ANON)          + "\" " + \
+      IS_ANONYMOUS_KEY     + "=\"" + String(DEFAULT_IS_ANONYMOUS)     + "\" " + \
       IS_AGREED_KEY        + "=\"" + String(DEFAULT_IS_AGREED)        + "\" " + \
       SHOULD_AGREE_KEY     + "=\"" + String(DEFAULT_SHOULD_AGREE)     + "\" " + \
-      SHOULD_HIDE_BOTS_KEY + "=\"" + String(DEFAULT_SHOULD_HIDE_BOTS) + "\" " + \
     "/><"                                                                     + \
     SERVERS_KEY            + " /><"                                           + \
     SUBSCRIPTIONS_KEY      + " /><"                                           + \
@@ -115,6 +124,7 @@
       SAVE_AUDIO_KEY           + "=\"" + INT_TYPE    + "\" " + \
       SAVE_LOG_KEY             + "=\"" + BOOL_TYPE   + "\" " + \
       DEBUGLEVEL_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      SHOULD_HIDE_BOTS_KEY     + "=\"" + BOOL_TYPE   + "\" " + \
       AUTOSUBSCRIBE_KEY        + "=\"" + INT_TYPE    + "\" " + \
     "/><"                                                    + \
     AUDIO_KEY                  + " "                         + \
@@ -151,6 +161,7 @@
       MAC_NINPUTS_KEY          + "=\"" + INT_TYPE    + "\" " + \
       MAC_SAMPLERATE_KEY       + "=\"" + INT_TYPE    + "\" " + \
       MAC_BITDEPTH_KEY         + "=\"" + INT_TYPE    + "\" " + \
+      NIX_AUDIO_IF_KEY         + "=\"" + INT_TYPE    + "\" " + \
       JACK_NINPUTS_KEY         + "=\"" + INT_TYPE    + "\" " + \
       JACK_NOUTPUTS_KEY        + "=\"" + INT_TYPE    + "\" " + \
       JACK_NAME_KEY            + "=\"" + STRING_TYPE + "\" " + \
@@ -159,10 +170,9 @@
       HOST_KEY                 + "=\"" + STRING_TYPE + "\" " + \
       LOGIN_KEY                + "=\"" + STRING_TYPE + "\" " + \
       PASS_KEY                 + "=\"" + STRING_TYPE + "\" " + \
-      IS_ANON_KEY              + "=\"" + BOOL_TYPE   + "\" " + \
+      IS_ANONYMOUS_KEY         + "=\"" + BOOL_TYPE   + "\" " + \
       IS_AGREED_KEY            + "=\"" + BOOL_TYPE   + "\" " + \
       SHOULD_AGREE_KEY         + "=\"" + BOOL_TYPE   + "\" " + \
-      SHOULD_HIDE_BOTS_KEY     + "=\"" + BOOL_TYPE   + "\" " + \
     "/><"                                                    + \
     USERS_KEY                  + " "                         + \
       USER_IDX_KEY             + "=\"" + INT_TYPE    + "\" " + \
@@ -283,8 +293,6 @@ namespace NETWORK
 
 namespace CONFIG
 {
-// NOTE: many of these *_KEY *_ID pairs maybe redundant or unused (issue #30)
-
   // config root keys
   static const String     PERSISTENCE_FILENAME  = "linjam.xml" ;
   static const String     PERSISTENCE_KEY       = "linjam-data" ;
@@ -294,13 +302,13 @@ namespace CONFIG
   // client config keys
   static const String     CLIENT_KEY        = "client" ;
   static const Identifier CLIENT_ID         = CLIENT_KEY ;
-  static const String     SAVE_AUDIO_KEY    = "save-audio-state" ;
+  static const String     SAVE_AUDIO_KEY    = "save-audio" ;
   static const Identifier SAVE_AUDIO_ID     = SAVE_AUDIO_KEY ;
   static const String     SAVE_LOG_KEY      = "should-save-log" ;
   static const Identifier SAVE_LOG_ID       = SAVE_LOG_KEY ;
   static const String     DEBUGLEVEL_KEY    = "debug-level" ;
   static const Identifier DEBUGLEVEL_ID     = DEBUGLEVEL_KEY ;
-  static const String     AUTOSUBSCRIBE_KEY = "auto-subscribe-state" ;
+  static const String     AUTOSUBSCRIBE_KEY = "auto-subscribe" ;
   static const Identifier AUTOSUBSCRIBE_ID  = AUTOSUBSCRIBE_KEY ;
   static const String     SESSIONDIR_KEY    = "session-dir" ;
   static const Identifier SESSIONDIR_ID     = SESSIONDIR_KEY ;
@@ -380,6 +388,8 @@ namespace CONFIG
   static const Identifier MAC_SAMPLERATE_ID   = MAC_SAMPLERATE_KEY ;
   static const String     MAC_BITDEPTH_KEY    = "mac-bit-depth" ;
   static const Identifier MAC_BITDEPTH_ID     = MAC_BITDEPTH_KEY ;
+  static const String     NIX_AUDIO_IF_KEY    = "nix-audio-if-n" ;
+  static const Identifier NIX_AUDIO_IF_ID     = NIX_AUDIO_IF_KEY ;
   static const String     JACK_NINPUTS_KEY    = "jack-n-inputs" ;
   static const Identifier JACK_NINPUTS_ID     = JACK_NINPUTS_KEY ;
   static const String     JACK_NOUTPUTS_KEY   = "jack-n-outputs" ;
@@ -387,7 +397,7 @@ namespace CONFIG
   static const String     JACK_NAME_KEY       = "jack-name" ;
   static const Identifier JACK_NAME_ID        = JACK_NAME_KEY ;
 
-  // network config keys
+  // login config keys
   static const String     SERVER_KEY           = "server" ;
   static const Identifier SERVER_ID            = SERVER_KEY ;
   static const String     HOST_KEY             = "host" ;
@@ -396,8 +406,8 @@ namespace CONFIG
   static const Identifier LOGIN_ID             = LOGIN_KEY ;
   static const String     PASS_KEY             = "pass" ;
   static const Identifier PASS_ID              = PASS_KEY ;
-  static const String     IS_ANON_KEY          = "is-anonymous" ;
-  static const Identifier IS_ANON_ID           = IS_ANON_KEY ;
+  static const String     IS_ANONYMOUS_KEY     = "is-anonymous" ;
+  static const Identifier IS_ANONYMOUS_ID      = IS_ANONYMOUS_KEY ;
   static const String     IS_AGREED_KEY        = "is-agreed" ;
   static const Identifier IS_AGREED_ID         = IS_AGREED_KEY ;
   static const String     SHOULD_AGREE_KEY     = "should-agree" ;
@@ -455,12 +465,11 @@ namespace CONFIG
   static const int  DEFAULT_AUTOSUBSCRIBE = 1 ;
 
   // audio config defaults
-  static const int    DEFAULT_N_INPUTS        = 2 ;
-  static const int    DEFAULT_N_OUTPUTS       = 2 ;
-  static const int    DEFAULT_BITDEPTH        = 16 ;
-  static const int    DEFAULT_SAMPLERATE      = 48000 ;
-  static const String DEFAULT_JACK_NAME       = "LinJam" ;
-  static const int    DEFAULT_WIN_AUDIO_IF    = (int)audioStreamer::WINDOWS_AUDIO_ASIO ;
+  static const int    DEFAULT_N_INPUTS        = (int)audioStreamer::DEFAULT_N_INPUTS ;
+  static const int    DEFAULT_N_OUTPUTS       = (int)audioStreamer::DEFAULT_N_OUTPUTS ;
+  static const int    DEFAULT_SAMPLERATE      = (int)audioStreamer::DEFAULT_SAMPLERATE ;
+  static const int    DEFAULT_BITDEPTH        = (int)audioStreamer::DEFAULT_BITDEPTH ;
+  static const int    DEFAULT_WIN_AUDIO_IF    = (int)audioStreamer::WIN_AUDIO_ASIO ;
   static const int    DEFAULT_ASIO_DRIVER     = 0 ;
   static const int    DEFAULT_ASIO_INPUT0     = 0 ;
   static const int    DEFAULT_ASIO_INPUT1     = 1 ;
@@ -468,8 +477,7 @@ namespace CONFIG
   static const int    DEFAULT_ASIO_OUTPUT1    = 1 ;
   static const int    DEFAULT_KS_INPUT        = -1 ;
   static const int    DEFAULT_KS_OUTPUT       = -1 ;
-  static const int    DEFAULT_KS_SAMPLERATE   = 48000 ;
-  static const int    DEFAULT_KS_BITDEPTH     = 16 ;
+  static const int    DEFAULT_KS_SAMPLERATE   = DEFAULT_SAMPLERATE ;
   static const int    DEFAULT_KS_BLOCKSIZE    = 512 ;
   static const int    DEFAULT_KS_N_BLOCKS     = 8 ;
   static const int    DEFAULT_DS_INPUT0       = 0 ;
@@ -481,21 +489,21 @@ namespace CONFIG
   static const int    DEFAULT_DS_OUTPUT2      = 0 ;
   static const int    DEFAULT_DS_OUTPUT3      = 0 ;
   static const int    DEFAULT_DS_SAMPLERATE   = 44100 ;
-  static const int    DEFAULT_DS_BITDEPTH     = 16 ;
   static const int    DEFAULT_DS_BLOCKSIZE    = 1024 ;
   static const int    DEFAULT_DS_N_BLOCKS     = 16 ;
   static const int    DEFAULT_WAVE_INPUT      = -1 ;
   static const int    DEFAULT_WAVE_OUTPUT     = -1 ;
   static const int    DEFAULT_WAVE_SAMPLERATE = 44100 ;
-  static const int    DEFAULT_WAVE_BITDEPTH   = 16 ;
   static const int    DEFAULT_WAVE_BLOCKSIZE  = 4096 ;
   static const int    DEFAULT_WAVE_N_BLOCKS   = 8 ;
+  static const int    DEFAULT_NIX_AUDIO_IF    = (int)audioStreamer::NIX_AUDIO_JACK ;
+  static const String DEFAULT_JACK_NAME       = "LinJam" ;
 
   // login config defaults
   static const String DEFAULT_HOST             = "" ;
   static const String DEFAULT_LOGIN            = "" ;
   static const String DEFAULT_PASS             = "" ;
-  static const bool   DEFAULT_IS_ANON          = true ;
+  static const bool   DEFAULT_IS_ANONYMOUS     = true ;
   static const bool   DEFAULT_IS_AGREED        = false ;
   static const bool   DEFAULT_SHOULD_AGREE     = false ;
   static const bool   DEFAULT_SHOULD_HIDE_BOTS = true ;
@@ -596,17 +604,20 @@ namespace GUI
   static const int    MIN_SHOW_TOPIC_CHAT_H = 200 ;
 
   // Channel
-  static const Identifier MASTER_GUI_ID          = CONFIG::MASTER_ID ;
-  static const Identifier METRO_GUI_ID           = CONFIG::METRO_ID ;
-  static const String XMIT_LABEL_TEXT            = "XMIT" ;
-  static const String RCV_LABEL_TEXT             = "RCV" ;
-  static const int    N_STATIC_CHANNELS_CHILDREN = 2 ;
-  static const int    CHANNEL_LABEL_H            = 12 ;
-  static const int    CHANNEL_Y                  = CHANNEL_LABEL_H + PAD2 ;
-  static const int    CHANNEL_W                  = 60 ;
-  static const int    CHANNEL_H                  = 252 ;
-  static const int    CONFIG_BTN_W               = 15 ;
-  static const int    CONFIG_BTN_H               = 16 ;
+  static const Identifier       MASTER_GUI_ID              = CONFIG::MASTER_ID ;
+  static const Identifier       METRO_GUI_ID               = CONFIG::METRO_ID ;
+  static const String           XMIT_LABEL_TEXT            = "XMIT" ;
+  static const String           RCV_LABEL_TEXT             = "RCV" ;
+  static const CharPointer_UTF8 INFINITY_CHAR              = CharPointer_UTF8("\xe2\x88\x9e") ;
+  static const int              N_STATIC_CHANNELS_CHILDREN = 4 ;
+  static const int              CHANNEL_LABEL_H            = 12 ;
+  static const int              CHANNEL_Y                  = CHANNEL_LABEL_H + PAD2 ;
+  static const int              CHANNEL_W                  = 60 ;
+  static const int              CHANNEL_H                  = 252 ;
+  static const int              CONFIG_BTN_W               = 15 ;
+  static const int              CONFIG_BTN_H               = 16 ;
+  static const int              CONFIG_BTN_XC              = CONFIG_BTN_W / 2 ;
+  static const int              CONFIG_BTN_YC              = CONFIG_BTN_H / 2 ;
 
   // Channels
   static const  String     MASTERS_LABEL_TEXT = "Master" ;
@@ -615,10 +626,6 @@ namespace GUI
   static const  Identifier LOCALS_GUI_ID      = CONFIG::LOCALS_ID ;
   static const  int        CHANNEL_CONFIG_W   = 200 ;
   static const  int        CHANNEL_CONFIG_H   = 200 ;
-  static const  int        EXPAND_BTN_W       = 15 ;
-  static const  int        EXPAND_BTN_H       = 16 ;
-  static const  int        EXPAND_BTN_XC      = EXPAND_BTN_W / 2 ;
-  static const  int        EXPAND_BTN_YC      = EXPAND_BTN_H / 2 ;
   static const  int        MIXERGROUP_Y       = PAD ;
   static const  int        MIXERGROUP_H       = CHANNEL_H + CHANNEL_LABEL_H + PAD3 ;
   static inline int        MIXERGROUP_W(int n_channels)

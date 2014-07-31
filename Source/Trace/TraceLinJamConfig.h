@@ -51,22 +51,6 @@
 #  define DEBUG_TRACE_CONFIG_TYPES_VB ;
 #endif // TRACE_CONFIG_TYPES
 
-#if TRACE_SHARED_CONFIG
-#  define DEBUG_TRACE_CONFIG_TREE                                              \
-  bool valid = tree_node.isValid() ; String n = String(tree_node_id) ;         \
-  Trace::TraceConfig("node '" + n + ((valid)? "' (" : "' (in") + "valid) - ")) ;
-#  define DEBUG_TRACE_CONFIG_VALUE                                                \
-  bool valid = value_node.isValid() ; String name = String(child_node_id) ;       \
-  String k = String(key) ;                                                        \
-  Trace::TraceConfig("node '" + name + ((valid)? "' (" : "' (in") + "valid) - " + \
-                    ((valid && value_node.hasProperty(key))?                      \
-                        "has shared value on key '"        + k + "'" :            \
-                        "has dummy value on missing key '" + k + "'"))) ;
-#else // TRACE_SHARED_CONFIG
-#  define DEBUG_TRACE_CONFIG_TREE  ;
-#  define DEBUG_TRACE_CONFIG_VALUE ;
-#endif // TRACE_SHARED_CONFIG
-
 #define DEBUG_TRACE_SANITY_CHECK                                                         \
   /* NOTE: these checks normally should be unnecessary                        */         \
   /*       all tree nodes and properties will exist after sanitizeConfig()    */         \
@@ -75,204 +59,214 @@
                                                                                          \
   ValueTree client = this->client ;                                                      \
   ValueTree audio  = this->audio ;                                                       \
+  ValueTree server = this->server ;                                                       \
   ValueTree master = this->masterChannels.getChildWithName(CONFIG::MASTER_ID) ;          \
   ValueTree metro  = this->masterChannels.getChildWithName(CONFIG::METRO_ID) ;           \
                                                                                          \
   /* client properties */                                                                \
   bool client_has_saveaudio_property       =                                             \
-      this->client              .hasProperty(CONFIG::SAVE_AUDIO_ID)       ;              \
+      client.hasProperty(CONFIG::SAVE_AUDIO_ID)       ;                                  \
   bool client_has_savelog_property         =                                             \
-      this->client              .hasProperty(CONFIG::SAVE_LOG_ID)         ;              \
+      client.hasProperty(CONFIG::SAVE_LOG_ID)         ;                                  \
   bool client_has_debuglevel_property      =                                             \
-      this->client              .hasProperty(CONFIG::DEBUGLEVEL_ID)       ;              \
+      client.hasProperty(CONFIG::DEBUGLEVEL_ID)       ;                                  \
+  bool client_has_hide_bots_property       =                                             \
+      client.hasProperty(CONFIG::SHOULD_HIDE_BOTS_ID) ;                                  \
   bool client_has_autosubscribe_property   =                                             \
-      this->client              .hasProperty(CONFIG::AUTOSUBSCRIBE_ID)    ;              \
+      client.hasProperty(CONFIG::AUTOSUBSCRIBE_ID)    ;                                  \
+                                                                                         \
   /* audio properties */                                                                 \
   bool audio_has_winifn_property           =                                             \
-      this->audio               .hasProperty(CONFIG::WIN_AUDIO_IF_ID)     ;              \
+      audio .hasProperty(CONFIG::WIN_AUDIO_IF_ID)     ;                                  \
   bool audio_has_asiodriver_property       =                                             \
-      this->audio               .hasProperty(CONFIG::ASIO_DRIVER_ID)      ;              \
+      audio .hasProperty(CONFIG::ASIO_DRIVER_ID)      ;                                  \
   bool audio_has_asioinput0_property       =                                             \
-      this->audio               .hasProperty(CONFIG::ASIO_INPUT0_ID)      ;              \
+      audio .hasProperty(CONFIG::ASIO_INPUT0_ID)      ;                                  \
   bool audio_has_asioinput1_property       =                                             \
-      this->audio               .hasProperty(CONFIG::ASIO_INPUT1_ID)      ;              \
+      audio .hasProperty(CONFIG::ASIO_INPUT1_ID)      ;                                  \
   bool audio_has_asiooutput0_property      =                                             \
-      this->audio               .hasProperty(CONFIG::ASIO_OUTPUT0_ID)     ;              \
+      audio .hasProperty(CONFIG::ASIO_OUTPUT0_ID)     ;                                  \
   bool audio_has_asiooutput1_property      =                                             \
-      this->audio               .hasProperty(CONFIG::ASIO_OUTPUT1_ID)     ;              \
+      audio .hasProperty(CONFIG::ASIO_OUTPUT1_ID)     ;                                  \
   bool audio_has_ksinput_property          =                                             \
-      this->audio               .hasProperty(CONFIG::KS_INPUT_ID)         ;              \
+      audio .hasProperty(CONFIG::KS_INPUT_ID)         ;                                  \
   bool audio_has_ksoutput_property         =                                             \
-      this->audio               .hasProperty(CONFIG::KS_OUTPUT_ID)        ;              \
+      audio .hasProperty(CONFIG::KS_OUTPUT_ID)        ;                                  \
   bool audio_has_kssamplerate_property     =                                             \
-      this->audio               .hasProperty(CONFIG::KS_SAMPLERATE_ID)    ;              \
+      audio .hasProperty(CONFIG::KS_SAMPLERATE_ID)    ;                                  \
   bool audio_has_ksbitdepth_property       =                                             \
-      this->audio               .hasProperty(CONFIG::KS_BITDEPTH_ID)      ;              \
+      audio .hasProperty(CONFIG::KS_BITDEPTH_ID)      ;                                  \
   bool audio_has_ksblocksize_property      =                                             \
-      this->audio               .hasProperty(CONFIG::KS_BLOCKSIZE_ID)     ;              \
+      audio .hasProperty(CONFIG::KS_BLOCKSIZE_ID)     ;                                  \
   bool audio_has_ksnblocks_property        =                                             \
-      this->audio               .hasProperty(CONFIG::KS_NBLOCKS_ID)       ;              \
+      audio .hasProperty(CONFIG::KS_NBLOCKS_ID)       ;                                  \
   bool audio_has_dsinput0_property         =                                             \
-      this->audio               .hasProperty(CONFIG::DS_INPUT0_ID)        ;              \
+      audio .hasProperty(CONFIG::DS_INPUT0_ID)        ;                                  \
   bool audio_has_dsinput1_property         =                                             \
-      this->audio               .hasProperty(CONFIG::DS_INPUT1_ID)        ;              \
+      audio .hasProperty(CONFIG::DS_INPUT1_ID)        ;                                  \
   bool audio_has_dsinput2_property         =                                             \
-      this->audio               .hasProperty(CONFIG::DS_INPUT2_ID)        ;              \
+      audio .hasProperty(CONFIG::DS_INPUT2_ID)        ;                                  \
   bool audio_has_dsinput3_property         =                                             \
-      this->audio               .hasProperty(CONFIG::DS_INPUT3_ID)        ;              \
+      audio .hasProperty(CONFIG::DS_INPUT3_ID)        ;                                  \
   bool audio_has_dsoutput0_property        =                                             \
-      this->audio               .hasProperty(CONFIG::DS_OUTPUT0_ID)       ;              \
+      audio .hasProperty(CONFIG::DS_OUTPUT0_ID)       ;                                  \
   bool audio_has_dsoutput1_property        =                                             \
-      this->audio               .hasProperty(CONFIG::DS_OUTPUT1_ID)       ;              \
+      audio .hasProperty(CONFIG::DS_OUTPUT1_ID)       ;                                  \
   bool audio_has_dsoutput2_property        =                                             \
-      this->audio               .hasProperty(CONFIG::DS_OUTPUT2_ID)       ;              \
+      audio .hasProperty(CONFIG::DS_OUTPUT2_ID)       ;                                  \
   bool audio_has_dsoutput3_property        =                                             \
-      this->audio               .hasProperty(CONFIG::DS_OUTPUT3_ID)       ;              \
+      audio .hasProperty(CONFIG::DS_OUTPUT3_ID)       ;                                  \
   bool audio_has_dssamplerate_property     =                                             \
-      this->audio               .hasProperty(CONFIG::DS_SAMPLERATE_ID)    ;              \
+      audio .hasProperty(CONFIG::DS_SAMPLERATE_ID)    ;                                  \
   bool audio_has_dsbitdepth_property       =                                             \
-      this->audio               .hasProperty(CONFIG::DS_BITDEPTH_ID)      ;              \
+      audio .hasProperty(CONFIG::DS_BITDEPTH_ID)      ;                                  \
   bool audio_has_dsblocksize_property      =                                             \
-      this->audio               .hasProperty(CONFIG::DS_BLOCKSIZE_ID)     ;              \
+      audio .hasProperty(CONFIG::DS_BLOCKSIZE_ID)     ;                                  \
   bool audio_has_dsnblocks_property        =                                             \
-      this->audio               .hasProperty(CONFIG::DS_NBLOCKS_ID)       ;              \
+      audio .hasProperty(CONFIG::DS_NBLOCKS_ID)       ;                                  \
   bool audio_has_waveinput_property        =                                             \
-      this->audio               .hasProperty(CONFIG::WAVE_INPUT_ID)       ;              \
+      audio .hasProperty(CONFIG::WAVE_INPUT_ID)       ;                                  \
   bool audio_has_waveoutput_property       =                                             \
-      this->audio               .hasProperty(CONFIG::WAVE_OUTPUT_ID)      ;              \
+      audio .hasProperty(CONFIG::WAVE_OUTPUT_ID)      ;                                  \
   bool audio_has_wavesamplerate_property   =                                             \
-      this->audio               .hasProperty(CONFIG::WAVE_SAMPLERATE_ID)  ;              \
+      audio .hasProperty(CONFIG::WAVE_SAMPLERATE_ID)  ;                                  \
   bool audio_has_wavebitdepth_property     =                                             \
-      this->audio               .hasProperty(CONFIG::WAVE_BITDEPTH_ID)    ;              \
+      audio .hasProperty(CONFIG::WAVE_BITDEPTH_ID)    ;                                  \
   bool audio_has_waveblocksize_property    =                                             \
-      this->audio               .hasProperty(CONFIG::WAVE_BLOCKSIZE_ID)   ;              \
+      audio .hasProperty(CONFIG::WAVE_BLOCKSIZE_ID)   ;                                  \
   bool audio_has_wavenblocks_property      =                                             \
-      this->audio               .hasProperty(CONFIG::WAVE_NBLOCKS_ID)     ;              \
+      audio .hasProperty(CONFIG::WAVE_NBLOCKS_ID)     ;                                  \
   bool audio_has_macninputs_property       =                                             \
-      this->audio               .hasProperty(CONFIG::MAC_NINPUTS_ID)      ;              \
+      audio .hasProperty(CONFIG::MAC_NINPUTS_ID)      ;                                  \
   bool audio_has_macsamplerate_property    =                                             \
-      this->audio               .hasProperty(CONFIG::MAC_SAMPLERATE_ID)   ;              \
+      audio .hasProperty(CONFIG::MAC_SAMPLERATE_ID)   ;                                  \
   bool audio_has_macbitdepth_property      =                                             \
-      this->audio               .hasProperty(CONFIG::MAC_BITDEPTH_ID)     ;              \
+      audio .hasProperty(CONFIG::MAC_BITDEPTH_ID)     ;                                  \
+  bool audio_has_nixifn_property           =                                             \
+      audio .hasProperty(CONFIG::NIX_AUDIO_IF_ID)     ;                                  \
   bool audio_has_jackninputs_property      =                                             \
-      this->audio               .hasProperty(CONFIG::JACK_NINPUTS_ID)     ;              \
+      audio .hasProperty(CONFIG::JACK_NINPUTS_ID)     ;                                  \
   bool audio_has_jacknoutputs_property     =                                             \
-      this->audio               .hasProperty(CONFIG::JACK_NOUTPUTS_ID)    ;              \
+      audio .hasProperty(CONFIG::JACK_NOUTPUTS_ID)    ;                                  \
   bool audio_has_jackname_property         =                                             \
-      this->audio               .hasProperty(CONFIG::JACK_NAME_ID)        ;              \
+      audio .hasProperty(CONFIG::JACK_NAME_ID)        ;                                  \
+                                                                                         \
   /* server properties */                                                                \
-  bool host_has_value                      =                                             \
-      !this->host               .refersToSameSourceAs(this->dummyValue)   ;              \
-  bool login_has_value                     =                                             \
-      !this->login              .refersToSameSourceAs(this->dummyValue)   ;              \
-  bool pass_has_value                      =                                             \
-      !this->pass               .refersToSameSourceAs(this->dummyValue)   ;              \
-  bool is_anonymous_has_value              =                                             \
-      !this->isAnonymous        .refersToSameSourceAs(this->dummyValue)   ;              \
-  bool is_agreed_has_value                 =                                             \
-      !this->isAgreed           .refersToSameSourceAs(this->dummyValue)   ;              \
-  bool should_agree_has_value              =                                             \
-      !this->shouldAgree        .refersToSameSourceAs(this->dummyValue)   ;              \
-  bool should_hide_bots_has_value          =                                             \
-      !this->shouldHideBots     .refersToSameSourceAs(this->dummyValue)   ;              \
+  bool server_has_host_property            =                                             \
+      server.hasProperty(CONFIG::HOST_ID)             ;                                  \
+  bool server_has_login_property           =                                             \
+      server.hasProperty(CONFIG::LOGIN_ID)            ;                                  \
+  bool server_has_pass_property            =                                             \
+      server.hasProperty(CONFIG::PASS_ID)             ;                                  \
+  bool server_has_is_anonymous_property    =                                             \
+      server.hasProperty(CONFIG::IS_ANONYMOUS_ID)     ;                                  \
+  bool server_has_is_agreed_property       =                                             \
+      server.hasProperty(CONFIG::IS_AGREED_ID)        ;                                  \
+  bool server_has_should_agree_property    =                                             \
+      server.hasProperty(CONFIG::SHOULD_AGREE_ID)     ;                                  \
+                                                                                         \
   /* masters properties */                                                               \
   bool master_channel_has_name_property    =                                             \
-      master                    .hasProperty(CONFIG::CHANNEL_NAME_ID)     ;              \
+      master.hasProperty(CONFIG::CHANNEL_NAME_ID)     ;                                  \
   bool master_channel_has_volume_property  =                                             \
-      master                    .hasProperty(CONFIG::VOLUME_ID)           ;              \
+      master.hasProperty(CONFIG::VOLUME_ID)           ;                                  \
   bool master_channel_has_pan_property     =                                             \
-      master                    .hasProperty(CONFIG::PAN_ID)              ;              \
+      master.hasProperty(CONFIG::PAN_ID)              ;                                  \
   bool master_channel_has_mute_property    =                                             \
-      master                    .hasProperty(CONFIG::IS_MUTED_ID)         ;              \
+      master.hasProperty(CONFIG::IS_MUTED_ID)         ;                                  \
   bool master_channel_has_stereo_property  =                                             \
-      master                    .hasProperty(CONFIG::STEREO_ID)           ;              \
+      master.hasProperty(CONFIG::STEREO_ID)           ;                                  \
   bool master_channel_has_vuleft_property  =                                             \
-      master                    .hasProperty(CONFIG::VU_LEFT_ID)          ;              \
+      master.hasProperty(CONFIG::VU_LEFT_ID)          ;                                  \
   bool master_channel_has_vuright_property =                                             \
-      master                    .hasProperty(CONFIG::VU_RIGHT_ID)         ;              \
+      master.hasProperty(CONFIG::VU_RIGHT_ID)         ;                                  \
   bool metro_channel_has_name_property     =                                             \
-      metro                     .hasProperty(CONFIG::CHANNEL_NAME_ID)     ;              \
+      metro .hasProperty(CONFIG::CHANNEL_NAME_ID)     ;                                  \
   bool metro_channel_has_volume_property   =                                             \
-      metro                     .hasProperty(CONFIG::VOLUME_ID)           ;              \
+      metro .hasProperty(CONFIG::VOLUME_ID)           ;                                  \
   bool metro_channel_has_pan_property      =                                             \
-      metro                     .hasProperty(CONFIG::PAN_ID)              ;              \
+      metro .hasProperty(CONFIG::PAN_ID)              ;                                  \
   bool metro_channel_has_mute_property     =                                             \
-      metro                     .hasProperty(CONFIG::IS_MUTED_ID)         ;              \
+      metro .hasProperty(CONFIG::IS_MUTED_ID)         ;                                  \
   bool metro_channel_has_source_property   =                                             \
-      metro                     .hasProperty(CONFIG::SOURCE_N_ID)         ;              \
+      metro .hasProperty(CONFIG::SOURCE_N_ID)         ;                                  \
   bool metro_channel_has_stereo_property   =                                             \
-      metro                     .hasProperty(CONFIG::STEREO_ID)           ;              \
+      metro .hasProperty(CONFIG::STEREO_ID)           ;                                  \
   bool metro_channel_has_vuleft_property   =                                             \
-      metro                     .hasProperty(CONFIG::VU_LEFT_ID)          ;              \
+      metro .hasProperty(CONFIG::VU_LEFT_ID)          ;                                  \
   bool metro_channel_has_vuright_property  =                                             \
-      metro                     .hasProperty(CONFIG::VU_RIGHT_ID)         ;              \
+      metro .hasProperty(CONFIG::VU_RIGHT_ID)         ;                                  \
                                                                                          \
   /* client datatypes */                                                                 \
-  bool save_audio_is_int        = this->client[CONFIG::SAVE_AUDIO_ID]     .isInt()    ;  \
-  bool save_log_is_bool         = this->client[CONFIG::SAVE_LOG_ID]       .isBool()   ;  \
-  bool deuglevel_is_int         = this->client[CONFIG::DEBUGLEVEL_ID]     .isInt()    ;  \
-  bool autosubscribe_is_int     = this->client[CONFIG::AUTOSUBSCRIBE_ID]  .isInt()    ;  \
+  bool save_audio_is_int        = client[CONFIG::SAVE_AUDIO_ID]      .isInt()    ;       \
+  bool save_log_is_bool         = client[CONFIG::SAVE_LOG_ID]        .isBool()   ;       \
+  bool deuglevel_is_int         = client[CONFIG::DEBUGLEVEL_ID]      .isInt()    ;       \
+  bool should_hide_bots_is_bool = client[CONFIG::SHOULD_HIDE_BOTS_ID].isBool()   ;       \
+  bool autosubscribe_is_int     = client[CONFIG::AUTOSUBSCRIBE_ID]   .isInt()    ;       \
+                                                                                         \
   /* audio datatypes */                                                                  \
-  bool win_audio_ifn_is_int     = this->audio[CONFIG::WIN_AUDIO_IF_ID]    .isInt()    ;  \
-  bool asio_driver_is_int       = this->audio[CONFIG::ASIO_DRIVER_ID]     .isInt()    ;  \
-  bool asio_input0_is_int       = this->audio[CONFIG::ASIO_INPUT0_ID]     .isInt()    ;  \
-  bool asio_inout1_is_int       = this->audio[CONFIG::ASIO_INPUT1_ID]     .isInt()    ;  \
-  bool asio_output0_is_int      = this->audio[CONFIG::ASIO_OUTPUT0_ID]    .isInt()    ;  \
-  bool asio_output1_is_int      = this->audio[CONFIG::ASIO_OUTPUT1_ID]    .isInt()    ;  \
-  bool ks_input_is_int          = this->audio[CONFIG::KS_INPUT_ID]        .isInt()    ;  \
-  bool ks_output_is_int         = this->audio[CONFIG::KS_OUTPUT_ID]       .isInt()    ;  \
-  bool ks_samplerate_is_int     = this->audio[CONFIG::KS_SAMPLERATE_ID]   .isInt()    ;  \
-  bool ks_bitdepth_is_int       = this->audio[CONFIG::KS_BITDEPTH_ID]     .isInt()    ;  \
-  bool ks_blocksize_is_int      = this->audio[CONFIG::KS_BLOCKSIZE_ID]    .isInt()    ;  \
-  bool ks_n_blocks_is_int       = this->audio[CONFIG::KS_NBLOCKS_ID]      .isInt()    ;  \
-  bool ds_input0_is_int         = this->audio[CONFIG::DS_INPUT0_ID]       .isInt()    ;  \
-  bool ds_input1_is_int         = this->audio[CONFIG::DS_INPUT1_ID]       .isInt()    ;  \
-  bool ds_input2_is_int         = this->audio[CONFIG::DS_INPUT2_ID]       .isInt()    ;  \
-  bool ds_input3_is_int         = this->audio[CONFIG::DS_INPUT3_ID]       .isInt()    ;  \
-  bool ds_output0_is_int        = this->audio[CONFIG::DS_OUTPUT0_ID]      .isInt()    ;  \
-  bool ds_output1_is_int        = this->audio[CONFIG::DS_OUTPUT1_ID]      .isInt()    ;  \
-  bool ds_output2_is_int        = this->audio[CONFIG::DS_OUTPUT2_ID]      .isInt()    ;  \
-  bool ds_output3_is_int        = this->audio[CONFIG::DS_OUTPUT3_ID]      .isInt()    ;  \
-  bool ds_samplerate_is_int     = this->audio[CONFIG::DS_SAMPLERATE_ID]   .isInt()    ;  \
-  bool ds_bitdepth_is_int       = this->audio[CONFIG::DS_BITDEPTH_ID]     .isInt()    ;  \
-  bool ds_blocksize_is_int      = this->audio[CONFIG::DS_BLOCKSIZE_ID]    .isInt()    ;  \
-  bool ds_n_blocks_is_int       = this->audio[CONFIG::DS_NBLOCKS_ID]      .isInt()    ;  \
-  bool wave_input_is_int        = this->audio[CONFIG::WAVE_INPUT_ID]      .isInt()    ;  \
-  bool wave_output_is_int       = this->audio[CONFIG::WAVE_OUTPUT_ID]     .isInt()    ;  \
-  bool wave_samplerate_is_int   = this->audio[CONFIG::WAVE_SAMPLERATE_ID] .isInt()    ;  \
-  bool wave_bitdepth_is_int     = this->audio[CONFIG::WAVE_BITDEPTH_ID]   .isInt()    ;  \
-  bool wave_blocksize_is_int    = this->audio[CONFIG::WAVE_BLOCKSIZE_ID]  .isInt()    ;  \
-  bool wave_n_blocks_is_int     = this->audio[CONFIG::WAVE_NBLOCKS_ID]    .isInt()    ;  \
-  bool mac_n_inputs_is_int      = this->audio[CONFIG::MAC_NINPUTS_ID]     .isInt()    ;  \
-  bool mac_samplerate_is_int    = this->audio[CONFIG::MAC_SAMPLERATE_ID]  .isInt()    ;  \
-  bool mac_bitdepth_is_int      = this->audio[CONFIG::MAC_BITDEPTH_ID]    .isInt()    ;  \
-  bool jack_n_inputs_is_int     = this->audio[CONFIG::JACK_NINPUTS_ID]    .isInt()    ;  \
-  bool jack_n_outputs_is_int    = this->audio[CONFIG::JACK_NOUTPUTS_ID]   .isInt()    ;  \
-  bool jack_name_is_string      = this->audio[CONFIG::JACK_NAME_ID]       .isString() ;  \
+  bool win_audio_ifn_is_int     = audio [CONFIG::WIN_AUDIO_IF_ID]    .isInt()    ;       \
+  bool asio_driver_is_int       = audio [CONFIG::ASIO_DRIVER_ID]     .isInt()    ;       \
+  bool asio_input0_is_int       = audio [CONFIG::ASIO_INPUT0_ID]     .isInt()    ;       \
+  bool asio_inout1_is_int       = audio [CONFIG::ASIO_INPUT1_ID]     .isInt()    ;       \
+  bool asio_output0_is_int      = audio [CONFIG::ASIO_OUTPUT0_ID]    .isInt()    ;       \
+  bool asio_output1_is_int      = audio [CONFIG::ASIO_OUTPUT1_ID]    .isInt()    ;       \
+  bool ks_input_is_int          = audio [CONFIG::KS_INPUT_ID]        .isInt()    ;       \
+  bool ks_output_is_int         = audio [CONFIG::KS_OUTPUT_ID]       .isInt()    ;       \
+  bool ks_samplerate_is_int     = audio [CONFIG::KS_SAMPLERATE_ID]   .isInt()    ;       \
+  bool ks_bitdepth_is_int       = audio [CONFIG::KS_BITDEPTH_ID]     .isInt()    ;       \
+  bool ks_blocksize_is_int      = audio [CONFIG::KS_BLOCKSIZE_ID]    .isInt()    ;       \
+  bool ks_n_blocks_is_int       = audio [CONFIG::KS_NBLOCKS_ID]      .isInt()    ;       \
+  bool ds_input0_is_int         = audio [CONFIG::DS_INPUT0_ID]       .isInt()    ;       \
+  bool ds_input1_is_int         = audio [CONFIG::DS_INPUT1_ID]       .isInt()    ;       \
+  bool ds_input2_is_int         = audio [CONFIG::DS_INPUT2_ID]       .isInt()    ;       \
+  bool ds_input3_is_int         = audio [CONFIG::DS_INPUT3_ID]       .isInt()    ;       \
+  bool ds_output0_is_int        = audio [CONFIG::DS_OUTPUT0_ID]      .isInt()    ;       \
+  bool ds_output1_is_int        = audio [CONFIG::DS_OUTPUT1_ID]      .isInt()    ;       \
+  bool ds_output2_is_int        = audio [CONFIG::DS_OUTPUT2_ID]      .isInt()    ;       \
+  bool ds_output3_is_int        = audio [CONFIG::DS_OUTPUT3_ID]      .isInt()    ;       \
+  bool ds_samplerate_is_int     = audio [CONFIG::DS_SAMPLERATE_ID]   .isInt()    ;       \
+  bool ds_bitdepth_is_int       = audio [CONFIG::DS_BITDEPTH_ID]     .isInt()    ;       \
+  bool ds_blocksize_is_int      = audio [CONFIG::DS_BLOCKSIZE_ID]    .isInt()    ;       \
+  bool ds_n_blocks_is_int       = audio [CONFIG::DS_NBLOCKS_ID]      .isInt()    ;       \
+  bool wave_input_is_int        = audio [CONFIG::WAVE_INPUT_ID]      .isInt()    ;       \
+  bool wave_output_is_int       = audio [CONFIG::WAVE_OUTPUT_ID]     .isInt()    ;       \
+  bool wave_samplerate_is_int   = audio [CONFIG::WAVE_SAMPLERATE_ID] .isInt()    ;       \
+  bool wave_bitdepth_is_int     = audio [CONFIG::WAVE_BITDEPTH_ID]   .isInt()    ;       \
+  bool wave_blocksize_is_int    = audio [CONFIG::WAVE_BLOCKSIZE_ID]  .isInt()    ;       \
+  bool wave_n_blocks_is_int     = audio [CONFIG::WAVE_NBLOCKS_ID]    .isInt()    ;       \
+  bool mac_n_inputs_is_int      = audio [CONFIG::MAC_NINPUTS_ID]     .isInt()    ;       \
+  bool mac_samplerate_is_int    = audio [CONFIG::MAC_SAMPLERATE_ID]  .isInt()    ;       \
+  bool mac_bitdepth_is_int      = audio [CONFIG::MAC_BITDEPTH_ID]    .isInt()    ;       \
+  bool nix_audio_ifn_is_int     = audio [CONFIG::NIX_AUDIO_IF_ID]    .isInt()    ;       \
+  bool jack_n_inputs_is_int     = audio [CONFIG::JACK_NINPUTS_ID]    .isInt()    ;       \
+  bool jack_n_outputs_is_int    = audio [CONFIG::JACK_NOUTPUTS_ID]   .isInt()    ;       \
+  bool jack_name_is_string      = audio [CONFIG::JACK_NAME_ID]       .isString() ;       \
+                                                                                         \
   /* server datatypes */                                                                 \
-  bool host_name_is_string      = this->host          .getValue()         .isString() ;  \
-  bool login_is_string          = this->login         .getValue()         .isString() ;  \
-  bool pass_is_string           = this->pass          .getValue()         .isString() ;  \
-  bool is_anon_is_bool          = this->isAnonymous   .getValue()         .isBool()   ;  \
-  bool is_agreed_is_bool        = this->isAgreed      .getValue()         .isBool()   ;  \
-  bool should_agree_is_bool     = this->shouldAgree   .getValue()         .isBool()   ;  \
-  bool should_hide_bots_is_bool = this->shouldHideBots.getValue()         .isBool()   ;  \
+  bool host_name_is_string      = server[CONFIG::HOST_ID]            .isString() ;       \
+  bool login_is_string          = server[CONFIG::LOGIN_ID]           .isString() ;       \
+  bool pass_is_string           = server[CONFIG::PASS_ID]            .isString() ;       \
+  bool is_anon_is_bool          = server[CONFIG::IS_ANONYMOUS_ID]    .isBool()   ;       \
+  bool is_agreed_is_bool        = server[CONFIG::IS_AGREED_ID]       .isBool()   ;       \
+  bool should_agree_is_bool     = server[CONFIG::SHOULD_AGREE_ID]    .isBool()   ;       \
+                                                                                         \
   /* masters datatypes */                                                                \
-  bool master_name_is_string    = master[CONFIG::CHANNEL_NAME_ID]         .isString() ;  \
-  bool master_volume_is_double  = master[CONFIG::VOLUME_ID]               .isDouble() ;  \
-  bool master_pan_is_double     = master[CONFIG::PAN_ID]                  .isDouble() ;  \
-  bool master_mute_is_bool      = master[CONFIG::IS_MUTED_ID]             .isBool()   ;  \
-  bool master_stereo_is_int     = master[CONFIG::STEREO_ID]               .isInt()    ;  \
-  bool master_vuleft_is_double  = master[CONFIG::VU_LEFT_ID]              .isDouble() ;  \
-  bool master_vuright_is_double = master[CONFIG::VU_RIGHT_ID]             .isDouble() ;  \
-  bool metro_name_is_string     = metro [CONFIG::CHANNEL_NAME_ID]         .isString() ;  \
-  bool metro_volume_is_double   = metro [CONFIG::VOLUME_ID]               .isDouble() ;  \
-  bool metro_pan_is_double      = metro [CONFIG::PAN_ID]                  .isDouble() ;  \
-  bool metro_mute_is_bool       = metro [CONFIG::IS_MUTED_ID]             .isBool()   ;  \
-  bool metro_source_is_int      = metro [CONFIG::SOURCE_N_ID]             .isInt()    ;  \
-  bool metro_stereo_is_int      = metro [CONFIG::STEREO_ID]               .isInt()    ;  \
-  bool metro_vuleft_is_double   = metro [CONFIG::VU_LEFT_ID]              .isDouble() ;  \
-  bool metro_vuright_is_double  = metro [CONFIG::VU_RIGHT_ID]             .isDouble() ;  \
+  bool master_name_is_string    = master[CONFIG::CHANNEL_NAME_ID]    .isString() ;       \
+  bool master_volume_is_double  = master[CONFIG::VOLUME_ID]          .isDouble() ;       \
+  bool master_pan_is_double     = master[CONFIG::PAN_ID]             .isDouble() ;       \
+  bool master_mute_is_bool      = master[CONFIG::IS_MUTED_ID]        .isBool()   ;       \
+  bool master_stereo_is_int     = master[CONFIG::STEREO_ID]          .isInt()    ;       \
+  bool master_vuleft_is_double  = master[CONFIG::VU_LEFT_ID]         .isDouble() ;       \
+  bool master_vuright_is_double = master[CONFIG::VU_RIGHT_ID]        .isDouble() ;       \
+  bool metro_name_is_string     = metro [CONFIG::CHANNEL_NAME_ID]    .isString() ;       \
+  bool metro_volume_is_double   = metro [CONFIG::VOLUME_ID]          .isDouble() ;       \
+  bool metro_pan_is_double      = metro [CONFIG::PAN_ID]             .isDouble() ;       \
+  bool metro_mute_is_bool       = metro [CONFIG::IS_MUTED_ID]        .isBool()   ;       \
+  bool metro_source_is_int      = metro [CONFIG::SOURCE_N_ID]        .isInt()    ;       \
+  bool metro_stereo_is_int      = metro [CONFIG::STEREO_ID]          .isInt()    ;       \
+  bool metro_vuleft_is_double   = metro [CONFIG::VU_LEFT_ID]         .isDouble() ;       \
+  bool metro_vuright_is_double  = metro [CONFIG::VU_RIGHT_ID]        .isDouble() ;       \
                                                                                          \
   /* subscribed nodes */                                                                 \
   if (!root_is_valid)                                                                    \
@@ -301,8 +295,11 @@
     Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::SAVE_LOG_KEY) ;             \
   if (!client_has_debuglevel_property)                                                   \
     Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::DEBUGLEVEL_KEY) ;           \
+  if (!client_has_hide_bots_property)                                                    \
+    Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::SHOULD_HIDE_BOTS_KEY) ;     \
   if (!client_has_autosubscribe_property)                                                \
     Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::AUTOSUBSCRIBE_KEY) ;        \
+                                                                                         \
   /* audio properties */                                                                 \
   if (!audio_has_winifn_property)                                                        \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WIN_AUDIO_IF_KEY) ;          \
@@ -370,27 +367,29 @@
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::MAC_SAMPLERATE_KEY) ;        \
   if (!audio_has_macbitdepth_property)                                                   \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::MAC_BITDEPTH_KEY) ;          \
+  if (!audio_has_nixifn_property)                                                        \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::NIX_AUDIO_IF_KEY) ;          \
   if (!audio_has_jackninputs_property)                                                   \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::JACK_NINPUTS_KEY) ;          \
   if (!audio_has_jacknoutputs_property)                                                  \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::JACK_NOUTPUTS_KEY) ;         \
   if (!audio_has_jackname_property)                                                      \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::JACK_NAME_KEY) ;             \
+                                                                                         \
   /* server properties */                                                                \
-  if (!host_has_value)                                                                   \
+  if (!server_has_host_property)                                                         \
     Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::HOST_KEY) ;                    \
-  if (!login_has_value)                                                                  \
+  if (!server_has_login_property)                                                        \
     Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::LOGIN_KEY) ;                   \
-  if (!pass_has_value)                                                                   \
+  if (!server_has_pass_property)                                                         \
     Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::PASS_KEY) ;                    \
-  if (!is_anonymous_has_value)                                                           \
-    Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::IS_ANON_KEY) ;                 \
-  if (!is_agreed_has_value)                                                              \
+  if (!server_has_is_anonymous_property)                                                 \
+    Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::IS_ANONYMOUS_KEY) ;            \
+  if (!server_has_is_agreed_property)                                                    \
     Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::IS_AGREED_KEY) ;               \
-  if (!should_agree_has_value)                                                           \
+  if (!server_has_should_agree_property)                                                 \
     Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::SHOULD_AGREE_KEY) ;            \
-  if (!should_hide_bots_has_value)                                                       \
-    Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::SHOULD_HIDE_BOTS_KEY) ;        \
+                                                                                         \
   /* masters properties */                                                               \
   if (!master_channel_has_name_property)                                                 \
     Trace::TraceMissingProperty(CONFIG::MASTER_KEY , CONFIG::CHANNEL_NAME_KEY) ;         \
@@ -433,9 +432,13 @@
   if (!deuglevel_is_int)                                                                 \
     Trace::TraceTypeMismatch(CONFIG::CLIENT_KEY  , CONFIG::DEBUGLEVEL_KEY         ,      \
                              CONFIG::INT_TYPE    , client[CONFIG::DEBUGLEVEL_ID]) ;      \
+  if (!should_hide_bots_is_bool)                                                         \
+    Trace::TraceTypeMismatch(CONFIG::CLIENT_KEY  , CONFIG::SHOULD_HIDE_BOTS_KEY  ,       \
+                             CONFIG::BOOL_TYPE   , client[CONFIG::SHOULD_HIDE_BOTS_ID]) ;\
   if (!autosubscribe_is_int)                                                             \
     Trace::TraceTypeMismatch(CONFIG::CLIENT_KEY  , CONFIG::AUTOSUBSCRIBE_KEY         ,   \
                              CONFIG::INT_TYPE    , client[CONFIG::AUTOSUBSCRIBE_ID]) ;   \
+                                                                                         \
   /* audio datatypes */                                                                  \
   if (!win_audio_ifn_is_int)                                                             \
     Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::WIN_AUDIO_IF_KEY        ,     \
@@ -536,6 +539,9 @@
   if (!mac_bitdepth_is_int)                                                              \
     Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::MAC_BITDEPTH_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::MAC_BITDEPTH_ID]) ;     \
+  if (!nix_audio_ifn_is_int)                                                             \
+    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::NIX_AUDIO_IF_KEY        ,     \
+                             CONFIG::INT_TYPE    , audio[CONFIG::NIX_AUDIO_IF_ID]) ;     \
   if (!jack_n_inputs_is_int)                                                             \
     Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::JACK_NINPUTS_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::JACK_NINPUTS_ID]) ;     \
@@ -545,28 +551,27 @@
   if (!jack_name_is_string)                                                              \
     Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::JACK_NAME_KEY        ,        \
                              CONFIG::INT_TYPE    , audio[CONFIG::JACK_NAME_ID]) ;        \
+                                                                                         \
   /* server datatypes */                                                                 \
   if (!host_name_is_string)                                                              \
     Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::HOST_KEY       ,              \
-                             CONFIG::STRING_TYPE , this->host.getValue()) ;              \
+                             CONFIG::STRING_TYPE , server[CONFIG::HOST_ID]) ;            \
   if (!login_is_string)                                                                  \
     Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::LOGIN_KEY       ,             \
-                             CONFIG::STRING_TYPE , this->login.getValue()) ;             \
+                             CONFIG::STRING_TYPE , server[CONFIG::LOGIN_ID]) ;           \
   if (!pass_is_string)                                                                   \
     Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::PASS_KEY       ,              \
-                             CONFIG::STRING_TYPE , this->pass.getValue()) ;              \
+                             CONFIG::STRING_TYPE , server[CONFIG::PASS_ID]) ;            \
   if (!is_anon_is_bool)                                                                  \
-    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::IS_ANON_KEY           ,       \
-                             CONFIG::BOOL_TYPE   , this->isAnonymous.getValue()) ;       \
+    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::IS_ANONYMOUS_KEY       ,      \
+                             CONFIG::BOOL_TYPE   , server[CONFIG::IS_ANONYMOUS_ID]) ;    \
   if (!is_agreed_is_bool)                                                                \
-    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::IS_AGREED_KEY      ,          \
-                             CONFIG::BOOL_TYPE   , this->isAgreed.getValue()) ;          \
+    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::IS_AGREED_KEY       ,         \
+                             CONFIG::BOOL_TYPE   , server[CONFIG::IS_AGREED_ID]) ;       \
   if (!should_agree_is_bool)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::SHOULD_AGREE_KEY      ,       \
-                             CONFIG::BOOL_TYPE   , this->shouldAgree.getValue()) ;       \
-  if (!should_hide_bots_is_bool)                                                         \
-    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::SHOULD_HIDE_BOTS_KEY     ,    \
-                             CONFIG::BOOL_TYPE   , this->shouldHideBots.getValue()) ;    \
+    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::SHOULD_AGREE_KEY       ,      \
+                             CONFIG::BOOL_TYPE   , server[CONFIG::SHOULD_AGREE_ID]) ;    \
+                                                                                         \
   /* masters datatypes */                                                                \
   if (!master_name_is_string)                                                            \
     Trace::TraceTypeMismatch(CONFIG::MASTER_KEY  , CONFIG::CHANNEL_NAME_KEY         ,    \
@@ -615,10 +620,13 @@
                              CONFIG::DOUBLE_TYPE , metro[CONFIG::VU_RIGHT_ID]) ;         \
                                                                                          \
   /* modify return value and/or restore defauilt config */                               \
-  is_valid = is_valid &&                                                                 \
+  is_valid = is_valid                                                          &&        \
+                                                                                         \
       /* client properties */                                                            \
       client_has_saveaudio_property      && client_has_savelog_property        &&        \
-      client_has_debuglevel_property     && client_has_autosubscribe_property  &&        \
+      client_has_debuglevel_property     && client_has_hide_bots_property      &&        \
+      client_has_autosubscribe_property                                        &&        \
+                                                                                         \
       /* audio properties */                                                             \
       audio_has_winifn_property                                                &&        \
       audio_has_asiodriver_property      && audio_has_asioinput0_property      &&        \
@@ -638,13 +646,14 @@
       audio_has_waveblocksize_property   && audio_has_wavenblocks_property     &&        \
       audio_has_macninputs_property      && audio_has_macsamplerate_property   &&        \
       audio_has_macbitdepth_property                                           &&        \
-      audio_has_jackninputs_property     && audio_has_jacknoutputs_property    &&        \
-      audio_has_jackname_property                                              &&        \
+      audio_has_nixifn_property          && audio_has_jackninputs_property     &&        \
+      audio_has_jacknoutputs_property    && audio_has_jackname_property        &&        \
+                                                                                         \
       /* server properties */                                                            \
-      host_has_value                     && login_has_value                    &&        \
-      pass_has_value                     && is_anonymous_has_value             &&        \
-      is_agreed_has_value                && should_agree_has_value             &&        \
-      should_hide_bots_has_value                                               &&        \
+      server_has_host_property           && server_has_login_property          &&        \
+      server_has_pass_property           && server_has_is_anonymous_property   &&        \
+      server_has_is_agreed_property      && server_has_should_agree_property   &&        \
+                                                                                         \
       /* masters properties */                                                           \
       master_channel_has_name_property   && master_channel_has_volume_property &&        \
       master_channel_has_pan_property    && master_channel_has_mute_property   &&        \
@@ -654,9 +663,12 @@
       metro_channel_has_pan_property     && metro_channel_has_mute_property    &&        \
       metro_channel_has_source_property  && metro_channel_has_stereo_property  &&        \
       metro_channel_has_vuleft_property  && metro_channel_has_vuleft_property  &&        \
+                                                                                         \
       /* client datatypes */                                                             \
       save_audio_is_int                  && save_log_is_bool                   &&        \
-      deuglevel_is_int                   && autosubscribe_is_int               &&        \
+      deuglevel_is_int                   && should_hide_bots_is_bool           &&        \
+      autosubscribe_is_int                                                     &&        \
+                                                                                         \
       /* audio datatypes */                                                              \
       win_audio_ifn_is_int                                                     &&        \
       asio_driver_is_int                 && asio_input0_is_int                 &&        \
@@ -676,13 +688,14 @@
       wave_blocksize_is_int              && wave_n_blocks_is_int               &&        \
       mac_n_inputs_is_int                && mac_samplerate_is_int              &&        \
       mac_bitdepth_is_int                                                      &&        \
-      jack_n_inputs_is_int               && jack_n_outputs_is_int              &&        \
-      jack_name_is_string                                                      &&        \
+      nix_audio_ifn_is_int               && jack_n_inputs_is_int               &&        \
+      jack_n_outputs_is_int              && jack_name_is_string                &&        \
+                                                                                         \
       /* server datatypes */                                                             \
       host_name_is_string                && login_is_string                    &&        \
       pass_is_string                     && is_anon_is_bool                    &&        \
       is_agreed_is_bool                  && should_agree_is_bool               &&        \
-      should_hide_bots_is_bool                                                 &&        \
+                                                                                         \
       /* masters datatypes */                                                            \
       master_name_is_string              && master_volume_is_double            &&        \
       master_pan_is_double               && master_mute_is_bool                &&        \
@@ -870,21 +883,21 @@
         Trace::TraceConfig(dbgA + "local"  + dbgB) ;                          \
     else Trace::TraceConfig(dbgA + "remote" + dbgB + "for '" + user_id + "'") ;
 
-#define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                        \
-  Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;                \
-  Trace::TraceConfig("created storage for new remote user " + String(user_id)) ; \
-  if (TRACE_ADD_REMOTES_VB)                                                      \
-  {                                                                              \
-    char*      host      = LinJam::Client->GetHostName() ;                       \
-    bool       has_bot   = NETWORK::KNOWN_HOSTS.contains(String(host)) ;         \
-    bool       hide_bots = has_bot && bool(this->shouldHideBots.getValue()) ;    \
-    float      u_vol     = CONFIG::DEFAULT_VOLUME ;                              \
-    bool       u_mute    = CONFIG::DEFAULT_IS_MUTED ;                            \
-    float      u_pan     = CONFIG::DEFAULT_PAN ;                                 \
-    int        u_idx     = -1 ; String u_name ; Identifier u_id ;                \
-    while ((u_name = LinJam::GetRemoteUserName(++u_idx)).isNotEmpty())           \
-      { u_id = makeUserId(u_name) ; if (user_id == u_id) break ; }               \
-    DEBUG_TRACE_REMOTE_CHANNELS                                                  \
+#define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                          \
+  Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;                  \
+  Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;   \
+  if (TRACE_ADD_REMOTES_VB)                                                        \
+  {                                                                                \
+    char* host      = LinJam::Client->GetHostName() ;                              \
+    bool  has_bot   = NETWORK::KNOWN_HOSTS.contains(String(host)) ;                \
+    bool  hide_bots = has_bot && bool(this->client[CONFIG::SHOULD_HIDE_BOTS_ID]) ; \
+    float u_vol     = CONFIG::DEFAULT_VOLUME ;                                     \
+    bool  u_mute    = CONFIG::DEFAULT_IS_MUTED ;                                   \
+    float u_pan     = CONFIG::DEFAULT_PAN ;                                        \
+    int   u_idx     = -1 ; String u_name ; Identifier u_id ;                       \
+    while ((u_name = LinJam::GetRemoteUserName(++u_idx)).isNotEmpty())             \
+      { u_id = makeUserId(u_name) ; if (user_id == u_id) break ; }                 \
+    DEBUG_TRACE_REMOTE_CHANNELS                                                    \
   }
 
 #else // DEBUG
@@ -893,8 +906,6 @@
 #define DEBUG_TRACE_LOAD_CONFIG           ;
 #define DEBUG_TRACE_SANITIZE_CONFIG       ;
 #define DEBUG_TRACE_CONFIG_TYPES_VB       ;
-#define DEBUG_TRACE_CONFIG_TREE           ;
-#define DEBUG_TRACE_CONFIG_VALUE          ;
 #define DEBUG_TRACE_SANITY_CHECK          ;
 //#define DEBUG_TRACE_SANITY_CHECK_USER   ;
 #define DEBUG_TRACE_SANITY_CHECK_CHANNEL  ;

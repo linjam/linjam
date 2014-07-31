@@ -91,10 +91,10 @@ void LinJam::Connect()
 {
   Client->Disconnect() ;
 
-  String host         =      Config->host.toString() ;
-  String login        =      Config->login.toString() ;
-  String pass         =      Config->pass.toString() ;
-  bool   is_anonymous = bool(Config->isAnonymous.getValue()) ;
+  String host         =      Config->server[CONFIG::HOST_ID].toString() ;
+  String login        =      Config->server[CONFIG::LOGIN_ID].toString() ;
+  String pass         =      Config->server[CONFIG::PASS_ID].toString() ;
+  bool   is_anonymous = bool(Config->server[CONFIG::IS_ANONYMOUS_ID]) ;
 
   if (is_anonymous) { login = "anonymous:" + login ; pass  = "" ; }
 
@@ -135,10 +135,10 @@ void LinJam::UpdateGuiLowPriority() { UpdateRecordingTime() ; }
 bool LinJam::IsAgreed()
 {
   ValueTree server              = Config->getCurrentServer() ;
-  bool      should_always_agree = server.isValid() &&
+  bool      should_always_agree = server.isValid()                                 &&
                                   bool(server.getProperty(CONFIG::SHOULD_AGREE_ID)) ;
-  bool      is_agreed           = bool(Config->isAgreed.getValue()) ||
-                                  should_always_agree ;
+  bool      is_agreed           = bool(Config->server[CONFIG::IS_AGREED_ID]) ||
+                                  should_always_agree                         ;
 
   return is_agreed ;
 }
@@ -331,11 +331,8 @@ DEBUG_TRACE_CONNECT_STATUS
 #ifdef DEBUG_AUTOLOGIN
 if (client_status == NJClient::NJC_STATUS_PRECONNECT)
 { Config->setCurrentServer(DEBUG_STATIC_CHANNEL , "nobody" , "" , true) ;
-  LinJam::Config->isAgreed = true ; Connect() ; }
+  LinJam::Config->server.setProperty(CONFIG::IS_AGREED_ID , true , nullptr) ; Connect() ; }
 #endif // DEBUG_AUTOLOGIN
-
-  // server config
-  if (client_status == NJClient::NJC_STATUS_OK) Config->setServer() ;
 
   // status indicator
   String client_error_msg = CharPointer_UTF8(Client->GetErrorStr()) ;
@@ -368,9 +365,8 @@ if (client_status == NJClient::NJC_STATUS_PRECONNECT)
                                             Gui->background->toBehind(Gui->login) ;   break ;
     case NJClient::NJC_STATUS_INVALIDAUTH:  if (IsAgreed())
                                             {
-                                              Gui   ->login     ->toFront(true) ;
-                                              Gui   ->background->toBehind(Gui->login) ;
-                                              Config->isAgreed = false ;
+                                              Gui->login     ->toFront(true) ;
+                                              Gui->background->toBehind(Gui->login) ;
                                             }
                                             else
                                             {
@@ -388,6 +384,13 @@ if (client_status == NJClient::NJC_STATUS_PRECONNECT)
                                             Gui->background->toBehind(Gui->login) ;   break ;
     default:                                                                          break ;
   }
+
+  // reset login state
+  if (client_status == NJClient::NJC_STATUS_INVALIDAUTH)
+    Config->server.setProperty(CONFIG::IS_AGREED_ID , false , nullptr) ;
+
+  // store the current server configuration
+  if (client_status == NJClient::NJC_STATUS_OK) Config->setServer() ;
 }
 
 void LinJam::HandleUserInfoChanged()
@@ -398,7 +401,7 @@ return ;
 DEBUG_TRACE_REMOTE_CHANNELS_VB
 
   bool server_has_bot   = NETWORK::KNOWN_HOSTS.contains(String(Client->GetHostName())) ;
-  bool should_hide_bots = server_has_bot && bool(Config->shouldHideBots.getValue()) ;
+  bool should_hide_bots = bool(Config->client[CONFIG::SHOULD_HIDE_BOTS_ID]) ;
 
   // initialize dictionary for pruning parted users GUI elements
   ValueTree active_users = ValueTree("active-users") ;
@@ -409,7 +412,8 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
   {
     Identifier user_id   = Config->makeUserId(user_name) ;
     String     user_name = String(user_id) ;
-    if (should_hide_bots && NETWORK::KNOWN_BOTS.contains(user_id)) continue ;
+    if (server_has_bot && should_hide_bots && NETWORK::KNOWN_BOTS.contains(user_id))
+      continue ;
 
     // get or create remote user storage
     ValueTree user_store = Config->getOrAddRemoteUser(user_name) ;
@@ -745,15 +749,16 @@ bool LinJam::InitializeAudio()
   int    mac_n_inputs     =     int(Config->audio[CONFIG::MAC_NINPUTS_ID]) ;
   int    mac_sample_rate  =     int(Config->audio[CONFIG::MAC_SAMPLERATE_ID]) ;
   int    mac_bit_depth    =     int(Config->audio[CONFIG::MAC_BITDEPTH_ID]) ;
+  int    nix_interface_n  =     int(Config->audio[CONFIG::NIX_AUDIO_IF_ID]) ;
   int    jack_n_inputs    =     int(Config->audio[CONFIG::JACK_NINPUTS_ID]) ;
   int    jack_n_outputs   =     int(Config->audio[CONFIG::JACK_NOUTPUTS_ID]) ;
   String jack_name        =         Config->audio[CONFIG::JACK_NAME_ID].toString() ;
   char*  config_string    = "" ;
 
 #ifdef _WIN32
-  switch ((audioStreamer::WinAudioIf)win_interface_n)
+  switch ((audioStreamer::Interface)win_interface_n)
   {
-    case audioStreamer::WINDOWS_AUDIO_ASIO:
+    case audioStreamer::WIN_AUDIO_ASIO:
     {
 #ifndef NO_SUPPORT_ASIO
       char device_buffer[2050] ; // 1025 wchars wsprintf max
@@ -766,7 +771,7 @@ bool LinJam::InitializeAudio()
       break ;
 #endif // NO_SUPPORT_ASIO
     }
-    case audioStreamer::WINDOWS_AUDIO_KS:
+    case audioStreamer::WIN_AUDIO_KS:
     {
 #ifndef NO_SUPPORT_KS
       Audio = create_audioStreamer_KS(ks_sample_rate  , ks_bit_depth , &ks_n_buffers ,
@@ -774,7 +779,7 @@ bool LinJam::InitializeAudio()
       break ;
 #endif // NO_SUPPORT_KS
     }
-    case audioStreamer::WINDOWS_AUDIO_DS:
+    case audioStreamer::WIN_AUDIO_DS:
     {
 #ifndef NO_SUPPORT_DS
       GUID guid[2] ; memcpy(guid , ds_device , sizeof(guid)) ;
@@ -784,7 +789,7 @@ bool LinJam::InitializeAudio()
       break ;
 #endif // NO_SUPPORT_DS
     }
-    case audioStreamer::WINDOWS_AUDIO_WAVE:
+    case audioStreamer::WIN_AUDIO_WAVE:
     default:
     {
 #ifndef NO_SUPPORT_WAVE
@@ -807,16 +812,16 @@ DEBUG_TRACE_AUDIO_INIT_WIN
 DEBUG_TRACE_AUDIO_INIT_MAC
 
 #  else // _MAC
-  switch (interface_n)
+  switch ((audioStreamer::Interface)nix_interface_n)
   {
-    case 0: // JACK
+    case audioStreamer::NIX_AUDIO_JACK:
       Audio = create_audioStreamer_JACK(jack_name.toRawUTF8() , jack_n_inputs ,
                                         jack_n_outputs        , OnSamples     , Client) ;
 
 DEBUG_TRACE_AUDIO_INIT_JACK
 
       if (Audio) break ;
-    case 1: // ALSA
+    case audioStreamer::NIX_AUDIO_ALSA:
     default:
       Audio = create_audioStreamer_ALSA(config_string , OnSamples) ;
 

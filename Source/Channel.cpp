@@ -22,7 +22,7 @@
 #include "LinJam.h"
 #include "Constants.h"
 #include "Mixer.h"
-#include "ChannelConfig.h"
+#include "ConfigChannel.h"
 #include "./Trace/TraceChannels.h"
 
 //[/Headers]
@@ -363,7 +363,8 @@ void Channel::updateChannelVU(Slider* a_vu_slider , Label* a_vu_label , double v
   double actual_vu    = vu + CLIENT::VU_DB_MIN ;
   bool   is_metro     = this->configStore.getType() == CONFIG::METRO_ID ;
   bool   is_saturated = actual_vu >= 0.0 && !is_metro ;
-  String label_text   = String((vu <= CLIENT::VU_DB_RANGE)? int(actual_vu) : '\u221E') ;
+  String label_text   = (vu <= CLIENT::VU_DB_RANGE)? String(int(actual_vu))     :
+                                                     String(GUI::INFINITY_CHAR) ;
 
   a_vu_slider->setValue(vu) ;
   a_vu_label ->setText(label_text , juce::dontSendNotification) ;
@@ -486,18 +487,18 @@ void LocalChannel::buttonClicked(Button* a_button)
 
   else if (a_button == this->configButton)
   {
-    ChannelConfig* channelConfig = new ChannelConfig(this->configStore) ;
+    ConfigChannel* configChannel = new ConfigChannel(this->configStore) ;
     Component*     mixer         = getParentComponent()->getParentComponent() ;
     Component*     mainContent   = mixer->getParentComponent() ;
 
     // compute CallOutBox arrow target posistion
-    int modalX = mixer->getX() + getX() + configButton->getX() + (GUI::CONFIG_BTN_W / 2) ;
-    int modalY = mixer->getY() + getY() + configButton->getY() + (GUI::CONFIG_BTN_H / 2) ;
+    int modalX = mixer->getX() + getX() + this->configButton->getX() + GUI::CONFIG_BTN_XC ;
+    int modalY = mixer->getY() + getY() + this->configButton->getY() + GUI::CONFIG_BTN_YC ;
     juce::Rectangle<int> modalRect = juce::Rectangle<int>(modalX , modalY , 1 , 1) ;
 
-    // instantiate ChannelConfig as CallOutBox
-    channelConfig->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
-    CallOutBox::launchAsynchronously(channelConfig , modalRect , mainContent) ;
+    // instantiate ConfigChannel as CallOutBox
+    configChannel->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
+    CallOutBox::launchAsynchronously(configChannel , modalRect , mainContent) ;
   }
 }
 

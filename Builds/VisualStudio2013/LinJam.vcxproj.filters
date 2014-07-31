@@ -193,13 +193,25 @@
     <ClCompile Include="..\..\Source\Channel.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ChannelConfig.cpp">
-      <Filter>LinJam\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\Channels.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Chat.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ConfigAudio.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ConfigChannel.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ConfigClient.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ConfigNinjam.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\ConfigSubscriptions.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\License.cpp">
@@ -1050,13 +1062,25 @@
     <ClInclude Include="..\..\Source\Channel.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ChannelConfig.h">
-      <Filter>LinJam\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Channels.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Chat.h">
+      <Filter>LinJam\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ConfigAudio.h">
+      <Filter>LinJam\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ConfigChannel.h">
+      <Filter>LinJam\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ConfigClient.h">
+      <Filter>LinJam\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ConfigNinjam.h">
+      <Filter>LinJam\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ConfigSubscriptions.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Constants.h">
@@ -2017,6 +2041,9 @@
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_core\juce_module_info">
       <Filter>Juce Modules\juce_core</Filter>
+    </None>
+    <None Include="..\..\JuceLibraryCode\modules\juce_data_structures\values\juce_ValueTree.cpp~">
+      <Filter>Juce Modules\juce_data_structures\values</Filter>
     </None>
     <None Include="..\..\JuceLibraryCode\modules\juce_data_structures\juce_module_info">
       <Filter>Juce Modules\juce_data_structures</Filter>

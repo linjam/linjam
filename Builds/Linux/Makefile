@@ -53,9 +53,13 @@ endif
 OBJECTS := \
   $(OBJDIR)/Background_ba4a3b7.o \
   $(OBJDIR)/Channel_14ad93e4.o \
-  $(OBJDIR)/ChannelConfig_4569a306.o \
   $(OBJDIR)/Channels_84b8f659.o \
   $(OBJDIR)/Chat_e7196be1.o \
+  $(OBJDIR)/ConfigAudio_37708215.o \
+  $(OBJDIR)/ConfigChannel_53548a42.o \
+  $(OBJDIR)/ConfigClient_9ea4fbb6.o \
+  $(OBJDIR)/ConfigNinjam_5a52ef0e.o \
+  $(OBJDIR)/ConfigSubscriptions_7518f735.o \
   $(OBJDIR)/License_de20cc22.o \
   $(OBJDIR)/LinJam_a166dece.o \
   $(OBJDIR)/LinJamConfig_8af59670.o \
@@ -99,11 +103,6 @@ $(OBJDIR)/Channel_14ad93e4.o: ../../Source/Channel.cpp
 	@echo "Compiling Channel.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/ChannelConfig_4569a306.o: ../../Source/ChannelConfig.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ChannelConfig.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/Channels_84b8f659.o: ../../Source/Channels.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Channels.cpp"
@@ -112,6 +111,31 @@ $(OBJDIR)/Channels_84b8f659.o: ../../Source/Channels.cpp
 $(OBJDIR)/Chat_e7196be1.o: ../../Source/Chat.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling Chat.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ConfigAudio_37708215.o: ../../Source/ConfigAudio.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ConfigAudio.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ConfigChannel_53548a42.o: ../../Source/ConfigChannel.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ConfigChannel.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ConfigClient_9ea4fbb6.o: ../../Source/ConfigClient.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ConfigClient.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ConfigNinjam_5a52ef0e.o: ../../Source/ConfigNinjam.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ConfigNinjam.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/ConfigSubscriptions_7518f735.o: ../../Source/ConfigSubscriptions.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling ConfigSubscriptions.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/License_de20cc22.o: ../../Source/License.cpp
