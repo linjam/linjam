@@ -216,37 +216,6 @@ DEBUG_TRACE_REMOVE_LOCAL_CHANNEL
 
 DEBUG_TRACE_DUMP_FREE_INPUTS_VB
 }
-/*
-void LinJam::IgnoreUser(Identifier user_id)
-{
-DEBUG_TRACE_IGNORE_USER
-
-  ValueTree  user_store   = Config->getOrAddRemoteUser(String(user_id)) ;
-  ValueTree  master_store = Config->getOrAddRemoteChannel(user_id , CONFIG::MASTER_KEY) ;
-
-  master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , false , nullptr) ;
-  ConfigureRemoteChannel(user_store , master_store , CONFIG::IS_XMIT_RCV_ID) ;
-
-  Gui->mixer->removeRemoteUser(user_id) ;
-
-//   Config->subscriptions.addChild(ValueTree(user_id) , -1 , nullptr) ;
-  ConfigureSubscriptions() ; HandleUserInfoChanged() ;
-}
-
-void LinJam::SubscribeUser(Identifier user_id)
-{
-DEBUG_TRACE_SUBSCRIBE_USER
-
-  ValueTree  user_store   = Config->subscriptions.getChildWithName(user_id) ;
-  ValueTree  master_store = Config->getOrAddRemoteChannel(user_id , CONFIG::MASTER_KEY) ;
-
-  master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , true , nullptr) ;
-  ConfigureRemoteChannel(user_store , master_store , CONFIG::IS_XMIT_RCV_ID) ;
-
-//   Config->subscriptions.removeChild(user_store , nullptr) ;
-  ConfigureSubscriptions() ; HandleUserInfoChanged() ;
-}
-*/
 
 void LinJam::SendChat(String chat_text)
 {
@@ -920,8 +889,8 @@ bool LinJam::PrepareSessionDirectory()
 
 void LinJam::ConfigureNinjam()
 {
-  int       save_audio_mode  = int( Config->client       [CONFIG::SAVE_AUDIO_ID]) ;
-  bool      should_save_log  = bool(Config->client       [CONFIG::SAVE_LOG_ID]) ;
+  int       save_audio_mode  = int( Config->client       [CONFIG::SAVE_AUDIO_MODE_ID]) ;
+  bool      should_save_log  = bool(Config->client       [CONFIG::SHOULD_SAVE_LOG_ID]) ;
   int       debug_level      = int( Config->client       [CONFIG::DEBUG_LEVEL_ID]) ;
   int       subscribe_mode   = int( Config->subscriptions[CONFIG::SUBSCRIBE_MODE_ID]) ;
 
@@ -941,7 +910,7 @@ void LinJam::ConfigureNinjam()
 
 void LinJam::CleanSessionDir()
 {
-  int save_audio_state = int(Config->client[CONFIG::SAVE_AUDIO_ID]) ;
+  int save_audio_state = int(Config->client[CONFIG::SAVE_AUDIO_MODE_ID]) ;
   if (save_audio_state > 0) return ;
 
 DEBUG_TRACE_CLEAN_SESSION

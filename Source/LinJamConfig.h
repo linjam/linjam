@@ -27,10 +27,11 @@ public:
   // client config
   ValueTree client ;
 /* client-specfic data - access via this->client
-  var save-audio       // int
-  var should-save-log  // bool
-  var debug-level      // int
-  var should-hide-bots // bool
+  var save-multitrack-mode // int
+  var save-mixdown-mode    // int
+  var should-save-log      // bool
+  var debug-level          // int
+  var should-hide-bots     // bool
 */
   ValueTree subscriptions ;
 /* subscriptions-specfic data - access via this->subscriptions
@@ -80,16 +81,9 @@ public:
 
   // login config
   ValueTree server ;
-/* transient login data - access through via this->server
-  Value     host ;           // string
-  Value     login ;          // string
-  Value     pass ;           // string
-  Value     isAnonymous ;    // bool
-  Value     isAgreed ;       // bool // TODO: <server> node only - this exists only so OnLicense doesnt block (issue #14)
-  Value     shouldAgree ;    // bool // TODO: unused
-*/
   // per server config
   ValueTree servers ;
+/* transient login data - access through via this->server // TODO:: merge into <servers> (issue #33)
 /* per-server data - access through via this->servers
   var host         // string
   var login        // string
@@ -157,9 +151,9 @@ public:
 
 private:
 
-  File        configXmlFile ;
-  ValueTree   configValueTree ;
-  Value       dummyValue ;
+  File      configXmlFile ;
+  ValueTree configValueTree ;
+  Value     dummyValue ;
 
 
   // validation
@@ -173,9 +167,9 @@ private:
   bool      sanityCheck() ;
 
   // helpers
-  ValueTree  getOrAddServer(String host_name , String login       ,
-                            String pass      , bool   is_anonymous) ;
-  String     filteredName(  String a_name) ;
+  ValueTree getOrAddServer(String host_name , String login       ,
+                           String pass      , bool   is_anonymous) ;
+  String    filteredName(  String a_name) ;
 
   // event handlers
   void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)    override ;

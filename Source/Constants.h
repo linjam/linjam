@@ -21,26 +21,27 @@
 |*|    or else segfault is a near certainty
 |*|
 |*|  when adding nodes or properties to CONFIG_XML be sure to
-|*|         * document them in                     LinJamConfig.h
-|*|         * denote property datatypes in         #define CONFIG_TYPES_XML
-|*|         * switch on nodes in                   LinJamConfig::restoreVarTypeInfo()
-|*|         * verify nodes in                      LinJamConfig::sanityCheck()
-|*|         * if channel property - verify data in LinJamConfig::sanityCheckChannels()
-|*|                                 and add to     LinJamConfig::newChannel()
-|*|         * optionally dump data or errors in    #define DEBUG_TRACE_SANITY_CHECK
-|*|                                                #define DEBUG_TRACE_SANITY_CHECK_CHANNEL
-|*|                                                #define DEBUG_TRACE_ADD_CHANNEL_GUI
-|*|                                                #define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
-|*|                                                #define DEBUG_TRACE_REMOTE_CHANNELS
-|*|                                                #define DEBUG_TRACE_CONFIGURE_REMOTE
+|*|    * document them in                     LinJamConfig.h
+|*|    * denote property datatypes in         #define CONFIG_TYPES_XML
+|*|    * switch on nodes in                   LinJamConfig::restoreVarTypeInfo()
+|*|    * verify nodes in                      LinJamConfig::sanityCheck()
+|*|    * if channel property - verify data in LinJamConfig::sanityCheckChannels()
+|*|                            and add to     LinJamConfig::newChannel()
+|*|    * optionally dump data or errors in    #define DEBUG_TRACE_SANITY_CHECK
+|*|                                           #define DEBUG_TRACE_SANITY_CHECK_CHANNEL
+|*|                                           #define DEBUG_TRACE_ADD_CHANNEL_GUI
+|*|                                           #define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
+|*|                                           #define DEBUG_TRACE_REMOTE_CHANNELS
+|*|                                           #define DEBUG_TRACE_CONFIGURE_REMOTE
 \*/
 
 
 #define CONFIG_XML "<?xml version=\"1.0\"?><"                                 + \
   PERSISTENCE_KEY          + "><"                                             + \
     CLIENT_KEY             + " "                                              + \
-      SAVE_AUDIO_KEY       + "=\"" + String(DEFAULT_SAVE_AUDIO)       + "\" " + \
-      SAVE_LOG_KEY         + "=\"" + String(DEFAULT_SAVE_LOG)         + "\" " + \
+      SAVE_AUDIO_MODE_KEY  + "=\"" + String(DEFAULT_SAVE_AUDIO_MODE)  + "\" " + \
+      MIXDOWN_MODE_KEY     + "=\"" + String(DEFAULT_MIXDOWN_MODE)     + "\" " + \
+      SHOULD_SAVE_LOG_KEY  + "=\"" + String(DEFAULT_SHOULD_SAVE_LOG)  + "\" " + \
       DEBUG_LEVEL_KEY      + "=\"" + String(DEFAULT_DEBUG_LEVEL)      + "\" " + \
       SHOULD_HIDE_BOTS_KEY + "=\"" + String(DEFAULT_SHOULD_HIDE_BOTS) + "\" " + \
     "/><"                                                                     + \
@@ -120,82 +121,83 @@
     REMOTES_KEY            + " />"                                            + \
   "</" + PERSISTENCE_KEY   + ">"
 
-#define CONFIG_TYPES_XML "<?xml version=\"1.0\"?><"          + \
-  PERSISTENCE_TYPES_KEY        + "><"                        + \
-    CLIENT_KEY                 + " "                         + \
-      SAVE_AUDIO_KEY           + "=\"" + INT_TYPE    + "\" " + \
-      SAVE_LOG_KEY             + "=\"" + BOOL_TYPE   + "\" " + \
-      DEBUG_LEVEL_KEY          + "=\"" + INT_TYPE    + "\" " + \
-      SHOULD_HIDE_BOTS_KEY     + "=\"" + BOOL_TYPE   + "\" " + \
-    "/><"                                                    + \
-    SUBSCRIPTIONS_KEY          + " "                         + \
-      SUBSCRIBE_MODE_KEY       + "=\"" + INT_TYPE    + "\" " + \
-    "/><"                                                    + \
-    AUDIO_KEY                  + " "                         + \
-      WIN_AUDIO_IF_KEY         + "=\"" + INT_TYPE    + "\" " + \
-      ASIO_DRIVER_KEY          + "=\"" + INT_TYPE    + "\" " + \
-      ASIO_INPUT0_KEY          + "=\"" + INT_TYPE    + "\" " + \
-      ASIO_INPUT1_KEY          + "=\"" + INT_TYPE    + "\" " + \
-      ASIO_OUTPUT0_KEY         + "=\"" + INT_TYPE    + "\" " + \
-      ASIO_OUTPUT1_KEY         + "=\"" + INT_TYPE    + "\" " + \
-      KS_INPUT_KEY             + "=\"" + INT_TYPE    + "\" " + \
-      KS_OUTPUT_KEY            + "=\"" + INT_TYPE    + "\" " + \
-      KS_SAMPLERATE_KEY        + "=\"" + INT_TYPE    + "\" " + \
-      KS_BITDEPTH_KEY          + "=\"" + INT_TYPE    + "\" " + \
-      KS_BLOCKSIZE_KEY         + "=\"" + INT_TYPE    + "\" " + \
-      KS_NBLOCKS_KEY           + "=\"" + INT_TYPE    + "\" " + \
-      DS_INPUT0_KEY            + "=\"" + INT_TYPE    + "\" " + \
-      DS_INPUT1_KEY            + "=\"" + INT_TYPE    + "\" " + \
-      DS_INPUT2_KEY            + "=\"" + INT_TYPE    + "\" " + \
-      DS_INPUT3_KEY            + "=\"" + INT_TYPE    + "\" " + \
-      DS_OUTPUT0_KEY           + "=\"" + INT_TYPE    + "\" " + \
-      DS_OUTPUT1_KEY           + "=\"" + INT_TYPE    + "\" " + \
-      DS_OUTPUT2_KEY           + "=\"" + INT_TYPE    + "\" " + \
-      DS_OUTPUT3_KEY           + "=\"" + INT_TYPE    + "\" " + \
-      DS_SAMPLERATE_KEY        + "=\"" + INT_TYPE    + "\" " + \
-      DS_BITDEPTH_KEY          + "=\"" + INT_TYPE    + "\" " + \
-      DS_BLOCKSIZE_KEY         + "=\"" + INT_TYPE    + "\" " + \
-      DS_NBLOCKS_KEY           + "=\"" + INT_TYPE    + "\" " + \
-      WAVE_INPUT_KEY           + "=\"" + INT_TYPE    + "\" " + \
-      WAVE_OUTPUT_KEY          + "=\"" + INT_TYPE    + "\" " + \
-      WAVE_SAMPLERATE_KEY      + "=\"" + INT_TYPE    + "\" " + \
-      WAVE_BITDEPTH_KEY        + "=\"" + INT_TYPE    + "\" " + \
-      WAVE_BLOCKSIZE_KEY       + "=\"" + INT_TYPE    + "\" " + \
-      WAVE_NBLOCKS_KEY         + "=\"" + INT_TYPE    + "\" " + \
-      MAC_NINPUTS_KEY          + "=\"" + INT_TYPE    + "\" " + \
-      MAC_SAMPLERATE_KEY       + "=\"" + INT_TYPE    + "\" " + \
-      MAC_BITDEPTH_KEY         + "=\"" + INT_TYPE    + "\" " + \
-      NIX_AUDIO_IF_KEY         + "=\"" + INT_TYPE    + "\" " + \
-      JACK_NINPUTS_KEY         + "=\"" + INT_TYPE    + "\" " + \
-      JACK_NOUTPUTS_KEY        + "=\"" + INT_TYPE    + "\" " + \
-      JACK_NAME_KEY            + "=\"" + STRING_TYPE + "\" " + \
-    "/><"                                                    + \
-    SERVER_KEY                 + " "                         + \
-      HOST_KEY                 + "=\"" + STRING_TYPE + "\" " + \
-      LOGIN_KEY                + "=\"" + STRING_TYPE + "\" " + \
-      PASS_KEY                 + "=\"" + STRING_TYPE + "\" " + \
-      IS_ANONYMOUS_KEY         + "=\"" + BOOL_TYPE   + "\" " + \
-      IS_AGREED_KEY            + "=\"" + BOOL_TYPE   + "\" " + \
-      SHOULD_AGREE_KEY         + "=\"" + BOOL_TYPE   + "\" " + \
-    "/><"                                                    + \
-    USERS_KEY                  + " "                         + \
-      USER_IDX_KEY             + "=\"" + INT_TYPE    + "\" " + \
-    "/><"                                                    + \
-    CHANNELS_KEY               + " "                         + \
-      CHANNEL_NAME_KEY         + "=\"" + STRING_TYPE + "\" " + \
-      CHANNEL_IDX_KEY          + "=\"" + INT_TYPE    + "\" " + \
-      PAIR_IDX_KEY             + "=\"" + INT_TYPE    + "\" " + \
-      VOLUME_KEY               + "=\"" + DOUBLE_TYPE + "\" " + \
-      PAN_KEY                  + "=\"" + DOUBLE_TYPE + "\" " + \
-      IS_XMIT_RCV_KEY          + "=\"" + BOOL_TYPE   + "\" " + \
-      IS_MUTED_KEY             + "=\"" + BOOL_TYPE   + "\" " + \
-      IS_SOLO_KEY              + "=\"" + BOOL_TYPE   + "\" " + \
-      SOURCE_N_KEY             + "=\"" + INT_TYPE    + "\" " + \
-      STEREO_KEY               + "=\"" + INT_TYPE    + "\" " + \
-      VU_LEFT_KEY              + "=\"" + DOUBLE_TYPE + "\" " + \
-      VU_RIGHT_KEY             + "=\"" + DOUBLE_TYPE + "\" " + \
-    "/>"                                                     + \
-  "</" + PERSISTENCE_TYPES_KEY + ">"
+#define CONFIG_TYPES_XML "<?xml version=\"1.0\"?><"            + \
+  PERSISTENCE_TYPES_KEY          + "><"                        + \
+    CLIENT_KEY                   + " "                         + \
+      SAVE_AUDIO_MODE_KEY        + "=\"" + INT_TYPE    + "\" " + \
+      MIXDOWN_MODE_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      SHOULD_SAVE_LOG_KEY        + "=\"" + BOOL_TYPE   + "\" " + \
+      DEBUG_LEVEL_KEY            + "=\"" + INT_TYPE    + "\" " + \
+      SHOULD_HIDE_BOTS_KEY       + "=\"" + BOOL_TYPE   + "\" " + \
+    "/><"                                                      + \
+    SUBSCRIPTIONS_KEY            + " "                         + \
+      SUBSCRIBE_MODE_KEY         + "=\"" + INT_TYPE    + "\" " + \
+    "/><"                                                      + \
+    AUDIO_KEY                    + " "                         + \
+      WIN_AUDIO_IF_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      ASIO_DRIVER_KEY            + "=\"" + INT_TYPE    + "\" " + \
+      ASIO_INPUT0_KEY            + "=\"" + INT_TYPE    + "\" " + \
+      ASIO_INPUT1_KEY            + "=\"" + INT_TYPE    + "\" " + \
+      ASIO_OUTPUT0_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      ASIO_OUTPUT1_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      KS_INPUT_KEY               + "=\"" + INT_TYPE    + "\" " + \
+      KS_OUTPUT_KEY              + "=\"" + INT_TYPE    + "\" " + \
+      KS_SAMPLERATE_KEY          + "=\"" + INT_TYPE    + "\" " + \
+      KS_BITDEPTH_KEY            + "=\"" + INT_TYPE    + "\" " + \
+      KS_BLOCKSIZE_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      KS_NBLOCKS_KEY             + "=\"" + INT_TYPE    + "\" " + \
+      DS_INPUT0_KEY              + "=\"" + INT_TYPE    + "\" " + \
+      DS_INPUT1_KEY              + "=\"" + INT_TYPE    + "\" " + \
+      DS_INPUT2_KEY              + "=\"" + INT_TYPE    + "\" " + \
+      DS_INPUT3_KEY              + "=\"" + INT_TYPE    + "\" " + \
+      DS_OUTPUT0_KEY             + "=\"" + INT_TYPE    + "\" " + \
+      DS_OUTPUT1_KEY             + "=\"" + INT_TYPE    + "\" " + \
+      DS_OUTPUT2_KEY             + "=\"" + INT_TYPE    + "\" " + \
+      DS_OUTPUT3_KEY             + "=\"" + INT_TYPE    + "\" " + \
+      DS_SAMPLERATE_KEY          + "=\"" + INT_TYPE    + "\" " + \
+      DS_BITDEPTH_KEY            + "=\"" + INT_TYPE    + "\" " + \
+      DS_BLOCKSIZE_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      DS_NBLOCKS_KEY             + "=\"" + INT_TYPE    + "\" " + \
+      WAVE_INPUT_KEY             + "=\"" + INT_TYPE    + "\" " + \
+      WAVE_OUTPUT_KEY            + "=\"" + INT_TYPE    + "\" " + \
+      WAVE_SAMPLERATE_KEY        + "=\"" + INT_TYPE    + "\" " + \
+      WAVE_BITDEPTH_KEY          + "=\"" + INT_TYPE    + "\" " + \
+      WAVE_BLOCKSIZE_KEY         + "=\"" + INT_TYPE    + "\" " + \
+      WAVE_NBLOCKS_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      MAC_NINPUTS_KEY            + "=\"" + INT_TYPE    + "\" " + \
+      MAC_SAMPLERATE_KEY         + "=\"" + INT_TYPE    + "\" " + \
+      MAC_BITDEPTH_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      NIX_AUDIO_IF_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      JACK_NINPUTS_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      JACK_NOUTPUTS_KEY          + "=\"" + INT_TYPE    + "\" " + \
+      JACK_NAME_KEY              + "=\"" + STRING_TYPE + "\" " + \
+    "/><"                                                      + \
+    SERVER_KEY                   + " "                         + \
+      HOST_KEY                   + "=\"" + STRING_TYPE + "\" " + \
+      LOGIN_KEY                  + "=\"" + STRING_TYPE + "\" " + \
+      PASS_KEY                   + "=\"" + STRING_TYPE + "\" " + \
+      IS_ANONYMOUS_KEY           + "=\"" + BOOL_TYPE   + "\" " + \
+      IS_AGREED_KEY              + "=\"" + BOOL_TYPE   + "\" " + \
+      SHOULD_AGREE_KEY           + "=\"" + BOOL_TYPE   + "\" " + \
+    "/><"                                                      + \
+    USERS_KEY                    + " "                         + \
+      USER_IDX_KEY               + "=\"" + INT_TYPE    + "\" " + \
+    "/><"                                                      + \
+    CHANNELS_KEY                 + " "                         + \
+      CHANNEL_NAME_KEY           + "=\"" + STRING_TYPE + "\" " + \
+      CHANNEL_IDX_KEY            + "=\"" + INT_TYPE    + "\" " + \
+      PAIR_IDX_KEY               + "=\"" + INT_TYPE    + "\" " + \
+      VOLUME_KEY                 + "=\"" + DOUBLE_TYPE + "\" " + \
+      PAN_KEY                    + "=\"" + DOUBLE_TYPE + "\" " + \
+      IS_XMIT_RCV_KEY            + "=\"" + BOOL_TYPE   + "\" " + \
+      IS_MUTED_KEY               + "=\"" + BOOL_TYPE   + "\" " + \
+      IS_SOLO_KEY                + "=\"" + BOOL_TYPE   + "\" " + \
+      SOURCE_N_KEY               + "=\"" + INT_TYPE    + "\" " + \
+      STEREO_KEY                 + "=\"" + INT_TYPE    + "\" " + \
+      VU_LEFT_KEY                + "=\"" + DOUBLE_TYPE + "\" " + \
+      VU_RIGHT_KEY               + "=\"" + DOUBLE_TYPE + "\" " + \
+    "/>"                                                       + \
+  "</" + PERSISTENCE_TYPES_KEY   + ">"
 
 
 namespace CLIENT
@@ -306,10 +308,12 @@ namespace CONFIG
   // client config keys
   static const String     CLIENT_KEY           = "client" ;
   static const Identifier CLIENT_ID            = CLIENT_KEY ;
-  static const String     SAVE_AUDIO_KEY       = "save-audio" ;
-  static const Identifier SAVE_AUDIO_ID        = SAVE_AUDIO_KEY ;
-  static const String     SAVE_LOG_KEY         = "should-save-log" ;
-  static const Identifier SAVE_LOG_ID          = SAVE_LOG_KEY ;
+  static const String     SAVE_AUDIO_MODE_KEY  = "save-multitrack-mode" ;
+  static const Identifier SAVE_AUDIO_MODE_ID   = SAVE_AUDIO_MODE_KEY ;
+  static const String     MIXDOWN_MODE_KEY     = "save-mixdown-mode" ;
+  static const Identifier MIXDOWN_MODE_ID      = MIXDOWN_MODE_KEY ;
+  static const String     SHOULD_SAVE_LOG_KEY  = "should-save-log" ;
+  static const Identifier SHOULD_SAVE_LOG_ID   = SHOULD_SAVE_LOG_KEY ;
   static const String     DEBUG_LEVEL_KEY      = "debug-level" ;
   static const Identifier DEBUG_LEVEL_ID       = DEBUG_LEVEL_KEY ;
   static const String     SHOULD_HIDE_BOTS_KEY = "should-hide-bots" ;
@@ -406,22 +410,22 @@ namespace CONFIG
   static const Identifier JACK_NAME_ID        = JACK_NAME_KEY ;
 
   // login config keys
-  static const String     SERVER_KEY           = "server" ;
-  static const Identifier SERVER_ID            = SERVER_KEY ;
-  static const String     HOST_KEY             = "host" ;
-  static const Identifier HOST_ID              = HOST_KEY ;
-  static const String     LOGIN_KEY            = "login" ;
-  static const Identifier LOGIN_ID             = LOGIN_KEY ;
-  static const String     PASS_KEY             = "pass" ;
-  static const Identifier PASS_ID              = PASS_KEY ;
-  static const String     IS_ANONYMOUS_KEY     = "is-anonymous" ;
-  static const Identifier IS_ANONYMOUS_ID      = IS_ANONYMOUS_KEY ;
-  static const String     IS_AGREED_KEY        = "is-agreed" ;
-  static const Identifier IS_AGREED_ID         = IS_AGREED_KEY ;
-  static const String     SHOULD_AGREE_KEY     = "should-agree" ;
-  static const Identifier SHOULD_AGREE_ID      = SHOULD_AGREE_KEY ;
-  static const String     SERVERS_KEY          = "servers" ;
-  static const Identifier SERVERS_ID           = SERVERS_KEY ;
+  static const String     SERVER_KEY       = "server" ;
+  static const Identifier SERVER_ID        = SERVER_KEY ;
+  static const String     HOST_KEY         = "host" ;
+  static const Identifier HOST_ID          = HOST_KEY ;
+  static const String     LOGIN_KEY        = "login" ;
+  static const Identifier LOGIN_ID         = LOGIN_KEY ;
+  static const String     PASS_KEY         = "pass" ;
+  static const Identifier PASS_ID          = PASS_KEY ;
+  static const String     IS_ANONYMOUS_KEY = "is-anonymous" ;
+  static const Identifier IS_ANONYMOUS_ID  = IS_ANONYMOUS_KEY ;
+  static const String     IS_AGREED_KEY    = "is-agreed" ;
+  static const Identifier IS_AGREED_ID     = IS_AGREED_KEY ;
+  static const String     SHOULD_AGREE_KEY = "should-agree" ;
+  static const Identifier SHOULD_AGREE_ID  = SHOULD_AGREE_KEY ;
+  static const String     SERVERS_KEY      = "servers" ;
+  static const Identifier SERVERS_ID       = SERVERS_KEY ;
 
   // channel config keys
   static const Identifier CONFIG_INIT_ID   = "configure-all" ;
@@ -465,9 +469,11 @@ namespace CONFIG
   static const Identifier VU_RIGHT_ID      = VU_RIGHT_KEY ;
 
   // client config defaults
-  static const int  DEFAULT_SAVE_AUDIO    = -1 ;
-  static const bool DEFAULT_SAVE_LOG      = false ;
-  static const int  DEFAULT_DEBUG_LEVEL   = 0 ;
+  static const int  DEFAULT_SAVE_AUDIO_MODE = (int)NJClient::SAVE_AUDIO_DELETE_ASAP ;
+  static const int  DEFAULT_MIXDOWN_MODE    = (int)NJClient::SAVE_MIXDOWN_NONE ;
+  static const bool DEFAULT_SHOULD_SAVE_LOG = false ;
+  static const int  DEFAULT_DEBUG_LEVEL     = (int)NJClient::DEBUG_LEVEL_SILENT ;
+  static const int  SAVE_AUDIO_ENUM_OFFSET  = 2 ;
 
   // subscriptions config defaults
   static const int DEFAULT_SUBSCRIBE_MODE = (int)NJClient::SUBSCRIBE_DENY ;
@@ -477,7 +483,7 @@ namespace CONFIG
   static const int    DEFAULT_N_OUTPUTS       = (int)audioStreamer::DEFAULT_N_OUTPUTS ;
   static const int    DEFAULT_SAMPLERATE      = (int)audioStreamer::DEFAULT_SAMPLERATE ;
   static const int    DEFAULT_BITDEPTH        = (int)audioStreamer::DEFAULT_BITDEPTH ;
-  static const int    DEFAULT_WIN_AUDIO_IF    = (int)audioStreamer::WIN_AUDIO_ASIO ;
+  static const int    DEFAULT_WIN_AUDIO_IF    = (int)audioStreamer::WIN_AUDIO_WAVE ;
   static const int    DEFAULT_ASIO_DRIVER     = 0 ;
   static const int    DEFAULT_ASIO_INPUT0     = 0 ;
   static const int    DEFAULT_ASIO_INPUT1     = 1 ;
@@ -532,10 +538,10 @@ namespace CONFIG
   static const bool       DEFAULT_IS_MUTED      = false ;
   static const bool       DEFAULT_IS_SOLO       = false ;
   static const int        DEFAULT_SOURCE_N      = 0 ;
-  static const int        MONO             =  0 ; // default NJClient mono
-  static const int        STEREO_L         = -1 ; // faux-stereo pairs
-  static const int        STEREO_R         = +1 ; // faux-stereo pairs
-  static const int        STEREO           = 42 ; // masters and metro
+  static const int        MONO                  =  0 ; // default NJClient mono
+  static const int        STEREO_L              = -1 ; // faux-stereo pairs
+  static const int        STEREO_R              = +1 ; // faux-stereo pairs
+  static const int        STEREO                = 42 ; // masters and metro
   static const int        DEFAULT_STEREO_STATUS = MONO ;
   static const double     DEFAULT_VU            = -120.0 ;
 

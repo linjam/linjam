@@ -33,6 +33,14 @@
 Subscription::Subscription (ValueTree config_store)
     : configStore(config_store)
 {
+    addAndMakeVisible (removeButton = new TextButton ("removeButton"));
+    removeButton->setButtonText (TRANS("X"));
+    removeButton->addListener (this);
+    removeButton->setColour (TextButton::buttonColourId, Colour (0xff400000));
+    removeButton->setColour (TextButton::buttonOnColourId, Colours::maroon);
+    removeButton->setColour (TextButton::textColourOnId, Colours::red);
+    removeButton->setColour (TextButton::textColourOffId, Colours::red);
+
     addAndMakeVisible (userLabel = new Label ("userLabel",
                                               TRANS("label text")));
     userLabel->setFont (Font (15.00f, Font::plain));
@@ -41,14 +49,6 @@ Subscription::Subscription (ValueTree config_store)
     userLabel->setColour (Label::textColourId, Colours::grey);
     userLabel->setColour (TextEditor::textColourId, Colours::black);
     userLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
-    addAndMakeVisible (removeButton = new TextButton ("removeButton"));
-    removeButton->setButtonText (TRANS("X"));
-    removeButton->addListener (this);
-    removeButton->setColour (TextButton::buttonColourId, Colour (0xff400000));
-    removeButton->setColour (TextButton::buttonOnColourId, Colours::maroon);
-    removeButton->setColour (TextButton::textColourOnId, Colours::red);
-    removeButton->setColour (TextButton::textColourOffId, Colours::red);
 
 
     //[UserPreSize]
@@ -73,8 +73,8 @@ Subscription::~Subscription()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    userLabel = nullptr;
     removeButton = nullptr;
+    userLabel = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -99,8 +99,8 @@ void Subscription::paint (Graphics& g)
 
 void Subscription::resized()
 {
-    userLabel->setBounds (16, 0, getWidth() - 16, 16);
     removeButton->setBounds (0, 0, 15, 16);
+    userLabel->setBounds (16, 0, getWidth() - 16, 16);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -193,15 +193,15 @@ BEGIN_JUCER_METADATA
     <ROUNDRECT pos="0 0 0M 16" cornerSize="10" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
+  <TEXTBUTTON name="removeButton" id="5ea28eb29c334aeb" memberName="removeButton"
+              virtualName="" explicitFocusOrder="0" pos="0 0 15 16" bgColOff="ff400000"
+              bgColOn="ff800000" textCol="ffff0000" textColOn="ffff0000" buttonText="X"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
   <LABEL name="userLabel" id="4316b113334d5ced" memberName="userLabel"
          virtualName="" explicitFocusOrder="0" pos="16 0 16M 16" textCol="ff808080"
          edTextCol="ff000000" edBkgCol="0" labelText="label text" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
-  <TEXTBUTTON name="removeButton" id="5ea28eb29c334aeb" memberName="removeButton"
-              virtualName="" explicitFocusOrder="0" pos="0 0 15 16" bgColOff="ff400000"
-              bgColOn="ff800000" textCol="ffff0000" textColOn="ffff0000" buttonText="X"
-              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

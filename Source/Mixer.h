@@ -50,7 +50,6 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
   bool addRemoteUser(   ValueTree user_store , ValueTree subscriptions) ;
-  void removeRemoteUser(Identifier channels_id) ;
   bool addChannel(      Identifier channels_id , ValueTree channel_store) ;
   void removeChannel(   Identifier channels_id , Identifier channel_id) ;
   void positionResizers() ;

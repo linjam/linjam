@@ -80,6 +80,8 @@ ConfigSubscriptions::ConfigSubscriptions (ValueTree config_store)
   this->subscribeButton      ->setToggleState(should_sub , dontSendNotification) ;
   this->ignoreButton         ->setToggleState(should_ban , dontSendNotification) ;
   this->subscriptionsViewport->setScrollBarThickness(GUI::CONFIG_SCROLLBAR_W) ;
+  this->subscriptionsViewport->setBounds(GUI::SUBSCRIPTIONS_X , GUI::SUBSCRIPTIONS_Y ,
+                                         GUI::SUBSCRIPTIONS_W , GUI::SUBSCRIPTIONS_H ) ;
 
     //[/Constructor]
 }
@@ -125,10 +127,6 @@ void ConfigSubscriptions::resized()
     bansLabel->setBounds (20, 44, 152, 16);
     subscriptionsViewport->setBounds (24, 68, 144, 76);
     //[UserResized] Add your own custom resize handling here..
-
-  subscriptionsViewport->setBounds(GUI::SUBSCRIPTIONS_X , GUI::SUBSCRIPTIONS_Y ,
-                                   GUI::SUBSCRIPTIONS_W , GUI::SUBSCRIPTIONS_H ) ;
-
     //[/UserResized]
 }
 

@@ -210,11 +210,6 @@ DEBUG_TRACE_ADD_REMOTE_USER
   return true ;
 }
 
-void Mixer::removeRemoteUser(Identifier channels_id)
-{
-  removeChannels(getChannels(channels_id)) ;
-}
-
 bool Mixer::addChannel(Identifier channels_id , ValueTree channel_store)
 {
   // validate channels group GUI and storage

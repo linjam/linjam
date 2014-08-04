@@ -18,6 +18,9 @@
 */
 
 //[Headers] You can add your own extra header files here...
+
+#include "Constants.h"
+
 //[/Headers]
 
 #include "ConfigNinjam.h"
@@ -45,10 +48,10 @@ ConfigNinjam::ConfigNinjam (ValueTree config_store)
     saveAudioComboBox->setJustificationType (Justification::centredLeft);
     saveAudioComboBox->setTextWhenNothingSelected (String::empty);
     saveAudioComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    saveAudioComboBox->addItem (TRANS("dont save"), 1);
-    saveAudioComboBox->addItem (TRANS("save ogg"), 2);
-    saveAudioComboBox->addItem (TRANS("save ogg and wav"), 3);
-    saveAudioComboBox->addItem (TRANS("delete asap"), 4);
+    saveAudioComboBox->addItem (TRANS("delete asap"), 1);
+    saveAudioComboBox->addItem (TRANS("dont save"), 2);
+    saveAudioComboBox->addItem (TRANS("save ogg"), 3);
+    saveAudioComboBox->addItem (TRANS("save ogg and wav"), 4);
     saveAudioComboBox->addListener (this);
 
     addAndMakeVisible (oggMixdownButton = new ToggleButton ("oggMixdownButton"));
@@ -78,7 +81,7 @@ ConfigNinjam::ConfigNinjam (ValueTree config_store)
     debugLevelComboBox->setJustificationType (Justification::centredLeft);
     debugLevelComboBox->setTextWhenNothingSelected (String::empty);
     debugLevelComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    debugLevelComboBox->addItem (TRANS("quiet"), 1);
+    debugLevelComboBox->addItem (TRANS("silent"), 1);
     debugLevelComboBox->addItem (TRANS("audio"), 2);
     debugLevelComboBox->addItem (TRANS("audio and network"), 3);
     debugLevelComboBox->addItem (TRANS("linjam trace"), 4);
@@ -105,6 +108,22 @@ ConfigNinjam::ConfigNinjam (ValueTree config_store)
 
 
     //[Constructor] You can add your own custom stuff here..
+
+  int  save_audio_mode    = int( this->configStore[CONFIG::SAVE_AUDIO_MODE_ID]) ;
+  int  mixdown_mode       = int( this->configStore[CONFIG::MIXDOWN_MODE_ID]) ;
+  int  debug_level        = int( this->configStore[CONFIG::DEBUG_LEVEL_ID]) ;
+  bool should_save_log    = bool(this->configStore[CONFIG::SHOULD_SAVE_LOG_KEY]) ;
+  bool should_hide_bots   = bool(this->configStore[CONFIG::SHOULD_HIDE_BOTS_KEY]) ;
+  bool should_mixdown_ogg = !!(mixdown_mode & (int)NJClient::SAVE_MIXDOWN_OGG) ;
+  bool should_mixdown_wav = !!(mixdown_mode & (int)NJClient::SAVE_MIXDOWN_WAV) ;
+
+  saveAudioComboBox ->setSelectedId(save_audio_mode + CONFIG::SAVE_AUDIO_ENUM_OFFSET) ;
+  debugLevelComboBox->setSelectedItemIndex(debug_level) ;
+  oggMixdownButton  ->setToggleState(should_mixdown_ogg , juce::dontSendNotification) ;
+  wavMixdownButton  ->setToggleState(should_mixdown_wav , juce::dontSendNotification) ;
+  saveLogButton     ->setToggleState(should_save_log    , juce::dontSendNotification) ;
+  hideBotsButton    ->setToggleState(should_hide_bots   , juce::dontSendNotification) ;
+
     //[/Constructor]
 }
 
@@ -157,50 +176,94 @@ void ConfigNinjam::resized()
 void ConfigNinjam::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
+
+  Identifier config_key ;
+  var        value ;
+
     //[/UsercomboBoxChanged_Pre]
 
     if (comboBoxThatHasChanged == saveAudioComboBox)
     {
         //[UserComboBoxCode_saveAudioComboBox] -- add your combo box handling code here..
+
+      config_key = CONFIG::SAVE_AUDIO_MODE_ID ;
+      value      = var(saveAudioComboBox->getSelectedId() - CONFIG::SAVE_AUDIO_ENUM_OFFSET) ;
+
         //[/UserComboBoxCode_saveAudioComboBox]
     }
     else if (comboBoxThatHasChanged == debugLevelComboBox)
     {
         //[UserComboBoxCode_debugLevelComboBox] -- add your combo box handling code here..
+
+      config_key = CONFIG::DEBUG_LEVEL_ID ;
+      value      = var(debugLevelComboBox->getSelectedItemIndex()) ;
+
         //[/UserComboBoxCode_debugLevelComboBox]
     }
 
     //[UsercomboBoxChanged_Post]
+
+  setConfig(config_key , value) ;
+
     //[/UsercomboBoxChanged_Post]
 }
 
 void ConfigNinjam::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
+
+  int mixdown_mode                                      = (int)NJClient::SAVE_MIXDOWN_NONE ;
+  if (oggMixdownButton->getToggleState()) mixdown_mode |= (int)NJClient::SAVE_MIXDOWN_OGG ;
+  if (wavMixdownButton->getToggleState()) mixdown_mode |= (int)NJClient::SAVE_MIXDOWN_WAV ;
+
+  Identifier config_key ;
+  var        value ;
+  var        mixdown_value = var(mixdown_mode) ;
+  var        toggle_value  = var(buttonThatWasClicked->getToggleState()) ;
+
     //[/UserbuttonClicked_Pre]
 
     if (buttonThatWasClicked == oggMixdownButton)
     {
         //[UserButtonCode_oggMixdownButton] -- add your button handler code here..
+
+      config_key = CONFIG::MIXDOWN_MODE_ID ;
+      value      = mixdown_value ;
+
         //[/UserButtonCode_oggMixdownButton]
     }
     else if (buttonThatWasClicked == wavMixdownButton)
     {
         //[UserButtonCode_wavMixdownButton] -- add your button handler code here..
+
+      config_key = CONFIG::MIXDOWN_MODE_ID ;
+      value      = mixdown_value ;
+
         //[/UserButtonCode_wavMixdownButton]
     }
     else if (buttonThatWasClicked == saveLogButton)
     {
         //[UserButtonCode_saveLogButton] -- add your button handler code here..
+
+      config_key = CONFIG::SHOULD_SAVE_LOG_KEY ;
+      value      = toggle_value ;
+
         //[/UserButtonCode_saveLogButton]
     }
     else if (buttonThatWasClicked == hideBotsButton)
     {
         //[UserButtonCode_hideBotsButton] -- add your button handler code here..
+
+      config_key = CONFIG::SHOULD_HIDE_BOTS_KEY ;
+      value      = toggle_value ;
+
         //[/UserButtonCode_hideBotsButton]
     }
 
     //[UserbuttonClicked_Post]
+
+  setConfig(config_key , value) ;
+
     //[/UserbuttonClicked_Post]
 }
 
@@ -240,7 +303,7 @@ BEGIN_JUCER_METADATA
          fontsize="15" bold="0" italic="0" justification="12"/>
   <COMBOBOX name="saveAudioComboBox" id="195d38c0dfa0b780" memberName="saveAudioComboBox"
             virtualName="" explicitFocusOrder="1" pos="20 38 152 16" editable="0"
-            layout="33" items="dont save&#10;save ogg&#10;save ogg and wav&#10;delete asap"
+            layout="33" items="delete asap&#10;dont save&#10;save ogg&#10;save ogg and wav"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="oggMixdownButton" id="ccb740c03ababc9f" memberName="oggMixdownButton"
                 virtualName="" explicitFocusOrder="2" pos="20 58 74 16" txtcol="ffffffff"
@@ -257,7 +320,7 @@ BEGIN_JUCER_METADATA
          fontsize="15" bold="0" italic="0" justification="12"/>
   <COMBOBOX name="debugLevelComboBox" id="3b81e2ff4dec7469" memberName="debugLevelComboBox"
             virtualName="" explicitFocusOrder="4" pos="20 106 152 16" editable="0"
-            layout="33" items="quiet&#10;audio&#10;audio and network&#10;linjam trace"
+            layout="33" items="silent&#10;audio&#10;audio and network&#10;linjam trace"
             textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="saveLogButton" id="a9eb5bfc0df5b172" memberName="saveLogButton"
                 virtualName="" explicitFocusOrder="5" pos="20 130 74 16" txtcol="ffffffff"

@@ -109,8 +109,6 @@ private:
   static void CleanSessionDir() ;
 
   // GUI event handlers
-//   static void IgnoreUser(        Identifier user_id) ;
-//   static void SubscribeUser(     Identifier user_id) ;
   static void ConfigureSubscriptions() ;
 
   // NJClient config helpers

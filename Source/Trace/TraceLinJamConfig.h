@@ -66,9 +66,11 @@
                                                                                          \
   /* client properties */                                                                \
   bool client_has_saveaudio_property       =                                             \
-      client.hasProperty(CONFIG::SAVE_AUDIO_ID)       ;                                  \
+      client.hasProperty(CONFIG::SAVE_AUDIO_MODE_ID)  ;                                  \
+  bool client_has_mixdown_property         =                                             \
+      client.hasProperty(CONFIG::MIXDOWN_MODE_KEY)    ;                                  \
   bool client_has_savelog_property         =                                             \
-      client.hasProperty(CONFIG::SAVE_LOG_ID)         ;                                  \
+      client.hasProperty(CONFIG::SHOULD_SAVE_LOG_ID)  ;                                  \
   bool client_has_debuglevel_property      =                                             \
       client.hasProperty(CONFIG::DEBUG_LEVEL_ID)      ;                                  \
   bool client_has_hide_bots_property       =                                             \
@@ -201,8 +203,9 @@
       metro .hasProperty(CONFIG::VU_RIGHT_ID)         ;                                  \
                                                                                          \
   /* client datatypes */                                                                 \
-  bool save_audio_is_int        = client[CONFIG::SAVE_AUDIO_ID]      .isInt()    ;       \
-  bool save_log_is_bool         = client[CONFIG::SAVE_LOG_ID]        .isBool()   ;       \
+  bool save_audio_is_int        = client[CONFIG::SAVE_AUDIO_MODE_ID] .isInt()    ;       \
+  bool mixdown_is_int           = client[CONFIG::MIXDOWN_MODE_KEY]   .isInt()    ;       \
+  bool save_log_is_bool         = client[CONFIG::SHOULD_SAVE_LOG_ID] .isBool()   ;       \
   bool debug_level_is_int       = client[CONFIG::DEBUG_LEVEL_ID]     .isInt()    ;       \
   bool should_hide_bots_is_bool = client[CONFIG::SHOULD_HIDE_BOTS_ID].isBool()   ;       \
                                                                                          \
@@ -295,9 +298,11 @@
                                                                                          \
   /* client properties */                                                                \
   if (!client_has_saveaudio_property)                                                    \
-    Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::SAVE_AUDIO_KEY) ;           \
+    Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::SAVE_AUDIO_MODE_KEY) ;      \
+  if (!client_has_mixdown_property)                                                      \
+    Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::MIXDOWN_MODE_KEY) ;         \
   if (!client_has_savelog_property)                                                      \
-    Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::SAVE_LOG_KEY) ;             \
+    Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::SHOULD_SAVE_LOG_KEY) ;      \
   if (!client_has_debuglevel_property)                                                   \
     Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::DEBUG_LEVEL_KEY) ;          \
   if (!client_has_hide_bots_property)                                                    \
@@ -431,11 +436,14 @@
                                                                                          \
   /* client datatypes */                                                                 \
   if (!save_audio_is_int)                                                                \
-    Trace::TraceTypeMismatch(client              , CONFIG::SAVE_AUDIO_KEY         ,      \
-                             CONFIG::INT_TYPE    , client[CONFIG::SAVE_AUDIO_ID]) ;      \
+    Trace::TraceTypeMismatch(client              , CONFIG::SAVE_AUDIO_MODE_KEY         , \
+                             CONFIG::INT_TYPE    , client[CONFIG::SAVE_AUDIO_MODE_ID]) ; \
+  if (!mixdown_is_int)                                                                   \
+    Trace::TraceTypeMismatch(client              , CONFIG::MIXDOWN_MODE_KEY          ,   \
+                             CONFIG::INT_TYPE    , client[CONFIG::MIXDOWN_MODE_KEY]) ;   \
   if (!save_log_is_bool)                                                                 \
-    Trace::TraceTypeMismatch(client              , CONFIG::SAVE_LOG_KEY           ,      \
-                             CONFIG::BOOL_TYPE   , client[CONFIG::SAVE_AUDIO_ID]) ;      \
+    Trace::TraceTypeMismatch(client              , CONFIG::SHOULD_SAVE_LOG_KEY         , \
+                             CONFIG::BOOL_TYPE   , client[CONFIG::SHOULD_SAVE_LOG_ID]) ; \
   if (!debug_level_is_int)                                                               \
     Trace::TraceTypeMismatch(client              , CONFIG::DEBUG_LEVEL_KEY         ,     \
                              CONFIG::INT_TYPE    , client[CONFIG::DEBUG_LEVEL_ID]) ;     \
@@ -632,8 +640,9 @@
   is_valid = is_valid                                                          &&        \
                                                                                          \
       /* client properties */                                                            \
-      client_has_saveaudio_property      && client_has_savelog_property        &&        \
-      client_has_debuglevel_property     && client_has_hide_bots_property      &&        \
+      client_has_saveaudio_property      && client_has_mixdown_property        &&        \
+      client_has_savelog_property        && client_has_debuglevel_property     &&        \
+      client_has_hide_bots_property                                            &&        \
                                                                                          \
       /* subscriptions properties */                                                     \
       subs_has_autosubscribe_property                                          &&        \
@@ -676,8 +685,9 @@
       metro_channel_has_vuleft_property  && metro_channel_has_vuleft_property  &&        \
                                                                                          \
       /* client datatypes */                                                             \
-      save_audio_is_int                  && save_log_is_bool                   &&        \
-      debug_level_is_int                 && should_hide_bots_is_bool           &&        \
+      save_audio_is_int                  && mixdown_is_int                     &&        \
+      save_log_is_bool                   && debug_level_is_int                 &&        \
+      should_hide_bots_is_bool                                                 &&        \
                                                                                          \
       /* subscriptions properties */                                                     \
       autosubscribe_is_int                                                     &&        \

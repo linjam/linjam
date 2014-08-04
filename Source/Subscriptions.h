@@ -60,8 +60,8 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> userLabel;
     ScopedPointer<TextButton> removeButton;
+    ScopedPointer<Label> userLabel;
 
 
     //==============================================================================

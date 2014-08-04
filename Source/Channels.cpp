@@ -240,6 +240,7 @@ LocalChannels::LocalChannels()
 }
 
 RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree subscriptions)
+                              : configStore(user_store)
 {
   this->channelsLabel->setText(String(user_store.getType()) , juce::dontSendNotification) ;
   this->expandButton ->addListener(this) ;
@@ -247,7 +248,6 @@ RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree subscriptions)
   this->addButton    ->setVisible(false) ;
   this->configButton ->setVisible(false) ;
 
-  this->configStore   = user_store ;
   this->subscriptions = subscriptions ;
   this->isExpanded    = false ;
 }
@@ -301,7 +301,6 @@ void RemoteChannels::buttonClicked(Button* a_button)
     toggleExpandChannels() ;
   else if (a_button == this->ignoreButton)
     this->subscriptions.addChild(ValueTree(this->configStore.getType()) , -1  , nullptr) ;
-//     LinJam::IgnoreUser(this->channelsLabel->getText() , this) ;
 }
 
 void RemoteChannels::toggleExpandChannels()

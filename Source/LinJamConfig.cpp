@@ -584,8 +584,8 @@ DEBUG_TRACE_SANITY_CHECK // modifies is_valid
 
 /* helpers */
 
-ValueTree LinJamConfig::getOrAddServer(String host_name , String login        ,
-                                       String pass      , bool   is_anonymous )
+ValueTree LinJamConfig::getOrAddServer(String host_name , String login       ,
+                                       String pass      , bool   is_anonymous)
 {
   ValueTree server = getServer(host_name) ;
   if (!server.isValid())
@@ -629,7 +629,7 @@ void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier
 
 DEBUG_TRACE_CONFIG_TREE_CHANGED
 
-  if      (node_id   == CONFIG::CLIENT_ID)  return ; // most likely will handle this eventuall
+  if      (node_id   == CONFIG::CLIENT_ID)  return ; // no immediate action required
   else if (node_id   == CONFIG::AUDIO_ID)   return ; // may or may not handle this (issue #12)
   else if (node_id   == CONFIG::SERVER_ID)  return ; // most likely wont need to handle these
   else if (parent_id == CONFIG::SERVERS_ID) return ; // but we must guard for now (issue #33)
