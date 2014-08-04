@@ -21,7 +21,9 @@
 #define __JUCE_HEADER_2F4D86CC6EC233C__
 
 //[Headers]     -- You can add your own extra header files here --
+
 #include "JuceHeader.h"
+
 //[/Headers]
 
 
@@ -39,7 +41,7 @@ class ConfigSubscriptions  : public Component,
 {
 public:
     //==============================================================================
-    ConfigSubscriptions ();
+    ConfigSubscriptions (ValueTree config_store);
     ~ConfigSubscriptions();
 
     //==============================================================================
@@ -54,13 +56,19 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+  ValueTree configStore ;
+
+
+  void setConfig(Identifier a_key , var a_value) ;
+
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> debugLevelLabel;
-    ScopedPointer<ToggleButton> saveLogButton;
-    ScopedPointer<ToggleButton> saveLogButton2;
-    ScopedPointer<TextEditor> textEditor;
+    ScopedPointer<ToggleButton> subscribeButton;
+    ScopedPointer<ToggleButton> ignoreButton;
+    ScopedPointer<Label> bansLabel;
+    ScopedPointer<Viewport> subscriptionsViewport;
 
 
     //==============================================================================

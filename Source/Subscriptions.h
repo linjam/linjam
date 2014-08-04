@@ -17,13 +17,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_85571ED1262E7F00__
-#define __JUCE_HEADER_85571ED1262E7F00__
+#ifndef __JUCE_HEADER_C8CF85E1A55C1DDD__
+#define __JUCE_HEADER_C8CF85E1A55C1DDD__
 
 //[Headers]     -- You can add your own extra header files here --
-
 #include "JuceHeader.h"
-
 //[/Headers]
 
 
@@ -36,15 +34,13 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class ConfigAudio  : public Component,
-                     public ComboBoxListener,
-                     public ButtonListener,
-                     public SliderListener
+class Subscription  : public Component,
+                      public ButtonListener
 {
 public:
     //==============================================================================
-    ConfigAudio (ValueTree config_store);
-    ~ConfigAudio();
+    Subscription (ValueTree config_store);
+    ~Subscription();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -52,9 +48,7 @@ public:
 
     void paint (Graphics& g);
     void resized();
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
     void buttonClicked (Button* buttonThatWasClicked);
-    void sliderValueChanged (Slider* sliderThatWasMoved);
 
 
 
@@ -63,42 +57,41 @@ private:
 
   ValueTree configStore ;
 
-
-  void setConfig(Identifier a_key , var a_value) ;
-
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> modeLabel;
-    ScopedPointer<ComboBox> modeComboBox;
-    ScopedPointer<Label> sourceLabel;
-    ScopedPointer<ComboBox> sourceComboBox;
-    ScopedPointer<Label> sinkLabel;
-    ScopedPointer<ComboBox> sinkComboBox;
-    ScopedPointer<ToggleButton> bps16Button;
-    ScopedPointer<ToggleButton> bps24Button;
-    ScopedPointer<ToggleButton> bps32Button;
-    ScopedPointer<ToggleButton> kHz44Button;
-    ScopedPointer<ToggleButton> kHz48Button;
-    ScopedPointer<ToggleButton> kHz96Button;
-    ScopedPointer<Label> buffersLabel;
-    ScopedPointer<Slider> nBuffersSlider;
-    ScopedPointer<Label> xLabel;
-    ScopedPointer<ComboBox> bufferComboBox;
-    ScopedPointer<Label> latencyLabel;
-    ScopedPointer<Label> jackNameLabel;
-    ScopedPointer<TextEditor> textEditor;
-    ScopedPointer<Label> nSourcesLabel;
-    ScopedPointer<Slider> nSourcesSlider;
-    ScopedPointer<Label> nSinksLabel;
-    ScopedPointer<Slider> nSinksSlider;
+    ScopedPointer<Label> userLabel;
+    ScopedPointer<TextButton> removeButton;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigAudio)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Subscription)
 };
 
 //[EndFile] You can add extra defines here...
+
+/**
+  this is the GUI container for Subscription instances                                                                  //[/Comments]
+*/
+class Subscriptions : public Component
+{
+  friend class Subscription ;
+
+public:
+  Subscriptions(ValueTree config_store) ;
+  ~Subscriptions() ;
+
+
+private:
+
+  void resized() ;
+  int computeHeight() ;
+  void removeSubscription(Subscription* a_subscription) ;
+
+
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Subscriptions)
+} ;
+
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_85571ED1262E7F00__
+#endif   // __JUCE_HEADER_C8CF85E1A55C1DDD__

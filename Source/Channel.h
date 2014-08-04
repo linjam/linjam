@@ -72,12 +72,11 @@ private:
   Value vuRight ;
 
 
-  void  buttonClicked(   Button* a_button) override ;
-  void  valueChanged(    Value& a_value)   override ;
-  void  updateChannelVU( Slider* a_vu_slider , Label* a_vu_label , double vu) ;
-  void  renameChannel() ;
-  Value getValueObject(  Identifier a_key) ;
-  void  setChannelConfig(Identifier config_key , var value) ;
+  void  buttonClicked(  Button* a_button) override ;
+  void  valueChanged(   Value& a_value)   override ;
+  void  updateChannelVU(Slider* a_vu_slider , Label* a_vu_label , double vu) ;
+  Value getValueObject( Identifier a_key) ;
+  void  setConfig(      Identifier a_key , var a_value) ;
 
 
 protected:

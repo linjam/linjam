@@ -118,10 +118,11 @@ String Trace::SanitizeConfig(ValueTree default_config , ValueTree stored_config 
   }
 
   Array<Identifier> user_keys ;
-  user_keys.add(CONFIG::LOCALS_ID) ;
-//  user_keys.add(CONFIG::REMOTES_ID) ; // TODO:
-  user_keys.add(CONFIG::SUBSCRIPTIONS_ID) ; // TODO:
+  user_keys.add(CONFIG::SUBSCRIPTIONS_ID) ;
   user_keys.add(CONFIG::SERVERS_ID) ;
+  user_keys.add(CONFIG::MASTERS_ID) ;
+  user_keys.add(CONFIG::LOCALS_ID) ;
+//  user_keys.add(CONFIG::REMOTES_ID) ; // TODO: (issue #33)
   if (user_keys.contains(node_name))
   {
     for (int child_n = 0 ; child_n < stored_config.getNumChildren() ; ++child_n)
@@ -164,16 +165,16 @@ void Trace::TraceMissingProperty(String a_node_name      , String a_property_nam
                     "' - missing property '" + a_property_name + "'") ;
 }
 
-void Trace::TraceTypeMismatch(String a_node_name      , String a_property_name ,
-                              String expected_type    , var    a_var           ,
-                              String parent_node_name                          )
+void Trace::TraceTypeMismatch(ValueTree a_node           , String a_property_name ,
+                              String    expected_type    , var    a_var           ,
+                              String    parent_node_name                          )
 {
+  String a_node_name = String(a_node.getType()) ;
   if (parent_node_name.isNotEmpty()) parent_node_name += " " ;
-  Trace::TraceError("type mismatch - " + parent_node_name + a_node_name         +
-                    "["                + a_property_name  + "] => "             +
-                    VarType(a_var)     + " (expected "     + expected_type + ")") ;
+  Trace::TraceError("type mismatch - " + parent_node_name + a_node_name        +
+                    "["                + a_property_name  + "] => "            +
+                    VarType(a_var)     + " (expected "    + expected_type + ")") ;
 }
-
 
 String Trace::VarType(var a_var)
 {

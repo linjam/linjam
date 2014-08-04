@@ -75,6 +75,7 @@ protected:
     ScopedPointer<TextButton> addButton;
     ScopedPointer<TextButton> configButton;
     ScopedPointer<TextButton> expandButton;
+    ScopedPointer<TextButton> ignoreButton;
 
 
     //==============================================================================
@@ -115,12 +116,14 @@ class RemoteChannels : public Channels , public ButtonListener
 {
 public:
 
-  RemoteChannels(ValueTree user_store) ;
+  RemoteChannels(ValueTree user_store , ValueTree subscriptions) ;
 
 
 private:
 
-  bool isExpanded ;
+  ValueTree configStore ;
+  ValueTree subscriptions ;
+  bool      isExpanded ;
 
 
   void     buttonClicked(       Button* buttonThatWasClicked) ;

@@ -58,8 +58,9 @@
   /*       only transient channels are not sanitized and so need be validated */         \
                                                                                          \
   ValueTree client = this->client ;                                                      \
+  ValueTree subs   = this->subscriptions ;                                               \
   ValueTree audio  = this->audio ;                                                       \
-  ValueTree server = this->server ;                                                       \
+  ValueTree server = this->server ;                                                      \
   ValueTree master = this->masterChannels.getChildWithName(CONFIG::MASTER_ID) ;          \
   ValueTree metro  = this->masterChannels.getChildWithName(CONFIG::METRO_ID) ;           \
                                                                                          \
@@ -69,11 +70,13 @@
   bool client_has_savelog_property         =                                             \
       client.hasProperty(CONFIG::SAVE_LOG_ID)         ;                                  \
   bool client_has_debuglevel_property      =                                             \
-      client.hasProperty(CONFIG::DEBUGLEVEL_ID)       ;                                  \
+      client.hasProperty(CONFIG::DEBUG_LEVEL_ID)      ;                                  \
   bool client_has_hide_bots_property       =                                             \
       client.hasProperty(CONFIG::SHOULD_HIDE_BOTS_ID) ;                                  \
-  bool client_has_autosubscribe_property   =                                             \
-      client.hasProperty(CONFIG::AUTOSUBSCRIBE_ID)    ;                                  \
+                                                                                         \
+  /* subscriptions properties */                                                         \
+  bool subs_has_autosubscribe_property     =                                             \
+      subs.hasProperty(CONFIG::SUBSCRIBE_MODE_ID)     ;                                  \
                                                                                          \
   /* audio properties */                                                                 \
   bool audio_has_winifn_property           =                                             \
@@ -200,9 +203,11 @@
   /* client datatypes */                                                                 \
   bool save_audio_is_int        = client[CONFIG::SAVE_AUDIO_ID]      .isInt()    ;       \
   bool save_log_is_bool         = client[CONFIG::SAVE_LOG_ID]        .isBool()   ;       \
-  bool deuglevel_is_int         = client[CONFIG::DEBUGLEVEL_ID]      .isInt()    ;       \
+  bool debug_level_is_int       = client[CONFIG::DEBUG_LEVEL_ID]     .isInt()    ;       \
   bool should_hide_bots_is_bool = client[CONFIG::SHOULD_HIDE_BOTS_ID].isBool()   ;       \
-  bool autosubscribe_is_int     = client[CONFIG::AUTOSUBSCRIBE_ID]   .isInt()    ;       \
+                                                                                         \
+  /* subscriptions datatypes */                                                          \
+  bool autosubscribe_is_int     = subs  [CONFIG::SUBSCRIBE_MODE_ID]  .isInt()    ;       \
                                                                                          \
   /* audio datatypes */                                                                  \
   bool win_audio_ifn_is_int     = audio [CONFIG::WIN_AUDIO_IF_ID]    .isInt()    ;       \
@@ -294,11 +299,13 @@
   if (!client_has_savelog_property)                                                      \
     Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::SAVE_LOG_KEY) ;             \
   if (!client_has_debuglevel_property)                                                   \
-    Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::DEBUGLEVEL_KEY) ;           \
+    Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::DEBUG_LEVEL_KEY) ;          \
   if (!client_has_hide_bots_property)                                                    \
     Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::SHOULD_HIDE_BOTS_KEY) ;     \
-  if (!client_has_autosubscribe_property)                                                \
-    Trace::TraceMissingProperty(CONFIG::CLIENT_KEY , CONFIG::AUTOSUBSCRIBE_KEY) ;        \
+                                                                                         \
+  /* subscriptions properties */                                                         \
+  if (!subs_has_autosubscribe_property)                                                  \
+    Trace::TraceMissingProperty(CONFIG::SUBSCRIPTIONS_KEY , CONFIG::SUBSCRIBE_MODE_KEY) ;\
                                                                                          \
   /* audio properties */                                                                 \
   if (!audio_has_winifn_property)                                                        \
@@ -424,199 +431,201 @@
                                                                                          \
   /* client datatypes */                                                                 \
   if (!save_audio_is_int)                                                                \
-    Trace::TraceTypeMismatch(CONFIG::CLIENT_KEY  , CONFIG::SAVE_AUDIO_KEY         ,      \
+    Trace::TraceTypeMismatch(client              , CONFIG::SAVE_AUDIO_KEY         ,      \
                              CONFIG::INT_TYPE    , client[CONFIG::SAVE_AUDIO_ID]) ;      \
   if (!save_log_is_bool)                                                                 \
-    Trace::TraceTypeMismatch(CONFIG::CLIENT_KEY  , CONFIG::SAVE_LOG_KEY           ,      \
+    Trace::TraceTypeMismatch(client              , CONFIG::SAVE_LOG_KEY           ,      \
                              CONFIG::BOOL_TYPE   , client[CONFIG::SAVE_AUDIO_ID]) ;      \
-  if (!deuglevel_is_int)                                                                 \
-    Trace::TraceTypeMismatch(CONFIG::CLIENT_KEY  , CONFIG::DEBUGLEVEL_KEY         ,      \
-                             CONFIG::INT_TYPE    , client[CONFIG::DEBUGLEVEL_ID]) ;      \
+  if (!debug_level_is_int)                                                               \
+    Trace::TraceTypeMismatch(client              , CONFIG::DEBUG_LEVEL_KEY         ,     \
+                             CONFIG::INT_TYPE    , client[CONFIG::DEBUG_LEVEL_ID]) ;     \
   if (!should_hide_bots_is_bool)                                                         \
-    Trace::TraceTypeMismatch(CONFIG::CLIENT_KEY  , CONFIG::SHOULD_HIDE_BOTS_KEY  ,       \
+    Trace::TraceTypeMismatch(client              , CONFIG::SHOULD_HIDE_BOTS_KEY  ,       \
                              CONFIG::BOOL_TYPE   , client[CONFIG::SHOULD_HIDE_BOTS_ID]) ;\
+                                                                                         \
+  /* subscriptions datatypes */                                                          \
   if (!autosubscribe_is_int)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::CLIENT_KEY  , CONFIG::AUTOSUBSCRIBE_KEY         ,   \
-                             CONFIG::INT_TYPE    , client[CONFIG::AUTOSUBSCRIBE_ID]) ;   \
+    Trace::TraceTypeMismatch(subs                , CONFIG::SUBSCRIBE_MODE_KEY         ,  \
+                             CONFIG::INT_TYPE    , client[CONFIG::SUBSCRIBE_MODE_ID]) ;  \
                                                                                          \
   /* audio datatypes */                                                                  \
   if (!win_audio_ifn_is_int)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::WIN_AUDIO_IF_KEY        ,     \
+    Trace::TraceTypeMismatch(audio               , CONFIG::WIN_AUDIO_IF_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::WIN_AUDIO_IF_ID]) ;     \
   if (!asio_driver_is_int)                                                               \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::ASIO_DRIVER_KEY        ,      \
+    Trace::TraceTypeMismatch(audio               , CONFIG::ASIO_DRIVER_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::ASIO_DRIVER_ID]) ;      \
   if (!asio_input0_is_int)                                                               \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::ASIO_INPUT0_KEY        ,      \
+    Trace::TraceTypeMismatch(audio               , CONFIG::ASIO_INPUT0_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::ASIO_INPUT0_ID]) ;      \
   if (!asio_inout1_is_int)                                                               \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::ASIO_INPUT1_KEY         ,     \
+    Trace::TraceTypeMismatch(audio               , CONFIG::ASIO_INPUT1_KEY         ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::ASIO_INPUT1_ID]) ;      \
   if (!asio_output0_is_int)                                                              \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::ASIO_OUTPUT0_KEY        ,     \
+    Trace::TraceTypeMismatch(audio               , CONFIG::ASIO_OUTPUT0_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::ASIO_OUTPUT0_ID]) ;     \
   if (!asio_output1_is_int)                                                              \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::ASIO_OUTPUT1_KEY        ,     \
+    Trace::TraceTypeMismatch(audio               , CONFIG::ASIO_OUTPUT1_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::ASIO_OUTPUT1_ID]) ;     \
   if (!ks_input_is_int)                                                                  \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::KS_INPUT_KEY        ,         \
+    Trace::TraceTypeMismatch(audio               , CONFIG::KS_INPUT_KEY        ,         \
                              CONFIG::INT_TYPE    , audio[CONFIG::KS_INPUT_ID]) ;         \
   if (!ks_output_is_int)                                                                 \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::KS_OUTPUT_KEY        ,        \
+    Trace::TraceTypeMismatch(audio               , CONFIG::KS_OUTPUT_KEY        ,        \
                              CONFIG::INT_TYPE    , audio[CONFIG::KS_OUTPUT_ID]) ;        \
   if (!ks_samplerate_is_int)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::KS_SAMPLERATE_KEY        ,    \
+    Trace::TraceTypeMismatch(audio               , CONFIG::KS_SAMPLERATE_KEY        ,    \
                              CONFIG::INT_TYPE    , audio[CONFIG::KS_SAMPLERATE_ID]) ;    \
   if (!ks_bitdepth_is_int)                                                               \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::KS_BITDEPTH_KEY        ,      \
+    Trace::TraceTypeMismatch(audio               , CONFIG::KS_BITDEPTH_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::KS_BITDEPTH_ID]) ;      \
   if (!ks_blocksize_is_int)                                                              \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::KS_BLOCKSIZE_KEY        ,     \
+    Trace::TraceTypeMismatch(audio               , CONFIG::KS_BLOCKSIZE_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::KS_BLOCKSIZE_ID]) ;     \
   if (!ks_n_blocks_is_int)                                                               \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::KS_NBLOCKS_KEY        ,       \
+    Trace::TraceTypeMismatch(audio               , CONFIG::KS_NBLOCKS_KEY        ,       \
                              CONFIG::INT_TYPE    , audio[CONFIG::KS_NBLOCKS_ID]) ;       \
   if (!ds_input0_is_int)                                                                 \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::DS_INPUT0_KEY        ,        \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_INPUT0_KEY        ,        \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_INPUT0_ID]) ;        \
   if (!ds_input1_is_int)                                                                 \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::DS_INPUT1_KEY        ,        \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_INPUT1_KEY        ,        \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_INPUT1_ID]) ;        \
   if (!ds_input2_is_int)                                                                 \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::DS_INPUT2_KEY        ,        \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_INPUT2_KEY        ,        \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_INPUT2_ID]) ;        \
   if (!ds_input3_is_int)                                                                 \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::DS_INPUT3_KEY        ,        \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_INPUT3_KEY        ,        \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_INPUT3_ID]) ;        \
   if (!ds_output0_is_int)                                                                \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::DS_OUTPUT0_KEY        ,       \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_OUTPUT0_KEY        ,       \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_OUTPUT0_ID]) ;       \
   if (!ds_output1_is_int)                                                                \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::DS_OUTPUT1_KEY        ,       \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_OUTPUT1_KEY        ,       \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_OUTPUT1_ID]) ;       \
   if (!ds_output2_is_int)                                                                \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::DS_OUTPUT2_KEY        ,       \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_OUTPUT2_KEY        ,       \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_OUTPUT2_ID]) ;       \
   if (!ds_output3_is_int)                                                                \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::DS_OUTPUT3_KEY        ,       \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_OUTPUT3_KEY        ,       \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_OUTPUT3_ID]) ;       \
   if (!ds_samplerate_is_int)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::DS_SAMPLERATE_KEY        ,    \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_SAMPLERATE_KEY        ,    \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_SAMPLERATE_ID]) ;    \
   if (!ds_bitdepth_is_int)                                                               \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::DS_BITDEPTH_KEY        ,      \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_BITDEPTH_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_BITDEPTH_ID]) ;      \
   if (!ds_blocksize_is_int)                                                              \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::DS_BLOCKSIZE_KEY        ,     \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_BLOCKSIZE_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_BLOCKSIZE_ID]) ;     \
   if (!ds_n_blocks_is_int)                                                               \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::DS_NBLOCKS_KEY        ,       \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_NBLOCKS_KEY        ,       \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_NBLOCKS_ID]) ;       \
   if (!wave_input_is_int)                                                                \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::WAVE_INPUT_KEY        ,       \
+    Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_INPUT_KEY        ,       \
                              CONFIG::INT_TYPE    , audio[CONFIG::WAVE_INPUT_ID]) ;       \
   if (!wave_output_is_int)                                                               \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::WAVE_OUTPUT_KEY        ,      \
+    Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_OUTPUT_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::WAVE_OUTPUT_ID]) ;      \
   if (!wave_samplerate_is_int)                                                           \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::WAVE_SAMPLERATE_KEY        ,  \
+    Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_SAMPLERATE_KEY        ,  \
                              CONFIG::INT_TYPE    , audio[CONFIG::WAVE_SAMPLERATE_ID]) ;  \
   if (!wave_bitdepth_is_int)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::WAVE_BITDEPTH_KEY        ,    \
+    Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_BITDEPTH_KEY        ,    \
                              CONFIG::INT_TYPE    , audio[CONFIG::WAVE_BITDEPTH_ID]) ;    \
   if (!wave_blocksize_is_int)                                                            \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::WAVE_BLOCKSIZE_KEY        ,   \
+    Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_BLOCKSIZE_KEY        ,   \
                              CONFIG::INT_TYPE    , audio[CONFIG::WAVE_BLOCKSIZE_ID]) ;   \
   if (!wave_n_blocks_is_int)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::WAVE_NBLOCKS_KEY        ,     \
+    Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_NBLOCKS_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::WAVE_NBLOCKS_ID]) ;     \
   if (!mac_n_inputs_is_int)                                                              \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::MAC_NINPUTS_KEY        ,      \
+    Trace::TraceTypeMismatch(audio               , CONFIG::MAC_NINPUTS_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::MAC_NINPUTS_ID]) ;      \
   if (!mac_samplerate_is_int)                                                            \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::MAC_SAMPLERATE_KEY        ,   \
+    Trace::TraceTypeMismatch(audio               , CONFIG::MAC_SAMPLERATE_KEY        ,   \
                              CONFIG::INT_TYPE    , audio[CONFIG::MAC_SAMPLERATE_ID]) ;   \
   if (!mac_bitdepth_is_int)                                                              \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::MAC_BITDEPTH_KEY        ,     \
+    Trace::TraceTypeMismatch(audio               , CONFIG::MAC_BITDEPTH_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::MAC_BITDEPTH_ID]) ;     \
   if (!nix_audio_ifn_is_int)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::NIX_AUDIO_IF_KEY        ,     \
+    Trace::TraceTypeMismatch(audio               , CONFIG::NIX_AUDIO_IF_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::NIX_AUDIO_IF_ID]) ;     \
   if (!jack_n_inputs_is_int)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::JACK_NINPUTS_KEY        ,     \
+    Trace::TraceTypeMismatch(audio               , CONFIG::JACK_NINPUTS_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::JACK_NINPUTS_ID]) ;     \
   if (!jack_n_outputs_is_int)                                                            \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::JACK_NOUTPUTS_KEY        ,    \
+    Trace::TraceTypeMismatch(audio               , CONFIG::JACK_NOUTPUTS_KEY        ,    \
                              CONFIG::INT_TYPE    , audio[CONFIG::JACK_NOUTPUTS_ID]) ;    \
   if (!jack_name_is_string)                                                              \
-    Trace::TraceTypeMismatch(CONFIG::AUDIO_KEY   , CONFIG::JACK_NAME_KEY        ,        \
+    Trace::TraceTypeMismatch(audio               , CONFIG::JACK_NAME_KEY        ,        \
                              CONFIG::INT_TYPE    , audio[CONFIG::JACK_NAME_ID]) ;        \
                                                                                          \
   /* server datatypes */                                                                 \
   if (!host_name_is_string)                                                              \
-    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::HOST_KEY       ,              \
+    Trace::TraceTypeMismatch(server              , CONFIG::HOST_KEY       ,              \
                              CONFIG::STRING_TYPE , server[CONFIG::HOST_ID]) ;            \
   if (!login_is_string)                                                                  \
-    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::LOGIN_KEY       ,             \
+    Trace::TraceTypeMismatch(server              , CONFIG::LOGIN_KEY       ,             \
                              CONFIG::STRING_TYPE , server[CONFIG::LOGIN_ID]) ;           \
   if (!pass_is_string)                                                                   \
-    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::PASS_KEY       ,              \
+    Trace::TraceTypeMismatch(server              , CONFIG::PASS_KEY       ,              \
                              CONFIG::STRING_TYPE , server[CONFIG::PASS_ID]) ;            \
   if (!is_anon_is_bool)                                                                  \
-    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::IS_ANONYMOUS_KEY       ,      \
+    Trace::TraceTypeMismatch(server              , CONFIG::IS_ANONYMOUS_KEY       ,      \
                              CONFIG::BOOL_TYPE   , server[CONFIG::IS_ANONYMOUS_ID]) ;    \
   if (!is_agreed_is_bool)                                                                \
-    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::IS_AGREED_KEY       ,         \
+    Trace::TraceTypeMismatch(server              , CONFIG::IS_AGREED_KEY       ,         \
                              CONFIG::BOOL_TYPE   , server[CONFIG::IS_AGREED_ID]) ;       \
   if (!should_agree_is_bool)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::SERVER_KEY  , CONFIG::SHOULD_AGREE_KEY       ,      \
+    Trace::TraceTypeMismatch(server              , CONFIG::SHOULD_AGREE_KEY       ,      \
                              CONFIG::BOOL_TYPE   , server[CONFIG::SHOULD_AGREE_ID]) ;    \
                                                                                          \
   /* masters datatypes */                                                                \
   if (!master_name_is_string)                                                            \
-    Trace::TraceTypeMismatch(CONFIG::MASTER_KEY  , CONFIG::CHANNEL_NAME_KEY         ,    \
+    Trace::TraceTypeMismatch(master              , CONFIG::CHANNEL_NAME_KEY         ,    \
                              CONFIG::STRING_TYPE , master[CONFIG::CHANNEL_NAME_ID]) ;    \
   if (!master_volume_is_double)                                                          \
-    Trace::TraceTypeMismatch(CONFIG::MASTER_KEY  , CONFIG::VOLUME_KEY         ,          \
+    Trace::TraceTypeMismatch(master              , CONFIG::VOLUME_KEY         ,          \
                              CONFIG::DOUBLE_TYPE , master[CONFIG::VOLUME_ID]) ;          \
   if (!master_pan_is_double)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::MASTER_KEY  , CONFIG::PAN_KEY         ,             \
+    Trace::TraceTypeMismatch(master              , CONFIG::PAN_KEY         ,             \
                              CONFIG::DOUBLE_TYPE , master[CONFIG::PAN_ID]) ;             \
   if (!master_mute_is_bool)                                                              \
-    Trace::TraceTypeMismatch(CONFIG::MASTER_KEY  , CONFIG::IS_MUTED_KEY         ,        \
+    Trace::TraceTypeMismatch(master              , CONFIG::IS_MUTED_KEY         ,        \
                              CONFIG::BOOL_TYPE   , master[CONFIG::IS_MUTED_ID]) ;        \
   if (!master_stereo_is_int)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::MASTER_KEY  , CONFIG::STEREO_KEY         ,          \
+    Trace::TraceTypeMismatch(master              , CONFIG::STEREO_KEY         ,          \
                              CONFIG::INT_TYPE    , master[CONFIG::STEREO_ID]) ;          \
   if (!master_vuleft_is_double)                                                          \
-    Trace::TraceTypeMismatch(CONFIG::MASTER_KEY  , CONFIG::VU_LEFT_KEY         ,         \
+    Trace::TraceTypeMismatch(master              , CONFIG::VU_LEFT_KEY         ,         \
                              CONFIG::DOUBLE_TYPE , master[CONFIG::VU_LEFT_ID]) ;         \
   if (!master_vuright_is_double)                                                         \
-    Trace::TraceTypeMismatch(CONFIG::MASTER_KEY  , CONFIG::VU_RIGHT_KEY         ,        \
+    Trace::TraceTypeMismatch(master              , CONFIG::VU_RIGHT_KEY         ,        \
                              CONFIG::DOUBLE_TYPE , master[CONFIG::VU_RIGHT_ID]) ;        \
   if (!metro_name_is_string)                                                             \
-    Trace::TraceTypeMismatch(CONFIG::METRO_KEY   , CONFIG::CHANNEL_NAME_KEY        ,     \
+    Trace::TraceTypeMismatch(metro               , CONFIG::CHANNEL_NAME_KEY        ,     \
                              CONFIG::STRING_TYPE , metro[CONFIG::CHANNEL_NAME_ID]) ;     \
   if (!metro_volume_is_double)                                                           \
-    Trace::TraceTypeMismatch(CONFIG::METRO_KEY   , CONFIG::VOLUME_KEY        ,           \
+    Trace::TraceTypeMismatch(metro               , CONFIG::VOLUME_KEY        ,           \
                              CONFIG::DOUBLE_TYPE , metro[CONFIG::VOLUME_ID]) ;           \
   if (!metro_pan_is_double)                                                              \
-    Trace::TraceTypeMismatch(CONFIG::METRO_KEY   , CONFIG::PAN_KEY        ,              \
+    Trace::TraceTypeMismatch(metro               , CONFIG::PAN_KEY        ,              \
                              CONFIG::DOUBLE_TYPE , metro[CONFIG::PAN_ID]) ;              \
   if (!metro_mute_is_bool)                                                               \
-    Trace::TraceTypeMismatch(CONFIG::METRO_KEY   , CONFIG::IS_MUTED_KEY        ,         \
+    Trace::TraceTypeMismatch(metro               , CONFIG::IS_MUTED_KEY        ,         \
                              CONFIG::BOOL_TYPE   , metro[CONFIG::IS_MUTED_ID]) ;         \
   if (!metro_source_is_int)                                                              \
-    Trace::TraceTypeMismatch(CONFIG::METRO_KEY   , CONFIG::SOURCE_N_KEY        ,         \
+    Trace::TraceTypeMismatch(metro               , CONFIG::SOURCE_N_KEY        ,         \
                              CONFIG::INT_TYPE    , metro[CONFIG::SOURCE_N_ID]) ;         \
   if (!metro_stereo_is_int)                                                              \
-    Trace::TraceTypeMismatch(CONFIG::METRO_KEY   , CONFIG::STEREO_KEY        ,           \
+    Trace::TraceTypeMismatch(metro               , CONFIG::STEREO_KEY        ,           \
                              CONFIG::INT_TYPE    , metro[CONFIG::STEREO_ID]) ;           \
   if (!metro_vuleft_is_double)                                                           \
-    Trace::TraceTypeMismatch(CONFIG::METRO_KEY   , CONFIG::VU_LEFT_KEY        ,          \
+    Trace::TraceTypeMismatch(metro               , CONFIG::VU_LEFT_KEY        ,          \
                              CONFIG::DOUBLE_TYPE , metro[CONFIG::VU_LEFT_ID]) ;          \
   if (!metro_vuright_is_double)                                                          \
-    Trace::TraceTypeMismatch(CONFIG::METRO_KEY   , CONFIG::VU_RIGHT_KEY        ,         \
+    Trace::TraceTypeMismatch(metro               , CONFIG::VU_RIGHT_KEY        ,         \
                              CONFIG::DOUBLE_TYPE , metro[CONFIG::VU_RIGHT_ID]) ;         \
                                                                                          \
   /* modify return value and/or restore defauilt config */                               \
@@ -625,7 +634,9 @@
       /* client properties */                                                            \
       client_has_saveaudio_property      && client_has_savelog_property        &&        \
       client_has_debuglevel_property     && client_has_hide_bots_property      &&        \
-      client_has_autosubscribe_property                                        &&        \
+                                                                                         \
+      /* subscriptions properties */                                                     \
+      subs_has_autosubscribe_property                                          &&        \
                                                                                          \
       /* audio properties */                                                             \
       audio_has_winifn_property                                                &&        \
@@ -666,7 +677,9 @@
                                                                                          \
       /* client datatypes */                                                             \
       save_audio_is_int                  && save_log_is_bool                   &&        \
-      deuglevel_is_int                   && should_hide_bots_is_bool           &&        \
+      debug_level_is_int                 && should_hide_bots_is_bool           &&        \
+                                                                                         \
+      /* subscriptions properties */                                                     \
       autosubscribe_is_int                                                     &&        \
                                                                                          \
       /* audio datatypes */                                                              \
@@ -718,6 +731,7 @@
 #define DEBUG_TRACE_SANITY_CHECK_CHANNEL                                                   \
   String channels_name = String(channels.getType()) ;                                      \
   String channel_name  = channel[CONFIG::CHANNEL_NAME_ID].toString() ;                     \
+                                                                                           \
   /* channel datatypes */                                                                  \
   /* NOTE: these type-checks normally should be unnecessary                      */        \
   /*       all tree nodes will be of the proper types after restoreVarTypeInfo() */        \
@@ -733,6 +747,7 @@
   bool channel_stereo_is_int     = channel[CONFIG::STEREO_ID]      .isInt()    ;           \
   bool channel_vuleft_is_double  = channel[CONFIG::VU_LEFT_ID]     .isDouble() ;           \
   bool channel_vuright_is_double = channel[CONFIG::VU_RIGHT_ID]    .isDouble() ;           \
+                                                                                           \
   /* channel properties */                                                                 \
   if (!channel_has_channelname_property)                                                   \
     Trace::TraceMissingProperty(channel_name , CONFIG::CHANNEL_NAME_KEY , channels_name) ; \
@@ -758,62 +773,64 @@
     Trace::TraceMissingProperty(channel_name , CONFIG::VU_LEFT_KEY      , channels_name) ; \
   if (!channel_has_vuright_property)                                                       \
     Trace::TraceMissingProperty(channel_name , CONFIG::VU_RIGHT_KEY     , channels_name) ; \
+                                                                                           \
   /* channel datatypes */                                                                  \
   if (!channel_name_is_string)                                                             \
-    Trace::TraceTypeMismatch(channel_name        , CONFIG::CHANNEL_NAME_KEY         ,      \
+    Trace::TraceTypeMismatch(channel             , CONFIG::CHANNEL_NAME_KEY         ,      \
                              CONFIG::STRING_TYPE , channel[CONFIG::CHANNEL_NAME_ID] ,      \
                              channels_name                                         ) ;     \
   if (!channel_idx_is_int)                                                                 \
-    Trace::TraceTypeMismatch(channel_name        , CONFIG::CHANNEL_IDX_KEY          ,      \
+    Trace::TraceTypeMismatch(channel             , CONFIG::CHANNEL_IDX_KEY          ,      \
                              CONFIG::INT_TYPE    , channel[CONFIG::CHANNEL_IDX_ID]  ,      \
                              channels_name                                         ) ;     \
   if (!channel_pair_idx_is_int)                                                            \
-    Trace::TraceTypeMismatch(channel_name        , CONFIG::PAIR_IDX_KEY          ,         \
+    Trace::TraceTypeMismatch(channel             , CONFIG::PAIR_IDX_KEY          ,         \
                              CONFIG::INT_TYPE    , channel[CONFIG::PAIR_IDX_ID]  ,         \
                              channels_name                                         ) ;     \
   if (!channel_volume_is_double)                                                           \
-    Trace::TraceTypeMismatch(channel_name        , CONFIG::VOLUME_KEY              ,       \
+    Trace::TraceTypeMismatch(channel             , CONFIG::VOLUME_KEY              ,       \
                              CONFIG::DOUBLE_TYPE , channel[CONFIG::VOLUME_ID]      ,       \
                              channels_name                                         ) ;     \
   if (!channel_pan_is_double)                                                              \
-    Trace::TraceTypeMismatch(channel_name        , CONFIG::PAN_KEY                 ,       \
+    Trace::TraceTypeMismatch(channel             , CONFIG::PAN_KEY                 ,       \
                              CONFIG::DOUBLE_TYPE , channel[CONFIG::PAN_ID]         ,       \
                              channels_name                                         ) ;     \
   if (!channel_xmit_is_bool)                                                               \
-    Trace::TraceTypeMismatch(channel_name        , CONFIG::IS_XMIT_RCV_KEY         ,       \
+    Trace::TraceTypeMismatch(channel             , CONFIG::IS_XMIT_RCV_KEY         ,       \
                              CONFIG::BOOL_TYPE   , channel[CONFIG::IS_XMIT_RCV_ID] ,       \
                              channels_name                                         ) ;     \
   if (!channel_mute_is_bool)                                                               \
-    Trace::TraceTypeMismatch(channel_name        , CONFIG::IS_MUTED_KEY            ,       \
+    Trace::TraceTypeMismatch(channel             , CONFIG::IS_MUTED_KEY            ,       \
                              CONFIG::BOOL_TYPE   , channel[CONFIG::IS_MUTED_ID]    ,       \
                              channels_name                                         ) ;     \
   if (!channel_solo_is_bool)                                                               \
-    Trace::TraceTypeMismatch(channel_name        , CONFIG::IS_SOLO_KEY             ,       \
+    Trace::TraceTypeMismatch(channel             , CONFIG::IS_SOLO_KEY             ,       \
                              CONFIG::BOOL_TYPE   , channel[CONFIG::IS_SOLO_ID]     ,       \
                              channels_name                                         ) ;     \
   if (!channel_source_is_int)                                                              \
-    Trace::TraceTypeMismatch(channel_name        , CONFIG::SOURCE_N_KEY            ,       \
+    Trace::TraceTypeMismatch(channel             , CONFIG::SOURCE_N_KEY            ,       \
                              CONFIG::INT_TYPE    , channel[CONFIG::SOURCE_N_ID]    ,       \
                              channels_name                                         ) ;     \
   if (!channel_stereo_is_int)                                                              \
-    Trace::TraceTypeMismatch(channel_name        , CONFIG::STEREO_KEY              ,       \
+    Trace::TraceTypeMismatch(channel             , CONFIG::STEREO_KEY              ,       \
                              CONFIG::INT_TYPE    , channel[CONFIG::STEREO_ID]      ,       \
                              channels_name                                         ) ;     \
   if (!channel_vuleft_is_double)                                                           \
-    Trace::TraceTypeMismatch(channel_name        , CONFIG::VU_LEFT_KEY             ,       \
+    Trace::TraceTypeMismatch(channel             , CONFIG::VU_LEFT_KEY             ,       \
                              CONFIG::DOUBLE_TYPE , channel[CONFIG::VU_LEFT_KEY]    ,       \
                              channels_name                                         ) ;     \
   if (!channel_vuright_is_double)                                                          \
-    Trace::TraceTypeMismatch(channel_name        , CONFIG::VU_RIGHT_KEY            ,       \
+    Trace::TraceTypeMismatch(channel             , CONFIG::VU_RIGHT_KEY            ,       \
                              CONFIG::DOUBLE_TYPE , channel[CONFIG::VU_RIGHT_KEY]   ,       \
                              channels_name                                         ) ;     \
-  /* channel pproperties */                                                                \
-  if (!channel_has_channelname_property || channel_has_channelidx_property ||              \
-      !channel_has_pairidx_property     || channel_has_volume_property     ||              \
-      !channel_has_pan_property         || channel_has_xmit_property       ||              \
-      !channel_has_mute_property        || channel_has_solo_property       ||              \
-      !channel_has_source_property      || channel_has_stereo_property     ||              \
-      !channel_has_vuleft_property      || channel_has_vuright_property     )              \
+                                                                                           \
+  /* channel properties */                                                                 \
+  if (!channel_has_channelname_property || !channel_has_channelidx_property ||              \
+      !channel_has_pairidx_property     || !channel_has_volume_property     ||              \
+      !channel_has_pan_property         || !channel_has_xmit_property       ||              \
+      !channel_has_mute_property        || !channel_has_solo_property       ||              \
+      !channel_has_source_property      || !channel_has_stereo_property     ||              \
+      !channel_has_vuleft_property      || !channel_has_vuright_property     )              \
     Trace::TraceError("destroying invalid local channel store '" + channel_name + "'") ;
 
 #if TRACE_STORE_CONFIG_VB
@@ -823,14 +840,24 @@
 #  define DEBUG_TRACE_STORE_CONFIG Trace::TraceConfig("storing config xml") ;
 #endif // TRACE_STORE_CONFIG_VB
 
-#define DEBUG_TRACE_CONFIG_TREE_CHANGED                             \
-  String node   = String(a_node.getType()) ;                        \
-  String parent = String(a_node.getParent().getType()) ;            \
-  String key    = String(a_key) ;                                   \
-  String val    = a_node[a_key].toString() ;                        \
-  if (a_key != CONFIG::VU_LEFT_ID && a_key != CONFIG::VU_RIGHT_ID)  \
-      Trace::TraceEvent("value changed for " + parent             + \
-                         " => " + node + "[" + key + "] => " + val) ;
+#define DEBUG_TRACE_CONFIG_TREE_CHANGED                            \
+  String node   = String(a_node.getType()) ;                       \
+  String parent = String(a_node.getParent().getType()) ;           \
+  String key    = String(a_key) ;                                  \
+  String val    = a_node[a_key].toString() ;                       \
+  if (a_key != CONFIG::VU_LEFT_ID && a_key != CONFIG::VU_RIGHT_ID) \
+    Trace::TraceEvent("value changed for " + parent              + \
+                      " => " + node + "[" + key + "] => " + val) ;
+
+#define DEBUG_TRACE_CONFIG_TREE_ADDED                                      \
+  if (a_parent_node == this->subscriptions)                                \
+    Trace::TraceEvent("node added to " + String(a_parent_node.getType()) + \
+                      " => " + String(a_node.getType())) ;
+
+#define DEBUG_TRACE_CONFIG_TREE_REMOVED                                        \
+  if (a_parent_node == this->subscriptions)                                    \
+    Trace::TraceEvent("node removed from " + String(a_parent_node.getType()) + \
+                      " => " + String(a_node.getType())) ;
 
 
 /* channels */
@@ -870,7 +897,9 @@
        Trace::TraceConfig("storage exists for " + dbgB) ;                           \
   else if (is_local)                                                                \
        Trace::TraceConfig(dbgA + dbgB) ;                                            \
-  else Trace::TraceConfig(dbgA + dbgB + " for '" + user_id + "'") ;
+  else Trace::TraceConfig(dbgA + dbgB + " for '" + user_id + "'") ;                 \
+  if (TRACE_LOCAL_CHANNELS_VB)                                                      \
+    DBG(Trace::DumpStoredChannels() + Trace::DumpClientChannels()) ;
 
 #define DEBUG_TRACE_DESTROY_CHANNEL_STORE                                     \
   String channel_id   = String(channel_store.getType()) ;                     \
@@ -886,7 +915,7 @@
 #define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                          \
   Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;                  \
   Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;   \
-  if (TRACE_ADD_REMOTES_VB)                                                        \
+  if (TRACE_REMOTE_CHANNELS_VB)                                                    \
   {                                                                                \
     char* host      = LinJam::Client->GetHostName() ;                              \
     bool  has_bot   = NETWORK::KNOWN_HOSTS.contains(String(host)) ;                \
@@ -911,6 +940,8 @@
 #define DEBUG_TRACE_SANITY_CHECK_CHANNEL  ;
 #define DEBUG_TRACE_STORE_CONFIG          ;
 #define DEBUG_TRACE_CONFIG_TREE_CHANGED   ;
+#define DEBUG_TRACE_CONFIG_TREE_ADDED     ;
+#define DEBUG_TRACE_CONFIG_TREE_REMOVED   ;
 // channels
 #define DEBUG_TRACE_STEREO_STATUS         ;
 #define DEBUG_TRACE_MONO_STATUS           ;

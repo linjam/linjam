@@ -64,7 +64,7 @@ public:
   // GUI event handlers
   static bool AddLocalChannel(   ValueTree channel_store) ;
   static void RemoveLocalChannel(ValueTree channel_store) ;
-  static void SendChat(String chat_text) ;
+  static void SendChat(          String chat_text) ;
 
   // persistent configuration storage
   static LinJamConfig* Config ;
@@ -94,12 +94,12 @@ private:
                         int     n_samples     , int sample_rate       ) ;
 
   // NJClient runtime helpers
-  static void HandleStatusChanged( int status) ;
+  static void HandleStatusChanged(int status) ;
   static void HandleUserInfoChanged() ;
   static void UpdateLoopProgress() ;
   static void UpdateVuMeters() ;
   static void UpdateRecordingTime() ;
-  static void HandleChatCommand(   String chat_text) ;
+  static void HandleChatCommand(  String chat_text) ;
 
   // state helpers
   static bool InitializeAudio() ;
@@ -107,6 +107,11 @@ private:
   static bool PrepareSessionDirectory() ;
   static void ConfigureNinjam() ;
   static void CleanSessionDir() ;
+
+  // GUI event handlers
+//   static void IgnoreUser(        Identifier user_id) ;
+//   static void SubscribeUser(     Identifier user_id) ;
+  static void ConfigureSubscriptions() ;
 
   // NJClient config helpers
   static int    GetNumInputChannels() ;
@@ -122,6 +127,8 @@ private:
   static void   ScalePannedMonoVus(        double  vu_mono , double  pan ,
                                            double* l_vu    , double* r_vu) ;
   static float  ComputeStereoPan(          float pan , int stereo_status) ;
+  static void   UpdateRemoteUserState(     ValueTree user_store         , int user_idx ,
+                                           bool      should_ignore_user                ) ;
   static void   ConfigureMasterChannel(    Identifier a_key) ;
   static void   ConfigureMetroChannel(     Identifier a_key) ;
   static void   ConfigureLocalChannel(     ValueTree  channel_store , Identifier a_key) ;

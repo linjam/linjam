@@ -26,13 +26,15 @@ public:
 
   // client config
   ValueTree client ;
-  ValueTree subscriptions ;
 /* client-specfic data - access via this->client
   var save-audio       // int
   var should-save-log  // bool
   var debug-level      // int
   var should-hide-bots // bool
-  var auto-subscribe   // int
+*/
+  ValueTree subscriptions ;
+/* subscriptions-specfic data - access via this->subscriptions
+  var subscribe-mode // int
 */
   // audio device config
   ValueTree audio ;
@@ -164,30 +166,23 @@ private:
   void      initialize() ;
   ValueTree sanitizeConfig(    ValueTree default_config , ValueTree stored_config) ;
   void      restoreVarTypeInfo(ValueTree store) ;
+  void      sanitizeUsers() ;
   void      sanitizeChannels(  ValueTree channels) ;
   void      storeConfig() ;
   void      establishSharedStore() ;
   bool      sanityCheck() ;
 
   // helpers
-//   ValueTree  getNode(     Identifier tree_node_id) ;
-//   Value      getLeaf(     ValueTree parent_node , Identifier child_node_id ,
-//                           Identifier key) ;
-//   Value      getClient(   Identifier key) ;
-//   Value      getAudio(    Identifier key) ;
-//   Value      getServer(   Identifier key) ;
   ValueTree  getOrAddServer(String host_name , String login       ,
                             String pass      , bool   is_anonymous) ;
   String     filteredName(  String a_name) ;
 
   // event handlers
-  void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key) override ;
+  void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)    override ;
+  void valueTreeChildAdded(     ValueTree& a_parent_node , ValueTree& a_node) override ;
+  void valueTreeChildRemoved(   ValueTree& a_parent_node , ValueTree& a_node) override ;
 
   // unused ValueTree::Listener interface methods
-  // called when a child sub-tree is added.
-  void valueTreeChildAdded(ValueTree& a_parent_node , ValueTree& a_node)   override {}
-  // called when a child sub-tree is removed.
-  void valueTreeChildRemoved(ValueTree& a_parent_node , ValueTree& a_node) override {}
   // called when a tree's children have been re-shuffled.
   void valueTreeChildOrderChanged(ValueTree& a_parent_node)                override {} ;
   // called when a tree has been added or removed from a parent node.

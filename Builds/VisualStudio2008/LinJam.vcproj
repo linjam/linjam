@@ -152,6 +152,7 @@
         <File RelativePath="..\..\Source\MainContent.h"/>
         <File RelativePath="..\..\Source\Mixer.h"/>
         <File RelativePath="..\..\Source\StatusBar.h"/>
+        <File RelativePath="..\..\Source\Subscriptions.h"/>
       </Filter>
       <Filter Name="Source">
         <File RelativePath="..\..\Source\Background.cpp"/>
@@ -172,6 +173,7 @@
         <File RelativePath="..\..\Source\MainContent.cpp"/>
         <File RelativePath="..\..\Source\Mixer.cpp"/>
         <File RelativePath="..\..\Source\StatusBar.cpp"/>
+        <File RelativePath="..\..\Source\Subscriptions.cpp"/>
         <File RelativePath="..\..\Source\Trace\Trace.cpp"/>
       </Filter>
     </Filter>

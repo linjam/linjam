@@ -216,6 +216,37 @@ DEBUG_TRACE_REMOVE_LOCAL_CHANNEL
 
 DEBUG_TRACE_DUMP_FREE_INPUTS_VB
 }
+/*
+void LinJam::IgnoreUser(Identifier user_id)
+{
+DEBUG_TRACE_IGNORE_USER
+
+  ValueTree  user_store   = Config->getOrAddRemoteUser(String(user_id)) ;
+  ValueTree  master_store = Config->getOrAddRemoteChannel(user_id , CONFIG::MASTER_KEY) ;
+
+  master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , false , nullptr) ;
+  ConfigureRemoteChannel(user_store , master_store , CONFIG::IS_XMIT_RCV_ID) ;
+
+  Gui->mixer->removeRemoteUser(user_id) ;
+
+//   Config->subscriptions.addChild(ValueTree(user_id) , -1 , nullptr) ;
+  ConfigureSubscriptions() ; HandleUserInfoChanged() ;
+}
+
+void LinJam::SubscribeUser(Identifier user_id)
+{
+DEBUG_TRACE_SUBSCRIBE_USER
+
+  ValueTree  user_store   = Config->subscriptions.getChildWithName(user_id) ;
+  ValueTree  master_store = Config->getOrAddRemoteChannel(user_id , CONFIG::MASTER_KEY) ;
+
+  master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , true , nullptr) ;
+  ConfigureRemoteChannel(user_store , master_store , CONFIG::IS_XMIT_RCV_ID) ;
+
+//   Config->subscriptions.removeChild(user_store , nullptr) ;
+  ConfigureSubscriptions() ; HandleUserInfoChanged() ;
+}
+*/
 
 void LinJam::SendChat(String chat_text)
 {
@@ -400,9 +431,6 @@ return ;
 #endif // NO_UPDATE_REMOTES
 DEBUG_TRACE_REMOTE_CHANNELS_VB
 
-  bool server_has_bot   = NETWORK::KNOWN_HOSTS.contains(String(Client->GetHostName())) ;
-  bool should_hide_bots = bool(Config->client[CONFIG::SHOULD_HIDE_BOTS_ID]) ;
-
   // initialize dictionary for pruning parted users GUI elements
   ValueTree active_users = ValueTree("active-users") ;
 
@@ -410,21 +438,21 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
   int user_idx = -1 ; String user_name ;
   while ((user_name = GetRemoteUserName(++user_idx)).isNotEmpty())
   {
-    Identifier user_id   = Config->makeUserId(user_name) ;
-    String     user_name = String(user_id) ;
-    if (server_has_bot && should_hide_bots && NETWORK::KNOWN_BOTS.contains(user_id))
-      continue ;
+    Identifier  user_id            = Config->makeUserId(user_name) ;
+    bool        is_bot             = NETWORK::KNOWN_BOTS.contains(user_id) ;
+    std::string name               = (user_name = String(user_id)).toStdString() ;
+    bool        should_ignore_user = !!Client->config_autosubscribe_userlist.count(name) ;
 
     // get or create remote user storage
     ValueTree user_store = Config->getOrAddRemoteUser(user_name) ;
-    user_id              = user_store.getType() ;
     if (!user_store.isValid()) continue ;
 
-    // update stored NJClient remote user index
-    user_store.setProperty(CONFIG::USER_IDX_ID , user_idx , nullptr) ;
+    // update stored remote user state
+    UpdateRemoteUserState(user_store , user_idx , should_ignore_user) ;
+    if (should_ignore_user) continue ;
 
     // create remote user GUI
-    if (Gui->mixer->addRemoteUser(user_store))
+    if (Gui->mixer->addRemoteUser(user_store , Config->subscriptions))
     {
       // create remote master channel storage
       ValueTree master_store = Config->getOrAddRemoteChannel(user_id , CONFIG::MASTER_KEY) ;
@@ -880,7 +908,7 @@ bool LinJam::PrepareSessionDirectory()
 {
   File this_binary = File::getSpecialLocation(File::currentExecutableFile) ;
   File this_dir    = this_binary.getParentDirectory() ;
-  SessionDir       = File(this_dir.getFullPathName() + CONFIG::SESSIONDIR) ;
+  SessionDir       = File(this_dir.getFullPathName() + CONFIG::SESSION_DIR) ;
 
   SessionDir.createDirectory() ; CleanSessionDir() ;
 
@@ -892,25 +920,23 @@ bool LinJam::PrepareSessionDirectory()
 
 void LinJam::ConfigureNinjam()
 {
-  int       save_audio_state     = int( Config->client[CONFIG::SAVE_AUDIO_ID]) ;
-  bool      should_save_log      = bool(Config->client[CONFIG::SAVE_LOG_ID]) ;
-  int       debug_level          = int( Config->client[CONFIG::DEBUGLEVEL_ID]) ;
-  int       auto_subscribe_state = int( Config->client[CONFIG::AUTOSUBSCRIBE_ID]) ;
-  ValueTree subscriptions        =      Config->subscriptions ;
+  int       save_audio_mode  = int( Config->client       [CONFIG::SAVE_AUDIO_ID]) ;
+  bool      should_save_log  = bool(Config->client       [CONFIG::SAVE_LOG_ID]) ;
+  int       debug_level      = int( Config->client       [CONFIG::DEBUG_LEVEL_ID]) ;
+  int       subscribe_mode   = int( Config->subscriptions[CONFIG::SUBSCRIBE_MODE_ID]) ;
 
   Client->LicenseAgreementCallback = OnLicense ;
   Client->ChatMessage_Callback     = OnChatmsg ;
-  Client->config_savelocalaudio    = save_audio_state ;
+  Client->config_savelocalaudio    = save_audio_mode ;
   Client->config_debug_level       = debug_level ;
-  Client->config_autosubscribe     = auto_subscribe_state ;
-  if (save_audio_state && should_save_log)
-    Client->SetLogFile((SessionDir.getFullPathName() + CONFIG::LOGFILE).toRawUTF8()) ;
-  for (int user_n = 0 ; user_n < subscriptions.getNumChildren() ; ++user_n)
-  {
-    // convert user name from juce::String into non-const char*
-    WDL_String user_name_wdl(subscriptions.getChild(user_n).getType().getCharPointer()) ;
-    Client->config_autosubscribe_userlist.insert(user_name_wdl.Get()) ;
-  }
+  Client->config_autosubscribe     = subscribe_mode ;
+
+  // set log file
+  if (should_save_log && save_audio_mode > NJClient::SAVE_AUDIO_NONE)
+    Client->SetLogFile((SessionDir.getFullPathName() + CONFIG::LOG_FILE).toRawUTF8()) ;
+
+  // add bots and ignored users to ignore list
+  ConfigureSubscriptions() ;
 }
 
 void LinJam::CleanSessionDir()
@@ -930,6 +956,35 @@ DEBUG_TRACE_CLEAN_SESSION
   DirectoryIterator session_dir_iter(SessionDir , false , "*.*" , File::findFilesAndDirectories) ;
   while (session_dir_iter.next()) session_dir_iter.getFile().deleteRecursively() ;
 #endif // CLEAN_SESSION
+}
+
+
+/* GUI event handlers */
+
+void LinJam::ConfigureSubscriptions()
+{
+DEBUG_TRACE_SUBSCRIPTIONS
+
+  ValueTree subscriptions       =      Config->subscriptions.createCopy() ;
+  int       subscribe_mode      = int( Config->subscriptions[CONFIG::SUBSCRIBE_MODE_ID]) ;
+  int       should_hide_bots    = bool(Config->client       [CONFIG::SHOULD_HIDE_BOTS_ID]) ;
+  bool      should_ignore_users = subscribe_mode == (int)NJClient::SUBSCRIBE_DENY ;
+
+  Client->config_autosubscribe_userlist.clear() ;
+  if (!should_ignore_users) return ;
+
+  if (should_hide_bots) for (int bot_n = 0 ; bot_n < NETWORK::KNOWN_BOTS.size() ; ++bot_n)
+  {
+    ValueTree bot_node = ValueTree(NETWORK::KNOWN_BOTS.getUnchecked(bot_n)) ;
+    subscriptions.addChild(bot_node , -1 , nullptr) ;
+  }
+
+  for (int user_n = 0 ; user_n < subscriptions.getNumChildren() ; ++user_n)
+  {
+    String user_name = String(subscriptions.getChild(user_n).getType()) ;
+
+    Client->config_autosubscribe_userlist.insert(user_name.toStdString()) ;
+  }
 }
 
 
@@ -959,7 +1014,8 @@ String LinJam::GetStoredChannelName(ValueTree channel_store)
 
 String LinJam::GetLocalChannelClientName(int channel_idx)
 {
-  return CharPointer_UTF8(Client->GetLocalChannelInfo(channel_idx , NULL , NULL , NULL)) ;
+  // NOTE: GetLocalChannelName() is a non-standard libninjam function
+  return CharPointer_UTF8(Client->GetLocalChannelName(channel_idx)) ;
 }
 
 String LinJam::GetRemoteUserName(int user_idx)
@@ -1027,6 +1083,16 @@ float LinJam::ComputeStereoPan(float pan , int stereo_status)
   return (is_mono_channel)? pan : (!is_pair_channel)                            ?
                                   ((pan <= 0.0f)? -1.0f : -1.0f + (pan * 2.0f)) :
                                   ((pan >= 0.0f)? +1.0f : +1.0f + (pan * 2.0f)) ;
+}
+
+void LinJam::UpdateRemoteUserState(ValueTree user_store         , int user_idx ,
+                                   bool      should_ignore_user                )
+{
+  Identifier user_id      = user_store.getType() ;
+  ValueTree  master_store = Config->getOrAddRemoteChannel(user_id , CONFIG::MASTER_KEY) ;
+
+  user_store  .setProperty(CONFIG::USER_IDX_ID    , user_idx            , nullptr) ;
+  master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , !should_ignore_user , nullptr) ;
 }
 
 void LinJam::ConfigureMasterChannel(Identifier a_key)
@@ -1114,12 +1180,13 @@ void LinJam::ConfigureLocalChannel(ValueTree channel_store , Identifier a_key)
 
 DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
 
-  // handle name change
-  char* new_name = NULL ; WDL_String name_wdl ;
+  // handle channel name change
+  char new_name[NJClient::MAX_CHANNELNAME_LEN + 1] ; new_name[0] = '\0' ;
   if (should_set_name)
   {
-    // convert channel name from juce::String into non-const char*
-    name_wdl.Set(channel_name.toRawUTF8()) ; new_name = name_wdl.Get() ;
+    // copy channel name from juce::String into non-const char*
+    const char* channel_name_cstr = channel_name.toRawUTF8() ;
+    snprintf(new_name , NJClient::MAX_CHANNELNAME_LEN , "%s" , channel_name_cstr) ;
   }
 
   // handle faux-stereo panning

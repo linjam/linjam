@@ -49,11 +49,12 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  bool addRemoteUser(  ValueTree user_store) ;
-  bool addChannel(     Identifier channels_id , ValueTree channel_store) ;
-  void removeChannel(  Identifier channels_id , Identifier channel_id) ;
+  bool addRemoteUser(   ValueTree user_store , ValueTree subscriptions) ;
+  void removeRemoteUser(Identifier channels_id) ;
+  bool addChannel(      Identifier channels_id , ValueTree channel_store) ;
+  void removeChannel(   Identifier channels_id , Identifier channel_id) ;
   void positionResizers() ;
-  void pruneRemotes(   ValueTree active_users) ;
+  void pruneRemotes(    ValueTree active_users) ;
 
     //[/UserMethods]
 
@@ -77,10 +78,10 @@ private:
 
   void      buttonClicked(         Button* buttonThatWasClicked) override ;
   void      addChannels(           Channels* channels , Identifier channels_id) ;
+  void      removeChannels(        Channels* channels) ;
   void      addScrollButton(       TextButton* scroll_button , String button_text) ;
   void      addResizer(            ResizableEdgeComponent* resizer) ;
   Channels* getChannels(           Identifier channels_id) ;
-  void      removeChannels(        Channels* channels) ;
   int       getNumDynamicMixers() ;
   int       getLocalsResizerNextX() ;
   int       getMastersResizerNextX() ;

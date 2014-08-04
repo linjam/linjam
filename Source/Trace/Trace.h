@@ -31,13 +31,12 @@
 #define TRACE_CONFIG_TYPES                DEBUG_TRACE_VB && 0
 #define TRACE_STORE_CONFIG_VB             DEBUG_TRACE_VB && 0
 #define TRACE_LOGIN_HOST                  DEBUG_TRACE_VB && 0
-#define TRACE_DUMP_FREE_INPUTS            DEBUG_TRACE_VB && 1
-#define TRACE_DUMP_CHANNELS_GUI           DEBUG_TRACE_VB && 1
-#define TRACE_CONFIGURE_LOCAL_CHANNEL_VB  DEBUG_TRACE_VB && 1
-#define TRACE_CONFIGURE_REMOTE_CHANNEL_VB DEBUG_TRACE_VB && 1
-#define TRACE_ADD_CHANNEL_GUI_VB          DEBUG_TRACE_VB && 1
-#define TRACE_REMOTES                     DEBUG_TRACE_VB && 0
-#define TRACE_ADD_REMOTES_VB              DEBUG_TRACE_VB && 0
+#define TRACE_LOCAL_CHANNELS_VB           DEBUG_TRACE_VB && 0
+#define TRACE_REMOTE_CHANNELS_VB          DEBUG_TRACE_VB && 0
+#define TRACE_ADD_CHANNEL_GUI_VB          DEBUG_TRACE_VB && 0
+#define TRACE_DUMP_FREE_INPUTS            DEBUG_TRACE_VB && 0
+#define TRACE_DUMP_CHANNELS_GUI           DEBUG_TRACE_VB && 0
+#define TRACE_DUMP_SUBSCRIPTIONS          DEBUG_TRACE_VB && 1
 #define TRACE_MIXER_COMPONENTS            DEBUG_TRACE_VB && 0
 
 
@@ -68,9 +67,9 @@ public:
   static void   TraceMissingValue(   String a_node_name , String a_value_key) ;
   static void   TraceMissingProperty(String a_node_name      , String a_property_name ,
                                      String parent_node_name = String::empty          ) ;
-  static void   TraceTypeMismatch(   String a_node_name      , String a_property_name ,
-                                     String expected_type    , var    a_var           ,
-                                     String parent_node_name = String::empty          ) ;
+  static void   TraceTypeMismatch(   ValueTree a_node           , String a_property_name ,
+                                     String    expected_type    , var    a_var           ,
+                                     String    parent_node_name = String::empty          ) ;
 
   static String VarType(             var a_var) ;
   static String DumpVar(             String val_name , var a_var) ;

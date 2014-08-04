@@ -241,6 +241,9 @@
     <ClCompile Include="..\..\Source\StatusBar.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Subscriptions.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Trace\Trace.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
@@ -1108,6 +1111,9 @@
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\StatusBar.h">
+      <Filter>LinJam\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Subscriptions.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_ASCII.h">

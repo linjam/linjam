@@ -157,6 +157,7 @@
     <ClCompile Include="..\..\Source\MainContent.cpp"/>
     <ClCompile Include="..\..\Source\Mixer.cpp"/>
     <ClCompile Include="..\..\Source\StatusBar.cpp"/>
+    <ClCompile Include="..\..\Source\Subscriptions.cpp"/>
     <ClCompile Include="..\..\Source\Trace\Trace.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharacterFunctions.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -930,6 +931,7 @@
     <ClInclude Include="..\..\Source\MainContent.h"/>
     <ClInclude Include="..\..\Source\Mixer.h"/>
     <ClInclude Include="..\..\Source\StatusBar.h"/>
+    <ClInclude Include="..\..\Source\Subscriptions.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_ASCII.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_UTF8.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_UTF16.h"/>

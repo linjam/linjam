@@ -286,7 +286,7 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 
       // set stored config for this channel pan (configures NJClient implicitly)
       double pan = sliderThatWasMoved->getValue() ;
-      setChannelConfig(CONFIG::PAN_ID , var(pan)) ;
+      setConfig(CONFIG::PAN_ID , var(pan)) ;
 
         //[/UserSliderCode_panSlider]
     }
@@ -296,7 +296,7 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 
       // set stored config for this channel volume (configures NJClient implicitly)
       double gain = sliderThatWasMoved->getValue() ;
-      setChannelConfig(CONFIG::VOLUME_ID , var(gain)) ;
+      setConfig(CONFIG::VOLUME_ID , var(gain)) ;
 
         //[/UserSliderCode_gainSlider]
     }
@@ -324,8 +324,10 @@ void Channel::labelTextChanged (Label* labelThatHasChanged)
     {
         //[UserLabelCode_nameLabel] -- add your label text handling code here..
 
+DEBUG_TRACE_RENAME_CHANNEL_GUI_VIA_LABEL
+
       // store new channel name (configures NJClient asynchronously)
-      setChannelConfig(CONFIG::CHANNEL_NAME_ID , var(this->nameLabel->getText())) ;
+      setConfig(CONFIG::CHANNEL_NAME_ID , var(this->nameLabel->getText())) ;
 
         //[/UserLabelCode_nameLabel]
     }
@@ -355,7 +357,13 @@ void Channel::valueChanged(Value& a_value)
 
   else if (a_value.refersToSameSourceAs(this->stereoStatus)) setStereoState() ;
 
-  else if (a_value.refersToSameSourceAs(this->channelName)) renameChannel() ;
+  else if (a_value.refersToSameSourceAs(this->channelName))
+  {
+DEBUG_TRACE_RENAME_CHANNEL_GUI_VIA_CALLOUTBOX
+
+    String new_channel_name = this->channelName.getValue().toString() ;
+    this->nameLabel->setText(new_channel_name , juce::dontSendNotification) ;
+  }
 }
 
 void Channel::updateChannelVU(Slider* a_vu_slider , Label* a_vu_label , double vu)
@@ -376,22 +384,14 @@ void Channel::updateChannelVU(Slider* a_vu_slider , Label* a_vu_label , double v
                                                  Colour(0x01008000)) ;
 }
 
-void Channel::renameChannel()
-{
-DEBUG_TRACE_RENAME_CHANNEL_GUI
-
-  String new_name = this->channelName.getValue().toString() ;
-  this->nameLabel->setText(new_name , juce::dontSendNotification) ;
-}
-
 Value Channel::getValueObject(Identifier a_key)
 {
   return this->configStore.getPropertyAsValue(a_key , nullptr) ;
 }
 
-void Channel::setChannelConfig(Identifier config_key , var value)
+void Channel::setConfig(Identifier a_key , var a_value)
 {
-  this->configStore.setProperty(config_key , value , nullptr) ;
+  this->configStore.setProperty(a_key , a_value , nullptr) ;
 }
 
 
@@ -401,11 +401,11 @@ bool Channel::handleButtonClicked(Button* a_button)
 {
   // set stored config for this channel (configures NJClient implicitly)
   if      (a_button == this->xmitButton)
-    setChannelConfig(CONFIG::IS_XMIT_RCV_ID , var(a_button->getToggleState())) ;
+    setConfig(CONFIG::IS_XMIT_RCV_ID , var(a_button->getToggleState())) ;
   else if (a_button == this->muteButton)
-    setChannelConfig(CONFIG::IS_MUTED_ID    , var(a_button->getToggleState())) ;
+    setConfig(CONFIG::IS_MUTED_ID    , var(a_button->getToggleState())) ;
   else if (a_button == this->soloButton)
-    setChannelConfig(CONFIG::IS_SOLO_ID     , var(a_button->getToggleState())) ;
+    setConfig(CONFIG::IS_SOLO_ID     , var(a_button->getToggleState())) ;
   else return false ;
 
   return true ;

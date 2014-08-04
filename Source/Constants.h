@@ -12,11 +12,12 @@
 #define _CONSTANTS_H_
 
 #include <ninjam/audiostream.h>
+#include <ninjam/njclient.h>
 #include "JuceHeader.h"
 
 /*\ CAVEATS:
-|*|  when adding GUI components to Channels be sure to mind N_STATIC_CHANNELS_CHILDREN
-|*|    and when adding GUI components to Mixer be sure to mind N_STATIC_MIXER_CHILDREN
+|*|  when adding GUI components to Channels be sure to update N_STATIC_CHANNELS_CHILDREN
+|*|    and when adding GUI components to Mixer be sure to update N_STATIC_MIXER_CHILDREN
 |*|    or else segfault is a near certainty
 |*|
 |*|  when adding nodes or properties to CONFIG_XML be sure to
@@ -40,9 +41,11 @@
     CLIENT_KEY             + " "                                              + \
       SAVE_AUDIO_KEY       + "=\"" + String(DEFAULT_SAVE_AUDIO)       + "\" " + \
       SAVE_LOG_KEY         + "=\"" + String(DEFAULT_SAVE_LOG)         + "\" " + \
-      DEBUGLEVEL_KEY       + "=\"" + String(DEFAULT_DEBUGLEVEL)       + "\" " + \
+      DEBUG_LEVEL_KEY      + "=\"" + String(DEFAULT_DEBUG_LEVEL)      + "\" " + \
       SHOULD_HIDE_BOTS_KEY + "=\"" + String(DEFAULT_SHOULD_HIDE_BOTS) + "\" " + \
-      AUTOSUBSCRIBE_KEY    + "=\"" + String(DEFAULT_AUTOSUBSCRIBE)    + "\" " + \
+    "/><"                                                                     + \
+    SUBSCRIPTIONS_KEY      + " "                                              + \
+      SUBSCRIBE_MODE_KEY   + "=\"" + String(DEFAULT_SUBSCRIBE_MODE)   + "\" " + \
     "/><"                                                                     + \
     AUDIO_KEY              + " "                                              + \
       WIN_AUDIO_IF_KEY     + "=\"" + String(DEFAULT_WIN_AUDIO_IF)     + "\" " + \
@@ -92,7 +95,6 @@
       SHOULD_AGREE_KEY     + "=\"" + String(DEFAULT_SHOULD_AGREE)     + "\" " + \
     "/><"                                                                     + \
     SERVERS_KEY            + " /><"                                           + \
-    SUBSCRIPTIONS_KEY      + " /><"                                           + \
     MASTERS_KEY            + "><"                                             + \
       MASTER_KEY           + " "                                              + \
         CHANNEL_NAME_KEY   + "=\"" + String(MASTER_KEY)               + "\" " + \
@@ -123,9 +125,11 @@
     CLIENT_KEY                 + " "                         + \
       SAVE_AUDIO_KEY           + "=\"" + INT_TYPE    + "\" " + \
       SAVE_LOG_KEY             + "=\"" + BOOL_TYPE   + "\" " + \
-      DEBUGLEVEL_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      DEBUG_LEVEL_KEY          + "=\"" + INT_TYPE    + "\" " + \
       SHOULD_HIDE_BOTS_KEY     + "=\"" + BOOL_TYPE   + "\" " + \
-      AUTOSUBSCRIBE_KEY        + "=\"" + INT_TYPE    + "\" " + \
+    "/><"                                                    + \
+    SUBSCRIPTIONS_KEY          + " "                         + \
+      SUBSCRIBE_MODE_KEY       + "=\"" + INT_TYPE    + "\" " + \
     "/><"                                                    + \
     AUDIO_KEY                  + " "                         + \
       WIN_AUDIO_IF_KEY         + "=\"" + INT_TYPE    + "\" " + \
@@ -300,24 +304,28 @@ namespace CONFIG
   static const String     PERSISTENCE_TYPES_KEY = PERSISTENCE_KEY + "-types" ;
 
   // client config keys
-  static const String     CLIENT_KEY        = "client" ;
-  static const Identifier CLIENT_ID         = CLIENT_KEY ;
-  static const String     SAVE_AUDIO_KEY    = "save-audio" ;
-  static const Identifier SAVE_AUDIO_ID     = SAVE_AUDIO_KEY ;
-  static const String     SAVE_LOG_KEY      = "should-save-log" ;
-  static const Identifier SAVE_LOG_ID       = SAVE_LOG_KEY ;
-  static const String     DEBUGLEVEL_KEY    = "debug-level" ;
-  static const Identifier DEBUGLEVEL_ID     = DEBUGLEVEL_KEY ;
-  static const String     AUTOSUBSCRIBE_KEY = "auto-subscribe" ;
-  static const Identifier AUTOSUBSCRIBE_ID  = AUTOSUBSCRIBE_KEY ;
-  static const String     SESSIONDIR_KEY    = "session-dir" ;
-  static const Identifier SESSIONDIR_ID     = SESSIONDIR_KEY ;
-  static const String     LOGFILE_KEY       = "log-file" ;
-  static const Identifier LOGFILE_ID        = LOGFILE_KEY ;
-  static const String     SESSIONDIR        = "/session" ;
-  static const String     LOGFILE           = "/clipsort.log" ;
-  static const String     SUBSCRIPTIONS_KEY = "subscriptions" ;
-  static const Identifier SUBSCRIPTIONS_ID  = SUBSCRIPTIONS_KEY ;
+  static const String     CLIENT_KEY           = "client" ;
+  static const Identifier CLIENT_ID            = CLIENT_KEY ;
+  static const String     SAVE_AUDIO_KEY       = "save-audio" ;
+  static const Identifier SAVE_AUDIO_ID        = SAVE_AUDIO_KEY ;
+  static const String     SAVE_LOG_KEY         = "should-save-log" ;
+  static const Identifier SAVE_LOG_ID          = SAVE_LOG_KEY ;
+  static const String     DEBUG_LEVEL_KEY      = "debug-level" ;
+  static const Identifier DEBUG_LEVEL_ID       = DEBUG_LEVEL_KEY ;
+  static const String     SHOULD_HIDE_BOTS_KEY = "should-hide-bots" ;
+  static const Identifier SHOULD_HIDE_BOTS_ID  = SHOULD_HIDE_BOTS_KEY ;
+  static const String     SESSION_DIR_KEY      = "session-dir" ;
+  static const Identifier SESSION_DIR_ID       = SESSION_DIR_KEY ;
+  static const String     LOG_FILE_KEY         = "log-file" ;
+  static const Identifier LOG_FILE_ID          = LOG_FILE_KEY ;
+  static const String     SESSION_DIR          = "/session" ;
+  static const String     LOG_FILE             = "/clipsort.log" ;
+
+  // subscriptions config keys
+  static const String     SUBSCRIPTIONS_KEY  = "subscriptions" ;
+  static const Identifier SUBSCRIPTIONS_ID   = SUBSCRIPTIONS_KEY ;
+  static const String     SUBSCRIBE_MODE_KEY = "subscribe-mode" ;
+  static const Identifier SUBSCRIBE_MODE_ID  = SUBSCRIBE_MODE_KEY ;
 
   // audio device config keys
   static const String     AUDIO_KEY           = "audio" ;
@@ -412,8 +420,6 @@ namespace CONFIG
   static const Identifier IS_AGREED_ID         = IS_AGREED_KEY ;
   static const String     SHOULD_AGREE_KEY     = "should-agree" ;
   static const Identifier SHOULD_AGREE_ID      = SHOULD_AGREE_KEY ;
-  static const String     SHOULD_HIDE_BOTS_KEY = "should-hide-bots" ;
-  static const Identifier SHOULD_HIDE_BOTS_ID  = SHOULD_HIDE_BOTS_KEY ;
   static const String     SERVERS_KEY          = "servers" ;
   static const Identifier SERVERS_ID           = SERVERS_KEY ;
 
@@ -461,8 +467,10 @@ namespace CONFIG
   // client config defaults
   static const int  DEFAULT_SAVE_AUDIO    = -1 ;
   static const bool DEFAULT_SAVE_LOG      = false ;
-  static const int  DEFAULT_DEBUGLEVEL    = 0 ;
-  static const int  DEFAULT_AUTOSUBSCRIBE = 1 ;
+  static const int  DEFAULT_DEBUG_LEVEL   = 0 ;
+
+  // subscriptions config defaults
+  static const int DEFAULT_SUBSCRIBE_MODE = (int)NJClient::SUBSCRIBE_DENY ;
 
   // audio config defaults
   static const int    DEFAULT_N_INPUTS        = (int)audioStreamer::DEFAULT_N_INPUTS ;
@@ -609,7 +617,7 @@ namespace GUI
   static const String           XMIT_LABEL_TEXT            = "XMIT" ;
   static const String           RCV_LABEL_TEXT             = "RCV" ;
   static const CharPointer_UTF8 INFINITY_CHAR              = CharPointer_UTF8("\xe2\x88\x9e") ;
-  static const int              N_STATIC_CHANNELS_CHILDREN = 4 ;
+  static const int              N_STATIC_CHANNELS_CHILDREN = 5 ;
   static const int              CHANNEL_LABEL_H            = 12 ;
   static const int              CHANNEL_Y                  = CHANNEL_LABEL_H + PAD2 ;
   static const int              CHANNEL_W                  = 60 ;
@@ -659,6 +667,17 @@ namespace GUI
   static const int    LOOP_X               = STATUS_W + PAD3 ;
   static const int    LOOP_H               = STATUS_H ;
   static const double BEAT_PROGRESS_OFFSET = CLIENT::GUI_UPDATE_HI_IVL * 0.002 ;
+
+  // ConfigClient
+  static const int SUBSCRIPTIONS_X    = 24 ;
+  static const int SUBSCRIPTIONS_Y    = 68 ;
+  static const int SUBSCRIPTIONS_W    = 144 ;
+  static const int SUBSCRIPTIONS_H    = 76 ;
+  static const int CONFIG_SCROLLBAR_W = 12 ;
+
+  // Subscriptions
+  static const int SUBSCRIPTION_W = SUBSCRIPTIONS_W - CONFIG_SCROLLBAR_W - PAD2 ;
+  static const int SUBSCRIPTION_H = 16 ;
 }
 
 #endif // _CONSTANTS_H_

@@ -24,6 +24,7 @@
       <FILE id="sKUFRy" name="MainContent.h" compile="0" resource="0" file="Source/MainContent.h"/>
       <FILE id="DDFUUa" name="Mixer.h" compile="0" resource="0" file="Source/Mixer.h"/>
       <FILE id="N6kt6x" name="StatusBar.h" compile="0" resource="0" file="Source/StatusBar.h"/>
+      <FILE id="qCn9WW" name="Subscriptions.h" compile="0" resource="0" file="Source/Subscriptions.h"/>
     </GROUP>
     <GROUP id="{F298109F-8531-F160-2BC9-F72C3764B7EF}" name="Source">
       <FILE id="WuNCUn" name="Background.cpp" compile="1" resource="0" file="Source/Background.cpp"/>
@@ -49,6 +50,8 @@
       <FILE id="JelDpp" name="MainContent.cpp" compile="1" resource="0" file="Source/MainContent.cpp"/>
       <FILE id="aYeN5b" name="Mixer.cpp" compile="1" resource="0" file="Source/Mixer.cpp"/>
       <FILE id="XO5clN" name="StatusBar.cpp" compile="1" resource="0" file="Source/StatusBar.cpp"/>
+      <FILE id="Jt9zYE" name="Subscriptions.cpp" compile="1" resource="0"
+            file="Source/Subscriptions.cpp"/>
       <FILE id="mMho7r" name="Trace.cpp" compile="1" resource="0" file="Source/Trace/Trace.cpp"/>
     </GROUP>
   </MAINGROUP>

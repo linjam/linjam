@@ -49,12 +49,31 @@ Channels::Channels ()
 
     addAndMakeVisible (addButton = new TextButton ("addButton"));
     addButton->setButtonText (TRANS("+"));
+    addButton->setColour (TextButton::buttonColourId, Colour (0xff004000));
+    addButton->setColour (TextButton::buttonOnColourId, Colours::green);
+    addButton->setColour (TextButton::textColourOnId, Colours::lime);
+    addButton->setColour (TextButton::textColourOffId, Colours::lime);
 
     addAndMakeVisible (configButton = new TextButton ("configButton"));
     configButton->setButtonText (TRANS("?"));
+    configButton->setColour (TextButton::buttonColourId, Colour (0xff404000));
+    configButton->setColour (TextButton::buttonOnColourId, Colours::olive);
+    configButton->setColour (TextButton::textColourOnId, Colours::yellow);
+    configButton->setColour (TextButton::textColourOffId, Colours::yellow);
 
     addAndMakeVisible (expandButton = new TextButton ("expandButton"));
     expandButton->setButtonText (TRANS("+"));
+    expandButton->setColour (TextButton::buttonColourId, Colour (0xff404000));
+    expandButton->setColour (TextButton::buttonOnColourId, Colours::olive);
+    expandButton->setColour (TextButton::textColourOnId, Colours::yellow);
+    expandButton->setColour (TextButton::textColourOffId, Colours::yellow);
+
+    addAndMakeVisible (ignoreButton = new TextButton ("ignoreButton"));
+    ignoreButton->setButtonText (TRANS("X"));
+    ignoreButton->setColour (TextButton::buttonColourId, Colour (0xff400000));
+    ignoreButton->setColour (TextButton::buttonOnColourId, Colours::maroon);
+    ignoreButton->setColour (TextButton::textColourOnId, Colours::red);
+    ignoreButton->setColour (TextButton::textColourOffId, Colours::red);
 
 
     //[UserPreSize]
@@ -63,6 +82,7 @@ Channels::Channels ()
   this->addButton    ->setAlwaysOnTop(true) ;
   this->configButton ->setAlwaysOnTop(true) ;
   this->expandButton ->setAlwaysOnTop(true) ;
+  this->ignoreButton ->setAlwaysOnTop(true) ;
 
     //[/UserPreSize]
 
@@ -82,6 +102,7 @@ Channels::~Channels()
     addButton = nullptr;
     configButton = nullptr;
     expandButton = nullptr;
+    ignoreButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -113,6 +134,7 @@ void Channels::resized()
     addButton->setBounds (getWidth() - 15, 0, 15, 16);
     configButton->setBounds (getWidth() - 15, 0, 15, 16);
     expandButton->setBounds (getWidth() - 15, 0, 15, 16);
+    ignoreButton->setBounds (getWidth() - 15, 16, 15, 16);
     //[UserResized] Add your own custom resize handling here..
 
   // position add/config/expand buttons
@@ -123,6 +145,7 @@ void Channels::resized()
   this->addButton   ->setBounds(btn_x , btn_y , btn_w , btn_h) ;
   this->configButton->setBounds(btn_x , btn_y , btn_w , btn_h) ;
   this->expandButton->setBounds(btn_x , btn_y , btn_w , btn_h) ;
+  this->ignoreButton->setBounds(btn_x , btn_y , btn_w , btn_h) ;
 
   // resize this container
   int n_channels = getNumChannels() ;
@@ -201,38 +224,32 @@ Channel* Channels::getChannel(Identifier channel_id)
 MasterChannels::MasterChannels()
 {
   this->channelsLabel->setText(GUI::MASTERS_LABEL_TEXT , juce::dontSendNotification) ;
-  this->configButton ->setColour(TextButton::buttonColourId   , Colour(0xff404000)) ;
-  this->configButton ->setColour(TextButton::buttonOnColourId , Colour(0xff808000)) ;
-  this->configButton ->setColour(TextButton::textColourOnId   , Colour(0xffffff00)) ;
-  this->configButton ->setColour(TextButton::textColourOffId  , Colour(0xffffff00)) ;
   this->configButton ->addListener(this) ;
   this->addButton    ->setVisible(false) ;
   this->expandButton ->setVisible(false) ;
+  this->ignoreButton ->setVisible(false) ;
 }
 
 LocalChannels::LocalChannels()
 {
   this->channelsLabel->setText(GUI::LOCALS_LABEL_TEXT , juce::dontSendNotification) ;
-  this->addButton    ->setColour(TextButton::buttonColourId   , Colour(0xff004000)) ;
-  this->addButton    ->setColour(TextButton::buttonOnColourId , Colour(0xff008000)) ;
-  this->addButton    ->setColour(TextButton::textColourOnId   , Colour(0xff00ff00)) ;
-  this->addButton    ->setColour(TextButton::textColourOffId  , Colour(0xff00ff00)) ;
   this->addButton    ->addListener(this) ;
   this->expandButton ->setVisible(false) ;
   this->configButton ->setVisible(false) ;
+  this->ignoreButton ->setVisible(false) ;
 }
 
-RemoteChannels::RemoteChannels(ValueTree user_store)
+RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree subscriptions)
 {
   this->channelsLabel->setText(String(user_store.getType()) , juce::dontSendNotification) ;
-  this->expandButton ->setColour(TextButton::buttonColourId   , Colour(0xff404000)) ;
-  this->expandButton ->setColour(TextButton::buttonOnColourId , Colour(0xff808000)) ;
-  this->expandButton ->setColour(TextButton::textColourOnId   , Colour(0xffffff00)) ;
-  this->expandButton ->setColour(TextButton::textColourOffId  , Colour(0xffffff00)) ;
   this->expandButton ->addListener(this) ;
+  this->ignoreButton ->addListener(this) ;
   this->addButton    ->setVisible(false) ;
   this->configButton ->setVisible(false) ;
-  this->isExpanded = false ;
+
+  this->configStore   = user_store ;
+  this->subscriptions = subscriptions ;
+  this->isExpanded    = false ;
 }
 
 
@@ -280,7 +297,11 @@ void LocalChannels::buttonClicked(Button* a_button)
 
 void RemoteChannels::buttonClicked(Button* a_button)
 {
-  if (a_button == this->expandButton) toggleExpandChannels() ;
+  if      (a_button == this->expandButton)
+    toggleExpandChannels() ;
+  else if (a_button == this->ignoreButton)
+    this->subscriptions.addChild(ValueTree(this->configStore.getType()) , -1  , nullptr) ;
+//     LinJam::IgnoreUser(this->channelsLabel->getText() , this) ;
 }
 
 void RemoteChannels::toggleExpandChannels()
@@ -333,13 +354,20 @@ BEGIN_JUCER_METADATA
          focusDiscardsChanges="0" fontname="Default font" fontsize="12"
          bold="0" italic="0" justification="20"/>
   <TEXTBUTTON name="addButton" id="e6ac05f3ca896afc" memberName="addButton"
-              virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" buttonText="+"
+              virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" bgColOff="ff004000"
+              bgColOn="ff008000" textCol="ff00ff00" textColOn="ff00ff00" buttonText="+"
               connectedEdges="0" needsCallback="0" radioGroupId="0"/>
   <TEXTBUTTON name="configButton" id="ceae84217aff4a40" memberName="configButton"
-              virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" buttonText="?"
+              virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" bgColOff="ff404000"
+              bgColOn="ff808000" textCol="ffffff00" textColOn="ffffff00" buttonText="?"
               connectedEdges="0" needsCallback="0" radioGroupId="0"/>
   <TEXTBUTTON name="expandButton" id="b034e593677d00a0" memberName="expandButton"
-              virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" buttonText="+"
+              virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" bgColOff="ff404000"
+              bgColOn="ff808000" textCol="ffffff00" textColOn="ffffff00" buttonText="+"
+              connectedEdges="0" needsCallback="0" radioGroupId="0"/>
+  <TEXTBUTTON name="ignoreButton" id="4e531501a9190ef5" memberName="ignoreButton"
+              virtualName="" explicitFocusOrder="0" pos="15R 16 15 16" bgColOff="ff400000"
+              bgColOn="ff800000" textCol="ffff0000" textColOn="ffff0000" buttonText="X"
               connectedEdges="0" needsCallback="0" radioGroupId="0"/>
 </JUCER_COMPONENT>
 

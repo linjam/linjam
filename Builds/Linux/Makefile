@@ -69,6 +69,7 @@ OBJECTS := \
   $(OBJDIR)/MainContent_6313eee1.o \
   $(OBJDIR)/Mixer_d95e2aea.o \
   $(OBJDIR)/StatusBar_3fb23a2.o \
+  $(OBJDIR)/Subscriptions_a178bf57.o \
   $(OBJDIR)/Trace_fd3024bc.o \
   $(OBJDIR)/juce_core_aff681cc.o \
   $(OBJDIR)/juce_data_structures_bdd6d488.o \
@@ -181,6 +182,11 @@ $(OBJDIR)/Mixer_d95e2aea.o: ../../Source/Mixer.cpp
 $(OBJDIR)/StatusBar_3fb23a2.o: ../../Source/StatusBar.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling StatusBar.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Subscriptions_a178bf57.o: ../../Source/Subscriptions.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Subscriptions.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/Trace_fd3024bc.o: ../../Source/Trace/Trace.cpp

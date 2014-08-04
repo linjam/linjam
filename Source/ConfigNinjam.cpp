@@ -27,8 +27,18 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-ConfigNinjam::ConfigNinjam ()
+ConfigNinjam::ConfigNinjam (ValueTree config_store)
+    : configStore(config_store)
 {
+    addAndMakeVisible (saveAudioLabel = new Label ("saveAudioLabel",
+                                                   TRANS("save audio")));
+    saveAudioLabel->setFont (Font (15.00f, Font::plain));
+    saveAudioLabel->setJustificationType (Justification::centredTop);
+    saveAudioLabel->setEditable (false, false, false);
+    saveAudioLabel->setColour (Label::textColourId, Colours::white);
+    saveAudioLabel->setColour (TextEditor::textColourId, Colours::black);
+    saveAudioLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+
     addAndMakeVisible (saveAudioComboBox = new ComboBox ("saveAudioComboBox"));
     saveAudioComboBox->setExplicitFocusOrder (1);
     saveAudioComboBox->setEditableText (false);
@@ -41,14 +51,17 @@ ConfigNinjam::ConfigNinjam ()
     saveAudioComboBox->addItem (TRANS("delete asap"), 4);
     saveAudioComboBox->addListener (this);
 
-    addAndMakeVisible (saveAudioLabel = new Label ("saveAudioLabel",
-                                                   TRANS("save audio")));
-    saveAudioLabel->setFont (Font (15.00f, Font::plain));
-    saveAudioLabel->setJustificationType (Justification::centredTop);
-    saveAudioLabel->setEditable (false, false, false);
-    saveAudioLabel->setColour (Label::textColourId, Colours::white);
-    saveAudioLabel->setColour (TextEditor::textColourId, Colours::black);
-    saveAudioLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (oggMixdownButton = new ToggleButton ("oggMixdownButton"));
+    oggMixdownButton->setExplicitFocusOrder (2);
+    oggMixdownButton->setButtonText (TRANS("ogg mixdown"));
+    oggMixdownButton->addListener (this);
+    oggMixdownButton->setColour (ToggleButton::textColourId, Colours::white);
+
+    addAndMakeVisible (wavMixdownButton = new ToggleButton ("wavMixdownButton"));
+    wavMixdownButton->setExplicitFocusOrder (3);
+    wavMixdownButton->setButtonText (TRANS("wav mixdown"));
+    wavMixdownButton->addListener (this);
+    wavMixdownButton->setColour (ToggleButton::textColourId, Colours::white);
 
     addAndMakeVisible (debugLevelLabel = new Label ("debugLevelLabel",
                                                     TRANS("debug level")));
@@ -84,18 +97,6 @@ ConfigNinjam::ConfigNinjam ()
     hideBotsButton->setToggleState (true, dontSendNotification);
     hideBotsButton->setColour (ToggleButton::textColourId, Colours::white);
 
-    addAndMakeVisible (saveLogButton2 = new ToggleButton ("saveLogButton"));
-    saveLogButton2->setExplicitFocusOrder (2);
-    saveLogButton2->setButtonText (TRANS("ogg mixdown"));
-    saveLogButton2->addListener (this);
-    saveLogButton2->setColour (ToggleButton::textColourId, Colours::white);
-
-    addAndMakeVisible (hideBotsButton2 = new ToggleButton ("hideBotsButton"));
-    hideBotsButton2->setExplicitFocusOrder (3);
-    hideBotsButton2->setButtonText (TRANS("wav mixdown"));
-    hideBotsButton2->addListener (this);
-    hideBotsButton2->setColour (ToggleButton::textColourId, Colours::white);
-
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -112,14 +113,14 @@ ConfigNinjam::~ConfigNinjam()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    saveAudioComboBox = nullptr;
     saveAudioLabel = nullptr;
+    saveAudioComboBox = nullptr;
+    oggMixdownButton = nullptr;
+    wavMixdownButton = nullptr;
     debugLevelLabel = nullptr;
     debugLevelComboBox = nullptr;
     saveLogButton = nullptr;
     hideBotsButton = nullptr;
-    saveLogButton2 = nullptr;
-    hideBotsButton2 = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -141,14 +142,14 @@ void ConfigNinjam::paint (Graphics& g)
 
 void ConfigNinjam::resized()
 {
-    saveAudioComboBox->setBounds (20, 38, 152, 16);
     saveAudioLabel->setBounds (20, 18, 152, 16);
+    saveAudioComboBox->setBounds (20, 38, 152, 16);
+    oggMixdownButton->setBounds (20, 58, 74, 16);
+    wavMixdownButton->setBounds (98, 58, 74, 16);
     debugLevelLabel->setBounds (20, 86, 152, 16);
     debugLevelComboBox->setBounds (20, 106, 152, 16);
     saveLogButton->setBounds (20, 130, 74, 16);
     hideBotsButton->setBounds (98, 130, 74, 16);
-    saveLogButton2->setBounds (20, 58, 74, 16);
-    hideBotsButton2->setBounds (98, 58, 74, 16);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -178,7 +179,17 @@ void ConfigNinjam::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == saveLogButton)
+    if (buttonThatWasClicked == oggMixdownButton)
+    {
+        //[UserButtonCode_oggMixdownButton] -- add your button handler code here..
+        //[/UserButtonCode_oggMixdownButton]
+    }
+    else if (buttonThatWasClicked == wavMixdownButton)
+    {
+        //[UserButtonCode_wavMixdownButton] -- add your button handler code here..
+        //[/UserButtonCode_wavMixdownButton]
+    }
+    else if (buttonThatWasClicked == saveLogButton)
     {
         //[UserButtonCode_saveLogButton] -- add your button handler code here..
         //[/UserButtonCode_saveLogButton]
@@ -188,16 +199,6 @@ void ConfigNinjam::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_hideBotsButton] -- add your button handler code here..
         //[/UserButtonCode_hideBotsButton]
     }
-    else if (buttonThatWasClicked == saveLogButton2)
-    {
-        //[UserButtonCode_saveLogButton2] -- add your button handler code here..
-        //[/UserButtonCode_saveLogButton2]
-    }
-    else if (buttonThatWasClicked == hideBotsButton2)
-    {
-        //[UserButtonCode_hideBotsButton2] -- add your button handler code here..
-        //[/UserButtonCode_hideBotsButton2]
-    }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
@@ -206,6 +207,12 @@ void ConfigNinjam::buttonClicked (Button* buttonThatWasClicked)
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void ConfigNinjam::setConfig(Identifier a_key , var a_value)
+{
+  this->configStore.setProperty(a_key , a_value , nullptr) ;
+}
+
 //[/MiscUserCode]
 
 
@@ -219,21 +226,30 @@ void ConfigNinjam::buttonClicked (Button* buttonThatWasClicked)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="ConfigNinjam" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="1" initialWidth="192" initialHeight="172">
+                 parentClasses="public Component" constructorParams="ValueTree config_store"
+                 variableInitialisers="configStore(config_store)" snapPixels="8"
+                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="1"
+                 initialWidth="192" initialHeight="172">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff002000" hasStroke="0"/>
   </BACKGROUND>
-  <COMBOBOX name="saveAudioComboBox" id="195d38c0dfa0b780" memberName="saveAudioComboBox"
-            virtualName="" explicitFocusOrder="1" pos="20 38 152 16" editable="0"
-            layout="33" items="dont save&#10;save ogg&#10;save ogg and wav&#10;delete asap"
-            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="saveAudioLabel" id="28e9c840504ea936" memberName="saveAudioLabel"
          virtualName="" explicitFocusOrder="0" pos="20 18 152 16" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="save audio" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="12"/>
+  <COMBOBOX name="saveAudioComboBox" id="195d38c0dfa0b780" memberName="saveAudioComboBox"
+            virtualName="" explicitFocusOrder="1" pos="20 38 152 16" editable="0"
+            layout="33" items="dont save&#10;save ogg&#10;save ogg and wav&#10;delete asap"
+            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+  <TOGGLEBUTTON name="oggMixdownButton" id="ccb740c03ababc9f" memberName="oggMixdownButton"
+                virtualName="" explicitFocusOrder="2" pos="20 58 74 16" txtcol="ffffffff"
+                buttonText="ogg mixdown" connectedEdges="0" needsCallback="1"
+                radioGroupId="0" state="0"/>
+  <TOGGLEBUTTON name="wavMixdownButton" id="2bfc206fbb162f7f" memberName="wavMixdownButton"
+                virtualName="" explicitFocusOrder="3" pos="98 58 74 16" txtcol="ffffffff"
+                buttonText="wav mixdown" connectedEdges="0" needsCallback="1"
+                radioGroupId="0" state="0"/>
   <LABEL name="debugLevelLabel" id="a67b459c94aba72e" memberName="debugLevelLabel"
          virtualName="" explicitFocusOrder="0" pos="20 86 152 16" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="debug level" editableSingleClick="0"
@@ -251,14 +267,6 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="6" pos="98 130 74 16" txtcol="ffffffff"
                 buttonText="hide bots" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="1"/>
-  <TOGGLEBUTTON name="saveLogButton" id="ccb740c03ababc9f" memberName="saveLogButton2"
-                virtualName="" explicitFocusOrder="2" pos="20 58 74 16" txtcol="ffffffff"
-                buttonText="ogg mixdown" connectedEdges="0" needsCallback="1"
-                radioGroupId="0" state="0"/>
-  <TOGGLEBUTTON name="hideBotsButton" id="2bfc206fbb162f7f" memberName="hideBotsButton2"
-                virtualName="" explicitFocusOrder="3" pos="98 58 74 16" txtcol="ffffffff"
-                buttonText="wav mixdown" connectedEdges="0" needsCallback="1"
-                radioGroupId="0" state="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

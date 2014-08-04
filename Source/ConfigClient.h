@@ -21,7 +21,9 @@
 #define __JUCE_HEADER_CB08A39AD889D82__
 
 //[Headers]     -- You can add your own extra header files here --
+
 #include "JuceHeader.h"
+
 //[/Headers]
 
 
@@ -34,7 +36,8 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class ConfigClient  : public Component
+class ConfigClient  : public Component,
+                      public ButtonListener
 {
 public:
     //==============================================================================
@@ -47,6 +50,7 @@ public:
 
     void paint (Graphics& g);
     void resized();
+    void buttonClicked (Button* buttonThatWasClicked);
 
 
 
@@ -56,6 +60,7 @@ private:
 
     //==============================================================================
     ScopedPointer<TabbedComponent> tabbedComponent;
+    ScopedPointer<TextButton> dismissButton;
 
 
     //==============================================================================

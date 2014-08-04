@@ -197,17 +197,22 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
 
 /* Mixer class public instence methods */
 
-bool Mixer::addRemoteUser(ValueTree user_store)
+bool Mixer::addRemoteUser(ValueTree user_store , ValueTree subscriptions)
 {
   // ensure GUI for this user does not already exist
   Identifier user_id = user_store.getType() ; if (getChannels(user_id)) return false ;
 
   // create remote user GUI
-  addChannels(new RemoteChannels(user_store) , user_id) ;
+  addChannels(new RemoteChannels(user_store , subscriptions) , user_id) ;
 
 DEBUG_TRACE_ADD_REMOTE_USER
 
   return true ;
+}
+
+void Mixer::removeRemoteUser(Identifier channels_id)
+{
+  removeChannels(getChannels(channels_id)) ;
 }
 
 bool Mixer::addChannel(Identifier channels_id , ValueTree channel_store)
@@ -289,6 +294,14 @@ void Mixer::addChannels(Channels* channels , Identifier channels_id)
   resized() ;
 }
 
+void Mixer::removeChannels(Channels* channels)
+{
+DEBUG_REMOVE_CHANNELS
+
+  // destroy channels group and update mixer layout
+  delete channels ; resized() ;
+}
+
 void Mixer::addScrollButton(TextButton* scroll_button , String button_text)
 {
   addChildComponent(scroll_button) ;
@@ -310,14 +323,6 @@ void Mixer::addResizer(ResizableEdgeComponent* resizer)
 Channels* Mixer::getChannels(Identifier channels_id)
 {
   return (Channels*)findChildWithID(StringRef(String(channels_id))) ;
-}
-
-void Mixer::removeChannels(Channels* channels)
-{
-DEBUG_REMOVE_CHANNELS
-
-  // destroy channels group and update mixer layout
-  delete channels ; resized() ;
 }
 
 int Mixer::getNumDynamicMixers()
