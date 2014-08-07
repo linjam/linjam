@@ -14,9 +14,9 @@
 
 #define DEBUG_TRACE_LINJAM_INIT Trace::TraceEvent("initializing") ;
 
-#define DEBUG_TRACE_CONNECT                                                   \
-  Trace::TraceState((!IsAgreed())? "connecting to " + host :                  \
-                                    "joining "       + host + " as " + login) ;
+#define DEBUG_TRACE_CONNECT                                                  \
+  Trace::TraceState((!IsAgreed())? "connecting to " + host :                 \
+                                    "joining "      + host + " as " + login) ;
 
 #define DEBUG_TRACE_LICENSE                                          \
   Trace::TraceState((IsAgreed())? "agreeing to license" :            \
@@ -39,13 +39,13 @@
 
 /* audio */
 
-#define DEBUG_TRACE_AUDIO_INIT_WIN                                              \
-  audioStreamer::WinAudioIf if_n = (audioStreamer::WinAudioIf)win_interface_n ; \
-  String type = "unknown" ; /* this can not be so */                            \
-  if      (if_n == audioStreamer::WINDOWS_AUDIO_ASIO)  type = "ASIO" ;          \
-  else if (if_n == audioStreamer::WINDOWS_AUDIO_KS)    type = "KS" ;            \
-  else if (if_n == audioStreamer::WINDOWS_AUDIO_DS)    type = "DS" ;            \
-  else if (if_n == audioStreamer::WINDOWS_AUDIO_WAVE)  type = "WAVE" ;          \
+#define DEBUG_TRACE_AUDIO_INIT_WIN                                            \
+  audioStreamer::Interface if_n = (audioStreamer::Interface)win_interface_n ; \
+  String type = "unknown" ; /* this can not be so */                          \
+  if      (if_n == audioStreamer::WIN_AUDIO_ASIO) type = "ASIO" ;             \
+  else if (if_n == audioStreamer::WIN_AUDIO_KS)   type = "KS" ;               \
+  else if (if_n == audioStreamer::WIN_AUDIO_DS)   type = "DS" ;               \
+  else if (if_n == audioStreamer::WIN_AUDIO_WAVE) type = "WAVE" ;             \
   if (Audio) Trace::TraceConfig("using " + type + " audiostreamer") ;
 
 #define DEBUG_TRACE_AUDIO_INIT_MAC                                     \

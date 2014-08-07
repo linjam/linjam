@@ -54,25 +54,6 @@ DEBUG_TRACE_LINJAM_INIT
 
 // TODO: parse command line args for autojoin (issue #9)
 
-/* TODO:  (issue #19)
-  audio_config =>
-    win =>
-      -noaudiocfg
-      -jesusonic <path to jesusonic root dir>
-    mac =>
-      -audiostr device_name[,output_device_name]
-    nix =>
-      -audiostr "option value [option value ...]"
-        ALSA audio options are:
-          in hw:0,0    -- set input device
-          out hw:0,0   -- set output device
-          srate 48000  -- set samplerate
-          nch 2        -- set channels
-          bps 16       -- set bits/sample
-          bsize 2048   -- set blocksize (bytes)
-          nblock 16    -- set number of blocks */
-
-
   // load persistent configuration - configure audio and NINJAM client
   Config = new LinJamConfig() ;
   if (!Config->isConfigSane())                                     return false ;
@@ -743,6 +724,7 @@ bool LinJam::InitializeAudio()
   int    wave_bit_depth   =     int(Config->audio[CONFIG::WAVE_BITDEPTH_ID]) ;
   int    wave_n_buffers   =     int(Config->audio[CONFIG::WAVE_NBLOCKS_ID]) ;
   int    wave_buffer_size =     int(Config->audio[CONFIG::WAVE_BLOCKSIZE_ID]) ;
+  String mac_device_name  =         Config->audio[CONFIG::MAC_DEVICE_ID].toString() ;
   int    mac_n_inputs     =     int(Config->audio[CONFIG::MAC_NINPUTS_ID]) ;
   int    mac_sample_rate  =     int(Config->audio[CONFIG::MAC_SAMPLERATE_ID]) ;
   int    mac_bit_depth    =     int(Config->audio[CONFIG::MAC_BITDEPTH_ID]) ;
@@ -750,61 +732,80 @@ bool LinJam::InitializeAudio()
   int    jack_n_inputs    =     int(Config->audio[CONFIG::JACK_NINPUTS_ID]) ;
   int    jack_n_outputs   =     int(Config->audio[CONFIG::JACK_NOUTPUTS_ID]) ;
   String jack_name        =         Config->audio[CONFIG::JACK_NAME_ID].toString() ;
-  char*  config_string    = "" ;
+  String alsa_config      =         Config->audio[CONFIG::ALSA_CONFIG_ID].toString() ;
+
+/* TODO: NJClient alsa init takes a string config
+         ideally alsa would have individual config params
+         and config via the GUI like the rest
+         ideally libninjam would accomodate this but we could as well
+         concatenate the expected string here
+
+  NJClient accepts the following config_strings (original cli params) =>
+    win =>
+      -noaudiocfg
+      -jesusonic <path to jesusonic root dir>
+    mac =>
+      -audiostr device_name[,output_device_name]
+    nix =>
+      -audiostr "option value [option value ...]"
+        ALSA audio options are:
+          in hw:0,0    -- set input device
+          out hw:0,0   -- set output device
+          srate 48000  -- set samplerate
+          nch 2        -- set channels
+          bps 16       -- set bits/sample
+          bsize 2048   -- set blocksize (bytes)
+          nblock 16    -- set number of blocks
+*/
 
 #ifdef _WIN32
   switch ((audioStreamer::Interface)win_interface_n)
   {
     case audioStreamer::WIN_AUDIO_ASIO:
     {
-#ifndef NO_SUPPORT_ASIO
-      char device_buffer[2050] ; // 1025 wchars wsprintf max
-      wsprintf(device_buffer , CLIENT::ASIO_DEVICE_FMT , asio_driver  , asio_input0 ,
-               asio_input1   , asio_output0            , asio_output1               ) ;
+      if (njasiodrv_avail())
+      {
+        char device_buffer[2050] ; // 1025 wchars wsprintf max
+        wsprintf(device_buffer , CLIENT::ASIO_DEVICE_FMT , asio_driver  , asio_input0 ,
+                 asio_input1   , asio_output0            , asio_output1               ) ;
 
-      char *device = device_buffer ;
-      Audio = njasiodrv_create_asio_streamer(&device , OnSamples) ;
+        char *device = device_buffer ;
+        Audio = njasiodrv_create_asio_streamer(&device , OnSamples) ;
+      }
 
       break ;
-#endif // NO_SUPPORT_ASIO
     }
     case audioStreamer::WIN_AUDIO_KS:
     {
-#ifndef NO_SUPPORT_KS
       Audio = create_audioStreamer_KS(ks_sample_rate  , ks_bit_depth , &ks_n_buffers ,
                                       &ks_buffer_size , OnSamples                    ) ;
       break ;
-#endif // NO_SUPPORT_KS
     }
     case audioStreamer::WIN_AUDIO_DS:
     {
-#ifndef NO_SUPPORT_DS
       GUID guid[2] ; memcpy(guid , ds_device , sizeof(guid)) ;
 
       Audio = create_audioStreamer_DS(ds_sample_rate , ds_bit_depth    , guid     ,
                                       &ds_n_buffers  , &ds_buffer_size , OnSamples) ;
       break ;
-#endif // NO_SUPPORT_DS
     }
     case audioStreamer::WIN_AUDIO_WAVE:
-    default:
     {
-#ifndef NO_SUPPORT_WAVE
       Audio = create_audioStreamer_WO(wave_sample_rate  , wave_bit_depth  ,
                                       wave_device       , &wave_n_buffers ,
-                                      &wave_buffer_size , OnSamples) ;
+                                      &wave_buffer_size , OnSamples       ) ;
 
       break ;
-#endif // NO_SUPPORT_WAVE
     }
+    default: break ;
   }
 
 DEBUG_TRACE_AUDIO_INIT_WIN
 
 #else // _WIN32
 #  ifdef _MAC
-  Audio = create_audioStreamer_CoreAudio(&config_string , mac_sample_rate ,
-                                         mac_n_inputs   , mac_bit_depth   , OnSamples) ;
+  Audio = create_audioStreamer_CoreAudio(&mac_device_name , mac_sample_rate ,
+                                         mac_n_inputs     , mac_bit_depth   , OnSamples) ;
 
 DEBUG_TRACE_AUDIO_INIT_MAC
 
@@ -812,17 +813,23 @@ DEBUG_TRACE_AUDIO_INIT_MAC
   switch ((audioStreamer::Interface)nix_interface_n)
   {
     case audioStreamer::NIX_AUDIO_JACK:
+    {
       Audio = create_audioStreamer_JACK(jack_name.toRawUTF8() , jack_n_inputs ,
                                         jack_n_outputs        , OnSamples     , Client) ;
 
 DEBUG_TRACE_AUDIO_INIT_JACK
 
       if (Audio) break ;
+    }
     case audioStreamer::NIX_AUDIO_ALSA:
-    default:
-      Audio = create_audioStreamer_ALSA(config_string , OnSamples) ;
+    {
+      Audio = create_audioStreamer_ALSA(alsa_config.toRawUTF8() , OnSamples) ;
 
 DEBUG_TRACE_AUDIO_INIT_ALSA
+
+      break ;
+    }
+    default: break ;
   }
 #  endif // _MAC
 #endif // _WIN32
@@ -1150,13 +1157,7 @@ void LinJam::ConfigureLocalChannel(ValueTree channel_store , Identifier a_key)
 DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
 
   // handle channel name change
-  char new_name[NJClient::MAX_CHANNELNAME_LEN + 1] ; new_name[0] = '\0' ;
-  if (should_set_name)
-  {
-    // copy channel name from juce::String into non-const char*
-    const char* channel_name_cstr = channel_name.toRawUTF8() ;
-    snprintf(new_name , NJClient::MAX_CHANNELNAME_LEN , "%s" , channel_name_cstr) ;
-  }
+  const char* new_name = (should_set_name)? channel_name.toRawUTF8() : NULL ;
 
   // handle faux-stereo panning
   if (should_set_pan) pan = ComputeStereoPan(pan , stereo_status) ;

@@ -79,6 +79,7 @@
       WAVE_BITDEPTH_KEY    + "=\"" + String(DEFAULT_BITDEPTH)         + "\" " + \
       WAVE_BLOCKSIZE_KEY   + "=\"" + String(DEFAULT_WAVE_BLOCKSIZE)   + "\" " + \
       WAVE_NBLOCKS_KEY     + "=\"" + String(DEFAULT_WAVE_N_BLOCKS)    + "\" " + \
+      MAC_DEVICE_KEY       + "=\"" + String(DEFAULT_MAC_DEVICE)       + "\" " + \
       MAC_NINPUTS_KEY      + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
       MAC_SAMPLERATE_KEY   + "=\"" + String(DEFAULT_SAMPLERATE)       + "\" " + \
       MAC_BITDEPTH_KEY     + "=\"" + String(DEFAULT_BITDEPTH)         + "\" " + \
@@ -86,6 +87,7 @@
       JACK_NINPUTS_KEY     + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
       JACK_NOUTPUTS_KEY    + "=\"" + String(DEFAULT_N_OUTPUTS)        + "\" " + \
       JACK_NAME_KEY        + "=\"" + String(DEFAULT_JACK_NAME)        + "\" " + \
+      ALSA_CONFIG_KEY      + "=\"" + String(DEFAULT_ALSA_CONFIG)      + "\" " + \
     "/><"                                                                     + \
     SERVER_KEY             + " "                                              + \
       HOST_KEY             + "=\"" + String(DEFAULT_HOST)             + "\" " + \
@@ -164,6 +166,7 @@
       WAVE_BITDEPTH_KEY          + "=\"" + INT_TYPE    + "\" " + \
       WAVE_BLOCKSIZE_KEY         + "=\"" + INT_TYPE    + "\" " + \
       WAVE_NBLOCKS_KEY           + "=\"" + INT_TYPE    + "\" " + \
+      MAC_DEVICE_KEY             + "=\"" + STRING_TYPE + "\" " + \
       MAC_NINPUTS_KEY            + "=\"" + INT_TYPE    + "\" " + \
       MAC_SAMPLERATE_KEY         + "=\"" + INT_TYPE    + "\" " + \
       MAC_BITDEPTH_KEY           + "=\"" + INT_TYPE    + "\" " + \
@@ -171,6 +174,7 @@
       JACK_NINPUTS_KEY           + "=\"" + INT_TYPE    + "\" " + \
       JACK_NOUTPUTS_KEY          + "=\"" + INT_TYPE    + "\" " + \
       JACK_NAME_KEY              + "=\"" + STRING_TYPE + "\" " + \
+      ALSA_CONFIG_KEY            + "=\"" + STRING_TYPE + "\" " + \
     "/><"                                                      + \
     SERVER_KEY                   + " "                         + \
       HOST_KEY                   + "=\"" + STRING_TYPE + "\" " + \
@@ -394,6 +398,8 @@ namespace CONFIG
   static const Identifier WAVE_BLOCKSIZE_ID   = WAVE_BLOCKSIZE_KEY ;
   static const String     WAVE_NBLOCKS_KEY    = "wave-n-blocks" ;
   static const Identifier WAVE_NBLOCKS_ID     = WAVE_NBLOCKS_KEY ;
+  static const String     MAC_DEVICE_KEY      = "mac-device" ;
+  static const Identifier MAC_DEVICE_ID       = MAC_DEVICE_KEY ;
   static const String     MAC_NINPUTS_KEY     = "mac-n-inputs" ;
   static const Identifier MAC_NINPUTS_ID      = MAC_NINPUTS_KEY ;
   static const String     MAC_SAMPLERATE_KEY  = "mac-sample-rate" ;
@@ -408,6 +414,8 @@ namespace CONFIG
   static const Identifier JACK_NOUTPUTS_ID    = JACK_NOUTPUTS_KEY ;
   static const String     JACK_NAME_KEY       = "jack-name" ;
   static const Identifier JACK_NAME_ID        = JACK_NAME_KEY ;
+  static const String     ALSA_CONFIG_KEY     = "alsa-config" ;
+  static const Identifier ALSA_CONFIG_ID      = ALSA_CONFIG_KEY ;
 
   // login config keys
   static const String     SERVER_KEY       = "server" ;
@@ -468,12 +476,45 @@ namespace CONFIG
   static const String     VU_RIGHT_KEY     = "vu-right" ;
   static const Identifier VU_RIGHT_ID      = VU_RIGHT_KEY ;
 
+  // audio config options
+  static const String      ASIO_DEVICE_TYPE       = "ASIO" ;
+  static const String      DS_DEVICE_TYPE         = "DirectSound" ;
+  static const String      WASAPI_DEVICE_TYPE     = "WASAPI" ;
+  static const String      CA_DEVICE_TYPE         = "CoreAudio" ;
+  static const String      JACK_DEVICE_TYPE       = "JACK" ;
+  static const String      ALSA_DEVICE_TYPE       = "ALSA" ;
+  static const String      ROID_DEVICE_TYPE       = "Android" ;
+  static const String      SLES_DEVICE_TYPE       = "OpenSLES" ;
+  static const String      IOS_DEVICE_TYPE        = "iOSAudio" ;
+  static const String      JACK_NAME_LABEL_TEXT   = "name" ;
+  static const String      ALSA_CONFIG_LABEL_TEXT = "config" ;
+  static const String      DEFAULTS_BTN_TEXT      = "defaults" ;
+  static const String      ASIO_CONFIG_BTN_TEXT   = "config" ;
+  static const StringArray WIN_AUDIO_IFS          =
+      StringArray::fromLines(StringRef("asio\nkernel streaming\ndirect sound\nwave out")) ;
+  static const StringArray NIX_AUDIO_IFS          =
+      StringArray::fromLines(StringRef("jack\nalsa")) ;
+  static const StringArray BUFFER_SIZES           =
+      StringArray::fromLines(StringRef("32\n64\n128\n256\n512\n1024\n2048\n4096\n8192")) ;
+  static const int         BIT_DEPTH_16           = 16 ;
+  static const int         BIT_DEPTH_24           = 24 ;
+  static const int         BIT_DEPTH_32           = 32 ;
+  static const int         SAMPLE_RATE_44100      = 44100 ;
+  static const int         SAMPLE_RATE_48000      = 48000 ;
+  static const int         SAMPLE_RATE_96000      = 96000 ;
+  static const int         MIN_N_BUFFERS          = 2 ;
+  static const int         MAX_N_BUFFERS          = 16 ;
+  static const int         MIN_N_SOURCES          = 0 ;
+  static const int         MAX_N_SOURCES          = 16 ;
+  static const int         MIN_N_SINKS            = 0 ;
+  static const int         MAX_N_SINKS            = 16 ;
+
   // client config defaults
+  static const int  SAVE_AUDIO_ENUM_OFFSET  = 2 ;
   static const int  DEFAULT_SAVE_AUDIO_MODE = (int)NJClient::SAVE_AUDIO_DELETE_ASAP ;
   static const int  DEFAULT_MIXDOWN_MODE    = (int)NJClient::SAVE_MIXDOWN_NONE ;
   static const bool DEFAULT_SHOULD_SAVE_LOG = false ;
   static const int  DEFAULT_DEBUG_LEVEL     = (int)NJClient::DEBUG_LEVEL_SILENT ;
-  static const int  SAVE_AUDIO_ENUM_OFFSET  = 2 ;
 
   // subscriptions config defaults
   static const int DEFAULT_SUBSCRIBE_MODE = (int)NJClient::SUBSCRIBE_DENY ;
@@ -510,8 +551,10 @@ namespace CONFIG
   static const int    DEFAULT_WAVE_SAMPLERATE = 44100 ;
   static const int    DEFAULT_WAVE_BLOCKSIZE  = 4096 ;
   static const int    DEFAULT_WAVE_N_BLOCKS   = 8 ;
+  static const String DEFAULT_MAC_DEVICE      = "" ;
   static const int    DEFAULT_NIX_AUDIO_IF    = (int)audioStreamer::NIX_AUDIO_JACK ;
   static const String DEFAULT_JACK_NAME       = "LinJam" ;
+  static const String DEFAULT_ALSA_CONFIG     = "" ;
 
   // login config defaults
   static const String DEFAULT_HOST             = "" ;

@@ -141,6 +141,8 @@
       audio .hasProperty(CONFIG::WAVE_BLOCKSIZE_ID)   ;                                  \
   bool audio_has_wavenblocks_property      =                                             \
       audio .hasProperty(CONFIG::WAVE_NBLOCKS_ID)     ;                                  \
+  bool audio_has_macdevice_property        =                                             \
+      audio .hasProperty(CONFIG::MAC_DEVICE_ID)       ;                                  \
   bool audio_has_macninputs_property       =                                             \
       audio .hasProperty(CONFIG::MAC_NINPUTS_ID)      ;                                  \
   bool audio_has_macsamplerate_property    =                                             \
@@ -155,6 +157,8 @@
       audio .hasProperty(CONFIG::JACK_NOUTPUTS_ID)    ;                                  \
   bool audio_has_jackname_property         =                                             \
       audio .hasProperty(CONFIG::JACK_NAME_ID)        ;                                  \
+  bool audio_has_alsaconfig_property         =                                           \
+      audio .hasProperty(CONFIG::ALSA_CONFIG_ID)      ;                                  \
                                                                                          \
   /* server properties */                                                                \
   bool server_has_host_property            =                                             \
@@ -243,6 +247,7 @@
   bool wave_bitdepth_is_int     = audio [CONFIG::WAVE_BITDEPTH_ID]   .isInt()    ;       \
   bool wave_blocksize_is_int    = audio [CONFIG::WAVE_BLOCKSIZE_ID]  .isInt()    ;       \
   bool wave_n_blocks_is_int     = audio [CONFIG::WAVE_NBLOCKS_ID]    .isInt()    ;       \
+  bool mac_device_is_string     = audio [CONFIG::MAC_DEVICE_ID]      .isString() ;       \
   bool mac_n_inputs_is_int      = audio [CONFIG::MAC_NINPUTS_ID]     .isInt()    ;       \
   bool mac_samplerate_is_int    = audio [CONFIG::MAC_SAMPLERATE_ID]  .isInt()    ;       \
   bool mac_bitdepth_is_int      = audio [CONFIG::MAC_BITDEPTH_ID]    .isInt()    ;       \
@@ -250,6 +255,7 @@
   bool jack_n_inputs_is_int     = audio [CONFIG::JACK_NINPUTS_ID]    .isInt()    ;       \
   bool jack_n_outputs_is_int    = audio [CONFIG::JACK_NOUTPUTS_ID]   .isInt()    ;       \
   bool jack_name_is_string      = audio [CONFIG::JACK_NAME_ID]       .isString() ;       \
+  bool alsa_config_is_string    = audio [CONFIG::ALSA_CONFIG_ID]     .isString() ;       \
                                                                                          \
   /* server datatypes */                                                                 \
   bool host_name_is_string      = server[CONFIG::HOST_ID]            .isString() ;       \
@@ -373,6 +379,8 @@
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WAVE_BLOCKSIZE_KEY) ;        \
   if (!audio_has_wavenblocks_property)                                                   \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WAVE_NBLOCKS_KEY) ;          \
+  if (!audio_has_macdevice_property)                                                     \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::MAC_DEVICE_KEY) ;            \
   if (!audio_has_macninputs_property)                                                    \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::MAC_NINPUTS_KEY) ;           \
   if (!audio_has_macsamplerate_property)                                                 \
@@ -387,6 +395,8 @@
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::JACK_NOUTPUTS_KEY) ;         \
   if (!audio_has_jackname_property)                                                      \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::JACK_NAME_KEY) ;             \
+  if (!audio_has_alsaconfig_property)                                                    \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::ALSA_CONFIG_KEY) ;           \
                                                                                          \
   /* server properties */                                                                \
   if (!server_has_host_property)                                                         \
@@ -547,6 +557,9 @@
   if (!wave_n_blocks_is_int)                                                             \
     Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_NBLOCKS_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::WAVE_NBLOCKS_ID]) ;     \
+  if (!mac_device_is_string)                                                             \
+    Trace::TraceTypeMismatch(audio               , CONFIG::MAC_DEVICE_KEY        ,       \
+                             CONFIG::STRING_TYPE , audio[CONFIG::MAC_DEVICE_ID]) ;       \
   if (!mac_n_inputs_is_int)                                                              \
     Trace::TraceTypeMismatch(audio               , CONFIG::MAC_NINPUTS_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::MAC_NINPUTS_ID]) ;      \
@@ -567,7 +580,10 @@
                              CONFIG::INT_TYPE    , audio[CONFIG::JACK_NOUTPUTS_ID]) ;    \
   if (!jack_name_is_string)                                                              \
     Trace::TraceTypeMismatch(audio               , CONFIG::JACK_NAME_KEY        ,        \
-                             CONFIG::INT_TYPE    , audio[CONFIG::JACK_NAME_ID]) ;        \
+                             CONFIG::STRING_TYPE , audio[CONFIG::JACK_NAME_ID]) ;        \
+  if (!alsa_config_is_string)                                                            \
+    Trace::TraceTypeMismatch(audio               , CONFIG::ALSA_CONFIG_KEY        ,      \
+                             CONFIG::STRING_TYPE , audio[CONFIG::ALSA_CONFIG_ID]) ;      \
                                                                                          \
   /* server datatypes */                                                                 \
   if (!host_name_is_string)                                                              \
@@ -664,10 +680,11 @@
       audio_has_waveinput_property       && audio_has_waveoutput_property      &&        \
       audio_has_wavesamplerate_property  && audio_has_wavebitdepth_property    &&        \
       audio_has_waveblocksize_property   && audio_has_wavenblocks_property     &&        \
-      audio_has_macninputs_property      && audio_has_macsamplerate_property   &&        \
-      audio_has_macbitdepth_property                                           &&        \
+      audio_has_macdevice_property       && audio_has_macninputs_property      &&        \
+      audio_has_macsamplerate_property   && audio_has_macbitdepth_property     &&        \
       audio_has_nixifn_property          && audio_has_jackninputs_property     &&        \
       audio_has_jacknoutputs_property    && audio_has_jackname_property        &&        \
+      audio_has_alsaconfig_property                                            &&        \
                                                                                          \
       /* server properties */                                                            \
       server_has_host_property           && server_has_login_property          &&        \
@@ -709,10 +726,11 @@
       wave_input_is_int                  && wave_output_is_int                 &&        \
       wave_samplerate_is_int             && wave_bitdepth_is_int               &&        \
       wave_blocksize_is_int              && wave_n_blocks_is_int               &&        \
-      mac_n_inputs_is_int                && mac_samplerate_is_int              &&        \
-      mac_bitdepth_is_int                                                      &&        \
+      mac_device_is_string               && mac_n_inputs_is_int                &&        \
+      mac_samplerate_is_int              && mac_bitdepth_is_int                &&        \
       nix_audio_ifn_is_int               && jack_n_inputs_is_int               &&        \
       jack_n_outputs_is_int              && jack_name_is_string                &&        \
+      alsa_config_is_string                                                    &&        \
                                                                                          \
       /* server datatypes */                                                             \
       host_name_is_string                && login_is_string                    &&        \

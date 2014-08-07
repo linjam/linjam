@@ -70,6 +70,7 @@ public:
   var wave-bit-depth   // int
   var wave-block-size  // int
   var wave-n-blocks    // int
+  var mac-device-name  // string
   var mac-n-inputs     // int
   var mac-sample-rate  // int
   var mac-bit-depth    // int
@@ -77,6 +78,7 @@ public:
   var jack-n-inputs    // int
   var jack-n-outputs   // int
   var jack-name        // string
+  var alsa-config      // string
 */
 
   // login config

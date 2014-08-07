@@ -15,11 +15,7 @@
 #  include <stdio.h>
 #  include <WDL/string.h>
 #  include <WDL/ptrlist.h>
-#  include <ninjam/audiostream.h>
-
-#  ifndef NO_SUPPORT_ASIO
-#    include <ninjam/njasiodrv/njasiodrv_if.h>
-#  endif // NO_SUPPORT_ASIO
+#  include <ninjam/njasiodrv/njasiodrv_if.h>
 #endif // _WIN32
 
 #include <ninjam/audiostream.h>

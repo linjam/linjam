@@ -64,7 +64,13 @@ private:
   ValueTree configStore ;
 
 
+  void loadParams() ;
+  void queryDevices(String device_type_name) ;
+  void queryAsioDevices() ;
+  void queryKsDevices() ;
+  void queryWaveDevices() ;
   void setConfig(Identifier a_key , var a_value) ;
+  void restoreDefaults() ;
 
     //[/UserVariables]
 
@@ -86,12 +92,13 @@ private:
     ScopedPointer<Label> xLabel;
     ScopedPointer<ComboBox> bufferComboBox;
     ScopedPointer<Label> latencyLabel;
-    ScopedPointer<Label> jackNameLabel;
-    ScopedPointer<TextEditor> textEditor;
+    ScopedPointer<Label> nixConfigLabel;
+    ScopedPointer<TextEditor> nixConfigText;
     ScopedPointer<Label> nSourcesLabel;
     ScopedPointer<Slider> nSourcesSlider;
     ScopedPointer<Label> nSinksLabel;
     ScopedPointer<Slider> nSinksSlider;
+    ScopedPointer<TextButton> defaultsButton;
 
 
     //==============================================================================
