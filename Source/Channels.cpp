@@ -20,9 +20,9 @@
 //[Headers] You can add your own extra header files here...
 
 #include "LinJam.h"
+#include "LinJamConfig.h"
 #include "Constants.h"
 #include "ConfigChannel.h"
-#include "ConfigClient.h"
 #include "./Trace/TraceChannels.h"
 
 //[/Headers]
@@ -54,13 +54,6 @@ Channels::Channels ()
     addButton->setColour (TextButton::textColourOnId, Colours::lime);
     addButton->setColour (TextButton::textColourOffId, Colours::lime);
 
-    addAndMakeVisible (configButton = new TextButton ("configButton"));
-    configButton->setButtonText (TRANS("?"));
-    configButton->setColour (TextButton::buttonColourId, Colour (0xff404000));
-    configButton->setColour (TextButton::buttonOnColourId, Colours::olive);
-    configButton->setColour (TextButton::textColourOnId, Colours::yellow);
-    configButton->setColour (TextButton::textColourOffId, Colours::yellow);
-
     addAndMakeVisible (expandButton = new TextButton ("expandButton"));
     expandButton->setButtonText (TRANS("+"));
     expandButton->setColour (TextButton::buttonColourId, Colour (0xff404000));
@@ -80,7 +73,6 @@ Channels::Channels ()
 
   this->channelsLabel->setAlwaysOnTop(true) ;
   this->addButton    ->setAlwaysOnTop(true) ;
-  this->configButton ->setAlwaysOnTop(true) ;
   this->expandButton ->setAlwaysOnTop(true) ;
   this->ignoreButton ->setAlwaysOnTop(true) ;
 
@@ -100,7 +92,6 @@ Channels::~Channels()
 
     channelsLabel = nullptr;
     addButton = nullptr;
-    configButton = nullptr;
     expandButton = nullptr;
     ignoreButton = nullptr;
 
@@ -132,18 +123,16 @@ void Channels::resized()
 {
     channelsLabel->setBounds (4, 4, getWidth() - 8, 12);
     addButton->setBounds (getWidth() - 15, 0, 15, 16);
-    configButton->setBounds (getWidth() - 15, 0, 15, 16);
     expandButton->setBounds (getWidth() - 15, 0, 15, 16);
     ignoreButton->setBounds (getWidth() - 15, 16, 15, 16);
     //[UserResized] Add your own custom resize handling here..
 
   // position add/config/expand buttons
-  int btn_x = getWidth() - GUI::CONFIG_BTN_W ;
+  int btn_x = getWidth() - GUI::HOVER_BTN_W ;
   int btn_y = 0 ;
-  int btn_w = GUI::CONFIG_BTN_W ;
-  int btn_h = GUI::CONFIG_BTN_H ;
+  int btn_w = GUI::HOVER_BTN_W ;
+  int btn_h = GUI::HOVER_BTN_H ;
   this->addButton   ->setBounds(btn_x , btn_y , btn_w , btn_h) ;
-  this->configButton->setBounds(btn_x , btn_y , btn_w , btn_h) ;
   this->expandButton->setBounds(btn_x , btn_y , btn_w , btn_h) ;
   this->ignoreButton->setBounds(btn_x , btn_y , btn_w , btn_h) ;
 
@@ -224,7 +213,6 @@ Channel* Channels::getChannel(Identifier channel_id)
 MasterChannels::MasterChannels()
 {
   this->channelsLabel->setText(GUI::MASTERS_LABEL_TEXT , juce::dontSendNotification) ;
-  this->configButton ->addListener(this) ;
   this->addButton    ->setVisible(false) ;
   this->expandButton ->setVisible(false) ;
   this->ignoreButton ->setVisible(false) ;
@@ -235,7 +223,6 @@ LocalChannels::LocalChannels()
   this->channelsLabel->setText(GUI::LOCALS_LABEL_TEXT , juce::dontSendNotification) ;
   this->addButton    ->addListener(this) ;
   this->expandButton ->setVisible(false) ;
-  this->configButton ->setVisible(false) ;
   this->ignoreButton ->setVisible(false) ;
 }
 
@@ -246,7 +233,6 @@ RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree subscriptions)
   this->expandButton ->addListener(this) ;
   this->ignoreButton ->addListener(this) ;
   this->addButton    ->setVisible(false) ;
-  this->configButton ->setVisible(false) ;
 
   this->subscriptions = subscriptions ;
   this->isExpanded    = false ;
@@ -255,38 +241,17 @@ RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree subscriptions)
 
 /* MasterChannels , LocalChannels , RemoteChannels classes private instance methods */
 
-void MasterChannels::buttonClicked(Button* a_button)
-{
-  if (a_button == this->configButton)
-  {
-    ConfigClient* configClient = new ConfigClient(LinJam::Config->client       ,
-                                                  LinJam::Config->audio        ,
-                                                  LinJam::Config->subscriptions) ;
-    Component*    mixer        = getParentComponent() ;
-    Component*    mainContent  = mixer->getParentComponent() ;
-
-    // compute CallOutBox arrow target posistion
-    int modalX = mixer->getX() + getX() + this->configButton->getX() + GUI::CONFIG_BTN_XC ;
-    int modalY = mixer->getY() + getY() + this->configButton->getY() + GUI::CONFIG_BTN_YC ;
-    juce::Rectangle<int> modalRect = juce::Rectangle<int>(modalX , modalY , 1 , 1) ;
-
-    // instantiate ConfigClient as CallOutBox
-    configClient->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
-    CallOutBox::launchAsynchronously(configClient , modalRect , mainContent) ;
-  }
-}
-
 void LocalChannels::buttonClicked(Button* a_button)
 {
   if (a_button == this->addButton)
   {
-    ConfigChannel* configChannel = new ConfigChannel(LinJam::Config->newChannel()) ;
+    ConfigChannel* configChannel = new ConfigChannel(LinJamConfig::NewChannel()) ;
     Component*     mixer         = getParentComponent() ;
     Component*     mainContent   = mixer->getParentComponent() ;
 
     // compute CallOutBox arrow target posistion
-    int modalX = mixer->getX() + getX() + this->addButton->getX() + GUI::CONFIG_BTN_XC ;
-    int modalY = mixer->getY() + getY() + this->addButton->getY() + GUI::CONFIG_BTN_YC ;
+    int modalX = mixer->getX() + getX() + this->addButton->getX() + GUI::HOVER_BTN_XC ;
+    int modalY = mixer->getY() + getY() + this->addButton->getY() + GUI::HOVER_BTN_YC ;
     juce::Rectangle<int> modalRect = juce::Rectangle<int>(modalX , modalY , 1 , 1) ;
 
     // instantiate ConfigChannel as CallOutBox
@@ -355,10 +320,6 @@ BEGIN_JUCER_METADATA
   <TEXTBUTTON name="addButton" id="e6ac05f3ca896afc" memberName="addButton"
               virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" bgColOff="ff004000"
               bgColOn="ff008000" textCol="ff00ff00" textColOn="ff00ff00" buttonText="+"
-              connectedEdges="0" needsCallback="0" radioGroupId="0"/>
-  <TEXTBUTTON name="configButton" id="ceae84217aff4a40" memberName="configButton"
-              virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" bgColOff="ff404000"
-              bgColOn="ff808000" textCol="ffffff00" textColOn="ffffff00" buttonText="?"
               connectedEdges="0" needsCallback="0" radioGroupId="0"/>
   <TEXTBUTTON name="expandButton" id="b034e593677d00a0" memberName="expandButton"
               virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" bgColOff="ff404000"

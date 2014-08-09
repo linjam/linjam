@@ -24,6 +24,11 @@ public:
   ~LinJamConfig() ;
 
 
+  static String    TrimStereoName(String channel_name) ;
+  static ValueTree NewChannel(    String channel_name = CONFIG::DEFAULT_CHANNEL_NAME ,
+                                  int    channel_idx  = CONFIG::DEFAULT_CHANNEL_IDX  ) ;
+
+
   // client config
   ValueTree client ;
 /* client-specfic data - access via this->client
@@ -122,7 +127,6 @@ public:
   Identifier makeHostId(       String host_name) ;
   Identifier makeUserId(       String channel_name) ;
   Identifier makeChannelId(    int channel_idx) ;
-  String     trimStereoName(   String channel_name) ;
   String     makeStereoName(   String channel_name , int stereo_status) ;
   int        parseStereoStatus(String channel_name) ;
   void       setStereo(        ValueTree channel_store , int stereo_status) ;
@@ -130,8 +134,6 @@ public:
                                String    prev_channel_name                           ) ;
 
   // getters/setters
-  ValueTree newChannel(           String channel_name = CONFIG::DEFAULT_CHANNEL_NAME ,
-                                  int    channel_idx  = CONFIG::DEFAULT_CHANNEL_IDX  ) ;
   ValueTree addChannel(           ValueTree channels_store , ValueTree new_store) ;
   void      destroyChannel(       ValueTree channels_store , ValueTree channel_store) ;
   ValueTree getOrAddRemoteUser(   String user_name) ;
@@ -174,6 +176,7 @@ private:
   String    filteredName(  String a_name) ;
 
   // event handlers
+  void valueChanged(            Value& a_value)                               override ;
   void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)    override ;
   void valueTreeChildAdded(     ValueTree& a_parent_node , ValueTree& a_node) override ;
   void valueTreeChildRemoved(   ValueTree& a_parent_node , ValueTree& a_node) override ;

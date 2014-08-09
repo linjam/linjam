@@ -30,27 +30,19 @@
 
 class LinJam
 {
-#if DEBUG
-  friend class Trace ;
-#endif // DEBUG
-
-
+  friend class LinJamApplication ;
   friend class LinJamConfig ;
+  friend class Trace ;
+  friend class License ; // TODO: needs access to config object (issue #)
+  friend class Login ;   // TODO: needs access to config object (issue #)
 
 
 public:
 
   // state methods
-  static bool Initialize(NJClient*     njClient , MainContent* mainCcontent ,
-                         const String& args                                 ) ;
   static void Connect() ;
   static void Disconnect() ;
   static void Shutdown() ;
-
-  // NJClient runtime routines
-  static void DriveClient() ;
-  static void UpdateGuiHighPriority() ;
-  static void UpdateGuiLowPriority() ;
 
   // getters/setters
   static bool           IsAgreed() ;
@@ -61,25 +53,32 @@ public:
   static bool AddLocalChannel(   ValueTree channel_store) ;
   static void RemoveLocalChannel(ValueTree channel_store) ;
   static void SendChat(          String chat_text) ;
-
-  // persistent configuration storage
-  static LinJamConfig* Config ;
+  static void ConfigDismissed() ;
 
 
 private:
 
   static NJClient*      Client ;
   static MainContent*   Gui ;
+  static LinJamConfig*  Config ;
   static audioStreamer* Audio ;
+  static Value          IsAudioEnabled ;
   static SortedSet<int> FreeInputChannels ;
   static SortedSet<int> FreeInputChannelPairs ;
-  static bool           IsAudioEnabled ;
   static double         GuiBeatOffset ;
   static File           SessionDir ;
-  static int            PrevStatus ;
-  static bool           IsInitialized ;
+  static int            ClientStatus ;
   static String         PrevRecordingTime ;
 
+
+  // initialization methods
+  static bool Initialize(NJClient*     nj_client , MainContent* main_content ,
+                         const String& args                                  ) ;
+  static void InitializeAudio() ;
+  static void ConfigureInitialChannels() ;
+  static bool PrepareSessionDirectory() ;
+  static void ConfigureNinjam() ;
+  static void CleanSessionDir() ;
 
   // NJClient callbacks
   static int  OnLicense(int user32 , char* license_text) ;
@@ -89,20 +88,16 @@ private:
                         float** output_buffer , int n_output_channels ,
                         int     n_samples     , int sample_rate       ) ;
 
-  // NJClient runtime helpers
-  static void HandleStatusChanged(int status) ;
+  // NJClient runtime routines
+  static void HandleTimer(int timer_id) ;
+  static void PumpClient() ;
+  static void UpdateGuiHighPriority() ;
+  static void UpdateGuiLowPriority() ;
+  static void HandleStatus(int client_status) ;
   static void HandleUserInfoChanged() ;
   static void UpdateLoopProgress() ;
   static void UpdateVuMeters() ;
   static void UpdateRecordingTime() ;
-  static void HandleChatCommand(  String chat_text) ;
-
-  // state helpers
-  static bool InitializeAudio() ;
-  static void ConfigureInitialChannels() ;
-  static bool PrepareSessionDirectory() ;
-  static void ConfigureNinjam() ;
-  static void CleanSessionDir() ;
 
   // GUI event handlers
   static void ConfigureSubscriptions() ;

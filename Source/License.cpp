@@ -155,7 +155,6 @@ DEBUG_TRACE_LICENSE_CLICKED
 
         //[/UserButtonCode_alwaysButton]
     }
-    else return ;
 
     //[UserbuttonClicked_Post]
 

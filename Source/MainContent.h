@@ -19,26 +19,23 @@
 #include "Mixer.h"
 #include "StatusBar.h"
 #include "Loop.h"
+#include "Config.h"
 
 
-//==============================================================================
-/*
-    This component lives inside our window, and this is where you should put all
-    your controls and content.
-*/
-
-class MainContent : public Component
+/** this is the main GUI container class */
+class MainContent : public Component , public ButtonListener
 {
   friend class LinJam ;
 
 
 public:
-  //==============================================================================
-  MainContent(DocumentWindow* main_window) ;
+
+  MainContent(DocumentWindow* main_window , TextButton* config_button) ;
   ~MainContent() ;
 
   void paint(Graphics&) ;
   void resized() ;
+  void showConfig() ;
 
 
 private:
@@ -50,15 +47,17 @@ private:
   ScopedPointer<Mixer>      mixer ;
   ScopedPointer<StatusBar>  statusbar ;
   ScopedPointer<Loop>       loop ;
+  ScopedPointer<Config>     config ;
+  DocumentWindow*           mainWindow ;
+  TextButton*               configButton ;
 
 
-  DocumentWindow* mainWindow ;
-  String          appName ;
+  void buttonClicked(    Button* a_button) ;
+  void instantiateConfig(ValueTree audio_store         , ValueTree client_store ,
+                         ValueTree subscriptions_store                          ) ;
+  void setTitle(         String title_text) ;
 
 
-  void setTitle(String title_text) ;
-
-  //==============================================================================
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContent)
 } ;
 

@@ -19,8 +19,9 @@
 
 //[Headers] You can add your own extra header files here...
 
-#include "Constants.h"
 #include "LinJam.h"
+#include "Constants.h"
+#include "./Trace/TraceConfig.h"
 
 //[/Headers]
 
@@ -232,15 +233,15 @@ ConfigAudio::ConfigAudio (ValueTree config_store)
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (192, 172);
+    setSize (614, 434);
 
 
     //[Constructor] You can add your own custom stuff here..
 
-  this->bufferComboBox->addItemList(CONFIG::BUFFER_SIZES  , 1) ;
-  this->nBuffersSlider->setRange(   CONFIG::MIN_N_BUFFERS , CONFIG::MAX_N_BUFFERS , 0) ;
-  this->nSourcesSlider->setRange(   CONFIG::MIN_N_SOURCES , CONFIG::MAX_N_SOURCES , 0) ;
-  this->nSinksSlider  ->setRange(   CONFIG::MIN_N_SINKS   , CONFIG::MAX_N_SINKS   , 0) ;
+  this->bufferComboBox->addItemList(CLIENT::BUFFER_SIZES  , 1) ;
+  this->nBuffersSlider->setRange(   CLIENT::MIN_N_BUFFERS , CLIENT::MAX_N_BUFFERS , 0) ;
+  this->nSourcesSlider->setRange(   CLIENT::MIN_N_SOURCES , CLIENT::MAX_N_SOURCES , 0) ;
+  this->nSinksSlider  ->setRange(   CLIENT::MIN_N_SINKS   , CLIENT::MAX_N_SINKS   , 0) ;
 
   loadParams() ;
 
@@ -288,7 +289,7 @@ void ConfigAudio::paint (Graphics& g)
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.setColour (Colour (0xff202000));
+    g.setColour (Colour (0xff002000));
     g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
 
     //[UserPaint] Add your own custom painting code here..
@@ -395,7 +396,7 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         case audioStreamer::WIN_AUDIO_WAVE: config_key = CONFIG::WAVE_BLOCKSIZE_ID ; break ;
         default:                                                                     break ;
       }
-      value = var(CONFIG::BUFFER_SIZES[this->bufferComboBox->getSelectedItemIndex()]) ;
+      value = var(CLIENT::BUFFER_SIZES[this->bufferComboBox->getSelectedItemIndex()]) ;
 
         //[/UserComboBoxCode_bufferComboBox]
     }
@@ -441,12 +442,12 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 #  endif // _MAC
 #endif // _WIN32
 
-  int bit_depth   = (this->bps16Button->getToggleState())? CONFIG::BIT_DEPTH_16 :
-                    (this->bps24Button->getToggleState())? CONFIG::BIT_DEPTH_24 :
-                    (this->bps32Button->getToggleState())? CONFIG::BIT_DEPTH_32 : 0 ;
-  int sample_rate = (this->kHz44Button->getToggleState())? CONFIG::SAMPLE_RATE_44100 :
-                    (this->kHz48Button->getToggleState())? CONFIG::SAMPLE_RATE_48000 :
-                    (this->kHz96Button->getToggleState())? CONFIG::SAMPLE_RATE_96000 : 0 ;
+  int bit_depth   = (this->bps16Button->getToggleState())? CLIENT::BIT_DEPTH_16 :
+                    (this->bps24Button->getToggleState())? CLIENT::BIT_DEPTH_24 :
+                    (this->bps32Button->getToggleState())? CLIENT::BIT_DEPTH_32 : 0 ;
+  int sample_rate = (this->kHz44Button->getToggleState())? CLIENT::SAMPLE_RATE_44100 :
+                    (this->kHz48Button->getToggleState())? CLIENT::SAMPLE_RATE_48000 :
+                    (this->kHz96Button->getToggleState())? CLIENT::SAMPLE_RATE_96000 : 0 ;
 
   Identifier config_key ;
   var        value ;
@@ -632,10 +633,10 @@ void ConfigAudio::loadParams()
   String alsa_config       =     this->configStore[CONFIG::ALSA_CONFIG_ID].toString() ;
 
   // set GUI state
-  this->defaultsButton->setButtonText(CONFIG::DEFAULTS_BTN_TEXT) ;
+  this->defaultsButton->setButtonText(GUI::DEFAULTS_BTN_TEXT) ;
 #ifdef _WIN32
   this->modeComboBox->clear(juce::dontSendNotification) ;
-  this->modeComboBox->addItemList(CONFIG::WIN_AUDIO_IFS , 1) ;
+  this->modeComboBox->addItemList(CLIENT::WIN_AUDIO_IFS , 1) ;
   this->modeComboBox->setSelectedItemIndex(win_interface_n , juce::dontSendNotification) ;
   switch ((audioStreamer::Interface)win_interface_n)
   {
@@ -650,21 +651,21 @@ void ConfigAudio::loadParams()
 
       this->sourceComboBox->setSelectedItemIndex(asio_input0) ;
       this->sinkComboBox  ->setSelectedItemIndex(asio_output0) ;
-      this->defaultsButton->setButtonText(CONFIG::ASIO_CONFIG_BTN_TEXT) ;
+      this->defaultsButton->setButtonText(GUI::ASIO_CONFIG_BTN_TEXT) ;
 
       break ;
     }
     case audioStreamer::WIN_AUDIO_KS:
     {
-      queryKsDevices() ;
+      queryKernelstreamingDevices() ;
 
-      bool is_16_bps         = ks_bit_depth   == CONFIG::BIT_DEPTH_16 ;
-      bool is_24_bps         = ks_bit_depth   == CONFIG::BIT_DEPTH_24 ;
-      bool is_32_bps         = ks_bit_depth   == CONFIG::BIT_DEPTH_32 ;
-      bool is_44_khz         = ks_sample_rate == CONFIG::SAMPLE_RATE_44100 ;
-      bool is_48_khz         = ks_sample_rate == CONFIG::SAMPLE_RATE_48000 ;
-      bool is_96_khz         = ks_sample_rate == CONFIG::SAMPLE_RATE_96000 ;
-      int  buffer_size_index = CONFIG::BUFFER_SIZES.indexOf(String(ks_buffer_size)) ;
+      bool is_16_bps         = ks_bit_depth   == CLIENT::BIT_DEPTH_16 ;
+      bool is_24_bps         = ks_bit_depth   == CLIENT::BIT_DEPTH_24 ;
+      bool is_32_bps         = ks_bit_depth   == CLIENT::BIT_DEPTH_32 ;
+      bool is_44_khz         = ks_sample_rate == CLIENT::SAMPLE_RATE_44100 ;
+      bool is_48_khz         = ks_sample_rate == CLIENT::SAMPLE_RATE_48000 ;
+      bool is_96_khz         = ks_sample_rate == CLIENT::SAMPLE_RATE_96000 ;
+      int  buffer_size_index = CLIENT::BUFFER_SIZES.indexOf(String(ks_buffer_size)) ;
 
       this->sourceComboBox->setSelectedItemIndex(ks_input) ;
       this->sinkComboBox  ->setSelectedItemIndex(ks_output) ;
@@ -689,15 +690,15 @@ void ConfigAudio::loadParams()
       ds_output2
       ds_output3
 */
-      queryDevices(CONFIG::DS_DEVICE_TYPE) ;
+      queryDirectsoundDevices() ;
 
-      bool is_16_bps         = ds_bit_depth   == CONFIG::BIT_DEPTH_16 ;
-      bool is_24_bps         = ds_bit_depth   == CONFIG::BIT_DEPTH_24 ;
-      bool is_32_bps         = ds_bit_depth   == CONFIG::BIT_DEPTH_32 ;
-      bool is_44_khz         = ds_sample_rate == CONFIG::SAMPLE_RATE_44100 ;
-      bool is_48_khz         = ds_sample_rate == CONFIG::SAMPLE_RATE_48000 ;
-      bool is_96_khz         = ds_sample_rate == CONFIG::SAMPLE_RATE_96000 ;
-      int  buffer_size_index = CONFIG::BUFFER_SIZES.indexOf(String(ds_buffer_size)) ;
+      bool is_16_bps         = ds_bit_depth   == CLIENT::BIT_DEPTH_16 ;
+      bool is_24_bps         = ds_bit_depth   == CLIENT::BIT_DEPTH_24 ;
+      bool is_32_bps         = ds_bit_depth   == CLIENT::BIT_DEPTH_32 ;
+      bool is_44_khz         = ds_sample_rate == CLIENT::SAMPLE_RATE_44100 ;
+      bool is_48_khz         = ds_sample_rate == CLIENT::SAMPLE_RATE_48000 ;
+      bool is_96_khz         = ds_sample_rate == CLIENT::SAMPLE_RATE_96000 ;
+      int  buffer_size_index = CLIENT::BUFFER_SIZES.indexOf(String(ds_buffer_size)) ;
 
       this->sourceComboBox->setSelectedItemIndex(ds_input0) ;
       this->sinkComboBox  ->setSelectedItemIndex(ds_output0) ;
@@ -716,13 +717,13 @@ void ConfigAudio::loadParams()
     {
       queryWaveDevices() ;
 
-      bool is_16_bps         = wave_bit_depth   == CONFIG::BIT_DEPTH_16 ;
-      bool is_24_bps         = wave_bit_depth   == CONFIG::BIT_DEPTH_24 ;
-      bool is_32_bps         = wave_bit_depth   == CONFIG::BIT_DEPTH_32 ;
-      bool is_44_khz         = wave_sample_rate == CONFIG::SAMPLE_RATE_44100 ;
-      bool is_48_khz         = wave_sample_rate == CONFIG::SAMPLE_RATE_48000 ;
-      bool is_96_khz         = wave_sample_rate == CONFIG::SAMPLE_RATE_96000 ;
-      int  buffer_size_index = CONFIG::BUFFER_SIZES.indexOf(StringRef(String(wave_buffer_size))) ;
+      bool is_16_bps         = wave_bit_depth   == CLIENT::BIT_DEPTH_16 ;
+      bool is_24_bps         = wave_bit_depth   == CLIENT::BIT_DEPTH_24 ;
+      bool is_32_bps         = wave_bit_depth   == CLIENT::BIT_DEPTH_32 ;
+      bool is_44_khz         = wave_sample_rate == CLIENT::SAMPLE_RATE_44100 ;
+      bool is_48_khz         = wave_sample_rate == CLIENT::SAMPLE_RATE_48000 ;
+      bool is_96_khz         = wave_sample_rate == CLIENT::SAMPLE_RATE_96000 ;
+      int  buffer_size_index = CLIENT::BUFFER_SIZES.indexOf(StringRef(String(wave_buffer_size))) ;
 
       this->sourceComboBox->setSelectedItemIndex(wave_input  + 1) ;
       this->sinkComboBox  ->setSelectedItemIndex(wave_output + 1) ;
@@ -741,7 +742,7 @@ void ConfigAudio::loadParams()
   }
 #else // _WIN32
 #  ifdef _MAC
-  queryDevices(CONFIG::CA_DEVICE_TYPE) ; // TODO: device selection nyi
+  queryCoreaudioDevices() ; // TODO: device selection nyi
 
   bool is_16_bps = mac_bit_depth   == CONFIG::BIT_DEPTH_16 ;
   bool is_24_bps = mac_bit_depth   == CONFIG::BIT_DEPTH_24 ;
@@ -766,6 +767,8 @@ void ConfigAudio::loadParams()
   {
     case audioStreamer::NIX_AUDIO_JACK:
     {
+      queryJackServers() ;
+
       this->nixConfigLabel->setText(CONFIG::JACK_NAME_LABEL_TEXT) ;
       this->nixConfigText ->setText(jack_name) ;
       this->nSourcesSlider->setValue(jack_n_inputs) ;
@@ -775,6 +778,8 @@ void ConfigAudio::loadParams()
     }
     case audioStreamer::NIX_AUDIO_ALSA:
     {
+      queryAlsaDevices() ;
+
       this->nixConfigLabel->setText(CONFIG::ALSA_CONFIG_LABEL_TEXT) ;
       this->nixConfigText ->setText(alsa_config) ;
 
@@ -805,14 +810,6 @@ void ConfigAudio::loadParams()
   bool is_jack                      = is_nix && nix_if_n == audioStreamer::NIX_AUDIO_JACK ;
   bool is_alsa                      = is_nix && nix_if_n == audioStreamer::NIX_AUDIO_ALSA ;
 
-DBG("ConfigAudio::loadParams() " +
-String((is_asio)? "is_asio " : "") +
-String((is_ks)? "is_ks " : "") +
-String((is_ds)? "is_ds " : "") +
-String((is_wave)? "is_wave " : "") +
-String((is_jack)? "is_jack " : "") +
-String((is_alsa)? "is_alsa" : "")) ;
-
   this->modeLabel     ->setVisible(!is_mac                                  ) ;
   this->modeComboBox  ->setVisible(!is_mac                                  ) ;
   this->sourceLabel   ->setVisible(is_ks   || is_ds   || is_wave  || is_asio) ;
@@ -834,12 +831,31 @@ String((is_alsa)? "is_alsa" : "")) ;
   this->nSinksSlider  ->setVisible(is_jack                                  ) ;
   this->nixConfigLabel->setVisible(is_jack || is_alsa                       ) ;
   this->nixConfigText ->setVisible(is_jack || is_alsa                       ) ;
-}
 
+DEBUG_TRACE_AUDIO_CONFIG_LOAD
+}
+/*
 void ConfigAudio::queryDevices(String device_type_name)
 {
   // NOTE: on windows juce handles only asio , directsound , and WASAPI
-  //       so we must re-implement this functionality for kernel streaming and wave
+  //       so we must implement device enumeration for kernel streaming and wave
+  //       including the juce audio modules allows this method to enumerate
+  //       devices using asio , directsound , coreaudio and alsa
+  //       but this is currently our only use for including the juce audio modules
+  //       and it is not yet clear whether device indices will be consistent
+  //       with the ones NJClient detects so it may be better to just ryo here
+
+  // CLIENT:: namespace constants (these are the types supported by juce)
+  static const String      ASIO_DEVICE_TYPE       = "ASIO" ;
+  static const String      DS_DEVICE_TYPE         = "DirectSound" ;
+  static const String      WASAPI_DEVICE_TYPE     = "WASAPI" ;
+  static const String      CA_DEVICE_TYPE         = "CoreAudio" ;
+  static const String      JACK_DEVICE_TYPE       = "JACK" ;
+  static const String      ALSA_DEVICE_TYPE       = "ALSA" ;
+  static const String      ROID_DEVICE_TYPE       = "Android" ;
+  static const String      SLES_DEVICE_TYPE       = "OpenSLES" ;
+  static const String      IOS_DEVICE_TYPE        = "iOSAudio" ;
+
   this->sourceComboBox->clear(juce::dontSendNotification) ;
   this->sinkComboBox  ->clear(juce::dontSendNotification) ;
   this->sourceComboBox->addItem("no directsound devices found" , 1) ;
@@ -870,7 +886,7 @@ DBG("adding device[" + String(device_name_n) + "]='" + device_name + "'") ;
   }
   delete dev_mgr ;
 }
-
+*/
 void ConfigAudio::queryAsioDevices()
 {
   // NOTE: see njasiodrv_if.h
@@ -890,7 +906,7 @@ void ConfigAudio::queryAsioDevices()
   }
 }
 
-void ConfigAudio::queryKsDevices()
+void ConfigAudio::queryKernelstreamingDevices()
 {
   // NOTE: see njasiodrv_if.h
   bool is_ks_available = true ; // TODO:
@@ -908,6 +924,8 @@ void ConfigAudio::queryKsDevices()
     this->sinkComboBox  ->addItem("kernel streaming unavailable" , 1) ;
   }
 }
+
+void ConfigAudio::queryDirectsoundDevices() {} // TODO: juce or ryo ?
 
 void ConfigAudio::queryWaveDevices()
 {
@@ -932,6 +950,12 @@ void ConfigAudio::queryWaveDevices()
     }
   }
 }
+
+void ConfigAudio::queryCoreaudioDevices() {} // TODO: juce or ryo ?
+
+void ConfigAudio::queryJackServers() {} // TODO: juce or ryo ?
+
+void ConfigAudio::queryAlsaDevices() {} // TODO: juce or ryo ?
 
 void ConfigAudio::setConfig(Identifier a_key , var a_value)
 {
@@ -1040,9 +1064,9 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component" constructorParams="ValueTree config_store"
                  variableInitialisers="configStore(config_store)" snapPixels="8"
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="1"
-                 initialWidth="192" initialHeight="172">
+                 initialWidth="614" initialHeight="434">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff202000" hasStroke="0"/>
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff002000" hasStroke="0"/>
   </BACKGROUND>
   <LABEL name="modeLabel" id="582ccc898eac60c0" memberName="modeLabel"
          virtualName="" explicitFocusOrder="0" pos="12 18 52 18" textCol="ffffffff"

@@ -37,11 +37,12 @@
                                                                     //[/Comments]
 */
 class ConfigClient  : public Component,
+                      public ComboBoxListener,
                       public ButtonListener
 {
 public:
     //==============================================================================
-    ConfigClient (ValueTree client_store, ValueTree audio_store, ValueTree subscriptions_store);
+    ConfigClient (ValueTree config_store);
     ~ConfigClient();
 
     //==============================================================================
@@ -50,17 +51,30 @@ public:
 
     void paint (Graphics& g);
     void resized();
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
     void buttonClicked (Button* buttonThatWasClicked);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+  ValueTree configStore ;
+
+
+  void setConfig(Identifier a_key , var a_value) ;
+
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TabbedComponent> tabbedComponent;
-    ScopedPointer<TextButton> dismissButton;
+    ScopedPointer<Label> saveAudioLabel;
+    ScopedPointer<ComboBox> saveAudioComboBox;
+    ScopedPointer<ToggleButton> oggMixdownButton;
+    ScopedPointer<ToggleButton> wavMixdownButton;
+    ScopedPointer<Label> debugLevelLabel;
+    ScopedPointer<ComboBox> debugLevelComboBox;
+    ScopedPointer<ToggleButton> saveLogButton;
+    ScopedPointer<ToggleButton> hideBotsButton;
 
 
     //==============================================================================

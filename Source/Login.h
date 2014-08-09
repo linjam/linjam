@@ -20,7 +20,6 @@
 #ifndef _LOGIN_H_
 #define _LOGIN_H_
 
-
 //[Headers]     -- You can add your own extra header files here --
 
 #include "JuceHeader.h"

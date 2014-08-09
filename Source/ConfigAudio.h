@@ -65,10 +65,13 @@ private:
 
 
   void loadParams() ;
-  void queryDevices(String device_type_name) ;
   void queryAsioDevices() ;
-  void queryKsDevices() ;
+  void queryKernelstreamingDevices() ;
+  void queryDirectsoundDevices() ;
   void queryWaveDevices() ;
+  void queryCoreaudioDevices() ;
+  void queryJackServers() ;
+  void queryAlsaDevices() ;
   void setConfig(Identifier a_key , var a_value) ;
   void restoreDefaults() ;
 

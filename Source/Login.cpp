@@ -133,6 +133,26 @@ Login::Login ()
   this->hostText   ->setVisible(false) ;
   this->passLabel  ->setVisible(false) ;
   this->passText   ->setVisible(false) ;
+  this->hostText   ->addListener(this) ;
+  this->loginText  ->addListener(this) ;
+  this->passText   ->addListener(this) ;
+  this->passText   ->setPasswordCharacter('*') ;
+
+  // instantiate known host login buttons
+  for (int host_n = 0 ; host_n < NETWORK::N_KNOWN_HOSTS ; ++host_n)
+  {
+    String      known_host  = NETWORK::KNOWN_HOSTS.getUnchecked(host_n) ;
+    int         focus_order = GUI::N_STATIC_LOGIN_CHILDREN + host_n ;
+    TextButton* loginButton = new TextButton(known_host + "Button") ;
+
+    addAndMakeVisible(loginButton) ;
+    loginButton->setExplicitFocusOrder(focus_order) ;
+    loginButton->setButtonText(known_host) ;
+    loginButton->setSize(GUI::LOGIN_BUTTON_W , GUI::LOGIN_BUTTON_H) ;
+    loginButton->addListener(this) ;
+
+    this->loginButtons.add(loginButton) ;
+  }
 
     //[/UserPreSize]
 
@@ -140,24 +160,6 @@ Login::Login ()
 
 
     //[Constructor] You can add your own custom stuff here..
-
-  this->hostText ->addListener(this) ;
-  this->loginText->addListener(this) ;
-  this->passText ->addListener(this) ;
-  this->passText ->setPasswordCharacter('*') ;
-
-  for (int host_n = 0 ; host_n < NETWORK::N_KNOWN_HOSTS ; ++host_n)
-  {
-    String known_host = NETWORK::KNOWN_HOSTS.getUnchecked(host_n) ;
-    TextButton* loginButton = new TextButton(known_host + "Button") ;
-    this->loginButtons.add(loginButton) ;
-
-    addAndMakeVisible(loginButton) ;
-    loginButton->setExplicitFocusOrder(6 + host_n) ; // TODO: here be dragons
-    loginButton->setButtonText(known_host) ;
-    loginButton->addListener(this) ;
-  }
-
     //[/Constructor]
 }
 
@@ -217,8 +219,6 @@ void Login::resized()
 
 void Login::buttonClicked (Button* buttonThatWasClicked)
 {
-DEBUG_TRACE_LOGIN_BTNS
-
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 

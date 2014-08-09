@@ -428,7 +428,7 @@ DEBUG_TRACE_STEREO_STATE_GUI
   String stereo_postfix = channel_name.getLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
 
   if (is_stereo && !stereo_postfix.compare(CLIENT::STEREO_L_POSTFIX))
-    channel_name = LinJam::Config->trimStereoName(channel_name) ;
+    channel_name = LinJamConfig::TrimStereoName(channel_name) ;
   this->nameLabel->setText(channel_name , juce::dontSendNotification) ;
 
   resized() ;
@@ -492,8 +492,8 @@ void LocalChannel::buttonClicked(Button* a_button)
     Component*     mainContent   = mixer->getParentComponent() ;
 
     // compute CallOutBox arrow target posistion
-    int modalX = mixer->getX() + getX() + this->configButton->getX() + GUI::CONFIG_BTN_XC ;
-    int modalY = mixer->getY() + getY() + this->configButton->getY() + GUI::CONFIG_BTN_YC ;
+    int modalX = mixer->getX() + getX() + this->configButton->getX() + GUI::HOVER_BTN_XC ;
+    int modalY = mixer->getY() + getY() + this->configButton->getY() + GUI::HOVER_BTN_YC ;
     juce::Rectangle<int> modalRect = juce::Rectangle<int>(modalX , modalY , 1 , 1) ;
 
     // instantiate ConfigChannel as CallOutBox

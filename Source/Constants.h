@@ -235,12 +235,30 @@ namespace CLIENT
   static const int GUI_TIMER_HI_ID = 1 ; static const int GUI_UPDATE_HI_IVL = 125 ;
   static const int GUI_TIMER_LO_ID = 2 ; static const int GUI_UPDATE_LO_IVL = 30000 ;
 
-  // audio
-  static const char*  ASIO_DEVICE_FMT = "%d:%d,%d:%d,%d" ;
-  static const double VU_DB_RANGE     = 140.0 ;
-  static const double VU_DB_MIN       = -120.0 ;
+  // ConfigAudio options
+  static const StringArray WIN_AUDIO_IFS          =
+      StringArray::fromLines(StringRef("asio\nkernel streaming\ndirect sound\nwave out")) ;
+  static const StringArray NIX_AUDIO_IFS          =
+      StringArray::fromLines(StringRef("jack\nalsa")) ;
+  static const StringArray BUFFER_SIZES           =
+      StringArray::fromLines(StringRef("32\n64\n128\n256\n512\n1024\n2048\n4096\n8192")) ;
+  static const int         BIT_DEPTH_16           = 16 ;
+  static const int         BIT_DEPTH_24           = 24 ;
+  static const int         BIT_DEPTH_32           = 32 ;
+  static const int         SAMPLE_RATE_44100      = 44100 ;
+  static const int         SAMPLE_RATE_48000      = 48000 ;
+  static const int         SAMPLE_RATE_96000      = 96000 ;
+  static const int         MIN_N_BUFFERS          = 2 ;
+  static const int         MAX_N_BUFFERS          = 16 ;
+  static const int         MIN_N_SOURCES          = 0 ;
+  static const int         MAX_N_SOURCES          = 16 ;
+  static const int         MIN_N_SINKS            = 0 ;
+  static const int         MAX_N_SINKS            = 16 ;
+  static const double      VU_DB_RANGE            = 140.0 ;
+  static const double      VU_DB_MIN              = -120.0 ;
+  static const char*       ASIO_DEVICE_FMT        = "%d:%d,%d:%d,%d" ;
 
-  // config
+  // configuration
   static const String STEREO_L_POSTFIX       = "-L" ;
   static const String STEREO_R_POSTFIX       = "-R" ;
   static const int    STEREO_POSTFIX_N_CHARS = STEREO_L_POSTFIX.length() ;
@@ -476,39 +494,6 @@ namespace CONFIG
   static const String     VU_RIGHT_KEY     = "vu-right" ;
   static const Identifier VU_RIGHT_ID      = VU_RIGHT_KEY ;
 
-  // audio config options
-  static const String      ASIO_DEVICE_TYPE       = "ASIO" ;
-  static const String      DS_DEVICE_TYPE         = "DirectSound" ;
-  static const String      WASAPI_DEVICE_TYPE     = "WASAPI" ;
-  static const String      CA_DEVICE_TYPE         = "CoreAudio" ;
-  static const String      JACK_DEVICE_TYPE       = "JACK" ;
-  static const String      ALSA_DEVICE_TYPE       = "ALSA" ;
-  static const String      ROID_DEVICE_TYPE       = "Android" ;
-  static const String      SLES_DEVICE_TYPE       = "OpenSLES" ;
-  static const String      IOS_DEVICE_TYPE        = "iOSAudio" ;
-  static const String      JACK_NAME_LABEL_TEXT   = "name" ;
-  static const String      ALSA_CONFIG_LABEL_TEXT = "config" ;
-  static const String      DEFAULTS_BTN_TEXT      = "defaults" ;
-  static const String      ASIO_CONFIG_BTN_TEXT   = "config" ;
-  static const StringArray WIN_AUDIO_IFS          =
-      StringArray::fromLines(StringRef("asio\nkernel streaming\ndirect sound\nwave out")) ;
-  static const StringArray NIX_AUDIO_IFS          =
-      StringArray::fromLines(StringRef("jack\nalsa")) ;
-  static const StringArray BUFFER_SIZES           =
-      StringArray::fromLines(StringRef("32\n64\n128\n256\n512\n1024\n2048\n4096\n8192")) ;
-  static const int         BIT_DEPTH_16           = 16 ;
-  static const int         BIT_DEPTH_24           = 24 ;
-  static const int         BIT_DEPTH_32           = 32 ;
-  static const int         SAMPLE_RATE_44100      = 44100 ;
-  static const int         SAMPLE_RATE_48000      = 48000 ;
-  static const int         SAMPLE_RATE_96000      = 96000 ;
-  static const int         MIN_N_BUFFERS          = 2 ;
-  static const int         MAX_N_BUFFERS          = 16 ;
-  static const int         MIN_N_SOURCES          = 0 ;
-  static const int         MAX_N_SOURCES          = 16 ;
-  static const int         MIN_N_SINKS            = 0 ;
-  static const int         MAX_N_SINKS            = 16 ;
-
   // client config defaults
   static const int  SAVE_AUDIO_ENUM_OFFSET  = 2 ;
   static const int  DEFAULT_SAVE_AUDIO_MODE = (int)NJClient::SAVE_AUDIO_DELETE_ASAP ;
@@ -612,19 +597,14 @@ namespace GUI
   static const int PAD3 = PAD * 3 ;
   static const int PAD4 = PAD * 4 ;
 
-  // Main
-  static const int    BORDERS_W                     = 2 ;
-  static const int    TITLEBAR_H                    = 24 ;
-  static const String AUDIO_INIT_ERROR_MSG          = "audio device error" ;
-  static const String DISCONNECTED_STATUS_TEXT      = "Disconnected" ;
-  static const String ROOM_FULL_STATUS_TEXT         = "Jam room full" ;
-  static const String INVALID_AUTH_STATUS_TEXT      = "Invalid login/pass" ;
-  static const String PENDING_LICENSE_STATUS_TEXT   = "Pending license" ;
-  static const String FAILED_CONNECTION_STATUS_TEXT = "Connection failed" ;
-  static const String CONNECTING_STATUS_TEXT        = "Connecting to " ;
-  static const String CONNECTED_STATUS_TEXT         = "Connected to " ;
-  static const String IDLE_STATUS_TEXT              = "Idle" ;
-  static const String UNKNOWN_STATUS_TEXT           = "Status: " ;
+  // MainWindow
+  static const String APP_NAME     = "LinJam" ;
+  static const int    BORDERS_W    = 2 ;
+  static const int    TITLEBAR_H   = 24 ;
+  static const int    CONFIG_BTN_X = GUI::PAD ;
+  static const int    CONFIG_BTN_Y = 3 ;
+  static const int    CONFIG_BTN_W = GUI::TITLEBAR_H - GUI::PAD ;
+  static const int    CONFIG_BTN_H = GUI::TITLEBAR_H - GUI::PAD ;
 
   // MainContent
   static const String CONTENT_GUI_ID = "main-content-gui" ;
@@ -635,11 +615,12 @@ namespace GUI
   static const String BACKGROUND_GUI_ID = "background-gui" ;
 
   // Login
-  static const String LOGIN_GUI_ID   = "login-gui" ;
-  static const int    LOGIN_BUTTON_L = GUI::PAD ;
-  static const int    LOGIN_BUTTON_T = GUI::PAD ;
-  static const int    LOGIN_BUTTON_W = 96 ;
-  static const int    LOGIN_BUTTON_H = 24 ;
+  static const String LOGIN_GUI_ID            = "login-gui" ;
+  static const int    N_STATIC_LOGIN_CHILDREN = 6 ;
+  static const int    LOGIN_BUTTON_L          = GUI::PAD ;
+  static const int    LOGIN_BUTTON_T          = GUI::PAD ;
+  static const int    LOGIN_BUTTON_W          = 128 ;
+  static const int    LOGIN_BUTTON_H          = 24 ;
 
   // License
   static const String LICENSE_GUI_ID = "license-gui" ;
@@ -666,21 +647,21 @@ namespace GUI
   static const String           XMIT_LABEL_TEXT            = "XMIT" ;
   static const String           RCV_LABEL_TEXT             = "RCV" ;
   static const CharPointer_UTF8 INFINITY_CHAR              = CharPointer_UTF8("\xe2\x88\x9e") ;
-  static const int              N_STATIC_CHANNELS_CHILDREN = 5 ;
+  static const int              N_STATIC_CHANNELS_CHILDREN = 4 ;
   static const int              CHANNEL_LABEL_H            = 12 ;
   static const int              CHANNEL_Y                  = CHANNEL_LABEL_H + PAD2 ;
   static const int              CHANNEL_W                  = 60 ;
   static const int              CHANNEL_H                  = 252 ;
-  static const int              CONFIG_BTN_W               = 15 ;
-  static const int              CONFIG_BTN_H               = 16 ;
-  static const int              CONFIG_BTN_XC              = CONFIG_BTN_W / 2 ;
-  static const int              CONFIG_BTN_YC              = CONFIG_BTN_H / 2 ;
+  static const int              HOVER_BTN_W                = 15 ;
+  static const int              HOVER_BTN_H                = 16 ;
+  static const int              HOVER_BTN_XC               = HOVER_BTN_W / 2 ;
+  static const int              HOVER_BTN_YC               = HOVER_BTN_H / 2 ;
 
   // Channels
-  static const  String     MASTERS_LABEL_TEXT = "Master" ;
-  static const  String     LOCALS_LABEL_TEXT  = "Local" ;
   static const  Identifier MASTERS_GUI_ID     = CONFIG::MASTERS_ID ;
   static const  Identifier LOCALS_GUI_ID      = CONFIG::LOCALS_ID ;
+  static const  String     MASTERS_LABEL_TEXT = "Master" ;
+  static const  String     LOCALS_LABEL_TEXT  = "Local" ;
   static const  int        CHANNEL_CONFIG_W   = 200 ;
   static const  int        CHANNEL_CONFIG_H   = 200 ;
   static const  int        MIXERGROUP_Y       = PAD ;
@@ -704,12 +685,22 @@ namespace GUI
                                                (CHANNEL_SCROLL_BTN_H / 2) ;
 
   // StatusBar
-  static const String STATUS_GUI_ID = "statusbar-gui" ;
-  static const int    STATUSBAR_H   = 24 ;
-  static const int    STATUS_W      = 160 ;
-  static const int    STATUS_H      = 16 ;
-  static const int    STATUS_PAD_X  = 8 ;
-  static const int    STATUS_PAD_Y  = 2 ;
+  static const String STATUS_GUI_ID                 = "statusbar-gui" ;
+  static const String AUDIO_INIT_MSG                = "audio device initialized" ;
+  static const String AUDIO_INIT_ERROR_MSG          = "audio device error" ;
+  static const String DISCONNECTED_STATUS_TEXT      = "Disconnected" ;
+  static const String ROOM_FULL_STATUS_TEXT         = "Jam room full" ;
+  static const String INVALID_AUTH_STATUS_TEXT      = "Invalid login/pass" ;
+  static const String PENDING_LICENSE_STATUS_TEXT   = "Pending license" ;
+  static const String FAILED_CONNECTION_STATUS_TEXT = "Connection failed" ;
+  static const String CONNECTING_STATUS_TEXT        = "Connecting to " ;
+  static const String CONNECTED_STATUS_TEXT         = "Connected to " ;
+  static const String IDLE_STATUS_TEXT              = "Idle" ;
+  static const int    STATUSBAR_H                   = 24 ;
+  static const int    STATUS_W                      = 160 ;
+  static const int    STATUS_H                      = 16 ;
+  static const int    STATUS_PAD_X                  = 8 ;
+  static const int    STATUS_PAD_Y                  = 2 ;
 
   // Loop
   static const String LOOP_GUI_ID          = "loop-gui" ;
@@ -717,14 +708,25 @@ namespace GUI
   static const int    LOOP_H               = STATUS_H ;
   static const double BEAT_PROGRESS_OFFSET = CLIENT::GUI_UPDATE_HI_IVL * 0.002 ;
 
-  // ConfigClient
-  static const int SUBSCRIPTIONS_X    = 24 ;
-  static const int SUBSCRIPTIONS_Y    = 68 ;
-  static const int SUBSCRIPTIONS_W    = 144 ;
-  static const int SUBSCRIPTIONS_H    = 76 ;
-  static const int CONFIG_SCROLLBAR_W = 12 ;
+  // Config
+  static const String DISMISS_BTN_TEXT       = "done" ;
+  static const String DISMISS_BTN_ERROR_TEXT = "error" ;
 
-  // Subscriptions
+  // ConfigClient
+  static const String CONFIG_GUI_ID      = "config-gui" ;
+  static const int    CONFIG_SCROLLBAR_W = 12 ;
+  static const int    SUBSCRIPTIONS_X    = 24 ;
+  static const int    SUBSCRIPTIONS_Y    = 68 ;
+  static const int    SUBSCRIPTIONS_W    = 144 ;
+  static const int    SUBSCRIPTIONS_H    = 76 ;
+
+  // ConfigAudio
+  static const String JACK_NAME_LABEL_TEXT   = "name" ;
+  static const String ALSA_CONFIG_LABEL_TEXT = "config" ;
+  static const String DEFAULTS_BTN_TEXT      = "defaults" ;
+  static const String ASIO_CONFIG_BTN_TEXT   = "config" ;
+
+  // ConfigSubscriptions
   static const int SUBSCRIPTION_W = SUBSCRIPTIONS_W - CONFIG_SCROLLBAR_W - PAD2 ;
   static const int SUBSCRIPTION_H = 16 ;
 }

@@ -68,7 +68,7 @@ ConfigSubscriptions::ConfigSubscriptions (ValueTree config_store)
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (192, 172);
+    setSize (614, 434);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -184,7 +184,7 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component" constructorParams="ValueTree config_store"
                  variableInitialisers="configStore(config_store)" snapPixels="8"
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="1"
-                 initialWidth="192" initialHeight="172">
+                 initialWidth="614" initialHeight="434">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 192 172" cornerSize="10" fill="solid: ff200000" hasStroke="0"/>
     <ROUNDRECT pos="20 64 152 84" cornerSize="10" fill="solid: ff101010" hasStroke="1"

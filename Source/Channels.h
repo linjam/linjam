@@ -73,7 +73,6 @@ protected:
     //==============================================================================
     ScopedPointer<Label> channelsLabel;
     ScopedPointer<TextButton> addButton;
-    ScopedPointer<TextButton> configButton;
     ScopedPointer<TextButton> expandButton;
     ScopedPointer<TextButton> ignoreButton;
 
@@ -84,7 +83,7 @@ protected:
 
 //[EndFile] You can add extra defines here...
 
-class MasterChannels : public Channels , public ButtonListener
+class MasterChannels : public Channels
 {
 public:
 

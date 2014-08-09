@@ -14,9 +14,6 @@
 #define __APPHEADERFILE_V5YQRW__
 
 #include "AppConfig.h"
-#include "modules/juce_audio_basics/juce_audio_basics.h"
-#include "modules/juce_audio_devices/juce_audio_devices.h"
-#include "modules/juce_audio_formats/juce_audio_formats.h"
 #include "modules/juce_core/juce_core.h"
 #include "modules/juce_data_structures/juce_data_structures.h"
 #include "modules/juce_events/juce_events.h"

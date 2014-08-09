@@ -1,26 +1,10 @@
-/*
-  ==============================================================================
-
-    This file was auto-generated!
-
-  ==============================================================================
-*/
 
 #include "Constants.h"
 #include "MainContent.h"
 
 
-//==============================================================================
-MainContent::MainContent(DocumentWindow* main_window)
+MainContent::MainContent(DocumentWindow* main_window , TextButton* config_button)
 {
-  // Main
-  this->mainWindow = main_window ;
-  this->appName    = JUCEApplication::getInstance()->getApplicationName() ;
-
-  // MainContent
-  this->setName("MainContent") ;
-  this->setSize(GUI::CONTENT_W , GUI::CONTENT_H) ;
-
   // background
   this->background = new Background() ;
   this->addChildAndSetID(this->background , GUI::BACKGROUND_GUI_ID) ;
@@ -58,25 +42,31 @@ MainContent::MainContent(DocumentWindow* main_window)
   this->loop->setAlwaysOnTop(true) ;
   this->loop->toFront(false) ;
 
-  this->mainWindow->setTitleBarHeight(GUI::TITLEBAR_H) ;
-//  this->mainWindow->setIcon(const Image &imageToUse) ;
+  // MainWindow
+  this->mainWindow   = main_window ;
+  this->configButton = config_button ;
+  this->configButton->setButtonText(TRANS("?")) ;
+  this->configButton->setColour(TextButton::buttonColourId   , Colour(0xff404000)) ;
+  this->configButton->setColour(TextButton::buttonOnColourId , Colours::olive) ;
+  this->configButton->setColour(TextButton::textColourOnId   , Colours::yellow) ;
+  this->configButton->setColour(TextButton::textColourOffId  , Colours::yellow) ;
+  this->configButton->addListener(this) ;
 
-#ifdef _MAC
-  this->mainWindow->setTitleBarButtonsRequired(DocumentWindow::allButtons , true) ;
-#endif // _MAC
-
-  this->resized() ;
+  // MainContent
+  setName("MainContent") ;
+  setSize(GUI::CONTENT_W , GUI::CONTENT_H) ;
 }
 
 MainContent::~MainContent()
 {
-  this->background = nullptr ;
-  this->login      = nullptr ;
-  this->license    = nullptr ;
-  this->chat       = nullptr ;
-  this->mixer      = nullptr ;
-  this->statusbar  = nullptr ;
-  this->loop       = nullptr ;
+  this->background   = nullptr ;
+  this->login        = nullptr ;
+  this->license      = nullptr ;
+  this->chat         = nullptr ;
+  this->mixer        = nullptr ;
+  this->statusbar    = nullptr ;
+  this->loop         = nullptr ;
+  this->config       = nullptr ;
 }
 
 void MainContent::paint(Graphics& g)
@@ -88,14 +78,10 @@ void MainContent::paint(Graphics& g)
 
 void MainContent::resized()
 {
-  // This is called when the MainContent is resized.
-  // If you add any child components, this is where you should
-  // update their positions.
-
-  if (this->background == nullptr ||
-      this->login      == nullptr || this->license == nullptr ||
-      this->chat       == nullptr || this->mixer   == nullptr ||
-      this->statusbar  == nullptr || this->loop    == nullptr) return ;
+  if (this->background == nullptr || this->login     == nullptr ||
+      this->license    == nullptr || this->chat      == nullptr || 
+      this->mixer      == nullptr || this->statusbar == nullptr ||
+      this->loop       == nullptr || this->config    == nullptr  ) return ;
 
   int window_w = getWidth() ;
   int window_h = getHeight() ;
@@ -146,16 +132,50 @@ void MainContent::resized()
   int loop_w = content_w - GUI::PAD4 - (GUI::STATUS_W * 2) ;
   int loop_h = GUI::LOOP_H ;
 
-  this->background->setBounds(bg_x      , bg_y      , bg_w      , bg_h) ;
-  this->login     ->setBounds(login_x   , login_y   , login_w   , login_h) ;
-  this->license   ->setBounds(license_x , license_y , license_w , license_h) ;
-  this->chat      ->setBounds(chat_x    , chat_y    , chat_w    , chat_h) ;
-  this->mixer     ->setBounds(mixer_x   , mixer_y   , mixer_w   , mixer_h) ;
-  this->statusbar ->setBounds(status_x  , status_y  , status_w  , status_h) ;
-  this->loop      ->setBounds(loop_x    , loop_y    , loop_w    , loop_h) ;
+  // config
+  int config_x = GUI::PAD ;
+  int config_y = GUI::PAD ;
+  int config_w = content_w ;
+  int config_h = content_h ;
+
+  // config button
+#ifdef _MAC
+  int cfg_btn_x = getWidth() - GUI::CONFIG_BTN_X - GUI::CONFIG_BTN_W ;
+#else // _MAC
+  int cfg_btn_x = GUI::CONFIG_BTN_X ;
+#endif // _MAC
+  int cfg_btn_y = GUI::CONFIG_BTN_Y ;
+  int cfg_btn_w = GUI::CONFIG_BTN_W ;
+  int cfg_btn_h = GUI::CONFIG_BTN_H ;
+
+  this->background  ->setBounds(bg_x      , bg_y      , bg_w      , bg_h) ;
+  this->login       ->setBounds(login_x   , login_y   , login_w   , login_h) ;
+  this->license     ->setBounds(license_x , license_y , license_w , license_h) ;
+  this->chat        ->setBounds(chat_x    , chat_y    , chat_w    , chat_h) ;
+  this->mixer       ->setBounds(mixer_x   , mixer_y   , mixer_w   , mixer_h) ;
+  this->statusbar   ->setBounds(status_x  , status_y  , status_w  , status_h) ;
+  this->loop        ->setBounds(loop_x    , loop_y    , loop_w    , loop_h) ;
+  this->config      ->setBounds(config_x  , config_y  , config_w  , config_h) ;
+  this->configButton->setBounds(cfg_btn_x , cfg_btn_y , cfg_btn_w , cfg_btn_h) ;
+}
+
+void MainContent::buttonClicked(Button* a_button)
+{
+  if (a_button == this->configButton) this->config->toFront(true) ;
+}
+
+void MainContent::instantiateConfig(ValueTree audio_store        ,
+                                    ValueTree client_store       ,
+                                    ValueTree subscriptions_store)
+{
+  this->config = new Config(audio_store , client_store , subscriptions_store) ;
+  this->addChildAndSetID(this->config , GUI::CONFIG_GUI_ID) ;
+  this->config->toBack() ;
+
+  resized() ;
 }
 
 void MainContent::setTitle(String title_text)
 {
-  this->mainWindow->setName(this->appName + " - " + title_text) ;
+  this->mainWindow->setName(GUI::APP_NAME + " - " + title_text) ;
 }

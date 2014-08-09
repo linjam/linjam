@@ -18,161 +18,117 @@
 #include "./Trace/TraceMain.h"
 
 
-
-//==============================================================================
 class LinJamApplication : public JUCEApplication , public NJClient , MultiTimer
 {
 public:
-    //==============================================================================
-    LinJamApplication() {}
 
-    const String getApplicationName() override       { return ProjectInfo::projectName ; }
-    const String getApplicationVersion() override    { return ProjectInfo::versionString ; }
-    bool moreThanOneInstanceAllowed() override       { return false ; }
+  LinJamApplication() {}
 
-    //==============================================================================
-    void initialise (const String& commandLine) override
-    {
-      this->mainWindow  = new MainWindow() ;
-      this->mainContent = (MainContent*) getContainerComponent(GUI::CONTENT_GUI_ID) ;
-      this->background  = (Background*)  getChildComponent(GUI::BACKGROUND_GUI_ID) ;
-      this->login       = (Login*)       getChildComponent(GUI::LOGIN_GUI_ID) ;
-      this->license     = (License*)     getChildComponent(GUI::LICENSE_GUI_ID) ;
-      this->chat        = (Chat*)        getChildComponent(GUI::CHAT_GUI_ID) ;
-      this->mixer       = (Mixer*)       getChildComponent(GUI::MIXER_GUI_ID) ;
-      this->statusbar   = (StatusBar*)   getChildComponent(GUI::STATUS_GUI_ID) ;
-      this->loop        = (Loop*)        getChildComponent(GUI::LOOP_GUI_ID) ;
+  void initialise(const String& command_line) override
+  {
+    this->mainWindow    = new MainWindow() ;
+    this->mainContent   = (MainContent*)this->mainWindow->mainContent ;
+    bool is_initialized = LinJam::Initialize(this , this->mainContent , command_line) ;
 
-      this->args = commandLine ; initializeLinJam() ;
-    }
+    // start NJClient pump and GUI update timers or bail
+    if (is_initialized) startTimers() ; else quit() ;
+  }
 
-    Component* getContainerComponent(String id)
-    {
-      return this->mainWindow->findChildWithID(StringRef(id)) ;
-    }
+  void startTimers()
+  {
+    startTimer(CLIENT::CLIENT_TIMER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
+    startTimer(CLIENT::GUI_TIMER_HI_ID , CLIENT::GUI_UPDATE_HI_IVL) ;
+    startTimer(CLIENT::GUI_TIMER_LO_ID , CLIENT::GUI_UPDATE_LO_IVL) ;
+  }
 
-    Component* getChildComponent(String id)
-    {
-      return this->mainContent->findChildWithID(StringRef(id)) ;
-    }
+  void anotherInstanceStarted(const String& command_line) override
+  {
+    // When another instance of the app is launched while this one is running,
+    // this method is invoked, and the commandLine parameter tells you what
+    // the other instance's command-line arguments were.
+  }
 
-    void initializeLinJam()
-    {
-      if (!LinJam::Initialize(this , this->mainContent , this->args))
-      {
-        this->statusbar->setStatusL(GUI::AUDIO_INIT_ERROR_MSG) ;
-        shutdown() ; this->quit() ; // TODO: MB , prompt cfg ?? (issue #12)
-      }
-      else
-      {
-        this->startTimer(CLIENT::CLIENT_TIMER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
-        this->startTimer(CLIENT::GUI_TIMER_HI_ID , CLIENT::GUI_UPDATE_HI_IVL) ;
-        this->startTimer(CLIENT::GUI_TIMER_LO_ID , CLIENT::GUI_UPDATE_LO_IVL) ;
-      }
-    }
-
-    void shutdown() override
-    {
-        // Add your application's shutdown code here..
-
-        LinJam::Shutdown() ;
-        this->mainWindow = nullptr ; // (deletes our window)
+  void shutdown() override
+  {
+    LinJam::Shutdown() ;
+    this->mainWindow = nullptr ;
 
 DEBUG_TRACE_SHUTDOWN
+  }
+
+  void         systemRequestedQuit()        override { this->quit() ; }
+  const String getApplicationName()         override { return ProjectInfo::projectName ; }
+  const String getApplicationVersion()      override { return ProjectInfo::versionString ; }
+  bool         moreThanOneInstanceAllowed() override { return false ; }
+
+
+  /*
+      This class implements the desktop window that contains an instance of
+      our MainContentComponent class.
+  */
+  class MainWindow : public DocumentWindow
+  {
+    friend class LinJamApplication ;
+
+
+  public:
+
+    MainWindow() : DocumentWindow(GUI::APP_NAME             ,
+                                  Colour(0xff202020)        ,
+                                  DocumentWindow::allButtons)
+    {
+      // config button (managed and handled by MainContent)
+      this->configButton = new TextButton("configButton") ;
+      Component::addAndMakeVisible(this->configButton) ;
+
+      // main content
+      this->mainContent = new MainContent(this , this->configButton) ;
+      this->mainContent->setComponentID(GUI::CONTENT_GUI_ID) ;
+      setContentOwned(this->mainContent , true) ;
+
+      // this main desktop window
+#ifdef _MAC
+      setTitleBarButtonsRequired(DocumentWindow::allButtons , true) ;
+#endif // _MAC
+      setTitleBarHeight(GUI::TITLEBAR_H) ;
+//      setIcon(const Image &imageToUse) ;
+      centreWithSize(getWidth() , getHeight()) ;
+      setVisible(true) ;
     }
 
-    //==============================================================================
-    void systemRequestedQuit() override
+    ~MainWindow()
     {
-        // This is called when the app is being asked to quit: you can ignore this
-        // request and let the app carry on running, or call quit() to allow the app to close.
-        this->quit() ;
+      this->mainContent  = nullptr ;
+      this->configButton = nullptr ;
     }
 
-    void anotherInstanceStarted (const String& commandLine) override
-    {
-        // When another instance of the app is launched while this one is running,
-        // this method is invoked, and the commandLine parameter tells you what
-        // the other instance's command-line arguments were.
-    }
+    void closeButtonPressed() { JUCEApplication::getInstance()->systemRequestedQuit() ; }
 
-    //==============================================================================
-    /*
-        This class implements the desktop window that contains an instance of
-        our MainContentComponent class.
-    */
-    class MainWindow : public DocumentWindow
-    {
-    public:
-        MainWindow() : DocumentWindow (JUCEApplication::getInstance()->getApplicationName() ,
-                                       Colour (0xff202020) ,
-                                       DocumentWindow::allButtons)
-        {
-            mainContent = new MainContent(this) ;
-            setContentOwned(mainContent , true) ;
-            mainContent->setComponentID(GUI::CONTENT_GUI_ID) ;
-            centreWithSize(getWidth() , getHeight()) ;
-            setVisible(true) ;
-        }
 
-        ~MainWindow()
-        {
-          this->mainContent = nullptr ;
-        }
+  private:
 
-        void closeButtonPressed()
-        {
-            // This is called when the user tries to close this window. Here, we'll just
-            // ask the app to quit when this happens, but you can change this to do
-            // whatever you need.
-            JUCEApplication::getInstance()->systemRequestedQuit() ;
-        }
+    ScopedPointer<MainContent> mainContent ;
+    ScopedPointer<TextButton>  configButton ;
 
-        /* Note: Be careful if you override any DocumentWindow methods - the base
-           class uses a lot of them, so by overriding you might break its functionality.
-           It's best to do all your work in your content component instead, but if
-           you really have to override any DocumentWindow methods, make sure your
-           subclass also calls the superclass's method.
-        */
-
-    private:
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
-
-        ScopedPointer<MainContent> mainContent ;
-    };
-
-    void timerCallback(int timerId) override
-    {
-#if EXIT_IMMEDIAYELY
-DBG("[DEBUG]: EXIT_IMMEDIAYELY defined - bailing") ; this->quit() ;
-#endif // EXIT_IMMEDIAYELY
-
-      switch (timerId)
-      {
-        case CLIENT::GUI_TIMER_LO_ID: LinJam::UpdateGuiLowPriority() ;  break ;
-        case CLIENT::GUI_TIMER_HI_ID: LinJam::UpdateGuiHighPriority() ; break ;
-        case CLIENT::CLIENT_TIMER_ID: LinJam::DriveClient() ;           break ;
-        default:                                                        break ;
-      }
-    }
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
+  } ;
 
 
 private:
 
-    ScopedPointer<MainWindow> mainWindow ;
-    MainContent*              mainContent ;
-    Background*               background ;
-    Login*                    login ;
-    License*                  license ;
-    Chat*                     chat ;
-    Mixer*                    mixer ;
-    StatusBar*                statusbar ;
-    Loop*                     loop ;
+  ScopedPointer<MainWindow> mainWindow ;
+  MainContent*              mainContent ;
+  Background*               background ;
+  Login*                    login ;
+  License*                  license ;
+  Chat*                     chat ;
+  Mixer*                    mixer ;
+  StatusBar*                statusbar ;
+  Loop*                     loop ;
 
-    String args ;
+
+  void timerCallback(int timer_id) override { LinJam::HandleTimer(timer_id) ; }
 } ;
 
 
-//==============================================================================
-// This macro generates the main() routine that launches the app.
 START_JUCE_APPLICATION (LinJamApplication)

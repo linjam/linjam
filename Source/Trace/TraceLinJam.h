@@ -4,8 +4,8 @@
 
 
 #ifdef DEBUG_AUTOLOGIN
-//#define DEBUG_STATIC_CHANNEL "localhost:2049"
-#define DEBUG_STATIC_CHANNEL "ninbot.com:2050"
+#define DEBUG_STATIC_CHANNEL "localhost:2049"
+// #define DEBUG_STATIC_CHANNEL "ninbot.com:2050"
 // #define DEBUG_STATIC_CHANNEL "ninjamer.com:2051"
 #endif // DEBUG_AUTOLOGIN
 
@@ -41,49 +41,48 @@
 
 #define DEBUG_TRACE_AUDIO_INIT_WIN                                            \
   audioStreamer::Interface if_n = (audioStreamer::Interface)win_interface_n ; \
-  String type = "unknown" ; /* this can not be so */                          \
-  if      (if_n == audioStreamer::WIN_AUDIO_ASIO) type = "ASIO" ;             \
-  else if (if_n == audioStreamer::WIN_AUDIO_KS)   type = "KS" ;               \
-  else if (if_n == audioStreamer::WIN_AUDIO_DS)   type = "DS" ;               \
-  else if (if_n == audioStreamer::WIN_AUDIO_WAVE) type = "WAVE" ;             \
-  if (Audio) Trace::TraceConfig("using " + type + " audiostreamer") ;
+  String type = (if_n == audioStreamer::WIN_AUDIO_ASIO)? "asio"             : \
+                (if_n == audioStreamer::WIN_AUDIO_KS)  ? "kernel streaming" : \
+                (if_n == audioStreamer::WIN_AUDIO_DS)  ? "directsound"      : \
+                (if_n == audioStreamer::WIN_AUDIO_WAVE)? "wave" : "unknown" ;
 
-#define DEBUG_TRACE_AUDIO_INIT_MAC                                     \
-  if (Audio) Trace::TraceConfig("using CoreAudio audiostreamer") ;
+#define DEBUG_TRACE_AUDIO_INIT_MAC String type = CONFIG::CA_DEVICE_TYPE ;
 
-#define DEBUG_TRACE_AUDIO_INIT_JACK                                                \
-  if (Audio) Trace::TraceConfig("using JACK audiostreamer") ;                      \
-  else       Trace::TraceState("could not connect to JACK - falling back to ALSA") ;
+#define DEBUG_TRACE_AUDIO_INIT_NIX String type = "unknown" ;
 
-#define DEBUG_TRACE_AUDIO_INIT_ALSA                         \
-  if (Audio) Trace::TraceConfig("using ALSA audiostreamer") ;
+#define DEBUG_TRACE_AUDIO_INIT_JACK                                                 \
+  type = CONFIG::JACK_DEVICE_TYPE ;                                                 \
+  if (!Audio) Trace::TraceState("could not connect to JACK - falling back to ALSA") ;
 
-#define DEBUG_TRACE_AUDIO_INIT                                   \
-  if (!Audio) Trace::TraceError("error opening audio device") ;  \
-  else Trace::TraceState("opened audio device at "             + \
-                         String(Audio->m_srate)  + "Hz "       + \
-                         String(Audio->m_bps)    + "bps "      + \
-                         String(Audio->m_innch)  + "in -> "    + \
-                         String(Audio->m_outnch) + "out "      ) ;
+#define DEBUG_TRACE_AUDIO_INIT_ALSA type = CONFIG::ALSA_DEVICE_TYPE ;
+
+#define DEBUG_TRACE_AUDIO_INIT                                                           \
+  if (!Audio) Trace::TraceError("error opening "      + type     + " audio device") ;    \
+  else Trace::TraceState("opened audio device using " + type     + " audiostreamer - " + \
+                         String(Audio->m_srate)       + "Hz "                          + \
+                         String(Audio->m_bps)         + "bps "                         + \
+                         String(Audio->m_innch)       + "in -> "                       + \
+                         String(Audio->m_outnch)      + "out "                         ) ;
 
 
 /* network */
 
-#define DEBUG_TRACE_CONNECT_STATUS                                             \
-  String host_name = Client->GetHostName() ;                                   \
-  switch (client_status)                                                       \
-  {                                                                            \
-    case -3: Trace::TraceNetwork("NJC_STATUS_DISCONNECTED") ;          break ; \
-    case -2: Trace::TraceNetwork((IsAgreed())?                                 \
-                                 "NJC_STATUS_INVALIDAUTH" :                    \
-                                 "LICENSE_PENDING") ;                  break ; \
-    case -1: Trace::TraceNetwork("NJC_STATUS_CANTCONNECT") ;           break ; \
-    case  0: Trace::TraceNetwork("NJC_STATUS_OK") ;                            \
-             Trace::TraceServer("connected to host: " + host_name) ;   break ; \
-    case  1: Trace::TraceNetwork("NJC_STATUS_PRECONNECT") ;            break ; \
-    default: Trace::TraceNetwork("Status: " + String(client_status)) ; break ; \
-  }                                                                            \
-  if (Client->GetErrorStr()[0])                                                \
+#define DEBUG_TRACE_CONNECT_STATUS                                            \
+  String host_name = Client->GetHostName() ;                                  \
+  switch (status)                                                             \
+  {                                                                           \
+    case -4: Trace::TraceClient( "NJC_STATUS_AUDIOERROR") ;           break ; \
+    case -3: Trace::TraceNetwork("NJC_STATUS_DISCONNECTED") ;         break ; \
+    case -2: Trace::TraceNetwork((IsAgreed())?                                \
+                                 "NJC_STATUS_INVALIDAUTH" :                   \
+                                 "LICENSE_PENDING") ;                 break ; \
+    case -1: Trace::TraceNetwork("NJC_STATUS_CANTCONNECT") ;          break ; \
+    case  0: Trace::TraceNetwork("NJC_STATUS_OK") ;                           \
+             Trace::TraceServer( "connected to host: " + host_name) ; break ; \
+    case  1: Trace::TraceNetwork("NJC_STATUS_PRECONNECT") ;           break ; \
+    default: Trace::TraceNetwork("Status: " + String(status)) ;       break ; \
+  }                                                                           \
+  if (Client->GetErrorStr()[0])                                               \
     Trace::TraceServer("Error: " + String(Client->GetErrorStr())) ;
 
 
