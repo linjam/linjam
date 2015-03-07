@@ -1,5 +1,6 @@
 
 #include "Constants.h"
+#include "LinJam.h"
 #include "MainContent.h"
 
 
@@ -79,7 +80,7 @@ void MainContent::paint(Graphics& g)
 void MainContent::resized()
 {
   if (this->background == nullptr || this->login     == nullptr ||
-      this->license    == nullptr || this->chat      == nullptr || 
+      this->license    == nullptr || this->chat      == nullptr ||
       this->mixer      == nullptr || this->statusbar == nullptr ||
       this->loop       == nullptr || this->config    == nullptr  ) return ;
 
@@ -161,7 +162,7 @@ void MainContent::resized()
 
 void MainContent::buttonClicked(Button* a_button)
 {
-  if (a_button == this->configButton) this->config->toFront(true) ;
+  if (a_button == this->configButton) LinJam::ConfigPending() ;
 }
 
 void MainContent::instantiateConfig(ValueTree audio_store        ,

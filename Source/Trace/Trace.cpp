@@ -15,13 +15,21 @@ Array<String> Trace::UnknowwnChannels = Array<String>() ;
 void Trace::TraceEvent(String msg)   { if (DEBUG_TRACE_EVENTS) DBG("[EVENT]:   " + msg) ; }
 void Trace::TraceConfig(String msg)  { if (DEBUG_TRACE_STATE)  DBG("[CONFIG]:  " + msg) ; }
 void Trace::TraceClient(String msg)  { if (DEBUG_TRACE_STATE)  DBG("[CLIENT]:  " + msg) ; }
+void Trace::TraceServer(String msg)  { if (DEBUG_TRACE_STATE)  DBG("[SERVER]:  " + msg) ; }
 void Trace::TraceGui(String msg)     { if (DEBUG_TRACE_EVENTS) DBG("[GUI]:     " + msg) ; }
 void Trace::TraceVerbose(String msg) { if (DEBUG_TRACE_VB)     DBG("[DEBUG]:   " + msg) ; }
+#ifndef DEBUG_ANSI_COLORS
 void Trace::TraceState(String msg)   { if (DEBUG_TRACE_STATE)  DBG("[STATE]:   " + msg) ; }
-void Trace::TraceNetwork(String msg) { if (DEBUG_TRACE_STATE)  DBG("[NETWORK]: " + msg) ; }
 void Trace::TraceError(String msg)   { if (DEBUG_TRACE_STATE)  DBG("[ERROR]:   " + msg) ; }
-void Trace::TraceServer(String msg)  { if (DEBUG_TRACE_STATE)  DBG("[SERVER]:  " + msg) ; }
-
+// void Trace::TraceNetwork(String msg) { if (DEBUG_TRACE_EVENTS) DBG("[NETWORK]: " + msg) ; }
+#else // DEBUG_ANSI_COLORS
+void Trace::TraceState(String msg)
+  { if (DEBUG_TRACE_STATE)  DBG("\033[1;33m[STATE]:   " + msg + "\033[0m") ; }
+void Trace::TraceError(String msg)
+  { if (DEBUG_TRACE_STATE)  DBG("\033[0;31m[ERROR]:   " + msg + "\033[0m") ; }
+// void Trace::TraceNetwork(String msg)
+//   { if (DEBUG_TRACE_EVENTS) DBG("\033[0;32m[NETWORK]: " + msg + "\033[0m") ; }
+#endif // DEBUG_ANSI_COLORS
 void Trace::DumpStoreXml(ValueTree store)
 { DBG(String(store.getType()) + " xml=\n" + store.toXmlString()) ; }
 
@@ -202,20 +210,20 @@ String Trace::DumpVar(String val_name , var a_var)
          " value => "  + a_var.toString() ;
 }
 
-String Trace::Status2String(int status , int is_agreed)
+String Trace::Status2String(int status)
 {
-  return (status == -9)? "LINJAM_STATUS_INIT"     :
-         (status == -8)? "LINJAM_STATUS_AUDIOERROR"     :
-         (status == -7)? "LINJAM_STATUS_CONFIGPENDING" :
-         (status == -6)? "LINJAM_STATUS_READY" :
-         (status == -5)? "LINJAM_STATUS_LICENSEPENDING" :
-         (status == -4)? "LINJAM_STATUS_ROOMFULL"       :
-         (status == -3)? "NJC_STATUS_DISCONNECTED"      :
-         (status == -2)? "NJC_STATUS_INVALIDAUTH"       :
-         (status == -1)? "NJC_STATUS_CANTCONNECT"       :
-         (status ==  0)? "NJC_STATUS_OK"                :
-         (status ==  1)? "NJC_STATUS_PRECONNECT"        :
-                         "Status: " + String(status)    ;
+  return (status == -9)? "LINJAM_STATUS_INIT"                :
+         (status == -8)? "LINJAM_STATUS_AUDIOERROR"          :
+         (status == -7)? "LINJAM_STATUS_CONFIGPENDING"       :
+         (status == -6)? "LINJAM_STATUS_READY"               :
+         (status == -5)? "LINJAM_STATUS_LICENSEPENDING"      :
+         (status == -4)? "LINJAM_STATUS_ROOMFULL"            :
+         (status == -3)? "NJC_STATUS_DISCONNECTED"           :
+         (status == -2)? "NJC_STATUS_INVALIDAUTH"            :
+         (status == -1)? "NJC_STATUS_CANTCONNECT"            :
+         (status ==  0)? "NJC_STATUS_OK"                     :
+         (status ==  1)? "NJC_STATUS_PRECONNECT"             :
+                         "(unknown: " + String(status) + ")" ;
 }
 
 #endif // #if DEBUG

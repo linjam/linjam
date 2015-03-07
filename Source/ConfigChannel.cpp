@@ -208,8 +208,8 @@ void ConfigChannel::buttonClicked(Button* a_button)
     String channel_name  = this->nameText->getText() ;
     int    selection_n   = this->channelSelect->getSelectedItemIndex() ;
     int    stereo_status = (!this->isStereo)? CONFIG::MONO : CONFIG::STEREO_L ;
-    int    source_n      = (!this->isStereo)? this->freeInputChannelNs    [selection_n] :
-                                              this->freeInputChannelPairNs[selection_n] ;
+    int    source_n      = (!this->isStereo)? this->freeAudioSourceNs    [selection_n] :
+                                              this->freeAudioSourcePairNs[selection_n] ;
 
     // update existing channel asynchronously
     this->configStore.setProperty(CONFIG::CHANNEL_NAME_ID , channel_name  , nullptr) ;
@@ -240,38 +240,38 @@ String ConfigChannel::makeStereoSelectOption(int channel_n)
 
 void ConfigChannel::createChannelSelectOptions()
 {
-  this->freeInputChannelNs     = LinJam::GetFreeInputChannels() ;
-  this->freeInputChannelPairNs = LinJam::GetFreeInputChannelPairs() ;
+  this->freeAudioSourceNs     = LinJam::GetFreeAudioSources() ;
+  this->freeAudioSourcePairNs = LinJam::GetFreeAudioSourcePairs() ;
 
-  int n_channels      = this->freeInputChannelNs.size() ;
-  int n_channel_pairs = this->freeInputChannelPairNs.size() ;
+  int n_channels      = this->freeAudioSourceNs.size() ;
+  int n_channel_pairs = this->freeAudioSourcePairNs.size() ;
 
   for (int free_channel_n = 0 ; free_channel_n < n_channels ; ++free_channel_n)
   {
-    int channel_n = this->freeInputChannelNs.getUnchecked(free_channel_n) ;
-    this->freeInputChannelOptions.add(makeMonoSelectOption(channel_n)) ;
+    int channel_n = this->freeAudioSourceNs.getUnchecked(free_channel_n) ;
+    this->freeAudioSourceOptions.add(makeMonoSelectOption(channel_n)) ;
   }
 
   for (int free_pair_n = 0 ; free_pair_n < n_channel_pairs ; ++free_pair_n)
   {
-    int channel_n = this->freeInputChannelPairNs.getUnchecked(free_pair_n) ;
-    this->freeInputChannelPairOptions.add(makeStereoSelectOption(channel_n)) ;
+    int channel_n = this->freeAudioSourcePairNs.getUnchecked(free_pair_n) ;
+    this->freeAudioSourcePairOptions.add(makeStereoSelectOption(channel_n)) ;
   }
 }
 
 void ConfigChannel::populateChannelSelect()
 {
   this->channelSelect->clear() ;
-  StringArray options = (!this->isStereo)                   ?
-                          this->freeInputChannelOptions     :
-                          this->freeInputChannelPairOptions ;
+  StringArray options = (!this->isStereo)                  ?
+                          this->freeAudioSourceOptions     :
+                          this->freeAudioSourcePairOptions ;
   this->channelSelect->addItemList(options , 1) ;
 
   // pre-select current config option for existing channel or de-select
-  int  preselection_n = (this->isNewChannel)                                 ? 0 :
-                        (!this->isStereo)                                        ?
-                          this->freeInputChannelNs    .indexOf(this->sourceN)    :
-                          this->freeInputChannelPairNs.indexOf(this->sourceN)    ;
+  int  preselection_n = (this->isNewChannel)                                ? 0 :
+                        (!this->isStereo)                                       ?
+                          this->freeAudioSourceNs    .indexOf(this->sourceN)    :
+                          this->freeAudioSourcePairNs.indexOf(this->sourceN)    ;
   if (!(~preselection_n)) preselection_n = 0 ;
   this->channelSelect->setSelectedItemIndex(preselection_n) ;
 }

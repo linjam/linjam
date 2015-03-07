@@ -617,7 +617,7 @@ String LinJamConfig::filteredName(String a_string)
 
 void LinJamConfig::valueChanged(Value& a_value)
 {
-DBG("LinJamConfig::valueChanged()") ;
+DEBUG_TRACE_CONFIG_VALUE_CHANGED
 
   if (a_value.refersToSameSourceAs(LinJam::Status)) LinJam::HandleStatusChanged() ;
 }

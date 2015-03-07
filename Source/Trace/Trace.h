@@ -4,20 +4,18 @@
 
 #if DEBUG
 
-// standard features
+// disable standard features
 //#define NO_UPDATE_LOOP_PROGRESS_GUI
 //#define NO_UPDATE_VU_METERS_GUI
 //#define NO_UPDATE_RECORDING_TIME_GUI
 //#define NO_UPDATE_REMOTES
+// enable buggy features
 //#define ACCEPT_CHAT_COMMANDS         // (issue #19)
 //#define CLEAN_SESSION
 //#define FADE_HIDDEN_REMOTES
 
-
-// debug features
-//#define DEBUG_EXIT_IMMEDIAYELY
-#define DEBUG_LOCALHOST_LOGIN_BUTTON
-#define DEBUG_AUTOLOGIN
+// enable begub features
+#define DEBUG_ANSI_COLORS
 
 
 // tracing
@@ -54,16 +52,16 @@ public:
   static void TraceGui(    String msg) ;
   static void TraceVerbose(String msg) ;
   static void TraceState(  String msg) ;
-  static void TraceNetwork(String msg) ;
+//   static void TraceNetwork(String msg) ;
   static void TraceError(  String msg) ;
   static void TraceServer( String msg) ;
 
-  static void   DumpStoreXml(ValueTree store) ;
+  static void   DumpStoreXml(      ValueTree store) ;
   static String DumpStoredChannels() ;
   static String DumpClientChannels() ;
 
   static String SanitizeConfig(      ValueTree default_config , ValueTree stored_config ,
-                                     String pad) ;
+                                     String    pad                                      ) ;
   static void   TraceInvalidNode(    String a_node_key) ;
   static void   TraceMissingValue(   String a_node_name , String a_value_key) ;
   static void   TraceMissingProperty(String a_node_name      , String a_property_name ,
@@ -72,10 +70,10 @@ public:
                                      String    expected_type    , var    a_var           ,
                                      String    parent_node_name = String::empty          ) ;
 
-  static String VarType(             var a_var) ;
-  static String DumpVar(             String val_name , var a_var) ;
+  static String VarType(var a_var) ;
+  static String DumpVar(String val_name , var a_var) ;
 
-  static String Status2String(int status , int is_agreed) ;
+  static String Status2String(int status) ;
 } ;
 
 #endif // DEBUG

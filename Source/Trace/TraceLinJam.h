@@ -3,16 +3,17 @@
 #include "Trace.h"
 
 
-#ifdef DEBUG_AUTOLOGIN
-//#define DEBUG_STATIC_CHANNEL "localhost:2049"
-#define DEBUG_STATIC_CHANNEL "ninbot.com:2052"
-// #define DEBUG_STATIC_CHANNEL "ninjamer.com:2051"
-#endif // DEBUG_AUTOLOGIN
+// enable debug features
+// #define DEBUG_EXIT_IMMEDIAYELY
+// #define DEBUG_AUTOLOGIN_CHANNEL "localhost:2049"
+#define DEBUG_AUTOLOGIN_CHANNEL "ninbot.com:2052"
+// #define DEBUG_AUTOLOGIN_CHANNEL "ninjamer.com:2051"
+
 
 
 /* state */
 
-#define DEBUG_TRACE_LINJAM_INIT Trace::TraceEvent("initializing") ;
+#define DEBUG_TRACE_LINJAM_INIT Trace::TraceState("initializing") ;
 
 #define DEBUG_TRACE_CONNECT                                                  \
   Trace::TraceState((!IsAgreed())? "connecting to " + host :                 \
@@ -84,10 +85,13 @@
           "\n\t" + CONFIG::WAVE_NBLOCKS_KEY    + " => " + String(wave_n_buffers)   + \
           "\n\t" + CONFIG::WAVE_BLOCKSIZE_KEY  + " => " + String(wave_buffer_size) ; \
     break ;                                                                          \
-  } if (TRACE_AUDIO_INIT_VB) Trace::TraceClient(dbg) ;
+  }                                                                                  \
+  Trace::TraceClient("detected platform is _WIN32") ;                                \
+  if (TRACE_AUDIO_INIT_VB) Trace::TraceClient(dbg) ;
 
 #define DEBUG_TRACE_AUDIO_INIT_MAC                                               \
   String type = CLIENT::CA_DEVICE_TYPE ;                                         \
+  Trace::TraceClient("detected platform is _MAC") ;                              \
   if (TRACE_AUDIO_INIT_VB)                                                       \
     Trace::TraceClient("initializing "      + type   + " audiostreamer =>"     + \
         "\n\t" + CONFIG::MAC_DEVICE_KEY     + " => " + mac_device_name         + \
@@ -96,9 +100,11 @@
         "\n\t" + CONFIG::MAC_BITDEPTH_KEY   + " => " + String(mac_bit_depth)   ) ;
 
 #define DEBUG_TRACE_AUDIO_INIT_NIX                                                   \
+  audioStreamer::Interface if_n = (audioStreamer::Interface)nix_interface_n ;        \
   String type = (if_n == audioStreamer::NIX_AUDIO_JACK) ? CLIENT::JACK_DEVICE_TYPE : \
                 (if_n == audioStreamer::NIX_AUDIO_ALSA) ? CLIENT::ALSA_DEVICE_TYPE : \
-                                                          CLIENT::NFG_DEVICE_TYPE  ;
+                                                          CLIENT::NFG_DEVICE_TYPE  ; \
+  Trace::TraceClient("detected platform is *NIX") ;
 
 #define DEBUG_TRACE_AUDIO_INIT_JACK                                                 \
   if (TRACE_AUDIO_INIT_VB)                                                          \
@@ -125,19 +131,19 @@
 /* network */
 
 static int PrevStatus = -9 ;
-#define DEBUG_TRACE_CONNECT_STATUS                                                      \
+#define DEBUG_TRACE_STATUS_CHANGED                                                      \
   int    prev_status   = PrevStatus ;                                                   \
   int    curr_status   = (PrevStatus = int(Status.getValue())) ;                        \
-  String prev_msg      = Trace::Status2String(prev_status , IsAgreed()) ;               \
-  String curr_msg      = Trace::Status2String(curr_status , IsAgreed()) ;               \
+  String prev_msg      = Trace::Status2String(prev_status) ;                            \
+  String curr_msg      = Trace::Status2String(curr_status) ;                            \
   String host_name     = Client->GetHostName() ;                                        \
   char*  client_error  = Client->GetErrorStr() ;                                        \
   String changed_msg   = prev_msg + " -> " + curr_msg ;                                 \
   String connected_msg = "connected to host: " + host_name ;                            \
   String error_msg     = "Error: " + CharPointer_UTF8(client_error) ;                   \
   if      (curr_status == LINJAM_STATUS_AUDIOERROR) Trace::TraceClient(curr_msg) ;      \
-  else if (prev_status == LINJAM_STATUS_AUDIOERROR) Trace::TraceNetwork(curr_msg) ;     \
-  else                                              Trace::TraceNetwork(changed_msg) ;  \
+  else if (prev_status == LINJAM_STATUS_AUDIOERROR) Trace::TraceState(curr_msg) ;       \
+  else                                              Trace::TraceState(changed_msg) ;    \
   if      (curr_status == NJClient::NJC_STATUS_OK)  Trace::TraceServer(connected_msg) ; \
   if      (client_error[0])                         Trace::TraceServer(error_msg) ;
 
@@ -157,7 +163,7 @@ static int PrevStatus = -9 ;
   String type         = (!stereo)? "mono" : "stereo" ;                                   \
   bool   is_new       = ch_idx == CONFIG::DEFAULT_CHANNEL_IDX ;                          \
   bool   exists       = IsConfiguredChannel(ch_idx) ;                                    \
-  bool   valid_source = source >= 0 && source < GetNumInputChannels() ;                  \
+  bool   valid_source = source >= 0 && source < GetNumAudioSources() ;                   \
   int    n_vacant     = GetNumVacantChannels() ;                                         \
   bool   no_free_chs  = (!stereo && n_vacant < 1 || stereo && n_vacant < 2) ;            \
   String dbg          = "adding " + String((is_new)? "new" : "stored") + " local " +     \
@@ -170,7 +176,7 @@ static int PrevStatus = -9 ;
   {                                                                                      \
     Trace::TraceError("insufficient free channels " + dbg) ;                             \
     if (TRACE_LOCAL_CHANNELS_VB)                                                         \
-      DBG(Trace::DumpStoredChannels() + Trace::DumpClientChannels()) ;                   \
+      DBG(Trace::DumpStoredChannels() + Trace::DumpClientChannels()) ;                 \
   }                                                                                      \
   else Trace::TraceEvent(dbg) ;
 
@@ -226,14 +232,14 @@ static int PrevStatus = -9 ;
                     String(channel_store.getType()) + "'"                    ) ;
 
 #if TRACE_DUMP_FREE_INPUTS
-#  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB                                           \
-  SortedSet<int> monos   = FreeInputChannels ;     int n_monos   = monos.size() ;   \
-  SortedSet<int> stereos = FreeInputChannelPairs ; int n_stereos = stereos.size() ; \
-  String dump = String(n_monos)   + " FreeInputChannels     = [" ;                  \
-  for (int i = 0 ; i < n_monos ; ++i)   dump += String(monos[i])   + " " ;          \
-  Trace::TraceVerbose(dump.trim() + "]") ;                                          \
-  dump        = String(n_stereos) + " FreeInputChannelPairs = [" ;                  \
-  for (int i = 0 ; i < n_stereos ; ++i) dump += String(stereos[i]) + " " ;          \
+#  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB                                            \
+  SortedSet<int> monos   = FreeAudioSources ;     int n_monos   = monos.size() ;     \
+  SortedSet<int> stereos = FreeAudioSourcePairs ; int n_stereos = stereos.size() ;   \
+  String dump = String(n_monos)   + " FreeAudioSources     = [" ;                    \
+  for (int i = 0 ; i < n_monos ; ++i)   dump += String(monos[i])   + " " ;           \
+  Trace::TraceVerbose(dump.trim() + "]") ;                                           \
+  dump        = String(n_stereos) + " FreeAudioSourcePairs = [" ;                    \
+  for (int i = 0 ; i < n_stereos ; ++i) dump += String(stereos[i]) + " " ;           \
   Trace::TraceVerbose(dump.trim() + "]") ;
 #else // TRACE_DUMP_FREE_INPUTS
 #  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB ;

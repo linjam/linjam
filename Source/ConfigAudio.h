@@ -66,6 +66,9 @@ private:
 
   void broughtToFront() ;
   void loadParams() ;
+  void enableComponents() ;
+  void setConfig(Identifier a_key , var a_value) ;
+  void restoreDefaults() ;
 #if _WIN32
   bool queryAsioDevices() ;
   bool queryKernelstreamingDevices() ;
@@ -73,16 +76,13 @@ private:
   bool queryDirectsoundDevices() ;
   bool queryWaveDevices() ;
 #else // _WIN32
-#  ifdef // _MAC
+#  ifdef _MAC
   bool queryCoreaudioDevices() ;
 #  else // _MAC
   bool queryJackServers() ;
   bool queryAlsaDevices() ;
 #  endif // _MAC
 #endif // _WIN32
-  void enableComponents() ;
-  void setConfig(Identifier a_key , var a_value) ;
-  void restoreDefaults() ;
 
 
 #if _WIN32

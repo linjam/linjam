@@ -10,6 +10,7 @@
 #ifndef _LINJAM_H_
 #define _LINJAM_H_
 
+
 #ifdef _WIN32
 #  include <windows.h>
 #  include <stdio.h>
@@ -18,6 +19,8 @@
 #  include <ninjam/njasiodrv/njasiodrv_if.h>
 #endif // _WIN32
 
+// NOTE: the GetLocalChannelName() function as well as
+//           the NJClient and audioStreamer enums require libninjam v0.07 headers
 #include <ninjam/audiostream.h>
 #include <ninjam/njclient.h>
 #include <ninjam/njmisc.h>
@@ -27,15 +30,16 @@
 #include "LinJamConfig.h"
 #include "MainContent.h"
 
-#include <vld.h> 
 
 class LinJam
 {
   friend class LinJamApplication ;
   friend class LinJamConfig ;
-  friend class Trace ;
   friend class License ; // TODO: needs access to config object (issue #62)
   friend class Login ;   // TODO: needs access to config object (issue #62)
+#if DEBUG
+  friend class Trace ;
+#endif // DEBUG
 
 
 public:
@@ -47,8 +51,8 @@ public:
 
   // getters/setters
   static bool           IsAgreed() ;
-  static SortedSet<int> GetFreeInputChannels() ;
-  static SortedSet<int> GetFreeInputChannelPairs() ;
+  static SortedSet<int> GetFreeAudioSources() ;
+  static SortedSet<int> GetFreeAudioSourcePairs() ;
 
   // GUI event handlers
   static bool AddLocalChannel(   ValueTree channel_store) ;
@@ -64,9 +68,10 @@ private:
   static MainContent*   Gui ;
   static LinJamConfig*  Config ;
   static audioStreamer* Audio ;
+  static bool           IsAudioInitialized ;
   static Value          IsAudioEnabled ;
-  static SortedSet<int> FreeInputChannels ;
-  static SortedSet<int> FreeInputChannelPairs ;
+  static SortedSet<int> FreeAudioSources ;
+  static SortedSet<int> FreeAudioSourcePairs ;
   static double         GuiBeatOffset ;
   static File           SessionDir ;
   static Value          Status ;
@@ -80,6 +85,11 @@ private:
                       LINJAM_STATUS_READY          = -6 ,
                       LINJAM_STATUS_LICENSEPENDING = -5 ,
                       LINJAM_STATUS_ROOMFULL       = -4 } ;
+//                    NJC_STATUS_DISCONNECTED      = -3 // NJClient::ConnectionStatus
+//                    NJC_STATUS_INVALIDAUTH       = -2 // NJClient::ConnectionStatus
+//                    NJC_STATUS_CANTCONNECT       = -1 // NJClient::ConnectionStatus
+//                    NJC_STATUS_OK                =  0 // NJClient::ConnectionStatus
+//                    NJC_STATUS_PRECONNECT        =  1 // NJClient::ConnectionStatus
 
   // initialization methods
   static bool Initialize(NJClient*     nj_client , MainContent* main_content ,
@@ -114,7 +124,8 @@ private:
   static void ConfigureSubscriptions() ;
 
   // NJClient config helpers
-  static int    GetNumInputChannels() ;
+  static int    GetNumAudioSources() ;
+  static int    GetNumLocalChannels() ;
   static int    GetNumVacantChannels() ;
   static int    GetVacantLocalChannelIdx() ;
   static String GetStoredChannelName(      ValueTree channel_store) ;

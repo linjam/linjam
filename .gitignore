@@ -4,6 +4,7 @@ Builds/Linux/build
 *~
 *.kate-swp
 .kateproject*
+Builds/Linux/.gdbinit
 
 # win
 *Debug
@@ -12,6 +13,7 @@ lib
 
 # etc
 mk*
+dbg
 *.ninjam
 
 [Tt]humbs.db

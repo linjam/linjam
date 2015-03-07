@@ -301,14 +301,9 @@ namespace NETWORK
   static const Identifier        NINBOT_USER                = "ninbot" ;
   static const Identifier        JAMBOT_USER                = "Jambot" ;
   static const int               N_KNOWN_BOTS               = 2 ;
-#ifndef DEBUG_LOCALHOST_LOGIN_BUTTON
-  static const int               N_KNOWN_HOSTS              = 8 ;
-  static const String            known_hosts[N_KNOWN_HOSTS] = {
-#else // DEBUG_LOCALHOST_LOGIN_BUTTON
   static const int               N_KNOWN_HOSTS              = 9 ;
   static const String            known_hosts[N_KNOWN_HOSTS] = {
                                      LOCALHOST_2049_URL       ,
-#endif // DEBUG_LOCALHOST_LOGIN_BUTTON
                                      NINBOT_2049_URL          ,
                                      NINBOT_2050_URL          ,
                                      NINBOT_2051_URL          ,

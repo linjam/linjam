@@ -11,7 +11,9 @@
 #include "LinJam.h"
 #include "Channel.h"
 #include "Constants.h"
-#include "./Trace/TraceLinJam.h"
+#if DEBUG
+#  include "./Trace/TraceLinJam.h"
+#endif // DEBUG
 
 #ifdef _MSC_VER
 #  include <float.h>
@@ -26,16 +28,17 @@ LinJamConfig* LinJam::Config ;
 
 /* LinJam class private class variables */
 
-NJClient*      LinJam::Client                = nullptr ;          // Initialize()
-MainContent*   LinJam::Gui                   = nullptr ;          // Initialize()
-audioStreamer* LinJam::Audio                 = nullptr ;          // Initialize()
-Value          LinJam::IsAudioEnabled        = Value() ;          // InitializeAudio() ;
-SortedSet<int> LinJam::FreeInputChannels     = SortedSet<int>() ; // InitializeAudio() ;
-SortedSet<int> LinJam::FreeInputChannelPairs = SortedSet<int>() ; // InitializeAudio() ;
-double         LinJam::GuiBeatOffset ;                            // InitializeAudio()
-File           LinJam::SessionDir ;                               // PrepareSessionDirectory()
-Value          LinJam::Status                = Value() ;          // Initialize()
-String         LinJam::PrevRecordingTime ;                        // Disconnect()
+NJClient*      LinJam::Client               = nullptr ;          // Initialize()
+MainContent*   LinJam::Gui                  = nullptr ;          // Initialize()
+audioStreamer* LinJam::Audio                = nullptr ;          // Initialize()
+bool           LinJam::IsAudioInitialized   = false ;            // InitializeAudio()
+Value          LinJam::IsAudioEnabled       = Value() ;          // InitializeAudio()
+SortedSet<int> LinJam::FreeAudioSources     = SortedSet<int>() ; // InitializeAudio()
+SortedSet<int> LinJam::FreeAudioSourcePairs = SortedSet<int>() ; // InitializeAudio()
+double         LinJam::GuiBeatOffset ;                           // InitializeAudio()
+File           LinJam::SessionDir ;                              // PrepareSessionDirectory()
+Value          LinJam::Status               = Value() ;          // Initialize()
+String         LinJam::PrevRecordingTime ;                       // Disconnect()
 
 
 /* LinJam class public class methods */
@@ -81,9 +84,9 @@ bool LinJam::IsAgreed()
   return is_agreed ;
 }
 
-SortedSet<int> LinJam::GetFreeInputChannels() { return FreeInputChannels ; }
+SortedSet<int> LinJam::GetFreeAudioSources() { return FreeAudioSources ; }
 
-SortedSet<int> LinJam::GetFreeInputChannelPairs() { return FreeInputChannelPairs ; }
+SortedSet<int> LinJam::GetFreeAudioSourcePairs() { return FreeAudioSourcePairs ; }
 
 
 /* GUI event handlers */
@@ -100,7 +103,7 @@ DEBUG_TRACE_ADD_LOCAL_CHANNEL
   int  max_n_channels            = Client->GetMaxLocalChannels() ;
   bool is_valid_channel_idx      = channel_idx >= 0 && channel_idx < max_n_channels ;
   bool does_channel_exist        = IsConfiguredChannel(channel_idx) ;
-  bool is_valid_source_n         = source_n >= 0 && source_n < GetNumInputChannels() ;
+  bool is_valid_source_n         = source_n >= 0 && source_n < GetNumAudioSources() ;
   int  n_vacant_channels         = GetNumVacantChannels() ;
   bool are_sufficient_n_channels = (!is_stereo && n_vacant_channels >= 1) ||
                                     (is_stereo && n_vacant_channels >= 2)  ;
@@ -161,7 +164,7 @@ DEBUG_TRACE_CHAT_OUT
 
   if (!chat_text.startsWith("/"))
     Client->ChatMessage_Send(CLIENT::CHATMSG_TYPE_MSG.toRawUTF8() , chat_text.toRawUTF8()) ;
-  else 
+  else
   {
     // handle irc-style command
     String command        = chat_text.upToFirstOccurrenceOf(" " , false , false) ;
@@ -211,14 +214,16 @@ DEBUG_TRACE_CHAT_OUT
 }
 
 void LinJam::ConfigPending() { Status = LINJAM_STATUS_CONFIGPENDING ; }
+
 void LinJam::ConfigDismissed() { Status = LINJAM_STATUS_READY ; }
+
 
 /* LinJam class private class methods */
 
 /* initialization methods */
 
 bool LinJam::Initialize(NJClient*     nj_client , MainContent* main_content ,
-                        const String& args                                 )
+                        const String& args                                  )
 {
 DEBUG_TRACE_LINJAM_INIT
 
@@ -238,14 +243,13 @@ DEBUG_TRACE_LINJAM_INIT
   Gui->instantiateConfig(Config->audio , Config->client , Config->subscriptions) ;
 
   // configure NINJAM client
-  ConfigureNinjam() ; ConfigureInitialChannels() ;
+  ConfigureNinjam() ;
 
   // initialize networking
   Status.addListener(Config) ; JNL::open_socketlib() ;
 
   // create audiostreamer
   IsAudioEnabled.addListener(Gui->config) ; InitializeAudio() ;
-  if (Audio != nullptr) Status = LINJAM_STATUS_READY ;
 
   return true ;
 }
@@ -268,10 +272,10 @@ bool LinJam::PrepareSessionDirectory()
 
 void LinJam::ConfigureNinjam()
 {
-  int       save_audio_mode  = int( Config->client       [CONFIG::SAVE_AUDIO_MODE_ID]) ;
-  bool      should_save_log  = bool(Config->client       [CONFIG::SHOULD_SAVE_LOG_ID]) ;
-  int       debug_level      = int( Config->client       [CONFIG::DEBUG_LEVEL_ID]) ;
-  int       subscribe_mode   = int( Config->subscriptions[CONFIG::SUBSCRIBE_MODE_ID]) ;
+  int  save_audio_mode  = int( Config->client       [CONFIG::SAVE_AUDIO_MODE_ID]) ;
+  bool should_save_log  = bool(Config->client       [CONFIG::SHOULD_SAVE_LOG_ID]) ;
+  int  debug_level      = int( Config->client       [CONFIG::DEBUG_LEVEL_ID]) ;
+  int  subscribe_mode   = int( Config->subscriptions[CONFIG::SUBSCRIBE_MODE_ID]) ;
 
   Client->LicenseAgreementCallback = OnLicense ;
   Client->ChatMessage_Callback     = OnChatmsg ;
@@ -289,8 +293,9 @@ void LinJam::ConfigureNinjam()
 
 void LinJam::InitializeAudio()
 {
-  if (Audio != nullptr) delete Audio ;
+  if (Audio != nullptr) { delete Audio ; Audio = nullptr ; }
 
+#ifdef _WIN32
   int    win_interface_n  =     int(Config->audio[CONFIG::WIN_AUDIO_IF_ID]) ;
   int    asio_driver      =     int(Config->audio[CONFIG::ASIO_DRIVER_ID]) ;
   int    asio_input0      =     int(Config->audio[CONFIG::ASIO_INPUT0_ID]) ;
@@ -326,16 +331,20 @@ ds_buffer_size = CONFIG::DEFAULT_DS_BLOCKSIZE;
   int    wave_bit_depth   =     int(Config->audio[CONFIG::WAVE_BITDEPTH_ID]) ;
   int    wave_n_buffers   =     int(Config->audio[CONFIG::WAVE_NBLOCKS_ID]) ;
   int    wave_buffer_size =     int(Config->audio[CONFIG::WAVE_BLOCKSIZE_ID]) ;
+#else // _WIN32
+#  ifdef _MAC
   String mac_device_name  =         Config->audio[CONFIG::MAC_DEVICE_ID].toString() ;
   int    mac_n_inputs     =     int(Config->audio[CONFIG::MAC_NINPUTS_ID]) ;
   int    mac_sample_rate  =     int(Config->audio[CONFIG::MAC_SAMPLERATE_ID]) ;
   int    mac_bit_depth    =     int(Config->audio[CONFIG::MAC_BITDEPTH_ID]) ;
+#  else // _MAC
   int    nix_interface_n  =     int(Config->audio[CONFIG::NIX_AUDIO_IF_ID]) ;
   int    jack_n_inputs    =     int(Config->audio[CONFIG::JACK_NINPUTS_ID]) ;
   int    jack_n_outputs   =     int(Config->audio[CONFIG::JACK_NOUTPUTS_ID]) ;
   String jack_name        =         Config->audio[CONFIG::JACK_NAME_ID].toString() ;
   String alsa_config      =         Config->audio[CONFIG::ALSA_CONFIG_ID].toString() ;
-
+#  endif // _MAC
+#endif // _WIN32
 /* TODO: NJClient alsa init takes a string config
          ideally alsa would have individual config params
          and config via the GUI like the rest
@@ -361,6 +370,8 @@ ds_buffer_size = CONFIG::DEFAULT_DS_BLOCKSIZE;
 */
 
 #ifdef _WIN32
+DEBUG_TRACE_AUDIO_INIT_WIN
+
   switch ((audioStreamer::Interface)win_interface_n)
   {
     case audioStreamer::WIN_AUDIO_ASIO:
@@ -401,9 +412,6 @@ ds_buffer_size = CONFIG::DEFAULT_DS_BLOCKSIZE;
     }
     default: break ;
   }
-
-DEBUG_TRACE_AUDIO_INIT_WIN
-
 #else // _WIN32
 #  ifdef _MAC
   Audio = create_audioStreamer_CoreAudio(&mac_device_name , mac_sample_rate ,
@@ -423,11 +431,11 @@ DEBUG_TRACE_AUDIO_INIT_NIX
 
 DEBUG_TRACE_AUDIO_INIT_JACK
 
-      if (Audio != nullptr) break ;
+      if (Audio != nullptr) break ; // else fallback on ALSA
     }
     case audioStreamer::NIX_AUDIO_ALSA:
     {
-      Audio = create_audioStreamer_ALSA(alsa_config.toRawUTF8() , OnSamples) ;
+      Audio = create_audioStreamer_ALSA("alsa_config.toRawUTF8()" , OnSamples) ;
 
 DEBUG_TRACE_AUDIO_INIT_ALSA
 
@@ -438,30 +446,35 @@ DEBUG_TRACE_AUDIO_INIT_ALSA
 #  endif // _MAC
 #endif // _WIN32
 
-  // set audio and status value holders for Config GUI and LinJamConfig 
-  bool is_audio_enabled ; IsAudioEnabled = is_audio_enabled = Audio != nullptr ;
-  Status = (is_audio_enabled)? LINJAM_STATUS_CONFIGPENDING : LINJAM_STATUS_AUDIOERROR ;
+DEBUG_TRACE_AUDIO_INIT
 
-  if (is_audio_enabled)
+  if (Audio != nullptr)
   {
     // kludge to sync loop progress to audible ticks
     GuiBeatOffset = Audio->m_srate * GUI::BEAT_PROGRESS_OFFSET ;
 
-    // populate input channel names arrays for ChannelConfig GUI
-    int n_input_channels = Audio->m_innch ;
-    FreeInputChannels.clear() ; FreeInputChannelPairs.clear() ;
-    for (int channel_n = 0 ; channel_n < n_input_channels ; ++channel_n)
+    // populate input source names arrays for ChannelConfig GUI
+    int n_audio_sources = GetNumAudioSources() ;
+    FreeAudioSources.clear() ; FreeAudioSourcePairs.clear() ;
+    for (int source_n = 0 ; source_n < n_audio_sources ; ++source_n)
     {
-      FreeInputChannels.add(channel_n) ;
-      if (channel_n % 2) FreeInputChannelPairs.add(channel_n - 1) ;
+      FreeAudioSources.add(source_n) ;
+      if (source_n % 2) FreeAudioSourcePairs.add(source_n - 1) ;
     }
+
+    // create master and stored local input channels
+    if (!IsAudioInitialized) { ConfigureInitialChannels() ; IsAudioInitialized = true ; }
   }
-  
-DEBUG_TRACE_AUDIO_INIT
+
+  // set audio and status value holders for Config GUI
+  IsAudioEnabled = Audio != nullptr ;
+  Status = (Audio != nullptr)? LINJAM_STATUS_READY : LINJAM_STATUS_AUDIOERROR ;
 }
 
 void LinJam::ConfigureInitialChannels()
 {
+  if (IsAudioInitialized) return ;
+
   // add master and metro channel GUI mixers and configure NJClient master channels
   ValueTree master_store = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::MASTER_ID) ;
   ValueTree metro_store  = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID) ;
@@ -603,9 +616,9 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 
 void LinJam::HandleTimer(int timer_id) override
 {
-#if EXIT_IMMEDIAYELY
-DBG("[DEBUG]: EXIT_IMMEDIAYELY defined - bailing") ; Client->quit() ;
-#endif // EXIT_IMMEDIAYELY
+#if DEBUG_EXIT_IMMEDIAYELY
+DBG("[DEBUG]: DEBUG_EXIT_IMMEDIAYELY defined - bailing") ; Client->quit() ;
+#endif // DEBUG_EXIT_IMMEDIAYELY
 
   switch (timer_id)
   {
@@ -620,6 +633,12 @@ void LinJam::UpdateStatus()
 {
   // update status if not in error or hold state
   int status = int(Status.getValue()) ;
+// TODO: when room is full and Status goes to LINJAM_STATUS_CONFIGPENDING (opens Config GUI)
+//       but Status will toggle back to LINJAM_STATUS_ROOMFULL (closing Config GUI)
+// either Value holders do not update fast enough to configuring audio while in room
+// or this comparisson is failing some reason
+// may need to make Status synchronous again or leave room while configuring audio
+// if (State != LINJAM_STATUS_CONFIGPENDING)
   if (status >= LINJAM_STATUS_READY) status = Client->GetStatus() ;
 
   String error_msg          = CharPointer_UTF8(Client->GetErrorStr()) ;
@@ -642,12 +661,12 @@ void LinJam::PumpClient()
 
 void LinJam::HandleStatusChanged()
 {
-DEBUG_TRACE_CONNECT_STATUS
-#ifdef DEBUG_AUTOLOGIN
+DEBUG_TRACE_STATUS_CHANGED
+#ifdef DEBUG_AUTOLOGIN_CHANNEL
 if (Status == NJClient::NJC_STATUS_PRECONNECT)
-{ Config->setCurrentServer(DEBUG_STATIC_CHANNEL , "nobody" , "" , true) ;
+{ Config->setCurrentServer(DEBUG_AUTOLOGIN_CHANNEL , "nobody" , "" , true) ;
   LinJam::Config->server.setProperty(CONFIG::IS_AGREED_ID , true , nullptr) ; Connect() ; }
-#endif // DEBUG_AUTOLOGIN
+#endif // DEBUG_AUTOLOGIN_CHANNEL
 
   // ignore sentinel value
   if (Status == LINJAM_STATUS_READY) return ;
@@ -771,6 +790,7 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
 void LinJam::UpdateGuiHighPriority() { UpdateLoopProgress() ; UpdateVuMeters() ; }
 
 void LinJam::UpdateGuiLowPriority() { UpdateRecordingTime() ; }
+
 void LinJam::UpdateLoopProgress()
 {
 #ifdef NO_UPDATE_LOOP_PROGRESS_GUI
@@ -997,19 +1017,27 @@ DEBUG_TRACE_SUBSCRIPTIONS
 
 /* NJClient config helpers */
 
-int LinJam::GetNumInputChannels() { return Audio->m_innch ; }
+int LinJam::GetNumAudioSources()
+{
+  return (Audio != nullptr)? Audio->m_innch : 0 ;
+}
+
+int LinJam::GetNumLocalChannels()
+{
+  int n_occupied_slots = -1 ; while (~Client->EnumLocalChannels(++n_occupied_slots)) ;
+  return n_occupied_slots ;
+}
 
 int LinJam::GetNumVacantChannels()
 {
-  int n_active_channels = -1 ; while (~Client->EnumLocalChannels(++n_active_channels)) ;
-  return Audio->m_innch - n_active_channels ;
+  return (Audio != nullptr)? GetNumAudioSources() - GetNumLocalChannels() : 0 ;
 }
 
 int LinJam::GetVacantLocalChannelIdx()
 {
   // find the first vacant NJClient local channel slot index
   int channel_idx = -1 ; while (IsConfiguredChannel(++channel_idx)) ;
-  bool is_vacant_slot = (channel_idx < GetNumInputChannels()) ;
+  bool is_vacant_slot = (channel_idx < GetNumAudioSources()) ;
 
   return (is_vacant_slot)? channel_idx : -1 ;
 }
@@ -1021,7 +1049,6 @@ String LinJam::GetStoredChannelName(ValueTree channel_store)
 
 String LinJam::GetLocalChannelClientName(int channel_idx)
 {
-  // NOTE: GetLocalChannelName() is a non-standard libninjam function
   return CharPointer_UTF8(Client->GetLocalChannelName(channel_idx)) ;
 }
 

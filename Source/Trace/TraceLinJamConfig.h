@@ -876,6 +876,11 @@
 #  define DEBUG_TRACE_STORE_CONFIG Trace::TraceConfig("storing config xml") ;
 #endif // TRACE_STORE_CONFIG_VB
 
+#define DEBUG_TRACE_CONFIG_VALUE_CHANGED                                                \
+  String a_var = (a_value.refersToSameSourceAs(LinJam::Status))? "Status" : "unknown" ; \
+  String status = Trace::Status2String(int(LinJam::Status.getValue())) ;                \
+  Trace::TraceEvent("value changed => " + a_var + " => " + status)                      ;
+
 #define DEBUG_TRACE_CONFIG_TREE_CHANGED                            \
   String node   = String(a_node.getType()) ;                       \
   String parent = String(a_node.getParent().getType()) ;           \

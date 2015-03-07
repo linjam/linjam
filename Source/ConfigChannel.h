@@ -63,10 +63,10 @@ private:
   void   populateChannelSelect() ;
 
 
-  SortedSet<int> freeInputChannelNs ;
-  SortedSet<int> freeInputChannelPairNs ;
-  StringArray    freeInputChannelOptions ;
-  StringArray    freeInputChannelPairOptions ;
+  SortedSet<int> freeAudioSourceNs ;
+  SortedSet<int> freeAudioSourcePairNs ;
+  StringArray    freeAudioSourceOptions ;
+  StringArray    freeAudioSourcePairOptions ;
   ValueTree      configStore ;
   bool           isNewChannel ;
   int            sourceN ;
