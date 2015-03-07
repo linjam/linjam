@@ -16,7 +16,7 @@
 #include "JuceHeader.h"
 
 
-class LinJamConfig : public ValueTree::Listener
+class LinJamConfig : public ValueTree::Listener , public Value::Listener
 {
 public:
 
@@ -53,10 +53,10 @@ public:
   var asio-output1     // int
   var ks-input         // int
   var ks-output        // int
-  var ks-sample-rate   // int
   var ks-bit-depth     // int
-  var ks-block-size    // int
+  var ks-sample-rate   // int
   var ks-n-blocks      // int
+  var ks-block-size    // int
   var ds-input0        // int
   var ds-input1        // int
   var ds-input2        // int
@@ -65,24 +65,25 @@ public:
   var ds-output1       // int
   var ds-output2       // int
   var ds-output3       // int
-  var ds-sample-rate   // int
   var ds-bit-depth     // int
-  var ds-block-size    // int
+  var ds-sample-rate   // int
   var ds-n-blocks      // int
+  var ds-block-size    // int
   var wave-input       // int
   var wave-output      // int
-  var wave-sample-rate // int
   var wave-bit-depth   // int
-  var wave-block-size  // int
+  var wave-sample-rate // int
   var wave-n-blocks    // int
+  var wave-block-size  // int
   var mac-device-name  // string
   var mac-n-inputs     // int
-  var mac-sample-rate  // int
   var mac-bit-depth    // int
+  var mac-sample-rate  // int
   var nix-audio-if-n   // int (audioStreamer::Interface enum)
+  var jack-server      // int
+  var jack-name        // string
   var jack-n-inputs    // int
   var jack-n-outputs   // int
-  var jack-name        // string
   var alsa-config      // string
 */
 

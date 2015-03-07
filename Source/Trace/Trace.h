@@ -21,23 +21,24 @@
 
 
 // tracing
-#define DEBUG_TRACE                       DEBUG && 1
-#define DEBUG_TRACE_EVENTS                DEBUG && 1
-#define DEBUG_TRACE_STATE                 DEBUG && 1
-#define DEBUG_TRACE_IN                    DEBUG && 1
-#define DEBUG_TRACE_OUT                   DEBUG && 1
-#define DEBUG_TRACE_VB                    DEBUG && 1
-#define TRACE_SANITIZE_CONFIG             DEBUG_TRACE_VB && 0
-#define TRACE_CONFIG_TYPES                DEBUG_TRACE_VB && 0
-#define TRACE_STORE_CONFIG_VB             DEBUG_TRACE_VB && 0
-#define TRACE_LOGIN_HOST                  DEBUG_TRACE_VB && 0
-#define TRACE_LOCAL_CHANNELS_VB           DEBUG_TRACE_VB && 0
-#define TRACE_REMOTE_CHANNELS_VB          DEBUG_TRACE_VB && 0
-#define TRACE_ADD_CHANNEL_GUI_VB          DEBUG_TRACE_VB && 0
-#define TRACE_DUMP_FREE_INPUTS            DEBUG_TRACE_VB && 0
-#define TRACE_DUMP_CHANNELS_GUI           DEBUG_TRACE_VB && 0
-#define TRACE_DUMP_SUBSCRIPTIONS          DEBUG_TRACE_VB && 1
-#define TRACE_MIXER_COMPONENTS            DEBUG_TRACE_VB && 0
+#define DEBUG_TRACE              DEBUG && 1
+#define DEBUG_TRACE_EVENTS       DEBUG && 1
+#define DEBUG_TRACE_STATE        DEBUG && 1
+#define DEBUG_TRACE_IN           DEBUG && 1
+#define DEBUG_TRACE_OUT          DEBUG && 1
+#define DEBUG_TRACE_VB           DEBUG && 1
+#define TRACE_SANITIZE_CONFIG    DEBUG_TRACE_VB && 0
+#define TRACE_CONFIG_TYPES       DEBUG_TRACE_VB && 0
+#define TRACE_STORE_CONFIG_VB    DEBUG_TRACE_VB && 0
+#define TRACE_AUDIO_INIT_VB      DEBUG_TRACE_VB && 1
+#define TRACE_LOGIN_HOST         DEBUG_TRACE_VB && 0
+#define TRACE_LOCAL_CHANNELS_VB  DEBUG_TRACE_VB && 0
+#define TRACE_REMOTE_CHANNELS_VB DEBUG_TRACE_VB && 0
+#define TRACE_ADD_CHANNEL_GUI_VB DEBUG_TRACE_VB && 0
+#define TRACE_DUMP_FREE_INPUTS   DEBUG_TRACE_VB && 0
+#define TRACE_DUMP_CHANNELS_GUI  DEBUG_TRACE_VB && 0
+#define TRACE_DUMP_SUBSCRIPTIONS DEBUG_TRACE_VB && 0
+#define TRACE_MIXER_COMPONENTS   DEBUG_TRACE_VB && 0
 
 
 class Trace
@@ -73,6 +74,8 @@ public:
 
   static String VarType(             var a_var) ;
   static String DumpVar(             String val_name , var a_var) ;
+
+  static String Status2String(int status , int is_agreed) ;
 } ;
 
 #endif // DEBUG

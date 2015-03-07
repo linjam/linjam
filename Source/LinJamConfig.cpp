@@ -615,6 +615,13 @@ String LinJamConfig::filteredName(String a_string)
 
 /* event handlers */
 
+void LinJamConfig::valueChanged(Value& a_value)
+{
+DBG("LinJamConfig::valueChanged()") ;
+
+  if (a_value.refersToSameSourceAs(LinJam::Status)) LinJam::HandleStatusChanged() ;
+}
+
 void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier& a_key)
 {
   Identifier node_id          = a_node     .getType() ;

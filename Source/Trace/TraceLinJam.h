@@ -4,8 +4,8 @@
 
 
 #ifdef DEBUG_AUTOLOGIN
-#define DEBUG_STATIC_CHANNEL "localhost:2049"
-// #define DEBUG_STATIC_CHANNEL "ninbot.com:2050"
+//#define DEBUG_STATIC_CHANNEL "localhost:2049"
+#define DEBUG_STATIC_CHANNEL "ninbot.com:2052"
 // #define DEBUG_STATIC_CHANNEL "ninjamer.com:2051"
 #endif // DEBUG_AUTOLOGIN
 
@@ -16,7 +16,7 @@
 
 #define DEBUG_TRACE_CONNECT                                                  \
   Trace::TraceState((!IsAgreed())? "connecting to " + host :                 \
-                                    "joining "      + host + " as " + login) ;
+                                   "joining "       + host + " as " + login) ;
 
 #define DEBUG_TRACE_LICENSE                                          \
   Trace::TraceState((IsAgreed())? "agreeing to license" :            \
@@ -39,25 +39,82 @@
 
 /* audio */
 
-#define DEBUG_TRACE_AUDIO_INIT_WIN                                            \
-  audioStreamer::Interface if_n = (audioStreamer::Interface)win_interface_n ; \
-  String type = (if_n == audioStreamer::WIN_AUDIO_ASIO)? "asio"             : \
-                (if_n == audioStreamer::WIN_AUDIO_KS)  ? "kernel streaming" : \
-                (if_n == audioStreamer::WIN_AUDIO_DS)  ? "directsound"      : \
-                (if_n == audioStreamer::WIN_AUDIO_WAVE)? "wave" : "unknown" ;
+#define DEBUG_TRACE_AUDIO_INIT_WIN                                                   \
+  audioStreamer::Interface if_n = (audioStreamer::Interface)win_interface_n ;        \
+  String type = (if_n == audioStreamer::WIN_AUDIO_ASIO)? CLIENT::ASIO_DEVICE_TYPE :  \
+                (if_n == audioStreamer::WIN_AUDIO_KS)  ? CLIENT::KS_DEVICE_TYPE   :  \
+                (if_n == audioStreamer::WIN_AUDIO_DS)  ? CLIENT::DS_DEVICE_TYPE   :  \
+                (if_n == audioStreamer::WIN_AUDIO_WAVE)? CLIENT::WAVE_DEVICE_TYPE :  \
+                                                         CLIENT::NFG_DEVICE_TYPE  ;  \
+  String dbg = "initializing " + type + " audiostreamer =>" ;                        \
+  switch ((int)if_n)                                                                 \
+  {                                                                                  \
+    case audioStreamer::WIN_AUDIO_ASIO: dbg = dbg                           +        \
+          "\n\t" + CONFIG::ASIO_DRIVER_KEY  + " => " + String(asio_driver)  +        \
+          "\n\t" + CONFIG::ASIO_INPUT0_KEY  + " => " + String(asio_input0)  +        \
+          "\n\t" + CONFIG::ASIO_INPUT1_KEY  + " => " + String(asio_input1)  +        \
+          "\n\t" + CONFIG::ASIO_OUTPUT0_KEY + " => " + String(asio_output0) +        \
+          "\n\t" + CONFIG::ASIO_OUTPUT1_KEY + " => " + String(asio_output1) ;        \
+    break ;                                                                          \
+    case audioStreamer::WIN_AUDIO_KS: dbg = dbg                                +     \
+          "\n\t" + CONFIG::KS_SAMPLERATE_KEY + " => " + String(ks_sample_rate) +     \
+          "\n\t" + CONFIG::KS_BITDEPTH_KEY   + " => " + String(ks_bit_depth)   +     \
+          "\n\t" + CONFIG::KS_NBLOCKS_KEY    + " => " + String(ks_n_buffers)   +     \
+          "\n\t" + CONFIG::KS_BLOCKSIZE_KEY  + " => " + String(ks_buffer_size) ;     \
+    break ;                                                                          \
+    case audioStreamer::WIN_AUDIO_DS: dbg = dbg                                 +    \
+          "\n\t" + CONFIG::DS_INPUT0_KEY     + " => " + String(ds_device[0][0]) +    \
+          "\n\t" + CONFIG::DS_INPUT1_KEY     + " => " + String(ds_device[0][1]) +    \
+          "\n\t" + CONFIG::DS_INPUT2_KEY     + " => " + String(ds_device[0][2]) +    \
+          "\n\t" + CONFIG::DS_INPUT3_KEY     + " => " + String(ds_device[0][3]) +    \
+          "\n\t" + CONFIG::DS_OUTPUT0_KEY    + " => " + String(ds_device[1][0]) +    \
+          "\n\t" + CONFIG::DS_OUTPUT1_KEY    + " => " + String(ds_device[1][1]) +    \
+          "\n\t" + CONFIG::DS_OUTPUT2_KEY    + " => " + String(ds_device[1][2]) +    \
+          "\n\t" + CONFIG::DS_OUTPUT3_KEY    + " => " + String(ds_device[1][3]) +    \
+          "\n\t" + CONFIG::DS_SAMPLERATE_KEY + " => " + String(ds_sample_rate)  +    \
+          "\n\t" + CONFIG::DS_BITDEPTH_KEY   + " => " + String(ds_bit_depth)    +    \
+          "\n\t" + CONFIG::DS_NBLOCKS_KEY    + " => " + String(ds_n_buffers)    +    \
+          "\n\t" + CONFIG::DS_BLOCKSIZE_KEY  + " => " + String(ds_buffer_size)  ;    \
+    break ;                                                                          \
+    case audioStreamer::WIN_AUDIO_WAVE: dbg = dbg                                  + \
+          "\n\t" + CONFIG::WAVE_INPUT_KEY      + " => " + String(wave_device[0])   + \
+          "\n\t" + CONFIG::WAVE_OUTPUT_KEY     + " => " + String(wave_device[1])   + \
+          "\n\t" + CONFIG::WAVE_SAMPLERATE_KEY + " => " + String(wave_sample_rate) + \
+          "\n\t" + CONFIG::WAVE_BITDEPTH_KEY   + " => " + String(wave_bit_depth)   + \
+          "\n\t" + CONFIG::WAVE_NBLOCKS_KEY    + " => " + String(wave_n_buffers)   + \
+          "\n\t" + CONFIG::WAVE_BLOCKSIZE_KEY  + " => " + String(wave_buffer_size) ; \
+    break ;                                                                          \
+  } if (TRACE_AUDIO_INIT_VB) Trace::TraceClient(dbg) ;
 
-#define DEBUG_TRACE_AUDIO_INIT_MAC String type = CONFIG::CA_DEVICE_TYPE ;
+#define DEBUG_TRACE_AUDIO_INIT_MAC                                               \
+  String type = CLIENT::CA_DEVICE_TYPE ;                                         \
+  if (TRACE_AUDIO_INIT_VB)                                                       \
+    Trace::TraceClient("initializing "      + type   + " audiostreamer =>"     + \
+        "\n\t" + CONFIG::MAC_DEVICE_KEY     + " => " + mac_device_name         + \
+        "\n\t" + CONFIG::MAC_NINPUTS_KEY    + " => " + String(mac_n_inputs)    + \
+        "\n\t" + CONFIG::MAC_SAMPLERATE_KEY + " => " + String(mac_sample_rate) + \
+        "\n\t" + CONFIG::MAC_BITDEPTH_KEY   + " => " + String(mac_bit_depth)   ) ;
 
-#define DEBUG_TRACE_AUDIO_INIT_NIX String type = "unknown" ;
+#define DEBUG_TRACE_AUDIO_INIT_NIX                                                   \
+  String type = (if_n == audioStreamer::NIX_AUDIO_JACK) ? CLIENT::JACK_DEVICE_TYPE : \
+                (if_n == audioStreamer::NIX_AUDIO_ALSA) ? CLIENT::ALSA_DEVICE_TYPE : \
+                                                          CLIENT::NFG_DEVICE_TYPE  ;
 
 #define DEBUG_TRACE_AUDIO_INIT_JACK                                                 \
-  type = CONFIG::JACK_DEVICE_TYPE ;                                                 \
+  if (TRACE_AUDIO_INIT_VB)                                                          \
+    Trace::TraceClient("initializing "     + type   + " audiostreamer =>"   +       \
+        "\n\t" + CONFIG::JACK_NAME_KEY     + " => " + jack_name             +       \
+        "\n\t" + CONFIG::JACK_NINPUTS_KEY  + " => " + String(jack_n_inputs) +       \
+        "\n\t" + CONFIG::JACK_NOUTPUTS_KEY + " => " + String(jack_n_outputs)) ;     \
   if (!Audio) Trace::TraceState("could not connect to JACK - falling back to ALSA") ;
 
-#define DEBUG_TRACE_AUDIO_INIT_ALSA type = CONFIG::ALSA_DEVICE_TYPE ;
+#define DEBUG_TRACE_AUDIO_INIT_ALSA                                     \
+  if (TRACE_AUDIO_INIT_VB)                                              \
+    Trace::TraceClient("initializing " + type   + " audiostreamer =>" + \
+        "\n" + CONFIG::ALSA_CONFIG_KEY + " => " + alsa_config         ) ;
 
 #define DEBUG_TRACE_AUDIO_INIT                                                           \
-  if (!Audio) Trace::TraceError("error opening "      + type     + " audio device") ;    \
+  if (!Audio) Trace::TraceError("error opening audio device using " + type) ;            \
   else Trace::TraceState("opened audio device using " + type     + " audiostreamer - " + \
                          String(Audio->m_srate)       + "Hz "                          + \
                          String(Audio->m_bps)         + "bps "                         + \
@@ -67,23 +124,22 @@
 
 /* network */
 
-#define DEBUG_TRACE_CONNECT_STATUS                                            \
-  String host_name = Client->GetHostName() ;                                  \
-  switch (status)                                                             \
-  {                                                                           \
-    case -4: Trace::TraceClient( "NJC_STATUS_AUDIOERROR") ;           break ; \
-    case -3: Trace::TraceNetwork("NJC_STATUS_DISCONNECTED") ;         break ; \
-    case -2: Trace::TraceNetwork((IsAgreed())?                                \
-                                 "NJC_STATUS_INVALIDAUTH" :                   \
-                                 "LICENSE_PENDING") ;                 break ; \
-    case -1: Trace::TraceNetwork("NJC_STATUS_CANTCONNECT") ;          break ; \
-    case  0: Trace::TraceNetwork("NJC_STATUS_OK") ;                           \
-             Trace::TraceServer( "connected to host: " + host_name) ; break ; \
-    case  1: Trace::TraceNetwork("NJC_STATUS_PRECONNECT") ;           break ; \
-    default: Trace::TraceNetwork("Status: " + String(status)) ;       break ; \
-  }                                                                           \
-  if (Client->GetErrorStr()[0])                                               \
-    Trace::TraceServer("Error: " + String(Client->GetErrorStr())) ;
+static int PrevStatus = -9 ;
+#define DEBUG_TRACE_CONNECT_STATUS                                                      \
+  int    prev_status   = PrevStatus ;                                                   \
+  int    curr_status   = (PrevStatus = int(Status.getValue())) ;                        \
+  String prev_msg      = Trace::Status2String(prev_status , IsAgreed()) ;               \
+  String curr_msg      = Trace::Status2String(curr_status , IsAgreed()) ;               \
+  String host_name     = Client->GetHostName() ;                                        \
+  char*  client_error  = Client->GetErrorStr() ;                                        \
+  String changed_msg   = prev_msg + " -> " + curr_msg ;                                 \
+  String connected_msg = "connected to host: " + host_name ;                            \
+  String error_msg     = "Error: " + CharPointer_UTF8(client_error) ;                   \
+  if      (curr_status == LINJAM_STATUS_AUDIOERROR) Trace::TraceClient(curr_msg) ;      \
+  else if (prev_status == LINJAM_STATUS_AUDIOERROR) Trace::TraceNetwork(curr_msg) ;     \
+  else                                              Trace::TraceNetwork(changed_msg) ;  \
+  if      (curr_status == NJClient::NJC_STATUS_OK)  Trace::TraceServer(connected_msg) ; \
+  if      (client_error[0])                         Trace::TraceServer(error_msg) ;
 
 
 /* channels */

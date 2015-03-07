@@ -37,8 +37,8 @@
                                                                     //[/Comments]
 */
 class ConfigAudio  : public Component,
-                     public ComboBoxListener,
                      public ButtonListener,
+                     public ComboBoxListener,
                      public SliderListener
 {
 public:
@@ -52,8 +52,8 @@ public:
 
     void paint (Graphics& g);
     void resized();
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
     void buttonClicked (Button* buttonThatWasClicked);
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
     void sliderValueChanged (Slider* sliderThatWasMoved);
 
 
@@ -64,29 +64,54 @@ private:
   ValueTree configStore ;
 
 
+  void broughtToFront() ;
   void loadParams() ;
-  void queryAsioDevices() ;
-  void queryKernelstreamingDevices() ;
-  void queryDirectsoundDevices() ;
-  void queryWaveDevices() ;
-  void queryCoreaudioDevices() ;
-  void queryJackServers() ;
-  void queryAlsaDevices() ;
+#if _WIN32
+  bool queryAsioDevices() ;
+  bool queryKernelstreamingDevices() ;
+
+  bool queryDirectsoundDevices() ;
+  bool queryWaveDevices() ;
+#else // _WIN32
+#  ifdef // _MAC
+  bool queryCoreaudioDevices() ;
+#  else // _MAC
+  bool queryJackServers() ;
+  bool queryAlsaDevices() ;
+#  endif // _MAC
+#endif // _WIN32
+  void enableComponents() ;
   void setConfig(Identifier a_key , var a_value) ;
   void restoreDefaults() ;
+
+
+#if _WIN32
+static BOOL CALLBACK DSEnumProc(LPGUID  lpGUID      , LPCTSTR lpszDesc ,
+                                LPCTSTR lpszDrvName , LPVOID  device_names) ;
+#endif // _WIN32
 
     //[/UserVariables]
 
     //==============================================================================
+    ScopedPointer<GroupComponent> ioGroup;
+    ScopedPointer<GroupComponent> formatGroup;
+    ScopedPointer<GroupComponent> buffersGroup;
+    ScopedPointer<GroupComponent> routingGroup;
+    ScopedPointer<TextButton> defaultsButton;
+    ScopedPointer<TextButton> asioButton;
     ScopedPointer<Label> modeLabel;
     ScopedPointer<ComboBox> modeComboBox;
+    ScopedPointer<Label> driverLabel;
+    ScopedPointer<ComboBox> driverComboBox;
     ScopedPointer<Label> sourceLabel;
     ScopedPointer<ComboBox> sourceComboBox;
     ScopedPointer<Label> sinkLabel;
     ScopedPointer<ComboBox> sinkComboBox;
+    ScopedPointer<Label> bitdepthLabel;
     ScopedPointer<ToggleButton> bps16Button;
     ScopedPointer<ToggleButton> bps24Button;
     ScopedPointer<ToggleButton> bps32Button;
+    ScopedPointer<Label> samplerateLabel;
     ScopedPointer<ToggleButton> kHz44Button;
     ScopedPointer<ToggleButton> kHz48Button;
     ScopedPointer<ToggleButton> kHz96Button;
@@ -94,14 +119,13 @@ private:
     ScopedPointer<Slider> nBuffersSlider;
     ScopedPointer<Label> xLabel;
     ScopedPointer<ComboBox> bufferComboBox;
-    ScopedPointer<Label> latencyLabel;
+    ScopedPointer<Label> bytesLabel;
     ScopedPointer<Label> nixConfigLabel;
     ScopedPointer<TextEditor> nixConfigText;
     ScopedPointer<Label> nSourcesLabel;
     ScopedPointer<Slider> nSourcesSlider;
     ScopedPointer<Label> nSinksLabel;
     ScopedPointer<Slider> nSinksSlider;
-    ScopedPointer<TextButton> defaultsButton;
 
 
     //==============================================================================

@@ -34,7 +34,7 @@ SortedSet<int> LinJam::FreeInputChannels     = SortedSet<int>() ; // InitializeA
 SortedSet<int> LinJam::FreeInputChannelPairs = SortedSet<int>() ; // InitializeAudio() ;
 double         LinJam::GuiBeatOffset ;                            // InitializeAudio()
 File           LinJam::SessionDir ;                               // PrepareSessionDirectory()
-int            LinJam::ClientStatus ;                             // Initialize()
+Value          LinJam::Status                = Value() ;          // Initialize()
 String         LinJam::PrevRecordingTime ;                        // Disconnect()
 
 
@@ -210,8 +210,8 @@ DEBUG_TRACE_CHAT_OUT
   }
 }
 
-void LinJam::ConfigDismissed() { HandleStatus(Client->GetStatus()) ; }
-
+void LinJam::ConfigPending() { Status = LINJAM_STATUS_CONFIGPENDING ; }
+void LinJam::ConfigDismissed() { Status = LINJAM_STATUS_READY ; }
 
 /* LinJam class private class methods */
 
@@ -240,11 +240,12 @@ DEBUG_TRACE_LINJAM_INIT
   // configure NINJAM client
   ConfigureNinjam() ; ConfigureInitialChannels() ;
 
+  // initialize networking
+  Status.addListener(Config) ; JNL::open_socketlib() ;
+
   // create audiostreamer
   IsAudioEnabled.addListener(Gui->config) ; InitializeAudio() ;
-
-  // initialize networking
-  ClientStatus = NJClient::NJC_STATUS_DISCONNECTED ; JNL::open_socketlib() ;
+  if (Audio != nullptr) Status = LINJAM_STATUS_READY ;
 
   return true ;
 }
@@ -312,6 +313,13 @@ void LinJam::InitializeAudio()
   int    ds_bit_depth     =     int(Config->audio[CONFIG::DS_BITDEPTH_ID]) ;
   int    ds_n_buffers     =     int(Config->audio[CONFIG::DS_NBLOCKS_ID]) ;
   int    ds_buffer_size   =     int(Config->audio[CONFIG::DS_BLOCKSIZE_ID]) ;
+/*
+ds_sample_rate = CONFIG::DEFAULT_DS_SAMPLERATE ;
+ds_bit_depth = CONFIG::DEFAULT_DS_BITDEPTH    ;
+ds_device[2][4] = {{0,0,0,0},{0,0,0,0}};
+ds_n_buffers   = CONFIG::DEFAULT_DS_N_BLOCKS;
+ds_buffer_size = CONFIG::DEFAULT_DS_BLOCKSIZE;
+*/
   int    wave_device[2]   =   { int(Config->audio[CONFIG::WAVE_INPUT_ID])  ,
                                 int(Config->audio[CONFIG::WAVE_OUTPUT_ID]) } ;
   int    wave_sample_rate =     int(Config->audio[CONFIG::WAVE_SAMPLERATE_ID]) ;
@@ -430,8 +438,9 @@ DEBUG_TRACE_AUDIO_INIT_ALSA
 #  endif // _MAC
 #endif // _WIN32
 
-  // set value holder for Config GUI
+  // set audio and status value holders for Config GUI and LinJamConfig 
   bool is_audio_enabled ; IsAudioEnabled = is_audio_enabled = Audio != nullptr ;
+  Status = (is_audio_enabled)? LINJAM_STATUS_CONFIGPENDING : LINJAM_STATUS_AUDIOERROR ;
 
   if (is_audio_enabled)
   {
@@ -449,10 +458,6 @@ DEBUG_TRACE_AUDIO_INIT_ALSA
   }
   
 DEBUG_TRACE_AUDIO_INIT
-
-  int client_status = (is_audio_enabled)? Client->GetStatus()             :
-                                          NJClient::NJC_STATUS_AUDIOERROR ;
-  HandleStatus(client_status) ;
 }
 
 void LinJam::ConfigureInitialChannels()
@@ -516,15 +521,15 @@ void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , in
 {
   if (!parms[0]) return ;
 
-  String chat_type  = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
-  String chat_user  = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_USER_IDX]))
-                      .upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , false) ;
-  String chat_text  = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_MSG_IDX])) ;
-  bool is_topic_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_TOPIC)) ;
-  bool is_bcast_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_MSG)) ;
-  bool is_priv_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PRIVMSG)) ;
-  bool is_join_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_JOIN)) ;
-  bool is_part_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PART)) ;
+  String chat_type    = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
+  String chat_user    = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_USER_IDX]))
+                        .upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , false) ;
+  String chat_text    = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_MSG_IDX])) ;
+  bool   is_topic_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_TOPIC)) ;
+  bool   is_bcast_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_MSG)) ;
+  bool   is_priv_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PRIVMSG)) ;
+  bool   is_join_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_JOIN)) ;
+  bool   is_part_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PART)) ;
 
 DEBUG_TRACE_CHAT_IN
 
@@ -611,81 +616,86 @@ DBG("[DEBUG]: EXIT_IMMEDIAYELY defined - bailing") ; Client->quit() ;
   }
 }
 
-void LinJam::PumpClient()
+void LinJam::UpdateStatus()
 {
-  int client_status = Client->GetStatus() ;
+  // update status if not in error or hold state
+  int status = int(Status.getValue()) ;
+  if (status >= LINJAM_STATUS_READY) status = Client->GetStatus() ;
 
-  if (client_status != ClientStatus)            HandleStatus(client_status) ;
-  if (client_status == NJClient::NJC_STATUS_OK) HandleUserInfoChanged() ;
-  if (client_status >= NJClient::NJC_STATUS_OK) while (!Client->Run()) ;
+  String error_msg          = CharPointer_UTF8(Client->GetErrorStr()) ;
+  bool   is_licence_pending = status == NJClient::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
+  bool   is_room_full       = !error_msg.compare(CLIENT::SERVER_FULL_STATUS) ;
+
+  if      (is_licence_pending) status = LINJAM_STATUS_LICENSEPENDING ;
+  else if (is_room_full)       status = LINJAM_STATUS_ROOMFULL ;
+
+  Status = status ;
 }
 
-void LinJam::UpdateGuiHighPriority() { UpdateLoopProgress() ; UpdateVuMeters() ; }
+void LinJam::PumpClient()
+{
+  UpdateStatus() ;
 
-void LinJam::UpdateGuiLowPriority() { UpdateRecordingTime() ; }
+  if (Client->HasUserInfoChanged())                   HandleUserInfoChanged() ;
+  if (Client->GetStatus() >= NJClient::NJC_STATUS_OK) while (!Client->Run()) ;
+}
 
-void LinJam::HandleStatus(int status)
+void LinJam::HandleStatusChanged()
 {
 DEBUG_TRACE_CONNECT_STATUS
 #ifdef DEBUG_AUTOLOGIN
-if (status == NJClient::NJC_STATUS_PRECONNECT)
+if (Status == NJClient::NJC_STATUS_PRECONNECT)
 { Config->setCurrentServer(DEBUG_STATIC_CHANNEL , "nobody" , "" , true) ;
   LinJam::Config->server.setProperty(CONFIG::IS_AGREED_ID , true , nullptr) ; Connect() ; }
 #endif // DEBUG_AUTOLOGIN
 
-  ClientStatus = status ;
-
-  String error_msg        = CharPointer_UTF8(Client->GetErrorStr()) ;
-  bool   is_room_full     = !error_msg.compare(CLIENT::SERVER_FULL_STATUS) ;
-  bool   is_agreed        = IsAgreed() ;
-  bool   is_audio_enabled = bool(IsAudioEnabled.getValue()) ;
-  String host             = Client->GetHostName() ;
+  // ignore sentinel value
+  if (Status == LINJAM_STATUS_READY) return ;
 
   // set status indicator
+  String host        = Client->GetHostName() ;
   String status_text =
-      (status == NJClient::NJC_STATUS_AUDIOERROR)  ? ((is_audio_enabled)      ?
-                                                     GUI::AUDIO_INIT_MSG      :
-                                                     GUI::AUDIO_INIT_ERROR_MSG)         :
-      (status == NJClient::NJC_STATUS_DISCONNECTED)? GUI::DISCONNECTED_STATUS_TEXT      :
-      (status == NJClient::NJC_STATUS_INVALIDAUTH) ? ((is_agreed)? ((is_room_full)?
-                                                     GUI::ROOM_FULL_STATUS_TEXT   :
-                                                     GUI::INVALID_AUTH_STATUS_TEXT)  :
-                                                     GUI::PENDING_LICENSE_STATUS_TEXT)  :
-      (status == NJClient::NJC_STATUS_CANTCONNECT) ? GUI::FAILED_CONNECTION_STATUS_TEXT :
-      (status == NJClient::NJC_STATUS_OK)          ? GUI::CONNECTED_STATUS_TEXT + host  :
-      (status == NJClient::NJC_STATUS_PRECONNECT)  ? GUI::IDLE_STATUS_TEXT              :
-                                                     String(status)                     ;
+      (Status == LINJAM_STATUS_AUDIOERROR)          ? GUI::AUDIO_INIT_ERROR_MSG          :
+      (Status == LINJAM_STATUS_CONFIGPENDING)       ? GUI::CONFIG_PENDING_MSG            :
+      (Status == LINJAM_STATUS_LICENSEPENDING)      ? GUI::PENDING_LICENSE_STATUS_TEXT   :
+      (Status == LINJAM_STATUS_ROOMFULL)            ? GUI::ROOM_FULL_STATUS_TEXT         :
+      (Status == NJClient::NJC_STATUS_DISCONNECTED) ? GUI::DISCONNECTED_STATUS_TEXT      :
+      (Status == NJClient::NJC_STATUS_INVALIDAUTH)  ? GUI::INVALID_AUTH_STATUS_TEXT      :
+      (Status == NJClient::NJC_STATUS_CANTCONNECT)  ? GUI::FAILED_CONNECTION_STATUS_TEXT :
+      (Status == NJClient::NJC_STATUS_OK)           ? GUI::CONNECTED_STATUS_TEXT + host  :
+      (Status == NJClient::NJC_STATUS_PRECONNECT)   ? GUI::IDLE_STATUS_TEXT              :
+                                                      Status.toString()                  ;
   Gui->statusbar->setStatusL(status_text) ;
 
   // set GUI state
   Component* top_component =
-      (status == NJClient::NJC_STATUS_AUDIOERROR)               ? Gui->config     :
-      (status == NJClient::NJC_STATUS_DISCONNECTED)             ? Gui->login      :
-      (status == NJClient::NJC_STATUS_INVALIDAUTH &&  is_agreed)? Gui->login      :
-      (status == NJClient::NJC_STATUS_INVALIDAUTH && !is_agreed)? Gui->license    :
-      (status == NJClient::NJC_STATUS_CANTCONNECT)              ? Gui->login      :
-      (status == NJClient::NJC_STATUS_OK)                       ? Gui->chat       :
-      (status == NJClient::NJC_STATUS_PRECONNECT)               ? Gui->login      :
+      (Status == LINJAM_STATUS_AUDIOERROR)          ?             Gui->config     :
+      (Status == LINJAM_STATUS_CONFIGPENDING)       ?             Gui->config     :
+      (Status == LINJAM_STATUS_LICENSEPENDING)      ?             Gui->license    :
+      (Status == LINJAM_STATUS_ROOMFULL)            ?             Gui->login      :
+      (Status == NJClient::NJC_STATUS_DISCONNECTED) ?             Gui->login      :
+      (Status == NJClient::NJC_STATUS_INVALIDAUTH)  ?             Gui->login      :
+      (Status == NJClient::NJC_STATUS_CANTCONNECT)  ?             Gui->login      :
+      (Status == NJClient::NJC_STATUS_OK)           ?             Gui->chat       :
+      (Status == NJClient::NJC_STATUS_PRECONNECT)   ?             Gui->login      :
                                                       (Component*)Gui->background ;
   top_component  ->toFront(true) ;
   Gui->background->toBehind(top_component) ;
-  if (status == NJClient::NJC_STATUS_OK)
+  if (Status == NJClient::NJC_STATUS_OK)
   {
     Gui->mixer->toFront(false) ; Gui->loop->toFront(false) ; UpdateGuiLowPriority() ;
   }
 
   // reset login state
-  if (status == NJClient::NJC_STATUS_INVALIDAUTH)
+  if (Status == NJClient::NJC_STATUS_INVALIDAUTH)
     Config->server.setProperty(CONFIG::IS_AGREED_ID , false , nullptr) ;
 
   // store the current server configuration
-  if (status == NJClient::NJC_STATUS_OK) Config->setServer() ;
+  if (Status == NJClient::NJC_STATUS_OK) Config->setServer() ;
 }
 
 void LinJam::HandleUserInfoChanged()
 {
-  if (!Client->HasUserInfoChanged()) return ;
-
 #ifdef NO_UPDATE_REMOTES
 return ;
 #endif // NO_UPDATE_REMOTES
@@ -758,6 +768,9 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
   Gui->mixer->pruneRemotes(active_users) ;
 }
 
+void LinJam::UpdateGuiHighPriority() { UpdateLoopProgress() ; UpdateVuMeters() ; }
+
+void LinJam::UpdateGuiLowPriority() { UpdateRecordingTime() ; }
 void LinJam::UpdateLoopProgress()
 {
 #ifdef NO_UPDATE_LOOP_PROGRESS_GUI
@@ -921,7 +934,7 @@ void LinJam::UpdateRecordingTime()
   return ;
 #endif // NO_UPDATE_RECORDING_TIME_GUI
 
-  if (ClientStatus != NJClient::NJC_STATUS_OK) return ;
+  if (Status != NJClient::NJC_STATUS_OK) return ;
 
   // NOTE: parsing recording time is brittle - strictly dependent on the values
   //       in NETWORK::KNOWN_HOSTS , NETWORK::KNOWN_BOTS , and CLIENT::BOT_CHANNELIDX
@@ -1175,7 +1188,7 @@ void LinJam::ConfigureLocalChannel(ValueTree channel_store , Identifier a_key)
 DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
 
   // handle channel name change
-  const char* new_name = (should_set_name)? channel_name.toRawUTF8() : NULL ;
+  const char* new_name = (should_set_name)? channel_name.toRawUTF8() : nullptr ;
 
   // handle faux-stereo panning
   if (should_set_pan) pan = ComputeStereoPan(pan , stereo_status) ;

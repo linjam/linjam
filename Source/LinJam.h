@@ -27,14 +27,15 @@
 #include "LinJamConfig.h"
 #include "MainContent.h"
 
+#include <vld.h> 
 
 class LinJam
 {
   friend class LinJamApplication ;
   friend class LinJamConfig ;
   friend class Trace ;
-  friend class License ; // TODO: needs access to config object (issue #)
-  friend class Login ;   // TODO: needs access to config object (issue #)
+  friend class License ; // TODO: needs access to config object (issue #62)
+  friend class Login ;   // TODO: needs access to config object (issue #62)
 
 
 public:
@@ -53,6 +54,7 @@ public:
   static bool AddLocalChannel(   ValueTree channel_store) ;
   static void RemoveLocalChannel(ValueTree channel_store) ;
   static void SendChat(          String chat_text) ;
+  static void ConfigPending() ;
   static void ConfigDismissed() ;
 
 
@@ -67,9 +69,17 @@ private:
   static SortedSet<int> FreeInputChannelPairs ;
   static double         GuiBeatOffset ;
   static File           SessionDir ;
-  static int            ClientStatus ;
+  static Value          Status ;
   static String         PrevRecordingTime ;
 
+
+  // extension to NJClient::ConnectionStatus
+  enum LinJamStatus { LINJAM_STATUS_INIT           = -9 ,
+                      LINJAM_STATUS_AUDIOERROR     = -8 ,
+                      LINJAM_STATUS_CONFIGPENDING  = -7 ,
+                      LINJAM_STATUS_READY          = -6 ,
+                      LINJAM_STATUS_LICENSEPENDING = -5 ,
+                      LINJAM_STATUS_ROOMFULL       = -4 } ;
 
   // initialization methods
   static bool Initialize(NJClient*     nj_client , MainContent* main_content ,
@@ -90,11 +100,12 @@ private:
 
   // NJClient runtime routines
   static void HandleTimer(int timer_id) ;
+  static void UpdateStatus() ;
   static void PumpClient() ;
+  static void HandleStatusChanged() ;
+  static void HandleUserInfoChanged() ;
   static void UpdateGuiHighPriority() ;
   static void UpdateGuiLowPriority() ;
-  static void HandleStatus(int client_status) ;
-  static void HandleUserInfoChanged() ;
   static void UpdateLoopProgress() ;
   static void UpdateVuMeters() ;
   static void UpdateRecordingTime() ;

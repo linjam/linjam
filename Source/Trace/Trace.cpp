@@ -202,4 +202,20 @@ String Trace::DumpVar(String val_name , var a_var)
          " value => "  + a_var.toString() ;
 }
 
+String Trace::Status2String(int status , int is_agreed)
+{
+  return (status == -9)? "LINJAM_STATUS_INIT"     :
+         (status == -8)? "LINJAM_STATUS_AUDIOERROR"     :
+         (status == -7)? "LINJAM_STATUS_CONFIGPENDING" :
+         (status == -6)? "LINJAM_STATUS_READY" :
+         (status == -5)? "LINJAM_STATUS_LICENSEPENDING" :
+         (status == -4)? "LINJAM_STATUS_ROOMFULL"       :
+         (status == -3)? "NJC_STATUS_DISCONNECTED"      :
+         (status == -2)? "NJC_STATUS_INVALIDAUTH"       :
+         (status == -1)? "NJC_STATUS_CANTCONNECT"       :
+         (status ==  0)? "NJC_STATUS_OK"                :
+         (status ==  1)? "NJC_STATUS_PRECONNECT"        :
+                         "Status: " + String(status)    ;
+}
+
 #endif // #if DEBUG

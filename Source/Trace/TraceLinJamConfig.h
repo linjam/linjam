@@ -97,14 +97,14 @@
       audio .hasProperty(CONFIG::KS_INPUT_ID)         ;                                  \
   bool audio_has_ksoutput_property         =                                             \
       audio .hasProperty(CONFIG::KS_OUTPUT_ID)        ;                                  \
-  bool audio_has_kssamplerate_property     =                                             \
-      audio .hasProperty(CONFIG::KS_SAMPLERATE_ID)    ;                                  \
   bool audio_has_ksbitdepth_property       =                                             \
       audio .hasProperty(CONFIG::KS_BITDEPTH_ID)      ;                                  \
-  bool audio_has_ksblocksize_property      =                                             \
-      audio .hasProperty(CONFIG::KS_BLOCKSIZE_ID)     ;                                  \
+  bool audio_has_kssamplerate_property     =                                             \
+      audio .hasProperty(CONFIG::KS_SAMPLERATE_ID)    ;                                  \
   bool audio_has_ksnblocks_property        =                                             \
       audio .hasProperty(CONFIG::KS_NBLOCKS_ID)       ;                                  \
+  bool audio_has_ksblocksize_property      =                                             \
+      audio .hasProperty(CONFIG::KS_BLOCKSIZE_ID)     ;                                  \
   bool audio_has_dsinput0_property         =                                             \
       audio .hasProperty(CONFIG::DS_INPUT0_ID)        ;                                  \
   bool audio_has_dsinput1_property         =                                             \
@@ -121,42 +121,44 @@
       audio .hasProperty(CONFIG::DS_OUTPUT2_ID)       ;                                  \
   bool audio_has_dsoutput3_property        =                                             \
       audio .hasProperty(CONFIG::DS_OUTPUT3_ID)       ;                                  \
-  bool audio_has_dssamplerate_property     =                                             \
-      audio .hasProperty(CONFIG::DS_SAMPLERATE_ID)    ;                                  \
   bool audio_has_dsbitdepth_property       =                                             \
       audio .hasProperty(CONFIG::DS_BITDEPTH_ID)      ;                                  \
-  bool audio_has_dsblocksize_property      =                                             \
-      audio .hasProperty(CONFIG::DS_BLOCKSIZE_ID)     ;                                  \
+  bool audio_has_dssamplerate_property     =                                             \
+      audio .hasProperty(CONFIG::DS_SAMPLERATE_ID)    ;                                  \
   bool audio_has_dsnblocks_property        =                                             \
       audio .hasProperty(CONFIG::DS_NBLOCKS_ID)       ;                                  \
+  bool audio_has_dsblocksize_property      =                                             \
+      audio .hasProperty(CONFIG::DS_BLOCKSIZE_ID)     ;                                  \
   bool audio_has_waveinput_property        =                                             \
       audio .hasProperty(CONFIG::WAVE_INPUT_ID)       ;                                  \
   bool audio_has_waveoutput_property       =                                             \
       audio .hasProperty(CONFIG::WAVE_OUTPUT_ID)      ;                                  \
-  bool audio_has_wavesamplerate_property   =                                             \
-      audio .hasProperty(CONFIG::WAVE_SAMPLERATE_ID)  ;                                  \
   bool audio_has_wavebitdepth_property     =                                             \
       audio .hasProperty(CONFIG::WAVE_BITDEPTH_ID)    ;                                  \
-  bool audio_has_waveblocksize_property    =                                             \
-      audio .hasProperty(CONFIG::WAVE_BLOCKSIZE_ID)   ;                                  \
+  bool audio_has_wavesamplerate_property   =                                             \
+      audio .hasProperty(CONFIG::WAVE_SAMPLERATE_ID)  ;                                  \
   bool audio_has_wavenblocks_property      =                                             \
       audio .hasProperty(CONFIG::WAVE_NBLOCKS_ID)     ;                                  \
+  bool audio_has_waveblocksize_property    =                                             \
+      audio .hasProperty(CONFIG::WAVE_BLOCKSIZE_ID)   ;                                  \
   bool audio_has_macdevice_property        =                                             \
       audio .hasProperty(CONFIG::MAC_DEVICE_ID)       ;                                  \
   bool audio_has_macninputs_property       =                                             \
       audio .hasProperty(CONFIG::MAC_NINPUTS_ID)      ;                                  \
-  bool audio_has_macsamplerate_property    =                                             \
-      audio .hasProperty(CONFIG::MAC_SAMPLERATE_ID)   ;                                  \
   bool audio_has_macbitdepth_property      =                                             \
       audio .hasProperty(CONFIG::MAC_BITDEPTH_ID)     ;                                  \
+  bool audio_has_macsamplerate_property    =                                             \
+      audio .hasProperty(CONFIG::MAC_SAMPLERATE_ID)   ;                                  \
   bool audio_has_nixifn_property           =                                             \
       audio .hasProperty(CONFIG::NIX_AUDIO_IF_ID)     ;                                  \
+  bool audio_has_jackserver_property       =                                             \
+      audio .hasProperty(CONFIG::JACK_SERVER_ID)      ;                                  \
+  bool audio_has_jackname_property         =                                             \
+      audio .hasProperty(CONFIG::JACK_NAME_ID)        ;                                  \
   bool audio_has_jackninputs_property      =                                             \
       audio .hasProperty(CONFIG::JACK_NINPUTS_ID)     ;                                  \
   bool audio_has_jacknoutputs_property     =                                             \
       audio .hasProperty(CONFIG::JACK_NOUTPUTS_ID)    ;                                  \
-  bool audio_has_jackname_property         =                                             \
-      audio .hasProperty(CONFIG::JACK_NAME_ID)        ;                                  \
   bool audio_has_alsaconfig_property         =                                           \
       audio .hasProperty(CONFIG::ALSA_CONFIG_ID)      ;                                  \
                                                                                          \
@@ -225,10 +227,10 @@
   bool asio_output1_is_int      = audio [CONFIG::ASIO_OUTPUT1_ID]    .isInt()    ;       \
   bool ks_input_is_int          = audio [CONFIG::KS_INPUT_ID]        .isInt()    ;       \
   bool ks_output_is_int         = audio [CONFIG::KS_OUTPUT_ID]       .isInt()    ;       \
-  bool ks_samplerate_is_int     = audio [CONFIG::KS_SAMPLERATE_ID]   .isInt()    ;       \
   bool ks_bitdepth_is_int       = audio [CONFIG::KS_BITDEPTH_ID]     .isInt()    ;       \
-  bool ks_blocksize_is_int      = audio [CONFIG::KS_BLOCKSIZE_ID]    .isInt()    ;       \
+  bool ks_samplerate_is_int     = audio [CONFIG::KS_SAMPLERATE_ID]   .isInt()    ;       \
   bool ks_n_blocks_is_int       = audio [CONFIG::KS_NBLOCKS_ID]      .isInt()    ;       \
+  bool ks_blocksize_is_int      = audio [CONFIG::KS_BLOCKSIZE_ID]    .isInt()    ;       \
   bool ds_input0_is_int         = audio [CONFIG::DS_INPUT0_ID]       .isInt()    ;       \
   bool ds_input1_is_int         = audio [CONFIG::DS_INPUT1_ID]       .isInt()    ;       \
   bool ds_input2_is_int         = audio [CONFIG::DS_INPUT2_ID]       .isInt()    ;       \
@@ -237,24 +239,25 @@
   bool ds_output1_is_int        = audio [CONFIG::DS_OUTPUT1_ID]      .isInt()    ;       \
   bool ds_output2_is_int        = audio [CONFIG::DS_OUTPUT2_ID]      .isInt()    ;       \
   bool ds_output3_is_int        = audio [CONFIG::DS_OUTPUT3_ID]      .isInt()    ;       \
-  bool ds_samplerate_is_int     = audio [CONFIG::DS_SAMPLERATE_ID]   .isInt()    ;       \
   bool ds_bitdepth_is_int       = audio [CONFIG::DS_BITDEPTH_ID]     .isInt()    ;       \
-  bool ds_blocksize_is_int      = audio [CONFIG::DS_BLOCKSIZE_ID]    .isInt()    ;       \
+  bool ds_samplerate_is_int     = audio [CONFIG::DS_SAMPLERATE_ID]   .isInt()    ;       \
   bool ds_n_blocks_is_int       = audio [CONFIG::DS_NBLOCKS_ID]      .isInt()    ;       \
+  bool ds_blocksize_is_int      = audio [CONFIG::DS_BLOCKSIZE_ID]    .isInt()    ;       \
   bool wave_input_is_int        = audio [CONFIG::WAVE_INPUT_ID]      .isInt()    ;       \
   bool wave_output_is_int       = audio [CONFIG::WAVE_OUTPUT_ID]     .isInt()    ;       \
-  bool wave_samplerate_is_int   = audio [CONFIG::WAVE_SAMPLERATE_ID] .isInt()    ;       \
   bool wave_bitdepth_is_int     = audio [CONFIG::WAVE_BITDEPTH_ID]   .isInt()    ;       \
-  bool wave_blocksize_is_int    = audio [CONFIG::WAVE_BLOCKSIZE_ID]  .isInt()    ;       \
+  bool wave_samplerate_is_int   = audio [CONFIG::WAVE_SAMPLERATE_ID] .isInt()    ;       \
   bool wave_n_blocks_is_int     = audio [CONFIG::WAVE_NBLOCKS_ID]    .isInt()    ;       \
+  bool wave_blocksize_is_int    = audio [CONFIG::WAVE_BLOCKSIZE_ID]  .isInt()    ;       \
   bool mac_device_is_string     = audio [CONFIG::MAC_DEVICE_ID]      .isString() ;       \
   bool mac_n_inputs_is_int      = audio [CONFIG::MAC_NINPUTS_ID]     .isInt()    ;       \
-  bool mac_samplerate_is_int    = audio [CONFIG::MAC_SAMPLERATE_ID]  .isInt()    ;       \
   bool mac_bitdepth_is_int      = audio [CONFIG::MAC_BITDEPTH_ID]    .isInt()    ;       \
+  bool mac_samplerate_is_int    = audio [CONFIG::MAC_SAMPLERATE_ID]  .isInt()    ;       \
   bool nix_audio_ifn_is_int     = audio [CONFIG::NIX_AUDIO_IF_ID]    .isInt()    ;       \
+  bool jack_server_is_int       = audio [CONFIG::JACK_SERVER_ID]     .isInt()    ;       \
+  bool jack_name_is_string      = audio [CONFIG::JACK_NAME_ID]       .isString() ;       \
   bool jack_n_inputs_is_int     = audio [CONFIG::JACK_NINPUTS_ID]    .isInt()    ;       \
   bool jack_n_outputs_is_int    = audio [CONFIG::JACK_NOUTPUTS_ID]   .isInt()    ;       \
-  bool jack_name_is_string      = audio [CONFIG::JACK_NAME_ID]       .isString() ;       \
   bool alsa_config_is_string    = audio [CONFIG::ALSA_CONFIG_ID]     .isString() ;       \
                                                                                          \
   /* server datatypes */                                                                 \
@@ -335,14 +338,14 @@
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::KS_INPUT_KEY) ;              \
   if (!audio_has_ksoutput_property)                                                      \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::KS_OUTPUT_KEY) ;             \
-  if (!audio_has_kssamplerate_property)                                                  \
-    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::KS_SAMPLERATE_KEY) ;         \
   if (!audio_has_ksbitdepth_property)                                                    \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::KS_BITDEPTH_KEY) ;           \
-  if (!audio_has_ksblocksize_property)                                                   \
-    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::KS_BLOCKSIZE_KEY) ;          \
+  if (!audio_has_kssamplerate_property)                                                  \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::KS_SAMPLERATE_KEY) ;         \
   if (!audio_has_ksnblocks_property)                                                     \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::KS_NBLOCKS_KEY) ;            \
+  if (!audio_has_ksblocksize_property)                                                   \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::KS_BLOCKSIZE_KEY) ;          \
   if (!audio_has_dsinput0_property)                                                      \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::DS_INPUT0_KEY) ;             \
   if (!audio_has_dsinput1_property)                                                      \
@@ -359,42 +362,44 @@
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::DS_OUTPUT2_KEY) ;            \
   if (!audio_has_dsoutput3_property)                                                     \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::DS_OUTPUT3_KEY) ;            \
-  if (!audio_has_dssamplerate_property)                                                  \
-    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::DS_SAMPLERATE_KEY) ;         \
   if (!audio_has_dsbitdepth_property)                                                    \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::DS_BITDEPTH_KEY) ;           \
-  if (!audio_has_dsblocksize_property)                                                   \
-    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::DS_BLOCKSIZE_KEY) ;          \
+  if (!audio_has_dssamplerate_property)                                                  \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::DS_SAMPLERATE_KEY) ;         \
   if (!audio_has_dsnblocks_property)                                                     \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::DS_NBLOCKS_KEY) ;            \
+  if (!audio_has_dsblocksize_property)                                                   \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::DS_BLOCKSIZE_KEY) ;          \
   if (!audio_has_waveinput_property)                                                     \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WAVE_INPUT_KEY) ;            \
   if (!audio_has_waveoutput_property)                                                    \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WAVE_OUTPUT_KEY) ;           \
-  if (!audio_has_wavesamplerate_property)                                                \
-    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WAVE_SAMPLERATE_KEY) ;       \
   if (!audio_has_wavebitdepth_property)                                                  \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WAVE_BITDEPTH_KEY) ;         \
-  if (!audio_has_waveblocksize_property)                                                 \
-    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WAVE_BLOCKSIZE_KEY) ;        \
+  if (!audio_has_wavesamplerate_property)                                                \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WAVE_SAMPLERATE_KEY) ;       \
   if (!audio_has_wavenblocks_property)                                                   \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WAVE_NBLOCKS_KEY) ;          \
+  if (!audio_has_waveblocksize_property)                                                 \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WAVE_BLOCKSIZE_KEY) ;        \
   if (!audio_has_macdevice_property)                                                     \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::MAC_DEVICE_KEY) ;            \
   if (!audio_has_macninputs_property)                                                    \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::MAC_NINPUTS_KEY) ;           \
-  if (!audio_has_macsamplerate_property)                                                 \
-    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::MAC_SAMPLERATE_KEY) ;        \
   if (!audio_has_macbitdepth_property)                                                   \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::MAC_BITDEPTH_KEY) ;          \
+  if (!audio_has_macsamplerate_property)                                                 \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::MAC_SAMPLERATE_KEY) ;        \
   if (!audio_has_nixifn_property)                                                        \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::NIX_AUDIO_IF_KEY) ;          \
+  if (!audio_has_jackserver_property)                                                    \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::JACK_SERVER_KEY) ;           \
+  if (!audio_has_jackname_property)                                                      \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::JACK_NAME_KEY) ;             \
   if (!audio_has_jackninputs_property)                                                   \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::JACK_NINPUTS_KEY) ;          \
   if (!audio_has_jacknoutputs_property)                                                  \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::JACK_NOUTPUTS_KEY) ;         \
-  if (!audio_has_jackname_property)                                                      \
-    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::JACK_NAME_KEY) ;             \
   if (!audio_has_alsaconfig_property)                                                    \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::ALSA_CONFIG_KEY) ;           \
                                                                                          \
@@ -491,18 +496,18 @@
   if (!ks_output_is_int)                                                                 \
     Trace::TraceTypeMismatch(audio               , CONFIG::KS_OUTPUT_KEY        ,        \
                              CONFIG::INT_TYPE    , audio[CONFIG::KS_OUTPUT_ID]) ;        \
-  if (!ks_samplerate_is_int)                                                             \
-    Trace::TraceTypeMismatch(audio               , CONFIG::KS_SAMPLERATE_KEY        ,    \
-                             CONFIG::INT_TYPE    , audio[CONFIG::KS_SAMPLERATE_ID]) ;    \
   if (!ks_bitdepth_is_int)                                                               \
     Trace::TraceTypeMismatch(audio               , CONFIG::KS_BITDEPTH_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::KS_BITDEPTH_ID]) ;      \
-  if (!ks_blocksize_is_int)                                                              \
-    Trace::TraceTypeMismatch(audio               , CONFIG::KS_BLOCKSIZE_KEY        ,     \
-                             CONFIG::INT_TYPE    , audio[CONFIG::KS_BLOCKSIZE_ID]) ;     \
+  if (!ks_samplerate_is_int)                                                             \
+    Trace::TraceTypeMismatch(audio               , CONFIG::KS_SAMPLERATE_KEY        ,    \
+                             CONFIG::INT_TYPE    , audio[CONFIG::KS_SAMPLERATE_ID]) ;    \
   if (!ks_n_blocks_is_int)                                                               \
     Trace::TraceTypeMismatch(audio               , CONFIG::KS_NBLOCKS_KEY        ,       \
                              CONFIG::INT_TYPE    , audio[CONFIG::KS_NBLOCKS_ID]) ;       \
+  if (!ks_blocksize_is_int)                                                              \
+    Trace::TraceTypeMismatch(audio               , CONFIG::KS_BLOCKSIZE_KEY        ,     \
+                             CONFIG::INT_TYPE    , audio[CONFIG::KS_BLOCKSIZE_ID]) ;     \
   if (!ds_input0_is_int)                                                                 \
     Trace::TraceTypeMismatch(audio               , CONFIG::DS_INPUT0_KEY        ,        \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_INPUT0_ID]) ;        \
@@ -527,60 +532,63 @@
   if (!ds_output3_is_int)                                                                \
     Trace::TraceTypeMismatch(audio               , CONFIG::DS_OUTPUT3_KEY        ,       \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_OUTPUT3_ID]) ;       \
-  if (!ds_samplerate_is_int)                                                             \
-    Trace::TraceTypeMismatch(audio               , CONFIG::DS_SAMPLERATE_KEY        ,    \
-                             CONFIG::INT_TYPE    , audio[CONFIG::DS_SAMPLERATE_ID]) ;    \
   if (!ds_bitdepth_is_int)                                                               \
     Trace::TraceTypeMismatch(audio               , CONFIG::DS_BITDEPTH_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_BITDEPTH_ID]) ;      \
-  if (!ds_blocksize_is_int)                                                              \
-    Trace::TraceTypeMismatch(audio               , CONFIG::DS_BLOCKSIZE_KEY        ,     \
-                             CONFIG::INT_TYPE    , audio[CONFIG::DS_BLOCKSIZE_ID]) ;     \
+  if (!ds_samplerate_is_int)                                                             \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_SAMPLERATE_KEY        ,    \
+                             CONFIG::INT_TYPE    , audio[CONFIG::DS_SAMPLERATE_ID]) ;    \
   if (!ds_n_blocks_is_int)                                                               \
     Trace::TraceTypeMismatch(audio               , CONFIG::DS_NBLOCKS_KEY        ,       \
                              CONFIG::INT_TYPE    , audio[CONFIG::DS_NBLOCKS_ID]) ;       \
+  if (!ds_blocksize_is_int)                                                              \
+    Trace::TraceTypeMismatch(audio               , CONFIG::DS_BLOCKSIZE_KEY        ,     \
+                             CONFIG::INT_TYPE    , audio[CONFIG::DS_BLOCKSIZE_ID]) ;     \
   if (!wave_input_is_int)                                                                \
     Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_INPUT_KEY        ,       \
                              CONFIG::INT_TYPE    , audio[CONFIG::WAVE_INPUT_ID]) ;       \
   if (!wave_output_is_int)                                                               \
     Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_OUTPUT_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::WAVE_OUTPUT_ID]) ;      \
-  if (!wave_samplerate_is_int)                                                           \
-    Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_SAMPLERATE_KEY        ,  \
-                             CONFIG::INT_TYPE    , audio[CONFIG::WAVE_SAMPLERATE_ID]) ;  \
   if (!wave_bitdepth_is_int)                                                             \
     Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_BITDEPTH_KEY        ,    \
                              CONFIG::INT_TYPE    , audio[CONFIG::WAVE_BITDEPTH_ID]) ;    \
-  if (!wave_blocksize_is_int)                                                            \
-    Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_BLOCKSIZE_KEY        ,   \
-                             CONFIG::INT_TYPE    , audio[CONFIG::WAVE_BLOCKSIZE_ID]) ;   \
+  if (!wave_samplerate_is_int)                                                           \
+    Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_SAMPLERATE_KEY        ,  \
+                             CONFIG::INT_TYPE    , audio[CONFIG::WAVE_SAMPLERATE_ID]) ;  \
   if (!wave_n_blocks_is_int)                                                             \
     Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_NBLOCKS_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::WAVE_NBLOCKS_ID]) ;     \
+  if (!wave_blocksize_is_int)                                                            \
+    Trace::TraceTypeMismatch(audio               , CONFIG::WAVE_BLOCKSIZE_KEY        ,   \
+                             CONFIG::INT_TYPE    , audio[CONFIG::WAVE_BLOCKSIZE_ID]) ;   \
   if (!mac_device_is_string)                                                             \
     Trace::TraceTypeMismatch(audio               , CONFIG::MAC_DEVICE_KEY        ,       \
                              CONFIG::STRING_TYPE , audio[CONFIG::MAC_DEVICE_ID]) ;       \
   if (!mac_n_inputs_is_int)                                                              \
     Trace::TraceTypeMismatch(audio               , CONFIG::MAC_NINPUTS_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::MAC_NINPUTS_ID]) ;      \
-  if (!mac_samplerate_is_int)                                                            \
-    Trace::TraceTypeMismatch(audio               , CONFIG::MAC_SAMPLERATE_KEY        ,   \
-                             CONFIG::INT_TYPE    , audio[CONFIG::MAC_SAMPLERATE_ID]) ;   \
   if (!mac_bitdepth_is_int)                                                              \
     Trace::TraceTypeMismatch(audio               , CONFIG::MAC_BITDEPTH_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::MAC_BITDEPTH_ID]) ;     \
+  if (!mac_samplerate_is_int)                                                            \
+    Trace::TraceTypeMismatch(audio               , CONFIG::MAC_SAMPLERATE_KEY        ,   \
+                             CONFIG::INT_TYPE    , audio[CONFIG::MAC_SAMPLERATE_ID]) ;   \
   if (!nix_audio_ifn_is_int)                                                             \
     Trace::TraceTypeMismatch(audio               , CONFIG::NIX_AUDIO_IF_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::NIX_AUDIO_IF_ID]) ;     \
+  if (!jack_server_is_int)                                                               \
+    Trace::TraceTypeMismatch(audio               , CONFIG::JACK_SERVER_KEY        ,      \
+                             CONFIG::INT_TYPE    , audio[CONFIG::JACK_SERVER_ID]) ;      \
+  if (!jack_name_is_string)                                                              \
+    Trace::TraceTypeMismatch(audio               , CONFIG::JACK_NAME_KEY        ,        \
+                             CONFIG::STRING_TYPE , audio[CONFIG::JACK_NAME_ID]) ;        \
   if (!jack_n_inputs_is_int)                                                             \
     Trace::TraceTypeMismatch(audio               , CONFIG::JACK_NINPUTS_KEY        ,     \
                              CONFIG::INT_TYPE    , audio[CONFIG::JACK_NINPUTS_ID]) ;     \
   if (!jack_n_outputs_is_int)                                                            \
     Trace::TraceTypeMismatch(audio               , CONFIG::JACK_NOUTPUTS_KEY        ,    \
                              CONFIG::INT_TYPE    , audio[CONFIG::JACK_NOUTPUTS_ID]) ;    \
-  if (!jack_name_is_string)                                                              \
-    Trace::TraceTypeMismatch(audio               , CONFIG::JACK_NAME_KEY        ,        \
-                             CONFIG::STRING_TYPE , audio[CONFIG::JACK_NAME_ID]) ;        \
   if (!alsa_config_is_string)                                                            \
     Trace::TraceTypeMismatch(audio               , CONFIG::ALSA_CONFIG_KEY        ,      \
                              CONFIG::STRING_TYPE , audio[CONFIG::ALSA_CONFIG_ID]) ;      \
@@ -669,22 +677,22 @@
       audio_has_asioinput1_property      && audio_has_asiooutput0_property     &&        \
       audio_has_asiooutput1_property                                           &&        \
       audio_has_ksinput_property         && audio_has_ksoutput_property        &&        \
-      audio_has_kssamplerate_property    && audio_has_ksbitdepth_property      &&        \
-      audio_has_ksblocksize_property     && audio_has_ksnblocks_property       &&        \
+      audio_has_ksbitdepth_property      && audio_has_kssamplerate_property    &&        \
+      audio_has_ksnblocks_property       && audio_has_ksblocksize_property     &&        \
       audio_has_dsinput0_property        && audio_has_dsinput1_property        &&        \
       audio_has_dsinput2_property        && audio_has_dsinput3_property        &&        \
       audio_has_dsoutput0_property       && audio_has_dsoutput1_property       &&        \
       audio_has_dsoutput2_property       && audio_has_dsoutput3_property       &&        \
-      audio_has_dssamplerate_property    && audio_has_dsbitdepth_property      &&        \
-      audio_has_dsblocksize_property     && audio_has_dsnblocks_property       &&        \
+      audio_has_dsbitdepth_property      && audio_has_dssamplerate_property    &&        \
+      audio_has_dsnblocks_property       && audio_has_dsblocksize_property     &&        \
       audio_has_waveinput_property       && audio_has_waveoutput_property      &&        \
-      audio_has_wavesamplerate_property  && audio_has_wavebitdepth_property    &&        \
-      audio_has_waveblocksize_property   && audio_has_wavenblocks_property     &&        \
+      audio_has_wavebitdepth_property    && audio_has_wavesamplerate_property  &&        \
+      audio_has_wavenblocks_property     && audio_has_waveblocksize_property   &&        \
       audio_has_macdevice_property       && audio_has_macninputs_property      &&        \
-      audio_has_macsamplerate_property   && audio_has_macbitdepth_property     &&        \
-      audio_has_nixifn_property          && audio_has_jackninputs_property     &&        \
-      audio_has_jacknoutputs_property    && audio_has_jackname_property        &&        \
-      audio_has_alsaconfig_property                                            &&        \
+      audio_has_macbitdepth_property     && audio_has_macsamplerate_property   &&        \
+      audio_has_nixifn_property          && audio_has_jackserver_property      &&        \
+      audio_has_jackname_property        && audio_has_jackninputs_property     &&        \
+      audio_has_jacknoutputs_property    && audio_has_alsaconfig_property      &&        \
                                                                                          \
       /* server properties */                                                            \
       server_has_host_property           && server_has_login_property          &&        \
@@ -715,22 +723,22 @@
       asio_inout1_is_int                 && asio_output0_is_int                &&        \
       asio_output1_is_int                                                      &&        \
       ks_input_is_int                    && ks_output_is_int                   &&        \
-      ks_samplerate_is_int               && ks_bitdepth_is_int                 &&        \
-      ks_blocksize_is_int                && ks_n_blocks_is_int                 &&        \
+      ks_bitdepth_is_int               && ks_samplerate_is_int                 &&        \
+      ks_n_blocks_is_int                && ks_blocksize_is_int                 &&        \
       ds_input0_is_int                   && ds_input1_is_int                   &&        \
       ds_input2_is_int                   && ds_input3_is_int                   &&        \
       ds_output0_is_int                  && ds_output1_is_int                  &&        \
       ds_output2_is_int                  && ds_output3_is_int                  &&        \
-      ds_samplerate_is_int               && ds_bitdepth_is_int                 &&        \
-      ds_blocksize_is_int                && ds_n_blocks_is_int                 &&        \
+      ds_bitdepth_is_int               && ds_samplerate_is_int                 &&        \
+      ds_n_blocks_is_int                && ds_blocksize_is_int                 &&        \
       wave_input_is_int                  && wave_output_is_int                 &&        \
-      wave_samplerate_is_int             && wave_bitdepth_is_int               &&        \
-      wave_blocksize_is_int              && wave_n_blocks_is_int               &&        \
+      wave_bitdepth_is_int             && wave_samplerate_is_int               &&        \
+      wave_n_blocks_is_int              && wave_blocksize_is_int               &&        \
       mac_device_is_string               && mac_n_inputs_is_int                &&        \
-      mac_samplerate_is_int              && mac_bitdepth_is_int                &&        \
-      nix_audio_ifn_is_int               && jack_n_inputs_is_int               &&        \
-      jack_n_outputs_is_int              && jack_name_is_string                &&        \
-      alsa_config_is_string                                                    &&        \
+      mac_bitdepth_is_int              && mac_samplerate_is_int                &&        \
+      nix_audio_ifn_is_int               && jack_server_is_int                 &&        \
+      jack_name_is_string                && jack_n_inputs_is_int               &&        \
+      jack_n_outputs_is_int              && alsa_config_is_string              &&        \
                                                                                          \
       /* server datatypes */                                                             \
       host_name_is_string                && login_is_string                    &&        \

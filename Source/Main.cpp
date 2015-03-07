@@ -26,19 +26,17 @@ public:
 
   void initialise(const String& command_line) override
   {
-    this->mainWindow    = new MainWindow() ;
-    this->mainContent   = (MainContent*)this->mainWindow->mainContent ;
-    bool is_initialized = LinJam::Initialize(this , this->mainContent , command_line) ;
+    this->mainWindow          = new MainWindow() ;
+    MainContent* main_content = (MainContent*)this->mainWindow->mainContent ;
 
-    // start NJClient pump and GUI update timers or bail
-    if (is_initialized) startTimers() ; else quit() ;
-  }
-
-  void startTimers()
-  {
-    startTimer(CLIENT::CLIENT_TIMER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
-    startTimer(CLIENT::GUI_TIMER_HI_ID , CLIENT::GUI_UPDATE_HI_IVL) ;
-    startTimer(CLIENT::GUI_TIMER_LO_ID , CLIENT::GUI_UPDATE_LO_IVL) ;
+    if (LinJam::Initialize(this , main_content , command_line))
+    {
+      // start NJClient pump and GUI update timers
+      startTimer(CLIENT::CLIENT_TIMER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
+      startTimer(CLIENT::GUI_TIMER_HI_ID , CLIENT::GUI_UPDATE_HI_IVL) ;
+      startTimer(CLIENT::GUI_TIMER_LO_ID , CLIENT::GUI_UPDATE_LO_IVL) ;
+    }
+    else quit() ;
   }
 
   void anotherInstanceStarted(const String& command_line) override
@@ -51,6 +49,7 @@ public:
   void shutdown() override
   {
     LinJam::Shutdown() ;
+
     this->mainWindow = nullptr ;
 
 DEBUG_TRACE_SHUTDOWN
@@ -110,25 +109,20 @@ DEBUG_TRACE_SHUTDOWN
     ScopedPointer<MainContent> mainContent ;
     ScopedPointer<TextButton>  configButton ;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainWindow)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
   } ;
 
 
 private:
 
   ScopedPointer<MainWindow> mainWindow ;
-  MainContent*              mainContent ;
-  Background*               background ;
-  Login*                    login ;
-  License*                  license ;
-  Chat*                     chat ;
-  Mixer*                    mixer ;
-  StatusBar*                statusbar ;
-  Loop*                     loop ;
 
 
   void timerCallback(int timer_id) override { LinJam::HandleTimer(timer_id) ; }
+
+
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJamApplication)
 } ;
 
 
-START_JUCE_APPLICATION (LinJamApplication)
+START_JUCE_APPLICATION(LinJamApplication)

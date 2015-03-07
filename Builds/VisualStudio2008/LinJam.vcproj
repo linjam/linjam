@@ -17,6 +17,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\Release"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -145,7 +146,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/I &quot;$(LIBNINJAM)&quot; /I &quot;$(LIBOGG)\include&quot; /I &quot;$(LIBVORBIS)\include&quot; /I &quot;$(DXSDK_DIR)include&quot; /I &quot;$(MSSDK)\include&quot;"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\Visual Leak Detector\include&quot;;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules"
 				PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;JUCER_VS2008_78A5006=1;JUCE_APP_VERSION=0.0.1;JUCE_APP_VERSION_HEX=0x1"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="true"
@@ -170,10 +171,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/L libninjam_static.lib /L libogg_static.lib /L libvorbis_static.lib /L dsound.lib"
+				AdditionalOptions="/L libninjam_static.lib /L libogg_static.lib /L libvorbis_static.lib /L dsound.lib /L vld.lib"
 				OutputFile="$(OutDir)\LinJam.exe"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;$(LIBNINJAM)\Win32\Debug\&quot;;&quot;$(DXSDK_DIR)Lib\x86\&quot;"
+				AdditionalLibraryDirectories="&quot;$(LIBNINJAM)\Win32\Debug\&quot;;&quot;$(DXSDK_DIR)Lib\x86\&quot;;&quot;C:\Program Files\Visual Leak Detector\lib\Win32&quot;"
 				GenerateManifest="true"
 				IgnoreDefaultLibraryNames="libcmt.lib, msvcrt.lib"
 				GenerateDebugInformation="true"

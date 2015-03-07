@@ -4,7 +4,7 @@
 
 
 // audio
-#define DEBUG_TRACE_AUDIO_CONFIG_LOAD                          \
+#define DEBUG_TRACE_CONFIG_AUDIO_GUI_LOAD                      \
   Trace::TraceGui("showing current audio configuration for " + \
                   String((is_asio)? "asio " : "")            + \
                   String((is_ks)  ? "ks "   : "")            + \
