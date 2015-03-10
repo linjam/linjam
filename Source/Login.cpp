@@ -295,10 +295,11 @@ void Login::textEditorTextChanged(TextEditor& a_text_editor)
   else if (&a_text_editor == &(*passText))  validatePass() ;
 }
 
-void Login::valueChanged(Value& login_value)
+void Login::valueChanged(Value& a_value)
 {
-// TODO: probably all this wants to respond to is server status for quick-login buttons (issue #7)
-DBG("Login::valueChanged()=" + login_value.getValue().toString()) ;
+/* TODO: we are not listening on any data here nor is there yet any data to listen on
+             probably the only data of interest here would be server status updates
+             for populating quick-login buttons (issue #7) */
 }
 
 
@@ -315,8 +316,8 @@ void Login::preloadState()
   bool      is_anonymous = bool(LinJam::Config->server[CONFIG::IS_ANONYMOUS_ID]) ;
   ValueTree server       =      LinJam::Config->getServer(host) ;
 
+  // reset current login state after failed login
   if (!server.isValid() && !LinJam::IsAgreed()) // ASSERT: IsAgreed() should always be false when this fires (issue #14)
-    // could not connect to host - reset current login state
     LinJam::Config->setCurrentServer(host = "" , login = "" ,
                                      pass = "" , is_anonymous = true) ;
 

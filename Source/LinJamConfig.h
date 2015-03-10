@@ -29,98 +29,117 @@ public:
                                   int    channel_idx  = CONFIG::DEFAULT_CHANNEL_IDX  ) ;
 
 
+  /* config root
+  ValueTree configValueTree ; (private)
+  {
+    CONFIG_VERSION_ID => double
+  } */
+
   // client config
-  ValueTree client ;
-/* client-specfic data - access via this->client
-  var save-multitrack-mode // int
-  var save-mixdown-mode    // int
-  var should-save-log      // bool
-  var debug-level          // int
-  var should-hide-bots     // bool
-*/
-  ValueTree subscriptions ;
-/* subscriptions-specfic data - access via this->subscriptions
-  var subscribe-mode // int
-*/
+  ValueTree client ; /* CLIENT_ID - client-specfic data
+  {
+    SAVE_AUDIO_MODE_ID  => int    ,
+    MIXDOWN_MODE_ID     => int    ,
+    SHOULD_SAVE_LOG_ID  => bool   ,
+    DEBUG_LEVEL_ID      => int    ,
+    SHOULD_HIDE_BOTS_ID => bool   ,
+  }                  */
+  ValueTree subscriptions ; /* SUBSCRIPTIONS_ID - subscriptions-specfic data
+  {
+    SUBSCRIBE_MODE_ID => int
+  }                         */
+
   // audio device config
-  ValueTree audio ;
-/* audio-specfic data - access via this->audio
-  var win-audio-if-n   // int (audioStreamer::Interface enum)
-  var asio-driver      // int
-  var asio-input0      // int
-  var asio-input1      // int
-  var asio-output0     // int
-  var asio-output1     // int
-  var ks-input         // int
-  var ks-output        // int
-  var ks-bit-depth     // int
-  var ks-sample-rate   // int
-  var ks-n-blocks      // int
-  var ks-block-size    // int
-  var ds-input0        // int
-  var ds-input1        // int
-  var ds-input2        // int
-  var ds-input3        // int
-  var ds-output0       // int
-  var ds-output1       // int
-  var ds-output2       // int
-  var ds-output3       // int
-  var ds-bit-depth     // int
-  var ds-sample-rate   // int
-  var ds-n-blocks      // int
-  var ds-block-size    // int
-  var wave-input       // int
-  var wave-output      // int
-  var wave-bit-depth   // int
-  var wave-sample-rate // int
-  var wave-n-blocks    // int
-  var wave-block-size  // int
-  var mac-device-name  // string
-  var mac-n-inputs     // int
-  var mac-bit-depth    // int
-  var mac-sample-rate  // int
-  var nix-audio-if-n   // int (audioStreamer::Interface enum)
-  var jack-server      // int
-  var jack-name        // string
-  var jack-n-inputs    // int
-  var jack-n-outputs   // int
-  var alsa-config      // string
-*/
+  ValueTree audio ; /* AUDIO_KEY - audio-specfic data
+  {
+    WIN_AUDIO_IF_ID    => int (audioStreamer::Interface enum)
+    ASIO_DRIVER_ID     => int
+    ASIO_INPUT0_ID     => int
+    ASIO_INPUT1_ID     => int
+    ASIO_OUTPUT0_ID    => int
+    ASIO_OUTPUT1_ID    => int
+    KS_INPUT_ID        => int
+    KS_OUTPUT_ID       => int
+    KS_SAMPLERATE_ID   => int
+    KS_BITDEPTH_ID     => int
+    KS_NBLOCKS_ID      => int
+    KS_BLOCKSIZE_ID    => int
+    DS_INPUT0_ID       => int
+    DS_INPUT1_ID       => int
+    DS_INPUT2_ID       => int
+    DS_INPUT3_ID       => int
+    DS_OUTPUT0_ID      => int
+    DS_OUTPUT1_ID      => int
+    DS_OUTPUT2_ID      => int
+    DS_OUTPUT3_ID      => int
+    DS_SAMPLERATE_ID   => int
+    DS_BITDEPTH_ID     => int
+    DS_NBLOCKS_ID      => int
+    DS_BLOCKSIZE_ID    => int
+    WAVE_INPUT_ID      => int
+    WAVE_OUTPUT_ID     => int
+    WAVE_SAMPLERATE_ID => int
+    WAVE_BITDEPTH_ID   => int
+    WAVE_NBLOCKS_ID    => int
+    WAVE_BLOCKSIZE_ID  => int
+    MAC_DEVICE_ID      => string
+    MAC_NINPUTS_ID     => int
+    MAC_SAMPLERATE_ID  => int
+    MAC_BITDEPTH_ID    => int
+    NIX_AUDIO_IF_ID    => int (audioStreamer::Interface enum)
+    JACK_SERVER_ID     => int
+    JACK_NAME_ID       => string
+    JACK_NINPUTS_ID    => int
+    JACK_NOUTPUTS_ID   => int
+    ALSA_CONFIG_ID     => string
+  }                 */
 
   // login config
-  ValueTree server ;
-  // per server config
-  ValueTree servers ;
-/* transient login data - access through via this->server // TODO:: merge into <servers> (issue #33)
-/* per-server data - access through via this->servers
-  var host         // string
-  var login        // string
-  var pass         // string
-  var is-anonymous // bool
-  var should-agree // bool   // TODO: unused
-  var is-agreed    // bool   // TODO: <server> node only - this exists only so OnLicense doesnt block (issue #14)
-*/
+  ValueTree server ;  // SERVER_ID  - transient login data // TODO:: merge into <servers> (issue #33)
+  ValueTree servers ; /* SERVERS_ID - per server data - per-server data
+  [
+    {
+      HOST_ID         => string
+      LOGIN_ID        => string
+      PASS_ID         => string
+      IS_ANONYMOUS_ID => bool
+      SHOULD_AGREE_ID => bool
+      IS_AGREED_ID    => bool   // <server> node only - TODO: this exists only so OnLicense doesnt block (issue #14)
+    }
+  ]                   */
+
+  // peers
+  ValueTree remoteUsers ; /* REMOTES_ID - per-peer data (nyi as such - issue #33)
+  [
+    {
+      USER_IDX_ID => int       ,
+      child_nodes => [ a_channel , ... ] // channels as below
+    } ,
+    ...
+  ]                       */
 
   // channels
-  ValueTree masterChannels ; // children: master channel and metro channel as below
-  ValueTree localChannels ;  // children: channels as below
-  ValueTree remoteUsers ;    // children: users , grandchildren: channels as below
-/* per-user data - access via this->remoteUsers
-  var user-idx        // int
-/* per-channel data - access via masterChannels , localChannels , remoteUsers[A_USER]
-  var channel-name    // string
-  var channel-idx     // int
-  var stereo-pair-idx // int
-  var volume          // double
-  var pan             // double
-  var is-xmitrcv      // bool
-  var is-muted        // bool
-  var is-solo         // bool
-  var source-sink-n   // int
-  var stereo-status   // int
-  var vu-left         // double
-  var vu-right        // double
-*/
+  ValueTree masterChannels ; // MASTERS_ID          - per-channel data (master and metro)
+  ValueTree localChannels ;  // LOCALS_ID           - per-channel data
+                             /* remoteUsers[A_USER] - per-channel data
+  [
+    {
+      CHANNEL_NAME_ID => string ,
+      CHANNEL_IDX_ID  => int    ,
+      PAIR_IDX_ID     => int    ,
+      VOLUME_ID       => double ,
+      PAN_ID          => double ,
+      IS_XMIT_RCV_ID  => bool   ,
+      IS_MUTED_ID     => bool   ,
+      IS_SOLO_ID      => bool   ,
+      SOURCE_N_ID     => int    ,
+
+      STEREO_ID       => int    ,
+      VU_LEFT_ID      => double ,
+      VU_RIGHT_ID     => double
+    } ,
+    ...
+  ]                          */
 
   // validation
   bool       isConfigSane() ;
@@ -150,8 +169,6 @@ public:
   ValueTree getServer(            String host_name) ;
   void      setCurrentServer(     String host_name    , String login , String pass ,
                                   bool   is_anonymous                              ) ;
-  ValueTree getCurrentServer() ;
-  void      setServerShouldAgree( bool should_agree) ;
 
 
 private:
@@ -165,6 +182,7 @@ private:
   void      initialize() ;
   ValueTree sanitizeConfig(    ValueTree default_config , ValueTree stored_config) ;
   void      restoreVarTypeInfo(ValueTree store) ;
+//   void      sanitizeServers() ; // TODO:
   void      sanitizeUsers() ;
   void      sanitizeChannels(  ValueTree channels) ;
   void      storeConfig() ;
@@ -172,9 +190,7 @@ private:
   bool      sanityCheck() ;
 
   // helpers
-  ValueTree getOrAddServer(String host_name , String login       ,
-                           String pass      , bool   is_anonymous) ;
-  String    filteredName(  String a_name) ;
+  String filteredName(String a_name) ;
 
   // event handlers
   void valueChanged(            Value& a_value)                               override ;

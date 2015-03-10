@@ -60,8 +60,9 @@ public:
   static String DumpStoredChannels() ;
   static String DumpClientChannels() ;
 
-  static String SanitizeConfig(      ValueTree default_config , ValueTree stored_config ,
+  static String DumpConfig(          ValueTree default_config , ValueTree stored_config ,
                                      String    pad                                      ) ;
+  static void   TraceInvalidDefault( String a_default_name) ;
   static void   TraceInvalidNode(    String a_node_key) ;
   static void   TraceMissingValue(   String a_node_name , String a_value_key) ;
   static void   TraceMissingProperty(String a_node_name      , String a_property_name ,

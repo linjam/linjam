@@ -48,7 +48,7 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  bool addChannel(    ValueTree channel_store) ;
+  bool addChannel(    ValueTree  channel_store) ;
   void removeChannel( Identifier channel_id) ;
   int  getNumChannels() ;
 
@@ -65,7 +65,7 @@ private:
 
 protected:
 
-  virtual Channel* newChannel(ValueTree channel_store) = 0 ;
+  virtual Channel* newChannel(ValueTree  channel_store) = 0 ;
           Channel* getChannel(Identifier channel_id) ;
 
     //[/UserVariables]
@@ -93,7 +93,7 @@ public:
 private:
 
   void     buttonClicked(Button* buttonThatWasClicked) ;
-  Channel* newChannel(ValueTree channel_store) override ;
+  Channel* newChannel(   ValueTree channel_store) override ;
 } ;
 
 

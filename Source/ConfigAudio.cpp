@@ -429,23 +429,23 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
   switch ((audioStreamer::Interface)interface_n)
   {
     case audioStreamer::WIN_AUDIO_KS:
-      bit_depth_key   = CONFIG::KS_BITDEPTH_ID ;
       sample_rate_key = CONFIG::KS_SAMPLERATE_ID ;
+      bit_depth_key   = CONFIG::KS_BITDEPTH_ID ;
       break ;
     case audioStreamer::WIN_AUDIO_DS:
-      bit_depth_key   = CONFIG::DS_BITDEPTH_ID ;
       sample_rate_key = CONFIG::DS_SAMPLERATE_ID ;
+      bit_depth_key   = CONFIG::DS_BITDEPTH_ID ;
       break ;
     case audioStreamer::WIN_AUDIO_WAVE:
-      bit_depth_key   = CONFIG::WAVE_BITDEPTH_ID ;
       sample_rate_key = CONFIG::WAVE_SAMPLERATE_ID ;
+      bit_depth_key   = CONFIG::WAVE_BITDEPTH_ID ;
       break ;
     default: break ;
   }
 #else // _WIN32
 #  ifndef _MAC
-  bit_depth_key   = CONFIG::MAC_BITDEPTH_ID;
   sample_rate_key = CONFIG::MAC_SAMPLERATE_ID ;
+  bit_depth_key   = CONFIG::MAC_BITDEPTH_ID;
 #  endif // _MAC
 #endif // _WIN32
 

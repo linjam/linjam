@@ -70,7 +70,7 @@ private:
   // event handlers
   void broughtToFront()                                 override ;
   void textEditorTextChanged(TextEditor& a_text_editor) override ;
-  void valueChanged(         Value& login_value)        override ;
+  void valueChanged(         Value&      login_value)   override ;
 
   // helpers
   void preloadState() ;

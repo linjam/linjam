@@ -11,9 +11,8 @@
 #include "LinJam.h"
 #include "Channel.h"
 #include "Constants.h"
-#if DEBUG
-#  include "./Trace/TraceLinJam.h"
-#endif // DEBUG
+#include "./Trace/TraceLinJam.h"
+#include <iostream>
 
 #ifdef _MSC_VER
 #  include <float.h>
@@ -73,16 +72,7 @@ void LinJam::Shutdown()
 
 /* getters/setters */
 
-bool LinJam::IsAgreed()
-{
-  ValueTree server              = Config->getCurrentServer() ;
-  bool      should_always_agree = server.isValid()                                 &&
-                                  bool(server.getProperty(CONFIG::SHOULD_AGREE_ID)) ;
-  bool      is_agreed           = bool(Config->server[CONFIG::IS_AGREED_ID]) ||
-                                  should_always_agree                         ;
-
-  return is_agreed ;
-}
+bool LinJam::IsAgreed() { return bool(Config->server[CONFIG::IS_AGREED_ID]) ; }
 
 SortedSet<int> LinJam::GetFreeAudioSources() { return FreeAudioSources ; }
 
@@ -177,7 +167,7 @@ DEBUG_TRACE_CHAT_OUT
                              !command.compare(CLIENT::CHATMSG_CMD_BPM)    ) ;
 
 #ifndef ACCEPT_CHAT_COMMANDS // (issue #19)
-    Gui->chat->addChatLine(GUI::SERVER_NICK , "commands disabled") ; return ;
+    Gui->chat->addChatLine(GUI::SERVER_NICK , "commands disabled") ; if (false)
 #endif // CHAT_COMMANDS_BUGGY
 
     if      (is_me_command)
@@ -258,7 +248,7 @@ bool LinJam::PrepareSessionDirectory()
 {
   File this_binary = File::getSpecialLocation(File::currentExecutableFile) ;
   File this_dir    = this_binary.getParentDirectory() ;
-  SessionDir       = File(this_dir.getFullPathName() + CONFIG::SESSION_DIR) ;
+  SessionDir       = File(this_dir.getFullPathName() + CLIENT::SESSION_DIR) ;
 
   SessionDir.createDirectory() ; CleanSessionDir() ;
 
@@ -285,7 +275,7 @@ void LinJam::ConfigureNinjam()
 
   // set log file
   if (should_save_log && save_audio_mode > NJClient::SAVE_AUDIO_NONE)
-    Client->SetLogFile((SessionDir.getFullPathName() + CONFIG::LOG_FILE).toRawUTF8()) ;
+    Client->SetLogFile((SessionDir.getFullPathName() + CLIENT::LOG_FILE).toRawUTF8()) ;
 
   // add bots and ignored users to ignore list
   ConfigureSubscriptions() ;
@@ -614,7 +604,7 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 
 /* NJClient runtime routines */
 
-void LinJam::HandleTimer(int timer_id) override
+void LinJam::HandleTimer(int timer_id)
 {
 #if DEBUG_EXIT_IMMEDIAYELY
 DBG("[DEBUG]: DEBUG_EXIT_IMMEDIAYELY defined - bailing") ; Client->quit() ;

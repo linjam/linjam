@@ -291,16 +291,26 @@ ValueTree LinJamConfig::getUserMasterChannel(ValueTree user_store)
 void LinJamConfig::setServer()
 {
   // copy volatile login state to persistent storage
-  String host         =      this->server[CONFIG::HOST_ID].toString() ;
-  String login        =      this->server[CONFIG::LOGIN_ID].toString() ;
-  String pass         =      this->server[CONFIG::PASS_ID].toString() ;
-  bool   is_anonymous = bool(this->server[CONFIG::IS_ANONYMOUS_ID]) ;
+  String    host_name    =      this->server[CONFIG::HOST_ID].toString() ;
+  String    login        =      this->server[CONFIG::LOGIN_ID].toString() ;
+  String    pass         =      this->server[CONFIG::PASS_ID].toString() ;
+  bool      is_anonymous = bool(this->server[CONFIG::IS_ANONYMOUS_ID]) ;
+  bool      should_agree = bool(this->server[CONFIG::SHOULD_AGREE_ID]) ;
+  ValueTree server       = getServer(host_name) ;
 
-  ValueTree server = getOrAddServer(host , login , pass , is_anonymous) ;
-  server.setProperty(CONFIG::HOST_ID         , host         , nullptr) ;
+  // create new server entry
+  if (!server.isValid())
+  {
+    server = ValueTree(makeHostId(host_name)) ;
+    this->servers.addChild(server , -1 , nullptr) ;
+  }
+
+  // set per server credentials
+  server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr) ;
   server.setProperty(CONFIG::LOGIN_ID        , login        , nullptr) ;
   server.setProperty(CONFIG::PASS_ID         , pass         , nullptr) ;
   server.setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr) ;
+  server.setProperty(CONFIG::SHOULD_AGREE_ID , should_agree , nullptr) ;
 }
 
 ValueTree LinJamConfig::getServer(String host_name)
@@ -312,26 +322,14 @@ void LinJamConfig::setCurrentServer(String host_name , String login       ,
                                     String pass      , bool   is_anonymous)
 {
   if (is_anonymous) pass = "" ;
+  bool is_agreed = bool(getServer(host_name).getProperty(CONFIG::SHOULD_AGREE_ID)) ;
 
   this->server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr) ;
   this->server.setProperty(CONFIG::LOGIN_ID        , login        , nullptr) ;
   this->server.setProperty(CONFIG::PASS_ID         , pass         , nullptr) ;
   this->server.setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr) ;
-  this->server.setProperty(CONFIG::IS_AGREED_ID    , false        , nullptr) ;
-  this->server.setProperty(CONFIG::SHOULD_AGREE_ID , false        , nullptr) ;
-}
-
-ValueTree LinJamConfig::getCurrentServer()
-{
-  return getServer(this->server[CONFIG::HOST_ID].toString()) ;
-}
-
-void LinJamConfig::setServerShouldAgree(bool should_agree)
-{
-  // continuation of setServer() after license agreement
-  ValueTree server = getCurrentServer() ; if (!server.isValid()) return ;
-
-  server.setProperty(CONFIG::SHOULD_AGREE_ID , should_agree , nullptr) ;
+  this->server.setProperty(CONFIG::SHOULD_AGREE_ID , is_agreed    , nullptr) ;
+  this->server.setProperty(CONFIG::IS_AGREED_ID    , is_agreed    , nullptr) ;
 }
 
 
@@ -342,25 +340,31 @@ void LinJamConfig::setServerShouldAgree(bool should_agree)
 void LinJamConfig::initialize()
 {
   // load default and stored configs
-  File this_binary    = File::getSpecialLocation(File::currentExecutableFile) ;
-  this->configXmlFile = this_binary.getSiblingFile(CONFIG::PERSISTENCE_FILENAME) ;
-  XmlElement* default_config_xml = XmlDocument::parse(CONFIG::DEFAULT_CONFIG_XML) ;
-  XmlElement* stored_config_xml  = XmlDocument::parse(this->configXmlFile) ;
-  bool is_stored_config_bogus = (stored_config_xml == nullptr ||
-                                !stored_config_xml->hasTagName(CONFIG::PERSISTENCE_ID)) ;
+  File        this_binary       = File::getSpecialLocation(File::currentExecutableFile) ;
+  this->      configXmlFile     = this_binary.getSiblingFile(CONFIG::PERSISTENCE_FILENAME) ;
+  XmlElement* default_xml       = XmlDocument::parse(CONFIG::DEFAULT_CONFIG_XML) ;
+  XmlElement* stored_xml        = XmlDocument::parse(this->configXmlFile) ;
+  bool        has_stored_config = stored_xml != nullptr                         &&
+                                  stored_xml->hasTagName(CONFIG::PERSISTENCE_ID) ;
 
 DEBUG_TRACE_LOAD_CONFIG
 
-  if (default_config_xml == nullptr) { delete stored_config_xml ; return ; }
+  if (default_xml == nullptr) { delete stored_xml ; return ; } // panic
 
 DEBUG_TRACE_SANITIZE_CONFIG
 
+  // validate config version
+  double stored_version  = (!has_stored_config) ? 0.0                                :
+                           stored_xml->getDoubleAttribute(CONFIG::CONFIG_VERSION_ID) ;
+  bool do_versions_match = stored_version == CONFIG::CONFIG_VERSION ;
+  if (!do_versions_match) ; // TODO: convert (if ever necessary)
+
   // create static config ValueTree from stored xml persistence or default
-  if (is_stored_config_bogus)
-    this->configValueTree = ValueTree::fromXml(*default_config_xml) ;
+  if (has_stored_config && do_versions_match)
+    this->configValueTree = sanitizeConfig(ValueTree::fromXml(*default_xml) ,
+                                           ValueTree::fromXml(*stored_xml)) ;
   else
-    this->configValueTree = sanitizeConfig(ValueTree::fromXml(*default_config_xml) ,
-                                           ValueTree::fromXml(*stored_config_xml)) ;
+    this->configValueTree = ValueTree::fromXml(*default_xml) ;
 
   // instantiate shared value holders and restore type data
   establishSharedStore() ; restoreVarTypeInfo(this->configValueTree) ;
@@ -372,13 +376,9 @@ DEBUG_TRACE_SANITIZE_CONFIG
   sanitizeChannels(this->localChannels) ; // sanitizeChannels(this->remoteUsers) ; // TODO: (issue #33)
 
   // write back sanitized config to disk and cleanup
-  storeConfig() ; delete default_config_xml ; delete stored_config_xml ;
+  storeConfig() ; delete default_xml ; delete stored_xml ;
 
-  // set session dir and log file - these are too dangerous to be user-configuraable
-  ValueTree client = this->configValueTree.getChildWithName(CONFIG::CLIENT_ID) ;
-  client.setProperty(CONFIG::SESSION_DIR_ID , CONFIG::SESSION_DIR , nullptr) ;
-  client.setProperty(CONFIG::LOG_FILE_ID    , CONFIG::LOG_FILE    , nullptr) ;
-
+  // register listener for central dispatcher
   this->configValueTree.addListener(this) ;
 }
 
@@ -392,13 +392,13 @@ void LinJamConfig::establishSharedStore()
   this->audio          = this->configValueTree.getChildWithName(CONFIG::AUDIO_ID) ;
   // login state
   this->server         = this->configValueTree.getChildWithName(CONFIG::SERVER_ID) ;
-  // per server user data
+  // per server credentials
   this->servers        = this->configValueTree.getChildWithName(CONFIG::SERVERS_ID) ;
   // channels
   this->masterChannels = this->configValueTree.getChildWithName(CONFIG::MASTERS_ID) ;
   this->localChannels  = this->configValueTree.getChildWithName(CONFIG::LOCALS_ID) ;
 // TODO: we are adding remote users directly to the root node for now for simplicity
-//           mostly because Trace::SanitizeConfig() does not yet handle nested lists
+//           mostly because Trace::DumpConfig() does not yet handle nested lists
 //           but for clarity there should be a <remote-channels> tree (issue #33)
 //   this->remoteUsers = this->configValueTree.getChildWithName(CONFIG::REMOTES_ID) ;
 this->remoteUsers = this->configValueTree ; // kludge (issue #33)
@@ -409,39 +409,41 @@ this->remoteUsers = this->configValueTree ; // kludge (issue #33)
 
 ValueTree LinJamConfig::sanitizeConfig(ValueTree default_config , ValueTree stored_config)
 {
-  // add any missing nodes and attributes to stored config
-  for (int child_n = 0 ; child_n < default_config.getNumChildren() ; ++child_n)
+  Identifier default_node_name  = default_config.getType() ;
+  int        n_properties       = default_config.getNumProperties() ;
+  int        n_default_children = default_config.getNumChildren() ;
+  int        n_stored_children  = stored_config .getNumChildren() ;
+
+  // transfer any missing attributes
+  for (int property_n = 0 ; property_n < n_properties ; ++property_n)
   {
-    ValueTree default_child = default_config.getChild(child_n) ;
-    ValueTree stored_child  = stored_config.getChildWithName(default_child.getType()) ;
+    Identifier key   = default_config.getPropertyName(property_n) ;
+    var        value = default_config.getProperty(key) ;
+    if (!stored_config.hasProperty(key)) stored_config.setProperty(key , value , nullptr) ;
+  }
+
+  // add any missing nodes and attributes to stored config
+  for (int child_n = 0 ; child_n < n_default_children ; ++child_n)
+  {
+    ValueTree  default_child      = default_config.getChild(child_n) ;
+    Identifier default_child_name = default_child .getType() ;
+    ValueTree  stored_child       = stored_config .getChildWithName(default_child_name) ;
 
     // transfer missing node
     if (!stored_child.isValid())
     {
       // for local channels we transfer the default channel only if none are stored
-      if (default_config.getType() != CONFIG::LOCALS_ID ||
-         !stored_config.getNumChildren())
+      if (default_node_name != CONFIG::LOCALS_ID || !n_stored_children)
       {
-        default_config.removeChild(default_child , nullptr) ;
-        stored_config.addChild(default_child , -1 , nullptr) ;
+        default_config.removeChild(default_child ,      nullptr) ;
+        stored_config .addChild(   default_child , -1 , nullptr) ;
         --child_n ;
       }
       continue ;
     }
 
-    int n_grandchildren = default_child.getNumChildren() ;
-    int n_properties    = default_child.getNumProperties() ;
-
-    // recurse if node has children ignoring atrributes
-    if (n_grandchildren) { sanitizeConfig(default_child , stored_child) ; continue ; }
-
-    // transfer missing attributes
-    for (int property_n = 0 ; property_n < n_properties ; ++property_n)
-    {
-      Identifier key   = default_child.getPropertyName(property_n) ;
-      var        value = default_child.getProperty(key) ;
-      if (!stored_child.hasProperty(key)) stored_child.setProperty(key , value , nullptr) ;
-    }
+    // recurse on child node
+    sanitizeConfig(default_child , stored_child) ;
   }
 
   return stored_config ;
@@ -456,10 +458,12 @@ void LinJamConfig::restoreVarTypeInfo(ValueTree config_store)
   ValueTree   config_types     = ValueTree::fromXml(*config_types_xml) ;
   ValueTree   types_store ;                   delete config_types_xml ;
 
-  if      (config_store        == this->client        ||
-           config_store        == this->subscriptions ||
-           config_store        == this->audio         ||
-           config_store        == this->server         )
+  if      (config_store        == this->configValueTree)
+    types_store = config_types ;
+  else if (config_store        == this->client          ||
+           config_store        == this->subscriptions   ||
+           config_store        == this->audio           ||
+           config_store        == this->server           )
     types_store = config_types.getChildWithName(node_id) ;
   else if (parent_node         == this->servers)
     types_store = config_types.getChildWithName(CONFIG::SERVER_ID) ;
@@ -469,6 +473,8 @@ void LinJamConfig::restoreVarTypeInfo(ValueTree config_store)
     types_store = config_types.getChildWithName(CONFIG::CHANNELS_ID) ;
   else if (parent_node         == this->remoteUsers)
     types_store = config_types.getChildWithName(CONFIG::USERS_ID) ;
+
+DEBUG_TRACE_CONFIG_TYPES_VB
 
   for (int property_n = 0 ; property_n < config_store.getNumProperties() ; ++property_n)
   {
@@ -480,17 +486,19 @@ void LinJamConfig::restoreVarTypeInfo(ValueTree config_store)
     bool       is_int    = !datatype.compare(CONFIG::INT_TYPE) ;
     bool       is_string = !datatype.compare(CONFIG::STRING_TYPE) ;
 
-    if      (is_bool)   config_store.setProperty(key , bool(  a_var)           , nullptr) ;
-    else if (is_double) config_store.setProperty(key , double(a_var)           , nullptr) ;
-    else if (is_int)    config_store.setProperty(key , int(   a_var)           , nullptr) ;
-    else if (is_string) config_store.setProperty(key ,        a_var.toString() , nullptr) ;
-  }
+    if      (is_bool)    config_store.setProperty(   key , bool(  a_var) , nullptr) ;
+    else if (is_double)  config_store.setProperty(   key , double(a_var) , nullptr) ;
+    else if (is_int)     config_store.setProperty(   key , int(   a_var) , nullptr) ;
+    else if (!is_string) config_store.removeProperty(key ,                 nullptr) ;
 
-DEBUG_TRACE_CONFIG_TYPES_VB
+DEBUG_TRACE_CONFIG_TYPES_VB_EACH
+  }
 
   for (int child_n = 0 ; child_n < config_store.getNumChildren() ; ++child_n)
     restoreVarTypeInfo(config_store.getChild(child_n)) ;
 }
+
+// void LinJamConfig::sanitizeServers() {} // TODO:
 
 void LinJamConfig::sanitizeUsers()
 {
@@ -550,11 +558,6 @@ void LinJamConfig::storeConfig()
 DEBUG_TRACE_STORE_CONFIG
 
   XmlElement* config_xml = this->configValueTree.createXml() ;
-  XmlElement* client     = config_xml->getChildByName(CONFIG::CLIENT_ID) ;
-
-  // unset session dir and log file - these are too dangerous to be user-configuraable
-  client->removeAttribute(CONFIG::SESSION_DIR_KEY) ;
-  client->removeAttribute(CONFIG::LOG_FILE_KEY) ;
 
   config_xml->writeToFile(this->configXmlFile , StringRef() , StringRef("UTF-8") , 0) ;
   delete config_xml ;
@@ -586,26 +589,6 @@ DEBUG_TRACE_SANITY_CHECK // modifies is_valid
 
 
 /* helpers */
-
-ValueTree LinJamConfig::getOrAddServer(String host_name , String login       ,
-                                       String pass      , bool   is_anonymous)
-{
-  ValueTree server = getServer(host_name) ;
-  if (!server.isValid())
-  {
-    server = ValueTree(makeHostId(host_name)) ;
-    server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr) ;
-    server.setProperty(CONFIG::LOGIN_ID        , login        , nullptr) ;
-    server.setProperty(CONFIG::PASS_ID         , pass         , nullptr) ;
-    server.setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr) ;
-    server.setProperty(CONFIG::SHOULD_AGREE_ID , false        , nullptr) ;
-
-    this->servers        .addChild(server        , -1 , nullptr) ;
-    this->configValueTree.addChild(this->servers , -1 , nullptr) ;
-  }
-
-  return server ;
-}
 
 String LinJamConfig::filteredName(String a_string)
 {
