@@ -32,6 +32,8 @@
 
 
 class LinJam
+
+
 {
   friend class LinJamApplication ;
   friend class LinJamConfig ;

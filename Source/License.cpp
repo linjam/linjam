@@ -20,7 +20,6 @@
 //[Headers] You can add your own extra header files here...
 
 #include "LinJam.h"
-#include "./Trace/TraceLicense.h"
 
 //[/Headers]
 
@@ -124,9 +123,8 @@ void License::resized()
 void License::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
-DEBUG_TRACE_LICENSE_CLICKED
 
-  bool is_agreed ;
+  bool is_agreed = false ;
 
     //[/UserbuttonClicked_Pre]
 
@@ -158,7 +156,7 @@ DEBUG_TRACE_LICENSE_CLICKED
 
     //[UserbuttonClicked_Post]
 
-  LinJam::Config->client.setProperty(CONFIG::IS_AGREED_ID , is_agreed , nullptr) ;
+  LinJam::Config->server.setProperty(CONFIG::IS_AGREED_ID , is_agreed , nullptr) ;
   LinJam::Disconnect() ; if (is_agreed) LinJam::Connect() ;
 
     //[/UserbuttonClicked_Post]
@@ -169,7 +167,9 @@ DEBUG_TRACE_LICENSE_CLICKED
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
 void License::setLicenseText(String license_text)
-{ this->licenseTextEditor->setText(TRANS(license_text)) ; }
+{
+  this->licenseTextEditor->setText(TRANS(license_text)) ;
+}
 
 //[/MiscUserCode]
 

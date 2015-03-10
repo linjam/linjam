@@ -32,7 +32,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-ConfigAudio::ConfigAudio (ValueTree config_store)
+ConfigAudio::ConfigAudio (ValueTree config_store) 
     : configStore(config_store)
 {
     addAndMakeVisible (ioGroup = new GroupComponent ("ioGroup",

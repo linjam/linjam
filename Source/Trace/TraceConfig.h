@@ -16,6 +16,6 @@
 #else // DEBUG
 
 // audio
-#define DEBUG_TRACE_AUDIO_CONFIG_LOAD ;
+#define DEBUG_TRACE_CONFIG_AUDIO_GUI_LOAD ;
 
 #endif // DEBUG

@@ -11,9 +11,8 @@
 #include "LinJam.h"
 #include "Channel.h"
 #include "Constants.h"
-#if DEBUG
-#  include "./Trace/TraceLinJam.h"
-#endif // DEBUG
+#include "./Trace/TraceLinJam.h"
+#include <iostream>
 
 #ifdef _MSC_VER
 #  include <float.h>
@@ -177,7 +176,7 @@ DEBUG_TRACE_CHAT_OUT
                              !command.compare(CLIENT::CHATMSG_CMD_BPM)    ) ;
 
 #ifndef ACCEPT_CHAT_COMMANDS // (issue #19)
-    Gui->chat->addChatLine(GUI::SERVER_NICK , "commands disabled") ; return ;
+    Gui->chat->addChatLine(GUI::SERVER_NICK , "commands disabled") ; if (false)
 #endif // CHAT_COMMANDS_BUGGY
 
     if      (is_me_command)

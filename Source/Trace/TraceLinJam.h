@@ -6,7 +6,7 @@
 // enable debug features
 // #define DEBUG_EXIT_IMMEDIAYELY
 // #define DEBUG_AUTOLOGIN_CHANNEL "localhost:2049"
-#define DEBUG_AUTOLOGIN_CHANNEL "ninbot.com:2052"
+// #define DEBUG_AUTOLOGIN_CHANNEL "ninbot.com:2049"
 // #define DEBUG_AUTOLOGIN_CHANNEL "ninjamer.com:2051"
 
 
@@ -387,7 +387,7 @@ static int PrevStatus = -9 ;
 #define DEBUG_TRACE_AUDIO_INIT_ALSA           ;
 #define DEBUG_TRACE_AUDIO_INIT                ;
 // network
-#define DEBUG_TRACE_CONNECT_STATUS            ;
+#define DEBUG_TRACE_STATUS_CHANGED            ;
 // channels
 #define DEBUG_TRACE_INITIAL_CHANNELS          ;
 #define DEBUG_TRACE_ADD_LOCAL_CHANNEL         ;

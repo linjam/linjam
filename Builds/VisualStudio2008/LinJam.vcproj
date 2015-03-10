@@ -292,6 +292,42 @@
 					RelativePath="..\..\Source\Subscriptions.h"
 					>
 				</File>
+				<File
+					RelativePath="..\..\Source\Trace\Trace.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Trace\TraceChannels.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Trace\TraceConfig.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Trace\TraceLicense.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Trace\TraceLinJam.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Trace\TraceLinJamConfig.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Trace\TraceLogin.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Trace\TraceMain.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Trace\TraceMixer.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="Source"

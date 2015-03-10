@@ -97,7 +97,7 @@ public:
   var login        // string
   var pass         // string
   var is-anonymous // bool
-  var should-agree // bool   // TODO: unused
+  var should-agree // bool   // TODO: unused - to avoid confision perhaps <servers> child nodes only??
   var is-agreed    // bool   // TODO: <server> node only - this exists only so OnLicense doesnt block (issue #14)
 */
 
