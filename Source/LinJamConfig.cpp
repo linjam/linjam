@@ -255,7 +255,7 @@ ValueTree LinJamConfig::getOrAddRemoteChannel(Identifier user_id      ,
 
 ValueTree LinJamConfig::getUserById(Identifier user_id)
 {
-  return this->configValueTree.getChildWithName(user_id) ;
+  return this->remoteUsers.getChildWithName(user_id) ;
 }
 
 ValueTree LinJamConfig::getChannelById(Identifier channels_id , Identifier channel_id)
@@ -369,17 +369,20 @@ DEBUG_TRACE_SANITIZE_CONFIG
   // instantiate shared value holders and restore type data
   establishSharedStore() ; restoreVarTypeInfo(this->configValueTree) ;
 
-  // prime users for auto-ignore
-  sanitizeUsers() ;
-
-  // prune any corrupted transient channels data
-  sanitizeChannels(this->localChannels) ; // sanitizeChannels(this->remoteUsers) ; // TODO: (issue #33)
+  // prune any corrupted user-defined data
+  validateServers() ; validateUsers() ;
+  validateChannels(this->localChannels) ;
 
   // write back sanitized config to disk and cleanup
   storeConfig() ; delete default_xml ; delete stored_xml ;
 
-  // register listener for central dispatcher
-  this->configValueTree.addListener(this) ;
+  // register listeners for central dispatcher
+//   this->configValueTree.addListener(this) ;
+  this->subscriptions .addListener(this) ;
+  this->audio         .addListener(this) ;
+  this->masterChannels.addListener(this) ;
+  this->localChannels .addListener(this) ;
+  this->remoteUsers   .addListener(this) ;
 }
 
 void LinJamConfig::establishSharedStore()
@@ -397,11 +400,7 @@ void LinJamConfig::establishSharedStore()
   // channels
   this->masterChannels = this->configValueTree.getChildWithName(CONFIG::MASTERS_ID) ;
   this->localChannels  = this->configValueTree.getChildWithName(CONFIG::LOCALS_ID) ;
-// TODO: we are adding remote users directly to the root node for now for simplicity
-//           mostly because Trace::DumpConfig() does not yet handle nested lists
-//           but for clarity there should be a <remote-channels> tree (issue #33)
-//   this->remoteUsers = this->configValueTree.getChildWithName(CONFIG::REMOTES_ID) ;
-this->remoteUsers = this->configValueTree ; // kludge (issue #33)
+  this->remoteUsers    = this->configValueTree.getChildWithName(CONFIG::REMOTES_ID) ;
 }
 
 
@@ -498,32 +497,30 @@ DEBUG_TRACE_CONFIG_TYPES_VB_EACH
     restoreVarTypeInfo(config_store.getChild(child_n)) ;
 }
 
-// void LinJamConfig::sanitizeServers() {} // TODO:
+void LinJamConfig::validateServers() {} // TODO:
 
-void LinJamConfig::sanitizeUsers()
+void LinJamConfig::validateUsers()
 {
-  // ensure that NJClient will be configured for ignored users upon join
   for (int user_n = 0 ; user_n < this->remoteUsers.getNumChildren() ; ++user_n)
   {
-    ValueTree user_store   = this->remoteUsers.getChild(user_n) ;
-    ValueTree master_store = getChannelByIdx(user_store , CONFIG::MASTER_CHANNEL_IDX) ;
-if (master_store.isValid()) // KLUDGE: (issue #33) this should exist
-    master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , true , nullptr) ;
+    ValueTree user_store = this->remoteUsers.getChild(user_n) ;
+    bool user_has_useridx_property = user_store.hasProperty(CONFIG::USER_IDX_ID) ;
+    if (!user_has_useridx_property) this->remoteUsers.removeChild(user_store , nullptr) ;
+    else
+    {
+      // ensure that NJClient will be configured for ignored users upon join
+      ValueTree master_store = getChannelByIdx(user_store , CONFIG::MASTER_CHANNEL_IDX) ;
+      master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , true , nullptr) ;
+
+      validateChannels(user_store) ;
+    }
+
+DEBUG_TRACE_VALIDATE_USER
   }
 }
 
-void LinJamConfig::sanitizeChannels(ValueTree channels)
+void LinJamConfig::validateChannels(ValueTree channels)
 {
-/* TODO: (issue #33)
-  if (channels.getParent() == this->remoteUsers)
-  {
-    bool remote_has_useridx_property = channels.hasProperty(CONFIG::USERIDX_ID) ;
-    if (!remote_has_useridx_property)
-      channels.getParent().removeChild(channels , nullptr) ;
-
-DEBUG_TRACE_SANITY_CHECK_USER
-  }
-*/
   for (int channel_n = 0 ; channel_n < channels.getNumChildren() ; ++channel_n)
   {
     ValueTree channel = channels.getChild(channel_n) ;
@@ -549,7 +546,7 @@ DEBUG_TRACE_SANITY_CHECK_USER
         !channel_has_vuleft_property      || !channel_has_vuright_property     )
     { channels.removeChild(channel , nullptr) ; --channel_n ; }
 
-DEBUG_TRACE_SANITY_CHECK_CHANNEL
+DEBUG_TRACE_VALIDATE_CHANNEL
   }
 }
 
@@ -622,10 +619,6 @@ void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier
   bool       is_remote        = grandparent_node == this->remoteUsers ;
 
 DEBUG_TRACE_CONFIG_TREE_CHANGED
-
-  if      (node_id   == CONFIG::CLIENT_ID)  return ; // no immediate action required
-  else if (node_id   == CONFIG::SERVER_ID)  return ; // most likely wont need to handle these
-  else if (parent_id == CONFIG::SERVERS_ID) return ; // but we must guard for now (issue #33)
 
   if      (is_subscriptions) LinJam::ConfigureSubscriptions() ;
   else if (is_audio)         LinJam::InitializeAudio() ;

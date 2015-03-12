@@ -33,10 +33,6 @@
                      (grandparent_node == this->remoteUsers)                   ?         \
                      CONFIG::REMOTES_KEY + " " + String(parent_node.getType()) :         \
                      String(parent_node.getType())                             ;         \
-  if (parent_node == this->servers        ||                                             \
-      parent_node == this->masterChannels ||                                             \
-      parent_node == this->localChannels)                                                \
-    parent_id = String(parent_node.getType()) ; /* KLUDGE: (issue #33) */                \
   Trace::TraceConfig("restoring types - " + parent_id + " " + String(node_id)          + \
                      " (" + String(config_store.getNumProperties()) + " properties - " + \
                      String(config_store.getNumChildren())     + " children)") ;
@@ -798,17 +794,17 @@
       metro_source_is_int                && metro_stereo_is_int                &&        \
       metro_vuleft_is_double             && metro_vuright_is_double             ;
 
-/*
-#define DEBUG_TRACE_SANITY_CHECK_SERVER // TODO:                                     \
-#define DEBUG_TRACE_SANITY_CHECK_USER                                                \
-  String user_name = String(channels.getType()) ;                                    \
-  if (!remote_has_useridx_property)                                                  \
-    Trace::TraceMissingProperty(user_name , CONFIG::USERIDX_KEY) ;                   \
-  if (!remote_has_useridx_property)                                                  \
-    Trace::TraceError("destroying invalid remote channel store '" + user_name + "'") ;
-*/
+//#define DEBUG_TRACE_SANITY_CHECK_SERVER // TODO:                                     \
 
-#define DEBUG_TRACE_SANITY_CHECK_CHANNEL                                                   \
+#define DEBUG_TRACE_VALIDATE_USER                                                      \
+  String user_name = String(user_store.getType()) ;                                    \
+  if (!user_has_useridx_property)                                                      \
+  {                                                                                    \
+    Trace::TraceMissingProperty(user_name , CONFIG::USER_IDX_KEY) ;                    \
+    Trace::TraceError("destroying invalid remote channel store '" + user_name + "'") ; \
+  }
+
+#define DEBUG_TRACE_VALIDATE_CHANNEL                                                       \
   String channels_name = String(channels.getType()) ;                                      \
   String channel_name  = channel[CONFIG::CHANNEL_NAME_ID].toString() ;                     \
                                                                                            \
@@ -905,13 +901,16 @@
                              channels_name                                         ) ;     \
                                                                                            \
   /* validate channel properties */                                                        \
+//   ValueTree parent_node   = channels.getParent() ;                                         \
+//   String    channels_name = String(parent_node.getType()) ;                                \
   if (!channel_has_channelname_property || !channel_has_channelidx_property ||             \
       !channel_has_pairidx_property     || !channel_has_volume_property     ||             \
       !channel_has_pan_property         || !channel_has_xmit_property       ||             \
       !channel_has_mute_property        || !channel_has_solo_property       ||             \
       !channel_has_source_property      || !channel_has_stereo_property     ||             \
       !channel_has_vuleft_property      || !channel_has_vuright_property     )             \
-    Trace::TraceError("destroying invalid local channel store '" + channel_name + "'") ;
+    Trace::TraceError("destroying invalid " + channels_name +                              \
+                      " channel store '"    + channel_name  + "'") ;
 
 #if TRACE_STORE_CONFIG_VB
 #  define DEBUG_TRACE_STORE_CONFIG Trace::TraceConfig("storing config xml=\n" +      \

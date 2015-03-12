@@ -94,9 +94,9 @@ public:
     ALSA_CONFIG_ID     => string
   }                 */
 
-  // login config
-  ValueTree server ;  // SERVER_ID  - transient login data // TODO:: merge into <servers> (issue #33)
-  ValueTree servers ; /* SERVERS_ID - per server data - per-server data
+  // server credentials
+  ValueTree server ;  // SERVER_ID  - transient login credentials
+  ValueTree servers ; /* SERVERS_ID - per-server credentials
   [
     {
       HOST_ID         => string
@@ -109,10 +109,10 @@ public:
   ]                   */
 
   // peers
-  ValueTree remoteUsers ; /* REMOTES_ID - per-peer data (nyi as such - issue #33)
+  ValueTree remoteUsers ; /* REMOTES_ID - per-peer data
   [
     {
-      USER_IDX_ID => int       ,
+      USER_IDX_ID => int                 ,
       child_nodes => [ a_channel , ... ] // channels as below
     } ,
     ...
@@ -181,10 +181,10 @@ private:
   // validation
   void      initialize() ;
   ValueTree sanitizeConfig(    ValueTree default_config , ValueTree stored_config) ;
-  void      restoreVarTypeInfo(ValueTree store) ;
-//   void      sanitizeServers() ; // TODO:
-  void      sanitizeUsers() ;
-  void      sanitizeChannels(  ValueTree channels) ;
+  void      restoreVarTypeInfo(ValueTree config_store) ;
+  void      validateServers() ;
+  void      validateUsers() ;
+  void      validateChannels(  ValueTree channels) ;
   void      storeConfig() ;
   void      establishSharedStore() ;
   bool      sanityCheck() ;

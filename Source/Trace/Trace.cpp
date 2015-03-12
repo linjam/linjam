@@ -46,9 +46,6 @@ String Trace::DumpStoredChannels()
   for (int user_n = 0 ; user_n < users.getNumChildren() ; ++user_n)
   {
     channels = users.getChild(user_n) ;
-    /* TODO: KLUDGE (issue #33) nyi remote-channels node */
-    if (!channels.hasProperty(CONFIG::USER_IDX_ID)) continue ;
-
     for (int ch_n = 0 ; ch_n < channels.getNumChildren() ; ++ch_n)
       dump += "\n    " + String(channels.getType()) + " "                +
               channels.getChild(ch_n)[CONFIG::CHANNEL_NAME_ID].toString() ;
@@ -130,9 +127,8 @@ String Trace::DumpConfig(ValueTree default_config , ValueTree stored_config , St
   Array<Identifier> user_keys ;
   user_keys.add(CONFIG::SUBSCRIPTIONS_ID) ;
   user_keys.add(CONFIG::SERVERS_ID) ;
-//   user_keys.add(CONFIG::MASTERS_ID) ;
   user_keys.add(CONFIG::LOCALS_ID) ;
-//  user_keys.add(CONFIG::REMOTES_ID) ; // TODO: (issue #33)
+  user_keys.add(CONFIG::REMOTES_ID) ;
   if (user_keys.contains(node_name))
   {
     for (int child_n = 0 ; child_n < stored_config.getNumChildren() ; ++child_n)
