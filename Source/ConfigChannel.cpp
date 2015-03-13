@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -30,7 +30,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-ConfigChannel::ConfigChannel (ValueTree config_store)
+ConfigChannel::ConfigChannel (ValueTree channel_store)
+    : channelStore(channel_store)
 {
     addAndMakeVisible (nameLabel = new Label ("nameLabel",
                                               TRANS("channel name")));
@@ -111,11 +112,11 @@ ConfigChannel::ConfigChannel (ValueTree config_store)
   // TODO: change option colors
 
   // set initial channel state and populate input select options
-  this->configStore       =     config_store ;
-  Identifier channel_id   =     config_store.getType() ;
-  String     channel_name =     configStore[CONFIG::CHANNEL_NAME_ID].toString() ;
-  this->sourceN           = int(configStore[CONFIG::SOURCE_N_ID]) ;
-  this->isStereo          = int(configStore[CONFIG::STEREO_ID]) != CONFIG::MONO ;
+  this->channelStore      =     channel_store ;
+  Identifier channel_id   =     channel_store.getType() ;
+  String     channel_name =     channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;
+  this->sourceN           = int(channel_store[CONFIG::SOURCE_N_ID]) ;
+  this->isStereo          = int(channel_store[CONFIG::STEREO_ID]) != CONFIG::MONO ;
   this->isNewChannel      = (channel_id == CONFIG::NEWCHANNEL_ID) ;
 
   nameText    ->setText(channel_name) ;
@@ -163,6 +164,9 @@ void ConfigChannel::paint (Graphics& g)
 
 void ConfigChannel::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     nameLabel->setBounds (24, 24, 152, 16);
     nameText->setBounds (24, 44, 152, 16);
     monoButton->setBounds (34, 64, 64, 16);
@@ -212,12 +216,12 @@ void ConfigChannel::buttonClicked(Button* a_button)
                                               this->freeAudioSourcePairNs[selection_n] ;
 
     // update existing channel asynchronously
-    this->configStore.setProperty(CONFIG::CHANNEL_NAME_ID , channel_name  , nullptr) ;
-    this->configStore.setProperty(CONFIG::SOURCE_N_ID     , source_n      , nullptr) ;
-    this->configStore.setProperty(CONFIG::STEREO_ID       , stereo_status , nullptr) ;
+    this->channelStore.setProperty(CONFIG::CHANNEL_NAME_ID , channel_name  , nullptr) ;
+    this->channelStore.setProperty(CONFIG::SOURCE_N_ID     , source_n      , nullptr) ;
+    this->channelStore.setProperty(CONFIG::STEREO_ID       , stereo_status , nullptr) ;
 
     // or create new local channel
-    if (this->isNewChannel) LinJam::AddLocalChannel(this->configStore) ;
+    if (this->isNewChannel) LinJam::AddLocalChannel(this->channelStore) ;
 
     ((CallOutBox*)getParentComponent())->dismiss() ;
   }
@@ -289,9 +293,10 @@ void ConfigChannel::populateChannelSelect()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="ConfigChannel" componentName=""
-                 parentClasses="public Component, public ButtonListener" constructorParams="ValueTree config_store"
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="1" initialWidth="200" initialHeight="200">
+                 parentClasses="public Component, public ButtonListener" constructorParams="ValueTree channel_store"
+                 variableInitialisers="channelStore(channel_store)" snapPixels="8"
+                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="1"
+                 initialWidth="200" initialHeight="200">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff202020" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>

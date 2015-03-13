@@ -21,10 +21,9 @@
 |*|    or else segfault is a near certainty
 |*|
 |*|  when adding nodes or properties to CONFIG_XML be sure to
-|*|    * document them in                     LinJamConfig.h
 |*|    * denote property datatypes in         Constants.h #define CONFIG_TYPES_XML
 |*|    * switch on nodes in                   LinJamConfig::restoreVarTypeInfo()
-|*|    * if channel property - verify data in LinJamConfig::sanityCheckChannels()
+|*|    * if channel property - verify data in LinJamConfig::validateChannels()
 |*|                            and add to     LinJamConfig::newChannel()
 |*|    * optionally dump data or errors in    #define DEBUG_TRACE_SANITY_CHECK
 |*|                                           #define DEBUG_TRACE_SANITY_CHECK_CHANNEL
@@ -50,7 +49,7 @@
       SUBSCRIBE_MODE_KEY   + "=\"" + String(DEFAULT_SUBSCRIBE_MODE)   + "\" " + \
     "/><"                                                                     + \
     AUDIO_KEY              + " "                                              + \
-      WIN_AUDIO_IF_KEY     + "=\"" + String(DEFAULT_WIN_AUDIO_IF)     + "\" " + \
+      WIN_AUDIO_API_KEY    + "=\"" + String(DEFAULT_WIN_AUDIO_API)    + "\" " + \
       ASIO_DRIVER_KEY      + "=\"" + String(DEFAULT_ASIO_DRIVER)      + "\" " + \
       ASIO_INPUT0_KEY      + "=\"" + String(DEFAULT_ASIO_INPUT0)      + "\" " + \
       ASIO_INPUT1_KEY      + "=\"" + String(DEFAULT_ASIO_INPUT1)      + "\" " + \
@@ -84,7 +83,7 @@
       MAC_NINPUTS_KEY      + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
       MAC_BITDEPTH_KEY     + "=\"" + String(DEFAULT_MAC_BITDEPTH)     + "\" " + \
       MAC_SAMPLERATE_KEY   + "=\"" + String(DEFAULT_MAC_SAMPLERATE)   + "\" " + \
-      NIX_AUDIO_IF_KEY     + "=\"" + String(DEFAULT_NIX_AUDIO_IF)     + "\" " + \
+      NIX_AUDIO_API_KEY    + "=\"" + String(DEFAULT_NIX_AUDIO_API)    + "\" " + \
       JACK_SERVER_KEY      + "=\"" + String(DEFAULT_JACK_SERVER)      + "\" " + \
       JACK_NAME_KEY        + "=\"" + String(DEFAULT_JACK_NAME)        + "\" " + \
       JACK_NINPUTS_KEY     + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
@@ -139,7 +138,7 @@
       SUBSCRIBE_MODE_KEY       + "=\"" + INT_TYPE    + "\" "  + \
     "/><"                                                     + \
     AUDIO_KEY                  + " "                          + \
-      WIN_AUDIO_IF_KEY         + "=\"" + INT_TYPE    + "\" "  + \
+      WIN_AUDIO_API_KEY        + "=\"" + INT_TYPE    + "\" "  + \
       ASIO_DRIVER_KEY          + "=\"" + INT_TYPE    + "\" "  + \
       ASIO_INPUT0_KEY          + "=\"" + INT_TYPE    + "\" "  + \
       ASIO_INPUT1_KEY          + "=\"" + INT_TYPE    + "\" "  + \
@@ -173,7 +172,7 @@
       MAC_NINPUTS_KEY          + "=\"" + INT_TYPE    + "\" "  + \
       MAC_BITDEPTH_KEY         + "=\"" + INT_TYPE    + "\" "  + \
       MAC_SAMPLERATE_KEY       + "=\"" + INT_TYPE    + "\" "  + \
-      NIX_AUDIO_IF_KEY         + "=\"" + INT_TYPE    + "\" "  + \
+      NIX_AUDIO_API_KEY        + "=\"" + INT_TYPE    + "\" "  + \
       JACK_SERVER_KEY          + "=\"" + INT_TYPE    + "\" "  + \
       JACK_NAME_KEY            + "=\"" + STRING_TYPE + "\" "  + \
       JACK_NINPUTS_KEY         + "=\"" + INT_TYPE    + "\" "  + \
@@ -252,9 +251,9 @@ namespace CLIENT
   static const String      KS_DEVICE_TYPE         = "Win32KernaelStreaming" ; // non-juce
   static const String      WAVE_DEVICE_TYPE       = "Win32Wave" ;             // non-juce
   static const String      NFG_DEVICE_TYPE        = "unknown" ;               // non-juce
-  static const StringArray WIN_AUDIO_IFS          =
+  static const StringArray WIN_AUDIO_APIS         =
       StringArray::fromLines(StringRef("asio\nkernel streaming\ndirect sound\nwave out")) ;
-  static const StringArray NIX_AUDIO_IFS          =
+  static const StringArray NIX_AUDIO_APIS         =
       StringArray::fromLines(StringRef("jack\nalsa")) ;
   static const StringArray BUFFER_SIZES           =
       StringArray::fromLines(StringRef("32\n64\n128\n256\n512\n1024\n2048\n4096\n8192")) ;
@@ -286,6 +285,7 @@ namespace CLIENT
 namespace NETWORK
 {
   // known hosts
+  static const int               N_LOGIN_ATTEMPTS           = 3 ;
   static const String            LOCALHOST_HOSTNAME         = "localhost" ;
   static const String            LOCALHOST_2049_URL         = LOCALHOST_HOSTNAME + ":2049" ;
   static const String            NINJAM_2049_URL            = "test-ninjam-com-2049" ;
@@ -365,8 +365,8 @@ namespace CONFIG
   // audio device config keys
   static const String     AUDIO_KEY           = "audio" ;
   static const Identifier AUDIO_ID            = AUDIO_KEY ;
-  static const String     WIN_AUDIO_IF_KEY    = "win-audio-if-n" ;
-  static const Identifier WIN_AUDIO_IF_ID     = WIN_AUDIO_IF_KEY ;
+  static const String     WIN_AUDIO_API_KEY   = "win-audio-if-n" ;
+  static const Identifier WIN_AUDIO_API_ID    = WIN_AUDIO_API_KEY ;
   static const String     ASIO_DRIVER_KEY     = "asio-driver" ;
   static const Identifier ASIO_DRIVER_ID      = ASIO_DRIVER_KEY ;
   static const String     ASIO_INPUT0_KEY     = "asio-input0" ;
@@ -433,8 +433,8 @@ namespace CONFIG
   static const Identifier MAC_SAMPLERATE_ID   = MAC_SAMPLERATE_KEY ;
   static const String     MAC_BITDEPTH_KEY    = "mac-bit-depth" ;
   static const Identifier MAC_BITDEPTH_ID     = MAC_BITDEPTH_KEY ;
-  static const String     NIX_AUDIO_IF_KEY    = "nix-audio-if-n" ;
-  static const Identifier NIX_AUDIO_IF_ID     = NIX_AUDIO_IF_KEY ;
+  static const String     NIX_AUDIO_API_KEY   = "nix-audio-if-n" ;
+  static const Identifier NIX_AUDIO_API_ID    = NIX_AUDIO_API_KEY ;
   static const String     JACK_SERVER_KEY     = "jack-server" ;
   static const Identifier JACK_SERVER_ID      = JACK_SERVER_KEY ;
   static const String     JACK_NAME_KEY       = "jack-name" ;
@@ -525,7 +525,7 @@ namespace CONFIG
   static const int    DEFAULT_N_OUTPUTS       = (int)audioStreamer::DEFAULT_N_OUTPUTS ;
   static const int    DEFAULT_SAMPLERATE      = (int)audioStreamer::DEFAULT_SAMPLERATE ;
   static const int    DEFAULT_BITDEPTH        = (int)audioStreamer::DEFAULT_BITDEPTH ;
-  static const int    DEFAULT_WIN_AUDIO_IF    = (int)audioStreamer::WIN_AUDIO_WAVE ;
+  static const int    DEFAULT_WIN_AUDIO_API   = (int)audioStreamer::WIN_AUDIO_WAVE ;
   static const int    DEFAULT_ASIO_DRIVER     = 0 ;
   static const int    DEFAULT_ASIO_INPUT0     = 0 ;
   static const int    DEFAULT_ASIO_INPUT1     = 1 ;
@@ -558,7 +558,7 @@ namespace CONFIG
   static const String DEFAULT_MAC_DEVICE      = "" ;
   static const int    DEFAULT_MAC_BITDEPTH    = DEFAULT_BITDEPTH ;
   static const int    DEFAULT_MAC_SAMPLERATE  = DEFAULT_SAMPLERATE ;
-  static const int    DEFAULT_NIX_AUDIO_IF    = (int)audioStreamer::NIX_AUDIO_JACK ;
+  static const int    DEFAULT_NIX_AUDIO_API   = (int)audioStreamer::NIX_AUDIO_JACK ;
   static const int    DEFAULT_JACK_SERVER     = 0 ;
   static const String DEFAULT_JACK_NAME       = "LinJam" ;
   static const String DEFAULT_ALSA_CONFIG     = "" ;

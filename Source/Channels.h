@@ -120,7 +120,7 @@ public:
 
 private:
 
-  ValueTree configStore ;
+  ValueTree userStore ;
   ValueTree subscriptions ;
   bool      isExpanded ;
 

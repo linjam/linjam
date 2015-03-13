@@ -19,9 +19,8 @@
 
 //[Headers] You can add your own extra header files here...
 
-#include "LinJam.h"
 #include "LinJamConfig.h"
-#include "Constants.h"
+#include "Mixer.h"
 #include "ConfigChannel.h"
 #include "./Trace/TraceChannels.h"
 
@@ -227,7 +226,7 @@ LocalChannels::LocalChannels()
 }
 
 RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree subscriptions)
-                              : configStore(user_store)
+                              : userStore(user_store)
 {
   this->channelsLabel->setText(String(user_store.getType()) , juce::dontSendNotification) ;
   this->expandButton ->addListener(this) ;
@@ -265,7 +264,7 @@ void RemoteChannels::buttonClicked(Button* a_button)
   if      (a_button == this->expandButton)
     toggleExpandChannels() ;
   else if (a_button == this->ignoreButton)
-    this->subscriptions.addChild(ValueTree(this->configStore.getType()) , -1  , nullptr) ;
+    this->subscriptions.addChild(ValueTree(this->userStore.getType()) , -1  , nullptr) ;
 }
 
 void RemoteChannels::toggleExpandChannels()
@@ -273,7 +272,7 @@ void RemoteChannels::toggleExpandChannels()
   this->isExpanded = !this->isExpanded ;
 
 // TODO: (issue #45)
-DBG("toggleExpandChannels() this->isExpanded=" + String(this->isExpanded)) ;
+DBG("RemoteChannels::toggleExpandChannels() this->isExpanded=" + String(this->isExpanded)) ;
 }
 
 Channel* MasterChannels::newChannel(ValueTree channel_store)

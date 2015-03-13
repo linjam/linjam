@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -20,7 +20,6 @@
 //[Headers] You can add your own extra header files here...
 
 #include "LinJam.h"
-#include "Constants.h"
 #include "./Trace/TraceLogin.h"
 
 //[/Headers]
@@ -32,7 +31,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-Login::Login ()
+Login::Login (ValueTree login_store)
+    : loginStore(login_store)
 {
     setName ("Login");
     addAndMakeVisible (hostLabel = new Label ("hostLabel",
@@ -201,6 +201,9 @@ void Login::paint (Graphics& g)
 
 void Login::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     hostLabel->setBounds ((getWidth() / 2) + -190, getHeight() - 112, 72, 24);
     loginLabel->setBounds ((getWidth() / 2) + -190, getHeight() - 80, 72, 24);
     passLabel->setBounds ((getWidth() / 2) + -190, getHeight() - 48, 72, 24);
@@ -226,7 +229,7 @@ void Login::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_loginButton] -- add your button handler code here..
 
-      login() ;
+      signIn() ;
 
         //[/UserButtonCode_loginButton]
     }
@@ -262,19 +265,25 @@ void Login::buttonClicked (Button* buttonThatWasClicked)
 
     else if (this->loginButtons.contains((TextButton*)buttonThatWasClicked))
     {
-      String host      = buttonThatWasClicked->getButtonText().trim() ;
-      ValueTree server = LinJam::Config->getServer(host) ;
+      String    host         = buttonThatWasClicked->getButtonText().trim() ;
+      ValueTree credentials  = LinJam::getCredentials(host) ;
 
-      this->hostText->setText(host) ;
-      if (server.isValid())
+DEBUG_TRACE_LOBBY_QUICKLOGIN
+
+      // restore stored credentials
+      if (credentials.isValid())
       {
-        this->loginText ->setText(       server[CONFIG::LOGIN_ID]) ;
-        this->passText  ->setText(       server[CONFIG::PASS_ID]) ;
-        this->anonButton->setToggleState(server[CONFIG::IS_ANONYMOUS_ID] ,
-                                         juce::dontSendNotification      ) ;
+        String login        =      credentials[CONFIG::LOGIN_ID       ].toString() ;
+        String pass         =      credentials[CONFIG::PASS_ID        ].toString() ;
+        bool   is_anonymous = bool(credentials[CONFIG::IS_ANONYMOUS_ID]) ;
+
+        this->hostText->setText(host) ;
+        this->loginText ->setText(       login) ;
+        this->passText  ->setText(       pass) ;
+        this->anonButton->setToggleState(is_anonymous , juce::dontSendNotification) ;
       }
 
-      login() ;
+      signIn() ;
     }
 
     //[/UserbuttonClicked_Post]
@@ -286,7 +295,33 @@ void Login::buttonClicked (Button* buttonThatWasClicked)
 
 /* event handlers */
 
-void Login::broughtToFront() { preloadState() ; }
+void Login::broughtToFront()
+{
+  // load previous login state
+  String host         =      this->loginStore[CONFIG::HOST_ID        ].toString() ;
+  String login        =      this->loginStore[CONFIG::LOGIN_ID       ].toString() ;
+  String pass         =      this->loginStore[CONFIG::PASS_ID        ].toString() ;
+  bool   is_anonymous = bool(this->loginStore[CONFIG::IS_ANONYMOUS_ID]) ;
+
+  // restore previous login state
+  this->hostText ->setText(host) ;
+  this->loginText->setText(login) ;
+  this->passText ->setText(pass) ;
+
+DEBUG_TRACE_LOGIN_LOAD
+
+  // validate credentials and enable components
+  bool is_custom_server = host.isNotEmpty() && !NETWORK::KNOWN_HOSTS.contains(host) ;
+  this->loginButton->setVisible(is_custom_server) ;
+  this->hostLabel  ->setVisible(is_custom_server) ;
+  this->hostText   ->setVisible(is_custom_server) ;
+  this->passLabel  ->setVisible(!is_anonymous) ;
+  this->passText   ->setVisible(!is_anonymous) ;
+  this->hostText   ->setText((validateHost())  ? host  : "") ;
+  this->loginText  ->setText((validateLogin()) ? login : "") ;
+  this->passText   ->setText((validatePass())  ? pass  : "") ;
+  this->anonButton ->setToggleState(is_anonymous , juce::dontSendNotification) ;
+}
 
 void Login::textEditorTextChanged(TextEditor& a_text_editor)
 {
@@ -305,42 +340,6 @@ void Login::valueChanged(Value& a_value)
 
 /* helpers */
 
-void Login::preloadState()
-{
-  if (LinJam::Config == nullptr) return ;
-
-  // load previous login state
-  String    host         =      LinJam::Config->server[CONFIG::HOST_ID].toString() ;
-  String    login        =      LinJam::Config->server[CONFIG::LOGIN_ID].toString() ;
-  String    pass         =      LinJam::Config->server[CONFIG::PASS_ID].toString() ;
-  bool      is_anonymous = bool(LinJam::Config->server[CONFIG::IS_ANONYMOUS_ID]) ;
-  ValueTree server       =      LinJam::Config->getServer(host) ;
-
-  // reset current login state after failed login
-  if (!server.isValid() && !LinJam::IsAgreed()) // ASSERT: IsAgreed() should always be false when this fires (issue #14)
-    LinJam::Config->setCurrentServer(host = "" , login = "" ,
-                                     pass = "" , is_anonymous = true) ;
-
-  // restore previous login state
-  this->hostText ->setText(host) ;
-  this->loginText->setText(login) ;
-  this->passText ->setText(pass) ;
-
-DEBUG_TRACE_LOGIN_LOAD
-
-  // initialize GUI
-  bool is_custom_server = host.isNotEmpty() && !NETWORK::KNOWN_HOSTS.contains(host) ;
-  this->loginButton->setVisible(is_custom_server) ;
-  this->hostLabel  ->setVisible(is_custom_server) ;
-  this->hostText   ->setVisible(is_custom_server) ;
-  this->passLabel  ->setVisible(!is_anonymous) ;
-  this->passText   ->setVisible(!is_anonymous) ;
-  this->hostText   ->setText((validateHost())?  host  : "") ;
-  this->loginText  ->setText((validateLogin())? login : "") ;
-  this->passText   ->setText((validatePass())?  pass  : "") ;
-  this->anonButton ->setToggleState(is_anonymous , juce::dontSendNotification) ;
-}
-
 void Login::sortLoginButtons()
 {
   // TODO: sort dynamically into occupied/vacant groups (issue #7)
@@ -355,20 +354,16 @@ void Login::sortLoginButtons()
     }
 }
 
-void Login::login()
+void Login::signIn()
 {
   String host         = this->hostText  ->getText().trim() ;
   String login        = this->loginText ->getText().trim() ;
   String pass         = this->passText  ->getText().trim() ;
   bool   is_anonymous = this->anonButton->getToggleState() ;
 
-  bool is_valid_host  = validateHost() ;
-  bool is_valid_login = validateLogin() ;
-  bool is_valid_pass  = validatePass() ;
-  if (!is_valid_host || !is_valid_login || !is_valid_pass) return ;
+  if (!validateHost() || !validateLogin() || !validatePass()) return ;
 
-  LinJam::Config->setCurrentServer(host , login , pass , is_anonymous) ;
-  LinJam::Connect() ;
+  LinJam::SignIn(host , login , pass , is_anonymous) ;
 }
 
 bool Login::validateHost()
@@ -434,9 +429,9 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Login" componentName="Login"
                  parentClasses="public Component, public TextEditor::Listener, public Value::Listener"
-                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="622"
-                 initialHeight="442">
+                 constructorParams="ValueTree login_store" variableInitialisers="loginStore(login_store)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="622" initialHeight="442">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>

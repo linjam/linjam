@@ -9,7 +9,7 @@
 */
 
 #include "LinJam.h"
-#include "LinJamConfig.h"
+// #include "LinJamConfig.h"
 #include "./Trace/TraceLinJamConfig.h"
 
 
@@ -19,8 +19,33 @@ LinJamConfig::LinJamConfig() { initialize() ; }
 
 LinJamConfig::~LinJamConfig() { storeConfig() ; }
 
+Identifier LinJamConfig::MakeHostId(String host_name)
+{
+  return Identifier(CONFIG::SERVER_ID.toString() + "-" +
+                    host_name.replaceCharacter('.' , '-')
+                             .replaceCharacter(':' , '-')) ;
+}
 
-/* LinJamConfig class public class methods */
+Identifier LinJamConfig::MakeUserId(String user_name)
+{
+  return user_name.upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , true)
+                  .retainCharacters(CONFIG::VALID_NAME_CHARS)
+                  .replaceCharacter(' ', '-') ;
+}
+
+Identifier LinJamConfig::MakeChannelId(int channel_idx)
+{
+  return (channel_idx == CONFIG::MASTER_CHANNEL_IDX)                     ?
+         CONFIG::MASTER_ID                                               :
+         Identifier(CONFIG::CHANNEL_BASE_ID + "-" + String(channel_idx)) ;
+}
+
+String LinJamConfig::MakeStereoName(String channel_name , int stereo_status)
+{
+  return TrimStereoName(channel_name) +
+         ((stereo_status == CONFIG::STEREO_L)? CLIENT::STEREO_L_POSTFIX :
+          (stereo_status == CONFIG::STEREO_R)? CLIENT::STEREO_R_POSTFIX : "") ;
+}
 
 String LinJamConfig::TrimStereoName(String channel_name)
 {
@@ -29,6 +54,15 @@ String LinJamConfig::TrimStereoName(String channel_name)
   return (stereo_postfix != CLIENT::STEREO_L_POSTFIX &&
           stereo_postfix != CLIENT::STEREO_R_POSTFIX  )? channel_name  :
           channel_name.dropLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
+}
+
+int LinJamConfig::ParseStereoStatus(String channel_name)
+{
+  // determine faux-stereo stereo status based on channel name
+  String postfix = channel_name.getLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
+  return (!postfix.compare(CLIENT::STEREO_L_POSTFIX))? CONFIG::STEREO_L :
+         (!postfix.compare(CLIENT::STEREO_R_POSTFIX))? CONFIG::STEREO_R :
+                                                       CONFIG::MONO     ;
 }
 
 ValueTree LinJamConfig::NewChannel(String channel_name , int channel_idx)
@@ -49,161 +83,282 @@ ValueTree LinJamConfig::NewChannel(String channel_name , int channel_idx)
 }
 
 
-/* LinJamConfig class public instance methods */
+/* LinJamConfig class private instance methods */
+
+/* init */
+
+void LinJamConfig::initialize()
+{
+  // load default and stored configs
+  File        this_binary       = File::getSpecialLocation(File::currentExecutableFile) ;
+  this->      configXmlFile     = this_binary.getSiblingFile(CONFIG::PERSISTENCE_FILENAME) ;
+  XmlElement* default_xml       = XmlDocument::parse(CONFIG::DEFAULT_CONFIG_XML) ;
+  XmlElement* stored_xml        = XmlDocument::parse(this->configXmlFile) ;
+  bool        has_stored_config = stored_xml != nullptr                         &&
+                                  stored_xml->hasTagName(CONFIG::PERSISTENCE_ID) ;
+
+DEBUG_TRACE_LOAD_CONFIG
+
+  if (default_xml == nullptr) { delete stored_xml ; return ; } // panic
+
+DEBUG_TRACE_SANITIZE_CONFIG
+
+  // validate config version
+  double stored_version  = (!has_stored_config) ? 0.0                                :
+                           stored_xml->getDoubleAttribute(CONFIG::CONFIG_VERSION_ID) ;
+  bool do_versions_match = stored_version == CONFIG::CONFIG_VERSION ;
+  if (!do_versions_match) ; // TODO: convert (if ever necessary)
+
+  // create static config ValueTree from stored xml persistence or default
+  if (has_stored_config && do_versions_match)
+    this->configRoot = sanitizeConfig(ValueTree::fromXml(*default_xml) ,
+                                      ValueTree::fromXml(*stored_xml)) ;
+  else
+    this->configRoot = ValueTree::fromXml(*default_xml) ;
+
+  // instantiate shared value holders and restore type data
+  establishSharedStore() ; restoreVarTypeInfo(this->configRoot) ;
+
+  // prune any corrupted user-defined data
+  validateServers() ; validateUsers() ;
+  validateChannels(this->localChannels) ;
+
+  // write back sanitized config to disk and cleanup
+  storeConfig() ; delete default_xml ; delete stored_xml ;
+
+  // register listeners for central dispatcher
+  this->subscriptions .addListener(this) ;
+  this->audio         .addListener(this) ;
+  this->masterChannels.addListener(this) ;
+  this->localChannels .addListener(this) ;
+  this->remoteUsers   .addListener(this) ;
+}
+
+void LinJamConfig::establishSharedStore()
+{
+  // client config
+  this->client         = this->configRoot.getChildWithName(CONFIG::CLIENT_ID) ;
+  // ignore list
+  this->subscriptions  = this->configRoot.getChildWithName(CONFIG::SUBSCRIPTIONS_ID) ;
+  // device config
+  this->audio          = this->configRoot.getChildWithName(CONFIG::AUDIO_ID) ;
+  // login state
+  this->server         = this->configRoot.getChildWithName(CONFIG::SERVER_ID) ;
+  // per server credentials
+  this->servers        = this->configRoot.getChildWithName(CONFIG::SERVERS_ID) ;
+  // channels
+  this->masterChannels = this->configRoot.getChildWithName(CONFIG::MASTERS_ID) ;
+  this->localChannels  = this->configRoot.getChildWithName(CONFIG::LOCALS_ID) ;
+  this->remoteUsers    = this->configRoot.getChildWithName(CONFIG::REMOTES_ID) ;
+}
+
+void LinJamConfig::restoreVarTypeInfo(ValueTree config_store)
+{
+  Identifier  node_id          = config_store.getType() ;
+  ValueTree   parent_node      = config_store.getParent() ;
+  ValueTree   grandparent_node = config_store.getParent().getParent() ;
+  XmlElement* config_types_xml = XmlDocument::parse(CONFIG::CONFIG_TYPES) ;
+  ValueTree   config_types     = ValueTree::fromXml(*config_types_xml) ;
+  ValueTree   types_store ;                   delete config_types_xml ;
+
+  if      (config_store        == this->configRoot)
+    types_store = config_types ;
+  else if (config_store        == this->client          ||
+           config_store        == this->subscriptions   ||
+           config_store        == this->audio           ||
+           config_store        == this->server           )
+    types_store = config_types.getChildWithName(node_id) ;
+  else if (parent_node         == this->servers)
+    types_store = config_types.getChildWithName(CONFIG::SERVER_ID) ;
+  else if (parent_node         == this->masterChannels ||
+           parent_node         == this->localChannels  ||
+           grandparent_node    == this->remoteUsers     )
+    types_store = config_types.getChildWithName(CONFIG::CHANNELS_ID) ;
+  else if (parent_node         == this->remoteUsers)
+    types_store = config_types.getChildWithName(CONFIG::USERS_ID) ;
+
+DEBUG_TRACE_CONFIG_TYPES_VB
+
+  for (int property_n = 0 ; property_n < config_store.getNumProperties() ; ++property_n)
+  {
+    Identifier key       = config_store.getPropertyName(property_n) ;
+    var        a_var     = config_store[key] ;
+    String     datatype  = types_store[key] ;
+    bool       is_bool   = !datatype.compare(CONFIG::BOOL_TYPE) ;
+    bool       is_double = !datatype.compare(CONFIG::DOUBLE_TYPE) ;
+    bool       is_int    = !datatype.compare(CONFIG::INT_TYPE) ;
+    bool       is_string = !datatype.compare(CONFIG::STRING_TYPE) ;
+
+    if      (is_bool)    config_store.setProperty(   key , bool(  a_var) , nullptr) ;
+    else if (is_double)  config_store.setProperty(   key , double(a_var) , nullptr) ;
+    else if (is_int)     config_store.setProperty(   key , int(   a_var) , nullptr) ;
+    else if (!is_string) config_store.removeProperty(key ,                 nullptr) ;
+
+DEBUG_TRACE_CONFIG_TYPES_VB_EACH
+  }
+
+  for (int child_n = 0 ; child_n < config_store.getNumChildren() ; ++child_n)
+    restoreVarTypeInfo(config_store.getChild(child_n)) ;
+}
+
+void LinJamConfig::storeConfig()
+{
+DEBUG_TRACE_STORE_CONFIG
+
+  XmlElement* config_xml = this->configRoot.createXml() ;
+
+  config_xml->writeToFile(this->configXmlFile , StringRef() , StringRef("UTF-8") , 0) ;
+  delete config_xml ;
+}
+
 
 /* validation */
 
-bool LinJamConfig::isConfigSane()
+ValueTree LinJamConfig::sanitizeConfig(ValueTree default_config , ValueTree stored_config)
 {
-  if (!sanityCheck())
+  Identifier default_node_name  = default_config.getType() ;
+  int        n_properties       = default_config.getNumProperties() ;
+  int        n_default_children = default_config.getNumChildren() ;
+  int        n_stored_children  = stored_config .getNumChildren() ;
+
+  // transfer any missing attributes
+  for (int property_n = 0 ; property_n < n_properties ; ++property_n)
   {
-    this->configValueTree = ValueTree::invalid ;
+    Identifier key   = default_config.getPropertyName(property_n) ;
+    var        value = default_config.getProperty(key) ;
+    if (!stored_config.hasProperty(key)) stored_config.setProperty(key , value , nullptr) ;
+  }
+
+  // add any missing nodes and attributes to stored config
+  for (int child_n = 0 ; child_n < n_default_children ; ++child_n)
+  {
+    ValueTree  default_child      = default_config.getChild(child_n) ;
+    Identifier default_child_name = default_child .getType() ;
+    ValueTree  stored_child       = stored_config .getChildWithName(default_child_name) ;
+
+    // transfer missing node
+    if (!stored_child.isValid())
+    {
+      // for local channels we transfer the default channel only if none are stored
+      if (default_node_name != CONFIG::LOCALS_ID || !n_stored_children)
+      {
+        default_config.removeChild(default_child ,      nullptr) ;
+        stored_config .addChild(   default_child , -1 , nullptr) ;
+        --child_n ;
+      }
+      continue ;
+    }
+
+    // recurse on child node
+    sanitizeConfig(default_child , stored_child) ;
+  }
+
+  return stored_config ;
+}
+
+void LinJamConfig::validateServers() {} // TODO:
+
+void LinJamConfig::validateUsers()
+{
+  for (int user_n = 0 ; user_n < this->remoteUsers.getNumChildren() ; ++user_n)
+  {
+    ValueTree user_store = this->remoteUsers.getChild(user_n) ;
+    bool user_has_useridx_property = user_store.hasProperty(CONFIG::USER_IDX_ID) ;
+    if (!user_has_useridx_property) this->remoteUsers.removeChild(user_store , nullptr) ;
+    else
+    {
+      // ensure that NJClient will be configured for ignored users upon join
+      ValueTree master_store = getChannelByIdx(user_store , CONFIG::MASTER_CHANNEL_IDX) ;
+      master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , true , nullptr) ;
+
+      validateChannels(user_store) ;
+    }
+
+DEBUG_TRACE_VALIDATE_USER
+  }
+}
+
+void LinJamConfig::validateChannels(ValueTree channels)
+{
+  for (int channel_n = 0 ; channel_n < channels.getNumChildren() ; ++channel_n)
+  {
+    ValueTree channel = channels.getChild(channel_n) ;
+
+    bool channel_has_channelname_property = channel.hasProperty(CONFIG::CHANNEL_NAME_ID) ;
+    bool channel_has_channelidx_property  = channel.hasProperty(CONFIG::CHANNEL_IDX_ID)  ;
+    bool channel_has_pairidx_property     = channel.hasProperty(CONFIG::PAIR_IDX_ID)     ;
+    bool channel_has_volume_property      = channel.hasProperty(CONFIG::VOLUME_ID)       ;
+    bool channel_has_pan_property         = channel.hasProperty(CONFIG::PAN_ID)          ;
+    bool channel_has_xmit_property        = channel.hasProperty(CONFIG::IS_XMIT_RCV_ID)  ;
+    bool channel_has_mute_property        = channel.hasProperty(CONFIG::IS_MUTED_ID)     ;
+    bool channel_has_solo_property        = channel.hasProperty(CONFIG::IS_SOLO_ID)      ;
+    bool channel_has_source_property      = channel.hasProperty(CONFIG::SOURCE_N_ID)     ;
+    bool channel_has_stereo_property      = channel.hasProperty(CONFIG::STEREO_ID)       ;
+    bool channel_has_vuleft_property      = channel.hasProperty(CONFIG::VU_LEFT_ID)      ;
+    bool channel_has_vuright_property     = channel.hasProperty(CONFIG::VU_RIGHT_ID)     ;
+
+    if (!channel_has_channelname_property || !channel_has_channelidx_property ||
+        !channel_has_pairidx_property     || !channel_has_volume_property     ||
+        !channel_has_pan_property         || !channel_has_xmit_property       ||
+        !channel_has_mute_property        || !channel_has_solo_property       ||
+        !channel_has_source_property      || !channel_has_stereo_property     ||
+        !channel_has_vuleft_property      || !channel_has_vuright_property     )
+    { channels.removeChild(channel , nullptr) ; --channel_n ; }
+
+DEBUG_TRACE_VALIDATE_CHANNEL
+  }
+}
+
+bool LinJamConfig::validateConfig()
+{
+  // validate subscribed trees
+  bool root_is_valid            = this->configRoot     .isValid() ;
+  bool client_is_valid          = this->client         .isValid() ;
+  bool subscriptions_is_valid   = this->subscriptions  .isValid() ;
+  bool audio_is_valid           = this->audio          .isValid() ;
+  bool server_is_valid          = this->server         .isValid() ;
+  bool servers_is_valid         = this->servers        .isValid() ;
+  bool master_channels_is_valid = this->masterChannels .isValid() ;
+  bool local_channels_is_valid  = this->localChannels  .isValid() ;
+  bool remote_users_is_valid    = this->remoteUsers    .isValid() ;
+
+  bool is_valid = (root_is_valid            && client_is_valid         &&
+                   subscriptions_is_valid   && audio_is_valid          &&
+                   server_is_valid          && servers_is_valid        &&
+                   master_channels_is_valid && local_channels_is_valid &&
+                   remote_users_is_valid                                ) ;
+
+DEBUG_TRACE_SANITY_CHECK // modifies is_valid
+
+  return is_valid ;
+}
+
+bool LinJamConfig::isConfigValid()
+{
+  if (!validateConfig())
+  {
+    this->configRoot = ValueTree::invalid ;
     if (this->configXmlFile.existsAsFile())
     { this->configXmlFile.deleteFile() ; initialize() ; }
   }
 
-  return sanityCheck() ;
-}
-
-String LinJamConfig::parseUsername(String user_name)
-{
-  return user_name.upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , true) ;
-}
-
-Identifier LinJamConfig::makeHostId(String host_name)
-{
-  return Identifier(CONFIG::SERVER_ID.toString() + "-" +
-                    host_name.replaceCharacter('.' , '-')
-                             .replaceCharacter(':' , '-')) ;
-}
-
-Identifier LinJamConfig::makeUserId(String user_name)
-{
-  return filteredName(parseUsername(user_name)) ;
-}
-
-Identifier LinJamConfig::makeChannelId(int channel_idx)
-{
-  return (channel_idx == CONFIG::MASTER_CHANNEL_IDX)                     ?
-         CONFIG::MASTER_ID                                               :
-         Identifier(CONFIG::CHANNEL_BASE_ID + "-" + String(channel_idx)) ;
-}
-
-String LinJamConfig::makeStereoName(String channel_name , int stereo_status)
-{
-  return TrimStereoName(channel_name) +
-         ((stereo_status == CONFIG::STEREO_L)? CLIENT::STEREO_L_POSTFIX :
-          (stereo_status == CONFIG::STEREO_R)? CLIENT::STEREO_R_POSTFIX : "") ;
-}
-
-void LinJamConfig::setStereo(ValueTree channel_store , int stereo_status)
-{
-  channel_store.setProperty(CONFIG::STEREO_ID , stereo_status , nullptr) ;
-}
-
-int LinJamConfig::parseStereoStatus(String channel_name)
-{
-  // determine faux-stereo stereo status based on channel name
-  String postfix = channel_name.getLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
-  return (!postfix.compare(CLIENT::STEREO_L_POSTFIX))? CONFIG::STEREO_L :
-         (!postfix.compare(CLIENT::STEREO_R_POSTFIX))? CONFIG::STEREO_R :
-                                                       CONFIG::MONO     ;
-}
-
-int LinJamConfig::setRemoteStereo(ValueTree user_store        , ValueTree channel_store ,
-                                  String    prev_channel_name                           )
-{
-  String channel_name  = channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;
-  int    stereo_status = parseStereoStatus(channel_name) ;
-  int    prev_status   = parseStereoStatus(prev_channel_name) ;
-
-  // ensure remote faux-stereo channels are paired
-  if (stereo_status != CONFIG::MONO)
-  {
-    // find channel with name matching this channel_name + opposite_postfix
-    // to ignore duplicate names this assumes that stereo pairs are contiguous
-    int    channel_idx = int(channel_store[CONFIG::CHANNEL_IDX_ID]) ;
-    String l_pair_name = makeStereoName(channel_name , CONFIG::STEREO_L) ;
-    String r_pair_name = makeStereoName(channel_name , CONFIG::STEREO_R) ;
-    String expected_pair_name ; int pair_stereo_status ;
-    int    l_pair_idx ;         int r_pair_idx ;
-
-    if      (stereo_status == CONFIG::STEREO_L)
-    {
-      l_pair_idx         = channel_idx ;
-      r_pair_idx         = channel_idx + 1 ;
-      expected_pair_name = r_pair_name ;
-      pair_stereo_status = CONFIG::STEREO_R ;
-    }
-    else if (stereo_status == CONFIG::STEREO_R)
-    {
-      l_pair_idx         = channel_idx - 1 ;
-      r_pair_idx         = channel_idx ;
-      expected_pair_name = l_pair_name ;
-      pair_stereo_status = CONFIG::STEREO_L ;
-    }
-
-    ValueTree l_pair_store = getChannelByIdx(user_store , l_pair_idx) ;
-    ValueTree r_pair_store = getChannelByIdx(user_store , r_pair_idx) ;
-    ValueTree pair_store   = (pair_stereo_status == CONFIG::STEREO_L)? l_pair_store :
-                                                                       r_pair_store ;
-    String    pair_name    = pair_store[CONFIG::CHANNEL_NAME_ID].toString() ;
-    bool      is_paired    = !pair_name.compare(expected_pair_name) ;
-
-    // set this and matched pair channel stereo status to stereo
-    if (is_paired)
-    {
-      l_pair_store.setProperty(CONFIG::PAIR_IDX_ID , r_pair_idx , nullptr) ;
-      setStereo(channel_store , stereo_status) ;
-      setStereo(pair_store    , pair_stereo_status) ;
-    }
-    // set this unpaired channel stereo status to mono
-    else setStereo(channel_store , (stereo_status = CONFIG::MONO)) ;
-
-DEBUG_TRACE_STEREO_STATUS
-  }
-
-  if (stereo_status == CONFIG::MONO && stereo_status != prev_status)
-  {
-    // find channel with name matching prev_channel_name + either_postfix
-    String    l_pair_name          = makeStereoName(prev_channel_name , CONFIG::STEREO_L) ;
-    String    r_pair_name          = makeStereoName(prev_channel_name , CONFIG::STEREO_R) ;
-    ValueTree l_pair_channel_store = getChannelByName(user_store , l_pair_name) ;
-    ValueTree r_pair_channel_store = getChannelByName(user_store , r_pair_name) ;
-    bool      has_l_pair           = l_pair_channel_store.isValid() &&
-                                     l_pair_name.compare(channel_name) ;
-    bool      has_r_pair           = r_pair_channel_store.isValid() &&
-                                     r_pair_name.compare(channel_name) ;
-    bool      has_orphaned_pair    = has_l_pair != has_r_pair ;
-
-DEBUG_TRACE_MONO_STATUS
-
-    // set orphaned pair channel stereo status to mono
-    if (has_orphaned_pair)
-    {
-      if      (has_l_pair) setStereo(l_pair_channel_store , CONFIG::MONO) ;
-      else if (has_r_pair) setStereo(r_pair_channel_store , CONFIG::MONO) ;
-    }
-    // set this channel stereo status to mono
-    setStereo(channel_store , CONFIG::MONO) ;
-  }
-
-  return stereo_status ;
+  return validateConfig() ;
 }
 
 
 /* getters/setters */
 
-ValueTree LinJamConfig::addChannel(ValueTree channels_store , ValueTree new_channel_node)
+ValueTree LinJamConfig::addChannel(ValueTree channels_store  ,
+                                   ValueTree new_channel_node)
 {
 DEBUG_TRACE_ADD_CHANNEL_STORE
 
   // ensure trees are valid and storage does not already exist for this channel
-  if (!channels_store.isValid() || !new_channel_node.isValid()) return ValueTree::invalid ;
-  if (new_channel_node.getParent() == channels_store)           return new_channel_node ;
+  if (!channels_store.isValid() || !new_channel_node.isValid())  return ValueTree::invalid ;
+  if (new_channel_node.getParent() == channels_store)            return new_channel_node ;
 
   int       channel_idx   = int(new_channel_node[CONFIG::CHANNEL_IDX_ID]) ;
-  ValueTree channel_store = ValueTree(makeChannelId(channel_idx)) ;
+  ValueTree channel_store = ValueTree(MakeChannelId(channel_idx)) ;
 
   channel_store .copyPropertiesFrom(new_channel_node , nullptr) ;
   channels_store.addChild(channel_store , -1  , nullptr) ;
@@ -211,16 +366,16 @@ DEBUG_TRACE_ADD_CHANNEL_STORE
   return channel_store ;
 }
 
-void LinJamConfig::destroyChannel(ValueTree channels_store , ValueTree channel_store)
+void LinJamConfig::removeChannel(ValueTree channels_store , ValueTree channel_store)
 {
-DEBUG_TRACE_DESTROY_CHANNEL_STORE
+DEBUG_TRACE_REMOVE_CHANNEL_STORE
 
   channels_store.removeChild(channel_store , nullptr) ;
 }
 
 ValueTree LinJamConfig::getOrAddRemoteUser(String user_name)
 {
-  Identifier user_id    = makeUserId(user_name) ;
+  Identifier user_id    = MakeUserId(user_name) ;
   ValueTree  user_store = getUserById(user_id) ;
 
   if (!user_store.isValid())
@@ -288,6 +443,32 @@ ValueTree LinJamConfig::getUserMasterChannel(ValueTree user_store)
   return getChannelByIdx(user_store , CONFIG::MASTER_CHANNEL_IDX) ;
 }
 
+void LinJamConfig::setCredentials(String host_name , String login       ,
+                                  String pass      , bool   is_anonymous)
+{
+  if (is_anonymous) pass = "" ;
+  bool is_agreed = bool(getServer(host_name)[CONFIG::SHOULD_AGREE_ID]) ;
+
+  this->server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr) ;
+  this->server.setProperty(CONFIG::LOGIN_ID        , login        , nullptr) ;
+  this->server.setProperty(CONFIG::PASS_ID         , pass         , nullptr) ;
+  this->server.setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr) ;
+  this->server.setProperty(CONFIG::SHOULD_AGREE_ID , is_agreed    , nullptr) ;
+  this->server.setProperty(CONFIG::IS_AGREED_ID    , is_agreed    , nullptr) ;
+}
+
+ValueTree LinJamConfig::getCredentials(String host_name)
+{
+  // return copy of stored credentials
+  ValueTree stored_server = getServer(host_name) ;
+  ValueTree server_copy   = ValueTree(MakeHostId(host_name)) ;
+
+  if (stored_server.isValid()) server_copy.copyPropertiesFrom(stored_server , nullptr) ;
+  else                         server_copy = ValueTree::invalid ;
+
+  return server ;
+}
+
 void LinJamConfig::setServer()
 {
   // copy volatile login state to persistent storage
@@ -301,7 +482,7 @@ void LinJamConfig::setServer()
   // create new server entry
   if (!server.isValid())
   {
-    server = ValueTree(makeHostId(host_name)) ;
+    server = ValueTree(MakeHostId(host_name)) ;
     this->servers.addChild(server , -1 , nullptr) ;
   }
 
@@ -318,278 +499,90 @@ ValueTree LinJamConfig::getServer(String host_name)
   return this->servers.getChildWithProperty(CONFIG::HOST_ID , var(host_name)) ;
 }
 
-void LinJamConfig::setCurrentServer(String host_name , String login       ,
-                                    String pass      , bool   is_anonymous)
+void LinJamConfig::setStereo(ValueTree channel_store , int stereo_status)
 {
-  if (is_anonymous) pass = "" ;
-  bool is_agreed = bool(getServer(host_name).getProperty(CONFIG::SHOULD_AGREE_ID)) ;
-
-  this->server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr) ;
-  this->server.setProperty(CONFIG::LOGIN_ID        , login        , nullptr) ;
-  this->server.setProperty(CONFIG::PASS_ID         , pass         , nullptr) ;
-  this->server.setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr) ;
-  this->server.setProperty(CONFIG::SHOULD_AGREE_ID , is_agreed    , nullptr) ;
-  this->server.setProperty(CONFIG::IS_AGREED_ID    , is_agreed    , nullptr) ;
+  channel_store.setProperty(CONFIG::STEREO_ID , stereo_status , nullptr) ;
 }
 
-
-/* LinJamConfig class private instance methods */
-
-/* init */
-
-void LinJamConfig::initialize()
+int LinJamConfig::setRemoteStereo(ValueTree user_store        , ValueTree channel_store ,
+                                  String    prev_channel_name                           )
 {
-  // load default and stored configs
-  File        this_binary       = File::getSpecialLocation(File::currentExecutableFile) ;
-  this->      configXmlFile     = this_binary.getSiblingFile(CONFIG::PERSISTENCE_FILENAME) ;
-  XmlElement* default_xml       = XmlDocument::parse(CONFIG::DEFAULT_CONFIG_XML) ;
-  XmlElement* stored_xml        = XmlDocument::parse(this->configXmlFile) ;
-  bool        has_stored_config = stored_xml != nullptr                         &&
-                                  stored_xml->hasTagName(CONFIG::PERSISTENCE_ID) ;
+  String channel_name  = channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;
+  int    stereo_status = ParseStereoStatus(channel_name) ;
+  int    prev_status   = ParseStereoStatus(prev_channel_name) ;
 
-DEBUG_TRACE_LOAD_CONFIG
-
-  if (default_xml == nullptr) { delete stored_xml ; return ; } // panic
-
-DEBUG_TRACE_SANITIZE_CONFIG
-
-  // validate config version
-  double stored_version  = (!has_stored_config) ? 0.0                                :
-                           stored_xml->getDoubleAttribute(CONFIG::CONFIG_VERSION_ID) ;
-  bool do_versions_match = stored_version == CONFIG::CONFIG_VERSION ;
-  if (!do_versions_match) ; // TODO: convert (if ever necessary)
-
-  // create static config ValueTree from stored xml persistence or default
-  if (has_stored_config && do_versions_match)
-    this->configValueTree = sanitizeConfig(ValueTree::fromXml(*default_xml) ,
-                                           ValueTree::fromXml(*stored_xml)) ;
-  else
-    this->configValueTree = ValueTree::fromXml(*default_xml) ;
-
-  // instantiate shared value holders and restore type data
-  establishSharedStore() ; restoreVarTypeInfo(this->configValueTree) ;
-
-  // prune any corrupted user-defined data
-  validateServers() ; validateUsers() ;
-  validateChannels(this->localChannels) ;
-
-  // write back sanitized config to disk and cleanup
-  storeConfig() ; delete default_xml ; delete stored_xml ;
-
-  // register listeners for central dispatcher
-//   this->configValueTree.addListener(this) ;
-  this->subscriptions .addListener(this) ;
-  this->audio         .addListener(this) ;
-  this->masterChannels.addListener(this) ;
-  this->localChannels .addListener(this) ;
-  this->remoteUsers   .addListener(this) ;
-}
-
-void LinJamConfig::establishSharedStore()
-{
-  // client config
-  this->client         = this->configValueTree.getChildWithName(CONFIG::CLIENT_ID) ;
-  // ignore list
-  this->subscriptions  = this->configValueTree.getChildWithName(CONFIG::SUBSCRIPTIONS_ID) ;
-  // device config
-  this->audio          = this->configValueTree.getChildWithName(CONFIG::AUDIO_ID) ;
-  // login state
-  this->server         = this->configValueTree.getChildWithName(CONFIG::SERVER_ID) ;
-  // per server credentials
-  this->servers        = this->configValueTree.getChildWithName(CONFIG::SERVERS_ID) ;
-  // channels
-  this->masterChannels = this->configValueTree.getChildWithName(CONFIG::MASTERS_ID) ;
-  this->localChannels  = this->configValueTree.getChildWithName(CONFIG::LOCALS_ID) ;
-  this->remoteUsers    = this->configValueTree.getChildWithName(CONFIG::REMOTES_ID) ;
-}
-
-
-/* validation */
-
-ValueTree LinJamConfig::sanitizeConfig(ValueTree default_config , ValueTree stored_config)
-{
-  Identifier default_node_name  = default_config.getType() ;
-  int        n_properties       = default_config.getNumProperties() ;
-  int        n_default_children = default_config.getNumChildren() ;
-  int        n_stored_children  = stored_config .getNumChildren() ;
-
-  // transfer any missing attributes
-  for (int property_n = 0 ; property_n < n_properties ; ++property_n)
+  // ensure remote faux-stereo channels are paired
+  if (stereo_status != CONFIG::MONO)
   {
-    Identifier key   = default_config.getPropertyName(property_n) ;
-    var        value = default_config.getProperty(key) ;
-    if (!stored_config.hasProperty(key)) stored_config.setProperty(key , value , nullptr) ;
-  }
+    // find channel with name matching this channel_name + opposite_postfix
+    // to ignore duplicate names this assumes that stereo pairs are contiguous
+    int    channel_idx = int(channel_store[CONFIG::CHANNEL_IDX_ID]) ;
+    String l_pair_name = MakeStereoName(channel_name , CONFIG::STEREO_L) ;
+    String r_pair_name = MakeStereoName(channel_name , CONFIG::STEREO_R) ;
+    String expected_pair_name ; int pair_stereo_status ;
+    int    l_pair_idx ;         int r_pair_idx ;
 
-  // add any missing nodes and attributes to stored config
-  for (int child_n = 0 ; child_n < n_default_children ; ++child_n)
-  {
-    ValueTree  default_child      = default_config.getChild(child_n) ;
-    Identifier default_child_name = default_child .getType() ;
-    ValueTree  stored_child       = stored_config .getChildWithName(default_child_name) ;
-
-    // transfer missing node
-    if (!stored_child.isValid())
+    if      (stereo_status == CONFIG::STEREO_L)
     {
-      // for local channels we transfer the default channel only if none are stored
-      if (default_node_name != CONFIG::LOCALS_ID || !n_stored_children)
-      {
-        default_config.removeChild(default_child ,      nullptr) ;
-        stored_config .addChild(   default_child , -1 , nullptr) ;
-        --child_n ;
-      }
-      continue ;
+      l_pair_idx         = channel_idx ;
+      r_pair_idx         = channel_idx + 1 ;
+      expected_pair_name = r_pair_name ;
+      pair_stereo_status = CONFIG::STEREO_R ;
+    }
+    else if (stereo_status == CONFIG::STEREO_R)
+    {
+      l_pair_idx         = channel_idx - 1 ;
+      r_pair_idx         = channel_idx ;
+      expected_pair_name = l_pair_name ;
+      pair_stereo_status = CONFIG::STEREO_L ;
     }
 
-    // recurse on child node
-    sanitizeConfig(default_child , stored_child) ;
-  }
+    ValueTree l_pair_store = getChannelByIdx(user_store , l_pair_idx) ;
+    ValueTree r_pair_store = getChannelByIdx(user_store , r_pair_idx) ;
+    ValueTree pair_store   = (pair_stereo_status == CONFIG::STEREO_L)? l_pair_store :
+                                                                       r_pair_store ;
+    String    pair_name    = pair_store[CONFIG::CHANNEL_NAME_ID].toString() ;
+    bool      is_paired    = !pair_name.compare(expected_pair_name) ;
 
-  return stored_config ;
-}
-
-void LinJamConfig::restoreVarTypeInfo(ValueTree config_store)
-{
-  Identifier  node_id          = config_store.getType() ;
-  ValueTree   parent_node      = config_store.getParent() ;
-  ValueTree   grandparent_node = config_store.getParent().getParent() ;
-  XmlElement* config_types_xml = XmlDocument::parse(CONFIG::CONFIG_TYPES) ;
-  ValueTree   config_types     = ValueTree::fromXml(*config_types_xml) ;
-  ValueTree   types_store ;                   delete config_types_xml ;
-
-  if      (config_store        == this->configValueTree)
-    types_store = config_types ;
-  else if (config_store        == this->client          ||
-           config_store        == this->subscriptions   ||
-           config_store        == this->audio           ||
-           config_store        == this->server           )
-    types_store = config_types.getChildWithName(node_id) ;
-  else if (parent_node         == this->servers)
-    types_store = config_types.getChildWithName(CONFIG::SERVER_ID) ;
-  else if (parent_node         == this->masterChannels ||
-           parent_node         == this->localChannels  ||
-           grandparent_node    == this->remoteUsers     )
-    types_store = config_types.getChildWithName(CONFIG::CHANNELS_ID) ;
-  else if (parent_node         == this->remoteUsers)
-    types_store = config_types.getChildWithName(CONFIG::USERS_ID) ;
-
-DEBUG_TRACE_CONFIG_TYPES_VB
-
-  for (int property_n = 0 ; property_n < config_store.getNumProperties() ; ++property_n)
-  {
-    Identifier key       = config_store.getPropertyName(property_n) ;
-    var        a_var     = config_store[key] ;
-    String     datatype  = types_store[key] ;
-    bool       is_bool   = !datatype.compare(CONFIG::BOOL_TYPE) ;
-    bool       is_double = !datatype.compare(CONFIG::DOUBLE_TYPE) ;
-    bool       is_int    = !datatype.compare(CONFIG::INT_TYPE) ;
-    bool       is_string = !datatype.compare(CONFIG::STRING_TYPE) ;
-
-    if      (is_bool)    config_store.setProperty(   key , bool(  a_var) , nullptr) ;
-    else if (is_double)  config_store.setProperty(   key , double(a_var) , nullptr) ;
-    else if (is_int)     config_store.setProperty(   key , int(   a_var) , nullptr) ;
-    else if (!is_string) config_store.removeProperty(key ,                 nullptr) ;
-
-DEBUG_TRACE_CONFIG_TYPES_VB_EACH
-  }
-
-  for (int child_n = 0 ; child_n < config_store.getNumChildren() ; ++child_n)
-    restoreVarTypeInfo(config_store.getChild(child_n)) ;
-}
-
-void LinJamConfig::validateServers() {} // TODO:
-
-void LinJamConfig::validateUsers()
-{
-  for (int user_n = 0 ; user_n < this->remoteUsers.getNumChildren() ; ++user_n)
-  {
-    ValueTree user_store = this->remoteUsers.getChild(user_n) ;
-    bool user_has_useridx_property = user_store.hasProperty(CONFIG::USER_IDX_ID) ;
-    if (!user_has_useridx_property) this->remoteUsers.removeChild(user_store , nullptr) ;
-    else
+    // set this and matched pair channel stereo status to stereo
+    if (is_paired)
     {
-      // ensure that NJClient will be configured for ignored users upon join
-      ValueTree master_store = getChannelByIdx(user_store , CONFIG::MASTER_CHANNEL_IDX) ;
-      master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , true , nullptr) ;
-
-      validateChannels(user_store) ;
+      l_pair_store.setProperty(CONFIG::PAIR_IDX_ID , r_pair_idx , nullptr) ;
+      setStereo(channel_store , stereo_status) ;
+      setStereo(pair_store    , pair_stereo_status) ;
     }
+    // set this unpaired channel stereo status to mono
+    else setStereo(channel_store , (stereo_status = CONFIG::MONO)) ;
 
-DEBUG_TRACE_VALIDATE_USER
+DEBUG_TRACE_STEREO_STATUS
   }
-}
 
-void LinJamConfig::validateChannels(ValueTree channels)
-{
-  for (int channel_n = 0 ; channel_n < channels.getNumChildren() ; ++channel_n)
+  if (stereo_status == CONFIG::MONO && stereo_status != prev_status)
   {
-    ValueTree channel = channels.getChild(channel_n) ;
+    // find channel with name matching prev_channel_name + either_postfix
+    String    l_pair_name          = MakeStereoName(prev_channel_name , CONFIG::STEREO_L) ;
+    String    r_pair_name          = MakeStereoName(prev_channel_name , CONFIG::STEREO_R) ;
+    ValueTree l_pair_channel_store = getChannelByName(user_store , l_pair_name) ;
+    ValueTree r_pair_channel_store = getChannelByName(user_store , r_pair_name) ;
+    bool      has_l_pair           = l_pair_channel_store.isValid() &&
+                                     l_pair_name.compare(channel_name) ;
+    bool      has_r_pair           = r_pair_channel_store.isValid() &&
+                                     r_pair_name.compare(channel_name) ;
+    bool      has_orphaned_pair    = has_l_pair != has_r_pair ;
 
-    bool channel_has_channelname_property = channel.hasProperty(CONFIG::CHANNEL_NAME_ID) ;
-    bool channel_has_channelidx_property  = channel.hasProperty(CONFIG::CHANNEL_IDX_ID)  ;
-    bool channel_has_pairidx_property     = channel.hasProperty(CONFIG::PAIR_IDX_ID)     ;
-    bool channel_has_volume_property      = channel.hasProperty(CONFIG::VOLUME_ID)       ;
-    bool channel_has_pan_property         = channel.hasProperty(CONFIG::PAN_ID)          ;
-    bool channel_has_xmit_property        = channel.hasProperty(CONFIG::IS_XMIT_RCV_ID)  ;
-    bool channel_has_mute_property        = channel.hasProperty(CONFIG::IS_MUTED_ID)     ;
-    bool channel_has_solo_property        = channel.hasProperty(CONFIG::IS_SOLO_ID)      ;
-    bool channel_has_source_property      = channel.hasProperty(CONFIG::SOURCE_N_ID)     ;
-    bool channel_has_stereo_property      = channel.hasProperty(CONFIG::STEREO_ID)       ;
-    bool channel_has_vuleft_property      = channel.hasProperty(CONFIG::VU_LEFT_ID)      ;
-    bool channel_has_vuright_property     = channel.hasProperty(CONFIG::VU_RIGHT_ID)     ;
+DEBUG_TRACE_MONO_STATUS
 
-    if (!channel_has_channelname_property || !channel_has_channelidx_property ||
-        !channel_has_pairidx_property     || !channel_has_volume_property     ||
-        !channel_has_pan_property         || !channel_has_xmit_property       ||
-        !channel_has_mute_property        || !channel_has_solo_property       ||
-        !channel_has_source_property      || !channel_has_stereo_property     ||
-        !channel_has_vuleft_property      || !channel_has_vuright_property     )
-    { channels.removeChild(channel , nullptr) ; --channel_n ; }
-
-DEBUG_TRACE_VALIDATE_CHANNEL
+    // set orphaned pair channel stereo status to mono
+    if (has_orphaned_pair)
+    {
+      if      (has_l_pair) setStereo(l_pair_channel_store , CONFIG::MONO) ;
+      else if (has_r_pair) setStereo(r_pair_channel_store , CONFIG::MONO) ;
+    }
+    // set this channel stereo status to mono
+    setStereo(channel_store , CONFIG::MONO) ;
   }
-}
 
-void LinJamConfig::storeConfig()
-{
-DEBUG_TRACE_STORE_CONFIG
-
-  XmlElement* config_xml = this->configValueTree.createXml() ;
-
-  config_xml->writeToFile(this->configXmlFile , StringRef() , StringRef("UTF-8") , 0) ;
-  delete config_xml ;
-}
-
-bool LinJamConfig::sanityCheck()
-{
-  // validate subscribed trees
-  bool root_is_valid            = this->configValueTree.isValid() ;
-  bool client_is_valid          = this->client         .isValid() ;
-  bool subscriptions_is_valid   = this->subscriptions  .isValid() ;
-  bool audio_is_valid           = this->audio          .isValid() ;
-  bool server_is_valid          = this->server         .isValid() ;
-  bool servers_is_valid         = this->servers        .isValid() ;
-  bool master_channels_is_valid = this->masterChannels .isValid() ;
-  bool local_channels_is_valid  = this->localChannels  .isValid() ;
-  bool remote_users_is_valid    = this->remoteUsers    .isValid() ;
-
-  bool is_valid = (root_is_valid            && client_is_valid         &&
-                   subscriptions_is_valid   && audio_is_valid          &&
-                   server_is_valid          && servers_is_valid        &&
-                   master_channels_is_valid && local_channels_is_valid &&
-                   remote_users_is_valid                                ) ;
-
-DEBUG_TRACE_SANITY_CHECK // modifies is_valid
-
-  return is_valid ;
-}
-
-
-/* helpers */
-
-String LinJamConfig::filteredName(String a_string)
-{
-  return a_string.retainCharacters(CONFIG::VALID_NAME_CHARS).replaceCharacter(' ', '-') ;
+  return stereo_status ;
 }
 
 
@@ -599,7 +592,11 @@ void LinJamConfig::valueChanged(Value& a_value)
 {
 DEBUG_TRACE_CONFIG_VALUE_CHANGED
 
+  // update state
   if (a_value.refersToSameSourceAs(LinJam::Status)) LinJam::HandleStatusChanged() ;
+
+  // store server credentials on successful login
+  if (LinJam::Status == NJClient::NJC_STATUS_OK) setServer() ;
 }
 
 void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier& a_key)

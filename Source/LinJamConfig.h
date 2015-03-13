@@ -18,144 +18,78 @@
 
 class LinJamConfig : public ValueTree::Listener , public Value::Listener
 {
+  friend class LinJam ;
+
+
 public:
 
   LinJamConfig() ;
   ~LinJamConfig() ;
 
 
-  static String    TrimStereoName(String channel_name) ;
-  static ValueTree NewChannel(    String channel_name = CONFIG::DEFAULT_CHANNEL_NAME ,
-                                  int    channel_idx  = CONFIG::DEFAULT_CHANNEL_IDX  ) ;
+  // validation
+  static Identifier MakeHostId(       String host_name) ;
+  static Identifier MakeUserId(       String channel_name) ;
+  static Identifier MakeChannelId(    int channel_idx) ;
+  static String     MakeStereoName(   String channel_name , int stereo_status) ;
+  static String     TrimStereoName(   String channel_name) ;
+  static int        ParseStereoStatus(String channel_name) ;
+  static ValueTree  NewChannel(       String channel_name = CONFIG::DEFAULT_CHANNEL_NAME ,
+                                      int    channel_idx  = CONFIG::DEFAULT_CHANNEL_IDX  ) ;
 
 
-  /* config root
-  ValueTree configValueTree ; (private)
-  {
-    CONFIG_VERSION_ID => double
-  } */
+  /* value holders (see Constants.h CONFIG_XML and CONFIG_TYPES_XML) */
 
-  // client config
-  ValueTree client ; /* CLIENT_ID - client-specfic data
-  {
-    SAVE_AUDIO_MODE_ID  => int    ,
-    MIXDOWN_MODE_ID     => int    ,
-    SHOULD_SAVE_LOG_ID  => bool   ,
-    DEBUG_LEVEL_ID      => int    ,
-    SHOULD_HIDE_BOTS_ID => bool   ,
-  }                  */
-  ValueTree subscriptions ; /* SUBSCRIPTIONS_ID - subscriptions-specfic data
-  {
-    SUBSCRIBE_MODE_ID => int
-  }                         */
+private:
+  // config root (PERSISTENCE_TYPES_KEY datatypes)
+  ValueTree configRoot ; // PERSISTENCE_ID node - parent of all nodes below
+public:
+  // client config (CLIENT_KEY datatypes)
+  ValueTree client ; // CLIENT_ID node - client-specific data
 
-  // audio device config
-  ValueTree audio ; /* AUDIO_KEY - audio-specfic data
-  {
-    WIN_AUDIO_IF_ID    => int (audioStreamer::Interface enum)
-    ASIO_DRIVER_ID     => int
-    ASIO_INPUT0_ID     => int
-    ASIO_INPUT1_ID     => int
-    ASIO_OUTPUT0_ID    => int
-    ASIO_OUTPUT1_ID    => int
-    KS_INPUT_ID        => int
-    KS_OUTPUT_ID       => int
-    KS_SAMPLERATE_ID   => int
-    KS_BITDEPTH_ID     => int
-    KS_NBLOCKS_ID      => int
-    KS_BLOCKSIZE_ID    => int
-    DS_INPUT0_ID       => int
-    DS_INPUT1_ID       => int
-    DS_INPUT2_ID       => int
-    DS_INPUT3_ID       => int
-    DS_OUTPUT0_ID      => int
-    DS_OUTPUT1_ID      => int
-    DS_OUTPUT2_ID      => int
-    DS_OUTPUT3_ID      => int
-    DS_SAMPLERATE_ID   => int
-    DS_BITDEPTH_ID     => int
-    DS_NBLOCKS_ID      => int
-    DS_BLOCKSIZE_ID    => int
-    WAVE_INPUT_ID      => int
-    WAVE_OUTPUT_ID     => int
-    WAVE_SAMPLERATE_ID => int
-    WAVE_BITDEPTH_ID   => int
-    WAVE_NBLOCKS_ID    => int
-    WAVE_BLOCKSIZE_ID  => int
-    MAC_DEVICE_ID      => string
-    MAC_NINPUTS_ID     => int
-    MAC_SAMPLERATE_ID  => int
-    MAC_BITDEPTH_ID    => int
-    NIX_AUDIO_IF_ID    => int (audioStreamer::Interface enum)
-    JACK_SERVER_ID     => int
-    JACK_NAME_ID       => string
-    JACK_NINPUTS_ID    => int
-    JACK_NOUTPUTS_ID   => int
-    ALSA_CONFIG_ID     => string
-  }                 */
+  // subscriptions (SUBSCRIPTIONS_KEY datatypes)
+  ValueTree subscriptions ; // SUBSCRIPTIONS_ID node - subscriptions-specific data
 
-  // server credentials
-  ValueTree server ;  // SERVER_ID  - transient login credentials
-  ValueTree servers ; /* SERVERS_ID - per-server credentials
-  [
-    {
-      HOST_ID         => string
-      LOGIN_ID        => string
-      PASS_ID         => string
-      IS_ANONYMOUS_ID => bool
-      SHOULD_AGREE_ID => bool
-      IS_AGREED_ID    => bool   // <server> node only - TODO: this exists only so OnLicense doesnt block (issue #14)
-    }
-  ]                   */
+  // audio device config (AUDIO_KEY datatypes)
+  ValueTree audio ; // AUDIO_KEY node - api-specific audio hardware initialization data
 
-  // peers
-  ValueTree remoteUsers ; /* REMOTES_ID - per-peer data
-  [
-    {
-      USER_IDX_ID => int                 ,
-      child_nodes => [ a_channel , ... ] // channels as below
-    } ,
-    ...
-  ]                       */
+  // TODO: server[IS_AGREED_ID] exists only so OnLicense doesnt block (issue #14)
+  // credentials (SERVER_KEY datatypes - IS_AGREED_ID is <server> node only)
+  ValueTree server ;  // SERVER_ID node  - transient login credentials
+  // credentials (list of SERVER_KEY datatypes)
+  ValueTree servers ; // SERVERS_ID node - per-server credentials
 
-  // channels
-  ValueTree masterChannels ; // MASTERS_ID          - per-channel data (master and metro)
-  ValueTree localChannels ;  // LOCALS_ID           - per-channel data
-                             /* remoteUsers[A_USER] - per-channel data
-  [
-    {
-      CHANNEL_NAME_ID => string ,
-      CHANNEL_IDX_ID  => int    ,
-      PAIR_IDX_ID     => int    ,
-      VOLUME_ID       => double ,
-      PAN_ID          => double ,
-      IS_XMIT_RCV_ID  => bool   ,
-      IS_MUTED_ID     => bool   ,
-      IS_SOLO_ID      => bool   ,
-      SOURCE_N_ID     => int    ,
+  // peers (list of USERS_KEY datatypes - children are channels as below)
+  ValueTree remoteUsers ; // REMOTES_ID node - per-peer data
 
-      STEREO_ID       => int    ,
-      VU_LEFT_ID      => double ,
-      VU_RIGHT_ID     => double
-    } ,
-    ...
-  ]                          */
+  // channels (list of CHANNELS_KEY datatypes)
+  ValueTree masterChannels ; // MASTERS_ID node - per-channel data (master and metro)
+  ValueTree localChannels ;  // LOCALS_ID node  - per-channel data
+                             // remoteUsers[n]  - per-channel data (each remoteUsers)
+
+
+private:
+
+  File  configXmlFile ;
+  Value dummyValue ;
+
+  // setup
+  void initialize() ;
+  void establishSharedStore() ;
+  void restoreVarTypeInfo( ValueTree config_store) ;
+  void storeConfig() ;
 
   // validation
-  bool       isConfigSane() ;
-  String     parseUsername(    String user_name) ;
-  Identifier makeHostId(       String host_name) ;
-  Identifier makeUserId(       String channel_name) ;
-  Identifier makeChannelId(    int channel_idx) ;
-  String     makeStereoName(   String channel_name , int stereo_status) ;
-  int        parseStereoStatus(String channel_name) ;
-  void       setStereo(        ValueTree channel_store , int stereo_status) ;
-  int        setRemoteStereo(  ValueTree user_store        , ValueTree channel_store ,
-                               String    prev_channel_name                           ) ;
+  ValueTree sanitizeConfig(  ValueTree default_config , ValueTree stored_config) ;
+  void      validateServers() ;
+  void      validateUsers() ;
+  void      validateChannels(ValueTree channels) ;
+  bool      validateConfig() ;
+  bool      isConfigValid() ;
 
   // getters/setters
   ValueTree addChannel(           ValueTree channels_store , ValueTree new_store) ;
-  void      destroyChannel(       ValueTree channels_store , ValueTree channel_store) ;
+  void      removeChannel(        ValueTree channels_store , ValueTree channel_store) ;
   ValueTree getOrAddRemoteUser(   String user_name) ;
   ValueTree getOrAddRemoteChannel(Identifier user_id     , String channel_name        ,
                                   int        channel_idx = CONFIG::DEFAULT_CHANNEL_IDX) ;
@@ -165,32 +99,14 @@ public:
   ValueTree getChannelByPairIdx(  ValueTree channels_store , int pair_idx) ;
   ValueTree getChannelByName(     ValueTree channels_store , String channel_name) ;
   ValueTree getUserMasterChannel( ValueTree user_store) ;
+  void      setCredentials(       String host_name    , String login , String pass ,
+                                  bool   is_anonymous                              ) ;
+  ValueTree getCredentials(       String host_name) ;
   void      setServer() ;
   ValueTree getServer(            String host_name) ;
-  void      setCurrentServer(     String host_name    , String login , String pass ,
-                                  bool   is_anonymous                              ) ;
-
-
-private:
-
-  File      configXmlFile ;
-  ValueTree configValueTree ;
-  Value     dummyValue ;
-
-
-  // validation
-  void      initialize() ;
-  ValueTree sanitizeConfig(    ValueTree default_config , ValueTree stored_config) ;
-  void      restoreVarTypeInfo(ValueTree config_store) ;
-  void      validateServers() ;
-  void      validateUsers() ;
-  void      validateChannels(  ValueTree channels) ;
-  void      storeConfig() ;
-  void      establishSharedStore() ;
-  bool      sanityCheck() ;
-
-  // helpers
-  String filteredName(String a_name) ;
+  void      setStereo(            ValueTree channel_store , int stereo_status) ;
+  int       setRemoteStereo(      ValueTree user_store        , ValueTree channel_store ,
+                                  String    prev_channel_name                           ) ;
 
   // event handlers
   void valueChanged(            Value& a_value)                               override ;
@@ -198,13 +114,13 @@ private:
   void valueTreeChildAdded(     ValueTree& a_parent_node , ValueTree& a_node) override ;
   void valueTreeChildRemoved(   ValueTree& a_parent_node , ValueTree& a_node) override ;
 
-  // unused ValueTree::Listener interface methods
+  // unused ValueTree::Listener interface implementations
   // called when a tree's children have been re-shuffled.
   void valueTreeChildOrderChanged(ValueTree& a_parent_node)                override {} ;
   // called when a tree has been added or removed from a parent node.
-  void valueTreeParentChanged(ValueTree& a_node)                           override {} ;
+  void valueTreeParentChanged(    ValueTree& a_node)                       override {} ;
   // called when a tree is made to point to a different internal shared object.
-  void valueTreeRedirected(ValueTree& a_node)                              override {} ;
+  void valueTreeRedirected(       ValueTree& a_node)                       override {} ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJamConfig) ;

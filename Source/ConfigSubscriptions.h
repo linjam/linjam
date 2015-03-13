@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -41,7 +41,7 @@ class ConfigSubscriptions  : public Component,
 {
 public:
     //==============================================================================
-    ConfigSubscriptions (ValueTree config_store);
+    ConfigSubscriptions (ValueTree subscriptions_store);
     ~ConfigSubscriptions();
 
     //==============================================================================
@@ -57,7 +57,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  ValueTree configStore ;
+  ValueTree subscriptionsStore ;
 
 
   void setConfig(Identifier a_key , var a_value) ;

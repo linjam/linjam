@@ -13,7 +13,39 @@
 
 /* state */
 
-#define DEBUG_TRACE_LINJAM_INIT Trace::TraceState("initializing") ;
+#define DEBUG_TRACE_INIT Trace::TraceState("initializing") ;
+
+#define DEBUG_TRACE_SESSIONDIR                                                  \
+  Trace::TraceClient("preparing session dir '" + session_dir_path + "'- "     + \
+                     (SessionDir.isDirectory() ? "already exists" : "created")) ;
+
+static int PrevStatus = -9 ;
+#define DEBUG_TRACE_STATUS_CHANGED                                                      \
+  int    prev_status   = PrevStatus ;                                                   \
+  int    curr_status   = (PrevStatus = int(Status.getValue())) ;                        \
+  String prev_msg      = Trace::Status2String(prev_status) ;                            \
+  String curr_msg      = Trace::Status2String(curr_status) ;                            \
+  String host_name     = Client->GetHostName() ;                                        \
+  char*  client_error  = Client->GetErrorStr() ;                                        \
+  String changed_msg   = prev_msg + " -> " + curr_msg ;                                 \
+  String connected_msg = "connected to host: " + host_name ;                            \
+  String error_msg     = "Error: " + CharPointer_UTF8(client_error) ;                   \
+  if      (curr_status == LINJAM_STATUS_AUDIOERROR) Trace::TraceClient(curr_msg) ;      \
+  else if (prev_status == LINJAM_STATUS_AUDIOERROR) Trace::TraceState(curr_msg) ;       \
+  else                                              Trace::TraceState(changed_msg) ;    \
+  if      (curr_status == NJClient::NJC_STATUS_OK)  Trace::TraceServer(connected_msg) ; \
+  if      (client_error[0])                         Trace::TraceServer(error_msg) ;     \
+  Trace::TraceGui(                                                                      \
+      (Status == LINJAM_STATUS_AUDIOERROR         ) ? "showing config pane"    :        \
+      (Status == LINJAM_STATUS_CONFIGPENDING      ) ? "showing config pane"    :        \
+      (Status == LINJAM_STATUS_LICENSEPENDING     ) ? "showing license pane"   :        \
+      (Status == LINJAM_STATUS_ROOMFULL           ) ? "showing login pane"     :        \
+      (Status == NJClient::NJC_STATUS_DISCONNECTED) ? "showing login pane"     :        \
+      (Status == NJClient::NJC_STATUS_INVALIDAUTH ) ? "showing login pane"     :        \
+      (Status == NJClient::NJC_STATUS_CANTCONNECT ) ? "showing login pane"     :        \
+      (Status == NJClient::NJC_STATUS_OK          ) ? "showing main pane"      :        \
+      (Status == NJClient::NJC_STATUS_PRECONNECT  ) ? "showing login pane"     :        \
+                                                      "showing background pane") ;
 
 #define DEBUG_TRACE_CONNECT                                                  \
   Trace::TraceState((!IsAgreed())? "connecting to " + host :                 \
@@ -30,25 +62,25 @@
   String sessiondir = SessionDir.getFullPathName() ;                           \
   if (!SessionDir.isDirectory() || !SessionDir.isAChildOf(thisdir))            \
       Trace::TraceError("session directory '" + sessiondir + "' is invalid") ; \
-  else Trace::TraceState("cleaning session directory '" + sessiondir + "'") ;
+  else Trace::TraceClient("cleaning session directory '" + sessiondir + "'")   ;
 #else // CLEAN_SESSION
-#  define DEBUG_TRACE_CLEAN_SESSION                                               \
-  String sessiondir = SessionDir.getFullPathName() ;                              \
-  Trace::TraceState("cleaning session directory '" + sessiondir + "' (disabled)") ;
+#  define DEBUG_TRACE_CLEAN_SESSION                                                \
+  String sessiondir = SessionDir.getFullPathName() ;                               \
+  Trace::TraceClient("cleaning session directory '" + sessiondir + "' (disabled)") ;
 #endif // CLEAN_SESSION
 
 
 /* audio */
 
 #define DEBUG_TRACE_AUDIO_INIT_WIN                                                   \
-  audioStreamer::Interface if_n = (audioStreamer::Interface)win_interface_n ;        \
-  String type = (if_n == audioStreamer::WIN_AUDIO_ASIO)? CLIENT::ASIO_DEVICE_TYPE :  \
-                (if_n == audioStreamer::WIN_AUDIO_KS)  ? CLIENT::KS_DEVICE_TYPE   :  \
-                (if_n == audioStreamer::WIN_AUDIO_DS)  ? CLIENT::DS_DEVICE_TYPE   :  \
-                (if_n == audioStreamer::WIN_AUDIO_WAVE)? CLIENT::WAVE_DEVICE_TYPE :  \
-                                                         CLIENT::NFG_DEVICE_TYPE  ;  \
+  audioStreamer::WinApi api_n = (audioStreamer::WinApi)win_api_n ;                   \
+  String type = (api_n == audioStreamer::WIN_AUDIO_ASIO)? CLIENT::ASIO_DEVICE_TYPE : \
+                (api_n == audioStreamer::WIN_AUDIO_KS)  ? CLIENT::KS_DEVICE_TYPE   : \
+                (api_n == audioStreamer::WIN_AUDIO_DS)  ? CLIENT::DS_DEVICE_TYPE   : \
+                (api_n == audioStreamer::WIN_AUDIO_WAVE)? CLIENT::WAVE_DEVICE_TYPE : \
+                                                          CLIENT::NFG_DEVICE_TYPE  ; \
   String dbg = "initializing " + type + " audiostreamer =>" ;                        \
-  switch ((int)if_n)                                                                 \
+  switch ((int)api_n)                                                                \
   {                                                                                  \
     case audioStreamer::WIN_AUDIO_ASIO: dbg = dbg                           +        \
           "\n\t" + CONFIG::ASIO_DRIVER_KEY  + " => " + String(asio_driver)  +        \
@@ -99,11 +131,11 @@
         "\n\t" + CONFIG::MAC_SAMPLERATE_KEY + " => " + String(mac_sample_rate) + \
         "\n\t" + CONFIG::MAC_BITDEPTH_KEY   + " => " + String(mac_bit_depth)   ) ;
 
-#define DEBUG_TRACE_AUDIO_INIT_NIX                                                   \
-  audioStreamer::Interface if_n = (audioStreamer::Interface)nix_interface_n ;        \
-  String type = (if_n == audioStreamer::NIX_AUDIO_JACK) ? CLIENT::JACK_DEVICE_TYPE : \
-                (if_n == audioStreamer::NIX_AUDIO_ALSA) ? CLIENT::ALSA_DEVICE_TYPE : \
-                                                          CLIENT::NFG_DEVICE_TYPE  ; \
+#define DEBUG_TRACE_AUDIO_INIT_NIX                                                    \
+  audioStreamer::NixApi api_n = (audioStreamer::NixApi)nix_api_n ;                    \
+  String type = (api_n == audioStreamer::NIX_AUDIO_JACK) ? CLIENT::JACK_DEVICE_TYPE : \
+                (api_n == audioStreamer::NIX_AUDIO_ALSA) ? CLIENT::ALSA_DEVICE_TYPE : \
+                                                           CLIENT::NFG_DEVICE_TYPE  ; \
   Trace::TraceClient("detected platform is *NIX") ;
 
 #define DEBUG_TRACE_AUDIO_INIT_JACK                                                 \
@@ -128,26 +160,6 @@
                          String(Audio->m_outnch)      + "out "                         ) ;
 
 
-/* network */
-
-static int PrevStatus = -9 ;
-#define DEBUG_TRACE_STATUS_CHANGED                                                      \
-  int    prev_status   = PrevStatus ;                                                   \
-  int    curr_status   = (PrevStatus = int(Status.getValue())) ;                        \
-  String prev_msg      = Trace::Status2String(prev_status) ;                            \
-  String curr_msg      = Trace::Status2String(curr_status) ;                            \
-  String host_name     = Client->GetHostName() ;                                        \
-  char*  client_error  = Client->GetErrorStr() ;                                        \
-  String changed_msg   = prev_msg + " -> " + curr_msg ;                                 \
-  String connected_msg = "connected to host: " + host_name ;                            \
-  String error_msg     = "Error: " + CharPointer_UTF8(client_error) ;                   \
-  if      (curr_status == LINJAM_STATUS_AUDIOERROR) Trace::TraceClient(curr_msg) ;      \
-  else if (prev_status == LINJAM_STATUS_AUDIOERROR) Trace::TraceState(curr_msg) ;       \
-  else                                              Trace::TraceState(changed_msg) ;    \
-  if      (curr_status == NJClient::NJC_STATUS_OK)  Trace::TraceServer(connected_msg) ; \
-  if      (client_error[0])                         Trace::TraceServer(error_msg) ;
-
-
 /* channels */
 
 #define DEBUG_TRACE_INITIAL_CHANNELS                                               \
@@ -155,29 +167,29 @@ static int PrevStatus = -9 ;
   if (!n_chs) Trace::TraceConfig("no stored channels found") ;                     \
   else Trace::TraceConfig("restoring " + String(n_chs) + " stored local channels") ;
 
-#define DEBUG_TRACE_ADD_LOCAL_CHANNEL                                                    \
-  String channel_name = channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;              \
-  int    ch_idx       = int(channel_store[CONFIG::CHANNEL_IDX_ID]) ;                     \
-  int    source       = int(channel_store[CONFIG::SOURCE_N_ID]) ;                        \
-  bool   stereo       = int(channel_store[CONFIG::STEREO_ID]) != CONFIG::MONO ;          \
-  String type         = (!stereo)? "mono" : "stereo" ;                                   \
-  bool   is_new       = ch_idx == CONFIG::DEFAULT_CHANNEL_IDX ;                          \
-  bool   exists       = IsConfiguredChannel(ch_idx) ;                                    \
-  bool   valid_source = source >= 0 && source < GetNumAudioSources() ;                   \
-  int    n_vacant     = GetNumVacantChannels() ;                                         \
-  bool   no_free_chs  = (!stereo && n_vacant < 1 || stereo && n_vacant < 2) ;            \
-  String dbg          = "adding " + String((is_new)? "new" : "stored") + " local " +     \
-                        type + " input[" + String(source) + "] '" + channel_name + "'" ; \
-  if (exists)                                                                            \
-    Trace::TraceError("channel already exists " + dbg) ;                                 \
-  else if (!valid_source)                                                                \
-    Trace::TraceError("non-existent source " + dbg) ;                                    \
-  else if (no_free_chs)                                                                  \
-  {                                                                                      \
-    Trace::TraceError("insufficient free channels " + dbg) ;                             \
-    if (TRACE_LOCAL_CHANNELS_VB)                                                         \
-      DBG(Trace::DumpStoredChannels() + Trace::DumpClientChannels()) ;                 \
-  }                                                                                      \
+#define DEBUG_TRACE_ADD_LOCAL_CHANNEL                                                     \
+  String channel_name = channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;               \
+  int    ch_idx       = int(channel_store[CONFIG::CHANNEL_IDX_ID]) ;                      \
+  int    source       = int(channel_store[CONFIG::SOURCE_N_ID]) ;                         \
+  bool   stereo       = int(channel_store[CONFIG::STEREO_ID]) != CONFIG::MONO ;           \
+  String type         = (!stereo)? "mono" : "stereo" ;                                    \
+  bool   is_new       = ch_idx == CONFIG::DEFAULT_CHANNEL_IDX ;                           \
+  bool   exists       = IsConfiguredChannel(ch_idx) ;                                     \
+  bool   valid_source = source >= 0 && source < GetNumAudioSources() ;                    \
+  int    n_vacant     = GetNumVacantChannels() ;                                          \
+  bool   no_free_chs  = (!stereo && n_vacant < 1 || stereo && n_vacant < 2) ;             \
+  String dbg          = "when adding " + String((is_new)? "new" : "stored") + " local " + \
+                        type + " input[" + String(source) + "] '" + channel_name + "'" ;  \
+  if (exists)                                                                             \
+    Trace::TraceError("channel already exists " + dbg) ;                                  \
+  else if (!valid_source)                                                                 \
+    Trace::TraceError("non-existent source " + dbg) ;                                     \
+  else if (no_free_chs)                                                                   \
+  {                                                                                       \
+    Trace::TraceError("insufficient free channels " + dbg) ;                              \
+    if (TRACE_LOCAL_CHANNELS_VB)                                                          \
+      DBG(Trace::DumpStoredChannels() + Trace::DumpClientChannels()) ;                    \
+  }                                                                                       \
   else Trace::TraceEvent(dbg) ;
 
 #define DEBUG_TRACE_INSTANTIATE_LOCAL_CHANNEL                                    \
@@ -186,7 +198,7 @@ static int PrevStatus = -9 ;
 
 #define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL                                      \
   String ch_name   = channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;         \
-         ch_name   = Config->makeStereoName(ch_name , stereo_status) ;           \
+         ch_name   = Config->MakeStereoName(ch_name , stereo_status) ;           \
   String ch_id     = String(channel_store.getType()) ;                           \
   bool   is_new    = !IsConfiguredChannel(channel_idx) ;                         \
   bool   is_stereo = stereo_status != CONFIG::MONO ;                             \
@@ -376,7 +388,9 @@ static int PrevStatus = -9 ;
 #else // DEBUG
 
 // state
-#define DEBUG_TRACE_LINJAM_INIT               ;
+#define DEBUG_TRACE_INIT                      ;
+#define DEBUG_TRACE_SESSIONDIR                ;
+#define DEBUG_TRACE_STATUS_CHANGED            ;
 #define DEBUG_TRACE_CONNECT                   ;
 #define DEBUG_TRACE_LICENSE                   ;
 #define DEBUG_TRACE_CLEAN_SESSION             ;
@@ -386,8 +400,6 @@ static int PrevStatus = -9 ;
 #define DEBUG_TRACE_AUDIO_INIT_JACK           ;
 #define DEBUG_TRACE_AUDIO_INIT_ALSA           ;
 #define DEBUG_TRACE_AUDIO_INIT                ;
-// network
-#define DEBUG_TRACE_STATUS_CHANGED            ;
 // channels
 #define DEBUG_TRACE_INITIAL_CHANNELS          ;
 #define DEBUG_TRACE_ADD_LOCAL_CHANNEL         ;

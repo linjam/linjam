@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -19,7 +19,6 @@
 
 //[Headers] You can add your own extra header files here...
 
-#include "Constants.h"
 #include "LinJam.h"
 #include "ConfigAudio.h"
 #include "ConfigClient.h"
@@ -99,6 +98,9 @@ void Config::paint (Graphics& g)
 
 void Config::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     configTabs->setBounds (4, 0, getWidth() - 8, getHeight() - 4);
     dismissButton->setBounds (getWidth() - 64, 0, 64, 24);
     //[UserResized] Add your own custom resize handling here..

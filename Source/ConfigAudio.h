@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -43,14 +43,14 @@ class ConfigAudio  : public Component,
 {
 public:
     //==============================================================================
-    ConfigAudio (ValueTree config_store);
+    ConfigAudio (ValueTree audio_store);
     ~ConfigAudio();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     //[/UserMethods]
 
-    void paint (Graphics& g); 
+    void paint (Graphics& g);
     void resized();
     void buttonClicked (Button* buttonThatWasClicked);
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
@@ -61,7 +61,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  ValueTree configStore ;
+  ValueTree audioStore ;
 
 
   void broughtToFront() ;
@@ -69,6 +69,8 @@ private:
   void enableComponents() ;
   void setConfig(Identifier a_key , var a_value) ;
   void restoreDefaults() ;
+  int  getWinApiN() ;
+  int  getNixApiN() ;
 #if _WIN32
   bool queryAsioDevices() ;
   bool queryKernelstreamingDevices() ;

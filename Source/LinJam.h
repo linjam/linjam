@@ -32,13 +32,9 @@
 
 
 class LinJam
-
-
 {
   friend class LinJamApplication ;
   friend class LinJamConfig ;
-  friend class License ; // TODO: needs access to config object (issue #62)
-  friend class Login ;   // TODO: needs access to config object (issue #62)
 #if DEBUG
   friend class Trace ;
 #endif // DEBUG
@@ -47,11 +43,13 @@ class LinJam
 public:
 
   // state methods
+  static void SignIn( String host_name , String login , String pass , bool is_anonymous) ;
   static void Connect() ;
   static void Disconnect() ;
   static void Shutdown() ;
 
   // getters/setters
+  static ValueTree      getCredentials(         String host_name) ;
   static bool           IsAgreed() ;
   static SortedSet<int> GetFreeAudioSources() ;
   static SortedSet<int> GetFreeAudioSourcePairs() ;
@@ -77,6 +75,7 @@ private:
   static double         GuiBeatOffset ;
   static File           SessionDir ;
   static Value          Status ;
+  static int            RetryLogin ;
   static String         PrevRecordingTime ;
 
 
@@ -96,10 +95,11 @@ private:
   // initialization methods
   static bool Initialize(NJClient*     nj_client , MainContent* main_content ,
                          const String& args                                  ) ;
-  static void InitializeAudio() ;
-  static void ConfigureInitialChannels() ;
   static bool PrepareSessionDirectory() ;
   static void ConfigureNinjam() ;
+  static void ConfigureSubscriptions() ;
+  static void InitializeAudio() ;
+  static void ConfigureInitialChannels() ;
   static void CleanSessionDir() ;
 
   // NJClient callbacks
@@ -121,9 +121,6 @@ private:
   static void UpdateLoopProgress() ;
   static void UpdateVuMeters() ;
   static void UpdateRecordingTime() ;
-
-  // GUI event handlers
-  static void ConfigureSubscriptions() ;
 
   // NJClient config helpers
   static int    GetNumAudioSources() ;

@@ -51,7 +51,7 @@
   /*       and will be of the proper types after restoreVarTypeInfo()         */         \
   /*       only transient channels are not sanitized and so need be validated */         \
                                                                                          \
-  ValueTree root   = this->configValueTree ;                                             \
+  ValueTree root   = this->configRoot ;                                                  \
   ValueTree client = this->client ;                                                      \
   ValueTree subs   = this->subscriptions ;                                               \
   ValueTree audio  = this->audio ;                                                       \
@@ -86,7 +86,7 @@
                                                                                          \
   /* query audio properties */                                                           \
   bool audio_has_winifn_property           =                                             \
-      audio .hasProperty(CONFIG::WIN_AUDIO_IF_ID)     ;                                  \
+      audio .hasProperty(CONFIG::WIN_AUDIO_API_ID)    ;                                  \
   bool audio_has_asiodriver_property       =                                             \
       audio .hasProperty(CONFIG::ASIO_DRIVER_ID)      ;                                  \
   bool audio_has_asioinput0_property       =                                             \
@@ -154,7 +154,7 @@
   bool audio_has_macbitdepth_property      =                                             \
       audio .hasProperty(CONFIG::MAC_BITDEPTH_ID)     ;                                  \
   bool audio_has_nixifn_property           =                                             \
-      audio .hasProperty(CONFIG::NIX_AUDIO_IF_ID)     ;                                  \
+      audio .hasProperty(CONFIG::NIX_AUDIO_API_ID)    ;                                  \
   bool audio_has_jackserver_property       =                                             \
       audio .hasProperty(CONFIG::JACK_SERVER_ID)      ;                                  \
   bool audio_has_jackname_property         =                                             \
@@ -227,7 +227,7 @@
   bool autosubscribe_is_int     = subs  [CONFIG::SUBSCRIBE_MODE_ID]  .isInt()    ;       \
                                                                                          \
   /* query audio datatypes */                                                            \
-  bool win_audio_ifn_is_int     = audio [CONFIG::WIN_AUDIO_IF_ID]    .isInt()    ;       \
+  bool win_audio_api_is_int     = audio [CONFIG::WIN_AUDIO_API_ID]   .isInt()    ;       \
   bool asio_driver_is_int       = audio [CONFIG::ASIO_DRIVER_ID]     .isInt()    ;       \
   bool asio_input0_is_int       = audio [CONFIG::ASIO_INPUT0_ID]     .isInt()    ;       \
   bool asio_inout1_is_int       = audio [CONFIG::ASIO_INPUT1_ID]     .isInt()    ;       \
@@ -261,7 +261,7 @@
   bool mac_n_inputs_is_int      = audio [CONFIG::MAC_NINPUTS_ID]     .isInt()    ;       \
   bool mac_samplerate_is_int    = audio [CONFIG::MAC_SAMPLERATE_ID]  .isInt()    ;       \
   bool mac_bitdepth_is_int      = audio [CONFIG::MAC_BITDEPTH_ID]    .isInt()    ;       \
-  bool nix_audio_ifn_is_int     = audio [CONFIG::NIX_AUDIO_IF_ID]    .isInt()    ;       \
+  bool nix_audio_api_is_int     = audio [CONFIG::NIX_AUDIO_API_ID]   .isInt()    ;       \
   bool jack_server_is_int       = audio [CONFIG::JACK_SERVER_ID]     .isInt()    ;       \
   bool jack_name_is_string      = audio [CONFIG::JACK_NAME_ID]       .isString() ;       \
   bool jack_n_inputs_is_int     = audio [CONFIG::JACK_NINPUTS_ID]    .isInt()    ;       \
@@ -345,7 +345,7 @@
                                                                                          \
   /* trace missing audio properties */                                                   \
   if (!audio_has_winifn_property)                                                        \
-    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WIN_AUDIO_IF_KEY) ;          \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::WIN_AUDIO_API_KEY) ;         \
   if (!audio_has_asiodriver_property)                                                    \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::ASIO_DRIVER_KEY) ;           \
   if (!audio_has_asioinput0_property)                                                    \
@@ -413,7 +413,7 @@
   if (!audio_has_macsamplerate_property)                                                 \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::MAC_SAMPLERATE_KEY) ;        \
   if (!audio_has_nixifn_property)                                                        \
-    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::NIX_AUDIO_IF_KEY) ;          \
+    Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::NIX_AUDIO_API_KEY) ;         \
   if (!audio_has_jackserver_property)                                                    \
     Trace::TraceMissingProperty(CONFIG::AUDIO_KEY , CONFIG::JACK_SERVER_KEY) ;           \
   if (!audio_has_jackname_property)                                                      \
@@ -500,9 +500,9 @@
                              CONFIG::INT_TYPE    , client[CONFIG::SUBSCRIBE_MODE_ID]) ;  \
                                                                                          \
   /* trace invalid audio datatypes */                                                    \
-  if (!win_audio_ifn_is_int)                                                             \
-    Trace::TraceTypeMismatch(audio               , CONFIG::WIN_AUDIO_IF_KEY        ,     \
-                             CONFIG::INT_TYPE    , audio[CONFIG::WIN_AUDIO_IF_ID]) ;     \
+  if (!win_audio_api_is_int)                                                             \
+    Trace::TraceTypeMismatch(audio               , CONFIG::WIN_AUDIO_API_KEY        ,    \
+                             CONFIG::INT_TYPE    , audio[CONFIG::WIN_AUDIO_API_ID]) ;    \
   if (!asio_driver_is_int)                                                               \
     Trace::TraceTypeMismatch(audio               , CONFIG::ASIO_DRIVER_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::ASIO_DRIVER_ID]) ;      \
@@ -602,9 +602,9 @@
   if (!mac_samplerate_is_int)                                                            \
     Trace::TraceTypeMismatch(audio               , CONFIG::MAC_SAMPLERATE_KEY        ,   \
                              CONFIG::INT_TYPE    , audio[CONFIG::MAC_SAMPLERATE_ID]) ;   \
-  if (!nix_audio_ifn_is_int)                                                             \
-    Trace::TraceTypeMismatch(audio               , CONFIG::NIX_AUDIO_IF_KEY        ,     \
-                             CONFIG::INT_TYPE    , audio[CONFIG::NIX_AUDIO_IF_ID]) ;     \
+  if (!nix_audio_api_is_int)                                                             \
+    Trace::TraceTypeMismatch(audio               , CONFIG::NIX_AUDIO_API_KEY        ,    \
+                             CONFIG::INT_TYPE    , audio[CONFIG::NIX_AUDIO_API_ID]) ;    \
   if (!jack_server_is_int)                                                               \
     Trace::TraceTypeMismatch(audio               , CONFIG::JACK_SERVER_KEY        ,      \
                              CONFIG::INT_TYPE    , audio[CONFIG::JACK_SERVER_ID]) ;      \
@@ -757,7 +757,7 @@
       autosubscribe_is_int                                                     &&        \
                                                                                          \
       /* validate audio datatypes */                                                     \
-      win_audio_ifn_is_int                                                     &&        \
+      win_audio_api_is_int                                                     &&        \
       asio_driver_is_int                 && asio_input0_is_int                 &&        \
       asio_inout1_is_int                 && asio_output0_is_int                &&        \
       asio_output1_is_int                                                      &&        \
@@ -775,7 +775,7 @@
       wave_n_blocks_is_int               && wave_blocksize_is_int              &&        \
       mac_device_is_string               && mac_n_inputs_is_int                &&        \
       mac_bitdepth_is_int                && mac_samplerate_is_int              &&        \
-      nix_audio_ifn_is_int               && jack_server_is_int                 &&        \
+      nix_audio_api_is_int               && jack_server_is_int                 &&        \
       jack_name_is_string                && jack_n_inputs_is_int               &&        \
       jack_n_outputs_is_int              && alsa_config_is_string              &&        \
                                                                                          \
@@ -913,8 +913,8 @@
                       " channel store '"    + channel_name  + "'") ;
 
 #if TRACE_STORE_CONFIG_VB
-#  define DEBUG_TRACE_STORE_CONFIG Trace::TraceConfig("storing config xml=\n" +      \
-                                                      configValueTree.toXmlString()) ;
+#  define DEBUG_TRACE_STORE_CONFIG Trace::TraceConfig("storing config xml=\n" + \
+                                                      configRoot.toXmlString()) ;
 #else // TRACE_STORE_CONFIG_VB
 #  define DEBUG_TRACE_STORE_CONFIG Trace::TraceConfig("storing config xml") ;
 #endif // TRACE_STORE_CONFIG_VB
@@ -961,13 +961,13 @@
   String pair_name = (has_l_pair)? l_pair_name : r_pair_name ;                  \
   if (has_orphaned_pair)                                                        \
     Trace::TraceConfig(dbgA + pair_name    + dbgB + " (orphaned)") ;            \
-  if (parseStereoStatus(channel_name) == CONFIG::MONO)                          \
+  if (ParseStereoStatus(channel_name) == CONFIG::MONO)                          \
     Trace::TraceConfig(dbgA + channel_name + dbgB) ;
 
 #define DEBUG_TRACE_ADD_CHANNEL_STORE                                               \
   String user_id      = String(channels_store.getType()) ;                          \
   int    ch_idx       = int(new_channel_node[CONFIG::CHANNEL_IDX_ID]) ;             \
-  String channel_id   = String(makeChannelId(ch_idx)) ;                             \
+  String channel_id   = String(MakeChannelId(ch_idx)) ;                             \
   String channel_name = LinJam::GetStoredChannelName(new_channel_node) ;            \
   bool   is_local     = channels_store == this->localChannels ;                     \
   String group        = (is_local)? "local" : "remote" ;                            \
@@ -985,7 +985,7 @@
   if (TRACE_LOCAL_CHANNELS_VB)                                                      \
     DBG(Trace::DumpStoredChannels() + Trace::DumpClientChannels()) ;
 
-#define DEBUG_TRACE_DESTROY_CHANNEL_STORE                                     \
+#define DEBUG_TRACE_REMOVE_CHANNEL_STORE                                      \
   String channel_id   = String(channel_store.getType()) ;                     \
   String channel_name = channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;   \
   String user_id      = String(channels_store.getType()) ;                    \
@@ -1009,7 +1009,7 @@
     float u_pan     = CONFIG::DEFAULT_PAN ;                                        \
     int   u_idx     = -1 ; String u_name ; Identifier u_id ;                       \
     while ((u_name = LinJam::GetRemoteUserName(++u_idx)).isNotEmpty())             \
-      { u_id = makeUserId(u_name) ; if (user_id == u_id) break ; }                 \
+      { u_id = MakeUserId(u_name) ; if (user_id == u_id) break ; }                 \
     DEBUG_TRACE_REMOTE_CHANNELS                                                    \
   }
 
@@ -1031,7 +1031,7 @@
 #define DEBUG_TRACE_STEREO_STATUS         ;
 #define DEBUG_TRACE_MONO_STATUS           ;
 #define DEBUG_TRACE_ADD_CHANNEL_STORE     ;
-#define DEBUG_TRACE_DESTROY_CHANNEL_STORE ;
+#define DEBUG_TRACE_REMOVE_CHANNEL_STORE  ;
 #define DEBUG_TRACE_ADD_REMOTE_USER_STORE ;
 
 #endif // DEBUG

@@ -1,49 +1,11 @@
 
-#include "Constants.h"
 #include "LinJam.h"
-#include "MainContent.h"
+// #include "MainContent.h"
 
 
 MainContent::MainContent(DocumentWindow* main_window , TextButton* config_button)
 {
-  // background
-  this->background = new Background() ;
-  this->addChildAndSetID(this->background , GUI::BACKGROUND_GUI_ID) ;
-  this->background->toFront(true) ;
-
-  // login
-  this->login = new Login() ;
-  this->addChildAndSetID(this->login , GUI::LOGIN_GUI_ID) ;
-  this->login->toBack() ;
-
-  // license
-  this->license = new License() ;
-  this->addChildAndSetID(this->license , GUI::LICENSE_GUI_ID) ;
-  this->license->toBack() ;
-
-  // chat
-  this->chat = new Chat() ;
-  this->addChildAndSetID(this->chat , GUI::CHAT_GUI_ID) ;
-  this->chat->toBack() ;
-
-  // mixer
-  this->mixer = new Mixer() ;
-  this->addChildAndSetID(this->mixer , GUI::MIXER_GUI_ID) ;
-  this->mixer->toBack() ;
-
-  // statusbar
-  this->statusbar = new StatusBar() ;
-  this->addChildAndSetID(this->statusbar , GUI::STATUS_GUI_ID) ;
-  this->statusbar->setAlwaysOnTop(true) ;
-  this->statusbar->setStatusL(GUI::DISCONNECTED_STATUS_TEXT) ;
-
-  // loop
-  this->loop = new Loop() ;
-  this->addChildAndSetID(this->loop , GUI::LOOP_GUI_ID) ;
-  this->loop->setAlwaysOnTop(true) ;
-  this->loop->toFront(false) ;
-
-  // MainWindow
+  // MainWindow (parent)
   this->mainWindow   = main_window ;
   this->configButton = config_button ;
   this->configButton->setButtonText(TRANS("?")) ;
@@ -53,9 +15,38 @@ MainContent::MainContent(DocumentWindow* main_window , TextButton* config_button
   this->configButton->setColour(TextButton::textColourOffId  , Colours::yellow) ;
   this->configButton->addListener(this) ;
 
-  // MainContent
+  // MainContent (this)
   setName("MainContent") ;
   setSize(GUI::CONTENT_W , GUI::CONTENT_H) ;
+
+  // background pane
+  this->background = new Background() ;
+  this->addChildAndSetID(this->background , GUI::BACKGROUND_GUI_ID) ;
+  this->background->toFront(true) ;
+
+  // chat pane
+  this->chat = new Chat() ;
+  this->addChildAndSetID(this->chat , GUI::CHAT_GUI_ID) ;
+  this->chat->toBack() ;
+
+  // mixer pane
+  this->mixer = new Mixer() ;
+  this->addChildAndSetID(this->mixer , GUI::MIXER_GUI_ID) ;
+  this->mixer->toBack() ;
+
+  // statusbar pane
+  this->statusbar = new StatusBar() ;
+  this->addChildAndSetID(this->statusbar , GUI::STATUS_GUI_ID) ;
+  this->statusbar->setAlwaysOnTop(true) ;
+  this->statusbar->setStatusL(GUI::DISCONNECTED_STATUS_TEXT) ;
+
+  // loop pane
+  this->loop = new Loop() ;
+  this->addChildAndSetID(this->loop , GUI::LOOP_GUI_ID) ;
+  this->loop->setAlwaysOnTop(true) ;
+  this->loop->toFront(false) ;
+
+  // login , license , and config panes deferred
 }
 
 MainContent::~MainContent()
@@ -79,13 +70,24 @@ void MainContent::paint(Graphics& g)
 
 void MainContent::resized()
 {
-  if (this->background == nullptr || this->login     == nullptr ||
-      this->license    == nullptr || this->chat      == nullptr ||
-      this->mixer      == nullptr || this->statusbar == nullptr ||
-      this->loop       == nullptr || this->config    == nullptr  ) return ;
+  if (this->configButton == nullptr ||
+      this->background   == nullptr || this->chat      == nullptr ||
+      this->mixer        == nullptr || this->statusbar == nullptr ||
+      this->loop         == nullptr || this->login     == nullptr ||
+      this->license      == nullptr || this->config    == nullptr  ) return ;
 
   int window_w = getWidth() ;
   int window_h = getHeight() ;
+
+  // config button
+#ifdef _MAC
+  int cfg_btn_x = window_w - GUI::CONFIG_BTN_X - GUI::CONFIG_BTN_W ;
+#else // _MAC
+  int cfg_btn_x = GUI::CONFIG_BTN_X ;
+#endif // _MAC
+  int cfg_btn_y = GUI::CONFIG_BTN_Y ;
+  int cfg_btn_w = GUI::CONFIG_BTN_W ;
+  int cfg_btn_h = GUI::CONFIG_BTN_H ;
 
   // content div
   int content_w = window_w - GUI::PAD2 ;
@@ -139,16 +141,7 @@ void MainContent::resized()
   int config_w = content_w ;
   int config_h = content_h ;
 
-  // config button
-#ifdef _MAC
-  int cfg_btn_x = getWidth() - GUI::CONFIG_BTN_X - GUI::CONFIG_BTN_W ;
-#else // _MAC
-  int cfg_btn_x = GUI::CONFIG_BTN_X ;
-#endif // _MAC
-  int cfg_btn_y = GUI::CONFIG_BTN_Y ;
-  int cfg_btn_w = GUI::CONFIG_BTN_W ;
-  int cfg_btn_h = GUI::CONFIG_BTN_H ;
-
+  this->configButton->setBounds(cfg_btn_x , cfg_btn_y , cfg_btn_w , cfg_btn_h) ;
   this->background  ->setBounds(bg_x      , bg_y      , bg_w      , bg_h) ;
   this->login       ->setBounds(login_x   , login_y   , login_w   , login_h) ;
   this->license     ->setBounds(license_x , license_y , license_w , license_h) ;
@@ -157,18 +150,26 @@ void MainContent::resized()
   this->statusbar   ->setBounds(status_x  , status_y  , status_w  , status_h) ;
   this->loop        ->setBounds(loop_x    , loop_y    , loop_w    , loop_h) ;
   this->config      ->setBounds(config_x  , config_y  , config_w  , config_h) ;
-  this->configButton->setBounds(cfg_btn_x , cfg_btn_y , cfg_btn_w , cfg_btn_h) ;
 }
 
-void MainContent::buttonClicked(Button* a_button)
+void MainContent::instantiateLogin(ValueTree login_store)
 {
-  if (a_button == this->configButton) LinJam::ConfigPending() ;
+  // login pane
+  this->login = new Login(login_store) ;
+  this->addChildAndSetID(this->login , GUI::LOGIN_GUI_ID) ;
+  this->login->toBack() ;
+
+  // license pane
+  this->license = new License(login_store) ;
+  this->addChildAndSetID(this->license , GUI::LICENSE_GUI_ID) ;
+  this->license->toBack() ;
 }
 
 void MainContent::instantiateConfig(ValueTree audio_store        ,
                                     ValueTree client_store       ,
                                     ValueTree subscriptions_store)
 {
+  // config pane
   this->config = new Config(audio_store , client_store , subscriptions_store) ;
   this->addChildAndSetID(this->config , GUI::CONFIG_GUI_ID) ;
   this->config->toBack() ;
@@ -179,4 +180,9 @@ void MainContent::instantiateConfig(ValueTree audio_store        ,
 void MainContent::setTitle(String title_text)
 {
   this->mainWindow->setName(GUI::APP_NAME + " - " + title_text) ;
+}
+
+void MainContent::buttonClicked(Button* a_button)
+{
+  if (a_button == this->configButton) LinJam::ConfigPending() ;
 }

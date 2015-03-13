@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -30,8 +30,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-ConfigClient::ConfigClient (ValueTree config_store)
-    : configStore(config_store)
+ConfigClient::ConfigClient (ValueTree client_store)
+    : clientStore(client_store)
 {
     addAndMakeVisible (saveAudioLabel = new Label ("saveAudioLabel",
                                                    TRANS("save audio")));
@@ -109,11 +109,11 @@ ConfigClient::ConfigClient (ValueTree config_store)
 
     //[Constructor] You can add your own custom stuff here..
 
-  int  save_audio_mode    = int( this->configStore[CONFIG::SAVE_AUDIO_MODE_ID]) ;
-  int  mixdown_mode       = int( this->configStore[CONFIG::MIXDOWN_MODE_ID]) ;
-  int  debug_level        = int( this->configStore[CONFIG::DEBUG_LEVEL_ID]) ;
-  bool should_save_log    = bool(this->configStore[CONFIG::SHOULD_SAVE_LOG_KEY]) ;
-  bool should_hide_bots   = bool(this->configStore[CONFIG::SHOULD_HIDE_BOTS_KEY]) ;
+  int  save_audio_mode    = int( this->clientStore[CONFIG::SAVE_AUDIO_MODE_ID]) ;
+  int  mixdown_mode       = int( this->clientStore[CONFIG::MIXDOWN_MODE_ID]) ;
+  int  debug_level        = int( this->clientStore[CONFIG::DEBUG_LEVEL_ID]) ;
+  bool should_save_log    = bool(this->clientStore[CONFIG::SHOULD_SAVE_LOG_KEY]) ;
+  bool should_hide_bots   = bool(this->clientStore[CONFIG::SHOULD_HIDE_BOTS_KEY]) ;
   bool should_mixdown_ogg = !!(mixdown_mode & (int)NJClient::SAVE_MIXDOWN_OGG) ;
   bool should_mixdown_wav = !!(mixdown_mode & (int)NJClient::SAVE_MIXDOWN_WAV) ;
 
@@ -161,6 +161,9 @@ void ConfigClient::paint (Graphics& g)
 
 void ConfigClient::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     saveAudioLabel->setBounds (20, 18, 152, 16);
     saveAudioComboBox->setBounds (20, 38, 152, 16);
     oggMixdownButton->setBounds (20, 58, 74, 16);
@@ -273,7 +276,7 @@ void ConfigClient::buttonClicked (Button* buttonThatWasClicked)
 
 void ConfigClient::setConfig(Identifier a_key , var a_value)
 {
-  this->configStore.setProperty(a_key , a_value , nullptr) ;
+  this->clientStore.setProperty(a_key , a_value , nullptr) ;
 }
 
 //[/MiscUserCode]
@@ -289,8 +292,8 @@ void ConfigClient::setConfig(Identifier a_key , var a_value)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="ConfigClient" componentName=""
-                 parentClasses="public Component" constructorParams="ValueTree config_store"
-                 variableInitialisers="configStore(config_store)" snapPixels="8"
+                 parentClasses="public Component" constructorParams="ValueTree client_store"
+                 variableInitialisers="clientStore(client_store)" snapPixels="8"
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="1"
                  initialWidth="614" initialHeight="434">
   <BACKGROUND backgroundColour="0">

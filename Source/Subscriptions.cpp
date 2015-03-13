@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -30,8 +30,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-Subscription::Subscription (ValueTree config_store)
-    : configStore(config_store)
+Subscription::Subscription (ValueTree subscriptions_store)
+    : subscriptionsStore(subscriptions_store)
 {
     addAndMakeVisible (removeButton = new TextButton ("removeButton"));
     removeButton->setButtonText (TRANS("X"));
@@ -61,9 +61,7 @@ Subscription::Subscription (ValueTree config_store)
 
   setSize(GUI::SUBSCRIPTION_W , GUI::SUBSCRIPTION_H) ;
 
-  userLabel->setText(String(config_store.getType()) , juce::dontSendNotification) ;
-
-  this->configStore = config_store ;
+  userLabel->setText(String(subscriptions_store.getType()) , juce::dontSendNotification) ;
 
     //[/Constructor]
 }
@@ -99,6 +97,9 @@ void Subscription::paint (Graphics& g)
 
 void Subscription::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     removeButton->setBounds (0, 0, 15, 16);
     userLabel->setBounds (16, 0, getWidth() - 16, 16);
     //[UserResized] Add your own custom resize handling here..
@@ -115,7 +116,7 @@ void Subscription::buttonClicked (Button* buttonThatWasClicked)
         //[UserButtonCode_removeButton] -- add your button handler code here..
 
       // destroy storage for this subscription (configures NJClient asynchronously)
-      this->configStore.getParent().removeChild(this->configStore , nullptr) ;
+      this->subscriptionsStore.getParent().removeChild(this->subscriptionsStore , nullptr) ;
 
       // destroy this GUI component
       ((Subscriptions*)this->getParentComponent())->removeSubscription(this) ;
@@ -131,10 +132,10 @@ void Subscription::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-Subscriptions::Subscriptions(ValueTree config_store)
+Subscriptions::Subscriptions(ValueTree subscriptions_store)
 {
-  for (int user_n = 0 ; user_n < config_store.getNumChildren() ; ++user_n)
-    addAndMakeVisible(new Subscription(config_store.getChild(user_n))) ;
+  for (int user_n = 0 ; user_n < subscriptions_store.getNumChildren() ; ++user_n)
+    addAndMakeVisible(new Subscription(subscriptions_store.getChild(user_n))) ;
 
   setSize(GUI::SUBSCRIPTIONS_W , computeHeight()) ;
 }
@@ -185,10 +186,10 @@ void Subscriptions::removeSubscription(Subscription* a_subscription)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Subscription" componentName=""
-                 parentClasses="public Component" constructorParams="ValueTree config_store"
-                 variableInitialisers="configStore(config_store)" snapPixels="8"
-                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="1"
-                 initialWidth="132" initialHeight="16">
+                 parentClasses="public Component" constructorParams="ValueTree subscriptions_store"
+                 variableInitialisers="subscriptionsStore(subscriptions_store)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="1" initialWidth="132" initialHeight="16">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 16" cornerSize="10" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>

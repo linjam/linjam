@@ -13,12 +13,12 @@
 #include "JuceHeader.h"
 
 #include "Background.h"
-#include "Login.h"
-#include "License.h"
 #include "Chat.h"
 #include "Mixer.h"
 #include "StatusBar.h"
 #include "Loop.h"
+#include "Login.h"
+#include "License.h"
 #include "Config.h"
 
 
@@ -35,7 +35,6 @@ public:
 
   void paint(Graphics&) ;
   void resized() ;
-  void showConfig() ;
 
 
 private:
@@ -52,10 +51,11 @@ private:
   TextButton*               configButton ;
 
 
-  void buttonClicked(    Button* a_button) ;
+  void instantiateLogin( ValueTree login_store) ;
   void instantiateConfig(ValueTree audio_store         , ValueTree client_store ,
                          ValueTree subscriptions_store                          ) ;
   void setTitle(         String title_text) ;
+  void buttonClicked(    Button* a_button) ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContent)
