@@ -229,7 +229,7 @@ ValueTree LinJamConfig::sanitizeConfig(ValueTree default_config , ValueTree stor
     if (!stored_config.hasProperty(key)) stored_config.setProperty(key , value , nullptr) ;
   }
 
-  // add any missing nodes and attributes to stored config
+  // transfer any missing nodes
   for (int child_n = 0 ; child_n < n_default_children ; ++child_n)
   {
     ValueTree  default_child      = default_config.getChild(child_n) ;
@@ -328,7 +328,7 @@ bool LinJamConfig::validateConfig()
                    master_channels_is_valid && local_channels_is_valid &&
                    remote_users_is_valid                                ) ;
 
-DEBUG_TRACE_SANITY_CHECK // modifies is_valid
+DEBUG_TRACE_VALIDATE_CONFIG // modifies 'bool is_valid'
 
   return is_valid ;
 }
@@ -449,12 +449,12 @@ void LinJamConfig::setCredentials(String host_name , String login       ,
   if (is_anonymous) pass = "" ;
   bool is_agreed = bool(getServer(host_name)[CONFIG::SHOULD_AGREE_ID]) ;
 
-  this->server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr) ;
-  this->server.setProperty(CONFIG::LOGIN_ID        , login        , nullptr) ;
-  this->server.setProperty(CONFIG::PASS_ID         , pass         , nullptr) ;
-  this->server.setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr) ;
-  this->server.setProperty(CONFIG::SHOULD_AGREE_ID , is_agreed    , nullptr) ;
-  this->server.setProperty(CONFIG::IS_AGREED_ID    , is_agreed    , nullptr) ;
+  this->server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr)
+              .setProperty(CONFIG::LOGIN_ID        , login        , nullptr)
+              .setProperty(CONFIG::PASS_ID         , pass         , nullptr)
+              .setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr)
+              .setProperty(CONFIG::SHOULD_AGREE_ID , is_agreed    , nullptr)
+              .setProperty(CONFIG::IS_AGREED_ID    , is_agreed    , nullptr) ;
 }
 
 ValueTree LinJamConfig::getCredentials(String host_name)
@@ -466,7 +466,7 @@ ValueTree LinJamConfig::getCredentials(String host_name)
   if (stored_server.isValid()) server_copy.copyPropertiesFrom(stored_server , nullptr) ;
   else                         server_copy = ValueTree::invalid ;
 
-  return server ;
+  return server_copy ;
 }
 
 void LinJamConfig::setServer()
@@ -487,11 +487,11 @@ void LinJamConfig::setServer()
   }
 
   // set per server credentials
-  server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr) ;
-  server.setProperty(CONFIG::LOGIN_ID        , login        , nullptr) ;
-  server.setProperty(CONFIG::PASS_ID         , pass         , nullptr) ;
-  server.setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr) ;
-  server.setProperty(CONFIG::SHOULD_AGREE_ID , should_agree , nullptr) ;
+  server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr)
+        .setProperty(CONFIG::LOGIN_ID        , login        , nullptr)
+        .setProperty(CONFIG::PASS_ID         , pass         , nullptr)
+        .setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr)
+        .setProperty(CONFIG::SHOULD_AGREE_ID , should_agree , nullptr) ;
 }
 
 ValueTree LinJamConfig::getServer(String host_name)

@@ -322,6 +322,7 @@ void LinJam::InitializeAudio()
 {
   if (Audio != nullptr) { delete Audio ; Audio = nullptr ; }
 
+  // load config
 #ifdef _WIN32
   int    win_api_n        =     int(Config->audio[CONFIG::WIN_AUDIO_API_ID]) ;
   int    asio_driver      =     int(Config->audio[CONFIG::ASIO_DRIVER_ID]) ;
@@ -345,7 +346,7 @@ void LinJam::InitializeAudio()
   int    ds_bit_depth     =     int(Config->audio[CONFIG::DS_BITDEPTH_ID]) ;
   int    ds_n_buffers     =     int(Config->audio[CONFIG::DS_NBLOCKS_ID]) ;
   int    ds_buffer_size   =     int(Config->audio[CONFIG::DS_BLOCKSIZE_ID]) ;
-/*
+/* TODO: (issue #12)
 ds_sample_rate = CONFIG::DEFAULT_DS_SAMPLERATE ;
 ds_bit_depth = CONFIG::DEFAULT_DS_BITDEPTH    ;
 ds_device[2][4] = {{0,0,0,0},{0,0,0,0}};
@@ -372,30 +373,6 @@ ds_buffer_size = CONFIG::DEFAULT_DS_BLOCKSIZE;
   String alsa_config      =         Config->audio[CONFIG::ALSA_CONFIG_ID].toString() ;
 #  endif // _MAC
 #endif // _WIN32
-/* TODO: NJClient alsa init takes a string config
-         ideally alsa would have individual config params
-         and config via the GUI like the rest
-         ideally libninjam would accomodate this but we could as well
-         concatenate the expected string here
-
-  NJClient accepts the following config_strings (original cli params) =>
-    win =>
-      -noaudiocfg
-      -jesusonic <path to jesusonic root dir>
-    mac =>
-      -audiostr device_name[,output_device_name]
-    nix =>
-      -audiostr "option value [option value ...]"
-        ALSA audio options are:
-          in hw:0,0    -- set input device
-          out hw:0,0   -- set output device
-          srate 48000  -- set samplerate
-          nch 2        -- set channels
-          bps 16       -- set bits/sample
-          bsize 2048   -- set blocksize (bytes)
-          nblock 16    -- set number of blocks
-*/
-
 #ifdef _WIN32
 DEBUG_TRACE_AUDIO_INIT_WIN
 
@@ -462,6 +439,10 @@ DEBUG_TRACE_AUDIO_INIT_JACK
     }
     case audioStreamer::NIX_AUDIO_ALSA:
     {
+      /* TODO: (issue #65) NJClient ALSA init takes a string config
+       * ideally this function would accept individual config params like the rest
+       * but we could as well concatenate the expected string here each pass
+       */
       Audio = create_audioStreamer_ALSA("alsa_config.toRawUTF8()" , OnSamples) ;
 
 DEBUG_TRACE_AUDIO_INIT_ALSA
@@ -750,11 +731,10 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
     Identifier  user_id            = Config->MakeUserId(user_name) ;
     std::string name               = (user_name = String(user_id)).toStdString() ;
     bool        should_ignore_user = !!Client->config_autosubscribe_userlist.count(name) ;
-/*
     bool        is_bot             = NETWORK::KNOWN_BOTS.contains(user_id) ;
-
+/*
     // cache bot user_idx for recording time updates
-   if (is_bot) Config->server.setProperty(CONFIG::BOT_IDX_ID , user_idx , nullptr) ;
+    if (is_bot) Config->server.setProperty(CONFIG::BOT_IDX_ID , user_idx , nullptr) ;
 */
     // get or create remote user storage
     ValueTree user_store = Config->getOrAddRemoteUser(user_name) ;

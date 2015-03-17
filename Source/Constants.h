@@ -251,11 +251,11 @@ namespace CLIENT
   static const String      KS_DEVICE_TYPE         = "Win32KernaelStreaming" ; // non-juce
   static const String      WAVE_DEVICE_TYPE       = "Win32Wave" ;             // non-juce
   static const String      NFG_DEVICE_TYPE        = "unknown" ;               // non-juce
-  static const StringArray WIN_AUDIO_APIS         =
+  static const StringArray WIN_AUDIO_APIS         = // ConfigAudio GUI options
       StringArray::fromLines(StringRef("asio\nkernel streaming\ndirect sound\nwave out")) ;
-  static const StringArray NIX_AUDIO_APIS         =
+  static const StringArray NIX_AUDIO_APIS         = // ConfigAudio GUI options
       StringArray::fromLines(StringRef("jack\nalsa")) ;
-  static const StringArray BUFFER_SIZES           =
+  static const StringArray BUFFER_SIZES           = // ConfigAudio GUI options
       StringArray::fromLines(StringRef("32\n64\n128\n256\n512\n1024\n2048\n4096\n8192")) ;
   static const int         BIT_DEPTH_16           = 16 ;
   static const int         BIT_DEPTH_24           = 24 ;
@@ -594,19 +594,17 @@ namespace CONFIG
   static const int        DEFAULT_STEREO_STATUS = MONO ;
   static const double     DEFAULT_VU            = -120.0 ;
 
-  // config types
-  static const String BOOL_TYPE   = "bool" ;
-  static const String DOUBLE_TYPE = "double" ;
-  static const String INT_TYPE    = "int" ;
-  static const String STRING_TYPE = "string" ;
+  // config XML storage
+  static const String BOOL_TYPE          = "bool" ;
+  static const String DOUBLE_TYPE        = "double" ;
+  static const String INT_TYPE           = "int" ;
+  static const String STRING_TYPE        = "string" ;
+  static const String DEFAULT_CONFIG_XML = String(CONFIG_XML) ;
+  static const String CONFIG_TYPES       = String(CONFIG_TYPES_XML) ;
 
   // validation
   static const StringRef VALID_NAME_CHARS   = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- " ;
   static const StringRef USER_IP_SPLIT_CHAR = "@" ;
-
-  // config storage
-  static const String DEFAULT_CONFIG_XML = String(CONFIG_XML) ;
-  static const String CONFIG_TYPES       = String(CONFIG_TYPES_XML) ;
 }
 
 

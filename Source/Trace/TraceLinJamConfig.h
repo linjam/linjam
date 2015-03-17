@@ -45,7 +45,7 @@
 #  define DEBUG_TRACE_CONFIG_TYPES_VB_EACH ;
 #endif // TRACE_CONFIG_TYPES
 
-#define DEBUG_TRACE_SANITY_CHECK                                                         \
+#define DEBUG_TRACE_VALIDATE_CONFIG                                                      \
   /* NOTE: these checks normally should be unnecessary                        */         \
   /*       all tree nodes and properties will exist after sanitizeConfig()    */         \
   /*       and will be of the proper types after restoreVarTypeInfo()         */         \
@@ -794,7 +794,7 @@
       metro_source_is_int                && metro_stereo_is_int                &&        \
       metro_vuleft_is_double             && metro_vuright_is_double             ;
 
-//#define DEBUG_TRACE_SANITY_CHECK_SERVER // TODO:                                     \
+//#define DEBUG_TRACE_VALIDATE_SERVER // TODO:                                     \
 
 #define DEBUG_TRACE_VALIDATE_USER                                                      \
   String user_name = String(user_store.getType()) ;                                    \
@@ -1019,9 +1019,10 @@
 #define DEBUG_TRACE_LOAD_CONFIG           ;
 #define DEBUG_TRACE_SANITIZE_CONFIG       ;
 #define DEBUG_TRACE_CONFIG_TYPES_VB       ;
-#define DEBUG_TRACE_SANITY_CHECK          ;
-//#define DEBUG_TRACE_SANITY_CHECK_USER   ;
-#define DEBUG_TRACE_SANITY_CHECK_CHANNEL  ;
+#define DEBUG_TRACE_VALIDATE_CONFIG       ;
+//#define DEBUG_TRACE_VALIDATE_SERVER     ;
+#define DEBUG_TRACE_VALIDATE_USER         ;
+#define DEBUG_TRACE_VALIDATE_CHANNEL      ;
 #define DEBUG_TRACE_STORE_CONFIG          ;
 #define DEBUG_TRACE_CONFIG_VALUE_CHANGED  ;
 #define DEBUG_TRACE_CONFIG_TREE_CHANGED   ;

@@ -271,13 +271,13 @@ void Login::buttonClicked (Button* buttonThatWasClicked)
 DEBUG_TRACE_LOBBY_QUICKLOGIN
 
       // restore stored credentials
+      this->hostText->setText(host) ;
       if (credentials.isValid())
       {
         String login        =      credentials[CONFIG::LOGIN_ID       ].toString() ;
         String pass         =      credentials[CONFIG::PASS_ID        ].toString() ;
         bool   is_anonymous = bool(credentials[CONFIG::IS_ANONYMOUS_ID]) ;
 
-        this->hostText->setText(host) ;
         this->loginText ->setText(       login) ;
         this->passText  ->setText(       pass) ;
         this->anonButton->setToggleState(is_anonymous , juce::dontSendNotification) ;

@@ -216,9 +216,9 @@ void ConfigChannel::buttonClicked(Button* a_button)
                                               this->freeAudioSourcePairNs[selection_n] ;
 
     // update existing channel asynchronously
-    this->channelStore.setProperty(CONFIG::CHANNEL_NAME_ID , channel_name  , nullptr) ;
-    this->channelStore.setProperty(CONFIG::SOURCE_N_ID     , source_n      , nullptr) ;
-    this->channelStore.setProperty(CONFIG::STEREO_ID       , stereo_status , nullptr) ;
+    this->channelStore.setProperty(CONFIG::CHANNEL_NAME_ID , channel_name  , nullptr)
+                      .setProperty(CONFIG::SOURCE_N_ID     , source_n      , nullptr)
+                      .setProperty(CONFIG::STEREO_ID       , stereo_status , nullptr) ;
 
     // or create new local channel
     if (this->isNewChannel) LinJam::AddLocalChannel(this->channelStore) ;

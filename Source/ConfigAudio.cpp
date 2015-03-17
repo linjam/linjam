@@ -833,7 +833,7 @@ void ConfigAudio::loadParams()
   {
     case audioStreamer::WIN_AUDIO_ASIO:
     {
-/* TODO: nyi GUI
+/* TODO: nyi GUI (issue #12)
       asio_input1
       asio_output1
 */
@@ -872,7 +872,7 @@ void ConfigAudio::loadParams()
     }
     case audioStreamer::WIN_AUDIO_DS:
     {
-/* TODO: nyi GUI
+/* TODO: nyi GUI (issue #12
       ds_input1
       ds_input2
       ds_input3
@@ -1056,8 +1056,9 @@ void ConfigAudio::restoreDefaults()
 
   int                   nix_api_n = int(this->audioStore[CONFIG::NIX_AUDIO_API_ID]) ;
   audioStreamer::NixApi nix_api   = (audioStreamer::NixApi)nix_api_n ;
+
   if (nix_api < audioStreamer::NIX_AUDIO_JACK || nix_api > audioStreamer::NIX_AUDIO_ALSA)
-    setConfig(CONFIG::NIX_AUDIO_API_ID  , CONFIG::DEFAULT_NIX_AUDIO_API) ;
+    setConfig(CONFIG::NIX_AUDIO_API_ID , CONFIG::DEFAULT_NIX_AUDIO_API) ;
 
   switch (nix_api)
   {
@@ -1072,7 +1073,7 @@ void ConfigAudio::restoreDefaults()
     }
     case audioStreamer::NIX_AUDIO_ALSA:
     {
-      setConfig(CONFIG::ALSA_CONFIG_ID  , CONFIG::DEFAULT_ALSA_CONFIG) ;
+      setConfig(CONFIG::ALSA_CONFIG_ID , CONFIG::DEFAULT_ALSA_CONFIG) ;
 
       break ;
     }
