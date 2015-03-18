@@ -5,12 +5,20 @@
 
 /* state */
 
-#define DEBUG_TRACE_LOGIN_LOAD                                   \
-  Trace::TraceState("lobby - restoring credentials for " + host) ;
+#define DEBUG_TRACE_LOGIN_LOAD                                                             \
+  Trace::TraceState("lobby - " + ((host.isEmpty()) ? "no previous logins" :                \
+                                                     "restoring credentials for " + host)) ;
 
 #define DEBUG_TRACE_LOBBY_QUICKLOGIN                                                     \
   String status = String((credentials.isValid()) ? "" : "not ") ;                        \
   Trace::TraceEvent("quick-login - storage " + status + "found for host '" + host + "'") ;
+
+#define DEBUG_TRACE_LOGIN_VALIDATION                                               \
+  if (!validateHost() || !validateLogin() || !validatePass())                      \
+    Trace::TraceError("error validating"                                         + \
+                      String((validateHost() ) ? " host='"  + host  + "'" : "" ) + \
+                      String((validateLogin()) ? " login='" + login + "'" : "" ) + \
+                      String((validatePass())  ? " pass"                  : "" ) ) ;
 
 
 /* network */

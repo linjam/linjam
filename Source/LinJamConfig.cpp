@@ -9,7 +9,6 @@
 */
 
 #include "LinJam.h"
-// #include "LinJamConfig.h"
 #include "./Trace/TraceLinJamConfig.h"
 
 
@@ -19,11 +18,9 @@ LinJamConfig::LinJamConfig() { initialize() ; }
 
 LinJamConfig::~LinJamConfig() { storeConfig() ; }
 
-Identifier LinJamConfig::MakeHostId(String host_name)
+Identifier LinJamConfig::MakeHostId(String host)
 {
-  return Identifier(CONFIG::SERVER_ID.toString() + "-" +
-                    host_name.replaceCharacter('.' , '-')
-                             .replaceCharacter(':' , '-')) ;
+  return Identifier(CONFIG::SERVER_KEY + "-" + host.replaceCharacters(".:" , "--")) ;
 }
 
 Identifier LinJamConfig::MakeUserId(String user_name)
@@ -101,7 +98,7 @@ DEBUG_TRACE_LOAD_CONFIG
 
   if (default_xml == nullptr) { delete stored_xml ; return ; } // panic
 
-DEBUG_TRACE_SANITIZE_CONFIG
+DEBUG_TRACE_DUMP_CONFIG
 
   // validate config version
   double stored_version  = (!has_stored_config) ? 0.0                                :
@@ -126,7 +123,7 @@ DEBUG_TRACE_SANITIZE_CONFIG
   // write back sanitized config to disk and cleanup
   storeConfig() ; delete default_xml ; delete stored_xml ;
 
-  // register listeners for central dispatcher
+  // register listeners on interesting nodes for central dispatcher
   this->subscriptions .addListener(this) ;
   this->audio         .addListener(this) ;
   this->masterChannels.addListener(this) ;
@@ -335,14 +332,20 @@ DEBUG_TRACE_VALIDATE_CONFIG // modifies 'bool is_valid'
 
 bool LinJamConfig::isConfigValid()
 {
-  if (!validateConfig())
+  bool is_config_valid = validateConfig() ;
+
+  if (!is_config_valid)
   {
     this->configRoot = ValueTree::invalid ;
     if (this->configXmlFile.existsAsFile())
     { this->configXmlFile.deleteFile() ; initialize() ; }
+
+DEBUG_TRACE_CLOBBER_CONFIG
+
+    is_config_valid = validateConfig() ;
   }
 
-  return validateConfig() ;
+  return is_config_valid ;
 }
 
 
@@ -443,25 +446,35 @@ ValueTree LinJamConfig::getUserMasterChannel(ValueTree user_store)
   return getChannelByIdx(user_store , CONFIG::MASTER_CHANNEL_IDX) ;
 }
 
-void LinJamConfig::setCredentials(String host_name , String login       ,
-                                  String pass      , bool   is_anonymous)
+void LinJamConfig::setCredentials(String host , String login       ,
+                                  String pass , bool   is_anonymous)
 {
   if (is_anonymous) pass = "" ;
-  bool is_agreed = bool(getServer(host_name)[CONFIG::SHOULD_AGREE_ID]) ;
+  bool   is_agreed = bool(getServer(host)[CONFIG::SHOULD_AGREE_ID]) ;
+#ifdef KNOWN_BOTS_AS_ARRAY
+  String bot_name  = "nfg-thats-why-xml" ;
+#else // KNOWN_BOTS_AS_ARRAY
+#  ifdef KNOWN_BOTS_AS_XML
+  String bot_name  = NETWORK::KNOWN_BOTS->getStringAttribute(MakeHostId(host) , "") ;
+#  endif // KNOWN_BOTS_AS_XML
+#endif // KNOWN_BOTS_AS_ARRAY
+  int    bot_idx   = CONFIG::DEFAULT_BOT_USERIDX ;
 
-  this->server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr)
+  this->server.setProperty(CONFIG::HOST_ID         , host         , nullptr)
               .setProperty(CONFIG::LOGIN_ID        , login        , nullptr)
               .setProperty(CONFIG::PASS_ID         , pass         , nullptr)
               .setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr)
               .setProperty(CONFIG::SHOULD_AGREE_ID , is_agreed    , nullptr)
-              .setProperty(CONFIG::IS_AGREED_ID    , is_agreed    , nullptr) ;
+              .setProperty(CONFIG::IS_AGREED_ID    , is_agreed    , nullptr)
+              .setProperty(CONFIG::BOT_NAME_ID     , bot_name     , nullptr)
+              .setProperty(CONFIG::BOT_USERIDX_ID  , bot_idx      , nullptr) ;
 }
 
-ValueTree LinJamConfig::getCredentials(String host_name)
+ValueTree LinJamConfig::getCredentials(String host)
 {
   // return copy of stored credentials
-  ValueTree stored_server = getServer(host_name) ;
-  ValueTree server_copy   = ValueTree(MakeHostId(host_name)) ;
+  ValueTree stored_server = getServer(host) ;
+  ValueTree server_copy   = ValueTree(MakeHostId(host)) ;
 
   if (stored_server.isValid()) server_copy.copyPropertiesFrom(stored_server , nullptr) ;
   else                         server_copy = ValueTree::invalid ;
@@ -472,31 +485,31 @@ ValueTree LinJamConfig::getCredentials(String host_name)
 void LinJamConfig::setServer()
 {
   // copy volatile login state to persistent storage
-  String    host_name    =      this->server[CONFIG::HOST_ID].toString() ;
-  String    login        =      this->server[CONFIG::LOGIN_ID].toString() ;
-  String    pass         =      this->server[CONFIG::PASS_ID].toString() ;
+  String    host         =      this->server[CONFIG::HOST_ID        ].toString() ;
+  String    login        =      this->server[CONFIG::LOGIN_ID       ].toString() ;
+  String    pass         =      this->server[CONFIG::PASS_ID        ].toString() ;
   bool      is_anonymous = bool(this->server[CONFIG::IS_ANONYMOUS_ID]) ;
   bool      should_agree = bool(this->server[CONFIG::SHOULD_AGREE_ID]) ;
-  ValueTree server       = getServer(host_name) ;
+  ValueTree server       = getServer(host) ;
 
   // create new server entry
   if (!server.isValid())
   {
-    server = ValueTree(MakeHostId(host_name)) ;
+    server = ValueTree(MakeHostId(host)) ;
     this->servers.addChild(server , -1 , nullptr) ;
   }
 
   // set per server credentials
-  server.setProperty(CONFIG::HOST_ID         , host_name    , nullptr)
+  server.setProperty(CONFIG::HOST_ID         , host         , nullptr)
         .setProperty(CONFIG::LOGIN_ID        , login        , nullptr)
         .setProperty(CONFIG::PASS_ID         , pass         , nullptr)
         .setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr)
         .setProperty(CONFIG::SHOULD_AGREE_ID , should_agree , nullptr) ;
 }
 
-ValueTree LinJamConfig::getServer(String host_name)
+ValueTree LinJamConfig::getServer(String host)
 {
-  return this->servers.getChildWithProperty(CONFIG::HOST_ID , var(host_name)) ;
+  return this->servers.getChildWithProperty(CONFIG::HOST_ID , var(host)) ;
 }
 
 void LinJamConfig::setStereo(ValueTree channel_store , int stereo_status)

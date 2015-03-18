@@ -22,10 +22,8 @@
 #define DEBUG_TRACE              DEBUG && 1
 #define DEBUG_TRACE_EVENTS       DEBUG && 1
 #define DEBUG_TRACE_STATE        DEBUG && 1
-#define DEBUG_TRACE_IN           DEBUG && 1
-#define DEBUG_TRACE_OUT          DEBUG && 1
 #define DEBUG_TRACE_VB           DEBUG && 1
-#define TRACE_SANITIZE_CONFIG    DEBUG_TRACE_VB && 0
+#define TRACE_DUMP_CONFIG        DEBUG_TRACE_VB && 0
 #define TRACE_CONFIG_TYPES       DEBUG_TRACE_VB && 0
 #define TRACE_STORE_CONFIG_VB    DEBUG_TRACE_VB && 0
 #define TRACE_AUDIO_INIT_VB      DEBUG_TRACE_VB && 1

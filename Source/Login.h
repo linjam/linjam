@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_996B723199327CE__
-#define __JUCE_HEADER_996B723199327CE__
+#ifndef _LOGIN_H_
+#define _LOGIN_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -101,4 +101,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_996B723199327CE__
+#endif // _LOGIN_H_

@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_321A28830126E8DE__
-#define __JUCE_HEADER_321A28830126E8DE__
+#ifndef _CHANNEL_H_
+#define _CHANNEL_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -136,4 +136,4 @@ class RemoteChannel : public Channel
 
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_321A28830126E8DE__
+#endif // _CHANNEL_H_

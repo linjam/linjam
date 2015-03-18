@@ -202,19 +202,22 @@
     <ClCompile Include="..\..\Source\Chat.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Config.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ConfigAudio.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ConfigChannel.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Config.cpp">
-      <Filter>LinJam\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\ConfigClient.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ConfigSubscriptions.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Constants.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\License.cpp">

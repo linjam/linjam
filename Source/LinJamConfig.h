@@ -28,7 +28,7 @@ public:
 
 
   // validation
-  static Identifier MakeHostId(       String host_name) ;
+  static Identifier MakeHostId(       String host) ;
   static Identifier MakeUserId(       String channel_name) ;
   static Identifier MakeChannelId(    int channel_idx) ;
   static String     MakeStereoName(   String channel_name , int stereo_status) ;
@@ -99,11 +99,11 @@ private:
   ValueTree getChannelByPairIdx(  ValueTree channels_store , int pair_idx) ;
   ValueTree getChannelByName(     ValueTree channels_store , String channel_name) ;
   ValueTree getUserMasterChannel( ValueTree user_store) ;
-  void      setCredentials(       String host_name    , String login , String pass ,
+  void      setCredentials(       String host         , String login , String pass ,
                                   bool   is_anonymous                              ) ;
-  ValueTree getCredentials(       String host_name) ;
+  ValueTree getCredentials(       String host) ;
   void      setServer() ;
-  ValueTree getServer(            String host_name) ;
+  ValueTree getServer(            String host) ;
   void      setStereo(            ValueTree channel_store , int stereo_status) ;
   int       setRemoteStereo(      ValueTree user_store        , ValueTree channel_store ,
                                   String    prev_channel_name                           ) ;

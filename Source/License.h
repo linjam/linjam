@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_B211D150B4BBC96A__
-#define __JUCE_HEADER_B211D150B4BBC96A__
+#ifndef _LICENSE_H_
+#define _LICENSE_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -82,4 +82,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_B211D150B4BBC96A__
+#endif // _LICENSE_H_

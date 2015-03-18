@@ -19,8 +19,7 @@ ifeq ($(CONFIG),Debug)
   endif
 
   CPPFLAGS := $(DEPFLAGS) -std=c++11 -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_7346DA2A=1" -D "JUCE_APP_VERSION=0.0.1" -D "JUCE_APP_VERSION_HEX=0x1" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
-#  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 `pkg-config ninjam --cflags` -Wno-write-strings -malign-double
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -gdwarf-2 -g3 -O0 `pkg-config ninjam --cflags` -Wno-write-strings -malign-double
+  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 `pkg-config ninjam --cflags` -Wno-write-strings -malign-double
   CXXFLAGS += $(CFLAGS)
   LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -L/usr/X11R6/lib/ -lX11 -lXext -lXinerama -ldl -lfreetype -lpthread -lrt `pkg-config ninjam --libs` `pkg-config ninjam-client --libs`
   LDDEPS :=
@@ -56,11 +55,12 @@ OBJECTS := \
   $(OBJDIR)/Channel_14ad93e4.o \
   $(OBJDIR)/Channels_84b8f659.o \
   $(OBJDIR)/Chat_e7196be1.o \
+  $(OBJDIR)/Config_5aed31cb.o \
   $(OBJDIR)/ConfigAudio_37708215.o \
   $(OBJDIR)/ConfigChannel_53548a42.o \
-  $(OBJDIR)/Config_5aed31cb.o \
   $(OBJDIR)/ConfigClient_9ea4fbb6.o \
   $(OBJDIR)/ConfigSubscriptions_7518f735.o \
+  $(OBJDIR)/Constants_e698e730.o \
   $(OBJDIR)/License_de20cc22.o \
   $(OBJDIR)/LinJam_a166dece.o \
   $(OBJDIR)/LinJamConfig_8af59670.o \
@@ -115,6 +115,11 @@ $(OBJDIR)/Chat_e7196be1.o: ../../Source/Chat.cpp
 	@echo "Compiling Chat.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
+$(OBJDIR)/Config_5aed31cb.o: ../../Source/Config.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Config.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
 $(OBJDIR)/ConfigAudio_37708215.o: ../../Source/ConfigAudio.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ConfigAudio.cpp"
@@ -125,11 +130,6 @@ $(OBJDIR)/ConfigChannel_53548a42.o: ../../Source/ConfigChannel.cpp
 	@echo "Compiling ConfigChannel.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
-$(OBJDIR)/Config_5aed31cb.o: ../../Source/Config.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Config.cpp"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
 $(OBJDIR)/ConfigClient_9ea4fbb6.o: ../../Source/ConfigClient.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ConfigClient.cpp"
@@ -138,6 +138,11 @@ $(OBJDIR)/ConfigClient_9ea4fbb6.o: ../../Source/ConfigClient.cpp
 $(OBJDIR)/ConfigSubscriptions_7518f735.o: ../../Source/ConfigSubscriptions.cpp
 	-@mkdir -p $(OBJDIR)
 	@echo "Compiling ConfigSubscriptions.cpp"
+	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
+
+$(OBJDIR)/Constants_e698e730.o: ../../Source/Constants.cpp
+	-@mkdir -p $(OBJDIR)
+	@echo "Compiling Constants.cpp"
 	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
 
 $(OBJDIR)/License_de20cc22.o: ../../Source/License.cpp

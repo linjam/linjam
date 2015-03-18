@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_87598446A41E477A__
-#define __JUCE_HEADER_87598446A41E477A__
+#ifndef _CONFIGCHANNEL_H_
+#define _CONFIGCHANNEL_H_
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
@@ -92,4 +92,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_87598446A41E477A__
+#endif // _CONFIGCHANNEL_H_

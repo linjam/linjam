@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_85571ED1262E7F00__
-#define __JUCE_HEADER_85571ED1262E7F00__
+#ifndef _CONFIGAUDIO_H_
+#define _CONFIGAUDIO_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -137,4 +137,4 @@ static BOOL CALLBACK DSEnumProc(LPGUID  lpGUID      , LPCTSTR lpszDesc ,
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_85571ED1262E7F00__
+#endif   // _CONFIGAUDIO_H_

@@ -1,7 +1,7 @@
 #if DEBUG
 
-#  include "Trace.h"
-#  include "TraceLinJam.h"
+#include "Trace.h"
+#include "TraceLinJam.h"
 
 
 /* storage */
@@ -17,15 +17,15 @@
       Trace::TraceConfig("stored config is invalid - falling back on defaults") ; \
   else Trace::TraceConfig("stored config found") ;
 
-#if TRACE_SANITIZE_CONFIG
-#  define DEBUG_TRACE_SANITIZE_CONFIG                                              \
+#if TRACE_DUMP_CONFIG
+#  define DEBUG_TRACE_DUMP_CONFIG                                                  \
   if (has_stored_config)                                                           \
     Trace::TraceConfig("stored config parsed successfully => " +                   \
                        Trace::DumpConfig(ValueTree::fromXml(*default_xml) ,        \
                                          ValueTree::fromXml(*stored_xml)  , "  ")) ;
-#else // TRACE_SANITIZE_CONFIG
-#  define DEBUG_TRACE_SANITIZE_CONFIG ;
-#endif // TRACE_SANITIZE_CONFIG
+#else // TRACE_DUMP_CONFIG
+#  define DEBUG_TRACE_DUMP_CONFIG ;
+#endif // TRACE_DUMP_CONFIG
 
 #if TRACE_CONFIG_TYPES
 #  define DEBUG_TRACE_CONFIG_TYPES_VB                                                    \
@@ -45,6 +45,125 @@
 #  define DEBUG_TRACE_CONFIG_TYPES_VB_EACH ;
 #endif // TRACE_CONFIG_TYPES
 
+//#define DEBUG_TRACE_VALIDATE_CLIENT        // TODO: (issue #61)
+//#define DEBUG_TRACE_VALIDATE_SUBSCRIPTIONS // TODO: (issue #61)
+//#define DEBUG_TRACE_VALIDATE_AUDIO         // TODO: (issue #61)
+//#define DEBUG_TRACE_VALIDATE_SERVER        // TODO: (issue #61)
+
+#define DEBUG_TRACE_VALIDATE_USER                                                      \
+  String user_name = String(user_store.getType()) ;                                    \
+  if (!user_has_useridx_property)                                                      \
+  {                                                                                    \
+    Trace::TraceMissingProperty(user_name , CONFIG::USER_IDX_KEY) ;                    \
+    Trace::TraceError("destroying invalid remote channel store '" + user_name + "'") ; \
+  }
+
+#define DEBUG_TRACE_VALIDATE_CHANNEL                                                       \
+  String channels_name = String(channels.getType()) ;                                      \
+  String channel_name  = channel[CONFIG::CHANNEL_NAME_ID].toString() ;                     \
+                                                                                           \
+  /* query channel datatypes */                                                            \
+  /* NOTE: these type-checks normally should be unnecessary                      */        \
+  /*       all tree nodes will be of the proper types after restoreVarTypeInfo() */        \
+  bool channel_name_is_string    = channel[CONFIG::CHANNEL_NAME_ID].isString() ;           \
+  bool channel_idx_is_int        = channel[CONFIG::CHANNEL_IDX_ID] .isInt()    ;           \
+  bool channel_pair_idx_is_int   = channel[CONFIG::PAIR_IDX_ID]    .isInt()    ;           \
+  bool channel_volume_is_double  = channel[CONFIG::VOLUME_ID]      .isDouble() ;           \
+  bool channel_pan_is_double     = channel[CONFIG::PAN_ID]         .isDouble() ;           \
+  bool channel_xmit_is_bool      = channel[CONFIG::IS_XMIT_RCV_ID] .isBool()   ;           \
+  bool channel_mute_is_bool      = channel[CONFIG::IS_MUTED_ID]    .isBool()   ;           \
+  bool channel_solo_is_bool      = channel[CONFIG::IS_SOLO_ID]     .isBool()   ;           \
+  bool channel_source_is_int     = channel[CONFIG::SOURCE_N_ID]    .isInt()    ;           \
+  bool channel_stereo_is_int     = channel[CONFIG::STEREO_ID]      .isInt()    ;           \
+  bool channel_vuleft_is_double  = channel[CONFIG::VU_LEFT_ID]     .isDouble() ;           \
+  bool channel_vuright_is_double = channel[CONFIG::VU_RIGHT_ID]    .isDouble() ;           \
+                                                                                           \
+  /* trace missing channel properties */                                                   \
+  if (!channel_has_channelname_property)                                                   \
+    Trace::TraceMissingProperty(channel_name , CONFIG::CHANNEL_NAME_KEY , channels_name) ; \
+  if (!channel_has_channelidx_property)                                                    \
+    Trace::TraceMissingProperty(channel_name , CONFIG::CHANNEL_IDX_KEY  , channels_name) ; \
+  if (!channel_has_pairidx_property)                                                       \
+    Trace::TraceMissingProperty(channel_name , CONFIG::PAIR_IDX_KEY     , channels_name) ; \
+  if (!channel_has_volume_property)                                                        \
+    Trace::TraceMissingProperty(channel_name , CONFIG::VOLUME_KEY       , channels_name) ; \
+  if (!channel_has_pan_property)                                                           \
+    Trace::TraceMissingProperty(channel_name , CONFIG::PAN_KEY          , channels_name) ; \
+  if (!channel_has_xmit_property)                                                          \
+    Trace::TraceMissingProperty(channel_name , CONFIG::IS_XMIT_RCV_KEY  , channels_name) ; \
+  if (!channel_has_mute_property)                                                          \
+    Trace::TraceMissingProperty(channel_name , CONFIG::IS_MUTED_KEY     , channels_name) ; \
+  if (!channel_has_solo_property)                                                          \
+    Trace::TraceMissingProperty(channel_name , CONFIG::IS_SOLO_KEY      , channels_name) ; \
+  if (!channel_has_source_property)                                                        \
+    Trace::TraceMissingProperty(channel_name , CONFIG::SOURCE_N_KEY     , channels_name) ; \
+  if (!channel_has_stereo_property)                                                        \
+    Trace::TraceMissingProperty(channel_name , CONFIG::STEREO_KEY       , channels_name) ; \
+  if (!channel_has_vuleft_property)                                                        \
+    Trace::TraceMissingProperty(channel_name , CONFIG::VU_LEFT_KEY      , channels_name) ; \
+  if (!channel_has_vuright_property)                                                       \
+    Trace::TraceMissingProperty(channel_name , CONFIG::VU_RIGHT_KEY     , channels_name) ; \
+                                                                                           \
+  /* trace invalid channel datatypes */                                                    \
+  if (!channel_name_is_string)                                                             \
+    Trace::TraceTypeMismatch(channel             , CONFIG::CHANNEL_NAME_KEY         ,      \
+                             CONFIG::STRING_TYPE , channel[CONFIG::CHANNEL_NAME_ID] ,      \
+                             channels_name                                         ) ;     \
+  if (!channel_idx_is_int)                                                                 \
+    Trace::TraceTypeMismatch(channel             , CONFIG::CHANNEL_IDX_KEY          ,      \
+                             CONFIG::INT_TYPE    , channel[CONFIG::CHANNEL_IDX_ID]  ,      \
+                             channels_name                                         ) ;     \
+  if (!channel_pair_idx_is_int)                                                            \
+    Trace::TraceTypeMismatch(channel             , CONFIG::PAIR_IDX_KEY          ,         \
+                             CONFIG::INT_TYPE    , channel[CONFIG::PAIR_IDX_ID]  ,         \
+                             channels_name                                         ) ;     \
+  if (!channel_volume_is_double)                                                           \
+    Trace::TraceTypeMismatch(channel             , CONFIG::VOLUME_KEY              ,       \
+                             CONFIG::DOUBLE_TYPE , channel[CONFIG::VOLUME_ID]      ,       \
+                             channels_name                                         ) ;     \
+  if (!channel_pan_is_double)                                                              \
+    Trace::TraceTypeMismatch(channel             , CONFIG::PAN_KEY                 ,       \
+                             CONFIG::DOUBLE_TYPE , channel[CONFIG::PAN_ID]         ,       \
+                             channels_name                                         ) ;     \
+  if (!channel_xmit_is_bool)                                                               \
+    Trace::TraceTypeMismatch(channel             , CONFIG::IS_XMIT_RCV_KEY         ,       \
+                             CONFIG::BOOL_TYPE   , channel[CONFIG::IS_XMIT_RCV_ID] ,       \
+                             channels_name                                         ) ;     \
+  if (!channel_mute_is_bool)                                                               \
+    Trace::TraceTypeMismatch(channel             , CONFIG::IS_MUTED_KEY            ,       \
+                             CONFIG::BOOL_TYPE   , channel[CONFIG::IS_MUTED_ID]    ,       \
+                             channels_name                                         ) ;     \
+  if (!channel_solo_is_bool)                                                               \
+    Trace::TraceTypeMismatch(channel             , CONFIG::IS_SOLO_KEY             ,       \
+                             CONFIG::BOOL_TYPE   , channel[CONFIG::IS_SOLO_ID]     ,       \
+                             channels_name                                         ) ;     \
+  if (!channel_source_is_int)                                                              \
+    Trace::TraceTypeMismatch(channel             , CONFIG::SOURCE_N_KEY            ,       \
+                             CONFIG::INT_TYPE    , channel[CONFIG::SOURCE_N_ID]    ,       \
+                             channels_name                                         ) ;     \
+  if (!channel_stereo_is_int)                                                              \
+    Trace::TraceTypeMismatch(channel             , CONFIG::STEREO_KEY              ,       \
+                             CONFIG::INT_TYPE    , channel[CONFIG::STEREO_ID]      ,       \
+                             channels_name                                         ) ;     \
+  if (!channel_vuleft_is_double)                                                           \
+    Trace::TraceTypeMismatch(channel             , CONFIG::VU_LEFT_KEY             ,       \
+                             CONFIG::DOUBLE_TYPE , channel[CONFIG::VU_LEFT_KEY]    ,       \
+                             channels_name                                         ) ;     \
+  if (!channel_vuright_is_double)                                                          \
+    Trace::TraceTypeMismatch(channel             , CONFIG::VU_RIGHT_KEY            ,       \
+                             CONFIG::DOUBLE_TYPE , channel[CONFIG::VU_RIGHT_KEY]   ,       \
+                             channels_name                                         ) ;     \
+                                                                                           \
+  /* validate channel properties */                                                        \
+  if (!channel_has_channelname_property || !channel_has_channelidx_property ||             \
+      !channel_has_pairidx_property     || !channel_has_volume_property     ||             \
+      !channel_has_pan_property         || !channel_has_xmit_property       ||             \
+      !channel_has_mute_property        || !channel_has_solo_property       ||             \
+      !channel_has_source_property      || !channel_has_stereo_property     ||             \
+      !channel_has_vuleft_property      || !channel_has_vuright_property     )             \
+    Trace::TraceError("destroying invalid " + channels_name +                              \
+                      " channel store '"    + channel_name  + "'") ;
+
 #define DEBUG_TRACE_VALIDATE_CONFIG                                                      \
   /* NOTE: these checks normally should be unnecessary                        */         \
   /*       all tree nodes and properties will exist after sanitizeConfig()    */         \
@@ -61,8 +180,8 @@
                                                                                          \
   /* query default values */                                                             \
   bool has_valid_version_declaration    =  CONFIG::CONFIG_VERSION > 0.0 ;                \
-  bool has_valid_sessiondir_declaration = !CLIENT::SESSION_DIR.isEmpty() ;               \
-  bool has_valid_logfile_declaration    = !CLIENT::LOG_FILE.isEmpty() ;                  \
+  bool has_valid_sessiondir_declaration = CLIENT::SESSION_DIR.isNotEmpty() ;             \
+  bool has_valid_logfile_declaration    = CLIENT::LOG_FILE   .isNotEmpty() ;             \
                                                                                          \
   /* query root properties */                                                            \
   bool root_has_appversion_property        =                                             \
@@ -179,6 +298,10 @@
       server.hasProperty(CONFIG::IS_AGREED_ID)        ;                                  \
   bool server_has_should_agree_property    =                                             \
       server.hasProperty(CONFIG::SHOULD_AGREE_ID)     ;                                  \
+  bool server_has_bot_name_property        =                                             \
+      server.hasProperty(CONFIG::BOT_NAME_ID)         ;                                  \
+  bool server_has_bot_useridx_property     =                                             \
+      server.hasProperty(CONFIG::BOT_USERIDX_ID)      ;                                  \
                                                                                          \
   /* query masters properties */                                                         \
   bool master_channel_has_name_property    =                                             \
@@ -275,6 +398,8 @@
   bool is_anon_is_bool          = server[CONFIG::IS_ANONYMOUS_ID]    .isBool()   ;       \
   bool is_agreed_is_bool        = server[CONFIG::IS_AGREED_ID]       .isBool()   ;       \
   bool should_agree_is_bool     = server[CONFIG::SHOULD_AGREE_ID]    .isBool()   ;       \
+  bool bot_name_is_string       = server[CONFIG::BOT_NAME_ID]        .isString() ;       \
+  bool bot_useridx_is_int       = server[CONFIG::BOT_USERIDX_ID]     .isInt()    ;       \
                                                                                          \
   /* query masters datatypes */                                                          \
   bool master_name_is_string    = master[CONFIG::CHANNEL_NAME_ID]    .isString() ;       \
@@ -438,6 +563,10 @@
     Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::IS_AGREED_KEY) ;               \
   if (!server_has_should_agree_property)                                                 \
     Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::SHOULD_AGREE_KEY) ;            \
+  if (!server_has_bot_name_property)                                                     \
+    Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::BOT_NAME_KEY) ;                \
+  if (!server_has_bot_useridx_property)                                                  \
+    Trace::TraceMissingValue(CONFIG::SERVER_KEY , CONFIG::BOT_USERIDX_KEY) ;             \
                                                                                          \
   /* trace missing masters properties */                                                 \
   if (!master_channel_has_name_property)                                                 \
@@ -640,6 +769,12 @@
   if (!should_agree_is_bool)                                                             \
     Trace::TraceTypeMismatch(server              , CONFIG::SHOULD_AGREE_KEY       ,      \
                              CONFIG::BOOL_TYPE   , server[CONFIG::SHOULD_AGREE_ID]) ;    \
+  if (!bot_name_is_string)                                                               \
+    Trace::TraceTypeMismatch(server              , CONFIG::BOT_NAME_KEY       ,          \
+                             CONFIG::STRING_TYPE , server[CONFIG::BOT_NAME_ID]) ;        \
+  if (!bot_useridx_is_int)                                                               \
+    Trace::TraceTypeMismatch(server              , CONFIG::BOT_USERIDX_KEY       ,       \
+                             CONFIG::INT_TYPE    , server[CONFIG::BOT_USERIDX_ID]) ;     \
                                                                                          \
   /* trace invalid masters datatypes */                                                  \
   if (!master_name_is_string)                                                            \
@@ -736,6 +871,7 @@
       server_has_host_property           && server_has_login_property          &&        \
       server_has_pass_property           && server_has_is_anonymous_property   &&        \
       server_has_is_agreed_property      && server_has_should_agree_property   &&        \
+      server_has_bot_name_property       && server_has_bot_useridx_property    &&        \
                                                                                          \
       /* validate masters properties */                                                  \
       master_channel_has_name_property   && master_channel_has_volume_property &&        \
@@ -783,6 +919,7 @@
       host_name_is_string                && login_is_string                    &&        \
       pass_is_string                     && is_anon_is_bool                    &&        \
       is_agreed_is_bool                  && should_agree_is_bool               &&        \
+      bot_name_is_string                 && bot_useridx_is_int                 &&        \
                                                                                          \
       /* validate masters datatypes */                                                   \
       master_name_is_string              && master_volume_is_double            &&        \
@@ -794,123 +931,8 @@
       metro_source_is_int                && metro_stereo_is_int                &&        \
       metro_vuleft_is_double             && metro_vuright_is_double             ;
 
-//#define DEBUG_TRACE_VALIDATE_SERVER // TODO:                                     \
-
-#define DEBUG_TRACE_VALIDATE_USER                                                      \
-  String user_name = String(user_store.getType()) ;                                    \
-  if (!user_has_useridx_property)                                                      \
-  {                                                                                    \
-    Trace::TraceMissingProperty(user_name , CONFIG::USER_IDX_KEY) ;                    \
-    Trace::TraceError("destroying invalid remote channel store '" + user_name + "'") ; \
-  }
-
-#define DEBUG_TRACE_VALIDATE_CHANNEL                                                       \
-  String channels_name = String(channels.getType()) ;                                      \
-  String channel_name  = channel[CONFIG::CHANNEL_NAME_ID].toString() ;                     \
-                                                                                           \
-  /* query channel datatypes */                                                            \
-  /* NOTE: these type-checks normally should be unnecessary                      */        \
-  /*       all tree nodes will be of the proper types after restoreVarTypeInfo() */        \
-  bool channel_name_is_string    = channel[CONFIG::CHANNEL_NAME_ID].isString() ;           \
-  bool channel_idx_is_int        = channel[CONFIG::CHANNEL_IDX_ID] .isInt()    ;           \
-  bool channel_pair_idx_is_int   = channel[CONFIG::PAIR_IDX_ID]    .isInt()    ;           \
-  bool channel_volume_is_double  = channel[CONFIG::VOLUME_ID]      .isDouble() ;           \
-  bool channel_pan_is_double     = channel[CONFIG::PAN_ID]         .isDouble() ;           \
-  bool channel_xmit_is_bool      = channel[CONFIG::IS_XMIT_RCV_ID] .isBool()   ;           \
-  bool channel_mute_is_bool      = channel[CONFIG::IS_MUTED_ID]    .isBool()   ;           \
-  bool channel_solo_is_bool      = channel[CONFIG::IS_SOLO_ID]     .isBool()   ;           \
-  bool channel_source_is_int     = channel[CONFIG::SOURCE_N_ID]    .isInt()    ;           \
-  bool channel_stereo_is_int     = channel[CONFIG::STEREO_ID]      .isInt()    ;           \
-  bool channel_vuleft_is_double  = channel[CONFIG::VU_LEFT_ID]     .isDouble() ;           \
-  bool channel_vuright_is_double = channel[CONFIG::VU_RIGHT_ID]    .isDouble() ;           \
-                                                                                           \
-  /* trace missing channel properties */                                                   \
-  if (!channel_has_channelname_property)                                                   \
-    Trace::TraceMissingProperty(channel_name , CONFIG::CHANNEL_NAME_KEY , channels_name) ; \
-  if (!channel_has_channelidx_property)                                                    \
-    Trace::TraceMissingProperty(channel_name , CONFIG::CHANNEL_IDX_KEY  , channels_name) ; \
-  if (!channel_has_pairidx_property)                                                       \
-    Trace::TraceMissingProperty(channel_name , CONFIG::PAIR_IDX_KEY     , channels_name) ; \
-  if (!channel_has_volume_property)                                                        \
-    Trace::TraceMissingProperty(channel_name , CONFIG::VOLUME_KEY       , channels_name) ; \
-  if (!channel_has_pan_property)                                                           \
-    Trace::TraceMissingProperty(channel_name , CONFIG::PAN_KEY          , channels_name) ; \
-  if (!channel_has_xmit_property)                                                          \
-    Trace::TraceMissingProperty(channel_name , CONFIG::IS_XMIT_RCV_KEY  , channels_name) ; \
-  if (!channel_has_mute_property)                                                          \
-    Trace::TraceMissingProperty(channel_name , CONFIG::IS_MUTED_KEY     , channels_name) ; \
-  if (!channel_has_solo_property)                                                          \
-    Trace::TraceMissingProperty(channel_name , CONFIG::IS_SOLO_KEY      , channels_name) ; \
-  if (!channel_has_source_property)                                                        \
-    Trace::TraceMissingProperty(channel_name , CONFIG::SOURCE_N_KEY     , channels_name) ; \
-  if (!channel_has_stereo_property)                                                        \
-    Trace::TraceMissingProperty(channel_name , CONFIG::STEREO_KEY       , channels_name) ; \
-  if (!channel_has_vuleft_property)                                                        \
-    Trace::TraceMissingProperty(channel_name , CONFIG::VU_LEFT_KEY      , channels_name) ; \
-  if (!channel_has_vuright_property)                                                       \
-    Trace::TraceMissingProperty(channel_name , CONFIG::VU_RIGHT_KEY     , channels_name) ; \
-                                                                                           \
-  /* trace invalid channel datatypes */                                                    \
-  if (!channel_name_is_string)                                                             \
-    Trace::TraceTypeMismatch(channel             , CONFIG::CHANNEL_NAME_KEY         ,      \
-                             CONFIG::STRING_TYPE , channel[CONFIG::CHANNEL_NAME_ID] ,      \
-                             channels_name                                         ) ;     \
-  if (!channel_idx_is_int)                                                                 \
-    Trace::TraceTypeMismatch(channel             , CONFIG::CHANNEL_IDX_KEY          ,      \
-                             CONFIG::INT_TYPE    , channel[CONFIG::CHANNEL_IDX_ID]  ,      \
-                             channels_name                                         ) ;     \
-  if (!channel_pair_idx_is_int)                                                            \
-    Trace::TraceTypeMismatch(channel             , CONFIG::PAIR_IDX_KEY          ,         \
-                             CONFIG::INT_TYPE    , channel[CONFIG::PAIR_IDX_ID]  ,         \
-                             channels_name                                         ) ;     \
-  if (!channel_volume_is_double)                                                           \
-    Trace::TraceTypeMismatch(channel             , CONFIG::VOLUME_KEY              ,       \
-                             CONFIG::DOUBLE_TYPE , channel[CONFIG::VOLUME_ID]      ,       \
-                             channels_name                                         ) ;     \
-  if (!channel_pan_is_double)                                                              \
-    Trace::TraceTypeMismatch(channel             , CONFIG::PAN_KEY                 ,       \
-                             CONFIG::DOUBLE_TYPE , channel[CONFIG::PAN_ID]         ,       \
-                             channels_name                                         ) ;     \
-  if (!channel_xmit_is_bool)                                                               \
-    Trace::TraceTypeMismatch(channel             , CONFIG::IS_XMIT_RCV_KEY         ,       \
-                             CONFIG::BOOL_TYPE   , channel[CONFIG::IS_XMIT_RCV_ID] ,       \
-                             channels_name                                         ) ;     \
-  if (!channel_mute_is_bool)                                                               \
-    Trace::TraceTypeMismatch(channel             , CONFIG::IS_MUTED_KEY            ,       \
-                             CONFIG::BOOL_TYPE   , channel[CONFIG::IS_MUTED_ID]    ,       \
-                             channels_name                                         ) ;     \
-  if (!channel_solo_is_bool)                                                               \
-    Trace::TraceTypeMismatch(channel             , CONFIG::IS_SOLO_KEY             ,       \
-                             CONFIG::BOOL_TYPE   , channel[CONFIG::IS_SOLO_ID]     ,       \
-                             channels_name                                         ) ;     \
-  if (!channel_source_is_int)                                                              \
-    Trace::TraceTypeMismatch(channel             , CONFIG::SOURCE_N_KEY            ,       \
-                             CONFIG::INT_TYPE    , channel[CONFIG::SOURCE_N_ID]    ,       \
-                             channels_name                                         ) ;     \
-  if (!channel_stereo_is_int)                                                              \
-    Trace::TraceTypeMismatch(channel             , CONFIG::STEREO_KEY              ,       \
-                             CONFIG::INT_TYPE    , channel[CONFIG::STEREO_ID]      ,       \
-                             channels_name                                         ) ;     \
-  if (!channel_vuleft_is_double)                                                           \
-    Trace::TraceTypeMismatch(channel             , CONFIG::VU_LEFT_KEY             ,       \
-                             CONFIG::DOUBLE_TYPE , channel[CONFIG::VU_LEFT_KEY]    ,       \
-                             channels_name                                         ) ;     \
-  if (!channel_vuright_is_double)                                                          \
-    Trace::TraceTypeMismatch(channel             , CONFIG::VU_RIGHT_KEY            ,       \
-                             CONFIG::DOUBLE_TYPE , channel[CONFIG::VU_RIGHT_KEY]   ,       \
-                             channels_name                                         ) ;     \
-                                                                                           \
-  /* validate channel properties */                                                        \
-//   ValueTree parent_node   = channels.getParent() ;                                         \
-//   String    channels_name = String(parent_node.getType()) ;                                \
-  if (!channel_has_channelname_property || !channel_has_channelidx_property ||             \
-      !channel_has_pairidx_property     || !channel_has_volume_property     ||             \
-      !channel_has_pan_property         || !channel_has_xmit_property       ||             \
-      !channel_has_mute_property        || !channel_has_solo_property       ||             \
-      !channel_has_source_property      || !channel_has_stereo_property     ||             \
-      !channel_has_vuleft_property      || !channel_has_vuright_property     )             \
-    Trace::TraceError("destroying invalid " + channels_name +                              \
-                      " channel store '"    + channel_name  + "'") ;
+#define DEBUG_TRACE_CLOBBER_CONFIG                                    \
+      Trace::TraceError("stored config invalid - restoring defaults") ;
 
 #if TRACE_STORE_CONFIG_VB
 #  define DEBUG_TRACE_STORE_CONFIG Trace::TraceConfig("storing config xml=\n" + \
@@ -996,6 +1018,7 @@
         Trace::TraceConfig(dbgA + "local"  + dbgB) ;                          \
     else Trace::TraceConfig(dbgA + "remote" + dbgB + "for '" + user_id + "'") ;
 
+#ifdef KNOWN_BOTS_AS_ARRAY
 #define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                          \
   Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;                  \
   Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;   \
@@ -1012,27 +1035,51 @@
       { u_id = MakeUserId(u_name) ; if (user_id == u_id) break ; }                 \
     DEBUG_TRACE_REMOTE_CHANNELS                                                    \
   }
+#else // KNOWN_BOTS_AS_ARRAY
+#  ifdef KNOWN_BOTS_AS_XML
+#define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                              \
+  Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;                      \
+  Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;       \
+  if (TRACE_REMOTE_CHANNELS_VB)                                                        \
+  {                                                                                    \
+    StringRef host      = MakeHostId(this->server[CONFIG::HOST_ID].toString()) ;       \
+    bool      has_bot   = NETWORK::KNOWN_BOTS->hasAttribute(host) ;                    \
+    bool      hide_bots = has_bot && bool(this->client[CONFIG::SHOULD_HIDE_BOTS_ID]) ; \
+    float     u_vol     = CONFIG::DEFAULT_VOLUME ;                                     \
+    bool      u_mute    = CONFIG::DEFAULT_IS_MUTED ;                                   \
+    float     u_pan     = CONFIG::DEFAULT_PAN ;                                        \
+    int       u_idx     = -1 ; String u_name ; Identifier u_id ;                       \
+    while ((u_name = LinJam::GetRemoteUserName(++u_idx)).isNotEmpty())                 \
+      { u_id = MakeUserId(u_name) ; if (user_id == u_id) break ; }                     \
+    DEBUG_TRACE_REMOTE_CHANNELS                                                        \
+  }
+#  endif // KNOWN_BOTS_AS_XML
+#endif // KNOWN_BOTS_AS_ARRAY
 
 #else // DEBUG
 
 // storage
-#define DEBUG_TRACE_LOAD_CONFIG           ;
-#define DEBUG_TRACE_SANITIZE_CONFIG       ;
-#define DEBUG_TRACE_CONFIG_TYPES_VB       ;
-#define DEBUG_TRACE_VALIDATE_CONFIG       ;
-//#define DEBUG_TRACE_VALIDATE_SERVER     ;
-#define DEBUG_TRACE_VALIDATE_USER         ;
-#define DEBUG_TRACE_VALIDATE_CHANNEL      ;
-#define DEBUG_TRACE_STORE_CONFIG          ;
-#define DEBUG_TRACE_CONFIG_VALUE_CHANGED  ;
-#define DEBUG_TRACE_CONFIG_TREE_CHANGED   ;
-#define DEBUG_TRACE_CONFIG_TREE_ADDED     ;
-#define DEBUG_TRACE_CONFIG_TREE_REMOVED   ;
+#define DEBUG_TRACE_LOAD_CONFIG            ;
+#define DEBUG_TRACE_DUMP_CONFIG            ;
+#define DEBUG_TRACE_CONFIG_TYPES_VB        ;
+// #define DEBUG_TRACE_VALIDATE_CLIENT        ;
+// #define DEBUG_TRACE_VALIDATE_SUBSCRIPTIONS ;
+// #define DEBUG_TRACE_VALIDATE_AUDIO         ;
+// #define DEBUG_TRACE_VALIDATE_SERVER        ;
+#define DEBUG_TRACE_VALIDATE_USER          ;
+#define DEBUG_TRACE_VALIDATE_CHANNEL       ;
+#define DEBUG_TRACE_VALIDATE_CONFIG        ;
+#define DEBUG_TRACE_CLOBBER_CONFIG         ;
+#define DEBUG_TRACE_STORE_CONFIG           ;
+#define DEBUG_TRACE_CONFIG_VALUE_CHANGED   ;
+#define DEBUG_TRACE_CONFIG_TREE_CHANGED    ;
+#define DEBUG_TRACE_CONFIG_TREE_ADDED      ;
+#define DEBUG_TRACE_CONFIG_TREE_REMOVED    ;
 // channels
-#define DEBUG_TRACE_STEREO_STATUS         ;
-#define DEBUG_TRACE_MONO_STATUS           ;
-#define DEBUG_TRACE_ADD_CHANNEL_STORE     ;
-#define DEBUG_TRACE_REMOVE_CHANNEL_STORE  ;
-#define DEBUG_TRACE_ADD_REMOTE_USER_STORE ;
+#define DEBUG_TRACE_STEREO_STATUS          ;
+#define DEBUG_TRACE_MONO_STATUS            ;
+#define DEBUG_TRACE_ADD_CHANNEL_STORE      ;
+#define DEBUG_TRACE_REMOVE_CHANNEL_STORE   ;
+#define DEBUG_TRACE_ADD_REMOTE_USER_STORE  ;
 
 #endif // DEBUG

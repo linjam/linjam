@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_CB08A39AD889D82__
-#define __JUCE_HEADER_CB08A39AD889D82__
+#ifndef _CONFIGCLIENT_H_
+#define _CONFIGCLIENT_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -84,4 +84,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_CB08A39AD889D82__
+#endif // _CONFIGCLIENT_H_

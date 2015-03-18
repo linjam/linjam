@@ -139,10 +139,21 @@ Login::Login (ValueTree login_store)
   this->passText   ->setPasswordCharacter('*') ;
 
   // instantiate known host login buttons
-  for (int host_n = 0 ; host_n < NETWORK::N_KNOWN_HOSTS ; ++host_n)
+
+#ifdef KNOWN_HOSTS_AS_ARRAY
+  for (int host_n = 0 ; host_n < NETWORK::KNOWN_HOSTS.size() ; ++host_n)
   {
     String      known_host  = NETWORK::KNOWN_HOSTS.getUnchecked(host_n) ;
     int         focus_order = GUI::N_STATIC_LOGIN_CHILDREN + host_n ;
+#else // KNOWN_HOSTS_AS_ARRAY
+#  ifdef KNOWN_HOSTS_AS_XML
+  int host_n = 0 ;
+  forEachXmlChildElement(*NETWORK::KNOWN_HOSTS , host_node) // macro
+  {
+    String      known_host  = host_node->getTagName() ;
+    int         focus_order = GUI::N_STATIC_LOGIN_CHILDREN + host_n++ ;
+#  endif // KNOWN_HOSTS_AS_XML
+#endif // KNOWN_HOSTS_AS_ARRAY
     TextButton* loginButton = new TextButton(known_host + "Button") ;
 
     addAndMakeVisible(loginButton) ;
@@ -265,12 +276,12 @@ void Login::buttonClicked (Button* buttonThatWasClicked)
 
     else if (this->loginButtons.contains((TextButton*)buttonThatWasClicked))
     {
-      String    host         = buttonThatWasClicked->getButtonText().trim() ;
-      ValueTree credentials  = LinJam::getCredentials(host) ;
+      String    host        = buttonThatWasClicked->getButtonText().trim() ;
+      ValueTree credentials = LinJam::getCredentials(host) ;
 
 DEBUG_TRACE_LOBBY_QUICKLOGIN
 
-      // restore stored credentials
+      // set current host and restore stored credentials
       this->hostText->setText(host) ;
       if (credentials.isValid())
       {
@@ -311,7 +322,14 @@ void Login::broughtToFront()
 DEBUG_TRACE_LOGIN_LOAD
 
   // validate credentials and enable components
+#ifdef KNOWN_HOSTS_AS_ARRAY
   bool is_custom_server = host.isNotEmpty() && !NETWORK::KNOWN_HOSTS.contains(host) ;
+#else // KNOWN_HOSTS_AS_ARRAY
+#  ifdef KNOWN_HOSTS_AS_XML
+  bool is_custom_server = host.isNotEmpty() && !NETWORK::IsKnownHost(host) ;
+#  endif // KNOWN_HOSTS_AS_XML
+#endif // KNOWN_HOSTS_AS_ARRAY
+
   this->loginButton->setVisible(is_custom_server) ;
   this->hostLabel  ->setVisible(is_custom_server) ;
   this->hostText   ->setVisible(is_custom_server) ;
@@ -343,15 +361,14 @@ void Login::valueChanged(Value& a_value)
 void Login::sortLoginButtons()
 {
   // TODO: sort dynamically into occupied/vacant groups (issue #7)
-  if (loginButtons.size() == NETWORK::N_KNOWN_HOSTS)
-    for (int host_n = 0 ; host_n < NETWORK::N_KNOWN_HOSTS ; ++host_n)
-    {
-      int x = GUI::LOGIN_BUTTON_L ;
-      int y = GUI::LOGIN_BUTTON_T + ((GUI::LOGIN_BUTTON_H + GUI::PAD) * host_n) ;
-      int w = GUI::LOGIN_BUTTON_W ;
-      int h = GUI::LOGIN_BUTTON_H ;
-      this->loginButtons.getUnchecked(host_n)->setBounds(x , y , w , h) ;
-    }
+  for (int host_n = 0 ; host_n < this->loginButtons.size() ; ++host_n)
+  {
+    int x = GUI::LOGIN_BUTTON_L ;
+    int y = GUI::LOGIN_BUTTON_T + ((GUI::LOGIN_BUTTON_H + GUI::PAD) * host_n) ;
+    int w = GUI::LOGIN_BUTTON_W ;
+    int h = GUI::LOGIN_BUTTON_H ;
+    this->loginButtons.getUnchecked(host_n)->setBounds(x , y , w , h) ;
+  }
 }
 
 void Login::signIn()
@@ -360,6 +377,8 @@ void Login::signIn()
   String login        = this->loginText ->getText().trim() ;
   String pass         = this->passText  ->getText().trim() ;
   bool   is_anonymous = this->anonButton->getToggleState() ;
+
+DEBUG_TRACE_LOGIN_VALIDATION
 
   if (!validateHost() || !validateLogin() || !validatePass()) return ;
 
@@ -375,7 +394,13 @@ bool Login::validateHost()
   String port           = host  .fromFirstOccurrenceOf(StringRef(":") , false , true) ;
 
   bool   is_localhost   = !NETWORK::LOCALHOST_HOSTNAME.compare(server) ;
+#ifdef KNOWN_HOSTS_AS_ARRAY
   bool   is_known_host  = NETWORK::KNOWN_HOSTS.contains(host) ;
+#else // KNOWN_HOSTS_AS_ARRAY
+#  ifdef KNOWN_HOSTS_AS_XML
+  bool   is_known_host  = NETWORK::IsKnownHost(host) ;
+#  endif // KNOWN_HOSTS_AS_XML
+#endif // KNOWN_HOSTS_AS_ARRAY
 
   bool   has_valid_form = host.matchesWildcard(NETWORK::HOST_MASK , true) ;
   bool   is_valid_name  = name.containsOnly(   NETWORK::URL_CHARS) && name.isNotEmpty() ;

@@ -167,11 +167,12 @@
         <File RelativePath="..\..\Source\Channel.cpp"/>
         <File RelativePath="..\..\Source\Channels.cpp"/>
         <File RelativePath="..\..\Source\Chat.cpp"/>
+        <File RelativePath="..\..\Source\Config.cpp"/>
         <File RelativePath="..\..\Source\ConfigAudio.cpp"/>
         <File RelativePath="..\..\Source\ConfigChannel.cpp"/>
-        <File RelativePath="..\..\Source\Config.cpp"/>
         <File RelativePath="..\..\Source\ConfigClient.cpp"/>
         <File RelativePath="..\..\Source\ConfigSubscriptions.cpp"/>
+        <File RelativePath="..\..\Source\Constants.cpp"/>
         <File RelativePath="..\..\Source\License.cpp"/>
         <File RelativePath="..\..\Source\LinJam.cpp"/>
         <File RelativePath="..\..\Source\LinJamConfig.cpp"/>

@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_2F4D86CC6EC233C__
-#define __JUCE_HEADER_2F4D86CC6EC233C__
+#ifndef _CONFIGSUBSCRIPTIONS_H_
+#define _CONFIGSUBSCRIPTIONS_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -78,4 +78,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_2F4D86CC6EC233C__
+#endif // _CONFIGSUBSCRIPTIONS_H_

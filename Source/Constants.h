@@ -13,7 +13,9 @@
 
 #include <ninjam/audiostream.h>
 #include <ninjam/njclient.h>
+
 #include "JuceHeader.h"
+
 
 /*\ CAVEATS:
 |*|  when adding GUI components to Channels be sure to update N_STATIC_CHANNELS_CHILDREN
@@ -21,12 +23,17 @@
 |*|    or else segfault is a near certainty
 |*|
 |*|  when adding nodes or properties to CONFIG_XML be sure to
-|*|    * denote property datatypes in         Constants.h #define CONFIG_TYPES_XML
-|*|    * switch on nodes in                   LinJamConfig::restoreVarTypeInfo()
+|*|    * if new property - denote datatype in Constants.h #define CONFIG_TYPES_XML
 |*|    * if channel property - verify data in LinJamConfig::validateChannels()
 |*|                            and add to     LinJamConfig::newChannel()
-|*|    * optionally dump data or errors in    #define DEBUG_TRACE_SANITY_CHECK
-|*|                                           #define DEBUG_TRACE_SANITY_CHECK_CHANNEL
+|*|    * if new node - switch in              LinJamConfig::restoreVarTypeInfo()
+|*|    * optionally trace data/errors in      #define DEBUG_TRACE_VALIDATE_CLIENT
+|*|                                           #define DEBUG_TRACE_VALIDATE_SUBSCRIPTIONS
+|*|                                           #define DEBUG_TRACE_VALIDATE_AUDIO
+|*|                                           #define DEBUG_TRACE_VALIDATE_SERVER
+|*|                                           #define DEBUG_TRACE_VALIDATE_USER
+|*|                                           #define DEBUG_TRACE_VALIDATE_CHANNEL
+|*|                                           #define DEBUG_TRACE_VALIDATE_CONFIG
 |*|                                           #define DEBUG_TRACE_ADD_CHANNEL_GUI
 |*|                                           #define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
 |*|                                           #define DEBUG_TRACE_REMOTE_CHANNELS
@@ -97,6 +104,8 @@
       IS_ANONYMOUS_KEY     + "=\"" + String(DEFAULT_IS_ANONYMOUS)     + "\" " + \
       IS_AGREED_KEY        + "=\"" + String(DEFAULT_IS_AGREED)        + "\" " + \
       SHOULD_AGREE_KEY     + "=\"" + String(DEFAULT_SHOULD_AGREE)     + "\" " + \
+      BOT_NAME_KEY         + "=\"" + String(DEFAULT_BOT_NAME)         + "\" " + \
+      BOT_USERIDX_KEY      + "=\"" + String(DEFAULT_BOT_USERIDX)      + "\" " + \
     "/><"                                                                     + \
     SERVERS_KEY            + " /><"                                           + \
     MASTERS_KEY            + "><"                                             + \
@@ -186,6 +195,8 @@
       IS_ANONYMOUS_KEY         + "=\"" + BOOL_TYPE   + "\" "  + \
       IS_AGREED_KEY            + "=\"" + BOOL_TYPE   + "\" "  + \
       SHOULD_AGREE_KEY         + "=\"" + BOOL_TYPE   + "\" "  + \
+      BOT_NAME_KEY             + "=\"" + STRING_TYPE + "\" "  + \
+      BOT_USERIDX_KEY          + "=\"" + INT_TYPE    + "\" "  + \
     "/><"                                                     + \
     USERS_KEY                  + " "                          + \
       USER_IDX_KEY             + "=\"" + INT_TYPE    + "\" "  + \
@@ -211,11 +222,10 @@ namespace CLIENT
 {
   // server
   static const String SERVER_FULL_STATUS = "server full" ;
-  static const int    BOT_USERIDX        = 0 ;
+  static const int    CHATMSG_TYPE_IDX   = 0 ;
+  static const int    CHATMSG_USER_IDX   = 1 ;
+  static const int    CHATMSG_MSG_IDX    = 2 ;
   static const int    BOT_CHANNELIDX     = 0 ;
-  static const uint8  CHATMSG_TYPE_IDX   = 0 ;
-  static const uint8  CHATMSG_USER_IDX   = 1 ;
-  static const uint8  CHATMSG_MSG_IDX    = 2 ;
 
   // chat
   static const String    CHATMSG_TYPE_TOPIC   = "TOPIC" ;
@@ -282,54 +292,67 @@ namespace CLIENT
 }
 
 
-namespace NETWORK
+class NETWORK
 {
-  // known hosts
-  static const int               N_LOGIN_ATTEMPTS           = 3 ;
-  static const String            LOCALHOST_HOSTNAME         = "localhost" ;
-  static const String            LOCALHOST_2049_URL         = LOCALHOST_HOSTNAME + ":2049" ;
-  static const String            NINJAM_2049_URL            = "test-ninjam-com-2049" ;
-  static const String            NINJAM_2050_URL            = "test.ninjam.com:2050" ;
-  static const String            NINJAM_2051_URL            = "test.ninjam.com:2051" ;
-  static const String            NINJAM_2052_URL            = "test.ninjam.com:2052" ;
-  static const String            NINJAM_2600_URL            = "test.ninjam.com:2600" ;
-  static const String            NINJAM_2601_URL            = "test.ninjam.com:2601" ;
-  static const String            NINBOT_2049_URL            = "ninbot.com:2049" ;
-  static const String            NINBOT_2050_URL            = "ninbot.com:2050" ;
-  static const String            NINBOT_2051_URL            = "ninbot.com:2051" ;
-  static const String            NINBOT_2052_URL            = "ninbot.com:2052" ;
-  static const String            NINJAMER_2049_URL          = "ninjamer.com:2049" ;
-  static const String            NINJAMER_2050_URL          = "ninjamer.com:2050" ;
-  static const String            NINJAMER_2051_URL          = "ninjamer.com:2051" ;
-  static const String            NINJAMER_2052_URL          = "ninjamer.com:2052" ;
-  static const Identifier        NINBOT_USER                = "ninbot" ;
-  static const Identifier        JAMBOT_USER                = "Jambot" ;
-  static const int               N_KNOWN_BOTS               = 2 ;
-  static const int               N_KNOWN_HOSTS              = 9 ;
-  static const String            known_hosts[N_KNOWN_HOSTS] = {
-                                     LOCALHOST_2049_URL       ,
-                                     NINBOT_2049_URL          ,
-                                     NINBOT_2050_URL          ,
-                                     NINBOT_2051_URL          ,
-                                     NINBOT_2052_URL          ,
-                                     NINJAMER_2049_URL        ,
-                                     NINJAMER_2050_URL        ,
-                                     NINJAMER_2051_URL        ,
-                                     NINJAMER_2052_URL        } ;
-  static const Identifier        known_bots[N_KNOWN_BOTS]   = {
-                                     NINBOT_USER              ,
-                                     JAMBOT_USER              } ;
-  static const Array<String>     KNOWN_HOSTS                =
-               Array<String>(    known_hosts , N_KNOWN_HOSTS) ;
-  static const Array<Identifier> KNOWN_BOTS                 =
-               Array<Identifier>(known_bots  , N_KNOWN_BOTS) ;
+public:
+  // known hosts and bots
+  static const String            LOCALHOST_HOSTNAME ;
+  static const String            NINJAM_HOSTNAME    ;
+  static const String            NINBOT_HOSTNAME    ;
+  static const String            NINJAMER_HOSTNAME  ;
+  static const String            LOCALHOST_2049_URL ;
+  static const String            NINJAM_2049_URL    ;
+  static const String            NINJAM_2050_URL    ;
+  static const String            NINJAM_2051_URL    ;
+  static const String            NINJAM_2052_URL    ;
+  static const String            NINJAM_2600_URL    ;
+  static const String            NINJAM_2601_URL    ;
+  static const String            NINBOT_2049_URL    ;
+  static const String            NINBOT_2050_URL    ;
+  static const String            NINBOT_2051_URL    ;
+  static const String            NINBOT_2052_URL    ;
+  static const String            NINJAMER_2049_URL  ;
+  static const String            NINJAMER_2050_URL  ;
+  static const String            NINJAMER_2051_URL  ;
+  static const String            NINJAMER_2052_URL  ;
+  static const Identifier        NINBOT_USER        ;
+  static const Identifier        JAMBOT_USER        ;
+#define KNOWN_HOSTS_AS_XML
+#ifdef KNOWN_HOSTS_AS_ARRAY
+  static const int               N_KNOWN_HOSTS      = 9 ;
+  static const String            known_hosts[N_KNOWN_HOSTS] ;
+  static const Array<String>     KNOWN_HOSTS                ;
+//   static StringArray       KNOWN_HOSTS        ;
+#else // KNOWN_HOSTS_AS_ARRAY
+#  ifdef KNOWN_HOSTS_AS_XML
+  static const String KNOWN_HOSTS_KEY ;
+  static const XmlElement* KNOWN_HOSTS ;
+#  endif // KNOWN_HOSTS_AS_XML
+#endif // KNOWN_HOSTS_AS_ARRAY
 
-  // login
-  static const StringRef HOST_MASK = "*.*:*" ;
-  static const StringRef LETTERS   = "abcdefghijklmnopqrstuvwxyz" ;
-  static const StringRef DIGITS    = "0123456789" ;
-  static const StringRef URL_CHARS = "0123456789abcdefghijklmnopqrstuvwxyz-." ;
-}
+#define KNOWN_BOTS_AS_XML
+#ifdef KNOWN_BOTS_AS_MAP // (issue #64)
+  static HashMap<String , Identifier> KNOWN_BOTS ;
+
+
+  static void Init() ;
+#else // KNOWN_BOTS_AS_MAP
+#  ifdef KNOWN_BOTS_AS_XML
+  static const String KNOWN_BOTS_KEY ;
+  static const XmlElement* KNOWN_BOTS ;
+  static void Initialize() ;
+  static bool IsKnownHost(String host) ;
+
+#  endif // KNOWN_BOTS_AS_XML
+#endif // KNOWN_BOTS_AS_MAP
+
+  // login and validations
+  static const int       N_LOGIN_ATTEMPTS = 3 ;
+  static const StringRef HOST_MASK ;
+  static const StringRef LETTERS   ;
+  static const StringRef DIGITS    ;
+  static const StringRef URL_CHARS ;
+} ;
 
 
 namespace CONFIG
@@ -446,7 +469,7 @@ namespace CONFIG
   static const String     ALSA_CONFIG_KEY     = "alsa-config" ;
   static const Identifier ALSA_CONFIG_ID      = ALSA_CONFIG_KEY ;
 
-  // login config keys
+  // server config keys
   static const String     SERVER_KEY       = "server" ;
   static const Identifier SERVER_ID        = SERVER_KEY ;
   static const String     SERVERS_KEY      = "servers" ;
@@ -463,6 +486,10 @@ namespace CONFIG
   static const Identifier IS_AGREED_ID     = IS_AGREED_KEY ;
   static const String     SHOULD_AGREE_KEY = "should-agree" ;
   static const Identifier SHOULD_AGREE_ID  = SHOULD_AGREE_KEY ;
+  static const String     BOT_NAME_KEY     = "bot-name" ;
+  static const Identifier BOT_NAME_ID      = BOT_NAME_KEY ;
+  static const String     BOT_USERIDX_KEY  = "bot-useridx" ;
+  static const Identifier BOT_USERIDX_ID   = BOT_USERIDX_KEY ;
 
   // channel config keys
   static const Identifier CONFIG_INIT_ID   = "configure-all" ;
@@ -563,13 +590,15 @@ namespace CONFIG
   static const String DEFAULT_JACK_NAME       = "LinJam" ;
   static const String DEFAULT_ALSA_CONFIG     = "" ;
 
-  // login config defaults
-  static const String DEFAULT_HOST             = "" ;
-  static const String DEFAULT_LOGIN            = "" ;
-  static const String DEFAULT_PASS             = "" ;
-  static const bool   DEFAULT_IS_ANONYMOUS     = true ;
-  static const bool   DEFAULT_IS_AGREED        = false ;
-  static const bool   DEFAULT_SHOULD_AGREE     = false ;
+  // server config defaults
+  static const String DEFAULT_HOST         = "" ;
+  static const String DEFAULT_LOGIN        = "" ;
+  static const String DEFAULT_PASS         = "" ;
+  static const bool   DEFAULT_IS_ANONYMOUS = true ;
+  static const bool   DEFAULT_IS_AGREED    = false ;
+  static const bool   DEFAULT_SHOULD_AGREE = false ;
+  static const String DEFAULT_BOT_NAME     = "" ;
+  static const int    DEFAULT_BOT_USERIDX  = -1 ;
 
   // channel config defaults
   static const Identifier NEWCHANNEL_ID         = "new-channel" ;

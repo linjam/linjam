@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_C8CF85E1A55C1DDD__
-#define __JUCE_HEADER_C8CF85E1A55C1DDD__
+#ifndef _SUBSCRIPTIONS_H_
+#define _SUBSCRIPTIONS_H_
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
@@ -94,4 +94,4 @@ private:
 
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_C8CF85E1A55C1DDD__
+#endif // _SUBSCRIPTIONS_H_

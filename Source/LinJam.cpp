@@ -72,8 +72,19 @@ void LinJam::Disconnect() { Client->Disconnect() ; PrevRecordingTime = "" ; }
 
 void LinJam::Shutdown()
 {
-  JNL::close_socketlib() ; delete Audio ;
-  CleanSessionDir() ;      delete Config ;
+  // NJClient teardown
+  JNL::close_socketlib() ; CleanSessionDir() ;
+
+  // LinJam teardown
+  delete Audio ; delete Config ;
+
+  // Constants teardown
+#ifdef KNOWN_HOSTS_AS_XML
+  delete NETWORK::KNOWN_HOSTS ;
+#endif // KNOWN_HOSTS_AS_XML
+#ifdef KNOWN_BOTS_AS_XML
+  delete NETWORK::KNOWN_BOTS ;
+#endif // KNOWN_BOTS_AS_XML
 }
 
 
@@ -233,6 +244,9 @@ DEBUG_TRACE_INIT
 // TODO: parse command line args for autojoin (issue #9)
 
 
+  // prepare runtime initialized constants
+  InitializeConstants() ;
+
   // load persistent configuration and prepare audio save directory
   if ((Config = new LinJamConfig()) == nullptr) return false ;
   if (!Config->isConfigValid())                 return false ;
@@ -253,6 +267,8 @@ DEBUG_TRACE_INIT
 
   return true ;
 }
+
+void LinJam::InitializeConstants() { NETWORK::Initialize() ; }
 
 bool LinJam::PrepareSessionDirectory()
 {
@@ -303,12 +319,24 @@ DEBUG_TRACE_SUBSCRIPTIONS
 
   Client->config_autosubscribe_userlist.clear() ;
   if (!should_ignore_users) return ;
-
-  if (should_hide_bots) for (int bot_n = 0 ; bot_n < NETWORK::KNOWN_BOTS.size() ; ++bot_n)
+#ifdef KNOWN_BOTS_AS_MAP // (issue #64)
+  if (should_hide_bots)
   {
-    ValueTree bot_node = ValueTree(NETWORK::KNOWN_BOTS.getUnchecked(bot_n)) ;
-    subscriptions.addChild(bot_node , -1 , nullptr) ;
+    HashMap<String , Identifier>::Iterator bot(NETWORK::KNOWN_BOTS) ;
+    while (bot.next()) subscriptions.getOrCreateChildWithName(bot.getValue() , nullptr) ;
   }
+#else // KNOWN_BOTS_AS_MAP
+#  ifdef KNOWN_BOTS_AS_XML
+// for (int bot_n = 0 ; bot_n < NETWORK::KNOWN_BOTS->getNumAttributes() ; ++bot_n) DBG("LinJam::ConfigureSubscriptions() host=" + NETWORK::KNOWN_BOTS->getAttributeName(bot_n) +  "bot_name=" + NETWORK::KNOWN_BOTS->getAttributeValue(bot_n)) ;
+
+  if (should_hide_bots)
+    for (int bot_n = 0 ; bot_n < NETWORK::KNOWN_BOTS->getNumAttributes() ; ++bot_n)
+    {
+      String bot_name = NETWORK::KNOWN_BOTS->getAttributeValue(bot_n) ;
+      subscriptions.getOrCreateChildWithName(Identifier(bot_name) , nullptr) ;
+    }
+#  endif // KNOWN_BOTS_AS_XML
+#endif // KNOWN_BOTS_AS_MAP
 
   for (int user_n = 0 ; user_n < subscriptions.getNumChildren() ; ++user_n)
   {
@@ -433,7 +461,7 @@ DEBUG_TRACE_AUDIO_INIT_NIX
       Audio = create_audioStreamer_JACK(jack_name.toRawUTF8() , jack_n_inputs ,
                                         jack_n_outputs        , OnSamples     , Client) ;
 
-DEBUG_TRACE_AUDIO_INIT_JACK
+DEBUG_TRACE_AUDIO_INIT_JACK_FAIL
 
       if (Audio != nullptr) break ; // else fallback on ALSA
     }
@@ -444,8 +472,6 @@ DEBUG_TRACE_AUDIO_INIT_JACK
        * but we could as well concatenate the expected string here each pass
        */
       Audio = create_audioStreamer_ALSA("alsa_config.toRawUTF8()" , OnSamples) ;
-
-DEBUG_TRACE_AUDIO_INIT_ALSA
 
       break ;
     }
@@ -719,6 +745,15 @@ void LinJam::HandleUserInfoChanged()
 #ifdef NO_UPDATE_REMOTES
 return ;
 #endif // NO_UPDATE_REMOTES
+
+#ifdef KNOWN_BOTS_AS_MAP
+  String host = Config->server[CONFIG::HOST_ID].toString() ;
+#else // KNOWN_BOTS_AS_MAP
+#  ifdef KNOWN_BOTS_AS_XML
+  StringRef host = LinJamConfig::MakeHostId(Config->server[CONFIG::HOST_ID].toString()) ;
+#  endif // KNOWN_BOTS_AS_XML
+#endif // KNOWN_BOTS_AS_MAP
+
 DEBUG_TRACE_REMOTE_CHANNELS_VB
 
   // initialize dictionary for pruning parted users GUI elements
@@ -728,21 +763,28 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
   int user_idx = -1 ; String user_name ;
   while ((user_name = GetRemoteUserName(++user_idx)).isNotEmpty())
   {
-    Identifier  user_id            = Config->MakeUserId(user_name) ;
-    std::string name               = (user_name = String(user_id)).toStdString() ;
-    bool        should_ignore_user = !!Client->config_autosubscribe_userlist.count(name) ;
-    bool        is_bot             = NETWORK::KNOWN_BOTS.contains(user_id) ;
-/*
+    Identifier  user_id    = Config->MakeUserId(user_name) ;
+    std::string nick       = (user_name = String(user_id)).toStdString() ;
+    bool        is_ignored = !!Client->config_autosubscribe_userlist.count(nick) ;
+#ifdef KNOWN_BOTS_AS_MAP
+    bool        is_bot     = NETWORK::KNOWN_BOTS[host] == user_id ;
+#else // KNOWN_BOTS_AS_MAP
+#  ifdef KNOWN_BOTS_AS_XML
+    bool        is_bot     = NETWORK::KNOWN_BOTS->compareAttribute(host , user_name) ;
+#  endif // KNOWN_BOTS_AS_XML
+#endif // KNOWN_BOTS_AS_MAP
+
     // cache bot user_idx for recording time updates
-    if (is_bot) Config->server.setProperty(CONFIG::BOT_IDX_ID , user_idx , nullptr) ;
-*/
+    if (is_bot) Config->server.setProperty(CONFIG::BOT_USERIDX_ID , user_idx , nullptr) ;
+    // TODO: we may be able to bail now without storing bot userdata (issue #64)
+
     // get or create remote user storage
     ValueTree user_store = Config->getOrAddRemoteUser(user_name) ;
     if (!user_store.isValid()) continue ;
 
     // update stored remote user state
-    UpdateRemoteUserState(user_store , user_idx , should_ignore_user) ;
-    if (should_ignore_user) continue ;
+    UpdateRemoteUserState(user_store , user_idx , !is_ignored) ;
+    if (is_ignored) continue ;
 
     // create remote user GUI
     if (Gui->mixer->addRemoteUser(user_store , Config->subscriptions))
@@ -960,31 +1002,19 @@ void LinJam::UpdateRecordingTime()
 
   if (Status != NJClient::NJC_STATUS_OK) return ;
 
-  // NOTE: parsing recording time is brittle - strictly dependent on the values
-  //       in NETWORK::KNOWN_HOSTS , NETWORK::KNOWN_BOTS , and CLIENT::BOT_CHANNELIDX
+  // NOTE: parsing recording time is somewhat brittle - (issue #64)
+  //       dependent on constants such as NETWORK::KNOWN_BOTS and CLIENT::BOT_CHANNELIDX
+  //       though these values are more conventional than canonical
+  int    bot_useridx    = Config->server[CONFIG::BOT_USERIDX_ID] ;
   String host           = String(Client->GetHostName()) ;
   String bpi            = String(Client->GetBPI()) ;
   String bpm            = String((int)Client->GetActualBPM()) ;
-  bool   server_has_bot = NETWORK::KNOWN_HOSTS.contains(host) ;
   String recording_time = String::empty ;
 
-  if (server_has_bot)
+  if (~bot_useridx)
   {
-/*
-int bot_idx = Config->server[CONFIG::BOT_IDX_ID] ;
-*/
-    for (int bot_n = 0 ; bot_n < NETWORK::N_KNOWN_BOTS ; ++bot_n)
-    {
-      ValueTree user_store = Config->getUserById(NETWORK::KNOWN_BOTS.getUnchecked(bot_n)) ;
-      if (!user_store.isValid()) continue ;
+    recording_time  = GetRemoteChannelClientName(bot_useridx , CLIENT::BOT_CHANNELIDX) ;
 
-      int bot_idx    = int(user_store[CONFIG::USER_IDX_ID]) ;
-      recording_time = GetRemoteChannelClientName(bot_idx , CLIENT::BOT_CHANNELIDX) ;
-
-//DBG("LinJam::UpdateRecordingTime() bot_name=" + String(NETWORK::KNOWN_BOTS.getUnchecked(bot_n)) + " recording_time='" + recording_time + "' isEmpty()=" + String(recording_time.isEmpty())) ;
-
-      if (!recording_time.isEmpty()) break ;
-    }
     bool has_recording_time_changed = !!recording_time.compare(PrevRecordingTime) ;
     bool is_this_first_pass         = PrevRecordingTime.isEmpty() ;
     bool should_show_time           = (has_recording_time_changed && !is_this_first_pass) ;
@@ -1101,14 +1131,13 @@ float LinJam::ComputeStereoPan(float pan , int stereo_status)
                                   ((pan >= 0.0f)? +1.0f : +1.0f + (pan * 2.0f)) ;
 }
 
-void LinJam::UpdateRemoteUserState(ValueTree user_store         , int user_idx ,
-                                   bool      should_ignore_user                )
+void LinJam::UpdateRemoteUserState(ValueTree user_store , int user_idx , bool should_rcv)
 {
   Identifier user_id      = user_store.getType() ;
   ValueTree  master_store = Config->getOrAddRemoteChannel(user_id , CONFIG::MASTER_KEY) ;
 
-  user_store  .setProperty(CONFIG::USER_IDX_ID    , user_idx            , nullptr) ;
-  master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , !should_ignore_user , nullptr) ;
+  user_store  .setProperty(CONFIG::USER_IDX_ID    , user_idx   , nullptr) ;
+  master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , should_rcv , nullptr) ;
 }
 
 void LinJam::ConfigureMasterChannel(Identifier a_key)

@@ -95,6 +95,7 @@ private:
   // initialization methods
   static bool Initialize(NJClient*     nj_client , MainContent* main_content ,
                          const String& args                                  ) ;
+  static void InitializeConstants() ;
   static bool PrepareSessionDirectory() ;
   static void ConfigureNinjam() ;
   static void ConfigureSubscriptions() ;
@@ -137,8 +138,8 @@ private:
   static void   ScalePannedMonoVus(        double  vu_mono , double  pan ,
                                            double* l_vu    , double* r_vu) ;
   static float  ComputeStereoPan(          float pan , int stereo_status) ;
-  static void   UpdateRemoteUserState(     ValueTree user_store         , int user_idx ,
-                                           bool      should_ignore_user                ) ;
+  static void   UpdateRemoteUserState(     ValueTree user_store , int user_idx ,
+                                           bool      should_rcv                ) ;
   static void   ConfigureMasterChannel(    Identifier a_key) ;
   static void   ConfigureMetroChannel(     Identifier a_key) ;
   static void   ConfigureLocalChannel(     ValueTree  channel_store , Identifier a_key) ;

@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_8B661D82CCFDE918__
-#define __JUCE_HEADER_8B661D82CCFDE918__
+#ifndef _CHANNELS_H_
+#define _CHANNELS_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -132,4 +132,4 @@ private:
 
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_8B661D82CCFDE918__
+#endif // _CHANNELS_H_

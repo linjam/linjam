@@ -141,11 +141,12 @@
     <ClCompile Include="..\..\Source\Channel.cpp"/>
     <ClCompile Include="..\..\Source\Channels.cpp"/>
     <ClCompile Include="..\..\Source\Chat.cpp"/>
+    <ClCompile Include="..\..\Source\Config.cpp"/>
     <ClCompile Include="..\..\Source\ConfigAudio.cpp"/>
     <ClCompile Include="..\..\Source\ConfigChannel.cpp"/>
-    <ClCompile Include="..\..\Source\Config.cpp"/>
     <ClCompile Include="..\..\Source\ConfigClient.cpp"/>
     <ClCompile Include="..\..\Source\ConfigSubscriptions.cpp"/>
+    <ClCompile Include="..\..\Source\Constants.cpp"/>
     <ClCompile Include="..\..\Source\License.cpp"/>
     <ClCompile Include="..\..\Source\LinJam.cpp"/>
     <ClCompile Include="..\..\Source\LinJamConfig.cpp"/>
