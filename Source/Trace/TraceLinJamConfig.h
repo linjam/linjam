@@ -1018,25 +1018,6 @@
         Trace::TraceConfig(dbgA + "local"  + dbgB) ;                          \
     else Trace::TraceConfig(dbgA + "remote" + dbgB + "for '" + user_id + "'") ;
 
-#ifdef KNOWN_BOTS_AS_ARRAY
-#define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                          \
-  Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;                  \
-  Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;   \
-  if (TRACE_REMOTE_CHANNELS_VB)                                                    \
-  {                                                                                \
-    char* host      = LinJam::Client->GetHostName() ;                              \
-    bool  has_bot   = NETWORK::KNOWN_HOSTS.contains(String(host)) ;                \
-    bool  hide_bots = has_bot && bool(this->client[CONFIG::SHOULD_HIDE_BOTS_ID]) ; \
-    float u_vol     = CONFIG::DEFAULT_VOLUME ;                                     \
-    bool  u_mute    = CONFIG::DEFAULT_IS_MUTED ;                                   \
-    float u_pan     = CONFIG::DEFAULT_PAN ;                                        \
-    int   u_idx     = -1 ; String u_name ; Identifier u_id ;                       \
-    while ((u_name = LinJam::GetRemoteUserName(++u_idx)).isNotEmpty())             \
-      { u_id = MakeUserId(u_name) ; if (user_id == u_id) break ; }                 \
-    DEBUG_TRACE_REMOTE_CHANNELS                                                    \
-  }
-#else // KNOWN_BOTS_AS_ARRAY
-#  ifdef KNOWN_BOTS_AS_XML
 #define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                              \
   Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;                      \
   Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;       \
@@ -1053,8 +1034,6 @@
       { u_id = MakeUserId(u_name) ; if (user_id == u_id) break ; }                     \
     DEBUG_TRACE_REMOTE_CHANNELS                                                        \
   }
-#  endif // KNOWN_BOTS_AS_XML
-#endif // KNOWN_BOTS_AS_ARRAY
 
 #else // DEBUG
 

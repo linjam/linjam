@@ -451,13 +451,7 @@ void LinJamConfig::setCredentials(String host , String login       ,
 {
   if (is_anonymous) pass = "" ;
   bool   is_agreed = bool(getServer(host)[CONFIG::SHOULD_AGREE_ID]) ;
-#ifdef KNOWN_BOTS_AS_ARRAY
-  String bot_name  = "nfg-thats-why-xml" ;
-#else // KNOWN_BOTS_AS_ARRAY
-#  ifdef KNOWN_BOTS_AS_XML
   String bot_name  = NETWORK::KNOWN_BOTS->getStringAttribute(MakeHostId(host) , "") ;
-#  endif // KNOWN_BOTS_AS_XML
-#endif // KNOWN_BOTS_AS_ARRAY
   int    bot_idx   = CONFIG::DEFAULT_BOT_USERIDX ;
 
   this->server.setProperty(CONFIG::HOST_ID         , host         , nullptr)

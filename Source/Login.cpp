@@ -139,25 +139,14 @@ Login::Login (ValueTree login_store)
   this->passText   ->setPasswordCharacter('*') ;
 
   // instantiate known host login buttons
-
-#ifdef KNOWN_HOSTS_AS_ARRAY
-  for (int host_n = 0 ; host_n < NETWORK::KNOWN_HOSTS.size() ; ++host_n)
-  {
-    String      known_host  = NETWORK::KNOWN_HOSTS.getUnchecked(host_n) ;
-    int         focus_order = GUI::N_STATIC_LOGIN_CHILDREN + host_n ;
-#else // KNOWN_HOSTS_AS_ARRAY
-#  ifdef KNOWN_HOSTS_AS_XML
-  int host_n = 0 ;
+  int focus_order = GUI::N_STATIC_LOGIN_CHILDREN ;
   forEachXmlChildElement(*NETWORK::KNOWN_HOSTS , host_node) // macro
   {
     String      known_host  = host_node->getTagName() ;
-    int         focus_order = GUI::N_STATIC_LOGIN_CHILDREN + host_n++ ;
-#  endif // KNOWN_HOSTS_AS_XML
-#endif // KNOWN_HOSTS_AS_ARRAY
     TextButton* loginButton = new TextButton(known_host + "Button") ;
 
     addAndMakeVisible(loginButton) ;
-    loginButton->setExplicitFocusOrder(focus_order) ;
+    loginButton->setExplicitFocusOrder(focus_order++) ;
     loginButton->setButtonText(known_host) ;
     loginButton->setSize(GUI::LOGIN_BUTTON_W , GUI::LOGIN_BUTTON_H) ;
     loginButton->addListener(this) ;
@@ -322,14 +311,7 @@ void Login::broughtToFront()
 DEBUG_TRACE_LOGIN_LOAD
 
   // validate credentials and enable components
-#ifdef KNOWN_HOSTS_AS_ARRAY
-  bool is_custom_server = host.isNotEmpty() && !NETWORK::KNOWN_HOSTS.contains(host) ;
-#else // KNOWN_HOSTS_AS_ARRAY
-#  ifdef KNOWN_HOSTS_AS_XML
   bool is_custom_server = host.isNotEmpty() && !NETWORK::IsKnownHost(host) ;
-#  endif // KNOWN_HOSTS_AS_XML
-#endif // KNOWN_HOSTS_AS_ARRAY
-
   this->loginButton->setVisible(is_custom_server) ;
   this->hostLabel  ->setVisible(is_custom_server) ;
   this->hostText   ->setVisible(is_custom_server) ;
@@ -394,14 +376,7 @@ bool Login::validateHost()
   String port           = host  .fromFirstOccurrenceOf(StringRef(":") , false , true) ;
 
   bool   is_localhost   = !NETWORK::LOCALHOST_HOSTNAME.compare(server) ;
-#ifdef KNOWN_HOSTS_AS_ARRAY
-  bool   is_known_host  = NETWORK::KNOWN_HOSTS.contains(host) ;
-#else // KNOWN_HOSTS_AS_ARRAY
-#  ifdef KNOWN_HOSTS_AS_XML
   bool   is_known_host  = NETWORK::IsKnownHost(host) ;
-#  endif // KNOWN_HOSTS_AS_XML
-#endif // KNOWN_HOSTS_AS_ARRAY
-
   bool   has_valid_form = host.matchesWildcard(NETWORK::HOST_MASK , true) ;
   bool   is_valid_name  = name.containsOnly(   NETWORK::URL_CHARS) && name.isNotEmpty() ;
   bool   is_valid_tld   = tld .containsOnly(   NETWORK::LETTERS)   && tld .isNotEmpty() ;

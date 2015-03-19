@@ -41,7 +41,9 @@
 \*/
 
 
-#define CONFIG_XML "<?xml version=\"1.0\"?><"                                 + \
+#define XML_HEADER "<?xml version=\"1.0\"?><"
+
+#define CONFIG_XML XML_HEADER                                                 + \
   PERSISTENCE_KEY          + " "                                              + \
     CONFIG_VERSION_KEY     + "=\"" + String(CONFIG_VERSION)           + "\""  + \
   "><"                                                                        + \
@@ -133,7 +135,7 @@
     REMOTES_KEY            + " />"                                            + \
   "</" + PERSISTENCE_KEY   + ">"
 
-#define CONFIG_TYPES_XML "<?xml version=\"1.0\"?><"           + \
+#define CONFIG_TYPES_XML XML_HEADER                           + \
   PERSISTENCE_TYPES_KEY        + " "                          + \
     CONFIG_VERSION_KEY         + "=\"" + DOUBLE_TYPE + "\"><" + \
     CLIENT_KEY                 + " "                          + \
@@ -217,6 +219,39 @@
     "/>"                                                      + \
   "</" + PERSISTENCE_TYPES_KEY + "> "
 
+#define KNOWN_HOSTS_XML XML_HEADER + \
+  KNOWN_HOSTS_KEY       + "><"     + \
+    LOCALHOST_2049_URL  + " /><"   + \
+    NINBOT_2049_URL     + " /><"   + \
+    NINBOT_2050_URL     + " /><"   + \
+    NINBOT_2051_URL     + " /><"   + \
+    NINBOT_2052_URL     + " /><"   + \
+    NINJAMER_2049_URL   + " /><"   + \
+    NINJAMER_2050_URL   + " /><"   + \
+    NINJAMER_2051_URL   + " /><"   + \
+    NINJAMER_2052_URL   + " /></"  + \
+  KNOWN_HOSTS_KEY       + ">"
+
+#define KNOWN_BOTS_XML XML_HEADER                                        + \
+  NETWORK::KNOWN_BOTS_KEY                                        + " "   + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2049_URL  )) + "=\"" + \
+    String(NETWORK::NINBOT_USER)                                 + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2050_URL  )) + "=\"" + \
+    String(NETWORK::NINBOT_USER)                                 + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2051_URL  )) + "=\"" + \
+    String(NETWORK::NINBOT_USER)                                 + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2052_URL  )) + "=\"" + \
+    String(NETWORK::NINBOT_USER)                                 + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2049_URL)) + "=\"" + \
+    String(NETWORK::JAMBOT_USER)                                 + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2050_URL)) + "=\"" + \
+    String(NETWORK::JAMBOT_USER)                                 + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2051_URL)) + "=\"" + \
+    String(NETWORK::JAMBOT_USER)                                 + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2052_URL)) + "=\"" + \
+    String(NETWORK::JAMBOT_USER)                                 + "\" " + \
+  "/>"
+
 
 namespace CLIENT
 {
@@ -295,63 +330,43 @@ namespace CLIENT
 class NETWORK
 {
 public:
-  // known hosts and bots
-  static const String            LOCALHOST_HOSTNAME ;
-  static const String            NINJAM_HOSTNAME    ;
-  static const String            NINBOT_HOSTNAME    ;
-  static const String            NINJAMER_HOSTNAME  ;
-  static const String            LOCALHOST_2049_URL ;
-  static const String            NINJAM_2049_URL    ;
-  static const String            NINJAM_2050_URL    ;
-  static const String            NINJAM_2051_URL    ;
-  static const String            NINJAM_2052_URL    ;
-  static const String            NINJAM_2600_URL    ;
-  static const String            NINJAM_2601_URL    ;
-  static const String            NINBOT_2049_URL    ;
-  static const String            NINBOT_2050_URL    ;
-  static const String            NINBOT_2051_URL    ;
-  static const String            NINBOT_2052_URL    ;
-  static const String            NINJAMER_2049_URL  ;
-  static const String            NINJAMER_2050_URL  ;
-  static const String            NINJAMER_2051_URL  ;
-  static const String            NINJAMER_2052_URL  ;
-  static const Identifier        NINBOT_USER        ;
-  static const Identifier        JAMBOT_USER        ;
-#define KNOWN_HOSTS_AS_XML
-#ifdef KNOWN_HOSTS_AS_ARRAY
-  static const int               N_KNOWN_HOSTS      = 9 ;
-  static const String            known_hosts[N_KNOWN_HOSTS] ;
-  static const Array<String>     KNOWN_HOSTS                ;
-//   static StringArray       KNOWN_HOSTS        ;
-#else // KNOWN_HOSTS_AS_ARRAY
-#  ifdef KNOWN_HOSTS_AS_XML
-  static const String KNOWN_HOSTS_KEY ;
-  static const XmlElement* KNOWN_HOSTS ;
-#  endif // KNOWN_HOSTS_AS_XML
-#endif // KNOWN_HOSTS_AS_ARRAY
-
-#define KNOWN_BOTS_AS_XML
-#ifdef KNOWN_BOTS_AS_MAP // (issue #64)
-  static HashMap<String , Identifier> KNOWN_BOTS ;
-
-
-  static void Init() ;
-#else // KNOWN_BOTS_AS_MAP
-#  ifdef KNOWN_BOTS_AS_XML
-  static const String KNOWN_BOTS_KEY ;
-  static const XmlElement* KNOWN_BOTS ;
-  static void Initialize() ;
-  static bool IsKnownHost(String host) ;
-
-#  endif // KNOWN_BOTS_AS_XML
-#endif // KNOWN_BOTS_AS_MAP
-
   // login and validations
-  static const int       N_LOGIN_ATTEMPTS = 3 ;
+  static const int       N_LOGIN_RETRIES ;
   static const StringRef HOST_MASK ;
   static const StringRef LETTERS   ;
   static const StringRef DIGITS    ;
   static const StringRef URL_CHARS ;
+
+  // known hosts and bots
+  static const String            LOCALHOST_HOSTNAME ;
+  static const String            NINJAM_HOSTNAME ;
+  static const String            NINBOT_HOSTNAME ;
+  static const String            NINJAMER_HOSTNAME ;
+  static const String            LOCALHOST_2049_URL ;
+  static const String            NINJAM_2049_URL ;
+  static const String            NINJAM_2050_URL ;
+  static const String            NINJAM_2051_URL ;
+  static const String            NINJAM_2052_URL ;
+  static const String            NINJAM_2600_URL ;
+  static const String            NINJAM_2601_URL ;
+  static const String            NINBOT_2049_URL ;
+  static const String            NINBOT_2050_URL ;
+  static const String            NINBOT_2051_URL ;
+  static const String            NINBOT_2052_URL ;
+  static const String            NINJAMER_2049_URL ;
+  static const String            NINJAMER_2050_URL ;
+  static const String            NINJAMER_2051_URL ;
+  static const String            NINJAMER_2052_URL ;
+  static const Identifier        NINBOT_USER ;
+  static const Identifier        JAMBOT_USER ;
+  static const String            KNOWN_HOSTS_KEY ;
+  static const String            KNOWN_BOTS_KEY ;
+  static const XmlElement*       KNOWN_HOSTS ;
+  static const XmlElement*       KNOWN_BOTS ;
+
+
+  static void Initialize() ;
+  static bool IsKnownHost(String host) ;
 } ;
 
 

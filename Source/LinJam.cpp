@@ -48,7 +48,7 @@ String         LinJam::PrevRecordingTime ;                       // Disconnect()
 void LinJam::SignIn(String host , String login , String pass , bool is_anonymous)
 {
   Config->setCredentials(host , login , pass , is_anonymous) ;
-  RetryLogin = NETWORK::N_LOGIN_ATTEMPTS ; Connect() ;
+  RetryLogin = NETWORK::N_LOGIN_RETRIES ; Connect() ;
 }
 
 void LinJam::Connect()
@@ -79,12 +79,7 @@ void LinJam::Shutdown()
   delete Audio ; delete Config ;
 
   // Constants teardown
-#ifdef KNOWN_HOSTS_AS_XML
-  delete NETWORK::KNOWN_HOSTS ;
-#endif // KNOWN_HOSTS_AS_XML
-#ifdef KNOWN_BOTS_AS_XML
-  delete NETWORK::KNOWN_BOTS ;
-#endif // KNOWN_BOTS_AS_XML
+  delete NETWORK::KNOWN_HOSTS ; delete NETWORK::KNOWN_BOTS ;
 }
 
 
@@ -319,15 +314,6 @@ DEBUG_TRACE_SUBSCRIPTIONS
 
   Client->config_autosubscribe_userlist.clear() ;
   if (!should_ignore_users) return ;
-#ifdef KNOWN_BOTS_AS_MAP // (issue #64)
-  if (should_hide_bots)
-  {
-    HashMap<String , Identifier>::Iterator bot(NETWORK::KNOWN_BOTS) ;
-    while (bot.next()) subscriptions.getOrCreateChildWithName(bot.getValue() , nullptr) ;
-  }
-#else // KNOWN_BOTS_AS_MAP
-#  ifdef KNOWN_BOTS_AS_XML
-// for (int bot_n = 0 ; bot_n < NETWORK::KNOWN_BOTS->getNumAttributes() ; ++bot_n) DBG("LinJam::ConfigureSubscriptions() host=" + NETWORK::KNOWN_BOTS->getAttributeName(bot_n) +  "bot_name=" + NETWORK::KNOWN_BOTS->getAttributeValue(bot_n)) ;
 
   if (should_hide_bots)
     for (int bot_n = 0 ; bot_n < NETWORK::KNOWN_BOTS->getNumAttributes() ; ++bot_n)
@@ -335,8 +321,6 @@ DEBUG_TRACE_SUBSCRIPTIONS
       String bot_name = NETWORK::KNOWN_BOTS->getAttributeValue(bot_n) ;
       subscriptions.getOrCreateChildWithName(Identifier(bot_name) , nullptr) ;
     }
-#  endif // KNOWN_BOTS_AS_XML
-#endif // KNOWN_BOTS_AS_MAP
 
   for (int user_n = 0 ; user_n < subscriptions.getNumChildren() ; ++user_n)
   {
@@ -746,13 +730,7 @@ void LinJam::HandleUserInfoChanged()
 return ;
 #endif // NO_UPDATE_REMOTES
 
-#ifdef KNOWN_BOTS_AS_MAP
-  String host = Config->server[CONFIG::HOST_ID].toString() ;
-#else // KNOWN_BOTS_AS_MAP
-#  ifdef KNOWN_BOTS_AS_XML
   StringRef host = LinJamConfig::MakeHostId(Config->server[CONFIG::HOST_ID].toString()) ;
-#  endif // KNOWN_BOTS_AS_XML
-#endif // KNOWN_BOTS_AS_MAP
 
 DEBUG_TRACE_REMOTE_CHANNELS_VB
 
@@ -766,13 +744,7 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
     Identifier  user_id    = Config->MakeUserId(user_name) ;
     std::string nick       = (user_name = String(user_id)).toStdString() ;
     bool        is_ignored = !!Client->config_autosubscribe_userlist.count(nick) ;
-#ifdef KNOWN_BOTS_AS_MAP
-    bool        is_bot     = NETWORK::KNOWN_BOTS[host] == user_id ;
-#else // KNOWN_BOTS_AS_MAP
-#  ifdef KNOWN_BOTS_AS_XML
     bool        is_bot     = NETWORK::KNOWN_BOTS->compareAttribute(host , user_name) ;
-#  endif // KNOWN_BOTS_AS_XML
-#endif // KNOWN_BOTS_AS_MAP
 
     // cache bot user_idx for recording time updates
     if (is_bot) Config->server.setProperty(CONFIG::BOT_USERIDX_ID , user_idx , nullptr) ;
