@@ -80,8 +80,10 @@ void Loop::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void Loop::updateBeat(int beat_n)
-{ this->progressBar->setTextToDisplay(String(beat_n)) ; }
+void Loop::updateBeatN(int beat_n)
+{
+  this->progressBar->setTextToDisplay(String(beat_n)) ;
+}
 
 //[/MiscUserCode]
 

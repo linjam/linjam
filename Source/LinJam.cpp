@@ -455,7 +455,19 @@ DEBUG_TRACE_AUDIO_INIT_JACK_FAIL
        * ideally this function would accept individual config params like the rest
        * but we could as well concatenate the expected string here each pass
        */
-      Audio = create_audioStreamer_ALSA("alsa_config.toRawUTF8()" , OnSamples) ;
+//       Audio = create_audioStreamer_ALSA(alsa_config.toRawUTF8() , OnSamples) ;
+
+      /* libninjam 0.07 beta has the following override:
+       *   audioStreamer *create_audioStreamer_ALSA(SPLPROC     on_samples_proc          ,
+       *                                            const char* input_device  = "hw:0,0" ,
+       *                                            const char* output_device = "hw:0,0" ,
+       *                                            int         n_channels    = 2        ,
+       *                                            int         sample_rate   = 44100    ,
+       *                                            int         bit_depth     = 16       ,
+       *                                            int         n_buffers     = 16       ,
+       *                                            int         buffer_size   = 1024     )
+       */
+      Audio = create_audioStreamer_ALSA(OnSamples) ;
 
       break ;
     }
@@ -823,19 +835,20 @@ void LinJam::UpdateLoopProgress()
   int    beat_n            = ((int)(bpi * linear_progress) % bpi) + 1 ;
   double discrete_progress = (float)beat_n / bpi ;
 
-  // update loop progress
-  Gui->loop->updateBeat(beat_n) ;
+  // update statusbar loop progress
+  Gui->loop->updateBeatN(beat_n) ;
   Gui->loop->loopProgress = discrete_progress ; // linear_progress ;
   Gui->statusbar->setStatusR(String(bpi) + " bpi @ " + String(bpm) + " bpm") ;
 
-  // update metro VU loop progress
-  ValueTree metro_store   = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID) ;
-  double   metro_is_muted = bool(  metro_store[CONFIG::IS_MUTED_ID]) ;
-  double   metro_pan      = double(metro_store[CONFIG::PAN_ID]) ;
-  double   metro_vu       = (metro_is_muted)? 0.0 : discrete_progress ;
-  double   metro_vu_l     = (metro_pan < 0.0)? metro_vu : metro_vu * (1.0 - metro_pan) ;
-  double   metro_vu_r     = (metro_pan > 0.0)? metro_vu : metro_vu * (1.0 + metro_pan) ;
+  // sompute metro VU loop progress
+  ValueTree metro_store    = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID) ;
+  double    metro_is_muted = bool(  metro_store[CONFIG::IS_MUTED_ID]) ;
+  double    metro_pan      = double(metro_store[CONFIG::PAN_ID]) ;
+  double    metro_vu       = (metro_is_muted) ? 0.0 : discrete_progress ;
+  double    metro_vu_l     = (metro_pan < 0.0) ? metro_vu : metro_vu * (1.0 - metro_pan) ;
+  double    metro_vu_r     = (metro_pan > 0.0) ? metro_vu : metro_vu * (1.0 + metro_pan) ;
 
+  // update metro VU loop progress
   metro_store.setProperty(CONFIG::VU_LEFT_ID  , metro_vu_l , nullptr) ;
   metro_store.setProperty(CONFIG::VU_RIGHT_ID , metro_vu_r , nullptr) ;
 }

@@ -20,7 +20,6 @@
 //[Headers] You can add your own extra header files here...
 
 #include "LinJam.h"
-#include "Mixer.h"
 #include "ConfigChannel.h"
 #include "./Trace/TraceChannels.h"
 

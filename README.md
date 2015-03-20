@@ -6,7 +6,7 @@
 
 LinJam is a cross-platform NINJAM client utilizing the [libninjam library](https://github.com/libninjam/libninjam) and built upon the JUCE framework.
 
-The highest goal of the LinJam project (and it's predecessor TeamStream) is to flatten the pro-audio learning-curve; easing the intimidation that most non-technical musicians experience when they are first introduced to NINJAM.  Some of the ways proposed to accompliish this include: offering a minimal interface with some reasonable default settings, some normalizing/conditioning features such as auto-gain and limiter, and the option to elect a "sound man" to actively set levels for other peers.  It is hoped that these, along with the convenience features introduced with TeamStream, will make NINJAM welcome musicians without prior experience with audio production; which today is essentially a pre-requisite for getting decent sound into and out of NINJAM.
+The highest goal of the LinJam project (and it's predecessor TeamStream) is to flatten the pro-audio learning-curve; easing the intimidation that most non-technical musicians experience when they are first introduced to NINJAM.  Some of the ways proposed to accompliish this include: offering a minimal interface with some reasonable default settings, some normalizing/conditioning features such as auto-gain and limiter, and the option to elect a "sound man" to actively set levels for other peers (especially the bot which streams and posts its mixdown to the web).  It is hoped that these, along with the convenience features introduced with TeamStream, will make NINJAM welcome musicians without prior experience with audio production; which today is essentially a pre-requisite for getting decent sound into and out of NINJAM.
 
 #### Development Status
 

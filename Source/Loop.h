@@ -47,7 +47,7 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  void updateBeat(int beat_n) ;
+  void updateBeatN(int beat_n) ;
 
 
   double loopProgress ;

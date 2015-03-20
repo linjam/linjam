@@ -1,6 +1,5 @@
 
 #include "LinJam.h"
-// #include "MainContent.h"
 
 
 MainContent::MainContent(DocumentWindow* main_window , TextButton* config_button)
