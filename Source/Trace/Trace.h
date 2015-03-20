@@ -11,10 +11,9 @@
 //#define NO_UPDATE_REMOTES
 // enable buggy features
 //#define ACCEPT_CHAT_COMMANDS         // (issue #19)
-//#define CLEAN_SESSION
 //#define FADE_HIDDEN_REMOTES
 
-// enable begub features
+// enable debug features
 #define DEBUG_ANSI_COLORS
 
 

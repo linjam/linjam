@@ -15,9 +15,16 @@
 
 #define DEBUG_TRACE_INIT Trace::TraceState("initializing") ;
 
+#ifndef USE_APPDATA_DIR
 #define DEBUG_TRACE_SESSIONDIR                                                  \
   Trace::TraceClient("preparing session dir '" + session_dir_path + "'- "     + \
                      (SessionDir.isDirectory() ? "already exists" : "created")) ;
+#else // USE_APPDATA_DIR
+#define DEBUG_TRACE_SESSIONDIR                                                  \
+  String session_dir_path = SessionDir.getFullPathName() ;                      \
+  Trace::TraceClient("preparing session dir '" + session_dir_path + "'- "     + \
+                     (SessionDir.isDirectory() ? "already exists" : "created")) ;
+#endif // USE_APPDATA_DIR
 
 static int PrevStatus = -9 ;
 #define DEBUG_TRACE_STATUS_CHANGED                                                      \
@@ -54,20 +61,6 @@ static int PrevStatus = -9 ;
 #define DEBUG_TRACE_LICENSE                                          \
   Trace::TraceState((IsAgreed())? "agreeing to license" :            \
                                   "prompting for license agreement") ;
-
-#ifdef CLEAN_SESSION
-#  define DEBUG_TRACE_CLEAN_SESSION                                            \
-  File thisfile     = File::getSpecialLocation(File::currentExecutableFile) ;  \
-  File thisdir      = thisfile.getParentDirectory() ;                          \
-  String sessiondir = SessionDir.getFullPathName() ;                           \
-  if (!SessionDir.isDirectory() || !SessionDir.isAChildOf(thisdir))            \
-      Trace::TraceError("session directory '" + sessiondir + "' is invalid") ; \
-  else Trace::TraceClient("cleaning session directory '" + sessiondir + "'")   ;
-#else // CLEAN_SESSION
-#  define DEBUG_TRACE_CLEAN_SESSION                                                \
-  String sessiondir = SessionDir.getFullPathName() ;                               \
-  Trace::TraceClient("cleaning session directory '" + sessiondir + "' (disabled)") ;
-#endif // CLEAN_SESSION
 
 
 /* audio */
@@ -277,11 +270,11 @@ static int PrevStatus = -9 ;
     while (~(ch_idx = LinJam::Client->EnumUserChannels(u_idx , ++ch_n)))              \
     {                                                                                 \
       bool ch_rcv ;  float ch_vol ;  float ch_pan ; bool ch_mute ;                    \
-      bool ch_solo ; int   ch_sink ; bool  ch_stereo ;                                \
+      bool ch_solo ; int   ch_sink ; bool  ch_pannable ;                              \
       String ch_name = LinJam::GetRemoteChannelClientName(u_idx , ch_idx) ;           \
       LinJam::Client->GetUserChannelState(u_idx    , ch_idx   , &ch_rcv   ,           \
                                           &ch_vol  , &ch_pan  , &ch_mute  ,           \
-                                          &ch_solo , &ch_sink , &ch_stereo) ;         \
+                                          &ch_solo , &ch_sink , &ch_pannable) ;       \
       dbg += "\n  found remote channel[" + String(ch_n)   + "] =>" +                  \
              "\n    channel_idx    => "  + String(ch_idx)          +                  \
              "\n    channel_name   => "  + String(ch_name)         +                  \
@@ -291,7 +284,7 @@ static int PrevStatus = -9 ;
              "\n    channel_mute   => "  + String(ch_mute)         +                  \
              "\n    is_solo        => "  + String(ch_solo)         +                  \
              "\n    sink_n         => "  + String(ch_sink)         +                  \
-             "\n    is_stereo      => "  + String(ch_stereo) ;                        \
+             "\n    is_pannable    => "  + String(ch_pannable) ;                      \
     }                                                                                 \
     Trace::TraceState(dbg) ;
 
@@ -320,10 +313,10 @@ static int PrevStatus = -9 ;
   String pann           = String(pan) + ((stereo_status == CONFIG::MONO)? "" :         \
                           " (" + String(ComputeStereoPan(pan , stereo_status)) +       \
                           " faux-stereo)") ;                                           \
-  String stereo         = String(is_stereo)                                   +        \
+  String pannable       = String(is_pannable)                                      +   \
                           ((stereo_status == CONFIG::MONO)    ? " (MONO)"     :        \
                            (stereo_status == CONFIG::STEREO_L)? " (STEREO_L)" :        \
-                           (stereo_status == CONFIG::STEREO_R)? " (STEREO_R)" : "") ;  \
+                           (stereo_status == CONFIG::STEREO_R)? " (STEREO_R)" : "" ) ; \
   String pseudo_control = (should_set_is_rcv) ? "RCV"  :                               \
                           (should_set_is_solo)? "SOLO" : "" ;                          \
   bool is_master = (channel_idx == CONFIG::MASTER_CHANNEL_IDX) ;                       \
@@ -342,13 +335,13 @@ static int PrevStatus = -9 ;
   else if (!(~user_idx))    Trace::TraceError("user index out of range "    + dbg) ;   \
   else if (!(~channel_idx)) Trace::TraceError("channel index out of range " + dbg) ;   \
   else if (TRACE_REMOTE_CHANNELS_VB) Trace::TraceClient(dbg                 +          \
-      ((should_set_volume)?   "\n  volume    => " + String(volume)    : "") +          \
-      ((should_set_pan)?      "\n  pan       => " + pann              : "") +          \
-      ((should_set_is_rcv)?   "\n  is_rcv    => " + String(is_rcv)    : "") +          \
-      ((should_set_is_muted)? "\n  is_muted  => " + String(is_muted)  : "") +          \
-      ((should_set_is_solo)?  "\n  is_solo   => " + String(is_solo)   : "") +          \
-      ((should_init_all)?     "\n  sink_n    => " + String(sink_n)    : "") +          \
-      ((should_init_all)?     "\n  is_stereo => " + stereo            : "") ) ;        \
+      ((should_set_volume)?   "\n  volume      => " + String(volume)    : "") +        \
+      ((should_set_pan)?      "\n  pan         => " + pann              : "") +        \
+      ((should_set_is_rcv)?   "\n  is_rcv      => " + String(is_rcv)    : "") +        \
+      ((should_set_is_muted)? "\n  is_muted    => " + String(is_muted)  : "") +        \
+      ((should_set_is_solo)?  "\n  is_solo     => " + String(is_solo)   : "") +        \
+      ((should_init_all)?     "\n  sink_n      => " + String(sink_n)    : "") +        \
+      ((should_init_all)?     "\n  is_pannable => " + pannable          : "") ) ;      \
   if (is_master && !should_set_volume && !should_set_pan && !should_set_is_muted &&    \
      (should_set_is_rcv || should_set_is_solo))                                        \
     Trace::TraceClient("applying user master " + pseudo_control               +        \
@@ -401,7 +394,6 @@ static int PrevStatus = -9 ;
 #define DEBUG_TRACE_STATUS_CHANGED            ;
 #define DEBUG_TRACE_CONNECT                   ;
 #define DEBUG_TRACE_LICENSE                   ;
-#define DEBUG_TRACE_CLEAN_SESSION             ;
 // audio
 #define DEBUG_TRACE_AUDIO_INIT_WIN            ;
 #define DEBUG_TRACE_AUDIO_INIT_MAC            ;

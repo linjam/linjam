@@ -266,7 +266,7 @@ void Login::buttonClicked (Button* buttonThatWasClicked)
     else if (this->loginButtons.contains((TextButton*)buttonThatWasClicked))
     {
       String    host        = buttonThatWasClicked->getButtonText().trim() ;
-      ValueTree credentials = LinJam::getCredentials(host) ;
+      ValueTree credentials = LinJam::GetCredentials(host) ;
 
 DEBUG_TRACE_LOBBY_QUICKLOGIN
 

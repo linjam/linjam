@@ -47,5 +47,5 @@ void NETWORK::Initialize()
 // helpers
 bool NETWORK::IsKnownHost(String host)
 {
-  return KNOWN_HOSTS->getChildByName(host) != nullptr ;
+  return host.isNotEmpty() && KNOWN_HOSTS->getChildByName(host) != nullptr ;
 }

@@ -49,7 +49,7 @@ public:
   static void Shutdown() ;
 
   // getters/setters
-  static ValueTree      getCredentials(         String host_name) ;
+  static ValueTree      GetCredentials(         String host_name) ;
   static bool           IsAgreed() ;
   static SortedSet<int> GetFreeAudioSources() ;
   static SortedSet<int> GetFreeAudioSourcePairs() ;
@@ -101,7 +101,7 @@ private:
   static void ConfigureSubscriptions() ;
   static void InitializeAudio() ;
   static void ConfigureInitialChannels() ;
-  static void CleanSessionDir() ;
+//   static void CleanSessionDir() ;
 
   // NJClient callbacks
   static int  OnLicense(int user32 , char* license_text) ;

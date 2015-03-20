@@ -87,8 +87,24 @@ ValueTree LinJamConfig::NewChannel(String channel_name , int channel_idx)
 void LinJamConfig::initialize()
 {
   // load default and stored configs
+  // TODO: configXmlFile should be under $HOME/.linjam (issue #32)
+#ifndef USE_APPDATA_DIR
   File        this_binary       = File::getSpecialLocation(File::currentExecutableFile) ;
-  this->      configXmlFile     = this_binary.getSiblingFile(CONFIG::PERSISTENCE_FILENAME) ;
+  this->      configXmlFile     = this_binary.getSiblingFile(CLIENT::PERSISTENCE_FILENAME) ;
+#else // USE_APPDATA_DIR
+  File appdata_dir = File::getSpecialLocation(File::userApplicationDataDirectory) ;
+  if (!appdata_dir.isDirectory()) return ;
+
+DBG("LinJamConfig::initialize() appdata_dir=" + appdata_dir.getFullPathName() + " is_dir=" + String(appdata_dir.isDirectory())) ;
+File home_dir = File::getSpecialLocation(File::userHomeDirectory) ;
+DBG("LinJamConfig::initialize() home_dir=" + home_dir.getFullPathName() + " is_dir=" + String(home_dir.isDirectory())) ;
+File linjam_dir = appdata_dir.getChildFile(CLIENT::STORAGE_DIRNAME) ;
+DBG("LinJamConfig::initialize() linjam_dir=" + linjam_dir.getFullPathName() + " is_dir=" + String(linjam_dir.isDirectory())) ;
+
+  this->      configXmlFile     = appdata_dir.getChildFile(CLIENT::PERSISTENCE_FILENAME) ;
+
+DBG("LinJamConfig::initialize() configXmlFile=" + configXmlFile.getFullPathName() + " is_file=" + String(configXmlFile.existsAsFile())) ;
+#endif // USE_APPDATA_DIR
   XmlElement* default_xml       = XmlDocument::parse(CONFIG::DEFAULT_CONFIG_XML) ;
   XmlElement* stored_xml        = XmlDocument::parse(this->configXmlFile) ;
   bool        has_stored_config = stored_xml != nullptr                         &&

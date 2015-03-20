@@ -322,8 +322,19 @@ namespace CLIENT
   static const String STEREO_L_POSTFIX       = "-L" ;
   static const String STEREO_R_POSTFIX       = "-R" ;
   static const int    STEREO_POSTFIX_N_CHARS = STEREO_L_POSTFIX.length() ;
-  static const String SESSION_DIR            = "/session" ;
-  static const String LOG_FILE               = "/clipsort.log" ;
+
+  // persistence and storage
+#define USE_APPDATA_DIR
+#ifndef USE_APPDATA_DIR
+  static const String PERSISTENCE_FILENAME = "linjam.xml" ;
+  static const String SESSION_DIRNAME      = "/session" ;
+  static const String LOG_FILENAME         = "/clipsort.log" ;
+#else // USE_APPDATA_DIR
+  static const String STORAGE_DIRNAME      = ".linjam/" ;
+  static const String PERSISTENCE_FILENAME = STORAGE_DIRNAME + "linjam.xml" ;
+  static const String SESSION_DIRNAME      = STORAGE_DIRNAME + "session" ;
+  static const String LOG_FILENAME         = STORAGE_DIRNAME + "clipsort.log" ;
+#endif // USE_APPDATA_DIR
 }
 
 
@@ -373,7 +384,6 @@ public:
 namespace CONFIG
 {
   // config root keys
-  static const String     PERSISTENCE_FILENAME  = "linjam.xml" ;
   static const String     PERSISTENCE_KEY       = "linjam-data" ;
   static const Identifier PERSISTENCE_ID        = PERSISTENCE_KEY ;
   static const String     PERSISTENCE_TYPES_KEY = PERSISTENCE_KEY + "-types" ;

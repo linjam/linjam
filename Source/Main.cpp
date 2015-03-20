@@ -32,7 +32,7 @@ public:
       // start NJClient pump and GUI update timers
       startTimer(CLIENT::CLIENT_TIMER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
       startTimer(CLIENT::GUI_TIMER_HI_ID , CLIENT::GUI_UPDATE_HI_IVL) ;
-      startTimer(CLIENT::GUI_TIMER_LO_ID , CLIENT::GUI_UPDATE_LO_IVL) ;
+      startTimer(CLIENT::GUI_TIMER_LO_ID ,500 ) ;//CLIENT::GUI_UPDATE_LO_IVL) ;
     }
     else quit() ;
   }

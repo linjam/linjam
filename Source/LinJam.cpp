@@ -73,7 +73,7 @@ void LinJam::Disconnect() { Client->Disconnect() ; PrevRecordingTime = "" ; }
 void LinJam::Shutdown()
 {
   // NJClient teardown
-  JNL::close_socketlib() ; CleanSessionDir() ;
+  JNL::close_socketlib() ;
 
   // LinJam teardown
   delete Audio ; delete Config ;
@@ -85,7 +85,7 @@ void LinJam::Shutdown()
 
 /* getters/setters */
 
-ValueTree LinJam::getCredentials(String host) { return Config->getCredentials(host) ; }
+ValueTree LinJam::GetCredentials(String host) { return Config->getCredentials(host) ; }
 
 bool LinJam::IsAgreed() { return bool(Config->server[CONFIG::IS_AGREED_ID]) ; }
 
@@ -267,16 +267,30 @@ void LinJam::InitializeConstants() { NETWORK::Initialize() ; }
 
 bool LinJam::PrepareSessionDirectory()
 {
+#ifndef USE_APPDATA_DIR
+  // TODO: SessionDir should be a child of $HOME/.linjam (issue #32)
   File   this_binary      = File::getSpecialLocation(File::currentExecutableFile) ;
   File   this_dir         = this_binary.getParentDirectory() ;
   String session_dir_path = this_dir.getFullPathName() + CLIENT::SESSION_DIR ;
   SessionDir              = File(session_dir_path) ;
 
+  SessionDir.createDirectory() ; CleanSessionDir() ;
+#else // USE_APPDATA_DIR
+  File appdata_dir = File::getSpecialLocation(File::userApplicationDataDirectory) ;
+/*
+  String session_dir_path = File::addTrailingSeparator(appdata_dir) + CONFIG::SESSION_DIRNAME ;
+  SessionDir = File(session_dir_path) ;
+*/
+  SessionDir       = appdata_dir.getChildFile(CLIENT::SESSION_DIRNAME) ;
+
+DBG("LinJam::PrepareSessionDirectory() SessionDir=" + SessionDir.getFullPathName() + " is_dir=" + String(SessionDir.isDirectory())) ;
+
+  SessionDir.createDirectory() ;
+#endif // USE_APPDATA_DIR
+
 DEBUG_TRACE_SESSIONDIR
 
-  SessionDir.createDirectory() ; CleanSessionDir() ;
-
-  bool does_session_dir_exist  = SessionDir.isDirectory() ;
+  bool does_session_dir_exist = SessionDir.isDirectory() ;
   if (does_session_dir_exist) Client->SetWorkDir(session_dir_path.toRawUTF8()) ;
 
   return does_session_dir_exist ;
@@ -296,8 +310,13 @@ void LinJam::ConfigureNinjam()
   Client->config_autosubscribe     = subscribe_mode ;
 
   // set log file
+#ifndef USE_APPDATA_DIR
   if (should_save_log && save_audio_mode > NJClient::SAVE_AUDIO_NONE)
-    Client->SetLogFile((SessionDir.getFullPathName() + CLIENT::LOG_FILE).toRawUTF8()) ;
+    Client->SetLogFile((SessionDir.getFullPathName() + CLIENT::LOG_FILENAME).toRawUTF8()) ;
+#else // USE_APPDATA_DIR
+  if (should_save_log && save_audio_mode > NJClient::SAVE_AUDIO_NONE)
+    Client->SetLogFile((SessionDir.getFullPathName() + CLIENT::LOG_FILENAME).toRawUTF8()) ;
+#endif // USE_APPDATA_DIR
 
   // add bots and ignored users to ignore list
   ConfigureSubscriptions() ;
@@ -529,24 +548,7 @@ DEBUG_TRACE_INITIAL_CHANNELS
   }
 }
 
-void LinJam::CleanSessionDir()
-{
-  int save_audio_state = int(Config->client[CONFIG::SAVE_AUDIO_MODE_ID]) ;
-  if (save_audio_state > 0) return ;
-
-DEBUG_TRACE_CLEAN_SESSION
-
-#ifdef CLEAN_SESSION
-  File this_binary = File::getSpecialLocation(File::currentExecutableFile) ;
-  File this_dir    = this_binary.getParentDirectory() ;
-  if (!SessionDir.isDirectory() || !SessionDir.isAChildOf(this_dir)) return ;
-
-  // TODO: the *.ninjam directories created when save_loca_audio == -1 (delete ASAP)
-  //           are not being deleted implicitly as they presumably should be (issue #32)
-  DirectoryIterator session_dir_iter(SessionDir , false , "*.*" , File::findFilesAndDirectories) ;
-  while (session_dir_iter.next()) session_dir_iter.getFile().deleteRecursively() ;
-#endif // CLEAN_SESSION
-}
+// void LinJam::CleanSessionDir() { SessionDir.deleteRecursively() ; }
 
 
 /* NJClient callbacks */
@@ -627,7 +629,7 @@ DEBUG_TRACE_CHAT_IN
 
 void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
                        float** output_buffer , int n_output_channels ,
-                       int     n_samples     , int sample_rate)
+                       int     n_samples     , int sample_rate       )
 {
   if (Audio == nullptr)
   {
@@ -826,6 +828,9 @@ void LinJam::UpdateLoopProgress()
 #ifdef NO_UPDATE_LOOP_PROGRESS_GUI
   return ;
 #endif // NO_UPDATE_LOOP_PROGRESS_GUI
+
+  // set loop progress to strobing effect when idle
+  if (Status != NJClient::NJC_STATUS_OK) { Gui->loop->loopProgress = 1.0 ; return ; }
 
   // compute loop progress
   int    sample_n , n_samples ; Client->GetPosition(&sample_n , &n_samples) ;
@@ -1300,7 +1305,7 @@ void LinJam::ConfigureRemoteChannel(ValueTree  user_store , ValueTree channel_st
   bool  is_solo       = bool( channel_store[CONFIG::IS_SOLO_ID]) ;
   int   sink_n        = 0 ; // TODO: not yet clear how to handle remote sink_n
   int   stereo_status = int(  channel_store[CONFIG::STEREO_ID]) ;                           \
-  bool  is_stereo     = true ;
+  bool  is_pannable   = true ;
 
   // determine which NJClient channel params to modify
   bool should_init_all     = a_key == CONFIG::CONFIG_INIT_ID ;
@@ -1347,7 +1352,7 @@ DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL
                                 should_set_is_muted , is_muted                  ,
                                 should_set_is_solo  , is_solo || is_master_solo ,
                                 should_init_all     , sink_n                    ,
-                                should_init_all     , is_stereo                 ) ;
+                                should_init_all     , is_pannable               ) ;
 
     // configure faux-stereo pair implicitly
     if (stereo_status == CONFIG::STEREO_L)

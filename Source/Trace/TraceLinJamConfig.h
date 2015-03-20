@@ -165,7 +165,7 @@
                       " channel store '"    + channel_name  + "'") ;
 
 #define DEBUG_TRACE_VALIDATE_CONFIG                                                      \
-  /* NOTE: these checks normally should be unnecessary                        */         \
+  /* NOTE: these checks normally should be unnecessary in the Release build   */         \
   /*       all tree nodes and properties will exist after sanitizeConfig()    */         \
   /*       and will be of the proper types after restoreVarTypeInfo()         */         \
   /*       only transient channels are not sanitized and so need be validated */         \
@@ -179,9 +179,9 @@
   ValueTree metro  = this->masterChannels.getChildWithName(CONFIG::METRO_ID) ;           \
                                                                                          \
   /* query default values */                                                             \
-  bool has_valid_version_declaration    =  CONFIG::CONFIG_VERSION > 0.0 ;                \
-  bool has_valid_sessiondir_declaration = CLIENT::SESSION_DIR.isNotEmpty() ;             \
-  bool has_valid_logfile_declaration    = CLIENT::LOG_FILE   .isNotEmpty() ;             \
+  bool has_valid_version_declaration    = CONFIG::CONFIG_VERSION > 0.0 ;                 \
+  bool has_valid_sessiondir_declaration = CLIENT::SESSION_DIRNAME.isNotEmpty() ;         \
+  bool has_valid_logfile_declaration    = CLIENT::LOG_FILENAME   .isNotEmpty() ;         \
                                                                                          \
   /* query root properties */                                                            \
   bool root_has_appversion_property        =                                             \
@@ -444,9 +444,9 @@
   if (!has_valid_version_declaration)                                                    \
     Trace::TraceInvalidDefault(CONFIG::CONFIG_VERSION_KEY) ;                             \
   if (!has_valid_sessiondir_declaration)                                                 \
-    Trace::TraceInvalidDefault("CLIENT::SESSION_DIR") ;                                  \
+    Trace::TraceInvalidDefault("CLIENT::SESSION_DIRNAME") ;                              \
   if (!has_valid_logfile_declaration)                                                    \
-    Trace::TraceInvalidDefault("CLIENT::LOG_FILE") ;                                     \
+    Trace::TraceInvalidDefault("CLIENT::LOG_FILENAME") ;                                 \
                                                                                          \
   /* trace missing root properties */                                                    \
   if (!root_has_appversion_property)                                                     \
