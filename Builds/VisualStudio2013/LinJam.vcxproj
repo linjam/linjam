@@ -38,11 +38,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">LinJam</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath);&quot;$(LIBNINJAM)\Win32\Debug\&quot;;&quot;$(DXSDK_DIR)Lib\x86\&quot;</LibraryPath>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\Release\</OutDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">LinJam</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(LibraryPath);&quot;$(LIBNINJAM)\Win32\Release\&quot;;&quot;$(DXSDK_DIR)Lib\x86\&quot;</LibraryPath>
@@ -143,11 +141,12 @@
     <ClCompile Include="..\..\Source\Channel.cpp"/>
     <ClCompile Include="..\..\Source\Channels.cpp"/>
     <ClCompile Include="..\..\Source\Chat.cpp"/>
+    <ClCompile Include="..\..\Source\Config.cpp"/>
     <ClCompile Include="..\..\Source\ConfigAudio.cpp"/>
     <ClCompile Include="..\..\Source\ConfigChannel.cpp"/>
-    <ClCompile Include="..\..\Source\Config.cpp"/>
     <ClCompile Include="..\..\Source\ConfigClient.cpp"/>
     <ClCompile Include="..\..\Source\ConfigSubscriptions.cpp"/>
+    <ClCompile Include="..\..\Source\Constants.cpp"/>
     <ClCompile Include="..\..\Source\License.cpp"/>
     <ClCompile Include="..\..\Source\LinJam.cpp"/>
     <ClCompile Include="..\..\Source\LinJamConfig.cpp"/>
@@ -913,13 +912,21 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\juce_gui_basics.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Trace\Trace.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceChannels.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceConfig.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceLinJam.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceLinJamConfig.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceLogin.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceMain.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceMixer.h"/>
     <ClInclude Include="..\..\Source\Background.h"/>
     <ClInclude Include="..\..\Source\Channel.h"/>
     <ClInclude Include="..\..\Source\Channels.h"/>
     <ClInclude Include="..\..\Source\Chat.h"/>
+    <ClInclude Include="..\..\Source\Config.h"/>
     <ClInclude Include="..\..\Source\ConfigAudio.h"/>
     <ClInclude Include="..\..\Source\ConfigChannel.h"/>
-    <ClInclude Include="..\..\Source\Config.h"/>
     <ClInclude Include="..\..\Source\ConfigClient.h"/>
     <ClInclude Include="..\..\Source\ConfigSubscriptions.h"/>
     <ClInclude Include="..\..\Source\Constants.h"/>
@@ -949,6 +956,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\maths\juce_BigInteger.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\maths\juce_Expression.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\maths\juce_MathsFunctions.h"/>
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\maths\juce_NormalisableRange.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\maths\juce_Random.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\maths\juce_Range.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\memory\juce_Atomic.h"/>
@@ -1022,6 +1030,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\streams\juce_SubregionStream.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\logging\juce_FileLogger.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\logging\juce_Logger.h"/>
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\system\juce_CompilerSupport.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\system\juce_PlatformDefs.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\system\juce_StandardHeader.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\system\juce_SystemStats.h"/>
@@ -1057,6 +1066,7 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\messages\juce_Message.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\messages\juce_MessageListener.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\messages\juce_MessageManager.h"/>
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\messages\juce_MountedVolumeListChangeDetector.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\messages\juce_NotificationType.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\timers\juce_MultiTimer.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\timers\juce_Timer.h"/>

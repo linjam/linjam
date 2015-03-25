@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -17,12 +17,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_21AE3B746DB36E0C__
-#define __JUCE_HEADER_21AE3B746DB36E0C__
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
-#include "MainContent.h"
 #include "JuceHeader.h"
 
 //[/Headers]
@@ -43,7 +42,8 @@ class Config  : public Component,
 {
 public:
     //==============================================================================
-    Config (ValueTree audio_store, ValueTree client_store, ValueTree subscriptions_store);
+    Config (ValueTree audio_store, ValueTree client_store, ValueTree subscriptions_store,
+            Value linjam_status);
     ~Config();
 
     //==============================================================================
@@ -61,6 +61,9 @@ private:
 
   void valueChanged(Value& a_value) ;
 
+
+  Value linjamStatus ;
+
     //[/UserVariables]
 
     //==============================================================================
@@ -75,4 +78,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_21AE3B746DB36E0C__
+#endif // _CONFIG_H_

@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_8B661D82CCFDE918__
-#define __JUCE_HEADER_8B661D82CCFDE918__
+#ifndef _CHANNELS_H_
+#define _CHANNELS_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -48,7 +48,7 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  bool addChannel(    ValueTree channel_store) ;
+  bool addChannel(    ValueTree  channel_store) ;
   void removeChannel( Identifier channel_id) ;
   int  getNumChannels() ;
 
@@ -65,7 +65,7 @@ private:
 
 protected:
 
-  virtual Channel* newChannel(ValueTree channel_store) = 0 ;
+  virtual Channel* newChannel(ValueTree  channel_store) = 0 ;
           Channel* getChannel(Identifier channel_id) ;
 
     //[/UserVariables]
@@ -93,7 +93,7 @@ public:
 private:
 
   void     buttonClicked(Button* buttonThatWasClicked) ;
-  Channel* newChannel(ValueTree channel_store) override ;
+  Channel* newChannel(   ValueTree channel_store) override ;
 } ;
 
 
@@ -120,7 +120,7 @@ public:
 
 private:
 
-  ValueTree configStore ;
+  ValueTree userStore ;
   ValueTree subscriptions ;
   bool      isExpanded ;
 
@@ -132,4 +132,4 @@ private:
 
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_8B661D82CCFDE918__
+#endif // _CHANNELS_H_

@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_321A28830126E8DE__
-#define __JUCE_HEADER_321A28830126E8DE__
+#ifndef _CHANNEL_H_
+#define _CHANNEL_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -81,7 +81,7 @@ private:
 
 protected:
 
-  ValueTree configStore ;
+  ValueTree channelStore ;
 
 
   bool handleButtonClicked(Button* a_button) ;
@@ -136,4 +136,4 @@ class RemoteChannel : public Channel
 
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_321A28830126E8DE__
+#endif // _CHANNEL_H_

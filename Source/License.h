@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -19,7 +19,6 @@
 
 #ifndef _LICENSE_H_
 #define _LICENSE_H_
-
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -42,7 +41,7 @@ class License  : public Component,
 {
 public:
     //==============================================================================
-    License ();
+    License (ValueTree login_store);
     ~License();
 
     //==============================================================================
@@ -60,7 +59,13 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+  ValueTree loginStore ;
+
+
   void setLicenseText(String license_text) ;
+  void setConfig(     Identifier a_key , var a_value) ;
+
     //[/UserVariables]
 
     //==============================================================================

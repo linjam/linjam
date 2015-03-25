@@ -16,7 +16,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\Release"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
@@ -114,7 +114,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
@@ -146,7 +146,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/I &quot;$(LIBNINJAM)&quot; /I &quot;$(LIBOGG)\include&quot; /I &quot;$(LIBVORBIS)\include&quot; /I &quot;$(DXSDK_DIR)include&quot; /I &quot;$(MSSDK)\include&quot;"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\Visual Leak Detector\include&quot;;..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules"
+				AdditionalIncludeDirectories="..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules"
 				PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;JUCER_VS2008_78A5006=1;JUCE_APP_VERSION=0.0.1;JUCE_APP_VERSION_HEX=0x1"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="true"
@@ -171,10 +171,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/L libninjam_static.lib /L libogg_static.lib /L libvorbis_static.lib /L dsound.lib /L vld.lib"
+				AdditionalOptions="/L libninjam_static.lib /L libogg_static.lib /L libvorbis_static.lib /L dsound.lib"
 				OutputFile="$(OutDir)\LinJam.exe"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;$(LIBNINJAM)\Win32\Debug\&quot;;&quot;$(DXSDK_DIR)Lib\x86\&quot;;&quot;C:\Program Files\Visual Leak Detector\lib\Win32&quot;"
+				AdditionalLibraryDirectories="&quot;$(LIBNINJAM)\Win32\Debug\&quot;;&quot;$(DXSDK_DIR)Lib\x86\&quot;"
 				GenerateManifest="true"
 				IgnoreDefaultLibraryNames="libcmt.lib, msvcrt.lib"
 				GenerateDebugInformation="true"
@@ -292,42 +292,42 @@
 					RelativePath="..\..\Source\Subscriptions.h"
 					>
 				</File>
-				<File
-					RelativePath="..\..\Source\Trace\Trace.h"
+				<Filter
+					Name="Trace"
 					>
-				</File>
-				<File
-					RelativePath="..\..\Source\Trace\TraceChannels.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Source\Trace\TraceConfig.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Source\Trace\TraceLicense.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Source\Trace\TraceLinJam.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Source\Trace\TraceLinJamConfig.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Source\Trace\TraceLogin.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Source\Trace\TraceMain.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\Source\Trace\TraceMixer.h"
-					>
-				</File>
+					<File
+						RelativePath="..\..\Source\Trace\Trace.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\Source\Trace\TraceChannels.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\Source\Trace\TraceConfig.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\Source\Trace\TraceLinJam.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\Source\Trace\TraceLinJamConfig.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\Source\Trace\TraceLogin.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\Source\Trace\TraceMain.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\Source\Trace\TraceMixer.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="Source"
@@ -366,6 +366,10 @@
 				</File>
 				<File
 					RelativePath="..\..\Source\ConfigSubscriptions.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\Source\Constants.cpp"
 					>
 				</File>
 				<File
@@ -717,6 +721,10 @@
 					</File>
 					<File
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\maths\juce_MathsFunctions.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\JuceLibraryCode\modules\juce_core\maths\juce_NormalisableRange.h"
 						>
 					</File>
 					<File
@@ -1808,6 +1816,10 @@
 					Name="system"
 					>
 					<File
+						RelativePath="..\..\JuceLibraryCode\modules\juce_core\system\juce_CompilerSupport.h"
+						>
+					</File>
+					<File
 						RelativePath="..\..\JuceLibraryCode\modules\juce_core\system\juce_PlatformDefs.h"
 						>
 					</File>
@@ -2773,6 +2785,10 @@
 					</File>
 					<File
 						RelativePath="..\..\JuceLibraryCode\modules\juce_events\messages\juce_MessageManager.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\JuceLibraryCode\modules\juce_events\messages\juce_MountedVolumeListChangeDetector.h"
 						>
 					</File>
 					<File

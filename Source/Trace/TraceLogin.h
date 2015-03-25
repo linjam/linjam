@@ -5,16 +5,20 @@
 
 /* state */
 
-#define DEBUG_TRACE_LOGIN_LOAD                                                     \
-  Trace::TraceState("Lobby - storage " + String((server.isValid())? "" : "not ") + \
-                    "found for currentHost => '" + host + "'") ;
+#define DEBUG_TRACE_LOGIN_LOAD                                                             \
+  Trace::TraceState("lobby - " + ((host.isEmpty()) ? "no previous logins" :                \
+                                                     "restoring credentials for " + host)) ;
 
-#define DEBUG_TRACE_LOGIN_BTNS                                                     \
-  Button* btn = buttonThatWasClicked ;                                             \
-  if      (btn == loginButton) Trace::TraceEvent("loginButton clicked") ;          \
-  else if (btn == anonButton)  Trace::TraceEvent("anonButton clicked") ;           \
-  else if (loginButtons.contains((TextButton*)btn))                                \
-    Trace::TraceEvent("quick-login button clicked " + btn->getButtonText().trim()) ;
+#define DEBUG_TRACE_LOBBY_QUICKLOGIN                                                     \
+  String status = String((credentials.isValid()) ? "" : "not ") ;                        \
+  Trace::TraceEvent("quick-login - storage " + status + "found for host '" + host + "'") ;
+
+#define DEBUG_TRACE_LOGIN_VALIDATION                                               \
+  if (!validateHost() || !validateLogin() || !validatePass())                      \
+    Trace::TraceError("error validating"                                         + \
+                      String((validateHost() ) ? " host='"  + host  + "'" : "" ) + \
+                      String((validateLogin()) ? " login='" + login + "'" : "" ) + \
+                      String((validatePass())  ? " pass"                  : "" ) ) ;
 
 
 /* network */
@@ -41,9 +45,10 @@
 #else // DEBUG
 
 // state
-#define DEBUG_TRACE_LOGIN_LOAD    ;
-#define DEBUG_TRACE_LOGIN_BTNS    ;
+#define DEBUG_TRACE_LOGIN_LOAD       ;
+#define DEBUG_TRACE_LOBBY_QUICKLOGIN ;
+#define DEBUG_TRACE_LOGIN_VALIDATION ;
 // network
-#define DEBUG_TRACE_LOGIN_HOST_VB ;
+#define DEBUG_TRACE_LOGIN_HOST_VB    ;
 
 #endif // DEBUG

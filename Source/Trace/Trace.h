@@ -11,10 +11,9 @@
 //#define NO_UPDATE_REMOTES
 // enable buggy features
 //#define ACCEPT_CHAT_COMMANDS         // (issue #19)
-//#define CLEAN_SESSION
 //#define FADE_HIDDEN_REMOTES
 
-// enable begub features
+// enable debug features
 #define DEBUG_ANSI_COLORS
 
 
@@ -22,10 +21,8 @@
 #define DEBUG_TRACE              DEBUG && 1
 #define DEBUG_TRACE_EVENTS       DEBUG && 1
 #define DEBUG_TRACE_STATE        DEBUG && 1
-#define DEBUG_TRACE_IN           DEBUG && 1
-#define DEBUG_TRACE_OUT          DEBUG && 1
 #define DEBUG_TRACE_VB           DEBUG && 1
-#define TRACE_SANITIZE_CONFIG    DEBUG_TRACE_VB && 0
+#define TRACE_DUMP_CONFIG        DEBUG_TRACE_VB && 0
 #define TRACE_CONFIG_TYPES       DEBUG_TRACE_VB && 0
 #define TRACE_STORE_CONFIG_VB    DEBUG_TRACE_VB && 0
 #define TRACE_AUDIO_INIT_VB      DEBUG_TRACE_VB && 1
@@ -60,8 +57,9 @@ public:
   static String DumpStoredChannels() ;
   static String DumpClientChannels() ;
 
-  static String SanitizeConfig(      ValueTree default_config , ValueTree stored_config ,
+  static String DumpConfig(          ValueTree default_config , ValueTree stored_config ,
                                      String    pad                                      ) ;
+  static void   TraceInvalidDefault( String a_default_name) ;
   static void   TraceInvalidNode(    String a_node_key) ;
   static void   TraceMissingValue(   String a_node_name , String a_value_key) ;
   static void   TraceMissingProperty(String a_node_name      , String a_property_name ,

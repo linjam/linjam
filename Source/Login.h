@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ class Login  : public Component,
 {
 public:
     //==============================================================================
-    Login ();
+    Login (ValueTree login_store);
     ~Login();
 
     //==============================================================================
@@ -64,6 +64,7 @@ private:
   static StringRef Digits ;
   static StringRef UrlChars ;
 
+  ValueTree              loginStore ;
   OwnedArray<TextButton> loginButtons ;
 
 
@@ -73,9 +74,8 @@ private:
   void valueChanged(         Value&      login_value)   override ;
 
   // helpers
-  void preloadState() ;
   void sortLoginButtons() ;
-  void login() ;
+  void signIn() ;
   bool validateHost() ;
   bool validateLogin() ;
   bool validatePass() ;

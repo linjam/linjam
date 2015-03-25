@@ -19,8 +19,13 @@
 #  include <ninjam/njasiodrv/njasiodrv_if.h>
 #endif // _WIN32
 
-// NOTE: the GetLocalChannelName() function as well as
-//           the NJClient and audioStreamer enums require libninjam v0.07 headers
+
+/* NOTE: the following require libninjam v0.07 headers 
+             functions NJClient::GetLocalChannelName() 
+                       create_audioStreamer_ASIO_DLL()
+                       create_audioStreamer_ALSA() override
+             enum     audioStreamer::WinApi
+             enum     audioStreamer::NixApi */
 #include <ninjam/audiostream.h>
 #include <ninjam/njclient.h>
 #include <ninjam/njmisc.h>
@@ -32,54 +37,16 @@
 
 
 class LinJam
-
-
 {
   friend class LinJamApplication ;
   friend class LinJamConfig ;
-  friend class License ; // TODO: needs access to config object (issue #62)
-  friend class Login ;   // TODO: needs access to config object (issue #62)
 #if DEBUG
   friend class Trace ;
 #endif // DEBUG
 
 
 public:
-
-  // state methods
-  static void Connect() ;
-  static void Disconnect() ;
-  static void Shutdown() ;
-
-  // getters/setters
-  static bool           IsAgreed() ;
-  static SortedSet<int> GetFreeAudioSources() ;
-  static SortedSet<int> GetFreeAudioSourcePairs() ;
-
-  // GUI event handlers
-  static bool AddLocalChannel(   ValueTree channel_store) ;
-  static void RemoveLocalChannel(ValueTree channel_store) ;
-  static void SendChat(          String chat_text) ;
-  static void ConfigPending() ;
-  static void ConfigDismissed() ;
-
-
-private:
-
-  static NJClient*      Client ;
-  static MainContent*   Gui ;
-  static LinJamConfig*  Config ;
-  static audioStreamer* Audio ;
-  static bool           IsAudioInitialized ;
-  static Value          IsAudioEnabled ;
-  static SortedSet<int> FreeAudioSources ;
-  static SortedSet<int> FreeAudioSourcePairs ;
-  static double         GuiBeatOffset ;
-  static File           SessionDir ;
-  static Value          Status ;
-  static String         PrevRecordingTime ;
-
-
+  
   // extension to NJClient::ConnectionStatus
   enum LinJamStatus { LINJAM_STATUS_INIT           = -9 ,
                       LINJAM_STATUS_AUDIOERROR     = -8 ,
@@ -93,14 +60,51 @@ private:
 //                    NJC_STATUS_OK                =  0 // NJClient::ConnectionStatus
 //                    NJC_STATUS_PRECONNECT        =  1 // NJClient::ConnectionStatus
 
-  // initialization methods
+
+  // state
+  static void SignIn(String host_name , String login , String pass , bool is_anonymous) ;
+  static void Connect() ;
+  static void Disconnect() ;
+  static void Shutdown() ;
+
+  // getters/setters
+  static ValueTree      GetCredentials(String host_name) ;
+  static bool           IsAgreed() ;
+  static SortedSet<int> GetFreeAudioSources() ;
+  static SortedSet<int> GetFreeAudioSourcePairs() ;
+
+  // GUI event handlers
+  static bool AddLocalChannel(   ValueTree channel_store) ;
+  static void RemoveLocalChannel(ValueTree channel_store) ;
+  static void SendChat(          String chat_text) ;
+
+
+private:
+
+  static NJClient*      Client ;
+  static MainContent*   Gui ;
+  static LinJamConfig*  Config ;
+  static audioStreamer* Audio ;
+  static bool           IsAudioInitialized ;
+  static SortedSet<int> FreeAudioSources ;
+  static SortedSet<int> FreeAudioSourcePairs ;
+  static double         GuiBeatOffset ;
+  static File           SessionDir ;
+  static Value          Status ;
+  static int            RetryLogin ;
+  static String         PrevRecordingTime ;
+
+
+  // setup
   static bool Initialize(NJClient*     nj_client , MainContent* main_content ,
                          const String& args                                  ) ;
-  static void InitializeAudio() ;
-  static void ConfigureInitialChannels() ;
+  static void InitializeConstants() ;
   static bool PrepareSessionDirectory() ;
   static void ConfigureNinjam() ;
-  static void CleanSessionDir() ;
+  static void ConfigureSubscriptions() ;
+  static bool InitializeAudio() ;
+  static void ConfigureInitialChannels() ;
+//   static void CleanSessionDir() ;
 
   // NJClient callbacks
   static int  OnLicense(int user32 , char* license_text) ;
@@ -122,9 +126,6 @@ private:
   static void UpdateVuMeters() ;
   static void UpdateRecordingTime() ;
 
-  // GUI event handlers
-  static void ConfigureSubscriptions() ;
-
   // NJClient config helpers
   static int    GetNumAudioSources() ;
   static int    GetNumLocalChannels() ;
@@ -140,8 +141,8 @@ private:
   static void   ScalePannedMonoVus(        double  vu_mono , double  pan ,
                                            double* l_vu    , double* r_vu) ;
   static float  ComputeStereoPan(          float pan , int stereo_status) ;
-  static void   UpdateRemoteUserState(     ValueTree user_store         , int user_idx ,
-                                           bool      should_ignore_user                ) ;
+  static void   UpdateRemoteUserState(     ValueTree user_store , int user_idx ,
+                                           bool      should_rcv                ) ;
   static void   ConfigureMasterChannel(    Identifier a_key) ;
   static void   ConfigureMetroChannel(     Identifier a_key) ;
   static void   ConfigureLocalChannel(     ValueTree  channel_store , Identifier a_key) ;

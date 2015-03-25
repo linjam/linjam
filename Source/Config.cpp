@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -19,7 +19,6 @@
 
 //[Headers] You can add your own extra header files here...
 
-#include "Constants.h"
 #include "LinJam.h"
 #include "ConfigAudio.h"
 #include "ConfigClient.h"
@@ -34,7 +33,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-Config::Config (ValueTree audio_store, ValueTree client_store, ValueTree subscriptions_store)
+Config::Config (ValueTree audio_store, ValueTree client_store, ValueTree subscriptions_store ,
+                Value linjam_status)
 {
     addAndMakeVisible (configTabs = new TabbedComponent (TabbedButtonBar::TabsAtTop));
     configTabs->setExplicitFocusOrder (1);
@@ -62,6 +62,7 @@ Config::Config (ValueTree audio_store, ValueTree client_store, ValueTree subscri
 
     //[Constructor] You can add your own custom stuff here..
 
+  this->linjamStatus.referTo(linjam_status) ;
   this->configTabs->setOutline(0) ;
   this->configTabs->setIndent(0) ;
 
@@ -99,6 +100,9 @@ void Config::paint (Graphics& g)
 
 void Config::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     configTabs->setBounds (4, 0, getWidth() - 8, getHeight() - 4);
     dismissButton->setBounds (getWidth() - 64, 0, 64, 24);
     //[UserResized] Add your own custom resize handling here..
@@ -114,7 +118,7 @@ void Config::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_dismissButton] -- add your button handler code here..
 
-      LinJam::ConfigDismissed() ;
+      this->linjamStatus = LinJam::LINJAM_STATUS_READY ;
 
         //[/UserButtonCode_dismissButton]
     }
@@ -129,21 +133,27 @@ void Config::buttonClicked (Button* buttonThatWasClicked)
 
 void Config::valueChanged(Value& a_value)
 {
-  bool   is_enabled       = bool(a_value.getValue()) ;
-  Colour button_out_color = (is_enabled)? Colour(0xff004000)    : Colour(0xff400000) ;
-  Colour button_in_color  = (is_enabled)? Colours::green        : Colours::maroon ;
-  Colour text_out_color   = (is_enabled)? Colours::lime         : Colours::red ;
-  Colour text_in_color    = (is_enabled)? Colours::lime         : Colours::red ;
-  String button_text      = (is_enabled)? GUI::DISMISS_BTN_TEXT : GUI::DISMISS_BTN_ERROR_TEXT ;
+  int linjam_status = int(a_value.getValue()) ;
+  if (!a_value.refersToSameSourceAs(this->linjamStatus) ||
+      linjam_status < LinJam::LINJAM_STATUS_AUDIOERROR  ||
+      linjam_status > LinJam::LINJAM_STATUS_CONFIGPENDING) return ;
+
+  bool   is_audio_error   = linjam_status == LinJam::LINJAM_STATUS_AUDIOERROR ;
+  Colour button_out_color = (is_audio_error) ? Colour(0xff400000) : Colour(0xff004000) ;
+  Colour button_in_color  = (is_audio_error) ? Colours::maroon    : Colours::green ;
+  Colour text_out_color   = (is_audio_error) ? Colours::red       : Colours::lime ;
+  Colour text_in_color    = (is_audio_error) ? Colours::red       : Colours::lime ;
+  String button_text      = (is_audio_error) ? GUI::DISMISS_BTN_ERROR_TEXT :
+                                               GUI::DISMISS_BTN_TEXT ;
 
   this->dismissButton->setColour(TextButton::buttonColourId   , button_out_color) ;
-  this->dismissButton->setColour(TextButton::buttonOnColourId , button_in_color) ;
-  this->dismissButton->setColour(TextButton::textColourOnId   , text_in_color) ;
-  this->dismissButton->setColour(TextButton::textColourOffId  , text_out_color) ;
-  this->dismissButton->setEnabled(is_enabled) ;
+  this->dismissButton->setColour(TextButton::buttonOnColourId , button_in_color ) ;
+  this->dismissButton->setColour(TextButton::textColourOnId   , text_in_color   ) ;
+  this->dismissButton->setColour(TextButton::textColourOffId  , text_out_color  ) ;
+  this->dismissButton->setEnabled(!is_audio_error) ;
   this->dismissButton->setButtonText(button_text) ;
 
-  if (!is_enabled) this->configTabs->setCurrentTabIndex(0 , false) ;
+  if (is_audio_error) this->configTabs->setCurrentTabIndex(0 , false) ;
 }
 
 //[/MiscUserCode]

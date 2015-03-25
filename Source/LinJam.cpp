@@ -8,11 +8,12 @@
   ==============================================================================
 */
 
+#include "Constants.h"
 #include "LinJam.h"
 #include "Channel.h"
-#include "Constants.h"
+#include "ConfigAudio.h"
 #include "./Trace/TraceLinJam.h"
-#include <iostream>
+//#include <iostream>
 
 #ifdef _MSC_VER
 #  include <float.h>
@@ -31,12 +32,13 @@ NJClient*      LinJam::Client               = nullptr ;          // Initialize()
 MainContent*   LinJam::Gui                  = nullptr ;          // Initialize()
 audioStreamer* LinJam::Audio                = nullptr ;          // Initialize()
 bool           LinJam::IsAudioInitialized   = false ;            // InitializeAudio()
-Value          LinJam::IsAudioEnabled       = Value() ;          // InitializeAudio()
+//Value          LinJam::IsAudioEnabled       = Value() ;        // InitializeAudio()
 SortedSet<int> LinJam::FreeAudioSources     = SortedSet<int>() ; // InitializeAudio()
 SortedSet<int> LinJam::FreeAudioSourcePairs = SortedSet<int>() ; // InitializeAudio()
 double         LinJam::GuiBeatOffset ;                           // InitializeAudio()
 File           LinJam::SessionDir ;                              // PrepareSessionDirectory()
 Value          LinJam::Status               = Value() ;          // Initialize()
+int            LinJam::RetryLogin ;                              // Connect()
 String         LinJam::PrevRecordingTime ;                       // Disconnect()
 
 
@@ -44,13 +46,19 @@ String         LinJam::PrevRecordingTime ;                       // Disconnect()
 
 /* state methods */
 
+void LinJam::SignIn(String host , String login , String pass , bool is_anonymous)
+{
+  Config->setCredentials(host , login , pass , is_anonymous) ;
+  RetryLogin = NETWORK::N_LOGIN_RETRIES ; Connect() ;
+}
+
 void LinJam::Connect()
 {
   Client->Disconnect() ;
 
-  String host         =      Config->server[CONFIG::HOST_ID].toString() ;
-  String login        =      Config->server[CONFIG::LOGIN_ID].toString() ;
-  String pass         =      Config->server[CONFIG::PASS_ID].toString() ;
+  String host         =      Config->server[CONFIG::HOST_ID        ].toString() ;
+  String login        =      Config->server[CONFIG::LOGIN_ID       ].toString() ;
+  String pass         =      Config->server[CONFIG::PASS_ID        ].toString() ;
   bool   is_anonymous = bool(Config->server[CONFIG::IS_ANONYMOUS_ID]) ;
 
   if (is_anonymous) { login = "anonymous:" + login ; pass  = "" ; }
@@ -65,23 +73,22 @@ void LinJam::Disconnect() { Client->Disconnect() ; PrevRecordingTime = "" ; }
 
 void LinJam::Shutdown()
 {
-  JNL::close_socketlib() ; delete Audio ;
-  CleanSessionDir() ;      delete Config ;
+  // NJClient teardown
+  JNL::close_socketlib() ;
+
+  // LinJam teardown
+  delete Audio ; delete Config ;
+
+  // Constants teardown
+  delete NETWORK::KNOWN_HOSTS ; delete NETWORK::KNOWN_BOTS ;
 }
 
 
 /* getters/setters */
 
-bool LinJam::IsAgreed()
-{
-  ValueTree server              = Config->getCurrentServer() ;
-  bool      should_always_agree = server.isValid()                                 &&
-                                  bool(server.getProperty(CONFIG::SHOULD_AGREE_ID)) ;
-  bool      is_agreed           = bool(Config->server[CONFIG::IS_AGREED_ID]) ||
-                                  should_always_agree                         ;
+ValueTree LinJam::GetCredentials(String host) { return Config->getCredentials(host) ; }
 
-  return is_agreed ;
-}
+bool LinJam::IsAgreed() { return bool(Config->server[CONFIG::IS_AGREED_ID]) ; }
 
 SortedSet<int> LinJam::GetFreeAudioSources() { return FreeAudioSources ; }
 
@@ -150,7 +157,7 @@ DEBUG_TRACE_REMOVE_LOCAL_CHANNEL
   Gui->mixer->removeChannel(GUI::LOCALS_GUI_ID , channel_id) ;
 
   // destroy channel storage
-  Config->destroyChannel(Config->localChannels , channel_store) ;
+  Config->removeChannel(Config->localChannels , channel_store) ;
 
 DEBUG_TRACE_DUMP_FREE_INPUTS_VB
 }
@@ -212,9 +219,6 @@ DEBUG_TRACE_CHAT_OUT
   }
 }
 
-void LinJam::ConfigPending() { Status = LINJAM_STATUS_CONFIGPENDING ; }
-
-void LinJam::ConfigDismissed() { Status = LINJAM_STATUS_READY ; }
 
 
 /* LinJam class private class methods */
@@ -224,47 +228,70 @@ void LinJam::ConfigDismissed() { Status = LINJAM_STATUS_READY ; }
 bool LinJam::Initialize(NJClient*     nj_client , MainContent* main_content ,
                         const String& args                                  )
 {
-DEBUG_TRACE_LINJAM_INIT
+DEBUG_TRACE_INIT
 
   Client = nj_client ;
   Gui    = main_content ;
-
+  Status = LINJAM_STATUS_INIT ;
 
 // TODO: parse command line args for autojoin (issue #9)
 
 
+  // prepare runtime initialized constants
+  InitializeConstants() ;
+
   // load persistent configuration and prepare audio save directory
   if ((Config = new LinJamConfig()) == nullptr) return false ;
-  if (!Config->isConfigSane())                  return false ;
+  if (!Config->isConfigValid())                 return false ;
   if (!PrepareSessionDirectory())               return false ;
 
-  // instantiate configuration GUI components
-  Gui->instantiateConfig(Config->audio , Config->client , Config->subscriptions) ;
+  // instantiate GUI components requiring configuration
+  Gui->instantiateLogin(Config->server) ;
+  Gui->instantiateConfig(Config->audio , Config->client , Config->subscriptions , Status) ;
 
-  // configure NINJAM client
-  ConfigureNinjam() ;
+  // register status listeners for Gui state
+  Status.addListener(Config) ; Status.addListener(Gui->config) ;
 
-  // initialize networking
-  Status.addListener(Config) ; JNL::open_socketlib() ;
+  // configure NINJAM client and initialize networking
+  ConfigureNinjam() ; JNL::open_socketlib() ;
 
-  // create audiostreamer
-  IsAudioEnabled.addListener(Gui->config) ; InitializeAudio() ;
+  // instantiate audioStreamer
+//  IsAudioEnabled.addListener(Gui->config) ; InitializeAudio() ;
+  if (InitializeAudio()) Status = LINJAM_STATUS_READY ;
 
   return true ;
 }
 
+void LinJam::InitializeConstants() { NETWORK::Initialize() ; }
+
 bool LinJam::PrepareSessionDirectory()
 {
-  File this_binary = File::getSpecialLocation(File::currentExecutableFile) ;
-  File this_dir    = this_binary.getParentDirectory() ;
-  SessionDir       = File(this_dir.getFullPathName() + CONFIG::SESSION_DIR) ;
+#ifndef USE_APPDATA_DIR
+  // TODO: SessionDir should be a child of $HOME/.linjam (issue #32)
+  File   this_binary      = File::getSpecialLocation(File::currentExecutableFile) ;
+  File   this_dir         = this_binary.getParentDirectory() ;
+  String session_dir_path = this_dir.getFullPathName() + CLIENT::SESSION_DIR ;
+  SessionDir              = File(session_dir_path) ;
 
   SessionDir.createDirectory() ; CleanSessionDir() ;
+#else // USE_APPDATA_DIR
+  File appdata_dir = File::getSpecialLocation(File::userApplicationDataDirectory) ;
+/*
+  String session_dir_path = File::addTrailingSeparator(appdata_dir) + CONFIG::SESSION_DIRNAME ;
+  SessionDir = File(session_dir_path) ;
+*/
+  SessionDir       = appdata_dir.getChildFile(CLIENT::SESSION_DIRNAME) ;
 
-  bool does_session_dir_exist  = SessionDir.isDirectory() ;
-  const char* session_dir_path = SessionDir.getFullPathName().toRawUTF8() ;
+DBG("LinJam::PrepareSessionDirectory() SessionDir=" + SessionDir.getFullPathName() + " is_dir=" + String(SessionDir.isDirectory())) ;
 
-  if (does_session_dir_exist) Client->SetWorkDir(session_dir_path) ;
+  SessionDir.createDirectory() ;
+#endif // USE_APPDATA_DIR
+
+DEBUG_TRACE_SESSIONDIR
+
+  bool does_session_dir_exist = SessionDir.isDirectory() ;
+  if (does_session_dir_exist)
+    Client->SetWorkDir(SessionDir.getFullPathName().toRawUTF8()) ;
 
   return does_session_dir_exist ;
 }
@@ -283,160 +310,218 @@ void LinJam::ConfigureNinjam()
   Client->config_autosubscribe     = subscribe_mode ;
 
   // set log file
-  if (should_save_log && save_audio_mode > NJClient::SAVE_AUDIO_NONE)
-    Client->SetLogFile((SessionDir.getFullPathName() + CONFIG::LOG_FILE).toRawUTF8()) ;
+#ifndef USE_APPDATA_DIR
+  if (should_save_log && save_audio_mode > NJClient::SAVE_NONE)
+    Client->SetLogFile((SessionDir.getFullPathName() + CLIENT::LOG_FILENAME).toRawUTF8()) ;
+#else // USE_APPDATA_DIR
+  if (should_save_log && save_audio_mode > NJClient::SAVE_NONE)
+    Client->SetLogFile((SessionDir.getFullPathName() + CLIENT::LOG_FILENAME).toRawUTF8()) ;
+#endif // USE_APPDATA_DIR
 
   // add bots and ignored users to ignore list
   ConfigureSubscriptions() ;
 }
 
-void LinJam::InitializeAudio()
+void LinJam::ConfigureSubscriptions()
+{
+DEBUG_TRACE_SUBSCRIPTIONS
+
+  ValueTree subscriptions       =      Config->subscriptions.createCopy() ;
+  int       subscribe_mode      = int( Config->subscriptions[CONFIG::SUBSCRIBE_MODE_ID]) ;
+  int       should_hide_bots    = bool(Config->client       [CONFIG::SHOULD_HIDE_BOTS_ID]) ;
+  bool      should_ignore_users = subscribe_mode == (int)NJClient::SUBSCRIBE_DENY ;
+
+  Client->config_autosubscribe_userlist.clear() ;
+  if (!should_ignore_users) return ;
+
+  if (should_hide_bots)
+    for (int bot_n = 0 ; bot_n < NETWORK::KNOWN_BOTS->getNumAttributes() ; ++bot_n)
+    {
+      String bot_name = NETWORK::KNOWN_BOTS->getAttributeValue(bot_n) ;
+      subscriptions.getOrCreateChildWithName(Identifier(bot_name) , nullptr) ;
+    }
+
+  for (int user_n = 0 ; user_n < subscriptions.getNumChildren() ; ++user_n)
+  {
+    String user_name = String(subscriptions.getChild(user_n).getType()) ;
+
+    Client->config_autosubscribe_userlist.insert(user_name.toStdString()) ;
+  }
+}
+
+bool LinJam::InitializeAudio()
 {
   if (Audio != nullptr) { delete Audio ; Audio = nullptr ; }
 
+  // load config
 #ifdef _WIN32
-  int    win_interface_n  =     int(Config->audio[CONFIG::WIN_AUDIO_IF_ID]) ;
-  int    asio_driver      =     int(Config->audio[CONFIG::ASIO_DRIVER_ID]) ;
-  int    asio_input0      =     int(Config->audio[CONFIG::ASIO_INPUT0_ID]) ;
-  int    asio_input1      =     int(Config->audio[CONFIG::ASIO_INPUT1_ID]) ;
-  int    asio_output0     =     int(Config->audio[CONFIG::ASIO_OUTPUT0_ID]) ;
-  int    asio_output1     =     int(Config->audio[CONFIG::ASIO_OUTPUT1_ID]) ;
-  int    ks_sample_rate   =     int(Config->audio[CONFIG::KS_SAMPLERATE_ID]) ;
-  int    ks_bit_depth     =     int(Config->audio[CONFIG::KS_BITDEPTH_ID]) ;
-  int    ks_n_buffers     =     int(Config->audio[CONFIG::KS_NBLOCKS_ID]) ;
-  int    ks_buffer_size   =     int(Config->audio[CONFIG::KS_BLOCKSIZE_ID]) ;
-  int    ds_device[2][4]  = { { int(Config->audio[CONFIG::DS_INPUT0_ID])  ,
-                                int(Config->audio[CONFIG::DS_INPUT1_ID])  ,
-                                int(Config->audio[CONFIG::DS_INPUT2_ID])  ,
-                                int(Config->audio[CONFIG::DS_INPUT3_ID])  } ,
-                              { int(Config->audio[CONFIG::DS_OUTPUT0_ID]) ,
-                                int(Config->audio[CONFIG::DS_OUTPUT1_ID]) ,
-                                int(Config->audio[CONFIG::DS_OUTPUT2_ID]) ,
-                                int(Config->audio[CONFIG::DS_OUTPUT3_ID]) } } ;
-  int    ds_sample_rate   =     int(Config->audio[CONFIG::DS_SAMPLERATE_ID]) ;
-  int    ds_bit_depth     =     int(Config->audio[CONFIG::DS_BITDEPTH_ID]) ;
-  int    ds_n_buffers     =     int(Config->audio[CONFIG::DS_NBLOCKS_ID]) ;
-  int    ds_buffer_size   =     int(Config->audio[CONFIG::DS_BLOCKSIZE_ID]) ;
-/*
-ds_sample_rate = CONFIG::DEFAULT_DS_SAMPLERATE ;
-ds_bit_depth = CONFIG::DEFAULT_DS_BITDEPTH    ;
-ds_device[2][4] = {{0,0,0,0},{0,0,0,0}};
-ds_n_buffers   = CONFIG::DEFAULT_DS_N_BLOCKS;
-ds_buffer_size = CONFIG::DEFAULT_DS_BLOCKSIZE;
-*/
-  int    wave_device[2]   =   { int(Config->audio[CONFIG::WAVE_INPUT_ID])  ,
-                                int(Config->audio[CONFIG::WAVE_OUTPUT_ID]) } ;
-  int    wave_sample_rate =     int(Config->audio[CONFIG::WAVE_SAMPLERATE_ID]) ;
-  int    wave_bit_depth   =     int(Config->audio[CONFIG::WAVE_BITDEPTH_ID]) ;
-  int    wave_n_buffers   =     int(Config->audio[CONFIG::WAVE_NBLOCKS_ID]) ;
-  int    wave_buffer_size =     int(Config->audio[CONFIG::WAVE_BLOCKSIZE_ID]) ;
+  int    win_api_n            = int(Config->audio[CONFIG::WIN_AUDIO_API_ID  ]) ;
+  int    asio_driver_n        = int(Config->audio[CONFIG::ASIO_DRIVER_ID    ]) ;
+  int    asio_input0_n        = int(Config->audio[CONFIG::ASIO_INPUT0_ID    ]) ;
+  int    asio_input1_n        = int(Config->audio[CONFIG::ASIO_INPUT1_ID    ]) ;
+  int    asio_output0_n       = int(Config->audio[CONFIG::ASIO_OUTPUT0_ID   ]) ;
+  int    asio_output1_n       = int(Config->audio[CONFIG::ASIO_OUTPUT1_ID   ]) ;
+  int    ks_sample_rate       = int(Config->audio[CONFIG::KS_SAMPLERATE_ID  ]) ;
+  int    ks_bit_depth         = int(Config->audio[CONFIG::KS_BITDEPTH_ID    ]) ;
+  int    ks_n_buffers         = int(Config->audio[CONFIG::KS_NBLOCKS_ID     ]) ;
+  int    ks_buffer_size       = int(Config->audio[CONFIG::KS_BLOCKSIZE_ID   ]) ;
+  String ds_input_device      =     Config->audio[CONFIG::DS_INPUT_ID       ].toString() ;
+  String ds_output_device     =     Config->audio[CONFIG::DS_OUTPUT_ID      ].toString() ;
+  int    ds_sample_rate       = int(Config->audio[CONFIG::DS_SAMPLERATE_ID  ]) ;
+  int    ds_bit_depth         = int(Config->audio[CONFIG::DS_BITDEPTH_ID    ]) ;
+  int    ds_n_buffers         = int(Config->audio[CONFIG::DS_NBLOCKS_ID     ]) ;
+  int    ds_buffer_size       = int(Config->audio[CONFIG::DS_BLOCKSIZE_ID   ]) ;
+  int    wave_input_device_n  = int(Config->audio[CONFIG::WAVE_INPUT_ID     ]) ;
+  int    wave_output_device_n = int(Config->audio[CONFIG::WAVE_OUTPUT_ID    ]) ;
+  int    wave_sample_rate     = int(Config->audio[CONFIG::WAVE_SAMPLERATE_ID]) ;
+  int    wave_bit_depth       = int(Config->audio[CONFIG::WAVE_BITDEPTH_ID  ]) ;
+  int    wave_n_buffers       = int(Config->audio[CONFIG::WAVE_NBLOCKS_ID   ]) ;
+  int    wave_buffer_size     = int(Config->audio[CONFIG::WAVE_BLOCKSIZE_ID ]) ;
 #else // _WIN32
 #  ifdef _MAC
-  String mac_device_name  =         Config->audio[CONFIG::MAC_DEVICE_ID].toString() ;
-  int    mac_n_inputs     =     int(Config->audio[CONFIG::MAC_NINPUTS_ID]) ;
-  int    mac_sample_rate  =     int(Config->audio[CONFIG::MAC_SAMPLERATE_ID]) ;
-  int    mac_bit_depth    =     int(Config->audio[CONFIG::MAC_BITDEPTH_ID]) ;
+  String mac_device_name      =     Config->audio[CONFIG::MAC_DEVICE_ID     ].toString() ;
+  int    mac_n_channels       = int(Config->audio[CONFIG::MAC_NCHANNELS_ID  ]) ;
+  int    mac_sample_rate      = int(Config->audio[CONFIG::MAC_SAMPLERATE_ID ]) ;
+  int    mac_bit_depth        = int(Config->audio[CONFIG::MAC_BITDEPTH_ID   ]) ;
 #  else // _MAC
-  int    nix_interface_n  =     int(Config->audio[CONFIG::NIX_AUDIO_IF_ID]) ;
-  int    jack_n_inputs    =     int(Config->audio[CONFIG::JACK_NINPUTS_ID]) ;
-  int    jack_n_outputs   =     int(Config->audio[CONFIG::JACK_NOUTPUTS_ID]) ;
-  String jack_name        =         Config->audio[CONFIG::JACK_NAME_ID].toString() ;
-  String alsa_config      =         Config->audio[CONFIG::ALSA_CONFIG_ID].toString() ;
+  int    nix_api_n            = int(Config->audio[CONFIG::NIX_AUDIO_API_ID  ]) ;
+  int    jack_server_n        = int(Config->audio[CONFIG::JACK_SERVER_ID    ]) ;
+  String jack_name            =     Config->audio[CONFIG::JACK_NAME_ID      ].toString() ;
+  int    jack_n_inputs        = int(Config->audio[CONFIG::JACK_NINPUTS_ID   ]) ;
+  int    jack_n_outputs       = int(Config->audio[CONFIG::JACK_NOUTPUTS_ID  ]) ;
+  String alsa_input_device    =     Config->audio[CONFIG::ALSA_INPUT_ID     ].toString() ;
+  String alsa_output_device   =     Config->audio[CONFIG::ALSA_OUTPUT_ID    ].toString() ;
+  int    alsa_n_channels      = int(Config->audio[CONFIG::ALSA_NCHANNELS_ID ]) ;
+  int    alsa_sample_rate     = int(Config->audio[CONFIG::ALSA_SAMPLERATE_ID]) ;
+  int    alsa_bit_depth       = int(Config->audio[CONFIG::ALSA_BITDEPTH_ID  ]) ;
+  int    alsa_n_buffers       = int(Config->audio[CONFIG::ALSA_NBLOCKS_ID   ]) ;
+  int    alsa_buffer_size     = int(Config->audio[CONFIG::ALSA_BLOCKSIZE_ID ]) ;
 #  endif // _MAC
 #endif // _WIN32
-/* TODO: NJClient alsa init takes a string config
-         ideally alsa would have individual config params
-         and config via the GUI like the rest
-         ideally libninjam would accomodate this but we could as well
-         concatenate the expected string here
-
-  NJClient accepts the following config_strings (original cli params) =>
-    win =>
-      -noaudiocfg
-      -jesusonic <path to jesusonic root dir>
-    mac =>
-      -audiostr device_name[,output_device_name]
-    nix =>
-      -audiostr "option value [option value ...]"
-        ALSA audio options are:
-          in hw:0,0    -- set input device
-          out hw:0,0   -- set output device
-          srate 48000  -- set samplerate
-          nch 2        -- set channels
-          bps 16       -- set bits/sample
-          bsize 2048   -- set blocksize (bytes)
-          nblock 16    -- set number of blocks
-*/
-
 #ifdef _WIN32
 DEBUG_TRACE_AUDIO_INIT_WIN
 
-  switch ((audioStreamer::Interface)win_interface_n)
+  switch ((audioStreamer::WinApi)win_api_n)
   {
+#  ifndef NO_SUPPORT_ASIO
     case audioStreamer::WIN_AUDIO_ASIO:
     {
-      if (njasiodrv_avail())
-      {
-        char device_buffer[2050] ; // 1025 wchars wsprintf max
-        wsprintf(device_buffer , CLIENT::ASIO_DEVICE_FMT , asio_driver  , asio_input0 ,
-                 asio_input1   , asio_output0            , asio_output1               ) ;
-
-        char *device = device_buffer ;
-        Audio = njasiodrv_create_asio_streamer(&device , OnSamples) ;
-      }
+      Audio = create_audioStreamer_ASIO_DLL(OnSamples      , asio_driver_n ,
+                                            asio_input0_n  , asio_input1_n   ,
+                                            asio_output0_n , asio_output1_n  ) ;
 
       break ;
     }
+#  endif // NO_SUPPORT_ASIO
+#  ifndef NO_SUPPORT_KS
     case audioStreamer::WIN_AUDIO_KS:
     {
       Audio = create_audioStreamer_KS(ks_sample_rate  , ks_bit_depth , &ks_n_buffers ,
                                       &ks_buffer_size , OnSamples                    ) ;
+
+      // store back possibly modified params
+      Config->audio.removeListener(Config) ;
+      Config->audio.setProperty(CONFIG::KS_NBLOCKS_ID   , ks_n_buffers   , nullptr) ;
+      Config->audio.setProperty(CONFIG::KS_BLOCKSIZE_ID , ks_buffer_size , nullptr) ;
+      Config->audio.addListener(Config) ;
+
       break ;
     }
+#  endif // NO_SUPPORT_KS
+#  ifndef NO_SUPPORT_DS
     case audioStreamer::WIN_AUDIO_DS:
     {
-      GUID guid[2] ; memcpy(guid , ds_device , sizeof(guid)) ;
+/*
+      GUID device_guids[2] ; memcpy(device_guids , ds_device_guids , sizeof(guids)) ;
+// NOTE: DirectSound is currently hard-coded to use only default device (issue #12)
+GUID zero={0,}; device_guids[0] = zero ; device_guids[1] = zero ;
+*/
+/*
+      LPGUID      input_guid    = nullptr ;
+      LPGUID      output_guid   = nullptr ;
+      StringArray device_guids  = ConfigAudio::getDsDeviceGuids() ;
+      RPC_CSTR    input_str     = (RPC_CSTR)device_guids[ds_input_device_n ].toRawUTF8() ;
+      RPC_CSTR    output_str    = (RPC_CSTR)device_guids[ds_output_device_n].toRawUTF8() ;
+      int         input_result  = UuidFromString(input_str  , input_guid ) ;
+      int         output_result = UuidFromString(output_str , output_guid) ;
+DBG("LinJam::InitializeAudio() nDevice_guids=" + String(device_guids.size())) ;
+      if (input_result == RPC_S_OK && output_result == RPC_S_OK)
+      {
+        GUID guids[2] = { *input_guid , *output_guid } ;
 
-      Audio = create_audioStreamer_DS(ds_sample_rate , ds_bit_depth    , guid     ,
+        Audio = create_audioStreamer_DS(ds_sample_rate , ds_bit_depth    , guids    ,
+                                        &ds_n_buffers  , &ds_buffer_size , OnSamples) ;
+      }
+      else if (!!device_guids.size()) // KLUDGE: audioStreamer will be valid but unusable if sound card is blocked (e.g. JACK running)
+      {
+        GUID zero     = {0 , } ;
+        GUID guids[2] = { zero , zero } ;
+
+        Audio = create_audioStreamer_DS(ds_sample_rate , ds_bit_depth    , guids    ,
+                                        &ds_n_buffers  , &ds_buffer_size , OnSamples) ;
+      }
+*/
+/*
+      LPGUID input_guid  = (GUID*)calloc(1 , sizeof(GUID)) ;
+      LPGUID output_guid = (GUID*)calloc(1 , sizeof(GUID)) ;
+      audioStreamer::GetDsGuidByName(ds_input_device  , input_guid) ;
+      audioStreamer::GetDsGuidByName(ds_output_device , output_guid) ;
+      GUID guids[2] = { *input_guid , *output_guid } ;
+      free(input_guid) ; free(output_guid) ;
+*/
+      GUID input_guid , output_guid ;
+      audioStreamer::GetDsGuidByName(ds_input_device.toRawUTF8()  , &input_guid) ;
+      audioStreamer::GetDsGuidByName(ds_output_device.toRawUTF8() , &output_guid) ;
+      GUID guids[2] = { input_guid , output_guid } ;
+      Audio = create_audioStreamer_DS(ds_sample_rate , ds_bit_depth    , guids    ,
                                       &ds_n_buffers  , &ds_buffer_size , OnSamples) ;
+
       break ;
     }
+#  endif // NO_SUPPORT_DS
+#  ifndef NO_SUPPORT_WAVE
     case audioStreamer::WIN_AUDIO_WAVE:
     {
+      int wave_device_ns[2] = { wave_input_device_n , wave_output_device_n } ;
+
       Audio = create_audioStreamer_WO(wave_sample_rate  , wave_bit_depth  ,
-                                      wave_device       , &wave_n_buffers ,
+                                      wave_device_ns    , &wave_n_buffers ,
                                       &wave_buffer_size , OnSamples       ) ;
 
       break ;
     }
+#  endif // NO_SUPPORT_WAVE
     default: break ;
   }
 #else // _WIN32
 #  ifdef _MAC
   Audio = create_audioStreamer_CoreAudio(&mac_device_name , mac_sample_rate ,
-                                         mac_n_inputs     , mac_bit_depth   , OnSamples) ;
+                                         mac_n_channels   , mac_bit_depth   , OnSamples) ;
 
 DEBUG_TRACE_AUDIO_INIT_MAC
 
 #  else // _MAC
 DEBUG_TRACE_AUDIO_INIT_NIX
 
-  switch ((audioStreamer::Interface)nix_interface_n)
+  switch ((audioStreamer::NixApi)nix_api_n)
   {
     case audioStreamer::NIX_AUDIO_JACK:
     {
       Audio = create_audioStreamer_JACK(jack_name.toRawUTF8() , jack_n_inputs ,
                                         jack_n_outputs        , OnSamples     , Client) ;
 
-DEBUG_TRACE_AUDIO_INIT_JACK
+DEBUG_TRACE_AUDIO_INIT_JACK_FAIL
 
       if (Audio != nullptr) break ; // else fallback on ALSA
     }
     case audioStreamer::NIX_AUDIO_ALSA:
     {
-      Audio = create_audioStreamer_ALSA("alsa_config.toRawUTF8()" , OnSamples) ;
-
-DEBUG_TRACE_AUDIO_INIT_ALSA
+//      Audio = create_audioStreamer_ALSA(OnSamples) ; // use libninjam defaults
+      Audio = create_audioStreamer_ALSA(OnSamples ,
+                                        alsa_input_device , alsa_output_device ,
+                                        alsa_n_channels                        ,
+                                        alsa_sample_rate  , alsa_bit_depth     ,
+                                        alsa_n_buffers    , alsa_buffer_size   ) ;
 
       break ;
     }
@@ -447,7 +532,9 @@ DEBUG_TRACE_AUDIO_INIT_ALSA
 
 DEBUG_TRACE_AUDIO_INIT
 
-  if (Audio != nullptr)
+  bool isAudioEnabled = Audio != nullptr ;
+
+  if (isAudioEnabled)
   {
     // kludge to sync loop progress to audible ticks
     GuiBeatOffset = Audio->m_srate * GUI::BEAT_PROGRESS_OFFSET ;
@@ -466,8 +553,12 @@ DEBUG_TRACE_AUDIO_INIT
   }
 
   // set audio and status value holders for Config GUI
-  IsAudioEnabled = Audio != nullptr ;
-  Status = (Audio != nullptr)? LINJAM_STATUS_READY : LINJAM_STATUS_AUDIOERROR ;
+//  IsAudioEnabled = isAudioEnabled ;
+//  Status = (Audio != nullptr)? LINJAM_STATUS_READY : LINJAM_STATUS_AUDIOERROR ;
+//  if (!isAudioEnabled) Status = LINJAM_STATUS_AUDIOERROR ;
+  Status = (isAudioEnabled)? LINJAM_STATUS_CONFIGPENDING : LINJAM_STATUS_AUDIOERROR ;
+
+  return isAudioEnabled ;
 }
 
 void LinJam::ConfigureInitialChannels()
@@ -492,30 +583,13 @@ DEBUG_TRACE_INITIAL_CHANNELS
     if (!AddLocalChannel(channel_store))
     {
       // destroy corrupted channel storage
-      Config->destroyChannel(Config->localChannels , channel_store) ;
+      Config->removeChannel(Config->localChannels , channel_store) ;
       --channel_n ;
     }
   }
 }
 
-void LinJam::CleanSessionDir()
-{
-  int save_audio_state = int(Config->client[CONFIG::SAVE_AUDIO_MODE_ID]) ;
-  if (save_audio_state > 0) return ;
-
-DEBUG_TRACE_CLEAN_SESSION
-
-#ifdef CLEAN_SESSION
-  File this_binary = File::getSpecialLocation(File::currentExecutableFile) ;
-  File this_dir    = this_binary.getParentDirectory() ;
-  if (!SessionDir.isDirectory() || !SessionDir.isAChildOf(this_dir)) return ;
-
-  // TODO: the *.ninjam directories created when save_loca_audio == -1 (delete ASAP)
-  //           are not being deleted implicitly as they presumably should be (issue #32)
-  DirectoryIterator session_dir_iter(SessionDir , false , "*.*" , File::findFilesAndDirectories) ;
-  while (session_dir_iter.next()) session_dir_iter.getFile().deleteRecursively() ;
-#endif // CLEAN_SESSION
-}
+// void LinJam::CleanSessionDir() { SessionDir.deleteRecursively() ; }
 
 
 /* NJClient callbacks */
@@ -596,7 +670,7 @@ DEBUG_TRACE_CHAT_IN
 
 void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
                        float** output_buffer , int n_output_channels ,
-                       int     n_samples     , int sample_rate)
+                       int     n_samples     , int sample_rate       )
 {
   if (Audio == nullptr)
   {
@@ -613,7 +687,7 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 
 /* NJClient runtime routines */
 
-void LinJam::HandleTimer(int timer_id) override
+void LinJam::HandleTimer(int timer_id)
 {
 #if DEBUG_EXIT_IMMEDIAYELY
 DBG("[DEBUG]: DEBUG_EXIT_IMMEDIAYELY defined - bailing") ; Client->quit() ;
@@ -628,28 +702,6 @@ DBG("[DEBUG]: DEBUG_EXIT_IMMEDIAYELY defined - bailing") ; Client->quit() ;
   }
 }
 
-void LinJam::UpdateStatus()
-{
-  // update status if not in error or hold state
-  int status = int(Status.getValue()) ;
-// TODO: when room is full and Status goes to LINJAM_STATUS_CONFIGPENDING (opens Config GUI)
-//       but Status will toggle back to LINJAM_STATUS_ROOMFULL (closing Config GUI)
-// either Value holders do not update fast enough to configuring audio while in room
-// or this comparisson is failing some reason
-// may need to make Status synchronous again or leave room while configuring audio
-// if (State != LINJAM_STATUS_CONFIGPENDING)
-  if (status >= LINJAM_STATUS_READY) status = Client->GetStatus() ;
-
-  String error_msg          = CharPointer_UTF8(Client->GetErrorStr()) ;
-  bool   is_licence_pending = status == NJClient::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
-  bool   is_room_full       = !error_msg.compare(CLIENT::SERVER_FULL_STATUS) ;
-
-  if      (is_licence_pending) status = LINJAM_STATUS_LICENSEPENDING ;
-  else if (is_room_full)       status = LINJAM_STATUS_ROOMFULL ;
-
-  Status = status ;
-}
-
 void LinJam::PumpClient()
 {
   UpdateStatus() ;
@@ -658,12 +710,29 @@ void LinJam::PumpClient()
   if (Client->GetStatus() >= NJClient::NJC_STATUS_OK) while (!Client->Run()) ;
 }
 
+void LinJam::UpdateStatus()
+{
+  // update status if not in an init, error, or hold state
+  int  status   = int(Status.getValue()) ;
+  bool is_ready = status >= LINJAM_STATUS_READY ;
+  if (is_ready) status = Client->GetStatus() ;
+
+  String error_msg          = CharPointer_UTF8(Client->GetErrorStr()) ;
+  bool   is_licence_pending = status == NJClient::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
+  bool   is_room_full       = is_ready && !error_msg.compare(CLIENT::SERVER_FULL_STATUS) ;
+
+  if      (is_licence_pending) status = LINJAM_STATUS_LICENSEPENDING ;
+  else if (is_room_full)       status = LINJAM_STATUS_ROOMFULL ;
+
+  Status = status ;
+}
+
 void LinJam::HandleStatusChanged()
 {
 DEBUG_TRACE_STATUS_CHANGED
 #ifdef DEBUG_AUTOLOGIN_CHANNEL
 if (Status == NJClient::NJC_STATUS_PRECONNECT)
-{ Config->setCurrentServer(DEBUG_AUTOLOGIN_CHANNEL , "nobody" , "" , true) ;
+{ Config->setCredentials(DEBUG_AUTOLOGIN_CHANNEL , "nobody" , "" , true) ;
   LinJam::Config->server.setProperty(CONFIG::IS_AGREED_ID , true , nullptr) ; Connect() ; }
 #endif // DEBUG_AUTOLOGIN_CHANNEL
 
@@ -704,12 +773,10 @@ if (Status == NJClient::NJC_STATUS_PRECONNECT)
     Gui->mixer->toFront(false) ; Gui->loop->toFront(false) ; UpdateGuiLowPriority() ;
   }
 
-  // reset login state
-  if (Status == NJClient::NJC_STATUS_INVALIDAUTH)
-    Config->server.setProperty(CONFIG::IS_AGREED_ID , false , nullptr) ;
-
-  // store the current server configuration
-  if (Status == NJClient::NJC_STATUS_OK) Config->setServer() ;
+  // retry login (occasionally fails for no apparent reason)
+  if ((Status == NJClient::NJC_STATUS_INVALIDAUTH ||
+       Status == NJClient::NJC_STATUS_CANTCONNECT  ) &&
+       RetryLogin-- > 0                               ) Connect() ;
 }
 
 void LinJam::HandleUserInfoChanged()
@@ -717,6 +784,9 @@ void LinJam::HandleUserInfoChanged()
 #ifdef NO_UPDATE_REMOTES
 return ;
 #endif // NO_UPDATE_REMOTES
+
+  StringRef host = LinJamConfig::MakeHostId(Config->server[CONFIG::HOST_ID].toString()) ;
+
 DEBUG_TRACE_REMOTE_CHANNELS_VB
 
   // initialize dictionary for pruning parted users GUI elements
@@ -726,18 +796,22 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
   int user_idx = -1 ; String user_name ;
   while ((user_name = GetRemoteUserName(++user_idx)).isNotEmpty())
   {
-    Identifier  user_id            = Config->makeUserId(user_name) ;
-    bool        is_bot             = NETWORK::KNOWN_BOTS.contains(user_id) ;
-    std::string name               = (user_name = String(user_id)).toStdString() ;
-    bool        should_ignore_user = !!Client->config_autosubscribe_userlist.count(name) ;
+    Identifier  user_id    = Config->MakeUserId(user_name) ;
+    std::string nick       = (user_name = String(user_id)).toStdString() ;
+    bool        is_ignored = !!Client->config_autosubscribe_userlist.count(nick) ;
+    bool        is_bot     = NETWORK::KNOWN_BOTS->compareAttribute(host , user_name) ;
+
+    // cache bot user_idx for recording time updates
+    if (is_bot) Config->server.setProperty(CONFIG::BOT_USERIDX_ID , user_idx , nullptr) ;
+    // TODO: we may be able to bail now without storing bot userdata (issue #64)
 
     // get or create remote user storage
     ValueTree user_store = Config->getOrAddRemoteUser(user_name) ;
     if (!user_store.isValid()) continue ;
 
     // update stored remote user state
-    UpdateRemoteUserState(user_store , user_idx , should_ignore_user) ;
-    if (should_ignore_user) continue ;
+    UpdateRemoteUserState(user_store , user_idx , !is_ignored) ;
+    if (is_ignored) continue ;
 
     // create remote user GUI
     if (Gui->mixer->addRemoteUser(user_store , Config->subscriptions))
@@ -796,6 +870,9 @@ void LinJam::UpdateLoopProgress()
   return ;
 #endif // NO_UPDATE_LOOP_PROGRESS_GUI
 
+  // set loop progress to strobing effect when idle
+  if (Status != NJClient::NJC_STATUS_OK) { Gui->loop->loopProgress = 1.0 ; return ; }
+
   // compute loop progress
   int    sample_n , n_samples ; Client->GetPosition(&sample_n , &n_samples) ;
   int    bpi               = Client->GetBPI() ;
@@ -804,19 +881,20 @@ void LinJam::UpdateLoopProgress()
   int    beat_n            = ((int)(bpi * linear_progress) % bpi) + 1 ;
   double discrete_progress = (float)beat_n / bpi ;
 
-  // update loop progress
-  Gui->loop->updateBeat(beat_n) ;
+  // update statusbar loop progress
+  Gui->loop->updateBeatN(beat_n) ;
   Gui->loop->loopProgress = discrete_progress ; // linear_progress ;
   Gui->statusbar->setStatusR(String(bpi) + " bpi @ " + String(bpm) + " bpm") ;
 
-  // update metro VU loop progress
-  ValueTree metro_store   = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID) ;
-  double   metro_is_muted = bool(  metro_store[CONFIG::IS_MUTED_ID]) ;
-  double   metro_pan      = double(metro_store[CONFIG::PAN_ID]) ;
-  double   metro_vu       = (metro_is_muted)? 0.0 : discrete_progress ;
-  double   metro_vu_l     = (metro_pan < 0.0)? metro_vu : metro_vu * (1.0 - metro_pan) ;
-  double   metro_vu_r     = (metro_pan > 0.0)? metro_vu : metro_vu * (1.0 + metro_pan) ;
+  // sompute metro VU loop progress
+  ValueTree metro_store    = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID) ;
+  double    metro_is_muted = bool(  metro_store[CONFIG::IS_MUTED_ID]) ;
+  double    metro_pan      = double(metro_store[CONFIG::PAN_ID]) ;
+  double    metro_vu       = (metro_is_muted) ? 0.0 : discrete_progress ;
+  double    metro_vu_l     = (metro_pan < 0.0) ? metro_vu : metro_vu * (1.0 - metro_pan) ;
+  double    metro_vu_r     = (metro_pan > 0.0) ? metro_vu : metro_vu * (1.0 + metro_pan) ;
 
+  // update metro VU loop progress
   metro_store.setProperty(CONFIG::VU_LEFT_ID  , metro_vu_l , nullptr) ;
   metro_store.setProperty(CONFIG::VU_RIGHT_ID , metro_vu_r , nullptr) ;
 }
@@ -872,7 +950,7 @@ void LinJam::UpdateVuMeters()
   int user_idx = -1 ; String user_name ;
   while ((user_name = GetRemoteUserName(++user_idx)).isNotEmpty())
   {
-    Identifier user_id            = Config->makeUserId(user_name) ;
+    Identifier user_id            = Config->MakeUserId(user_name) ;
     ValueTree  user_store         = Config->getUserById(user_id) ;
     double     remote_master_vu_l = 0.0 ;
     double     remote_master_vu_r = 0.0 ; channel_n = -1 ; Identifier vu_id ;
@@ -955,24 +1033,19 @@ void LinJam::UpdateRecordingTime()
 
   if (Status != NJClient::NJC_STATUS_OK) return ;
 
-  // NOTE: parsing recording time is brittle - strictly dependent on the values
-  //       in NETWORK::KNOWN_HOSTS , NETWORK::KNOWN_BOTS , and CLIENT::BOT_CHANNELIDX
+  // NOTE: parsing recording time is somewhat brittle - (issue #64)
+  //       dependent on constants such as NETWORK::KNOWN_BOTS and CLIENT::BOT_CHANNELIDX
+  //       though these values are more conventional than canonical
+  int    bot_useridx    = Config->server[CONFIG::BOT_USERIDX_ID] ;
   String host           = String(Client->GetHostName()) ;
   String bpi            = String(Client->GetBPI()) ;
   String bpm            = String((int)Client->GetActualBPM()) ;
-  bool   server_has_bot = NETWORK::KNOWN_HOSTS.contains(host) ;
   String recording_time = String::empty ;
 
-  if (server_has_bot)
+  if (~bot_useridx)
   {
-    for (int bot_n = 0 ; bot_n < NETWORK::N_KNOWN_BOTS ; ++bot_n)
-    {
-      ValueTree user_store = Config->getUserById(NETWORK::KNOWN_BOTS.getUnchecked(bot_n)) ;
-      if (!user_store.isValid()) continue ;
+    recording_time  = GetRemoteChannelClientName(bot_useridx , CLIENT::BOT_CHANNELIDX) ;
 
-      int bot_idx    = int(user_store[CONFIG::USER_IDX_ID]) ;
-      recording_time = GetRemoteChannelClientName(bot_idx , CLIENT::BOT_CHANNELIDX) ;
-    }
     bool has_recording_time_changed = !!recording_time.compare(PrevRecordingTime) ;
     bool is_this_first_pass         = PrevRecordingTime.isEmpty() ;
     bool should_show_time           = (has_recording_time_changed && !is_this_first_pass) ;
@@ -982,35 +1055,6 @@ void LinJam::UpdateRecordingTime()
   }
 
   Gui->setTitle(host + " - " + bpi + "bpi / " + bpm + "bpm" + recording_time) ;
-}
-
-
-/* GUI event handlers */
-
-void LinJam::ConfigureSubscriptions()
-{
-DEBUG_TRACE_SUBSCRIPTIONS
-
-  ValueTree subscriptions       =      Config->subscriptions.createCopy() ;
-  int       subscribe_mode      = int( Config->subscriptions[CONFIG::SUBSCRIBE_MODE_ID]) ;
-  int       should_hide_bots    = bool(Config->client       [CONFIG::SHOULD_HIDE_BOTS_ID]) ;
-  bool      should_ignore_users = subscribe_mode == (int)NJClient::SUBSCRIBE_DENY ;
-
-  Client->config_autosubscribe_userlist.clear() ;
-  if (!should_ignore_users) return ;
-
-  if (should_hide_bots) for (int bot_n = 0 ; bot_n < NETWORK::KNOWN_BOTS.size() ; ++bot_n)
-  {
-    ValueTree bot_node = ValueTree(NETWORK::KNOWN_BOTS.getUnchecked(bot_n)) ;
-    subscriptions.addChild(bot_node , -1 , nullptr) ;
-  }
-
-  for (int user_n = 0 ; user_n < subscriptions.getNumChildren() ; ++user_n)
-  {
-    String user_name = String(subscriptions.getChild(user_n).getType()) ;
-
-    Client->config_autosubscribe_userlist.insert(user_name.toStdString()) ;
-  }
 }
 
 
@@ -1118,14 +1162,13 @@ float LinJam::ComputeStereoPan(float pan , int stereo_status)
                                   ((pan >= 0.0f)? +1.0f : +1.0f + (pan * 2.0f)) ;
 }
 
-void LinJam::UpdateRemoteUserState(ValueTree user_store         , int user_idx ,
-                                   bool      should_ignore_user                )
+void LinJam::UpdateRemoteUserState(ValueTree user_store , int user_idx , bool should_rcv)
 {
   Identifier user_id      = user_store.getType() ;
   ValueTree  master_store = Config->getOrAddRemoteChannel(user_id , CONFIG::MASTER_KEY) ;
 
-  user_store  .setProperty(CONFIG::USER_IDX_ID    , user_idx            , nullptr) ;
-  master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , !should_ignore_user , nullptr) ;
+  user_store  .setProperty(CONFIG::USER_IDX_ID    , user_idx   , nullptr) ;
+  master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , should_rcv , nullptr) ;
 }
 
 void LinJam::ConfigureMasterChannel(Identifier a_key)
@@ -1196,7 +1239,7 @@ void LinJam::ConfigureLocalChannel(ValueTree channel_store , Identifier a_key)
   int    bit_depth     = int(  channel_store[CONFIG::BIT_DEPTH_ID]) ;
   int    stereo_status = int(  channel_store[CONFIG::STEREO_ID]) ;
   String channel_name  = channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;
-         channel_name  = Config->makeStereoName(channel_name , stereo_status) ;
+         channel_name  = Config->MakeStereoName(channel_name , stereo_status) ;
 
   // determine which NJClient channel params to modify
   bool should_init_all      = a_key == CONFIG::CONFIG_INIT_ID ;
@@ -1258,7 +1301,7 @@ DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
     else
     {
       ValueTree pair_store    = channel_store.createCopy() ;
-      String    pair_name     = Config->makeStereoName(channel_name , CONFIG::STEREO_R) ;
+      String    pair_name     = Config->MakeStereoName(channel_name , CONFIG::STEREO_R) ;
       int       pair_source_n = source_n + 1 ;
 
       pair_store.setProperty(CONFIG::CHANNEL_NAME_ID , pair_name        , nullptr) ;
@@ -1303,7 +1346,7 @@ void LinJam::ConfigureRemoteChannel(ValueTree  user_store , ValueTree channel_st
   bool  is_solo       = bool( channel_store[CONFIG::IS_SOLO_ID]) ;
   int   sink_n        = 0 ; // TODO: not yet clear how to handle remote sink_n
   int   stereo_status = int(  channel_store[CONFIG::STEREO_ID]) ;                           \
-  bool  is_stereo     = true ;
+  bool  is_pannable   = true ;
 
   // determine which NJClient channel params to modify
   bool should_init_all     = a_key == CONFIG::CONFIG_INIT_ID ;
@@ -1350,7 +1393,7 @@ DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL
                                 should_set_is_muted , is_muted                  ,
                                 should_set_is_solo  , is_solo || is_master_solo ,
                                 should_init_all     , sink_n                    ,
-                                should_init_all     , is_stereo                 ) ;
+                                should_init_all     , is_pannable               ) ;
 
     // configure faux-stereo pair implicitly
     if (stereo_status == CONFIG::STEREO_L)

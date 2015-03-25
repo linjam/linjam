@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -30,7 +30,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-License::License ()
+License::License (ValueTree login_store)
+    : loginStore(login_store)
 {
     setName ("License");
     addAndMakeVisible (licenseTextEditor = new TextEditor ("licenseTextEditor"));
@@ -112,6 +113,9 @@ void License::paint (Graphics& g)
 
 void License::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     licenseTextEditor->setBounds (4, 4, getWidth() - 8, getHeight() - 36);
     cancelButton->setBounds (getWidth() - 68, getHeight() - 28, 64, 24);
     agreeButton->setBounds (getWidth() - 136, getHeight() - 28, 64, 24);
@@ -148,15 +152,15 @@ void License::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_alwaysButton] -- add your button handler code here..
 
-      bool should_always_agree = is_agreed = this->alwaysButton->getToggleState() ;
-      LinJam::Config->setServerShouldAgree(should_always_agree) ;
+      is_agreed = this->alwaysButton->getToggleState() ;
+      setConfig(CONFIG::SHOULD_AGREE_ID , is_agreed) ;
 
         //[/UserButtonCode_alwaysButton]
     }
 
     //[UserbuttonClicked_Post]
 
-  LinJam::Config->server.setProperty(CONFIG::IS_AGREED_ID , is_agreed , nullptr) ;
+  setConfig(CONFIG::IS_AGREED_ID , is_agreed) ;
   LinJam::Disconnect() ; if (is_agreed) LinJam::Connect() ;
 
     //[/UserbuttonClicked_Post]
@@ -169,6 +173,11 @@ void License::buttonClicked (Button* buttonThatWasClicked)
 void License::setLicenseText(String license_text)
 {
   this->licenseTextEditor->setText(TRANS(license_text)) ;
+}
+
+void License::setConfig(Identifier a_key , var a_value)
+{
+  this->loginStore.setProperty(a_key , a_value , nullptr) ;
 }
 
 //[/MiscUserCode]
@@ -184,9 +193,10 @@ void License::setLicenseText(String license_text)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="License" componentName="License"
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="622" initialHeight="442">
+                 parentClasses="public Component" constructorParams="ValueTree login_store"
+                 variableInitialisers="loginStore(login_store)" snapPixels="8"
+                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
+                 initialWidth="622" initialHeight="442">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>

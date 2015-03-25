@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_C8CF85E1A55C1DDD__
-#define __JUCE_HEADER_C8CF85E1A55C1DDD__
+#ifndef _SUBSCRIPTIONS_H_
+#define _SUBSCRIPTIONS_H_
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
@@ -39,7 +39,7 @@ class Subscription  : public Component,
 {
 public:
     //==============================================================================
-    Subscription (ValueTree config_store);
+    Subscription (ValueTree subscriptions_store);
     ~Subscription();
 
     //==============================================================================
@@ -55,7 +55,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  ValueTree configStore ;
+  ValueTree subscriptionsStore ;
 
     //[/UserVariables]
 
@@ -78,7 +78,7 @@ class Subscriptions : public Component
   friend class Subscription ;
 
 public:
-  Subscriptions(ValueTree config_store) ;
+  Subscriptions(ValueTree subscriptions_store) ;
   ~Subscriptions() ;
 
 
@@ -94,4 +94,4 @@ private:
 
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_C8CF85E1A55C1DDD__
+#endif // _SUBSCRIPTIONS_H_

@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_EB46FF61849DA256__
-#define __JUCE_HEADER_EB46FF61849DA256__
+#ifndef _MIXER_H_
+#define _MIXER_H_
 
 
 //[Headers]     -- You can add your own extra header files here --
@@ -97,4 +97,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_EB46FF61849DA256__
+#endif // _MIXER_H_

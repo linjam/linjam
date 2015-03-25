@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_CB08A39AD889D82__
-#define __JUCE_HEADER_CB08A39AD889D82__
+#ifndef _CONFIGCLIENT_H_
+#define _CONFIGCLIENT_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -42,7 +42,7 @@ class ConfigClient  : public Component,
 {
 public:
     //==============================================================================
-    ConfigClient (ValueTree config_store);
+    ConfigClient (ValueTree client_store);
     ~ConfigClient();
 
     //==============================================================================
@@ -59,7 +59,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  ValueTree configStore ;
+  ValueTree clientStore ;
 
 
   void setConfig(Identifier a_key , var a_value) ;
@@ -84,4 +84,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_CB08A39AD889D82__
+#endif // _CONFIGCLIENT_H_

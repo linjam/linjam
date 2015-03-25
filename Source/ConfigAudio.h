@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_85571ED1262E7F00__
-#define __JUCE_HEADER_85571ED1262E7F00__
+#ifndef _CONFIGAUDIO_H_
+#define _CONFIGAUDIO_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -43,14 +43,14 @@ class ConfigAudio  : public Component,
 {
 public:
     //==============================================================================
-    ConfigAudio (ValueTree config_store);
+    ConfigAudio (ValueTree audio_store);
     ~ConfigAudio();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     //[/UserMethods]
 
-    void paint (Graphics& g); 
+    void paint (Graphics& g);
     void resized();
     void buttonClicked (Button* buttonThatWasClicked);
     void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
@@ -61,31 +61,40 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  ValueTree configStore ;
+  ValueTree audioStore ;
 
 
   void broughtToFront() ;
   void loadParams() ;
-  void enableComponents() ;
-  void setConfig(Identifier a_key , var a_value) ;
+  void populateDevices() ;
   void restoreDefaults() ;
+  void disableComponents() ;
+  void enableComponents() ;
 #if _WIN32
   bool queryAsioDevices() ;
-  bool queryKernelstreamingDevices() ;
+  bool queryKsDevices() ;
 
-  bool queryDirectsoundDevices() ;
+  bool queryDsDevices() ;
   bool queryWaveDevices() ;
 #else // _WIN32
 #  ifdef _MAC
-  bool queryCoreaudioDevices() ;
+  bool queryCaDevices() ;
 #  else // _MAC
   bool queryJackServers() ;
   bool queryAlsaDevices() ;
 #  endif // _MAC
 #endif // _WIN32
+  int  getItemIndex( ComboBox* combo_box , String item_text) ;
+  void updateLatency() ;
+  void setConfig(    Identifier a_key , var a_value) ;
 
 
-#if _WIN32
+#if _WIN32_THESE_MOVED_TO_LIBNINJAM
+public:
+static StringPairArray getDsDevices() ;
+static StringArray     getDsDeviceNames() ;
+static StringArray     getDsDeviceGuids() ;
+private:
 static BOOL CALLBACK DSEnumProc(LPGUID  lpGUID      , LPCTSTR lpszDesc ,
                                 LPCTSTR lpszDrvName , LPVOID  device_names) ;
 #endif // _WIN32
@@ -135,4 +144,4 @@ static BOOL CALLBACK DSEnumProc(LPGUID  lpGUID      , LPCTSTR lpszDesc ,
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_85571ED1262E7F00__
+#endif   // _CONFIGAUDIO_H_

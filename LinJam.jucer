@@ -2,16 +2,27 @@
 
 <JUCERPROJECT id="V5yqRw" name="LinJam" projectType="guiapp" version="0.0.1"
               bundleIdentifier="com.yourcompany.LinJam" includeBinaryInAppConfig="1"
-              jucerVersion="3.1.0">
+              jucerVersion="3.1.1">
   <MAINGROUP id="dT83m5" name="LinJam">
     <GROUP id="{51F23963-7F0B-17B4-72A3-B564BDD36515}" name="Headers">
+      <GROUP id="{898BA01D-C501-5789-07B4-1B9CFAD5762A}" name="Trace">
+        <FILE id="ZVSczB" name="Trace.h" compile="0" resource="0" file="Source/Trace/Trace.h"/>
+        <FILE id="scLvDE" name="TraceChannels.h" compile="0" resource="0" file="Source/Trace/TraceChannels.h"/>
+        <FILE id="jzGg2W" name="TraceConfig.h" compile="0" resource="0" file="Source/Trace/TraceConfig.h"/>
+        <FILE id="lwYkgg" name="TraceLinJam.h" compile="0" resource="0" file="Source/Trace/TraceLinJam.h"/>
+        <FILE id="Yq62xt" name="TraceLinJamConfig.h" compile="0" resource="0"
+              file="Source/Trace/TraceLinJamConfig.h"/>
+        <FILE id="JnGmPv" name="TraceLogin.h" compile="0" resource="0" file="Source/Trace/TraceLogin.h"/>
+        <FILE id="KOcVrw" name="TraceMain.h" compile="0" resource="0" file="Source/Trace/TraceMain.h"/>
+        <FILE id="ukJ9Ys" name="TraceMixer.h" compile="0" resource="0" file="Source/Trace/TraceMixer.h"/>
+      </GROUP>
       <FILE id="A4xouB" name="Background.h" compile="0" resource="0" file="Source/Background.h"/>
       <FILE id="XeDmZL" name="Channel.h" compile="0" resource="0" file="Source/Channel.h"/>
       <FILE id="SBrFCQ" name="Channels.h" compile="0" resource="0" file="Source/Channels.h"/>
       <FILE id="pNseOT" name="Chat.h" compile="0" resource="0" file="Source/Chat.h"/>
+      <FILE id="i9D3OJ" name="Config.h" compile="0" resource="0" file="Source/Config.h"/>
       <FILE id="VwLcwq" name="ConfigAudio.h" compile="0" resource="0" file="Source/ConfigAudio.h"/>
       <FILE id="MFeN91" name="ConfigChannel.h" compile="0" resource="0" file="Source/ConfigChannel.h"/>
-      <FILE id="i9D3OJ" name="Config.h" compile="0" resource="0" file="Source/Config.h"/>
       <FILE id="DC1YXt" name="ConfigClient.h" compile="0" resource="0" file="Source/ConfigClient.h"/>
       <FILE id="vmBwrh" name="ConfigSubscriptions.h" compile="0" resource="0"
             file="Source/ConfigSubscriptions.h"/>
@@ -31,14 +42,15 @@
       <FILE id="pasbMc" name="Channel.cpp" compile="1" resource="0" file="Source/Channel.cpp"/>
       <FILE id="BwFSNp" name="Channels.cpp" compile="1" resource="0" file="Source/Channels.cpp"/>
       <FILE id="CywiEf" name="Chat.cpp" compile="1" resource="0" file="Source/Chat.cpp"/>
+      <FILE id="y46vLK" name="Config.cpp" compile="1" resource="0" file="Source/Config.cpp"/>
       <FILE id="n06BPs" name="ConfigAudio.cpp" compile="1" resource="0" file="Source/ConfigAudio.cpp"/>
       <FILE id="ZuG12h" name="ConfigChannel.cpp" compile="1" resource="0"
             file="Source/ConfigChannel.cpp"/>
-      <FILE id="y46vLK" name="Config.cpp" compile="1" resource="0" file="Source/Config.cpp"/>
       <FILE id="Q4scAY" name="ConfigClient.cpp" compile="1" resource="0"
             file="Source/ConfigClient.cpp"/>
       <FILE id="F2ecSO" name="ConfigSubscriptions.cpp" compile="1" resource="0"
             file="Source/ConfigSubscriptions.cpp"/>
+      <FILE id="Avs6aI" name="Constants.cpp" compile="1" resource="0" file="Source/Constants.cpp"/>
       <FILE id="HugMKb" name="License.cpp" compile="1" resource="0" file="Source/License.cpp"/>
       <FILE id="ZHvRfB" name="LinJam.cpp" compile="1" resource="0" file="Source/LinJam.cpp"/>
       <FILE id="Bgn7uP" name="LinJamConfig.cpp" compile="1" resource="0"
@@ -59,9 +71,9 @@
                 extraCompilerFlags="&#96;pkg-config ninjam --cflags&#96;&#10;-Wno-write-strings&#10;-malign-double">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
-                       targetName="LinJam"/>
-        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="2"
-                       targetName="LinJam"/>
+                       targetName="linjam-dbg"/>
+        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="3"
+                       targetName="linjam"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>

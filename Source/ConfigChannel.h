@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_87598446A41E477A__
-#define __JUCE_HEADER_87598446A41E477A__
+#ifndef _CONFIGCHANNEL_H_
+#define _CONFIGCHANNEL_H_
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
@@ -40,7 +40,7 @@ class ConfigChannel  : public Component,
 {
 public:
     //==============================================================================
-    ConfigChannel (ValueTree config_store);
+    ConfigChannel (ValueTree channel_store);
     ~ConfigChannel();
 
     //==============================================================================
@@ -56,21 +56,21 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
+  ValueTree      channelStore ;
+  SortedSet<int> freeAudioSourceNs ;
+  SortedSet<int> freeAudioSourcePairNs ;
+  StringArray    freeAudioSourceOptions ;
+  StringArray    freeAudioSourcePairOptions ;
+  bool           isNewChannel ;
+  int            sourceN ;
+  bool           isStereo ;
+
+
   void   buttonClicked(             Button* a_button) ;
   String makeMonoSelectOption(      int channel_n) ;
   String makeStereoSelectOption(    int channel_n) ;
   void   createChannelSelectOptions() ;
   void   populateChannelSelect() ;
-
-
-  SortedSet<int> freeAudioSourceNs ;
-  SortedSet<int> freeAudioSourcePairNs ;
-  StringArray    freeAudioSourceOptions ;
-  StringArray    freeAudioSourcePairOptions ;
-  ValueTree      configStore ;
-  bool           isNewChannel ;
-  int            sourceN ;
-  bool           isStereo ;
 
     //[/UserVariables]
 
@@ -92,4 +92,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_87598446A41E477A__
+#endif // _CONFIGCHANNEL_H_

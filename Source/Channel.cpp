@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -20,8 +20,6 @@
 //[Headers] You can add your own extra header files here...
 
 #include "LinJam.h"
-#include "Constants.h"
-#include "Mixer.h"
 #include "ConfigChannel.h"
 #include "./Trace/TraceChannels.h"
 
@@ -188,11 +186,11 @@ Channel::Channel (ValueTree channel_store)
   this->soloButton  ->addListener(this) ;
 
   // establish shared config storage and listeners
-  this->configStore  = channel_store ;
-  Value name_value   = getValueObject(CONFIG::CHANNEL_NAME_ID) ;
-  Value stereo_value = getValueObject(CONFIG::STEREO_ID) ;
-  Value vu_l_value   = getValueObject(CONFIG::VU_LEFT_ID) ;
-  Value vu_r_value   = getValueObject(CONFIG::VU_RIGHT_ID) ;
+  this->channelStore  = channel_store ;
+  Value name_value    = getValueObject(CONFIG::CHANNEL_NAME_ID) ;
+  Value stereo_value  = getValueObject(CONFIG::STEREO_ID) ;
+  Value vu_l_value    = getValueObject(CONFIG::VU_LEFT_ID) ;
+  Value vu_r_value    = getValueObject(CONFIG::VU_RIGHT_ID) ;
   this->channelName .referTo(name_value) ;
   this->stereoStatus.referTo(stereo_value) ;
   this->vuLeft      .referTo(vu_l_value) ;
@@ -247,6 +245,9 @@ void Channel::paint (Graphics& g)
 
 void Channel::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     xmitButton->setBounds (4, 4, 36, 12);
     muteButton->setBounds (4, 20, 36, 12);
     soloButton->setBounds (4, 36, 36, 12);
@@ -263,8 +264,8 @@ void Channel::resized()
     //[UserResized] Add your own custom resize handling here..
 
   bool is_mono   = int(this->stereoStatus.getValue()) == CONFIG::MONO ;
-  bool is_master = this->configStore.getParent().getType() == CONFIG::MASTERS_ID &&
-                   this->configStore            .getType() == CONFIG::MASTER_ID   ;
+  bool is_master = this->channelStore.getParent().getType() == CONFIG::MASTERS_ID &&
+                   this->channelStore            .getType() == CONFIG::MASTER_ID   ;
 
   if (is_mono && !is_master)
   {
@@ -369,7 +370,7 @@ DEBUG_TRACE_RENAME_CHANNEL_GUI_VIA_CALLOUTBOX
 void Channel::updateChannelVU(Slider* a_vu_slider , Label* a_vu_label , double vu)
 {
   double actual_vu    = vu + CLIENT::VU_DB_MIN ;
-  bool   is_metro     = this->configStore.getType() == CONFIG::METRO_ID ;
+  bool   is_metro     = this->channelStore.getType() == CONFIG::METRO_ID ;
   bool   is_saturated = actual_vu >= 0.0 && !is_metro ;
   String label_text   = (vu <= CLIENT::VU_DB_RANGE)? String(int(actual_vu))     :
                                                      String(GUI::INFINITY_CHAR) ;
@@ -386,12 +387,12 @@ void Channel::updateChannelVU(Slider* a_vu_slider , Label* a_vu_label , double v
 
 Value Channel::getValueObject(Identifier a_key)
 {
-  return this->configStore.getPropertyAsValue(a_key , nullptr) ;
+  return this->channelStore.getPropertyAsValue(a_key , nullptr) ;
 }
 
 void Channel::setConfig(Identifier a_key , var a_value)
 {
-  this->configStore.setProperty(a_key , a_value , nullptr) ;
+  this->channelStore.setProperty(a_key , a_value , nullptr) ;
 }
 
 
@@ -416,7 +417,7 @@ void Channel::setStereoState()
 DEBUG_TRACE_STEREO_STATE_GUI
 
   bool is_stereo = int(this->stereoStatus.getValue()) != CONFIG::MONO ;
-  bool is_metro  = this->configStore.getType() == CONFIG::METRO_ID ;
+  bool is_metro  = this->channelStore.getType() == CONFIG::METRO_ID ;
 
   // show/hide stereo-only components
   this->stereoLabel  ->setVisible(is_stereo) ;
@@ -447,7 +448,7 @@ MasterChannel::MasterChannel(ValueTree channel_store) : Channel(channel_store)
   this->nameLabel   ->setEditable(false , false , false) ;
 
   // metro VU used as loop progress indicator
-  if (this->configStore.getType() == CONFIG::METRO_ID)
+  if (this->channelStore.getType() == CONFIG::METRO_ID)
   {
     this->vuLeftSlider ->setRange(0.0 , 1.0 , 0.0) ;
     this->vuRightSlider->setRange(0.0 , 1.0 , 0.0) ;
@@ -483,11 +484,11 @@ void LocalChannel::buttonClicked(Button* a_button)
   if (handleButtonClicked(a_button)) return ;
 
   if      (a_button == this->removeButton)
-    LinJam::RemoveLocalChannel(this->configStore) ;
+    LinJam::RemoveLocalChannel(this->channelStore) ;
 
   else if (a_button == this->configButton)
   {
-    ConfigChannel* configChannel = new ConfigChannel(this->configStore) ;
+    ConfigChannel* configChannel = new ConfigChannel(this->channelStore) ;
     Component*     mixer         = getParentComponent()->getParentComponent() ;
     Component*     mainContent   = mixer->getParentComponent() ;
 

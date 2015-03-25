@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -20,7 +20,6 @@
 //[Headers] You can add your own extra header files here...
 
 #include "Constants.h"
-#include "LinJam.h"
 #include "Subscriptions.h"
 
 //[/Headers]
@@ -32,8 +31,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-ConfigSubscriptions::ConfigSubscriptions (ValueTree config_store)
-    : configStore(config_store)
+ConfigSubscriptions::ConfigSubscriptions (ValueTree subscriptions_store)
+    : subscriptionsStore(subscriptions_store)
 {
     addAndMakeVisible (subscribeButton = new ToggleButton ("subscribeButton"));
     subscribeButton->setExplicitFocusOrder (1);
@@ -62,7 +61,7 @@ ConfigSubscriptions::ConfigSubscriptions (ValueTree config_store)
     subscriptionsViewport->setExplicitFocusOrder (3);
     subscriptionsViewport->setScrollBarsShown (true, false);
     subscriptionsViewport->setScrollBarThickness (12);
-    subscriptionsViewport->setViewedComponent (new Subscriptions (config_store));
+    subscriptionsViewport->setViewedComponent (new Subscriptions (subscriptions_store));
 
 
     //[UserPreSize]
@@ -73,7 +72,7 @@ ConfigSubscriptions::ConfigSubscriptions (ValueTree config_store)
 
     //[Constructor] You can add your own custom stuff here..
 
-  int  auto_subscribe_mode = int(this->configStore[CONFIG::SUBSCRIBE_MODE_KEY]) ;
+  int  auto_subscribe_mode = int(this->subscriptionsStore[CONFIG::SUBSCRIBE_MODE_KEY]) ;
   bool should_sub          = auto_subscribe_mode != (int)NJClient::SUBSCRIBE_ALLOW ;
   bool should_ban          = auto_subscribe_mode == (int)NJClient::SUBSCRIBE_DENY ;
 
@@ -122,6 +121,9 @@ void ConfigSubscriptions::paint (Graphics& g)
 
 void ConfigSubscriptions::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     subscribeButton->setBounds (20, 20, 74, 16);
     ignoreButton->setBounds (98, 20, 74, 16);
     bansLabel->setBounds (20, 44, 152, 16);
@@ -165,7 +167,7 @@ void ConfigSubscriptions::buttonClicked (Button* buttonThatWasClicked)
 
 void ConfigSubscriptions::setConfig(Identifier a_key , var a_value)
 {
-  this->configStore.setProperty(a_key , a_value , nullptr) ;
+  this->subscriptionsStore.setProperty(a_key , a_value , nullptr) ;
 }
 
 //[/MiscUserCode]
@@ -181,10 +183,10 @@ void ConfigSubscriptions::setConfig(Identifier a_key , var a_value)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="ConfigSubscriptions" componentName=""
-                 parentClasses="public Component" constructorParams="ValueTree config_store"
-                 variableInitialisers="configStore(config_store)" snapPixels="8"
-                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="1"
-                 initialWidth="614" initialHeight="434">
+                 parentClasses="public Component" constructorParams="ValueTree subscriptions_store"
+                 variableInitialisers="subscriptionsStore(subscriptions_store)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="1" initialWidth="614" initialHeight="434">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 192 172" cornerSize="10" fill="solid: ff200000" hasStroke="0"/>
     <ROUNDRECT pos="20 64 152 84" cornerSize="10" fill="solid: ff101010" hasStroke="1"
@@ -206,7 +208,7 @@ BEGIN_JUCER_METADATA
   <VIEWPORT name="subscriptionsViewport" id="1da1a4f83d3dffa2" memberName="subscriptionsViewport"
             virtualName="" explicitFocusOrder="3" pos="24 68 144 76" vscroll="1"
             hscroll="0" scrollbarThickness="12" contentType="2" jucerFile=""
-            contentClass="Subscriptions" constructorParams="config_store"/>
+            contentClass="Subscriptions" constructorParams="subscriptions_store"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

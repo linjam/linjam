@@ -8,6 +8,9 @@
     <Filter Include="LinJam\Headers">
       <UniqueIdentifier>{02AB75B1-B859-1C0B-E741-CF1CBCADFD47}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LinJam\Headers\Trace">
+      <UniqueIdentifier>{224B4B2C-ED13-3351-EDB1-82471BD04F2B}</UniqueIdentifier>
+    </Filter>
     <Filter Include="LinJam\Source">
       <UniqueIdentifier>{74D4883D-314B-1893-2393-5AF08AC368E6}</UniqueIdentifier>
     </Filter>
@@ -199,19 +202,22 @@
     <ClCompile Include="..\..\Source\Chat.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Config.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ConfigAudio.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ConfigChannel.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Config.cpp">
-      <Filter>LinJam\Source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Source\ConfigClient.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ConfigSubscriptions.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Constants.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\License.cpp">
@@ -1059,6 +1065,30 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\Trace\Trace.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceChannels.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceConfig.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceLinJam.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceLinJamConfig.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceLogin.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceMain.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceMixer.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\Background.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
@@ -1071,13 +1101,13 @@
     <ClInclude Include="..\..\Source\Chat.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Config.h">
+      <Filter>LinJam\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ConfigAudio.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ConfigChannel.h">
-      <Filter>LinJam\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Config.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ConfigClient.h">
@@ -1165,6 +1195,9 @@
       <Filter>Juce Modules\juce_core\maths</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\maths\juce_MathsFunctions.h">
+      <Filter>Juce Modules\juce_core\maths</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\maths\juce_NormalisableRange.h">
       <Filter>Juce Modules\juce_core\maths</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\maths\juce_Random.h">
@@ -1386,6 +1419,9 @@
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\logging\juce_Logger.h">
       <Filter>Juce Modules\juce_core\logging</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\system\juce_CompilerSupport.h">
+      <Filter>Juce Modules\juce_core\system</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\system\juce_PlatformDefs.h">
       <Filter>Juce Modules\juce_core\system</Filter>
     </ClInclude>
@@ -1489,6 +1525,9 @@
       <Filter>Juce Modules\juce_events\messages</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\messages\juce_MessageManager.h">
+      <Filter>Juce Modules\juce_events\messages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\messages\juce_MountedVolumeListChangeDetector.h">
       <Filter>Juce Modules\juce_events\messages</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_events\messages\juce_NotificationType.h">

@@ -1,10 +1,10 @@
 
 # nix
 Builds/Linux/build
+Builds/Linux/.gdbinit
 *~
 *.kate-swp
 .kateproject*
-Builds/Linux/.gdbinit
 
 # win
 *Debug
@@ -13,7 +13,7 @@ lib
 
 # etc
 mk*
-dbg
+dbg*
 *.ninjam
 
 [Tt]humbs.db

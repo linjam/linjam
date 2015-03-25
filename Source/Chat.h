@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_8B23E8CA1D72080__
-#define __JUCE_HEADER_8B23E8CA1D72080__
+#ifndef _CHAT_H_
+#define _CHAT_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -81,4 +81,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_8B23E8CA1D72080__
+#endif // _CHAT_H_
