@@ -39,11 +39,12 @@
 class ConfigAudio  : public Component,
                      public ButtonListener,
                      public ComboBoxListener,
-                     public SliderListener
+                     public SliderListener,
+                     public ValueListener
 {
 public:
     //==============================================================================
-    ConfigAudio (ValueTree audio_store);
+    ConfigAudio (ValueTree audio_store , Value linjam_status);
     ~ConfigAudio();
 
     //==============================================================================
@@ -62,9 +63,10 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
   ValueTree audioStore ;
+  Value     linjamStatus ;
 
 
-  void broughtToFront() ;
+  void valueChanged(Value& a_value) ;
   void loadParams() ;
   void populateDevices() ;
   void restoreDefaults() ;
@@ -73,7 +75,6 @@ private:
 #if _WIN32
   bool queryAsioDevices() ;
   bool queryKsDevices() ;
-
   bool queryDsDevices() ;
   bool queryWaveDevices() ;
 #else // _WIN32
@@ -89,14 +90,14 @@ private:
   void setConfig(    Identifier a_key , var a_value) ;
 
 
-#if _WIN32_THESE_MOVED_TO_LIBNINJAM
+#ifdef _WIN32_THESE_MOVED_TO_LIBNINJAM
 public:
-static StringPairArray getDsDevices() ;
-static StringArray     getDsDeviceNames() ;
-static StringArray     getDsDeviceGuids() ;
+  static StringPairArray getDsDevices() ;
+  static StringArray     getDsDeviceNames() ;
+  static StringArray     getDsDeviceGuids() ;
 private:
-static BOOL CALLBACK DSEnumProc(LPGUID  lpGUID      , LPCTSTR lpszDesc ,
-                                LPCTSTR lpszDrvName , LPVOID  device_names) ;
+  static BOOL CALLBACK DSEnumProc(LPGUID  lpGUID      , LPCTSTR lpszDesc ,
+                                  LPCTSTR lpszDrvName , LPVOID  device_names) ;
 #endif // _WIN32
 
     //[/UserVariables]

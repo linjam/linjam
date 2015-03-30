@@ -11,24 +11,21 @@
 #define _LINJAM_H_
 
 
-#ifdef _WIN32
-#  include <windows.h>
-#  include <stdio.h>
-#  include <WDL/string.h>
-#  include <WDL/ptrlist.h>
-#  include <ninjam/njasiodrv/njasiodrv_if.h>
-#endif // _WIN32
-
-
-/* NOTE: the following require libninjam v0.07 headers 
-             functions NJClient::GetLocalChannelName() 
-                       create_audioStreamer_ASIO_DLL()
-                       create_audioStreamer_ALSA() override
-             enum     audioStreamer::WinApi
-             enum     audioStreamer::NixApi */
+/* NOTE: the following refs require libninjam v0.07
+             * function NJClient::GetLocalChannelName() 
+             * function audioStreamer::NewASIO()
+             * function audioStreamer::NewALSA() override
+             * function audioStreamer::GetASIODriverName()
+             * function audioStreamer::getNInputChannels()
+             * function audioStreamer::getSampleRate()
+             * function audioStreamer::GetDsGuidByName()
+             * function audioStreamer::GetDsNamesCSV()
+             * enum     audioStreamer::WinApi
+             * enum     audioStreamer::MacApi
+             * enum     audioStreamer::NixApi              */
 #include <ninjam/audiostream.h>
 #include <ninjam/njclient.h>
-#include <ninjam/njmisc.h>
+#include <ninjam/njmisc.h> // VAL2DB and DB2VAL
 
 #include "JuceHeader.h"
 
@@ -46,14 +43,15 @@ class LinJam
 
 
 public:
-  
+
   // extension to NJClient::ConnectionStatus
-  enum LinJamStatus { LINJAM_STATUS_INIT           = -9 ,
-                      LINJAM_STATUS_AUDIOERROR     = -8 ,
-                      LINJAM_STATUS_CONFIGPENDING  = -7 ,
-                      LINJAM_STATUS_READY          = -6 ,
-                      LINJAM_STATUS_LICENSEPENDING = -5 ,
-                      LINJAM_STATUS_ROOMFULL       = -4 } ;
+  enum LinJamStatus { LINJAM_STATUS_INIT           = -10 ,
+                      LINJAM_STATUS_AUDIOINIT      = -9  ,
+                      LINJAM_STATUS_CONFIGPENDING  = -8  ,
+                      LINJAM_STATUS_AUDIOERROR     = -7  ,
+                      LINJAM_STATUS_READY          = -6  ,
+                      LINJAM_STATUS_LICENSEPENDING = -5  ,
+                      LINJAM_STATUS_ROOMFULL       = -4  } ;
 //                    NJC_STATUS_DISCONNECTED      = -3 // NJClient::ConnectionStatus
 //                    NJC_STATUS_INVALIDAUTH       = -2 // NJClient::ConnectionStatus
 //                    NJC_STATUS_CANTCONNECT       = -1 // NJClient::ConnectionStatus
@@ -83,21 +81,23 @@ private:
 
   static NJClient*      Client ;
   static MainContent*   Gui ;
+  static MultiTimer*    Timer ;
   static LinJamConfig*  Config ;
   static audioStreamer* Audio ;
+  static String         AutoJoinHost ;
+  static Value          Status ;
   static bool           IsAudioInitialized ;
   static SortedSet<int> FreeAudioSources ;
   static SortedSet<int> FreeAudioSourcePairs ;
   static double         GuiBeatOffset ;
   static File           SessionDir ;
-  static Value          Status ;
   static int            RetryLogin ;
   static String         PrevRecordingTime ;
 
 
   // setup
-  static bool Initialize(NJClient*     nj_client , MainContent* main_content ,
-                         const String& args                                  ) ;
+  static bool Initialize(NJClient*  nj_client   , MainContent*  main_content ,
+                        MultiTimer* multi_timer , const String& cli_args     ) ;
   static void InitializeConstants() ;
   static bool PrepareSessionDirectory() ;
   static void ConfigureNinjam() ;
@@ -126,7 +126,22 @@ private:
   static void UpdateVuMeters() ;
   static void UpdateRecordingTime() ;
 
-  // NJClient config helpers
+  // NJClient configuration
+  static void   ConfigureAudio() ;
+  static void   ConfigureMasterChannel(Identifier a_key) ;
+  static void   ConfigureMetroChannel( Identifier a_key) ;
+  static void   ConfigureLocalChannel( ValueTree  channel_store , Identifier a_key) ;
+  static void   ConfigureRemoteChannel(ValueTree  user_store    ,
+                                       ValueTree  channel_store , Identifier a_key) ;
+
+  // audio signal helpers
+  static double AddDecibels(       double l_vu , double r_vu) ;
+  static void   ComputePannedVus(  double pan , double* l_vu , double* r_vu) ;
+  static void   ScalePannedMonoVus(double  vu_mono , double  pan ,
+                                   double* l_vu    , double* r_vu) ;
+  static float  ComputeStereoPan(  float pan , int stereo_status) ;
+
+  // NJClient/audioStreamer helpers
   static int    GetNumAudioSources() ;
   static int    GetNumLocalChannels() ;
   static int    GetNumVacantChannels() ;
@@ -136,18 +151,6 @@ private:
   static String GetRemoteUserName(         int user_idx) ;
   static String GetRemoteChannelClientName(int user_idx , int channel_idx) ;
   static bool   IsConfiguredChannel(       int channel_idx) ;
-  static double AddDecibels(               double l_vu , double r_vu) ;
-  static void   ComputePannedVus(          double pan , double* l_vu , double* r_vu) ;
-  static void   ScalePannedMonoVus(        double  vu_mono , double  pan ,
-                                           double* l_vu    , double* r_vu) ;
-  static float  ComputeStereoPan(          float pan , int stereo_status) ;
-  static void   UpdateRemoteUserState(     ValueTree user_store , int user_idx ,
-                                           bool      should_rcv                ) ;
-  static void   ConfigureMasterChannel(    Identifier a_key) ;
-  static void   ConfigureMetroChannel(     Identifier a_key) ;
-  static void   ConfigureLocalChannel(     ValueTree  channel_store , Identifier a_key) ;
-  static void   ConfigureRemoteChannel(    ValueTree  user_store    ,
-                                           ValueTree  channel_store , Identifier a_key) ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;

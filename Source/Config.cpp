@@ -39,7 +39,7 @@ Config::Config (ValueTree audio_store, ValueTree client_store, ValueTree subscri
     addAndMakeVisible (configTabs = new TabbedComponent (TabbedButtonBar::TabsAtTop));
     configTabs->setExplicitFocusOrder (1);
     configTabs->setTabBarDepth (24);
-    configTabs->addTab (TRANS("audio"), Colour (0xff002000), new ConfigAudio (audio_store), true);
+    configTabs->addTab (TRANS("audio"), Colour (0xff002000), new ConfigAudio (audio_store , linjam_status), true);
     configTabs->addTab (TRANS("client"), Colour (0xff202000), new ConfigClient (client_store), true);
     configTabs->addTab (TRANS("ignores"), Colour (0xff200000), new ConfigSubscriptions (subscriptions_store), true);
     configTabs->setCurrentTabIndex (0);
@@ -62,7 +62,8 @@ Config::Config (ValueTree audio_store, ValueTree client_store, ValueTree subscri
 
     //[Constructor] You can add your own custom stuff here..
 
-  this->linjamStatus.referTo(linjam_status) ;
+  this->linjamStatus.referTo(linjam_status) ; this->linjamStatus.addListener(this) ;
+
   this->configTabs->setOutline(0) ;
   this->configTabs->setIndent(0) ;
 
@@ -153,7 +154,7 @@ void Config::valueChanged(Value& a_value)
   this->dismissButton->setEnabled(!is_audio_error) ;
   this->dismissButton->setButtonText(button_text) ;
 
-  if (is_audio_error) this->configTabs->setCurrentTabIndex(0 , false) ;
+  this->configTabs->setCurrentTabIndex(GUI::AUDIO_TAB_IDX  , false) ;
 }
 
 //[/MiscUserCode]

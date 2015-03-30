@@ -5,29 +5,25 @@
 
 // enable debug features
 // #define DEBUG_EXIT_IMMEDIAYELY
-// #define DEBUG_AUTOLOGIN_CHANNEL "localhost:2049"
-// #define DEBUG_AUTOLOGIN_CHANNEL "ninbot.com:2049"
-// #define DEBUG_AUTOLOGIN_CHANNEL "ninjamer.com:2051"
-
+// #define DEBUG_AUTOJOIN_HOST cli_args = "localhost:2049"
+// #define DEBUG_AUTOJOIN_HOST cli_args = "ninbot.com:2049"
+// #define DEBUG_AUTOJOIN_HOST cli_args = "ninjamer.com:2051"
 
 
 /* state */
 
-#define DEBUG_TRACE_INIT Trace::TraceState("initializing") ;               \
-                         Trace::TraceClient("detected platform is _WIN32") ;
+#ifdef DEBUG_AUTOJOIN_HOST
+#define DEBUG_TRACE_INIT Trace::TraceState("initializing") ; \
+        DEBUG_AUTOJOIN_HOST                                  ;
+#else // DEBUG_AUTOJOIN_HOST
+#define DEBUG_TRACE_INIT Trace::TraceState("initializing") ;
+#endif // DEBUG_AUTOJOIN_HOST
 
-#ifndef USE_APPDATA_DIR
-#define DEBUG_TRACE_SESSIONDIR                                                  \
-  Trace::TraceClient("preparing session dir '" + session_dir_path + "'- "     + \
-                     (SessionDir.isDirectory() ? "already exists" : "created")) ;
-#else // USE_APPDATA_DIR
-#define DEBUG_TRACE_SESSIONDIR                                                  \
-  String session_dir_path = SessionDir.getFullPathName() ;                      \
-  Trace::TraceClient("preparing session dir '" + session_dir_path + "'- "     + \
-                     (SessionDir.isDirectory() ? "already exists" : "created")) ;
-#endif // USE_APPDATA_DIR
+#define DEBUG_TRACE_SESSIONDIR                                                          \
+  Trace::TraceClient("preparing session dir '" + SessionDir.getFullPathName() + "'- " + \
+                     (SessionDir.isDirectory() ? "already exists" : "created")        ) ;
 
-static int PrevStatus = -9 ;
+static int PrevStatus = LinJam::LINJAM_STATUS_INIT ;
 #define DEBUG_TRACE_STATUS_CHANGED                                                      \
   int    prev_status   = PrevStatus ;                                                   \
   int    curr_status   = (PrevStatus = int(Status.getValue())) ;                        \
@@ -63,25 +59,27 @@ static int PrevStatus = -9 ;
   Trace::TraceState((IsAgreed())? "agreeing to license" :            \
                                   "prompting for license agreement") ;
 
+#define DEBUG_TRACE_SHUTDOWN Trace::TraceState("clean shutdown - bye") ;
+
 
 /* audio */
 
 #define DEBUG_TRACE_AUDIO_INIT_WIN                                                       \
-  audioStreamer::WinApi api_n = (audioStreamer::WinApi)win_api_n ;                       \
-  String type = (api_n == audioStreamer::WIN_AUDIO_ASIO)? CLIENT::ASIO_DEVICE_TYPE :     \
-                (api_n == audioStreamer::WIN_AUDIO_KS)  ? CLIENT::KS_DEVICE_TYPE   :     \
-                (api_n == audioStreamer::WIN_AUDIO_DS)  ? CLIENT::DS_DEVICE_TYPE   :     \
-                (api_n == audioStreamer::WIN_AUDIO_WAVE)? CLIENT::WAVE_DEVICE_TYPE :     \
-                                                          CLIENT::NFG_DEVICE_TYPE  ;     \
+  String type =                                                                          \
+      (audio_api_n == audioStreamer::WIN_AUDIO_ASIO) ? CLIENT::ASIO_DEVICE_TYPE :        \
+      (audio_api_n == audioStreamer::WIN_AUDIO_KS)   ? CLIENT::KS_DEVICE_TYPE   :        \
+      (audio_api_n == audioStreamer::WIN_AUDIO_DS)   ? CLIENT::DS_DEVICE_TYPE   :        \
+      (audio_api_n == audioStreamer::WIN_AUDIO_WAVE) ? CLIENT::WAVE_DEVICE_TYPE :        \
+                                                       CLIENT::NFG_DEVICE_TYPE  ;        \
   String dbg = "initializing " + type + " audiostreamer =>" ;                            \
-  switch ((int)api_n)                                                                    \
+  switch ((audioStreamer::WinApi)audio_api_n)                                            \
   {                                                                                      \
-    case audioStreamer::WIN_AUDIO_ASIO: dbg = dbg                             +          \
-          "\n\t" + CONFIG::ASIO_DRIVER_KEY  + " => " + String(asio_driver_n)  +          \
-          "\n\t" + CONFIG::ASIO_INPUT0_KEY  + " => " + String(asio_input0_n)  +          \
-          "\n\t" + CONFIG::ASIO_INPUT1_KEY  + " => " + String(asio_input1_n)  +          \
-          "\n\t" + CONFIG::ASIO_OUTPUT0_KEY + " => " + String(asio_output0_n) +          \
-          "\n\t" + CONFIG::ASIO_OUTPUT1_KEY + " => " + String(asio_output1_n) ;          \
+    case audioStreamer::WIN_AUDIO_ASIO: dbg = dbg                              +         \
+          "\n\t" + CONFIG::ASIO_DRIVER_KEY  + " => " + String(asio_driver_n)   +         \
+          "\n\t" + CONFIG::ASIO_INPUTB_KEY  + " => " + String(asio_input_b_n)  +         \
+          "\n\t" + CONFIG::ASIO_INPUTE_KEY  + " => " + String(asio_input_e_n)  +         \
+          "\n\t" + CONFIG::ASIO_OUTPUTB_KEY + " => " + String(asio_output_b_n) +         \
+          "\n\t" + CONFIG::ASIO_OUTPUTE_KEY + " => " + String(asio_output_e_n) ;         \
     break ;                                                                              \
     case audioStreamer::WIN_AUDIO_KS: dbg = dbg                                +         \
           "\n\t" + CONFIG::KS_SAMPLERATE_KEY + " => " + String(ks_sample_rate) +         \
@@ -108,26 +106,24 @@ static int PrevStatus = -9 ;
   }                                                                                      \
   if (TRACE_AUDIO_INIT_VB) Trace::TraceClient(dbg) ;
 
-#define DEBUG_TRACE_AUDIO_INIT_MAC                                               \
-  String type = CLIENT::CA_DEVICE_TYPE ;                                         \
-  Trace::TraceClient("detected platform is _MAC") ;                              \
-  if (TRACE_AUDIO_INIT_VB)                                                       \
-    Trace::TraceClient("initializing "      + type   + " audiostreamer =>"     + \
-        "\n\t" + CONFIG::MAC_DEVICE_KEY     + " => " + mac_device_name         + \
-        "\n\t" + CONFIG::MAC_NCHANNELS_KEY  + " => " + String(mac_n_channels)  + \
-        "\n\t" + CONFIG::MAC_SAMPLERATE_KEY + " => " + String(mac_sample_rate) + \
-        "\n\t" + CONFIG::MAC_BITDEPTH_KEY   + " => " + String(mac_bit_depth)   ) ;
+#define DEBUG_TRACE_AUDIO_INIT_MAC                                             \
+  String type = CLIENT::CA_DEVICE_TYPE ;                                       \
+  if (TRACE_AUDIO_INIT_VB)                                                     \
+    Trace::TraceClient("initializing "     + type   + " audiostreamer =>"    + \
+        "\n\t" + CONFIG::CA_DEVICE_KEY     + " => " + ca_device_name         + \
+        "\n\t" + CONFIG::CA_NCHANNELS_KEY  + " => " + String(ca_n_channels)  + \
+        "\n\t" + CONFIG::CA_SAMPLERATE_KEY + " => " + String(ca_sample_rate) + \
+        "\n\t" + CONFIG::CA_BITDEPTH_KEY   + " => " + String(ca_bit_depth)   ) ;
 
-#define DEBUG_TRACE_AUDIO_INIT_NIX                                                    \
-  audioStreamer::NixApi api_n = (audioStreamer::NixApi)nix_api_n ;                    \
-  String type = (api_n == audioStreamer::NIX_AUDIO_JACK) ? CLIENT::JACK_DEVICE_TYPE : \
-                (api_n == audioStreamer::NIX_AUDIO_ALSA) ? CLIENT::ALSA_DEVICE_TYPE : \
-                                                            CLIENT::NFG_DEVICE_TYPE ; \
-  Trace::TraceClient("detected platform is *NIX") ;                                   \
-  if (!TRACE_AUDIO_INIT_VB)                                                           \
-    Trace::TraceClient("initializing " + type + " audiostreamer") ;                   \
-  else if (api_n == audioStreamer::NIX_AUDIO_JACK) DEBUG_TRACE_AUDIO_INIT_JACK        \
-  else if (api_n == audioStreamer::NIX_AUDIO_ALSA) DEBUG_TRACE_AUDIO_INIT_ALSA
+#define DEBUG_TRACE_AUDIO_INIT_NIX                                                   \
+  String type =                                                                      \
+      (audio_api_n == audioStreamer::NIX_AUDIO_JACK) ? CLIENT::JACK_DEVICE_TYPE :    \
+      (audio_api_n == audioStreamer::NIX_AUDIO_ALSA) ? CLIENT::ALSA_DEVICE_TYPE :    \
+                                                       CLIENT::NFG_DEVICE_TYPE ;     \
+  if (!TRACE_AUDIO_INIT_VB)                                                          \
+    Trace::TraceClient("initializing " + type + " audiostreamer") ;                  \
+  else if (audio_api_n == audioStreamer::NIX_AUDIO_JACK) DEBUG_TRACE_AUDIO_INIT_JACK \
+  else if (audio_api_n == audioStreamer::NIX_AUDIO_ALSA) DEBUG_TRACE_AUDIO_INIT_ALSA
 
 #define DEBUG_TRACE_AUDIO_INIT_JACK                                          \
   Trace::TraceClient("initializing "     + type   + " audiostreamer =>"    + \
@@ -151,13 +147,13 @@ static int PrevStatus = -9 ;
                 type = CLIENT::ALSA_DEVICE_TYPE ; DEBUG_TRACE_AUDIO_INIT_ALSA }
 
 #define DEBUG_TRACE_AUDIO_INIT                                                            \
-  if (Audio == nullptr)                                                                             \
-       Trace::TraceError("error opening audio device using " + type + " audiostreamer") ; \
-  else Trace::TraceState("opened audio device using " + type     + " audiostreamer - " +  \
-                         String(Audio->m_srate)       + "Hz "                          +  \
-                         String(Audio->m_bps)         + "bps "                         +  \
-                         String(Audio->m_innch)       + "in -> "                       +  \
-                         String(Audio->m_outnch)      + "out "                         )  ;
+  String streamer_msg = " audio device using " + type  + " AudioStreamer" ;               \
+  if (Audio == nullptr) Trace::TraceError("error opening" + streamer_msg) ;               \
+  else                  Trace::TraceState("opened"        + streamer_msg      + " - "  +  \
+                                          String(Audio->getNInputChannels() ) + "in "  +  \
+                                          String(Audio->getNOutputChannels()) + "out " +  \
+                                          String(Audio->getSampleRate()     ) + "Hz "  +  \
+                                          String(Audio->getBitDepth()       ) + "bit"  )  ;
 
 
 /* channels */
@@ -168,10 +164,10 @@ static int PrevStatus = -9 ;
   else Trace::TraceConfig("restoring " + String(n_chs) + " stored local channels") ;
 
 #define DEBUG_TRACE_ADD_LOCAL_CHANNEL                                                     \
-  String channel_name = channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;               \
-  int    ch_idx       = int(channel_store[CONFIG::CHANNEL_IDX_ID]) ;                      \
-  int    source       = int(channel_store[CONFIG::SOURCE_N_ID]) ;                         \
-  bool   stereo       = int(channel_store[CONFIG::STEREO_ID]) != CONFIG::MONO ;           \
+  String channel_name = String(channel_store[CONFIG::CHANNEL_NAME_ID]) ;                  \
+  int    ch_idx       = int(   channel_store[CONFIG::CHANNEL_IDX_ID ]) ;                  \
+  int    source       = int(   channel_store[CONFIG::SOURCE_N_ID    ]) ;                  \
+  bool   stereo       = int(   channel_store[CONFIG::STEREO_ID      ]) != CONFIG::MONO ;  \
   String type         = (!stereo)? "mono" : "stereo" ;                                    \
   bool   is_new       = ch_idx == CONFIG::DEFAULT_CHANNEL_IDX ;                           \
   bool   exists       = IsConfiguredChannel(ch_idx) ;                                     \
@@ -197,7 +193,7 @@ static int PrevStatus = -9 ;
                     String(channel_store.getType()) + " '" + channel_name + "'") ;
 
 #define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL                                      \
-  String ch_name   = channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;         \
+  String ch_name   = GetStoredChannelName(channel_store) ;                       \
          ch_name   = Config->MakeStereoName(ch_name , stereo_status) ;           \
   String ch_id     = String(channel_store.getType()) ;                           \
   bool   is_new    = !IsConfiguredChannel(channel_idx) ;                         \
@@ -237,7 +233,7 @@ static int PrevStatus = -9 ;
   Trace::TraceClient("configuring " + dbg) ;
 
 #define DEBUG_TRACE_REMOVE_LOCAL_CHANNEL                                       \
-  String type = (int(channel_store[CONFIG::STEREO_ID]) == CONFIG::MONO)?       \
+  String type = (int(channel_store[CONFIG::STEREO_ID]) == CONFIG::MONO) ?      \
                 "mono" : "stereo" ;                                            \
   Trace::TraceEvent("destroying local " + type + " channel["                 + \
                     channel_store[CONFIG::CHANNEL_IDX_ID].toString() + "] '" + \
@@ -308,7 +304,7 @@ static int PrevStatus = -9 ;
 #define DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL                                           \
   String user_name      = String(user_store.getType()) ;                               \
   String dbg            = "configuring remote " + String(channel_store.getType())  +   \
-                          " '" + channel_store[CONFIG::CHANNEL_NAME_ID].toString() +   \
+                          " '" + GetStoredChannelName(channel_store)               +   \
                           "' for user[" + String(user_idx) + "] '" + user_name + "'" ; \
   String pann           = String(pan) + ((stereo_status == CONFIG::MONO)? "" :         \
                           " (" + String(ComputeStereoPan(pan , stereo_status)) +       \
@@ -377,7 +373,7 @@ static int PrevStatus = -9 ;
 /* chat */
 
 #define DEBUG_TRACE_CHAT_IN                                                        \
-  if (chat_user.compare(Config->server[CONFIG::LOGIN_ID].toString()))              \
+  if (chat_user.compare(String(Config->server[CONFIG::LOGIN_ID])))                 \
     Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 
 #define DEBUG_TRACE_CHAT_OUT                                                    \
@@ -394,6 +390,7 @@ static int PrevStatus = -9 ;
 #define DEBUG_TRACE_STATUS_CHANGED            ;
 #define DEBUG_TRACE_CONNECT                   ;
 #define DEBUG_TRACE_LICENSE                   ;
+#define DEBUG_TRACE_SHUTDOWN                  ;
 // audio
 #define DEBUG_TRACE_AUDIO_INIT_WIN            ;
 #define DEBUG_TRACE_AUDIO_INIT_MAC            ;

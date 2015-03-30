@@ -19,7 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 
-#include "Constants.h"
+#include "LinJam.h"
 #include "./Trace/TraceConfig.h"
 
 //[/Headers]
@@ -31,7 +31,7 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-ConfigAudio::ConfigAudio (ValueTree audio_store)
+ConfigAudio::ConfigAudio (ValueTree audio_store, Value linjam_status)
     : audioStore(audio_store)
 {
     addAndMakeVisible (ioGroup = new GroupComponent ("ioGroup",
@@ -300,18 +300,11 @@ ConfigAudio::ConfigAudio (ValueTree audio_store)
 
     //[Constructor] You can add your own custom stuff here..
 
-#ifdef _WIN32
-  int win_api_n = int(this->audioStore[CONFIG::WIN_AUDIO_API_ID]) ;
-  this->modeComboBox->addItemList(CLIENT::WIN_AUDIO_APIS , 1) ;
-  this->modeComboBox->setSelectedItemIndex(win_api_n , juce::dontSendNotification) ;
-#else // _WIN32
-#  ifndef _MAC
-  int nix_api_n = int(this->audioStore[CONFIG::NIX_AUDIO_API_ID]) ;
-  this->modeComboBox->addItemList(CLIENT::NIX_AUDIO_APIS , 1) ;
-  this->modeComboBox->setSelectedItemIndex(nix_api_n , juce::dontSendNotification) ;
-#  endif // _MAC
-#endif // _WIN32
+  this->linjamStatus.referTo(linjam_status) ; this->linjamStatus.addListener(this) ;
 
+  int audio_api_n = int(this->audioStore[CONFIG::AUDIO_API_ID]) ;
+  this->modeComboBox  ->addItemList(CLIENT::AUDIO_APIS , 1) ;
+  this->modeComboBox  ->setSelectedItemIndex(audio_api_n , juce::dontSendNotification) ;
   this->nBuffersSlider->setRange(CLIENT::MIN_N_BUFFERS , CLIENT::MAX_N_BUFFERS , 1) ;
   this->nSourcesSlider->setRange(CLIENT::MIN_N_SOURCES , CLIENT::MAX_N_SOURCES , 1) ;
   this->nSinksSlider  ->setRange(CLIENT::MIN_N_SINKS   , CLIENT::MAX_N_SINKS   , 1) ;
@@ -425,10 +418,9 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
   Identifier bit_depth_key   = Identifier() ;
   Identifier sample_rate_key = Identifier() ;
 
+  int audio_api_n = int(this->audioStore[CONFIG::AUDIO_API_ID]) ;
 #ifdef _WIN32
-  int win_api_n = int(this->audioStore[CONFIG::WIN_AUDIO_API_ID]) ;
-
-  switch ((audioStreamer::WinApi)win_api_n)
+  switch ((audioStreamer::WinApi)audio_api_n)
   {
     case audioStreamer::WIN_AUDIO_KS:
       sample_rate_key = CONFIG::KS_SAMPLERATE_ID ;
@@ -446,8 +438,17 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
   }
 #else // _WIN32
 #  ifndef _MAC
-  sample_rate_key = CONFIG::MAC_SAMPLERATE_ID ;
-  bit_depth_key   = CONFIG::MAC_BITDEPTH_ID;
+  sample_rate_key = CONFIG::CA_SAMPLERATE_ID ;
+  bit_depth_key   = CONFIG::CA_BITDEPTH_ID;
+#  else // _MAC
+  switch ((audioStreamer::NixApi)audio_api_n)
+  {
+    case audioStreamer::NIX_AUDIO_ALSA:
+      sample_rate_key = CONFIG::ALSA_SAMPLERATE_ID ;
+      bit_depth_key   = CONFIG::ALSA_BITDEPTH_ID ;
+      break ;
+    default: break ;
+  }
 #  endif // _MAC
 #endif // _WIN32
 
@@ -463,18 +464,22 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == defaultsButton)
+    if      (buttonThatWasClicked == defaultsButton)
     {
         //[UserButtonCode_defaultsButton] -- add your button handler code here..
 
-      restoreDefaults() ; loadParams() ; return ;
+      restoreDefaults() ; loadParams() ;
 
         //[/UserButtonCode_defaultsButton]
     }
     else if (buttonThatWasClicked == asioButton)
     {
         //[UserButtonCode_asioButton] -- add your button handler code here..
-      return ; // nyi
+
+      // TODO: make asioButton a checkbox
+      config_key = CONFIG::ASIO_CONTROL_ID ;
+      value      = var(!bool(this->audioStore[CONFIG::ASIO_CONTROL_ID])) ;
+
         //[/UserButtonCode_asioButton]
     }
     else if (buttonThatWasClicked == bps16Button)
@@ -543,32 +548,22 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
 
-#ifdef _WIN32
-  int win_api_n = int(this->audioStore[CONFIG::WIN_AUDIO_API_ID]) ;
-#endif // _WIN32
-
-  int        selected_index ;
-  int        default_index ;
-  Identifier config_key ;
+  int        audio_api_n = int(this->audioStore[CONFIG::AUDIO_API_ID]) ;
+  int        option_n    = comboBoxThatHasChanged->getSelectedItemIndex() ;
+  String     option_text = comboBoxThatHasChanged->getText() ;
+  Identifier key ;
   var        value ;
 
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == modeComboBox)
+    if      (comboBoxThatHasChanged == modeComboBox)
     {
         //[UserComboBoxCode_modeComboBox] -- add your combo box handling code here..
 
-#ifndef _MAC
-      int selected_index = this->modeComboBox->getSelectedItemIndex() ;
-#  if _WIN32
-      config_key    = CONFIG::WIN_AUDIO_API_ID ;
-      default_index = CONFIG::DEFAULT_WIN_AUDIO_API ;
-#  else // _WIN32
-      config_key    = CONFIG::NIX_AUDIO_API_ID ;
-      default_index = CONFIG::DEFAULT_NIX_AUDIO_API ;
-#  endif // _WIN32
-      value = var((~selected_index)? selected_index : default_index) ;
-#endif // _MAC
+      key   = CONFIG::AUDIO_API_ID ;
+      value = var((~option_n) ? option_n : CONFIG::DEFAULT_AUDIO_API) ;
+
+      this->modeComboBox->setSelectedItemIndex(option_n) ;
 
         //[/UserComboBoxCode_modeComboBox]
     }
@@ -576,15 +571,16 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     {
         //[UserComboBoxCode_driverComboBox] -- add your combo box handling code here..
 
-      selected_index = this->driverComboBox->getSelectedItemIndex() ;
 #ifdef _WIN32
-      config_key = CONFIG::ASIO_DRIVER_ID ;
+      key = CONFIG::ASIO_DRIVER_ID ;
 #else // _WIN32
 #  ifndef _MAC
-      config_key = CONFIG::JACK_SERVER_ID ;
+      key = CONFIG::JACK_SERVER_ID ;
 #  endif // _MAC
 #endif // _WIN32
-      value = var((~selected_index)? selected_index : 0) ;
+      value = var((~option_n) ? option_n : 0) ;
+
+      this->driverComboBox->setSelectedItemIndex(option_n) ;
 
         //[/UserComboBoxCode_driverComboBox]
     }
@@ -593,25 +589,38 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_sourceComboBox] -- add your combo box handling code here..
 
 #ifdef _WIN32
-      switch ((audioStreamer::WinApi)win_api_n)
+      switch ((audioStreamer::WinApi)audio_api_n)
       {
         case audioStreamer::WIN_AUDIO_ASIO:
-          config_key    = CONFIG::ASIO_INPUT0_ID ;
-          default_index = CONFIG::DEFAULT_ASIO_INPUT0 ; break ;
+          option_n = (~option_n) ? option_n     : CONFIG::DEFAULT_ASIO_INPUTBN ;
+          key      = CONFIG::ASIO_INPUTB_ID ;
+          value    = var(option_n) ;
+          this->sourceComboBox->setSelectedItemIndex(option_n) ;                 break ;
         case audioStreamer::WIN_AUDIO_KS:
-          config_key    = CONFIG::KS_INPUT_ID ;
-          default_index = CONFIG::DEFAULT_KS_INPUT ;    break ;
+          key      = CONFIG::KS_INPUT_ID ;
+          option_n = (~option_n) ? option_n - 1 : CONFIG::DEFAULT_KS_INPUTN ;
+          value    = var(option_n) ;
+          this->sourceComboBox->setSelectedItemIndex(option_n + 1) ;             break ;
         case audioStreamer::WIN_AUDIO_DS:
-          config_key    = CONFIG::DS_INPUT_ID ;
-//          default_index = CONFIG::DEFAULT_DS_INDEX ;    break ;
-default_index = 0 ;    break ;
+          key      = CONFIG::DS_INPUT_ID ;
+          option_n = (~option_n) ? option_n     : GUI::DEFAULT_DS_INDEX ;
+          value    = var(option_text) ;
+          this->sourceComboBox->setSelectedItemIndex(option_n) ;                 break ;
         case audioStreamer::WIN_AUDIO_WAVE:
-          config_key    = CONFIG::WAVE_INPUT_ID ;
-          default_index = CONFIG::DEFAULT_WAVE_INPUT ;  break ;
+          option_n = (~option_n) ? option_n - 1 : CONFIG::DEFAULT_WAVE_INPUTN ;
+          key      = CONFIG::WAVE_INPUT_ID ;
+          value    = var(option_n) ;
+          this->sourceComboBox->setSelectedItemIndex(option_n + 1) ;             break ;
+        default:                                                                 break ;
+      }
+#else // _WIN32
+#  ifndef _MAC
+      switch ((audioStreamer::NixApi)audio_api_n)
+      {
+        case audioStreamer::NIX_AUDIO_ALSA: /* TODO: */ break ;
         default:                                        break ;
       }
-      selected_index = this->sourceComboBox->getSelectedItemIndex() ;
-      value          = var((~selected_index) ? selected_index - 1 : default_index) ;
+#  endif //  _MAC
 #endif // _WIN32
 
         //[/UserComboBoxCode_sourceComboBox]
@@ -621,25 +630,38 @@ default_index = 0 ;    break ;
         //[UserComboBoxCode_sinkComboBox] -- add your combo box handling code here..
 
 #ifdef _WIN32
-      switch ((audioStreamer::WinApi)win_api_n)
+      switch ((audioStreamer::WinApi)audio_api_n)
       {
         case audioStreamer::WIN_AUDIO_ASIO:
-          config_key    = CONFIG::ASIO_OUTPUT0_ID ;
-          default_index = CONFIG::DEFAULT_ASIO_OUTPUT0 ; break ;
+          option_n = (~option_n) ? option_n     : CONFIG::DEFAULT_ASIO_OUTPUTBN ;
+          key      = CONFIG::ASIO_OUTPUTB_ID ;
+          value    = var(option_n) ;
+          this->sinkComboBox->setSelectedItemIndex(option_n) ;                    break ;
         case audioStreamer::WIN_AUDIO_KS:
-          config_key    = CONFIG::KS_OUTPUT_ID ;
-          default_index = CONFIG::DEFAULT_KS_OUTPUT ;    break ;
+          key      = CONFIG::KS_OUTPUT_ID ;
+          option_n = (~option_n) ? option_n - 1 : CONFIG::DEFAULT_KS_OUTPUTN ;
+          value    = var(option_n) ;
+          this->sinkComboBox->setSelectedItemIndex(option_n + 1) ;                break ;
         case audioStreamer::WIN_AUDIO_DS:
-          config_key    = CONFIG::DS_OUTPUT_ID ;
-//          default_index = CONFIG::DEFAULT_DS_OUTPUT ;    break ;
-default_index = 0 ;    break ;
+          key      = CONFIG::DS_OUTPUT_ID ;
+          option_n = (~option_n) ? option_n     : GUI::DEFAULT_DS_INDEX ;
+          value    = var(option_text) ;
+          this->sinkComboBox->setSelectedItemIndex(option_n) ;                    break ;
         case audioStreamer::WIN_AUDIO_WAVE:
-          config_key    = CONFIG::WAVE_OUTPUT_ID ;
-          default_index = CONFIG::DEFAULT_WAVE_OUTPUT ;  break ;
-        default:                                         break ;
+          option_n = (~option_n) ? option_n - 1 : CONFIG::DEFAULT_WAVE_OUTPUTN ;
+          key      = CONFIG::WAVE_OUTPUT_ID ;
+          value    = var(option_n) ;
+          this->sinkComboBox->setSelectedItemIndex(option_n + 1) ;                break ;
+        default:                                                                  break ;
       }
-      selected_index = this->sinkComboBox->getSelectedItemIndex() ;
-      value          = var((~selected_index) ? selected_index - 1 : default_index) ;
+#else // _WIN32
+#  ifndef _MAC
+      switch ((audioStreamer::NixApi)audio_api_n)
+      {
+        case audioStreamer::NIX_AUDIO_ALSA: /* TODO: */ break ;
+        default:                                        break ;
+      }
+#  endif //  _MAC
 #endif // _WIN32
 
         //[/UserComboBoxCode_sinkComboBox]
@@ -649,24 +671,31 @@ default_index = 0 ;    break ;
         //[UserComboBoxCode_bufferComboBox] -- add your combo box handling code here..
 
 #ifdef _WIN32
-      switch ((audioStreamer::WinApi)win_api_n)
+      switch ((audioStreamer::WinApi)audio_api_n)
       {
-        case audioStreamer::WIN_AUDIO_KS:   config_key = CONFIG::KS_BLOCKSIZE_ID ;   break ;
-        case audioStreamer::WIN_AUDIO_DS:   config_key = CONFIG::DS_BLOCKSIZE_ID ;   break ;
-        case audioStreamer::WIN_AUDIO_WAVE: config_key = CONFIG::WAVE_BLOCKSIZE_ID ; break ;
-        default:                                                                     break ;
+        case audioStreamer::WIN_AUDIO_KS:   key = CONFIG::KS_BLOCKSIZE_ID ;   break ;
+        case audioStreamer::WIN_AUDIO_DS:   key = CONFIG::DS_BLOCKSIZE_ID ;   break ;
+        case audioStreamer::WIN_AUDIO_WAVE: key = CONFIG::WAVE_BLOCKSIZE_ID ; break ;
+        default:                                                              break ;
       }
-      value = var(this->bufferComboBox->getText().getIntValue()) ;
+#else // _WIN32
+#  ifndef _MAC
+      switch ((audioStreamer::NixApi)audio_api_n)
+      {
+        case audioStreamer::NIX_AUDIO_ALSA: key = CONFIG::ALSA_BLOCKSIZE_ID ; break ;
+        default:                                                              break ;
+      }
+#  endif //  _MAC
 #endif // _WIN32
+      value = var(option_text.getIntValue()) ;
 
         //[/UserComboBoxCode_bufferComboBox]
     }
 
     //[UsercomboBoxChanged_Post]
 
-  setConfig(config_key , value) ;
+  setConfig(key , value) ;
 
-  if (comboBoxThatHasChanged == this->modeComboBox)   loadParams() ;
   if (comboBoxThatHasChanged == this->bufferComboBox) updateLatency() ;
 
     //[/UsercomboBoxChanged_Post]
@@ -676,25 +705,32 @@ void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
 
+  int        audio_api_n = int(this->audioStore[CONFIG::AUDIO_API_ID]) ;
   Identifier config_key ;
-  var        value      = var((int)sliderThatWasMoved->getValue()) ;
+  var        value       = var((int)sliderThatWasMoved->getValue()) ;
 
     //[/UsersliderValueChanged_Pre]
 
-    if (sliderThatWasMoved == nBuffersSlider)
+    if      (sliderThatWasMoved == nBuffersSlider)
     {
         //[UserSliderCode_nBuffersSlider] -- add your slider handling code here..
 
 #ifdef _WIN32
-      int win_api_n = int(this->audioStore[CONFIG::WIN_AUDIO_API_ID]) ;
-
-      switch ((audioStreamer::WinApi)win_api_n)
+      switch ((audioStreamer::WinApi)audio_api_n)
       {
         case audioStreamer::WIN_AUDIO_KS:   config_key = CONFIG::KS_NBLOCKS_ID ;   break ;
         case audioStreamer::WIN_AUDIO_DS:   config_key = CONFIG::DS_NBLOCKS_ID ;   break ;
         case audioStreamer::WIN_AUDIO_WAVE: config_key = CONFIG::WAVE_NBLOCKS_ID ; break ;
         default:                                                                   break ;
       }
+#else // _WIN32
+#  ifndef _MAC
+      switch ((audioStreamer::NixApi)audio_api_n)
+      {
+        case audioStreamer::NIX_AUDIO_ALSA: config_key = CONFIG::ALSA_NBLOCKS_ID ; break ;
+        default:                                                                   break ;
+      }
+#  endif // _MAC
 #endif // _WIN32
 
         //[/UserSliderCode_nBuffersSlider]
@@ -705,9 +741,14 @@ void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
 
 #ifndef _WIN32
 #  ifdef _MAC
-      config_key = CONFIG::MAC_NINPUTS_KEY ;
+      config_key = CONFIG::CA_NINPUTS_KEY ;
 #  else // _MAC
-      config_key = CONFIG::JACK_NINPUTS_ID ;
+      switch ((audioStreamer::NixApi)audio_api_n)
+      {
+        case audioStreamer::NIX_AUDIO_JACK: config_key = CONFIG::JACK_NINPUTS_ID ;   break ;
+        case audioStreamer::NIX_AUDIO_ALSA: config_key = CONFIG::ALSA_NCHANNELS_ID ; break ;
+        default:                                                                     break ;
+      }
 #  endif // _MAC
 #endif // _WIN32
 
@@ -719,7 +760,11 @@ void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
 
 #ifndef _WIN32
 #  ifndef _MAC
-      config_key = CONFIG::JACK_NOUTPUTS_ID ;
+      switch ((audioStreamer::NixApi)audio_api_n)
+      {
+        case audioStreamer::NIX_AUDIO_JACK: config_key = CONFIG::JACK_NOUTPUTS_ID ; break ;
+        default:                                                                    break ;
+      }
 #  endif // _MAC
 #endif // _WIN32
 
@@ -741,74 +786,67 @@ void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
 
 /* ConfigAudio class private instance methods */
 
-void ConfigAudio::broughtToFront()
+void ConfigAudio::valueChanged(Value& a_value)
 {
-  // sanity check
-  int  win_api     = int(this->audioStore[CONFIG::WIN_AUDIO_API_ID]) ;
-  bool win_api_oob = ((audioStreamer::WinApi)win_api < audioStreamer::WIN_AUDIO_ASIO ||
-                      (audioStreamer::WinApi)win_api > audioStreamer::WIN_AUDIO_WAVE  ) ;
-  int  nix_api     = int(this->audioStore[CONFIG::NIX_AUDIO_API_ID]) ;
-  bool nix_api_oob = ((audioStreamer::NixApi)nix_api < audioStreamer::NIX_AUDIO_JACK ||
-                      (audioStreamer::NixApi)nix_api > audioStreamer::NIX_AUDIO_ALSA  ) ;
+  int linjam_status = int(a_value.getValue()) ;
+  if (!a_value.refersToSameSourceAs(this->linjamStatus) ||
+      linjam_status < LinJam::LINJAM_STATUS_AUDIOINIT   ||
+      linjam_status > LinJam::LINJAM_STATUS_AUDIOERROR   ) return ;
 
-  if (win_api_oob) setConfig(CONFIG::WIN_AUDIO_API_ID , CONFIG::DEFAULT_WIN_AUDIO_API) ;
-  if (nix_api_oob) setConfig(CONFIG::NIX_AUDIO_API_ID , CONFIG::DEFAULT_NIX_AUDIO_API) ;
-  if (win_api_oob || nix_api_oob) restoreDefaults() ;
-
-  // populate GUI values
-  loadParams() ;
+  if (linjam_status == LinJam::LINJAM_STATUS_AUDIOINIT) disableComponents() ;
+  else                                                  loadParams() ;
 }
 
 void ConfigAudio::loadParams()
 {
-  // initialize GUI state
-  disableComponents() ; populateDevices() ;
+  // initialize or reset GUI state
+  populateDevices() ;
 
   // load config
+  int    audio_api_n          = int(   this->audioStore[CONFIG::AUDIO_API_ID      ]) ;
 #ifdef _WIN32
-  int    win_api_n          = int(this->audioStore[CONFIG::WIN_AUDIO_API_ID  ]) ;
-  int    asio_driver_n      = int(this->audioStore[CONFIG::ASIO_DRIVER_ID    ]) ;
-  int    asio_input0_n      = int(this->audioStore[CONFIG::ASIO_INPUT0_ID    ]) ;
-  int    asio_input1_n      = int(this->audioStore[CONFIG::ASIO_INPUT1_ID    ]) ;
-  int    asio_output0_n     = int(this->audioStore[CONFIG::ASIO_OUTPUT0_ID   ]) ;
-  int    asio_output1_n     = int(this->audioStore[CONFIG::ASIO_OUTPUT1_ID   ]) ;
-  int    ks_input_n         = int(this->audioStore[CONFIG::KS_INPUT_ID       ]) ;
-  int    ks_output_n        = int(this->audioStore[CONFIG::KS_OUTPUT_ID      ]) ;
-  int    ks_sample_rate     = int(this->audioStore[CONFIG::KS_SAMPLERATE_ID  ]) ;
-  int    ks_bit_depth       = int(this->audioStore[CONFIG::KS_BITDEPTH_ID    ]) ;
-  int    ks_n_buffers       = int(this->audioStore[CONFIG::KS_NBLOCKS_ID     ]) ;
-  int    ks_buffer_size     = int(this->audioStore[CONFIG::KS_BLOCKSIZE_ID   ]) ;
-  int    ds_input_n         = int(this->audioStore[CONFIG::DS_INPUT_ID       ]) ;
-  int    ds_output_n        = int(this->audioStore[CONFIG::DS_OUTPUT_ID      ]) ;
-  int    ds_sample_rate     = int(this->audioStore[CONFIG::DS_SAMPLERATE_ID  ]) ;
-  int    ds_bit_depth       = int(this->audioStore[CONFIG::DS_BITDEPTH_ID    ]) ;
-  int    ds_n_buffers       = int(this->audioStore[CONFIG::DS_NBLOCKS_ID     ]) ;
-  int    ds_buffer_size     = int(this->audioStore[CONFIG::DS_BLOCKSIZE_ID   ]) ;
-  int    wave_input_n       = int(this->audioStore[CONFIG::WAVE_INPUT_ID     ]) ;
-  int    wave_output_n      = int(this->audioStore[CONFIG::WAVE_OUTPUT_ID    ]) ;
-  int    wave_sample_rate   = int(this->audioStore[CONFIG::WAVE_SAMPLERATE_ID]) ;
-  int    wave_bit_depth     = int(this->audioStore[CONFIG::WAVE_BITDEPTH_ID  ]) ;
-  int    wave_n_buffers     = int(this->audioStore[CONFIG::WAVE_NBLOCKS_ID   ]) ;
-  int    wave_buffer_size   = int(this->audioStore[CONFIG::WAVE_BLOCKSIZE_ID ]) ;
+  int    asio_driver_n        = int(   this->audioStore[CONFIG::ASIO_DRIVER_ID    ]) ;
+  int    asio_input_b_n       = int(   this->audioStore[CONFIG::ASIO_INPUTB_ID    ]) ;
+  int    asio_input_e_n       = int(   this->audioStore[CONFIG::ASIO_INPUTE_ID    ]) ;
+  int    asio_output_b_n      = int(   this->audioStore[CONFIG::ASIO_OUTPUTB_ID   ]) ;
+  int    asio_output_e_n      = int(   this->audioStore[CONFIG::ASIO_OUTPUTE_ID   ]) ;
+  int    should_show_asio_cp  = int(   this->audioStore[CONFIG::ASIO_CONTROL_ID   ]) ;
+  int    ks_input_device_n    = int(   this->audioStore[CONFIG::KS_INPUT_ID       ]) ;
+  int    ks_output_device_n   = int(   this->audioStore[CONFIG::KS_OUTPUT_ID      ]) ;
+  int    ks_sample_rate       = int(   this->audioStore[CONFIG::KS_SAMPLERATE_ID  ]) ;
+  int    ks_bit_depth         = int(   this->audioStore[CONFIG::KS_BITDEPTH_ID    ]) ;
+  int    ks_n_buffers         = int(   this->audioStore[CONFIG::KS_NBLOCKS_ID     ]) ;
+  int    ks_buffer_size       = int(   this->audioStore[CONFIG::KS_BLOCKSIZE_ID   ]) ;
+  String ds_input_device      = String(this->audioStore[CONFIG::DS_INPUT_ID       ]) ;
+  String ds_output_device     = String(this->audioStore[CONFIG::DS_OUTPUT_ID      ]) ;
+  int    ds_sample_rate       = int(   this->audioStore[CONFIG::DS_SAMPLERATE_ID  ]) ;
+  int    ds_bit_depth         = int(   this->audioStore[CONFIG::DS_BITDEPTH_ID    ]) ;
+  int    ds_n_buffers         = int(   this->audioStore[CONFIG::DS_NBLOCKS_ID     ]) ;
+  int    ds_buffer_size       = int(   this->audioStore[CONFIG::DS_BLOCKSIZE_ID   ]) ;
+  int    wave_input_device_n  = int(   this->audioStore[CONFIG::WAVE_INPUT_ID     ]) ;
+  int    wave_output_device_n = int(   this->audioStore[CONFIG::WAVE_OUTPUT_ID    ]) ;
+  int    wave_sample_rate     = int(   this->audioStore[CONFIG::WAVE_SAMPLERATE_ID]) ;
+  int    wave_bit_depth       = int(   this->audioStore[CONFIG::WAVE_BITDEPTH_ID  ]) ;
+  int    wave_n_buffers       = int(   this->audioStore[CONFIG::WAVE_NBLOCKS_ID   ]) ;
+  int    wave_buffer_size     = int(   this->audioStore[CONFIG::WAVE_BLOCKSIZE_ID ]) ;
 #else // _WIN32
 #  ifdef _MAC
-  String mac_device_name    =     this->audioStore[CONFIG::MAC_DEVICE_ID     ].toString() ;
-  int    mac_n_channels     = int(this->audioStore[CONFIG::MAC_NCHANNELS_ID  ]) ;
-  int    mac_sample_rate    = int(this->audioStore[CONFIG::MAC_SAMPLERATE_ID ]) ;
-  int    mac_bit_depth      = int(this->audioStore[CONFIG::MAC_BITDEPTH_ID   ]) ;
+  String ca_device_name       = String(this->audioStore[CONFIG::CA_DEVICE_ID      ]) ;
+  int    ca_n_channels        = int(   this->audioStore[CONFIG::CA_NCHANNELS_ID   ]) ;
+  int    ca_sample_rate       = int(   this->audioStore[CONFIG::CA_SAMPLERATE_ID  ]) ;
+  int    ca_bit_depth         = int(   this->audioStore[CONFIG::CA_BITDEPTH_ID    ]) ;
 #  else // _MAC
-  int    nix_api_n          = int(this->audioStore[CONFIG::NIX_AUDIO_API_ID  ]) ;
-  int    jack_server_n      = int(this->audioStore[CONFIG::JACK_SERVER_ID    ]) ;
-  String jack_name          =     this->audioStore[CONFIG::JACK_NAME_ID      ].toString() ;
-  int    jack_n_inputs      = int(this->audioStore[CONFIG::JACK_NINPUTS_ID   ]) ;
-  int    jack_n_outputs     = int(this->audioStore[CONFIG::JACK_NOUTPUTS_ID  ]) ;
-  String alsa_input_device  =     this->audioStore[CONFIG::ALSA_INPUT_ID     ].toString() ;
-  String alsa_output_device =     this->audioStore[CONFIG::ALSA_OUTPUT_ID    ].toString() ;
-  int    alsa_n_channels    = int(this->audioStore[CONFIG::ALSA_NCHANNELS_ID ]) ;
-  int    alsa_sample_rate   = int(this->audioStore[CONFIG::ALSA_SAMPLERATE_ID]) ;
-  int    alsa_bit_depth     = int(this->audioStore[CONFIG::ALSA_BITDEPTH_ID  ]) ;
-  int    alsa_n_buffers     = int(this->audioStore[CONFIG::ALSA_NBLOCKS_ID   ]) ;
-  int    alsa_buffer_size   = int(this->audioStore[CONFIG::ALSA_BLOCKSIZE_ID ]) ;
+  int    jack_server_n        = int(   this->audioStore[CONFIG::JACK_SERVER_ID    ]) ;
+  String jack_name            = String(this->audioStore[CONFIG::JACK_NAME_ID      ]) ;
+  int    jack_n_inputs        = int(   this->audioStore[CONFIG::JACK_NINPUTS_ID   ]) ;
+  int    jack_n_outputs       = int(   this->audioStore[CONFIG::JACK_NOUTPUTS_ID  ]) ;
+  String alsa_input_device    = String(this->audioStore[CONFIG::ALSA_INPUT_ID     ]) ;
+  String alsa_output_device   = String(this->audioStore[CONFIG::ALSA_OUTPUT_ID    ]) ;
+  int    alsa_n_channels      = int(   this->audioStore[CONFIG::ALSA_NCHANNELS_ID ]) ;
+  int    alsa_sample_rate     = int(   this->audioStore[CONFIG::ALSA_SAMPLERATE_ID]) ;
+  int    alsa_bit_depth       = int(   this->audioStore[CONFIG::ALSA_BITDEPTH_ID  ]) ;
+  int    alsa_n_buffers       = int(   this->audioStore[CONFIG::ALSA_NBLOCKS_ID   ]) ;
+  int    alsa_buffer_size     = int(   this->audioStore[CONFIG::ALSA_BLOCKSIZE_ID ]) ;
 #  endif // _MAC
 #endif // _WIN32
 
@@ -825,24 +863,25 @@ void ConfigAudio::loadParams()
 
   // set API-specific GUI state
 #ifdef _WIN32
-  switch ((audioStreamer::WinApi)win_api_n)
+  switch ((audioStreamer::WinApi)audio_api_n)
   {
     case audioStreamer::WIN_AUDIO_ASIO:
     {
 /* TODO: nyi GUI (issue #12)
-      asio_input1_n
-      asio_output1_n
+      asio_input_e_n
+      asio_output_e_n
 */
       driver_n = asio_driver_n ;
-      source_n = asio_input0_n ;
-      sink_n   = asio_output0_n ;
+      source_n = asio_input_b_n ;
+      sink_n   = asio_output_b_n ;
+      this->asioButton->setToggleState(should_show_asio_cp , juce::dontSendNotification) ;
 
       break ;
     }
     case audioStreamer::WIN_AUDIO_KS:
     {
-      source_n    = ks_input_n  + 1 ;
-      sink_n      = ks_output_n + 1 ;
+      source_n    = ks_input_device_n  + 1 ;
+      sink_n      = ks_output_device_n + 1 ;
       sample_rate = ks_sample_rate ;
       bit_depth   = ks_bit_depth ;
       n_buffers   = ks_n_buffers ;
@@ -852,8 +891,8 @@ void ConfigAudio::loadParams()
     }
     case audioStreamer::WIN_AUDIO_DS:
     {
-      source_n    = ds_input_n  + 1 ;
-      sink_n      = ds_output_n + 1 ;
+      source_n    = getItemIndex(this->sourceComboBox , ds_input_device ) ;
+      sink_n      = getItemIndex(this->sinkComboBox   , ds_output_device) ;
       sample_rate = ds_sample_rate ;
       bit_depth   = ds_bit_depth ;
       n_buffers   = ds_n_buffers ;
@@ -863,8 +902,8 @@ void ConfigAudio::loadParams()
     }
     case audioStreamer::WIN_AUDIO_WAVE:
     {
-      source_n    = wave_input_n  + 1 ;
-      sink_n      = wave_output_n + 1 ;
+      source_n    = wave_input_device_n  + 1 ;
+      sink_n      = wave_output_device_n + 1 ;
       sample_rate = wave_sample_rate ;
       bit_depth   = wave_bit_depth ;
       n_buffers   = wave_n_buffers ;
@@ -877,14 +916,14 @@ void ConfigAudio::loadParams()
 #else // _WIN32
 #  ifdef _MAC
 
-  n_inputs    = mac_n_channels ;
+  n_inputs    = ca_n_channels ;
   sample_rate = wave_sample_rate ;
   bit_depth   = wave_bit_depth ;
 
-  this->nSourcesSlider->setValue(mac_n_inputs) ;
+  this->nSourcesSlider->setValue(ca_n_inputs) ;
 
 #  else // _MAC
-  switch ((audioStreamer::NixApi)nix_api_n)
+  switch ((audioStreamer::NixApi)audio_api_n)
   {
     case audioStreamer::NIX_AUDIO_JACK:
     {
@@ -945,28 +984,26 @@ void ConfigAudio::populateDevices()
   this->sourceComboBox->clear(juce::dontSendNotification) ;
   this->sinkComboBox  ->clear(juce::dontSendNotification) ;
   this->bufferComboBox->clear(juce::dontSendNotification) ;
-#ifdef _WIN32
-  int win_api_n = int(this->audioStore[CONFIG::WIN_AUDIO_API_ID]) ;
 
-  switch ((audioStreamer::WinApi)win_api_n)
+  int audio_api_n = int(this->audioStore[CONFIG::AUDIO_API_ID]) ;
+#ifdef _WIN32
+  switch ((audioStreamer::WinApi)audio_api_n)
   {
-    case audioStreamer::WIN_AUDIO_ASIO: if (!queryAsioDevices()) restoreDefaults() ;
-    case audioStreamer::WIN_AUDIO_KS:   if (!queryKsDevices())   restoreDefaults() ;
-    case audioStreamer::WIN_AUDIO_DS:   if (!queryDsDevices())   restoreDefaults() ;
-    case audioStreamer::WIN_AUDIO_WAVE: if (!queryWaveDevices()) restoreDefaults() ;
-    default: break ;
+    case audioStreamer::WIN_AUDIO_ASIO: if (queryAsioDevices()) break ;
+    case audioStreamer::WIN_AUDIO_KS:   if (queryKsDevices())   break ;
+    case audioStreamer::WIN_AUDIO_DS:   if (queryDsDevices())   break ;
+    case audioStreamer::WIN_AUDIO_WAVE: if (queryWaveDevices()) break ;
+    default:                            restoreDefaults() ;     break ;
   }
 #else // _WIN32
 #  ifdef _MAC
   if (!queryCaDevices()) restoreDefaults() ;
 #  else // _MAC
-  int nix_api_n = int(this->audioStore[CONFIG::NIX_AUDIO_API_ID]) ;
-
-  switch ((audioStreamer::NixApi)nix_api_n)
+  switch ((audioStreamer::NixApi)audio_api_n)
   {
-    case audioStreamer::NIX_AUDIO_JACK: if (!queryJackServers()) restoreDefaults() ;
-    case audioStreamer::NIX_AUDIO_ALSA: if (!queryAlsaDevices()) restoreDefaults() ;
-    default: break ;
+    case audioStreamer::NIX_AUDIO_JACK: if (queryJackServers()) break ;
+    case audioStreamer::NIX_AUDIO_ALSA: if (queryAlsaDevices()) break ;
+    default:                            restoreDefaults() ;     break ;
   }
 #  endif // _MAC
 #endif // _WIN32
@@ -974,28 +1011,35 @@ void ConfigAudio::populateDevices()
 
 void ConfigAudio::restoreDefaults()
 {
-#ifdef _WIN32
-  int                   win_api_n = int(this->audioStore[CONFIG::WIN_AUDIO_API_ID]) ;
-  audioStreamer::WinApi win_api   = (audioStreamer::WinApi)win_api_n ;
-  if (win_api < audioStreamer::WIN_AUDIO_ASIO || win_api > audioStreamer::WIN_AUDIO_WAVE)
-    setConfig(CONFIG::WIN_AUDIO_API_ID , CONFIG::DEFAULT_WIN_AUDIO_API) ;
+  int audio_api_n = int(this->audioStore[CONFIG::AUDIO_API_ID]) ;
+  int n_apis      = this->modeComboBox->getNumItems() ;
 
-  switch (win_api)
+  // sanity check
+  if (audio_api_n < 0 || audio_api_n >= n_apis)
+  {
+    audio_api_n = CONFIG::DEFAULT_AUDIO_API ;
+    this->modeComboBox->setSelectedItemIndex(audio_api_n , juce::dontSendNotification) ;
+    setConfig(CONFIG::AUDIO_API_ID , audio_api_n) ;
+  }
+
+  // set per API default params
+#ifdef _WIN32
+  switch ((audioStreamer::WinApi)audio_api_n)
   {
     case audioStreamer::WIN_AUDIO_ASIO:
     {
-      setConfig(CONFIG::ASIO_DRIVER_ID  , CONFIG::DEFAULT_ASIO_DRIVER) ;
-      setConfig(CONFIG::ASIO_INPUT0_ID  , CONFIG::DEFAULT_ASIO_INPUT0) ;
-      setConfig(CONFIG::ASIO_INPUT1_ID  , CONFIG::DEFAULT_ASIO_INPUT1) ;
-      setConfig(CONFIG::ASIO_OUTPUT0_ID , CONFIG::DEFAULT_ASIO_OUTPUT0) ;
-      setConfig(CONFIG::ASIO_OUTPUT1_ID , CONFIG::DEFAULT_ASIO_OUTPUT1) ;
+      setConfig(CONFIG::ASIO_DRIVER_ID  , CONFIG::DEFAULT_ASIO_DRIVERN) ;
+      setConfig(CONFIG::ASIO_INPUTB_ID  , CONFIG::DEFAULT_ASIO_INPUTBN) ;
+      setConfig(CONFIG::ASIO_INPUTE_ID  , CONFIG::DEFAULT_ASIO_INPUTEN) ;
+      setConfig(CONFIG::ASIO_OUTPUTB_ID , CONFIG::DEFAULT_ASIO_OUTPUTBN) ;
+      setConfig(CONFIG::ASIO_OUTPUTE_ID , CONFIG::DEFAULT_ASIO_OUTPUTEN) ;
 
       break ;
     }
     case audioStreamer::WIN_AUDIO_KS:
     {
-      setConfig(CONFIG::KS_INPUT_ID      , CONFIG::DEFAULT_KS_INPUT) ;
-      setConfig(CONFIG::KS_OUTPUT_ID     , CONFIG::DEFAULT_KS_OUTPUT) ;
+      setConfig(CONFIG::KS_INPUT_ID      , CONFIG::DEFAULT_KS_INPUTN) ;
+      setConfig(CONFIG::KS_OUTPUT_ID     , CONFIG::DEFAULT_KS_OUTPUTN) ;
       setConfig(CONFIG::KS_SAMPLERATE_ID , CONFIG::DEFAULT_KS_SAMPLERATE) ;
       setConfig(CONFIG::KS_BITDEPTH_ID   , CONFIG::DEFAULT_KS_BITDEPTH) ;
       setConfig(CONFIG::KS_NBLOCKS_ID    , CONFIG::DEFAULT_KS_NBLOCKS) ;
@@ -1016,8 +1060,8 @@ void ConfigAudio::restoreDefaults()
     }
     case audioStreamer::WIN_AUDIO_WAVE:
     {
-      setConfig(CONFIG::WAVE_INPUT_ID      , CONFIG::DEFAULT_WAVE_INPUT) ;
-      setConfig(CONFIG::WAVE_OUTPUT_ID     , CONFIG::DEFAULT_WAVE_OUTPUT) ;
+      setConfig(CONFIG::WAVE_INPUT_ID      , CONFIG::DEFAULT_WAVE_INPUTN) ;
+      setConfig(CONFIG::WAVE_OUTPUT_ID     , CONFIG::DEFAULT_WAVE_OUTPUTN) ;
       setConfig(CONFIG::WAVE_SAMPLERATE_ID , CONFIG::DEFAULT_WAVE_SAMPLERATE) ;
       setConfig(CONFIG::WAVE_BITDEPTH_ID   , CONFIG::DEFAULT_WAVE_BITDEPTH) ;
       setConfig(CONFIG::WAVE_NBLOCKS_ID    , CONFIG::DEFAULT_WAVE_NBLOCKS) ;
@@ -1028,21 +1072,12 @@ void ConfigAudio::restoreDefaults()
   }
 #else // _WIN32
 #  ifdef _MAC
-
-  setConfig(CONFIG::MAC_DEVICE_ID     , CONFIG::DEFAULT_MAC_DEVICE) ;
-  setConfig(CONFIG::MAC_NINPUTS_ID    , CONFIG::DEFAULT_N_INPUTS) ;
-  setConfig(CONFIG::MAC_SAMPLERATE_ID , CONFIG::DEFAULT_MAC_SAMPLERATE) ;
-  setConfig(CONFIG::MAC_BITDEPTH_ID   , CONFIG::DEFAULT_MAC_BITDEPTH) ;
-
+  setConfig(CONFIG::CA_DEVICE_ID     , CONFIG::DEFAULT_CA_DEVICE) ;
+  setConfig(CONFIG::CA_NINPUTS_ID    , CONFIG::DEFAULT_N_INPUTS) ;
+  setConfig(CONFIG::CA_SAMPLERATE_ID , CONFIG::DEFAULT_CA_SAMPLERATE) ;
+  setConfig(CONFIG::CA_BITDEPTH_ID   , CONFIG::DEFAULT_CA_BITDEPTH) ;
 #  else // _MAC
-
-  int                   nix_api_n = int(this->audioStore[CONFIG::NIX_AUDIO_API_ID]) ;
-  audioStreamer::NixApi nix_api   = (audioStreamer::NixApi)nix_api_n ;
-
-  if (nix_api < audioStreamer::NIX_AUDIO_JACK || nix_api > audioStreamer::NIX_AUDIO_ALSA)
-    setConfig(CONFIG::NIX_AUDIO_API_ID , CONFIG::DEFAULT_NIX_AUDIO_API) ;
-
-  switch (nix_api)
+  switch ((audioStreamer::NixApi)audio_api_n)
   {
     case audioStreamer::NIX_AUDIO_JACK:
     {
@@ -1073,21 +1108,21 @@ void ConfigAudio::restoreDefaults()
 void ConfigAudio::disableComponents()
 {
   this->defaultsButton ->setVisible(false) ; this->asioButton    ->setVisible(false) ;
-  this->ioGroup        ->setEnabled(false) ; //-------------------------------------->
+  this->ioGroup        ->setEnabled(false) ; //---------------ioGroup---------------->
   this->modeLabel      ->setEnabled(false) ; this->modeComboBox  ->setEnabled(false) ;
   this->driverLabel    ->setEnabled(false) ; this->driverComboBox->setEnabled(false) ;
   this->sourceLabel    ->setEnabled(false) ; this->sourceComboBox->setEnabled(false) ;
   this->sinkLabel      ->setEnabled(false) ; this->sinkComboBox  ->setEnabled(false) ;
-  this->formatGroup    ->setEnabled(false) ; //-------------------------------------->
+  this->formatGroup    ->setEnabled(false) ; //-------------formatGroup-------------->
   this->bitdepthLabel  ->setEnabled(false) ; this->bps16Button   ->setEnabled(false) ;
   this->bps24Button    ->setEnabled(false) ; this->bps32Button   ->setEnabled(false) ;
   this->samplerateLabel->setEnabled(false) ; this->kHz44Button   ->setEnabled(false) ;
   this->kHz48Button    ->setEnabled(false) ; this->kHz96Button   ->setEnabled(false) ;
-  this->buffersGroup   ->setEnabled(false) ; //-------------------------------------->
+  this->buffersGroup   ->setEnabled(false) ; //-------------buffersGroup------------->
   this->buffersLabel   ->setEnabled(false) ; this->nBuffersSlider->setEnabled(false) ;
   this->xLabel         ->setEnabled(false) ; this->bufferComboBox->setEnabled(false) ;
   this->bytesLabel     ->setEnabled(false) ;
-  this->routingGroup   ->setEnabled(false) ; //-------------------------------------->
+  this->routingGroup   ->setEnabled(false) ; //-------------routingGroup------------->
   this->nixConfigLabel ->setEnabled(false) ; this->nixConfigText ->setEnabled(false) ;
   this->nSourcesLabel  ->setEnabled(false) ; this->nSourcesSlider->setEnabled(false) ;
   this->nSinksLabel    ->setEnabled(false) ; this->nSinksSlider  ->setEnabled(false) ;
@@ -1095,63 +1130,62 @@ void ConfigAudio::disableComponents()
 
 void ConfigAudio::enableComponents()
 {
+  int audio_api_n = int(this->audioStore[CONFIG::AUDIO_API_ID]) ;
   bool is_asio , is_ks , is_ds , is_wave , is_ca , is_jack , is_alsa ;
        is_asio = is_ks = is_ds = is_wave = is_ca = is_jack = is_alsa = false ;
 
 #ifdef _WIN32
-  int win_api_n = int(this->audioStore[CONFIG::WIN_AUDIO_API_ID]) ;
-  is_asio       = win_api_n == (int)audioStreamer::WIN_AUDIO_ASIO ; // asio
-  is_ks         = win_api_n == (int)audioStreamer::WIN_AUDIO_KS ;   // kernel streaming
-  is_ds         = win_api_n == (int)audioStreamer::WIN_AUDIO_DS ;   // directsound
-  is_wave       = win_api_n == (int)audioStreamer::WIN_AUDIO_WAVE ; // wave
+  is_asio       = audio_api_n == audioStreamer::WIN_AUDIO_ASIO ; // ASIO
+  is_ks         = audio_api_n == audioStreamer::WIN_AUDIO_KS ;   // KernelStreaming
+  is_ds         = audio_api_n == audioStreamer::WIN_AUDIO_DS ;   // DirectSound
+  is_wave       = audio_api_n == audioStreamer::WIN_AUDIO_WAVE ; // Wave
 #else // _WIN32
 #  ifdef _MAC
-  is_ca         = true ;                                            // coreaudio
+  is_ca         = audio_api_n == audioStreamer::MAC_AUDIO_CA ;   // CoreAudio
 #  else // _MAC
-  int nix_api_n = int(this->audioStore[CONFIG::NIX_AUDIO_API_ID]) ;
-  is_jack       = nix_api_n == (int)audioStreamer::NIX_AUDIO_JACK ; // jack
-  is_alsa       = nix_api_n == (int)audioStreamer::NIX_AUDIO_ALSA ; // alsa
+  is_jack       = audio_api_n == audioStreamer::NIX_AUDIO_JACK ; // JACK
+  is_alsa       = audio_api_n == audioStreamer::NIX_AUDIO_ALSA ; // ALSA
 #  endif // _MAC
 #endif // _WIN32
 
   // common
-  this->defaultsButton ->setVisible(!is_asio                                  ) ;
-  this->asioButton     ->setVisible( is_asio                                  ) ;
+  this->defaultsButton ->setVisible(!is_asio                                           ) ;
+  this->asioButton     ->setVisible( is_asio                                           ) ;
   // io group
-  this->ioGroup        ->setEnabled(true                                      ) ;
-  this->modeLabel      ->setEnabled(!is_ca                                    ) ;
-  this->modeComboBox   ->setEnabled(!is_ca                                    ) ;
-  this->driverLabel    ->setEnabled( is_asio || is_jack                       ) ;
-  this->driverComboBox ->setEnabled( is_asio || is_jack                       ) ;
-  this->sourceLabel    ->setEnabled( is_asio || is_ks   || is_ds    || is_wave) ;
-  this->sourceComboBox ->setEnabled( is_asio || is_ks   || is_ds    || is_wave) ;
-  this->sinkLabel      ->setEnabled( is_asio || is_ks   || is_ds    || is_wave) ;
-  this->sinkComboBox   ->setEnabled( is_asio || is_ks   || is_ds    || is_wave) ;
+  this->ioGroup        ->setEnabled(true                                               ) ;
+  this->modeLabel      ->setEnabled(!is_ca                                             ) ;
+  this->modeComboBox   ->setEnabled(!is_ca                                             ) ;
+  this->driverLabel    ->setEnabled( is_asio || is_jack                                ) ;
+  this->driverComboBox ->setEnabled( is_asio || is_jack                                ) ;
+  this->sourceLabel    ->setEnabled(!is_asio && !is_jack                               ) ;
+  this->sourceComboBox ->setEnabled(!is_asio && !is_jack                               ) ;
+  this->sinkLabel      ->setEnabled(!is_asio && !is_jack                               ) ;
+  this->sinkComboBox   ->setEnabled(!is_asio && !is_jack                               ) ;
   //  format group
-  this->formatGroup    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca  ) ;
-  this->bitdepthLabel  ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca  ) ;
-  this->bps16Button    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca  ) ;
-  this->bps24Button    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca  ) ;
-  this->bps32Button    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca  ) ;
-  this->samplerateLabel->setEnabled( is_ks   || is_ds   || is_wave  || is_ca  ) ;
-  this->kHz44Button    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca  ) ;
-  this->kHz48Button    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca  ) ;
-  this->kHz96Button    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca  ) ;
+  this->formatGroup    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca || is_alsa) ;
+  this->bitdepthLabel  ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca || is_alsa) ;
+  this->bps16Button    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca || is_alsa) ;
+  this->bps24Button    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca || is_alsa) ;
+  this->bps32Button    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca || is_alsa) ;
+  this->samplerateLabel->setEnabled( is_ks   || is_ds   || is_wave  || is_ca || is_alsa) ;
+  this->kHz44Button    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca || is_alsa) ;
+  this->kHz48Button    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca || is_alsa) ;
+  this->kHz96Button    ->setEnabled( is_ks   || is_ds   || is_wave  || is_ca || is_alsa) ;
   // buffers group
-  this->buffersGroup   ->setEnabled( is_ks   || is_ds   || is_wave            ) ;
-  this->buffersLabel   ->setEnabled( is_ks   || is_ds   || is_wave            ) ;
-  this->nBuffersSlider ->setEnabled( is_ks   || is_ds   || is_wave            ) ;
-  this->xLabel         ->setEnabled( is_ks   || is_ds   || is_wave            ) ;
-  this->bufferComboBox ->setEnabled( is_ks   || is_ds   || is_wave            ) ;
-  this->bytesLabel     ->setEnabled( is_ks   || is_ds   || is_wave            ) ;
+  this->buffersGroup   ->setEnabled( is_ks   || is_ds   || is_wave || is_alsa          ) ;
+  this->buffersLabel   ->setEnabled( is_ks   || is_ds   || is_wave || is_alsa          ) ;
+  this->nBuffersSlider ->setEnabled( is_ks   || is_ds   || is_wave || is_alsa          ) ;
+  this->xLabel         ->setEnabled( is_ks   || is_ds   || is_wave || is_alsa          ) ;
+  this->bufferComboBox ->setEnabled( is_ks   || is_ds   || is_wave || is_alsa          ) ;
+  this->bytesLabel     ->setEnabled( is_ks   || is_ds   || is_wave || is_alsa          ) ;
   // routing group
-  this->routingGroup   ->setEnabled( is_jack || is_alsa || is_ca              ) ;
-  this->nixConfigLabel ->setEnabled( is_jack || is_alsa                       ) ;
-  this->nixConfigText  ->setEnabled( is_jack || is_alsa                       ) ;
-  this->nSourcesLabel  ->setEnabled( is_jack || is_ca                         ) ;
-  this->nSourcesSlider ->setEnabled( is_jack || is_ca                         ) ;
-  this->nSinksLabel    ->setEnabled( is_jack                                  ) ;
-  this->nSinksSlider   ->setEnabled( is_jack                                  ) ;
+  this->routingGroup   ->setEnabled( is_jack || is_alsa || is_ca                       ) ;
+  this->nixConfigLabel ->setEnabled( is_jack || is_alsa                                ) ;
+  this->nixConfigText  ->setEnabled( is_jack || is_alsa                                ) ;
+  this->nSourcesLabel  ->setEnabled( is_jack || is_ca   || is_alsa                     ) ;
+  this->nSourcesSlider ->setEnabled( is_jack || is_ca   || is_alsa                     ) ;
+  this->nSinksLabel    ->setEnabled( is_jack                                           ) ;
+  this->nSinksSlider   ->setEnabled( is_jack                                           ) ;
 
 DEBUG_TRACE_CONFIG_AUDIO_GUI_LOAD
 }
@@ -1160,17 +1194,18 @@ DEBUG_TRACE_CONFIG_AUDIO_GUI_LOAD
 bool ConfigAudio::queryAsioDevices()
 {
 #  ifndef NO_SUPPORT_ASIO
-  // NOTE: see njasiodrv_if.h
-  bool is_asio_available = is_njasiodrv_avail() ;
+  bool   is_asio_available = audioStreamer::IsNjasiodrvAvailable() ;
+  String driver_name       = audioStreamer::GetASIODriverName() ;
+
 #  else // NO_SUPPORT_ASIO
   bool is_asio_available = false ;
 #  endif // NO_SUPPORT_ASIO
 
-  if (is_asio_available)
+  if (is_asio_available && driver_name.isNotEmpty())
   {
-    this->driverComboBox->addItem("default ASIO driver" , 1) ;
-    this->sourceComboBox->addItem("default ASIO device" , 1) ;
-    this->sinkComboBox  ->addItem("default ASIO device" , 1) ;
+    this->driverComboBox->addItem(driver_name     , 1) ;
+    this->sourceComboBox->addItem("ASIO device 0" , 1) ;
+    this->sinkComboBox  ->addItem("ASIO device 0" , 1) ;
   }
   else
   {
@@ -1210,9 +1245,8 @@ bool ConfigAudio::queryKsDevices()
 bool ConfigAudio::queryDsDevices()
 {
 #  ifndef NO_SUPPORT_DS
-  String      device_names    = audioStreamer::GetDsDeviceNames() ;
-  StringArray ds_device_names = StringArray::fromTokens(device_names.Trim() , true) ;
-int n = ds_device_names.size() ;  
+  String      device_names    = audioStreamer::GetDsNamesCSV("\n") ;
+  StringArray ds_device_names = StringArray::fromLines(device_names) ;
   bool        is_ds_available = !!ds_device_names.size() ;
 
   if (is_ds_available)
@@ -1273,6 +1307,8 @@ bool ConfigAudio::queryCaDevices() { return true ; } // TODO: juce or ryo ?
 #  else // _MAC
 bool ConfigAudio::queryJackServers() // TODO: juce or ryo ?
 {
+  // jackd -R -S -d portaudio -l // windows returns wav, ds, and asio devices
+  // jackd -R -S -d alsa -l      // nix untested
   this->driverComboBox->addItem("default jack server" , 1) ;
 
   return true ;
@@ -1291,14 +1327,13 @@ int ConfigAudio::getItemIndex(ComboBox* combo_box , String item_text)
 
 void ConfigAudio::updateLatency()
 {
+  int    audio_api_n  = int(this->audioStore[CONFIG::AUDIO_API_ID]) ;
+  String latency_text = "" ;
   int    n_channels , sample_rate , bit_depth , n_buffers , buffer_size ;
          n_channels = sample_rate = bit_depth = n_buffers = buffer_size = 0 ;
-  String latency_text = "" ;
 
 #ifdef _WIN32
-  int win_api_n = int(this->audioStore[CONFIG::WIN_AUDIO_API_ID]) ;
-
-  switch ((audioStreamer::WinApi)win_api_n)
+  switch ((audioStreamer::WinApi)audio_api_n)
   {
     case audioStreamer::WIN_AUDIO_KS:
     {
@@ -1334,9 +1369,7 @@ void ConfigAudio::updateLatency()
   }
 #else // _WIN32
 #  ifndef _MAC
-  int nix_api_n = int(this->audioStore[CONFIG::NIX_AUDIO_API_ID]) ;
-
-  switch ((audioStreamer::NixApi)nix_api_n)
+  switch ((audioStreamer::NixApi)audio_api_n)
   {
     case audioStreamer::NIX_AUDIO_JACK:
     {
@@ -1365,14 +1398,17 @@ void ConfigAudio::updateLatency()
     int latency_ms   = (n_buffers * buffer_size) / bytes_per_ms ;
     latency_text     = (!!latency_ms) ? " (" + String(latency_ms) + "ms)" : "" ;
 
-DEBUG_TRACE_UPDATE_LATENCY
+//DEBUG_TRACE_UPDATE_LATENCY
   }
   this->buffersGroup->setText(GUI::BUFFERS_GROUP_TEXT + latency_text) ;
 }
 
 void ConfigAudio::setConfig(Identifier a_key , var a_value)
 {
-  this->audioStore.setProperty(a_key , a_value , nullptr) ;
+  // loadParams() sets values to all GUI components
+  //     even those non-applicable (and unhandled)
+  //     so we must guard for null key here
+  if (a_key.isValid()) this->audioStore.setProperty(a_key , a_value , nullptr) ;
 }
 
 
@@ -1434,7 +1470,7 @@ if (lpGUID != nullptr)
   RpcStringFree(&guid_str) ;
 
 DBG("ConfigAudio::DSEnumProc() guid_juce=" + guid_juce) ;
-  
+
   ((StringPairArray*)ds_devices)->set(String(lpszDesc) , guid_juce) ;
 }
 else { ((StringPairArray*)ds_devices)->set("Primary Sound Driver" , "") ;

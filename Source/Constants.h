@@ -43,29 +43,16 @@
 
 #define XML_HEADER "<?xml version=\"1.0\"?><"
 
-#define CONFIG_XML XML_HEADER                                                 + \
-  PERSISTENCE_KEY          + " "                                              + \
-    CONFIG_VERSION_KEY     + "=\"" + String(CONFIG_VERSION)           + "\""  + \
-  "><"                                                                        + \
-    CLIENT_KEY             + " "                                              + \
-      SAVE_AUDIO_MODE_KEY  + "=\"" + String(DEFAULT_SAVE_AUDIO_MODE)  + "\" " + \
-      MIXDOWN_MODE_KEY     + "=\"" + String(DEFAULT_MIXDOWN_MODE)     + "\" " + \
-      SHOULD_SAVE_LOG_KEY  + "=\"" + String(DEFAULT_SHOULD_SAVE_LOG)  + "\" " + \
-      DEBUG_LEVEL_KEY      + "=\"" + String(DEFAULT_DEBUG_LEVEL)      + "\" " + \
-      SHOULD_HIDE_BOTS_KEY + "=\"" + String(DEFAULT_SHOULD_HIDE_BOTS) + "\" " + \
-    "/><"                                                                     + \
-    SUBSCRIPTIONS_KEY      + " "                                              + \
-      SUBSCRIBE_MODE_KEY   + "=\"" + String(DEFAULT_SUBSCRIBE_MODE)   + "\" " + \
-    "/><"                                                                     + \
-    AUDIO_KEY              + " "                                              + \
-      WIN_AUDIO_API_KEY    + "=\"" + String(DEFAULT_WIN_AUDIO_API)    + "\" " + \
-      ASIO_DRIVER_KEY      + "=\"" + String(DEFAULT_ASIO_DRIVER)      + "\" " + \
-      ASIO_INPUT0_KEY      + "=\"" + String(DEFAULT_ASIO_INPUT0)      + "\" " + \
-      ASIO_INPUT1_KEY      + "=\"" + String(DEFAULT_ASIO_INPUT1)      + "\" " + \
-      ASIO_OUTPUT0_KEY     + "=\"" + String(DEFAULT_ASIO_OUTPUT0)     + "\" " + \
-      ASIO_OUTPUT1_KEY     + "=\"" + String(DEFAULT_ASIO_OUTPUT1)     + "\" " + \
-      KS_INPUT_KEY         + "=\"" + String(DEFAULT_KS_INPUT)         + "\" " + \
-      KS_OUTPUT_KEY        + "=\"" + String(DEFAULT_KS_OUTPUT)        + "\" " + \
+#ifdef _WIN32
+#  define WIN_AUDIO_XML                                                         \
+      ASIO_DRIVER_KEY      + "=\"" + String(DEFAULT_ASIO_DRIVERN)     + "\" " + \
+      ASIO_INPUTB_KEY      + "=\"" + String(DEFAULT_ASIO_INPUTBN)     + "\" " + \
+      ASIO_INPUTE_KEY      + "=\"" + String(DEFAULT_ASIO_INPUTEN)     + "\" " + \
+      ASIO_OUTPUTB_KEY     + "=\"" + String(DEFAULT_ASIO_OUTPUTBN)    + "\" " + \
+      ASIO_OUTPUTE_KEY     + "=\"" + String(DEFAULT_ASIO_OUTPUTEN)    + "\" " + \
+      ASIO_CONTROL_KEY     + "=\"" + String(DEFAULT_ASIO_CONTROL)     + "\" " + \
+      KS_INPUT_KEY         + "=\"" + String(DEFAULT_KS_INPUTN)        + "\" " + \
+      KS_OUTPUT_KEY        + "=\"" + String(DEFAULT_KS_OUTPUTN)       + "\" " + \
       KS_SAMPLERATE_KEY    + "=\"" + String(DEFAULT_KS_SAMPLERATE)    + "\" " + \
       KS_BITDEPTH_KEY      + "=\"" + String(DEFAULT_KS_BITDEPTH)      + "\" " + \
       KS_NBLOCKS_KEY       + "=\"" + String(DEFAULT_KS_NBLOCKS)       + "\" " + \
@@ -76,18 +63,28 @@
       DS_BITDEPTH_KEY      + "=\"" + String(DEFAULT_DS_BITDEPTH)      + "\" " + \
       DS_NBLOCKS_KEY       + "=\"" + String(DEFAULT_DS_NBLOCKS)       + "\" " + \
       DS_BLOCKSIZE_KEY     + "=\"" + String(DEFAULT_DS_BLOCKSIZE)     + "\" " + \
-      WAVE_INPUT_KEY       + "=\"" + String(DEFAULT_WAVE_INPUT)       + "\" " + \
-      WAVE_OUTPUT_KEY      + "=\"" + String(DEFAULT_WAVE_OUTPUT)      + "\" " + \
+      WAVE_INPUT_KEY       + "=\"" + String(DEFAULT_WAVE_INPUTN)      + "\" " + \
+      WAVE_OUTPUT_KEY      + "=\"" + String(DEFAULT_WAVE_OUTPUTN)     + "\" " + \
       WAVE_SAMPLERATE_KEY  + "=\"" + String(DEFAULT_WAVE_SAMPLERATE)  + "\" " + \
       WAVE_BITDEPTH_KEY    + "=\"" + String(DEFAULT_WAVE_BITDEPTH)    + "\" " + \
       WAVE_NBLOCKS_KEY     + "=\"" + String(DEFAULT_WAVE_NBLOCKS)     + "\" " + \
-      WAVE_BLOCKSIZE_KEY   + "=\"" + String(DEFAULT_WAVE_BLOCKSIZE)   + "\" " + \
-      MAC_DEVICE_KEY       + "=\"" + String(DEFAULT_MAC_DEVICE)       + "\" " + \
-      MAC_NCHANNELS_KEY    + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
-      MAC_SAMPLERATE_KEY   + "=\"" + String(DEFAULT_MAC_SAMPLERATE)   + "\" " + \
-      MAC_BITDEPTH_KEY     + "=\"" + String(DEFAULT_MAC_BITDEPTH)     + "\" " + \
-      NIX_AUDIO_API_KEY    + "=\"" + String(DEFAULT_NIX_AUDIO_API)    + "\" " + \
-      JACK_SERVER_KEY      + "=\"" + String(DEFAULT_JACK_SERVER)      + "\" " + \
+      WAVE_BLOCKSIZE_KEY   + "=\"" + String(DEFAULT_WAVE_BLOCKSIZE)   + "\" "
+#  define MAC_AUDIO_XML ""
+#  define NIX_AUDIO_XML ""
+#else // _WIN32
+#  ifdef _MAC
+#    define WIN_AUDIO_XML ""
+#    define NIX_AUDIO_XML ""
+#    define MAC_AUDIO_XML                                                       \
+      CA_DEVICE_KEY        + "=\"" + String(DEFAULT_CA_DEVICE)        + "\" " + \
+      CA_NCHANNELS_KEY     + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
+      CA_SAMPLERATE_KEY    + "=\"" + String(DEFAULT_CA_SAMPLERATE)    + "\" " + \
+      CA_BITDEPTH_KEY      + "=\"" + String(DEFAULT_CA_BITDEPTH)      + "\" "
+#  else // _MAC
+#    define WIN_AUDIO_XML ""
+#    define MAC_AUDIO_XML ""
+#    define NIX_AUDIO_XML                                                       \
+      JACK_SERVER_KEY      + "=\"" + String(DEFAULT_JACK_SERVERN)     + "\" " + \
       JACK_NAME_KEY        + "=\"" + String(DEFAULT_JACK_NAME)        + "\" " + \
       JACK_NINPUTS_KEY     + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
       JACK_NOUTPUTS_KEY    + "=\"" + String(DEFAULT_N_OUTPUTS)        + "\" " + \
@@ -97,9 +94,31 @@
       ALSA_SAMPLERATE_KEY  + "=\"" + String(DEFAULT_ALSA_SAMPLERATE)  + "\" " + \
       ALSA_BITDEPTH_KEY    + "=\"" + String(DEFAULT_ALSA_BITDEPTH)    + "\" " + \
       ALSA_NBLOCKS_KEY     + "=\"" + String(DEFAULT_ALSA_NBLOCKS)     + "\" " + \
-      ALSA_BLOCKSIZE_KEY   + "=\"" + String(DEFAULT_ALSA_BLOCKSIZE)   + "\" " + \
+      ALSA_BLOCKSIZE_KEY   + "=\"" + String(DEFAULT_ALSA_BLOCKSIZE)   + "\" "
+#  endif // _MAC
+#endif // _WIN32
+
+#define CONFIG_XML XML_HEADER                                                 + \
+  STORAGE_KEY              +                                            " "   + \
+    CONFIG_VERSION_KEY     + "=\"" + String(CONFIG_VERSION)           + "\""  + \
+  "><"                                                                        + \
+    CLIENT_KEY             +                                            " "   + \
+      SAVE_AUDIO_MODE_KEY  + "=\"" + String(DEFAULT_SAVE_AUDIO_MODE)  + "\" " + \
+      MIXDOWN_MODE_KEY     + "=\"" + String(DEFAULT_MIXDOWN_MODE)     + "\" " + \
+      SHOULD_SAVE_LOG_KEY  + "=\"" + String(DEFAULT_SHOULD_SAVE_LOG)  + "\" " + \
+      DEBUG_LEVEL_KEY      + "=\"" + String(DEFAULT_DEBUG_LEVEL)      + "\" " + \
+      SHOULD_HIDE_BOTS_KEY + "=\"" + String(DEFAULT_SHOULD_HIDE_BOTS) + "\" " + \
     "/><"                                                                     + \
-    SERVER_KEY             + " "                                              + \
+    SUBSCRIPTIONS_KEY      +                                            " "   + \
+      SUBSCRIBE_MODE_KEY   + "=\"" + String(DEFAULT_SUBSCRIBE_MODE)   + "\" " + \
+    "/><"                                                                     + \
+    AUDIO_KEY              +                                            " "   + \
+      AUDIO_API_KEY        + "=\"" + String(DEFAULT_AUDIO_API)        + "\" " + \
+      String(WIN_AUDIO_XML)                                                   + \
+      String(MAC_AUDIO_XML)                                                   + \
+      String(NIX_AUDIO_XML)                                                   + \
+    "/><"                                                                     + \
+    SERVER_KEY             +                                            " "   + \
       HOST_KEY             + "=\"" + String(DEFAULT_HOST)             + "\" " + \
       LOGIN_KEY            + "=\"" + String(DEFAULT_LOGIN)            + "\" " + \
       PASS_KEY             + "=\"" + String(DEFAULT_PASS)             + "\" " + \
@@ -111,7 +130,7 @@
     "/><"                                                                     + \
     SERVERS_KEY            + " /><"                                           + \
     MASTERS_KEY            + "><"                                             + \
-      MASTER_KEY           + " "                                              + \
+      MASTER_KEY           +                                            " "   + \
         CHANNEL_NAME_KEY   + "=\"" + String(MASTER_KEY)               + "\" " + \
         VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME)           + "\" " + \
         PAN_KEY            + "=\"" + String(DEFAULT_PAN)              + "\" " + \
@@ -120,7 +139,7 @@
         VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU)               + "\" " + \
         VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU)               + "\" " + \
     "/><"                                                                     + \
-      METRO_KEY            + " "                                              + \
+      METRO_KEY            +                                            " "   + \
         CHANNEL_NAME_KEY   + "=\"" + String(METRO_KEY)                + "\" " + \
         VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME)           + "\" " + \
         PAN_KEY            + "=\"" + String(DEFAULT_PAN)              + "\" " + \
@@ -133,91 +152,91 @@
     "</" + MASTERS_KEY     + "><"                                             + \
     LOCALS_KEY             + " /><"                                           + \
     REMOTES_KEY            + " />"                                            + \
-  "</" + PERSISTENCE_KEY   + ">"
+  "</" + STORAGE_KEY       + ">"
 
-#define CONFIG_TYPES_XML XML_HEADER                           + \
-  PERSISTENCE_TYPES_KEY        + " "                          + \
-    CONFIG_VERSION_KEY         + "=\"" + DOUBLE_TYPE + "\"><" + \
-    CLIENT_KEY                 + " "                          + \
-      SAVE_AUDIO_MODE_KEY      + "=\"" + INT_TYPE    + "\" "  + \
-      MIXDOWN_MODE_KEY         + "=\"" + INT_TYPE    + "\" "  + \
-      SHOULD_SAVE_LOG_KEY      + "=\"" + BOOL_TYPE   + "\" "  + \
-      DEBUG_LEVEL_KEY          + "=\"" + INT_TYPE    + "\" "  + \
-      SHOULD_HIDE_BOTS_KEY     + "=\"" + BOOL_TYPE   + "\" "  + \
-    "/><"                                                     + \
-    SUBSCRIPTIONS_KEY          + " "                          + \
-      SUBSCRIBE_MODE_KEY       + "=\"" + INT_TYPE    + "\" "  + \
-    "/><"                                                     + \
-    AUDIO_KEY                  + " "                          + \
-      WIN_AUDIO_API_KEY        + "=\"" + INT_TYPE    + "\" "  + \
-      ASIO_DRIVER_KEY          + "=\"" + INT_TYPE    + "\" "  + \
-      ASIO_INPUT0_KEY          + "=\"" + INT_TYPE    + "\" "  + \
-      ASIO_INPUT1_KEY          + "=\"" + INT_TYPE    + "\" "  + \
-      ASIO_OUTPUT0_KEY         + "=\"" + INT_TYPE    + "\" "  + \
-      ASIO_OUTPUT1_KEY         + "=\"" + INT_TYPE    + "\" "  + \
-      KS_INPUT_KEY             + "=\"" + INT_TYPE    + "\" "  + \
-      KS_OUTPUT_KEY            + "=\"" + INT_TYPE    + "\" "  + \
-      KS_SAMPLERATE_KEY        + "=\"" + INT_TYPE    + "\" "  + \
-      KS_BITDEPTH_KEY          + "=\"" + INT_TYPE    + "\" "  + \
-      KS_NBLOCKS_KEY           + "=\"" + INT_TYPE    + "\" "  + \
-      KS_BLOCKSIZE_KEY         + "=\"" + INT_TYPE    + "\" "  + \
-      DS_INPUT_KEY             + "=\"" + STRING_TYPE + "\" "  + \
-      DS_OUTPUT_KEY            + "=\"" + STRING_TYPE + "\" "  + \
-      DS_SAMPLERATE_KEY        + "=\"" + INT_TYPE    + "\" "  + \
-      DS_BITDEPTH_KEY          + "=\"" + INT_TYPE    + "\" "  + \
-      DS_NBLOCKS_KEY           + "=\"" + INT_TYPE    + "\" "  + \
-      DS_BLOCKSIZE_KEY         + "=\"" + INT_TYPE    + "\" "  + \
-      WAVE_INPUT_KEY           + "=\"" + INT_TYPE    + "\" "  + \
-      WAVE_OUTPUT_KEY          + "=\"" + INT_TYPE    + "\" "  + \
-      WAVE_SAMPLERATE_KEY      + "=\"" + INT_TYPE    + "\" "  + \
-      WAVE_BITDEPTH_KEY        + "=\"" + INT_TYPE    + "\" "  + \
-      WAVE_NBLOCKS_KEY         + "=\"" + INT_TYPE    + "\" "  + \
-      WAVE_BLOCKSIZE_KEY       + "=\"" + INT_TYPE    + "\" "  + \
-      MAC_DEVICE_KEY           + "=\"" + STRING_TYPE + "\" "  + \
-      MAC_NCHANNELS_KEY        + "=\"" + INT_TYPE    + "\" "  + \
-      MAC_SAMPLERATE_KEY       + "=\"" + INT_TYPE    + "\" "  + \
-      MAC_BITDEPTH_KEY         + "=\"" + INT_TYPE    + "\" "  + \
-      NIX_AUDIO_API_KEY        + "=\"" + INT_TYPE    + "\" "  + \
-      JACK_SERVER_KEY          + "=\"" + INT_TYPE    + "\" "  + \
-      JACK_NAME_KEY            + "=\"" + STRING_TYPE + "\" "  + \
-      JACK_NINPUTS_KEY         + "=\"" + INT_TYPE    + "\" "  + \
-      JACK_NOUTPUTS_KEY        + "=\"" + INT_TYPE    + "\" "  + \
-      ALSA_INPUT_KEY           + "=\"" + STRING_TYPE + "\" "  + \
-      ALSA_OUTPUT_KEY          + "=\"" + STRING_TYPE + "\" "  + \
-      ALSA_NCHANNELS_KEY       + "=\"" + INT_TYPE    + "\" "  + \
-      ALSA_SAMPLERATE_KEY      + "=\"" + INT_TYPE    + "\" "  + \
-      ALSA_BITDEPTH_KEY        + "=\"" + INT_TYPE    + "\" "  + \
-      ALSA_NBLOCKS_KEY         + "=\"" + INT_TYPE    + "\" "  + \
-      ALSA_BLOCKSIZE_KEY       + "=\"" + INT_TYPE    + "\" "  + \
-    "/><"                                                     + \
-    SERVER_KEY                 + " "                          + \
-      HOST_KEY                 + "=\"" + STRING_TYPE + "\" "  + \
-      LOGIN_KEY                + "=\"" + STRING_TYPE + "\" "  + \
-      PASS_KEY                 + "=\"" + STRING_TYPE + "\" "  + \
-      IS_ANONYMOUS_KEY         + "=\"" + BOOL_TYPE   + "\" "  + \
-      IS_AGREED_KEY            + "=\"" + BOOL_TYPE   + "\" "  + \
-      SHOULD_AGREE_KEY         + "=\"" + BOOL_TYPE   + "\" "  + \
-      BOT_NAME_KEY             + "=\"" + STRING_TYPE + "\" "  + \
-      BOT_USERIDX_KEY          + "=\"" + INT_TYPE    + "\" "  + \
-    "/><"                                                     + \
-    USERS_KEY                  + " "                          + \
-      USER_IDX_KEY             + "=\"" + INT_TYPE    + "\" "  + \
-    "/><"                                                     + \
-    CHANNELS_KEY               + " "                          + \
-      CHANNEL_NAME_KEY         + "=\"" + STRING_TYPE + "\" "  + \
-      CHANNEL_IDX_KEY          + "=\"" + INT_TYPE    + "\" "  + \
-      PAIR_IDX_KEY             + "=\"" + INT_TYPE    + "\" "  + \
-      VOLUME_KEY               + "=\"" + DOUBLE_TYPE + "\" "  + \
-      PAN_KEY                  + "=\"" + DOUBLE_TYPE + "\" "  + \
-      IS_XMIT_RCV_KEY          + "=\"" + BOOL_TYPE   + "\" "  + \
-      IS_MUTED_KEY             + "=\"" + BOOL_TYPE   + "\" "  + \
-      IS_SOLO_KEY              + "=\"" + BOOL_TYPE   + "\" "  + \
-      SOURCE_N_KEY             + "=\"" + INT_TYPE    + "\" "  + \
-      STEREO_KEY               + "=\"" + INT_TYPE    + "\" "  + \
-      VU_LEFT_KEY              + "=\"" + DOUBLE_TYPE + "\" "  + \
-      VU_RIGHT_KEY             + "=\"" + DOUBLE_TYPE + "\" "  + \
-    "/>"                                                      + \
-  "</" + PERSISTENCE_TYPES_KEY + "> "
+#define CONFIG_TYPES_XML XML_HEADER                       + \
+  STORAGE_TYPES_KEY        +                       " "    + \
+    CONFIG_VERSION_KEY     + "=\"" + DOUBLE_TYPE + "\"><" + \
+    CLIENT_KEY             +                       " "    + \
+      SAVE_AUDIO_MODE_KEY  + "=\"" + INT_TYPE    + "\" "  + \
+      MIXDOWN_MODE_KEY     + "=\"" + INT_TYPE    + "\" "  + \
+      SHOULD_SAVE_LOG_KEY  + "=\"" + BOOL_TYPE   + "\" "  + \
+      DEBUG_LEVEL_KEY      + "=\"" + INT_TYPE    + "\" "  + \
+      SHOULD_HIDE_BOTS_KEY + "=\"" + BOOL_TYPE   + "\" "  + \
+    "/><"                                                 + \
+    SUBSCRIPTIONS_KEY      +                       " "    + \
+      SUBSCRIBE_MODE_KEY   + "=\"" + INT_TYPE    + "\" "  + \
+    "/><"                                                 + \
+    AUDIO_KEY              +                       " "    + \
+      AUDIO_API_KEY        + "=\"" + INT_TYPE    + "\" "  + \
+      ASIO_DRIVER_KEY      + "=\"" + INT_TYPE    + "\" "  + \
+      ASIO_INPUTB_KEY      + "=\"" + INT_TYPE    + "\" "  + \
+      ASIO_INPUTE_KEY      + "=\"" + INT_TYPE    + "\" "  + \
+      ASIO_OUTPUTB_KEY     + "=\"" + INT_TYPE    + "\" "  + \
+      ASIO_OUTPUTE_KEY     + "=\"" + INT_TYPE    + "\" "  + \
+      ASIO_CONTROL_KEY     + "=\"" + INT_TYPE    + "\" "  + \
+      KS_INPUT_KEY         + "=\"" + INT_TYPE    + "\" "  + \
+      KS_OUTPUT_KEY        + "=\"" + INT_TYPE    + "\" "  + \
+      KS_SAMPLERATE_KEY    + "=\"" + INT_TYPE    + "\" "  + \
+      KS_BITDEPTH_KEY      + "=\"" + INT_TYPE    + "\" "  + \
+      KS_NBLOCKS_KEY       + "=\"" + INT_TYPE    + "\" "  + \
+      KS_BLOCKSIZE_KEY     + "=\"" + INT_TYPE    + "\" "  + \
+      DS_INPUT_KEY         + "=\"" + STRING_TYPE + "\" "  + \
+      DS_OUTPUT_KEY        + "=\"" + STRING_TYPE + "\" "  + \
+      DS_SAMPLERATE_KEY    + "=\"" + INT_TYPE    + "\" "  + \
+      DS_BITDEPTH_KEY      + "=\"" + INT_TYPE    + "\" "  + \
+      DS_NBLOCKS_KEY       + "=\"" + INT_TYPE    + "\" "  + \
+      DS_BLOCKSIZE_KEY     + "=\"" + INT_TYPE    + "\" "  + \
+      WAVE_INPUT_KEY       + "=\"" + INT_TYPE    + "\" "  + \
+      WAVE_OUTPUT_KEY      + "=\"" + INT_TYPE    + "\" "  + \
+      WAVE_SAMPLERATE_KEY  + "=\"" + INT_TYPE    + "\" "  + \
+      WAVE_BITDEPTH_KEY    + "=\"" + INT_TYPE    + "\" "  + \
+      WAVE_NBLOCKS_KEY     + "=\"" + INT_TYPE    + "\" "  + \
+      WAVE_BLOCKSIZE_KEY   + "=\"" + INT_TYPE    + "\" "  + \
+      CA_DEVICE_KEY        + "=\"" + STRING_TYPE + "\" "  + \
+      CA_NCHANNELS_KEY     + "=\"" + INT_TYPE    + "\" "  + \
+      CA_SAMPLERATE_KEY    + "=\"" + INT_TYPE    + "\" "  + \
+      CA_BITDEPTH_KEY      + "=\"" + INT_TYPE    + "\" "  + \
+      JACK_SERVER_KEY      + "=\"" + INT_TYPE    + "\" "  + \
+      JACK_NAME_KEY        + "=\"" + STRING_TYPE + "\" "  + \
+      JACK_NINPUTS_KEY     + "=\"" + INT_TYPE    + "\" "  + \
+      JACK_NOUTPUTS_KEY    + "=\"" + INT_TYPE    + "\" "  + \
+      ALSA_INPUT_KEY       + "=\"" + STRING_TYPE + "\" "  + \
+      ALSA_OUTPUT_KEY      + "=\"" + STRING_TYPE + "\" "  + \
+      ALSA_NCHANNELS_KEY   + "=\"" + INT_TYPE    + "\" "  + \
+      ALSA_SAMPLERATE_KEY  + "=\"" + INT_TYPE    + "\" "  + \
+      ALSA_BITDEPTH_KEY    + "=\"" + INT_TYPE    + "\" "  + \
+      ALSA_NBLOCKS_KEY     + "=\"" + INT_TYPE    + "\" "  + \
+      ALSA_BLOCKSIZE_KEY   + "=\"" + INT_TYPE    + "\" "  + \
+    "/><"                                                 + \
+    SERVER_KEY             +                       " "    + \
+      HOST_KEY             + "=\"" + STRING_TYPE + "\" "  + \
+      LOGIN_KEY            + "=\"" + STRING_TYPE + "\" "  + \
+      PASS_KEY             + "=\"" + STRING_TYPE + "\" "  + \
+      IS_ANONYMOUS_KEY     + "=\"" + BOOL_TYPE   + "\" "  + \
+      IS_AGREED_KEY        + "=\"" + BOOL_TYPE   + "\" "  + \
+      SHOULD_AGREE_KEY     + "=\"" + BOOL_TYPE   + "\" "  + \
+      BOT_NAME_KEY         + "=\"" + STRING_TYPE + "\" "  + \
+      BOT_USERIDX_KEY      + "=\"" + INT_TYPE    + "\" "  + \
+    "/><"                                                 + \
+    USERS_KEY              +                       " "    + \
+      USER_IDX_KEY         + "=\"" + INT_TYPE    + "\" "  + \
+    "/><"                                                 + \
+    CHANNELS_KEY           +                       " "    + \
+      CHANNEL_NAME_KEY     + "=\"" + STRING_TYPE + "\" "  + \
+      CHANNEL_IDX_KEY      + "=\"" + INT_TYPE    + "\" "  + \
+      PAIR_IDX_KEY         + "=\"" + INT_TYPE    + "\" "  + \
+      VOLUME_KEY           + "=\"" + DOUBLE_TYPE + "\" "  + \
+      PAN_KEY              + "=\"" + DOUBLE_TYPE + "\" "  + \
+      IS_XMIT_RCV_KEY      + "=\"" + BOOL_TYPE   + "\" "  + \
+      IS_MUTED_KEY         + "=\"" + BOOL_TYPE   + "\" "  + \
+      IS_SOLO_KEY          + "=\"" + BOOL_TYPE   + "\" "  + \
+      SOURCE_N_KEY         + "=\"" + INT_TYPE    + "\" "  + \
+      STEREO_KEY           + "=\"" + INT_TYPE    + "\" "  + \
+      VU_LEFT_KEY          + "=\"" + DOUBLE_TYPE + "\" "  + \
+      VU_RIGHT_KEY         + "=\"" + DOUBLE_TYPE + "\" "  + \
+    "/>"                                                  + \
+  "</" + STORAGE_TYPES_KEY + "> "
 
 #define KNOWN_HOSTS_XML XML_HEADER + \
   KNOWN_HOSTS_KEY       + "><"     + \
@@ -279,13 +298,17 @@ namespace CLIENT
   static const StringRef CHATMSG_CMD_VOTE     = "!vote " ;
 
   // main
-  static const int CLIENT_TIMER_ID = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
-  static const int GUI_TIMER_HI_ID = 1 ; static const int GUI_UPDATE_HI_IVL = 125 ;
-  static const int GUI_TIMER_LO_ID = 2 ; static const int GUI_UPDATE_LO_IVL = 30000 ;
+  static const int CLIENT_TIMER_ID     = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
+  static const int GUI_HI_TIMER_ID     = 1 ; static const int GUI_HI_UPDATE_IVL = 125 ;
+  static const int GUI_MD_TIMER_ID     = 2 ; static const int GUI_MD_UPDATE_IVL = 2000 ;
+  static const int GUI_LO_TIMER_ID     = 3 ; static const int GUI_LO_UPDATE_IVL = 30000 ;
+  static const int AUDIO_INIT_TIMER_ID = 4 ; static const int AUDIO_INIT_DELAY  = 250 ;
 
   // ConfigAudio options
   static const String      ASIO_DEVICE_TYPE       = "ASIO" ;
+  static const String      KS_DEVICE_TYPE         = "KernaelStreaming" ; // non-juce
   static const String      DS_DEVICE_TYPE         = "DirectSound" ;
+  static const String      WAVE_DEVICE_TYPE       = "Wave" ;             // non-juce
   static const String      WASAPI_DEVICE_TYPE     = "WASAPI" ;
   static const String      CA_DEVICE_TYPE         = "CoreAudio" ;
   static const String      JACK_DEVICE_TYPE       = "JACK" ;
@@ -293,15 +316,25 @@ namespace CLIENT
   static const String      ROID_DEVICE_TYPE       = "Android" ;
   static const String      SLES_DEVICE_TYPE       = "OpenSLES" ;
   static const String      IOS_DEVICE_TYPE        = "iOSAudio" ;
-  static const String      KS_DEVICE_TYPE         = "Win32KernaelStreaming" ; // non-juce
-  static const String      WAVE_DEVICE_TYPE       = "Win32Wave" ;             // non-juce
-  static const String      NFG_DEVICE_TYPE        = "unknown" ;               // non-juce
+  static const String      NFG_DEVICE_TYPE        = "unknown" ;          // non-juce
   static const StringArray WIN_AUDIO_APIS         = // ConfigAudio GUI options
-      StringArray::fromLines(StringRef("asio\nkernel streaming\ndirect sound\nwave out")) ;
+      StringArray::fromLines(ASIO_DEVICE_TYPE + "\n" + KS_DEVICE_TYPE   + "\n" +
+                             DS_DEVICE_TYPE   + "\n" + WAVE_DEVICE_TYPE        ) ;
+  static const StringArray MAC_AUDIO_APIS         = // ConfigAudio GUI options
+      StringArray::fromLines(CA_DEVICE_TYPE) ;
   static const StringArray NIX_AUDIO_APIS         = // ConfigAudio GUI options
-      StringArray::fromLines(StringRef("jack\nalsa")) ;
+      StringArray::fromLines(JACK_DEVICE_TYPE + "\n" + ALSA_DEVICE_TYPE) ;
+#ifdef _WIN32
+  static const StringArray AUDIO_APIS             = WIN_AUDIO_APIS ;
+#else // _WIN32
+#  ifdef _MAC
+  static const StringArray AUDIO_APIS             = MAC_AUDIO_APIS ;
+#  else // _MAC
+  static const StringArray AUDIO_APIS             = NIX_AUDIO_APIS ;
+#  endif // _MAC
+#endif // _WIN32
   static const StringArray BUFFER_SIZES           = // ConfigAudio GUI options
-      StringArray::fromLines(StringRef("32\n64\n128\n256\n512\n1024\n2048\n4096\n8192")) ;
+      StringArray::fromLines("32\n64\n128\n256\n512\n1024\n2048\n4096\n8192") ;
   static const int         BIT_DEPTH_16           = 16 ;
   static const int         BIT_DEPTH_24           = 24 ;
   static const int         BIT_DEPTH_32           = 32 ;
@@ -323,17 +356,15 @@ namespace CLIENT
   static const int    STEREO_POSTFIX_N_CHARS = STEREO_L_POSTFIX.length() ;
 
   // persistence and storage
-#define USE_APPDATA_DIR
-#ifndef USE_APPDATA_DIR
-  static const String PERSISTENCE_FILENAME = "linjam.xml" ;
-  static const String SESSION_DIRNAME      = "/session" ;
-  static const String LOG_FILENAME         = "/clipsort.log" ;
-#else // USE_APPDATA_DIR
-  static const String STORAGE_DIRNAME      = ".linjam/" ;
-  static const String PERSISTENCE_FILENAME = STORAGE_DIRNAME + "linjam.xml" ;
-  static const String SESSION_DIRNAME      = STORAGE_DIRNAME + "session" ;
-  static const String LOG_FILENAME         = STORAGE_DIRNAME + "clipsort.log" ;
-#endif // USE_APPDATA_DIR
+#ifdef _WIN32
+  static const String STORAGE_DIRNAME  = "LinJam\\" ;
+  static const String SESSION_DIRNAME  = STORAGE_DIRNAME + "Session" ;
+#else // _WIN32
+  static const String STORAGE_DIRNAME  = ".linjam/" ;
+  static const String SESSION_DIRNAME  = STORAGE_DIRNAME + "session" ;
+#endif // _WIN32
+  static const String STORAGE_FILENAME = STORAGE_DIRNAME + "linjam.xml" ;
+  static const String LOG_FILENAME     = STORAGE_DIRNAME + "clipsort.log" ;
 }
 
 
@@ -383,9 +414,9 @@ public:
 namespace CONFIG
 {
   // config root keys
-  static const String     PERSISTENCE_KEY       = "linjam-data" ;
-  static const Identifier PERSISTENCE_ID        = PERSISTENCE_KEY ;
-  static const String     PERSISTENCE_TYPES_KEY = PERSISTENCE_KEY + "-types" ;
+  static const String     STORAGE_KEY           = "linjam-data" ;
+  static const Identifier STORAGE_ID            = STORAGE_KEY ;
+  static const String     STORAGE_TYPES_KEY     = STORAGE_KEY + "-types" ;
   static const String     CONFIG_VERSION_KEY    = "config-version" ;
   static const Identifier CONFIG_VERSION_ID     = CONFIG_VERSION_KEY ;
 
@@ -412,18 +443,20 @@ namespace CONFIG
   // audio device config keys
   static const String     AUDIO_KEY           = "audio" ;
   static const Identifier AUDIO_ID            = AUDIO_KEY ;
-  static const String     WIN_AUDIO_API_KEY   = "win-audio-api-n" ;
-  static const Identifier WIN_AUDIO_API_ID    = WIN_AUDIO_API_KEY ;
+  static const String     AUDIO_API_KEY       = "audio-api-n" ;
+  static const Identifier AUDIO_API_ID        = AUDIO_API_KEY ;
   static const String     ASIO_DRIVER_KEY     = "asio-driver-n" ;
   static const Identifier ASIO_DRIVER_ID      = ASIO_DRIVER_KEY ;
-  static const String     ASIO_INPUT0_KEY     = "asio-input0-n" ;
-  static const Identifier ASIO_INPUT0_ID      = ASIO_INPUT0_KEY ;
-  static const String     ASIO_INPUT1_KEY     = "asio-input1-n" ;
-  static const Identifier ASIO_INPUT1_ID      = ASIO_INPUT1_KEY ;
-  static const String     ASIO_OUTPUT0_KEY    = "asio-output0-n" ;
-  static const Identifier ASIO_OUTPUT0_ID     = ASIO_OUTPUT0_KEY ;
-  static const String     ASIO_OUTPUT1_KEY    = "asio-output1-n" ;
-  static const Identifier ASIO_OUTPUT1_ID     = ASIO_OUTPUT1_KEY ;
+  static const String     ASIO_INPUTB_KEY     = "asio-input-begin-n" ;
+  static const Identifier ASIO_INPUTB_ID      = ASIO_INPUTB_KEY ;
+  static const String     ASIO_INPUTE_KEY     = "asio-input1-end-n" ;
+  static const Identifier ASIO_INPUTE_ID      = ASIO_INPUTE_KEY ;
+  static const String     ASIO_OUTPUTB_KEY    = "asio-output-begin-n" ;
+  static const Identifier ASIO_OUTPUTB_ID     = ASIO_OUTPUTB_KEY ;
+  static const String     ASIO_OUTPUTE_KEY    = "asio-output-end-n" ;
+  static const Identifier ASIO_OUTPUTE_ID     = ASIO_OUTPUTE_KEY ;
+  static const String     ASIO_CONTROL_KEY    = "should-show-asio-cp" ;
+  static const Identifier ASIO_CONTROL_ID     = ASIO_CONTROL_KEY ;
   static const String     KS_INPUT_KEY        = "ks-input-n" ;
   static const Identifier KS_INPUT_ID         = KS_INPUT_KEY ;
   static const String     KS_OUTPUT_KEY       = "ks-output-n" ;
@@ -436,9 +469,9 @@ namespace CONFIG
   static const Identifier KS_NBLOCKS_ID       = KS_NBLOCKS_KEY ;
   static const String     KS_BLOCKSIZE_KEY    = "ks-block-size" ;
   static const Identifier KS_BLOCKSIZE_ID     = KS_BLOCKSIZE_KEY ;
-  static const String     DS_INPUT_KEY        = "ds-input-n" ;
+  static const String     DS_INPUT_KEY        = "ds-input" ;
   static const Identifier DS_INPUT_ID         = DS_INPUT_KEY ;
-  static const String     DS_OUTPUT_KEY       = "ds-output-n" ;
+  static const String     DS_OUTPUT_KEY       = "ds-output" ;
   static const Identifier DS_OUTPUT_ID        = DS_OUTPUT_KEY ;
   static const String     DS_SAMPLERATE_KEY   = "ds-sample-rate" ;
   static const Identifier DS_SAMPLERATE_ID    = DS_SAMPLERATE_KEY ;
@@ -460,16 +493,14 @@ namespace CONFIG
   static const Identifier WAVE_NBLOCKS_ID     = WAVE_NBLOCKS_KEY ;
   static const String     WAVE_BLOCKSIZE_KEY  = "wave-block-size" ;
   static const Identifier WAVE_BLOCKSIZE_ID   = WAVE_BLOCKSIZE_KEY ;
-  static const String     MAC_DEVICE_KEY      = "mac-device" ;
-  static const Identifier MAC_DEVICE_ID       = MAC_DEVICE_KEY ;
-  static const String     MAC_NCHANNELS_KEY   = "mac-n-channels" ;
-  static const Identifier MAC_NCHANNELS_ID    = MAC_NCHANNELS_KEY ;
-  static const String     MAC_SAMPLERATE_KEY  = "mac-sample-rate" ;
-  static const Identifier MAC_SAMPLERATE_ID   = MAC_SAMPLERATE_KEY ;
-  static const String     MAC_BITDEPTH_KEY    = "mac-bit-depth" ;
-  static const Identifier MAC_BITDEPTH_ID     = MAC_BITDEPTH_KEY ;
-  static const String     NIX_AUDIO_API_KEY   = "nix-audio-api-n" ;
-  static const Identifier NIX_AUDIO_API_ID    = NIX_AUDIO_API_KEY ;
+  static const String     CA_DEVICE_KEY       = "ca-device" ;
+  static const Identifier CA_DEVICE_ID        = CA_DEVICE_KEY ;
+  static const String     CA_NCHANNELS_KEY    = "ca-n-channels" ;
+  static const Identifier CA_NCHANNELS_ID     = CA_NCHANNELS_KEY ;
+  static const String     CA_SAMPLERATE_KEY   = "ca-sample-rate" ;
+  static const Identifier CA_SAMPLERATE_ID    = CA_SAMPLERATE_KEY ;
+  static const String     CA_BITDEPTH_KEY     = "ca-bit-depth" ;
+  static const Identifier CA_BITDEPTH_ID      = CA_BITDEPTH_KEY ;
   static const String     JACK_SERVER_KEY     = "jack-server" ;
   static const Identifier JACK_SERVER_ID      = JACK_SERVER_KEY ;
   static const String     JACK_NAME_KEY       = "jack-name" ;
@@ -572,46 +603,50 @@ namespace CONFIG
   static const int DEFAULT_SUBSCRIBE_MODE = (int)NJClient::SUBSCRIBE_DENY ;
 
   // audio config defaults
-  static const int    DEFAULT_N_INPUTS        = (int)audioStreamer::DEFAULT_N_INPUTS ;
-  static const int    DEFAULT_N_OUTPUTS       = (int)audioStreamer::DEFAULT_N_OUTPUTS ;
-  static const int    DEFAULT_SAMPLERATE      = (int)audioStreamer::DEFAULT_SAMPLERATE ;
-  static const int    DEFAULT_BITDEPTH        = (int)audioStreamer::DEFAULT_BITDEPTH ;
-  static const int    DEFAULT_WIN_AUDIO_API   = (int)audioStreamer::WIN_AUDIO_WAVE ;
-  static const int    DEFAULT_ASIO_DRIVER     = 0 ;
-  static const int    DEFAULT_ASIO_INPUT0     = 0 ;
-  static const int    DEFAULT_ASIO_INPUT1     = 1 ;
-  static const int    DEFAULT_ASIO_OUTPUT0    = 0 ;
-  static const int    DEFAULT_ASIO_OUTPUT1    = 1 ;
-  static const int    DEFAULT_KS_INPUT        = -1 ;
-  static const int    DEFAULT_KS_OUTPUT       = -1 ;
-  static const int    DEFAULT_KS_SAMPLERATE   = DEFAULT_SAMPLERATE ;
-  static const int    DEFAULT_KS_BITDEPTH     = DEFAULT_BITDEPTH ;
-  static const int    DEFAULT_KS_NBLOCKS      = 8 ;
-  static const int    DEFAULT_KS_BLOCKSIZE    = 512 ;
-  static const String DEFAULT_DS_INPUT        = audioStreamer::DEFAULT_DS_DEVICE ;
-  static const String DEFAULT_DS_OUTPUT       = audioStreamer::DEFAULT_DS_DEVICE ;
-  static const int    DEFAULT_DS_SAMPLERATE   = 44100 ;
-  static const int    DEFAULT_DS_BITDEPTH     = DEFAULT_BITDEPTH ;
-  static const int    DEFAULT_DS_NBLOCKS      = 16 ;
-  static const int    DEFAULT_DS_BLOCKSIZE    = 1024 ;
-  static const int    DEFAULT_WAVE_INPUT      = -1 ;
-  static const int    DEFAULT_WAVE_OUTPUT     = -1 ;
-  static const int    DEFAULT_WAVE_SAMPLERATE = 44100 ;
-  static const int    DEFAULT_WAVE_BITDEPTH   = DEFAULT_BITDEPTH ;
-  static const int    DEFAULT_WAVE_NBLOCKS    = 8 ;
-  static const int    DEFAULT_WAVE_BLOCKSIZE  = 4096 ;
-  static const String DEFAULT_MAC_DEVICE      = "" ;
-  static const int    DEFAULT_MAC_SAMPLERATE  = DEFAULT_SAMPLERATE ;
-  static const int    DEFAULT_MAC_BITDEPTH    = DEFAULT_BITDEPTH ;
-  static const int    DEFAULT_NIX_AUDIO_API   = (int)audioStreamer::NIX_AUDIO_JACK ;
-  static const int    DEFAULT_JACK_SERVER     = 0 ;
+#ifdef _WIN32
+  static const int    DEFAULT_AUDIO_API       = (int)audioStreamer::WIN_AUDIO_WAVE ;
+  static const int    DEFAULT_ASIO_DRIVERN    = audioStreamer::DEFAULT_ASIO_DRIVER_N ;
+  static const int    DEFAULT_ASIO_INPUTBN    = audioStreamer::DEFAULT_ASIO_INPUTB_N ;
+  static const int    DEFAULT_ASIO_INPUTEN    = audioStreamer::DEFAULT_ASIO_INPUTE_N ;
+  static const int    DEFAULT_ASIO_OUTPUTBN   = audioStreamer::DEFAULT_ASIO_OUTPUTB_N ;
+  static const int    DEFAULT_ASIO_OUTPUTEN   = audioStreamer::DEFAULT_ASIO_OUTPUTE_N ;
+  static const int    DEFAULT_ASIO_CONTROL    = audioStreamer::DEFAULT_ASIO_CONTROL ;
+  static const int    DEFAULT_KS_INPUTN       = -1 ; // libninjam does not implement this
+  static const int    DEFAULT_KS_OUTPUTN      = -1 ; // libninjam does not implement this
+  static const int    DEFAULT_KS_SAMPLERATE   = audioStreamer::DEFAULT_SAMPLE_RATE ;
+  static const int    DEFAULT_KS_BITDEPTH     = audioStreamer::DEFAULT_BIT_DEPTH ;
+  static const int    DEFAULT_KS_NBLOCKS      = audioStreamer::DEFAULT_KS_N_BLOCKS ;
+  static const int    DEFAULT_KS_BLOCKSIZE    = audioStreamer::DEFAULT_KS_BLOCK_SIZE ;
+  static const String DEFAULT_DS_INPUT        = audioStreamer::DEFAULT_DS_DEVICE_NAME ;
+  static const String DEFAULT_DS_OUTPUT       = audioStreamer::DEFAULT_DS_DEVICE_NAME ;
+  static const int    DEFAULT_DS_SAMPLERATE   = audioStreamer::DEFAULT_SAMPLE_RATE ;
+  static const int    DEFAULT_DS_BITDEPTH     = audioStreamer::DEFAULT_BIT_DEPTH ;
+  static const int    DEFAULT_DS_NBLOCKS      = audioStreamer::DEFAULT_DS_N_BLOCKS ;
+  static const int    DEFAULT_DS_BLOCKSIZE    = audioStreamer::DEFAULT_DS_BLOCK_SIZE ;
+  static const int    DEFAULT_WAVE_INPUTN     = audioStreamer::DEFAULT_WAVE_INPUT_N ;
+  static const int    DEFAULT_WAVE_OUTPUTN    = audioStreamer::DEFAULT_WAVE_OUTPUT_N ;
+  static const int    DEFAULT_WAVE_SAMPLERATE = audioStreamer::DEFAULT_SAMPLE_RATE ;
+  static const int    DEFAULT_WAVE_BITDEPTH   = audioStreamer::DEFAULT_BIT_DEPTH ;
+  static const int    DEFAULT_WAVE_NBLOCKS    = audioStreamer::DEFAULT_WAVE_N_BLOCKS ;
+  static const int    DEFAULT_WAVE_BLOCKSIZE  = audioStreamer::DEFAULT_WAVE_BLOCK_SIZE ;
+#else // _WIN32
+#  ifdef _MAC
+  static const int    DEFAULT_AUDIO_API       = (int)audioStreamer::MAC_AUDIO_CA ;
+  static const String DEFAULT_CA_DEVICES      = audioStreamer::DEFAULT_CA_DEVICES ;
+  static const int    DEFAULT_CA_SAMPLERATE   = audioStreamer::DEFAULT_SAMPLE_RATE ;
+  static const int    DEFAULT_CA_BITDEPTH     = audioStreamer::DEFAULT_BIT_DEPTH ;
+#  else // _MAC
+  static const int    DEFAULT_AUDIO_API       = (int)audioStreamer::NIX_AUDIO_JACK ;
+  static const int    DEFAULT_JACK_SERVERN    = 0 ; // libninjam does not implement this
   static const String DEFAULT_JACK_NAME       = "LinJam" ;
-  static const String DEFAULT_ALSA_INPUT      = "hw:0,0" ;
-  static const String DEFAULT_ALSA_OUTPUT     = "hw:0,0" ;
-  static const int    DEFAULT_ALSA_SAMPLERATE = 44100 ;
-  static const int    DEFAULT_ALSA_BITDEPTH   = 16 ;
-  static const int    DEFAULT_ALSA_NBLOCKS    = 16 ;
-  static const int    DEFAULT_ALSA_BLOCKSIZE  = 1024 ;
+  static const String DEFAULT_ALSA_INPUT      = audioStreamer::DEFAULT_ALSA_INPUT ;
+  static const String DEFAULT_ALSA_OUTPUT     = audioStreamer::DEFAULT_ALSA_OUTPUT ;
+  static const int    DEFAULT_ALSA_SAMPLERATE = audioStreamer::DEFAULT_SAMPLE_RATE ;
+  static const int    DEFAULT_ALSA_BITDEPTH   = audioStreamer::DEFAULT_BIT_DEPTH ;
+  static const int    DEFAULT_ALSA_NBLOCKS    = audioStreamer::DEFAULT_ALSA_N_BLOCKS ;
+  static const int    DEFAULT_ALSA_BLOCKSIZE  = audioStreamer::DEFAULT_ALSA_BLOCK_SIZE ;
+#  endif // _MAC
+#endif // _WIN32
 
   // server config defaults
   static const String DEFAULT_HOST         = "" ;
@@ -688,6 +723,9 @@ namespace GUI
   // Config
   static const String DISMISS_BTN_TEXT       = "done" ;
   static const String DISMISS_BTN_ERROR_TEXT = "error" ;
+  static const int    AUDIO_TAB_IDX          = 0 ;
+  static const int    CLIENT_TAB_IDX         = 1 ;
+  static const int    SUBSCRIPTIONS_TAB_IDX  = 2 ;
 
   // ConfigClient
   static const String CONFIG_GUI_ID      = "config-gui" ;
@@ -698,6 +736,7 @@ namespace GUI
   static const int    SUBSCRIPTIONS_H    = 76 ;
 
   // ConfigAudio
+  static const int    DEFAULT_DS_INDEX       = 0 ;
   static const String BUFFERS_GROUP_TEXT     = "buffers" ;
   static const String JACK_NAME_LABEL_TEXT   = "name" ;
   static const String ALSA_CONFIG_LABEL_TEXT = "config" ;
@@ -778,6 +817,7 @@ namespace GUI
 
   // StatusBar
   static const String STATUS_GUI_ID                 = "statusbar-gui" ;
+  static const String AUDIO_INIT_MSG                = "initializing audio" ;
   static const String AUDIO_INIT_ERROR_MSG          = "audio device error" ;
   static const String CONFIG_PENDING_MSG            = "press '" + DISMISS_BTN_TEXT + "' to continue" ;
   static const String DISCONNECTED_STATUS_TEXT      = "Disconnected" ;
@@ -798,7 +838,7 @@ namespace GUI
   static const String LOOP_GUI_ID          = "loop-gui" ;
   static const int    LOOP_X               = STATUS_W + PAD3 ;
   static const int    LOOP_H               = STATUS_H ;
-  static const double BEAT_PROGRESS_OFFSET = CLIENT::GUI_UPDATE_HI_IVL * 0.002 ;
+  static const double BEAT_PROGRESS_OFFSET = CLIENT::GUI_HI_UPDATE_IVL * 0.002 ;
 }
 
 #endif // _CONSTANTS_H_

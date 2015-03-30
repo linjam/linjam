@@ -153,12 +153,12 @@ Channel::Channel (ValueTree channel_store)
 
     //[Constructor] You can add your own custom stuff here..
 
-  String channel_name =        channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;
-  double volume       = double(channel_store[CONFIG::VOLUME_ID]) ;
-  double pan          = double(channel_store[CONFIG::PAN_ID]) ;
-  bool   is_xmit      = bool(  channel_store[CONFIG::IS_XMIT_RCV_ID]) ;
-  bool   is_muted     = bool(  channel_store[CONFIG::IS_MUTED_ID]) ;
-  bool   is_solo      = bool(  channel_store[CONFIG::IS_SOLO_ID]) ;
+  String channel_name = String(channel_store[CONFIG::CHANNEL_NAME_ID]) ;
+  double volume       = double(channel_store[CONFIG::VOLUME_ID      ]) ;
+  double pan          = double(channel_store[CONFIG::PAN_ID         ]) ;
+  bool   is_xmit      = bool(  channel_store[CONFIG::IS_XMIT_RCV_ID ]) ;
+  bool   is_muted     = bool(  channel_store[CONFIG::IS_MUTED_ID    ]) ;
+  bool   is_solo      = bool(  channel_store[CONFIG::IS_SOLO_ID     ]) ;
   double vu_min       = 0.0 ;
   double vu_max       = CLIENT::VU_DB_RANGE ;
   double gain_min     = CLIENT::VU_DB_MIN ;
@@ -188,13 +188,13 @@ Channel::Channel (ValueTree channel_store)
   // establish shared config storage and listeners
   this->channelStore  = channel_store ;
   Value name_value    = getValueObject(CONFIG::CHANNEL_NAME_ID) ;
-  Value stereo_value  = getValueObject(CONFIG::STEREO_ID) ;
-  Value vu_l_value    = getValueObject(CONFIG::VU_LEFT_ID) ;
-  Value vu_r_value    = getValueObject(CONFIG::VU_RIGHT_ID) ;
-  this->channelName .referTo(name_value) ;
+  Value stereo_value  = getValueObject(CONFIG::STEREO_ID      ) ;
+  Value vu_l_value    = getValueObject(CONFIG::VU_LEFT_ID     ) ;
+  Value vu_r_value    = getValueObject(CONFIG::VU_RIGHT_ID    ) ;
+  this->channelName .referTo(name_value  ) ;
   this->stereoStatus.referTo(stereo_value) ;
-  this->vuLeft      .referTo(vu_l_value) ;
-  this->vuRight     .referTo(vu_r_value) ;
+  this->vuLeft      .referTo(vu_l_value  ) ;
+  this->vuRight     .referTo(vu_r_value  ) ;
   this->channelName .addListener(this) ;
   this->stereoStatus.addListener(this) ;
   this->vuLeft      .addListener(this) ;

@@ -264,27 +264,7 @@ void Login::buttonClicked (Button* buttonThatWasClicked)
     //[UserbuttonClicked_Post]
 
     else if (this->loginButtons.contains((TextButton*)buttonThatWasClicked))
-    {
-      String    host        = buttonThatWasClicked->getButtonText().trim() ;
-      ValueTree credentials = LinJam::GetCredentials(host) ;
-
-DEBUG_TRACE_LOBBY_QUICKLOGIN
-
-      // set current host and restore stored credentials
-      this->hostText->setText(host) ;
-      if (credentials.isValid())
-      {
-        String login        =      credentials[CONFIG::LOGIN_ID       ].toString() ;
-        String pass         =      credentials[CONFIG::PASS_ID        ].toString() ;
-        bool   is_anonymous = bool(credentials[CONFIG::IS_ANONYMOUS_ID]) ;
-
-        this->loginText ->setText(       login) ;
-        this->passText  ->setText(       pass) ;
-        this->anonButton->setToggleState(is_anonymous , juce::dontSendNotification) ;
-      }
-
-      signIn() ;
-    }
+      quickLogin(buttonThatWasClicked->getButtonText().trim()) ;
 
     //[/UserbuttonClicked_Post]
 }
@@ -292,6 +272,29 @@ DEBUG_TRACE_LOBBY_QUICKLOGIN
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+void Login::quickLogin(String host)
+{
+  ValueTree credentials = LinJam::GetCredentials(host) ;
+
+DEBUG_TRACE_LOBBY_QUICKLOGIN
+
+  // set current host and restore stored credentials
+  this->hostText->setText(host) ;
+  if (credentials.isValid())
+  {
+    String login        =      credentials[CONFIG::LOGIN_ID       ].toString() ;
+    String pass         =      credentials[CONFIG::PASS_ID        ].toString() ;
+    bool   is_anonymous = bool(credentials[CONFIG::IS_ANONYMOUS_ID]) ;
+
+    this->loginText ->setText(       login) ;
+    this->passText  ->setText(       pass) ;
+    this->anonButton->setToggleState(is_anonymous , juce::dontSendNotification) ;
+  }
+
+  signIn() ;
+}
+
 
 /* event handlers */
 

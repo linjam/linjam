@@ -41,26 +41,26 @@ public:
   /* value holders (see Constants.h CONFIG_XML and CONFIG_TYPES_XML) */
 
 private:
-  // config root (PERSISTENCE_TYPES_KEY datatypes)
-  ValueTree configRoot ; // PERSISTENCE_ID node - parent of all nodes below
+  // config root (STORAGE_TYPES_KEY datatypes)
+  ValueTree configRoot ;     // STORAGE_ID node - parent of all nodes below
 public:
   // client config (CLIENT_KEY datatypes)
-  ValueTree client ; // CLIENT_ID node - client-specific data
+  ValueTree client ;         // CLIENT_ID node - client-specific data
 
   // subscriptions (SUBSCRIPTIONS_KEY datatypes)
-  ValueTree subscriptions ; // SUBSCRIPTIONS_ID node - subscriptions-specific data
+  ValueTree subscriptions ;  // SUBSCRIPTIONS_ID node - subscriptions-specific data
 
   // audio device config (AUDIO_KEY datatypes)
-  ValueTree audio ; // AUDIO_KEY node - api-specific audio hardware initialization data
+  ValueTree audio ;          // AUDIO_KEY node - api-specific audio hardware initialization data
 
   // TODO: server[IS_AGREED_ID] exists only so OnLicense doesnt block (issue #14)
   // credentials (SERVER_KEY datatypes - IS_AGREED_ID is <server> node only)
-  ValueTree server ;  // SERVER_ID node  - transient login credentials
+  ValueTree server ;         // SERVER_ID node  - transient login credentials
   // credentials (list of SERVER_KEY datatypes)
-  ValueTree servers ; // SERVERS_ID node - per-server credentials
+  ValueTree servers ;        // SERVERS_ID node - per-server credentials
 
   // peers (list of USERS_KEY datatypes - children are channels as below)
-  ValueTree remoteUsers ; // REMOTES_ID node - per-peer data
+  ValueTree remoteUsers ;    // REMOTES_ID node - per-peer data
 
   // channels (list of CHANNELS_KEY datatypes)
   ValueTree masterChannels ; // MASTERS_ID node - per-channel data (master and metro)
@@ -70,6 +70,7 @@ public:
 
 private:
 
+  File  dataDir ;
   File  configXmlFile ;
   Value dummyValue ;
 
@@ -99,6 +100,7 @@ private:
   ValueTree getChannelByPairIdx(  ValueTree channels_store , int pair_idx) ;
   ValueTree getChannelByName(     ValueTree channels_store , String channel_name) ;
   ValueTree getUserMasterChannel( ValueTree user_store) ;
+  void      updateRemoteUserState(ValueTree user_store , int user_idx , bool should_rcv) ;
   void      setCredentials(       String host         , String login , String pass ,
                                   bool   is_anonymous                              ) ;
   ValueTree getCredentials(       String host) ;

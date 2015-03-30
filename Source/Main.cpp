@@ -13,10 +13,9 @@
 //         arrange that "windows.h" be included before "JuceHeader.h" in all contexts
 //       also arrange to include "JuceHeader.h" before any "*Component.h"
 #include "LinJam.h" // includes "windows.h" and "JuceHeader.h"
-#include "./Trace/TraceMain.h"
 
 
-class LinJamApplication : public JUCEApplication , public NJClient , MultiTimer
+class LinJamApplication : public JUCEApplication , NJClient , MultiTimer
 {
 public:
 
@@ -27,14 +26,10 @@ public:
     this->mainWindow          = new MainWindow() ;
     MainContent* main_content = (MainContent*)this->mainWindow->mainContent ;
 
-    if (LinJam::Initialize(this , main_content , command_line))
+    if (!LinJam::Initialize(this , main_content , this , command_line))
     {
-      // start NJClient pump and GUI update timers
-      startTimer(CLIENT::CLIENT_TIMER_ID , CLIENT::CLIENT_DRIVER_IVL) ;
-      startTimer(CLIENT::GUI_TIMER_HI_ID , CLIENT::GUI_UPDATE_HI_IVL) ;
-      startTimer(CLIENT::GUI_TIMER_LO_ID ,500 ) ;//CLIENT::GUI_UPDATE_LO_IVL) ;
+      LinJam::Shutdown() ; quit() ;
     }
-    else quit() ;
   }
 
   void anotherInstanceStarted(const String& command_line) override
@@ -42,6 +37,7 @@ public:
     // When another instance of the app is launched while this one is running,
     // this method is invoked, and the commandLine parameter tells you what
     // the other instance's command-line arguments were.
+    LinJam::Shutdown() ; quit() ;
   }
 
   void shutdown() override
@@ -49,8 +45,6 @@ public:
     LinJam::Shutdown() ;
 
     this->mainWindow = nullptr ;
-
-DEBUG_TRACE_SHUTDOWN
   }
 
   void         systemRequestedQuit()        override { this->quit() ; }

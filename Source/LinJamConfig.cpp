@@ -87,20 +87,14 @@ ValueTree LinJamConfig::NewChannel(String channel_name , int channel_idx)
 void LinJamConfig::initialize()
 {
   // load default and stored configs
-  // TODO: configXmlFile should be under $HOME/.linjam (issue #32)
-#ifndef USE_APPDATA_DIR
-  File        this_binary       = File::getSpecialLocation(File::currentExecutableFile) ;
-  this->      configXmlFile     = this_binary.getSiblingFile(CLIENT::PERSISTENCE_FILENAME) ;
-#else // USE_APPDATA_DIR
-  File appdata_dir = File::getSpecialLocation(File::userApplicationDataDirectory) ;
-  if (!appdata_dir.isDirectory()) return ;
+  this->dataDir = File::getSpecialLocation(File::userApplicationDataDirectory) ;
+  if (!this->dataDir.isDirectory()) return ;
 
-  this->      configXmlFile     = appdata_dir.getChildFile(CLIENT::PERSISTENCE_FILENAME) ;
-#endif // USE_APPDATA_DIR
+  this->      configXmlFile     = this->dataDir.getChildFile(CLIENT::STORAGE_FILENAME) ;
   XmlElement* default_xml       = XmlDocument::parse(CONFIG::DEFAULT_CONFIG_XML) ;
   XmlElement* stored_xml        = XmlDocument::parse(this->configXmlFile) ;
   bool        has_stored_config = stored_xml != nullptr                         &&
-                                  stored_xml->hasTagName(CONFIG::PERSISTENCE_ID) ;
+                                  stored_xml->hasTagName(CONFIG::STORAGE_ID) ;
 
 DEBUG_TRACE_LOAD_CONFIG
 
@@ -116,10 +110,9 @@ DEBUG_TRACE_DUMP_CONFIG
 
   // create static config ValueTree from stored xml persistence or default
   if (has_stored_config && do_versions_match)
-    this->configRoot = sanitizeConfig(ValueTree::fromXml(*default_xml) ,
-                                      ValueTree::fromXml(*stored_xml)) ;
-  else
-    this->configRoot = ValueTree::fromXml(*default_xml) ;
+       this->configRoot = sanitizeConfig(ValueTree::fromXml(*default_xml) ,
+                                         ValueTree::fromXml(*stored_xml)) ;
+  else this->configRoot =                ValueTree::fromXml(*default_xml) ;
 
   // instantiate shared value holders and restore type data
   establishSharedStore() ; restoreVarTypeInfo(this->configRoot) ;
@@ -130,6 +123,9 @@ DEBUG_TRACE_DUMP_CONFIG
 
   // write back sanitized config to disk and cleanup
   storeConfig() ; delete default_xml ; delete stored_xml ;
+
+  // register listener on LinJamStatus for Gui state
+  LinJam::Status.addListener(this) ;
 
   // register listeners on interesting nodes for central dispatcher
   this->subscriptions .addListener(this) ;
@@ -344,9 +340,20 @@ bool LinJamConfig::isConfigValid()
 
   if (!is_config_valid)
   {
-    this->configRoot = ValueTree::invalid ;
+    this->configRoot     = ValueTree::invalid ;
+    this->client         = ValueTree::invalid ;
+    this->subscriptions  = ValueTree::invalid ; this->subscriptions .removeListener(this) ;
+    this->audio          = ValueTree::invalid ; this->audio         .removeListener(this) ;
+    this->server         = ValueTree::invalid ;
+    this->servers        = ValueTree::invalid ;
+    this->masterChannels = ValueTree::invalid ; this->masterChannels.removeListener(this) ;
+    this->localChannels  = ValueTree::invalid ; this->localChannels .removeListener(this) ;
+    this->remoteUsers    = ValueTree::invalid ; this->remoteUsers   .removeListener(this) ;
+
     if (this->configXmlFile.existsAsFile())
-    { this->configXmlFile.deleteFile() ; initialize() ; }
+    {
+      this->configXmlFile.deleteFile() ; initialize() ;
+    }
 
 DEBUG_TRACE_CLOBBER_CONFIG
 
@@ -454,6 +461,16 @@ ValueTree LinJamConfig::getUserMasterChannel(ValueTree user_store)
   return getChannelByIdx(user_store , CONFIG::MASTER_CHANNEL_IDX) ;
 }
 
+void LinJamConfig::updateRemoteUserState(ValueTree user_store , int user_idx ,
+                                         bool should_rcv                     )
+{
+  Identifier user_id      = user_store.getType() ;
+  ValueTree  master_store = this->getOrAddRemoteChannel(user_id , CONFIG::MASTER_KEY) ;
+
+  user_store  .setProperty(CONFIG::USER_IDX_ID    , user_idx   , nullptr) ;
+  master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , should_rcv , nullptr) ;
+}
+
 void LinJamConfig::setCredentials(String host , String login       ,
                                   String pass , bool   is_anonymous)
 {
@@ -487,11 +504,11 @@ ValueTree LinJamConfig::getCredentials(String host)
 void LinJamConfig::setServer()
 {
   // copy volatile login state to persistent storage
-  String    host         =      this->server[CONFIG::HOST_ID        ].toString() ;
-  String    login        =      this->server[CONFIG::LOGIN_ID       ].toString() ;
-  String    pass         =      this->server[CONFIG::PASS_ID        ].toString() ;
-  bool      is_anonymous = bool(this->server[CONFIG::IS_ANONYMOUS_ID]) ;
-  bool      should_agree = bool(this->server[CONFIG::SHOULD_AGREE_ID]) ;
+  String    host         = String(this->server[CONFIG::HOST_ID        ]) ;
+  String    login        = String(this->server[CONFIG::LOGIN_ID       ]) ;
+  String    pass         = String(this->server[CONFIG::PASS_ID        ]) ;
+  bool      is_anonymous = bool(  this->server[CONFIG::IS_ANONYMOUS_ID]) ;
+  bool      should_agree = bool(  this->server[CONFIG::SHOULD_AGREE_ID]) ;
   ValueTree server       = getServer(host) ;
 
   // create new server entry
@@ -522,7 +539,7 @@ void LinJamConfig::setStereo(ValueTree channel_store , int stereo_status)
 int LinJamConfig::setRemoteStereo(ValueTree user_store        , ValueTree channel_store ,
                                   String    prev_channel_name                           )
 {
-  String channel_name  = channel_store[CONFIG::CHANNEL_NAME_ID].toString() ;
+  String channel_name  = String(channel_store[CONFIG::CHANNEL_NAME_ID]) ;
   int    stereo_status = ParseStereoStatus(channel_name) ;
   int    prev_status   = ParseStereoStatus(prev_channel_name) ;
 
@@ -554,9 +571,9 @@ int LinJamConfig::setRemoteStereo(ValueTree user_store        , ValueTree channe
 
     ValueTree l_pair_store = getChannelByIdx(user_store , l_pair_idx) ;
     ValueTree r_pair_store = getChannelByIdx(user_store , r_pair_idx) ;
-    ValueTree pair_store   = (pair_stereo_status == CONFIG::STEREO_L)? l_pair_store :
-                                                                       r_pair_store ;
-    String    pair_name    = pair_store[CONFIG::CHANNEL_NAME_ID].toString() ;
+    ValueTree pair_store   = (pair_stereo_status == CONFIG::STEREO_L) ? l_pair_store :
+                                                                        r_pair_store ;
+    String    pair_name    = String(pair_store[CONFIG::CHANNEL_NAME_ID]) ;
     bool      is_paired    = !pair_name.compare(expected_pair_name) ;
 
     // set this and matched pair channel stereo status to stereo
@@ -609,9 +626,6 @@ DEBUG_TRACE_CONFIG_VALUE_CHANGED
 
   // update state
   if (a_value.refersToSameSourceAs(LinJam::Status)) LinJam::HandleStatusChanged() ;
-
-  // store server credentials on successful login
-  if (LinJam::Status == NJClient::NJC_STATUS_OK) setServer() ;
 }
 
 void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier& a_key)
@@ -633,11 +647,11 @@ void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier
 DEBUG_TRACE_CONFIG_TREE_CHANGED
 
   if      (is_subscriptions) LinJam::ConfigureSubscriptions() ;
-  else if (is_audio)         LinJam::InitializeAudio() ;
-  else if (is_master)        LinJam::ConfigureMasterChannel(a_key) ;
-  else if (is_metro)         LinJam::ConfigureMetroChannel(a_key) ;
-  else if (is_local)         LinJam::ConfigureLocalChannel(a_node , a_key) ;
-  else if (is_remote)        LinJam::ConfigureRemoteChannel(parent_node , a_node , a_key) ;
+  else if (is_audio        ) LinJam::ConfigureAudio() ;
+  else if (is_master       ) LinJam::ConfigureMasterChannel(a_key) ;
+  else if (is_metro        ) LinJam::ConfigureMetroChannel(a_key) ;
+  else if (is_local        ) LinJam::ConfigureLocalChannel(a_node , a_key) ;
+  else if (is_remote       ) LinJam::ConfigureRemoteChannel(parent_node , a_node , a_key) ;
 }
 
 void LinJamConfig::valueTreeChildAdded(ValueTree& a_parent_node , ValueTree& a_node)
