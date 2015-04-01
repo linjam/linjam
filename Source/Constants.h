@@ -1,13 +1,6 @@
-/*
-  ==============================================================================
-
-    Constants.h
-    Created: 24 May 2014 11:41:00am
-    Author:  me
-
-  ==============================================================================
+/* Constants.h
+   this file defines global configuration/persistence and runtime constants
 */
-
 #ifndef _CONSTANTS_H_
 #define _CONSTANTS_H_
 
@@ -24,16 +17,23 @@
 |*|
 |*|  when adding nodes or properties to CONFIG_XML be sure to
 |*|    * if new property - denote datatype in Constants.h #define CONFIG_TYPES_XML
+|*|    * if user property - verify data in    LinJamConfig::validateUsers()
 |*|    * if channel property - verify data in LinJamConfig::validateChannels()
-|*|                            and add to     LinJamConfig::newChannel()
+|*|                          - add to         LinJamConfig::newChannel()
 |*|    * if new node - switch in              LinJamConfig::restoreVarTypeInfo()
-|*|    * optionally trace data/errors in      #define DEBUG_TRACE_VALIDATE_CLIENT
-|*|                                           #define DEBUG_TRACE_VALIDATE_SUBSCRIPTIONS
-|*|                                           #define DEBUG_TRACE_VALIDATE_AUDIO
-|*|                                           #define DEBUG_TRACE_VALIDATE_SERVER
+|*|                  - validate in            LinJamConfig::validateConfig()
+|*|                  - invalidate in          LinJamConfig::isConfigValid()
+|*|    * optionally trace data/errors in      #define DEBUG_VALIDATE_CONFIG_DEFAULTS
+|*|                                           #define DEBUG_VALIDATE_CONFIG_ROOT
+|*|                                           #define DEBUG_VALIDATE_CONFIG_GUI
+|*|                                           #define DEBUG_VALIDATE_CONFIG_CLIENT
+|*|                                           #define DEBUG_VALIDATE_CONFIG_BLACKLIST
+|*|                                           #define DEBUG_VALIDATE_CONFIG_AUDIO
+|*|                                           #define DEBUG_VALIDATE_CONFIG_SERVER
+|*|                                           #define DEBUG_VALIDATE_CONFIG_MASTERS
+|*|                                           #define DEBUG_TRACE_VALIDATE_CONFIG
 |*|                                           #define DEBUG_TRACE_VALIDATE_USER
 |*|                                           #define DEBUG_TRACE_VALIDATE_CHANNEL
-|*|                                           #define DEBUG_TRACE_VALIDATE_CONFIG
 |*|                                           #define DEBUG_TRACE_ADD_CHANNEL_GUI
 |*|                                           #define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
 |*|                                           #define DEBUG_TRACE_REMOTE_CHANNELS
@@ -41,34 +41,36 @@
 \*/
 
 
+/* default configuration raw data */
+
 #define XML_HEADER "<?xml version=\"1.0\"?><"
 
 #ifdef _WIN32
 #  define WIN_AUDIO_XML                                                         \
-      ASIO_DRIVER_KEY      + "=\"" + String(DEFAULT_ASIO_DRIVERN)     + "\" " + \
-      ASIO_INPUTB_KEY      + "=\"" + String(DEFAULT_ASIO_INPUTBN)     + "\" " + \
-      ASIO_INPUTE_KEY      + "=\"" + String(DEFAULT_ASIO_INPUTEN)     + "\" " + \
-      ASIO_OUTPUTB_KEY     + "=\"" + String(DEFAULT_ASIO_OUTPUTBN)    + "\" " + \
-      ASIO_OUTPUTE_KEY     + "=\"" + String(DEFAULT_ASIO_OUTPUTEN)    + "\" " + \
-      ASIO_CONTROL_KEY     + "=\"" + String(DEFAULT_ASIO_CONTROL)     + "\" " + \
-      KS_INPUT_KEY         + "=\"" + String(DEFAULT_KS_INPUTN)        + "\" " + \
-      KS_OUTPUT_KEY        + "=\"" + String(DEFAULT_KS_OUTPUTN)       + "\" " + \
-      KS_SAMPLERATE_KEY    + "=\"" + String(DEFAULT_KS_SAMPLERATE)    + "\" " + \
-      KS_BITDEPTH_KEY      + "=\"" + String(DEFAULT_KS_BITDEPTH)      + "\" " + \
-      KS_NBLOCKS_KEY       + "=\"" + String(DEFAULT_KS_NBLOCKS)       + "\" " + \
-      KS_BLOCKSIZE_KEY     + "=\"" + String(DEFAULT_KS_BLOCKSIZE)     + "\" " + \
-      DS_INPUT_KEY         + "=\"" + String(DEFAULT_DS_INPUT)         + "\" " + \
-      DS_OUTPUT_KEY        + "=\"" + String(DEFAULT_DS_OUTPUT)        + "\" " + \
-      DS_SAMPLERATE_KEY    + "=\"" + String(DEFAULT_DS_SAMPLERATE)    + "\" " + \
-      DS_BITDEPTH_KEY      + "=\"" + String(DEFAULT_DS_BITDEPTH)      + "\" " + \
-      DS_NBLOCKS_KEY       + "=\"" + String(DEFAULT_DS_NBLOCKS)       + "\" " + \
-      DS_BLOCKSIZE_KEY     + "=\"" + String(DEFAULT_DS_BLOCKSIZE)     + "\" " + \
-      WAVE_INPUT_KEY       + "=\"" + String(DEFAULT_WAVE_INPUTN)      + "\" " + \
-      WAVE_OUTPUT_KEY      + "=\"" + String(DEFAULT_WAVE_OUTPUTN)     + "\" " + \
-      WAVE_SAMPLERATE_KEY  + "=\"" + String(DEFAULT_WAVE_SAMPLERATE)  + "\" " + \
-      WAVE_BITDEPTH_KEY    + "=\"" + String(DEFAULT_WAVE_BITDEPTH)    + "\" " + \
-      WAVE_NBLOCKS_KEY     + "=\"" + String(DEFAULT_WAVE_NBLOCKS)     + "\" " + \
-      WAVE_BLOCKSIZE_KEY   + "=\"" + String(DEFAULT_WAVE_BLOCKSIZE)   + "\" "
+      ASIO_DRIVER_KEY      + "=\"" + String(DEFAULT_ASIO_DRIVERN    ) + "\" " + \
+      ASIO_INPUTB_KEY      + "=\"" + String(DEFAULT_ASIO_INPUTBN    ) + "\" " + \
+      ASIO_INPUTE_KEY      + "=\"" + String(DEFAULT_ASIO_INPUTEN    ) + "\" " + \
+      ASIO_OUTPUTB_KEY     + "=\"" + String(DEFAULT_ASIO_OUTPUTBN   ) + "\" " + \
+      ASIO_OUTPUTE_KEY     + "=\"" + String(DEFAULT_ASIO_OUTPUTEN   ) + "\" " + \
+      ASIO_CONTROL_KEY     + "=\"" + String(DEFAULT_ASIO_CONTROL    ) + "\" " + \
+      KS_INPUT_KEY         + "=\"" + String(DEFAULT_KS_INPUTN       ) + "\" " + \
+      KS_OUTPUT_KEY        + "=\"" + String(DEFAULT_KS_OUTPUTN      ) + "\" " + \
+      KS_SAMPLERATE_KEY    + "=\"" + String(DEFAULT_KS_SAMPLERATE   ) + "\" " + \
+      KS_BITDEPTH_KEY      + "=\"" + String(DEFAULT_KS_BITDEPTH     ) + "\" " + \
+      KS_NBLOCKS_KEY       + "=\"" + String(DEFAULT_KS_NBLOCKS      ) + "\" " + \
+      KS_BLOCKSIZE_KEY     + "=\"" + String(DEFAULT_KS_BLOCKSIZE    ) + "\" " + \
+      DS_INPUT_KEY         + "=\"" + String(DEFAULT_DS_INPUT_NAME   ) + "\" " + \
+      DS_OUTPUT_KEY        + "=\"" + String(DEFAULT_DS_OUTPUT_NAME  ) + "\" " + \
+      DS_SAMPLERATE_KEY    + "=\"" + String(DEFAULT_DS_SAMPLERATE   ) + "\" " + \
+      DS_BITDEPTH_KEY      + "=\"" + String(DEFAULT_DS_BITDEPTH     ) + "\" " + \
+      DS_NBLOCKS_KEY       + "=\"" + String(DEFAULT_DS_NBLOCKS      ) + "\" " + \
+      DS_BLOCKSIZE_KEY     + "=\"" + String(DEFAULT_DS_BLOCKSIZE    ) + "\" " + \
+      WAVE_INPUT_KEY       + "=\"" + String(DEFAULT_WAVE_INPUTN     ) + "\" " + \
+      WAVE_OUTPUT_KEY      + "=\"" + String(DEFAULT_WAVE_OUTPUTN    ) + "\" " + \
+      WAVE_SAMPLERATE_KEY  + "=\"" + String(DEFAULT_WAVE_SAMPLERATE ) + "\" " + \
+      WAVE_BITDEPTH_KEY    + "=\"" + String(DEFAULT_WAVE_BITDEPTH   ) + "\" " + \
+      WAVE_NBLOCKS_KEY     + "=\"" + String(DEFAULT_WAVE_NBLOCKS    ) + "\" " + \
+      WAVE_BLOCKSIZE_KEY   + "=\"" + String(DEFAULT_WAVE_BLOCKSIZE  ) + "\" "
 #  define MAC_AUDIO_XML ""
 #  define NIX_AUDIO_XML ""
 #else // _WIN32
@@ -76,87 +78,105 @@
 #    define WIN_AUDIO_XML ""
 #    define NIX_AUDIO_XML ""
 #    define MAC_AUDIO_XML                                                       \
-      CA_DEVICE_KEY        + "=\"" + String(DEFAULT_CA_DEVICE)        + "\" " + \
-      CA_NCHANNELS_KEY     + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
-      CA_SAMPLERATE_KEY    + "=\"" + String(DEFAULT_CA_SAMPLERATE)    + "\" " + \
-      CA_BITDEPTH_KEY      + "=\"" + String(DEFAULT_CA_BITDEPTH)      + "\" "
+      CA_INPUT_KEY         + "=\"" + String(DEFAULT_CA_INPUT_NAME   ) + "\" " + \
+      CA_OUTPUT_KEY        + "=\"" + String(DEFAULT_CA_OUTPUT_NAME  ) + "\" " + \
+      CA_NCHANNELS_KEY     + "=\"" + String(DEFAULT_CA_NCHANNELS    ) + "\" " + \
+      CA_SAMPLERATE_KEY    + "=\"" + String(DEFAULT_CA_SAMPLERATE   ) + "\" " + \
+      CA_BITDEPTH_KEY      + "=\"" + String(DEFAULT_CA_BITDEPTH     ) + "\" "
 #  else // _MAC
 #    define WIN_AUDIO_XML ""
 #    define MAC_AUDIO_XML ""
 #    define NIX_AUDIO_XML                                                       \
-      JACK_SERVER_KEY      + "=\"" + String(DEFAULT_JACK_SERVERN)     + "\" " + \
-      JACK_NAME_KEY        + "=\"" + String(DEFAULT_JACK_NAME)        + "\" " + \
-      JACK_NINPUTS_KEY     + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
-      JACK_NOUTPUTS_KEY    + "=\"" + String(DEFAULT_N_OUTPUTS)        + "\" " + \
-      ALSA_INPUT_KEY       + "=\"" + String(DEFAULT_ALSA_INPUT)       + "\" " + \
-      ALSA_OUTPUT_KEY      + "=\"" + String(DEFAULT_ALSA_OUTPUT)      + "\" " + \
-      ALSA_NCHANNELS_KEY   + "=\"" + String(DEFAULT_N_INPUTS)         + "\" " + \
-      ALSA_SAMPLERATE_KEY  + "=\"" + String(DEFAULT_ALSA_SAMPLERATE)  + "\" " + \
-      ALSA_BITDEPTH_KEY    + "=\"" + String(DEFAULT_ALSA_BITDEPTH)    + "\" " + \
-      ALSA_NBLOCKS_KEY     + "=\"" + String(DEFAULT_ALSA_NBLOCKS)     + "\" " + \
-      ALSA_BLOCKSIZE_KEY   + "=\"" + String(DEFAULT_ALSA_BLOCKSIZE)   + "\" "
+      JACK_SERVER_KEY      + "=\"" + String(DEFAULT_JACK_SERVERN    ) + "\" " + \
+      JACK_NAME_KEY        + "=\"" + String(DEFAULT_JACK_NAME       ) + "\" " + \
+      JACK_NINPUTS_KEY     + "=\"" + String(DEFAULT_JACK_NINPUTS    ) + "\" " + \
+      JACK_NOUTPUTS_KEY    + "=\"" + String(DEFAULT_JACK_NOUTPUTS   ) + "\" " + \
+      ALSA_INPUT_KEY       + "=\"" + String(DEFAULT_ALSA_INPUT_NAME ) + "\" " + \
+      ALSA_OUTPUT_KEY      + "=\"" + String(DEFAULT_ALSA_OUTPUT_NAME) + "\" " + \
+      ALSA_NCHANNELS_KEY   + "=\"" + String(DEFAULT_ALSA_NCHANNELS  ) + "\" " + \
+      ALSA_SAMPLERATE_KEY  + "=\"" + String(DEFAULT_ALSA_SAMPLERATE ) + "\" " + \
+      ALSA_BITDEPTH_KEY    + "=\"" + String(DEFAULT_ALSA_BITDEPTH   ) + "\" " + \
+      ALSA_NBLOCKS_KEY     + "=\"" + String(DEFAULT_ALSA_NBLOCKS    ) + "\" " + \
+      ALSA_BLOCKSIZE_KEY   + "=\"" + String(DEFAULT_ALSA_BLOCKSIZE  ) + "\" "
 #  endif // _MAC
 #endif // _WIN32
 
+/** CONFIG_XML, WIN_AUDIO_XML, NIX_AUDIO_XML, MAC_AUDIO_XML
+  *     define the schema and default values for the configuration/persistence model
+  * this data is instantiated below as DEFAULT_CONFIG_XML */
 #define CONFIG_XML XML_HEADER                                                 + \
   STORAGE_KEY              +                                            " "   + \
-    CONFIG_VERSION_KEY     + "=\"" + String(CONFIG_VERSION)           + "\""  + \
+    CONFIG_VERSION_KEY     + "=\"" + String(CONFIG_VERSION          ) + "\""  + \
   "><"                                                                        + \
+    GUI_KEY                +                                            " "   + \
+      FONT_SIZE_KEY        + "=\"" + String(DEFAULT_FONT_SIZE       ) + "\" " + \
+      UPDATE_IVL_KEY       + "=\"" + String(DEFAULT_UPDATE_IVL_N    ) + "\" " + \
+    "/><"                                                                     + \
     CLIENT_KEY             +                                            " "   + \
-      SAVE_AUDIO_MODE_KEY  + "=\"" + String(DEFAULT_SAVE_AUDIO_MODE)  + "\" " + \
-      MIXDOWN_MODE_KEY     + "=\"" + String(DEFAULT_MIXDOWN_MODE)     + "\" " + \
-      SHOULD_SAVE_LOG_KEY  + "=\"" + String(DEFAULT_SHOULD_SAVE_LOG)  + "\" " + \
-      DEBUG_LEVEL_KEY      + "=\"" + String(DEFAULT_DEBUG_LEVEL)      + "\" " + \
+      SAVE_AUDIO_MODE_KEY  + "=\"" + String(DEFAULT_SAVE_AUDIO_MODE ) + "\" " + \
+      MIXDOWN_MODE_KEY     + "=\"" + String(DEFAULT_MIXDOWN_MODE    ) + "\" " + \
+      SHOULD_SAVE_LOG_KEY  + "=\"" + String(DEFAULT_SHOULD_SAVE_LOG ) + "\" " + \
+      DEBUG_LEVEL_KEY      + "=\"" + String(DEFAULT_DEBUG_LEVEL     ) + "\" " + \
       SHOULD_HIDE_BOTS_KEY + "=\"" + String(DEFAULT_SHOULD_HIDE_BOTS) + "\" " + \
     "/><"                                                                     + \
-    SUBSCRIPTIONS_KEY      +                                            " "   + \
-      SUBSCRIBE_MODE_KEY   + "=\"" + String(DEFAULT_SUBSCRIBE_MODE)   + "\" " + \
+    BLACKLIST_KEY          +                                            " "   + \
+      SUBSCRIBE_MODE_KEY   + "=\"" + String(DEFAULT_SUBSCRIBE_MODE  ) + "\" " + \
     "/><"                                                                     + \
     AUDIO_KEY              +                                            " "   + \
-      AUDIO_API_KEY        + "=\"" + String(DEFAULT_AUDIO_API)        + "\" " + \
+      AUDIO_API_KEY        + "=\"" + String(DEFAULT_AUDIO_API       ) + "\" " + \
       String(WIN_AUDIO_XML)                                                   + \
       String(MAC_AUDIO_XML)                                                   + \
       String(NIX_AUDIO_XML)                                                   + \
     "/><"                                                                     + \
     SERVER_KEY             +                                            " "   + \
-      HOST_KEY             + "=\"" + String(DEFAULT_HOST)             + "\" " + \
-      LOGIN_KEY            + "=\"" + String(DEFAULT_LOGIN)            + "\" " + \
-      PASS_KEY             + "=\"" + String(DEFAULT_PASS)             + "\" " + \
-      IS_ANONYMOUS_KEY     + "=\"" + String(DEFAULT_IS_ANONYMOUS)     + "\" " + \
-      IS_AGREED_KEY        + "=\"" + String(DEFAULT_IS_AGREED)        + "\" " + \
-      SHOULD_AGREE_KEY     + "=\"" + String(DEFAULT_SHOULD_AGREE)     + "\" " + \
-      BOT_NAME_KEY         + "=\"" + String(DEFAULT_BOT_NAME)         + "\" " + \
-      BOT_USERIDX_KEY      + "=\"" + String(DEFAULT_BOT_USERIDX)      + "\" " + \
+      HOST_KEY             + "=\"" + String(DEFAULT_HOST            ) + "\" " + \
+      LOGIN_KEY            + "=\"" + String(DEFAULT_LOGIN           ) + "\" " + \
+      PASS_KEY             + "=\"" + String(DEFAULT_PASS            ) + "\" " + \
+      IS_ANONYMOUS_KEY     + "=\"" + String(DEFAULT_IS_ANONYMOUS    ) + "\" " + \
+      IS_AGREED_KEY        + "=\"" + String(DEFAULT_IS_AGREED       ) + "\" " + \
+      SHOULD_AGREE_KEY     + "=\"" + String(DEFAULT_SHOULD_AGREE    ) + "\" " + \
+      BOT_NAME_KEY         + "=\"" + String(DEFAULT_BOT_NAME        ) + "\" " + \
+      BOT_USERIDX_KEY      + "=\"" + String(DEFAULT_BOT_USERIDX     ) + "\" " + \
     "/><"                                                                     + \
     SERVERS_KEY            + " /><"                                           + \
     MASTERS_KEY            + "><"                                             + \
       MASTER_KEY           +                                            " "   + \
-        CHANNEL_NAME_KEY   + "=\"" + String(MASTER_KEY)               + "\" " + \
-        VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME)           + "\" " + \
-        PAN_KEY            + "=\"" + String(DEFAULT_PAN)              + "\" " + \
-        IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED)         + "\" " + \
-        STEREO_KEY         + "=\"" + String(STEREO)                   + "\" " + \
-        VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU)               + "\" " + \
-        VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU)               + "\" " + \
+        CHANNEL_NAME_KEY   + "=\"" + String(MASTER_KEY              ) + "\" " + \
+        VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME          ) + "\" " + \
+        PAN_KEY            + "=\"" + String(DEFAULT_PAN             ) + "\" " + \
+        IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED        ) + "\" " + \
+        STEREO_KEY         + "=\"" + String(STEREO                  ) + "\" " + \
+        VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU              ) + "\" " + \
+        VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU              ) + "\" " + \
     "/><"                                                                     + \
       METRO_KEY            +                                            " "   + \
-        CHANNEL_NAME_KEY   + "=\"" + String(METRO_KEY)                + "\" " + \
-        VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME)           + "\" " + \
-        PAN_KEY            + "=\"" + String(DEFAULT_PAN)              + "\" " + \
-        IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED)         + "\" " + \
-        SOURCE_N_KEY       + "=\"" + String(DEFAULT_SOURCE_N)         + "\" " + \
-        STEREO_KEY         + "=\"" + String(STEREO)                   + "\" " + \
-        VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU)               + "\" " + \
-        VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU)               + "\" " + \
+        CHANNEL_NAME_KEY   + "=\"" + String(METRO_KEY               ) + "\" " + \
+        VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME          ) + "\" " + \
+        PAN_KEY            + "=\"" + String(DEFAULT_PAN             ) + "\" " + \
+        IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED        ) + "\" " + \
+        SOURCE_N_KEY       + "=\"" + String(DEFAULT_SOURCE_N        ) + "\" " + \
+        STEREO_KEY         + "=\"" + String(STEREO                  ) + "\" " + \
+        VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU              ) + "\" " + \
+        VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU              ) + "\" " + \
     "/>"                                                                      + \
     "</" + MASTERS_KEY     + "><"                                             + \
     LOCALS_KEY             + " /><"                                           + \
     REMOTES_KEY            + " />"                                            + \
   "</" + STORAGE_KEY       + ">"
 
+/** CONFIG_TYPES_XML denotes the property datatypes for the CONFIG_XML data above
+  *      there is not a one-to-one correspondence with the schema
+  *  these are grouped by leaf type
+  *      because <channel> leaves for example are found in several locations
+  *      and some list nodes such as <locals> have no intrinsic properties
+  *  this data is instantiated below as CONFIG_DATATYPES_XML */
 #define CONFIG_TYPES_XML XML_HEADER                       + \
   STORAGE_TYPES_KEY        +                       " "    + \
     CONFIG_VERSION_KEY     + "=\"" + DOUBLE_TYPE + "\"><" + \
+    GUI_KEY                +                       " "    + \
+      FONT_SIZE_KEY        + "=\"" + INT_TYPE    + "\" "  + \
+      UPDATE_IVL_KEY       + "=\"" + INT_TYPE    + "\" "  + \
+    "/><"                                                 + \
     CLIENT_KEY             +                       " "    + \
       SAVE_AUDIO_MODE_KEY  + "=\"" + INT_TYPE    + "\" "  + \
       MIXDOWN_MODE_KEY     + "=\"" + INT_TYPE    + "\" "  + \
@@ -164,7 +184,7 @@
       DEBUG_LEVEL_KEY      + "=\"" + INT_TYPE    + "\" "  + \
       SHOULD_HIDE_BOTS_KEY + "=\"" + BOOL_TYPE   + "\" "  + \
     "/><"                                                 + \
-    SUBSCRIPTIONS_KEY      +                       " "    + \
+    BLACKLIST_KEY          +                       " "    + \
       SUBSCRIBE_MODE_KEY   + "=\"" + INT_TYPE    + "\" "  + \
     "/><"                                                 + \
     AUDIO_KEY              +                       " "    + \
@@ -193,7 +213,8 @@
       WAVE_BITDEPTH_KEY    + "=\"" + INT_TYPE    + "\" "  + \
       WAVE_NBLOCKS_KEY     + "=\"" + INT_TYPE    + "\" "  + \
       WAVE_BLOCKSIZE_KEY   + "=\"" + INT_TYPE    + "\" "  + \
-      CA_DEVICE_KEY        + "=\"" + STRING_TYPE + "\" "  + \
+      CA_INPUT_KEY         + "=\"" + STRING_TYPE + "\" "  + \
+      CA_OUTPUT_KEY        + "=\"" + STRING_TYPE + "\" "  + \
       CA_NCHANNELS_KEY     + "=\"" + INT_TYPE    + "\" "  + \
       CA_SAMPLERATE_KEY    + "=\"" + INT_TYPE    + "\" "  + \
       CA_BITDEPTH_KEY      + "=\"" + INT_TYPE    + "\" "  + \
@@ -251,27 +272,52 @@
     NINJAMER_2052_URL   + " /></"  + \
   KNOWN_HOSTS_KEY       + ">"
 
-#define KNOWN_BOTS_XML XML_HEADER                                        + \
-  NETWORK::KNOWN_BOTS_KEY                                        + " "   + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2049_URL  )) + "=\"" + \
-    String(NETWORK::NINBOT_USER)                                 + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2050_URL  )) + "=\"" + \
-    String(NETWORK::NINBOT_USER)                                 + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2051_URL  )) + "=\"" + \
-    String(NETWORK::NINBOT_USER)                                 + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2052_URL  )) + "=\"" + \
-    String(NETWORK::NINBOT_USER)                                 + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2049_URL)) + "=\"" + \
-    String(NETWORK::JAMBOT_USER)                                 + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2050_URL)) + "=\"" + \
-    String(NETWORK::JAMBOT_USER)                                 + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2051_URL)) + "=\"" + \
-    String(NETWORK::JAMBOT_USER)                                 + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2052_URL)) + "=\"" + \
-    String(NETWORK::JAMBOT_USER)                                 + "\" " + \
+#define KNOWN_BOTS_XML XML_HEADER                                         + \
+  NETWORK::KNOWN_BOTS_KEY                                         + " "   + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2049_URL   )) + "=\"" + \
+    String(NETWORK::NINBOT_USER)                                  + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2050_URL   )) + "=\"" + \
+    String(NETWORK::NINBOT_USER)                                  + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2051_URL   )) + "=\"" + \
+    String(NETWORK::NINBOT_USER)                                  + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2052_URL   )) + "=\"" + \
+    String(NETWORK::NINBOT_USER)                                  + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2049_URL )) + "=\"" + \
+    String(NETWORK::JAMBOT_USER)                                  + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2050_URL )) + "=\"" + \
+    String(NETWORK::JAMBOT_USER)                                  + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2051_URL )) + "=\"" + \
+    String(NETWORK::JAMBOT_USER)                                  + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2052_URL )) + "=\"" + \
+    String(NETWORK::JAMBOT_USER)                                  + "\" " + \
+    String(LinJamConfig::MakeHostId(NETWORK::SERVEBEER_2049_URL)) + "=\"" + \
+    String(NETWORK::BEERBOT_USER)                                 + "\" " + \
   "/>"
 
 
+/* global constants */
+
+/** STATUS defines the LinJamStatus enum of app states
+  *     which is an extension on NJClient::ConnectionStatus */
+namespace STATUS
+{
+  enum LinJamStatus { LINJAM_STATUS_INIT           = -10 ,
+                      LINJAM_STATUS_AUDIOINIT      = -9  ,
+                      LINJAM_STATUS_CONFIGPENDING  = -8  ,
+                      LINJAM_STATUS_AUDIOERROR     = -7  ,
+                      LINJAM_STATUS_READY          = -6  ,
+                      LINJAM_STATUS_LICENSEPENDING = -5  ,
+                      LINJAM_STATUS_ROOMFULL       = -4  ,
+                      NJC_STATUS_DISCONNECTED      = -3  ,   // NJClient::ConnectionStatus
+                      NJC_STATUS_INVALIDAUTH       = -2  ,   // NJClient::ConnectionStatus
+                      NJC_STATUS_CANTCONNECT       = -1  ,   // NJClient::ConnectionStatus
+                      NJC_STATUS_OK                =  0  ,   // NJClient::ConnectionStatus
+                      NJC_STATUS_PRECONNECT        =  1  } ; // NJClient::ConnectionStatus
+}
+
+
+/** CLIENT defines configuration and runtime constants
+  *     pertaining to NJClient                            */
 namespace CLIENT
 {
   // server
@@ -297,59 +343,6 @@ namespace CLIENT
   static const String    CHATMSG_CMD_ADMIN    = "/admin " ;
   static const StringRef CHATMSG_CMD_VOTE     = "!vote " ;
 
-  // main
-  static const int CLIENT_TIMER_ID     = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
-  static const int GUI_HI_TIMER_ID     = 1 ; static const int GUI_HI_UPDATE_IVL = 125 ;
-  static const int GUI_MD_TIMER_ID     = 2 ; static const int GUI_MD_UPDATE_IVL = 2000 ;
-  static const int GUI_LO_TIMER_ID     = 3 ; static const int GUI_LO_UPDATE_IVL = 30000 ;
-  static const int AUDIO_INIT_TIMER_ID = 4 ; static const int AUDIO_INIT_DELAY  = 250 ;
-
-  // ConfigAudio options
-  static const String      ASIO_DEVICE_TYPE       = "ASIO" ;
-  static const String      KS_DEVICE_TYPE         = "KernaelStreaming" ; // non-juce
-  static const String      DS_DEVICE_TYPE         = "DirectSound" ;
-  static const String      WAVE_DEVICE_TYPE       = "Wave" ;             // non-juce
-  static const String      WASAPI_DEVICE_TYPE     = "WASAPI" ;
-  static const String      CA_DEVICE_TYPE         = "CoreAudio" ;
-  static const String      JACK_DEVICE_TYPE       = "JACK" ;
-  static const String      ALSA_DEVICE_TYPE       = "ALSA" ;
-  static const String      ROID_DEVICE_TYPE       = "Android" ;
-  static const String      SLES_DEVICE_TYPE       = "OpenSLES" ;
-  static const String      IOS_DEVICE_TYPE        = "iOSAudio" ;
-  static const String      NFG_DEVICE_TYPE        = "unknown" ;          // non-juce
-  static const StringArray WIN_AUDIO_APIS         = // ConfigAudio GUI options
-      StringArray::fromLines(ASIO_DEVICE_TYPE + "\n" + KS_DEVICE_TYPE   + "\n" +
-                             DS_DEVICE_TYPE   + "\n" + WAVE_DEVICE_TYPE        ) ;
-  static const StringArray MAC_AUDIO_APIS         = // ConfigAudio GUI options
-      StringArray::fromLines(CA_DEVICE_TYPE) ;
-  static const StringArray NIX_AUDIO_APIS         = // ConfigAudio GUI options
-      StringArray::fromLines(JACK_DEVICE_TYPE + "\n" + ALSA_DEVICE_TYPE) ;
-#ifdef _WIN32
-  static const StringArray AUDIO_APIS             = WIN_AUDIO_APIS ;
-#else // _WIN32
-#  ifdef _MAC
-  static const StringArray AUDIO_APIS             = MAC_AUDIO_APIS ;
-#  else // _MAC
-  static const StringArray AUDIO_APIS             = NIX_AUDIO_APIS ;
-#  endif // _MAC
-#endif // _WIN32
-  static const StringArray BUFFER_SIZES           = // ConfigAudio GUI options
-      StringArray::fromLines("32\n64\n128\n256\n512\n1024\n2048\n4096\n8192") ;
-  static const int         BIT_DEPTH_16           = 16 ;
-  static const int         BIT_DEPTH_24           = 24 ;
-  static const int         BIT_DEPTH_32           = 32 ;
-  static const int         SAMPLE_RATE_44100      = 44100 ;
-  static const int         SAMPLE_RATE_48000      = 48000 ;
-  static const int         SAMPLE_RATE_96000      = 96000 ;
-  static const int         MIN_N_BUFFERS          = 2 ;
-  static const int         MAX_N_BUFFERS          = 16 ;
-  static const int         MIN_N_SOURCES          = 0 ;
-  static const int         MAX_N_SOURCES          = 16 ;
-  static const int         MIN_N_SINKS            = 0 ;
-  static const int         MAX_N_SINKS            = 16 ;
-  static const double      VU_DB_RANGE            = 140.0 ;
-  static const double      VU_DB_MIN              = -120.0 ;
-
   // configuration
   static const String STEREO_L_POSTFIX       = "-L" ;
   static const String STEREO_R_POSTFIX       = "-R" ;
@@ -368,6 +361,8 @@ namespace CLIENT
 }
 
 
+/** NETWORK defines configuration and runtime constants
+  *     pertaining to login and communications */
 class NETWORK
 {
 public:
@@ -379,31 +374,32 @@ public:
   static const StringRef URL_CHARS ;
 
   // known hosts and bots
-  static const String            LOCALHOST_HOSTNAME ;
-  static const String            NINJAM_HOSTNAME ;
-  static const String            NINBOT_HOSTNAME ;
-  static const String            NINJAMER_HOSTNAME ;
-  static const String            LOCALHOST_2049_URL ;
-  static const String            NINJAM_2049_URL ;
-  static const String            NINJAM_2050_URL ;
-  static const String            NINJAM_2051_URL ;
-  static const String            NINJAM_2052_URL ;
-  static const String            NINJAM_2600_URL ;
-  static const String            NINJAM_2601_URL ;
-  static const String            NINBOT_2049_URL ;
-  static const String            NINBOT_2050_URL ;
-  static const String            NINBOT_2051_URL ;
-  static const String            NINBOT_2052_URL ;
-  static const String            NINJAMER_2049_URL ;
-  static const String            NINJAMER_2050_URL ;
-  static const String            NINJAMER_2051_URL ;
-  static const String            NINJAMER_2052_URL ;
-  static const Identifier        NINBOT_USER ;
-  static const Identifier        JAMBOT_USER ;
-  static const String            KNOWN_HOSTS_KEY ;
-  static const String            KNOWN_BOTS_KEY ;
-  static const XmlElement*       KNOWN_HOSTS ;
-  static const XmlElement*       KNOWN_BOTS ;
+  static const String      LOCALHOST_HOSTNAME ;
+  static const String      LOCALHOST_2049_URL ;
+  static const String      NINJAM_2049_URL ;
+  static const String      NINJAM_2050_URL ;
+  static const String      NINJAM_2051_URL ;
+  static const String      NINJAM_2052_URL ;
+  static const String      NINJAM_2600_URL ;
+  static const String      NINJAM_2601_URL ;
+  static const String      NINBOT_2049_URL ;
+  static const String      NINBOT_2050_URL ;
+  static const String      NINBOT_2051_URL ;
+  static const String      NINBOT_2052_URL ;
+  static const String      NINJAMER_2049_URL ;
+  static const String      NINJAMER_2050_URL ;
+  static const String      NINJAMER_2051_URL ;
+  static const String      NINJAMER_2052_URL ;
+  static const String      SERVEBEER_2049_URL ;
+  static const String      SERVEBEER_2050_URL ;
+  static const String      MUTANTLAB_2049_URL ;
+  static const Identifier  NINBOT_USER ;
+  static const Identifier  JAMBOT_USER ;
+  static const Identifier  BEERBOT_USER ;
+  static const String      KNOWN_HOSTS_KEY ;
+  static const String      KNOWN_BOTS_KEY ;
+  static const XmlElement* KNOWN_HOSTS ;
+  static const XmlElement* KNOWN_BOTS ;
 
 
   static void Initialize() ;
@@ -411,14 +407,26 @@ public:
 } ;
 
 
+/** CONFIG defines keys/value pairs and default value constants
+        pertaining to the configuration/persistence model          */
 namespace CONFIG
 {
+  /* config XML and ValueTree keys */
+
   // config root keys
   static const String     STORAGE_KEY           = "linjam-data" ;
   static const Identifier STORAGE_ID            = STORAGE_KEY ;
   static const String     STORAGE_TYPES_KEY     = STORAGE_KEY + "-types" ;
   static const String     CONFIG_VERSION_KEY    = "config-version" ;
   static const Identifier CONFIG_VERSION_ID     = CONFIG_VERSION_KEY ;
+
+  // gui config keys
+  static const String     GUI_KEY              = "gui" ;
+  static const Identifier GUI_ID               = GUI_KEY ;
+  static const String     FONT_SIZE_KEY        = "chat-font-size" ;
+  static const Identifier FONT_SIZE_ID         = FONT_SIZE_KEY ;
+  static const String     UPDATE_IVL_KEY       = "gui-update-ivl" ;
+  static const Identifier UPDATE_IVL_ID        = UPDATE_IVL_KEY ;
 
   // client config keys
   static const String     CLIENT_KEY           = "client" ;
@@ -434,9 +442,9 @@ namespace CONFIG
   static const String     SHOULD_HIDE_BOTS_KEY = "should-hide-bots" ;
   static const Identifier SHOULD_HIDE_BOTS_ID  = SHOULD_HIDE_BOTS_KEY ;
 
-  // subscriptions config keys
-  static const String     SUBSCRIPTIONS_KEY  = "subscriptions" ;
-  static const Identifier SUBSCRIPTIONS_ID   = SUBSCRIPTIONS_KEY ;
+  // blacklist config keys
+  static const String     BLACKLIST_KEY      = "blacklist" ;
+  static const Identifier BLACKLIST_ID       = BLACKLIST_KEY ;
   static const String     SUBSCRIBE_MODE_KEY = "subscribe-mode" ;
   static const Identifier SUBSCRIBE_MODE_ID  = SUBSCRIBE_MODE_KEY ;
 
@@ -493,8 +501,10 @@ namespace CONFIG
   static const Identifier WAVE_NBLOCKS_ID     = WAVE_NBLOCKS_KEY ;
   static const String     WAVE_BLOCKSIZE_KEY  = "wave-block-size" ;
   static const Identifier WAVE_BLOCKSIZE_ID   = WAVE_BLOCKSIZE_KEY ;
-  static const String     CA_DEVICE_KEY       = "ca-device" ;
-  static const Identifier CA_DEVICE_ID        = CA_DEVICE_KEY ;
+  static const String     CA_INPUT_KEY        = "ca-input" ;
+  static const Identifier CA_INPUT_ID         = CA_INPUT_KEY ;
+  static const String     CA_OUTPUT_KEY       = "ca-output" ;
+  static const Identifier CA_OUTPUT_ID        = CA_OUTPUT_KEY ;
   static const String     CA_NCHANNELS_KEY    = "ca-n-channels" ;
   static const Identifier CA_NCHANNELS_ID     = CA_NCHANNELS_KEY ;
   static const String     CA_SAMPLERATE_KEY   = "ca-sample-rate" ;
@@ -588,8 +598,14 @@ namespace CONFIG
   static const Identifier VU_RIGHT_ID      = VU_RIGHT_KEY ;
 
 
+  /* config XML and ValueTree default values */
+
   // config root defaults
-  static const double CONFIG_VERSION = 0.26 ;
+  static const double CONFIG_VERSION = 0.27 ; // major.minor at last schema change
+
+  // gui config defaults
+  static const int  DEFAULT_FONT_SIZE    = 12 ;
+  static const int  DEFAULT_UPDATE_IVL_N = 3 ;
 
   // client config defaults
   static const int  SAVE_AUDIO_ENUM_OFFSET   = 2 ;
@@ -599,52 +615,57 @@ namespace CONFIG
   static const int  DEFAULT_DEBUG_LEVEL      = (int)NJClient::DEBUG_SILENT ;
   static const bool DEFAULT_SHOULD_HIDE_BOTS = true ;
 
-  // subscriptions config defaults
+  // blacklist config defaults
   static const int DEFAULT_SUBSCRIBE_MODE = (int)NJClient::SUBSCRIBE_DENY ;
 
   // audio config defaults
 #ifdef _WIN32
-  static const int    DEFAULT_AUDIO_API       = (int)audioStreamer::WIN_AUDIO_WAVE ;
-  static const int    DEFAULT_ASIO_DRIVERN    = audioStreamer::DEFAULT_ASIO_DRIVER_N ;
-  static const int    DEFAULT_ASIO_INPUTBN    = audioStreamer::DEFAULT_ASIO_INPUTB_N ;
-  static const int    DEFAULT_ASIO_INPUTEN    = audioStreamer::DEFAULT_ASIO_INPUTE_N ;
-  static const int    DEFAULT_ASIO_OUTPUTBN   = audioStreamer::DEFAULT_ASIO_OUTPUTB_N ;
-  static const int    DEFAULT_ASIO_OUTPUTEN   = audioStreamer::DEFAULT_ASIO_OUTPUTE_N ;
-  static const int    DEFAULT_ASIO_CONTROL    = audioStreamer::DEFAULT_ASIO_CONTROL ;
-  static const int    DEFAULT_KS_INPUTN       = -1 ; // libninjam does not implement this
-  static const int    DEFAULT_KS_OUTPUTN      = -1 ; // libninjam does not implement this
-  static const int    DEFAULT_KS_SAMPLERATE   = audioStreamer::DEFAULT_SAMPLE_RATE ;
-  static const int    DEFAULT_KS_BITDEPTH     = audioStreamer::DEFAULT_BIT_DEPTH ;
-  static const int    DEFAULT_KS_NBLOCKS      = audioStreamer::DEFAULT_KS_N_BLOCKS ;
-  static const int    DEFAULT_KS_BLOCKSIZE    = audioStreamer::DEFAULT_KS_BLOCK_SIZE ;
-  static const String DEFAULT_DS_INPUT        = audioStreamer::DEFAULT_DS_DEVICE_NAME ;
-  static const String DEFAULT_DS_OUTPUT       = audioStreamer::DEFAULT_DS_DEVICE_NAME ;
-  static const int    DEFAULT_DS_SAMPLERATE   = audioStreamer::DEFAULT_SAMPLE_RATE ;
-  static const int    DEFAULT_DS_BITDEPTH     = audioStreamer::DEFAULT_BIT_DEPTH ;
-  static const int    DEFAULT_DS_NBLOCKS      = audioStreamer::DEFAULT_DS_N_BLOCKS ;
-  static const int    DEFAULT_DS_BLOCKSIZE    = audioStreamer::DEFAULT_DS_BLOCK_SIZE ;
-  static const int    DEFAULT_WAVE_INPUTN     = audioStreamer::DEFAULT_WAVE_INPUT_N ;
-  static const int    DEFAULT_WAVE_OUTPUTN    = audioStreamer::DEFAULT_WAVE_OUTPUT_N ;
-  static const int    DEFAULT_WAVE_SAMPLERATE = audioStreamer::DEFAULT_SAMPLE_RATE ;
-  static const int    DEFAULT_WAVE_BITDEPTH   = audioStreamer::DEFAULT_BIT_DEPTH ;
-  static const int    DEFAULT_WAVE_NBLOCKS    = audioStreamer::DEFAULT_WAVE_N_BLOCKS ;
-  static const int    DEFAULT_WAVE_BLOCKSIZE  = audioStreamer::DEFAULT_WAVE_BLOCK_SIZE ;
+  static const int    DEFAULT_AUDIO_API        = (int)audioStreamer::WIN_AUDIO_WAVE ;
+  static const int    DEFAULT_ASIO_DRIVERN     = audioStreamer::DEFAULT_ASIO_DRIVER_N ;
+  static const int    DEFAULT_ASIO_INPUTBN     = audioStreamer::DEFAULT_ASIO_INPUTB_N ;
+  static const int    DEFAULT_ASIO_INPUTEN     = audioStreamer::DEFAULT_ASIO_INPUTE_N ;
+  static const int    DEFAULT_ASIO_OUTPUTBN    = audioStreamer::DEFAULT_ASIO_OUTPUTB_N ;
+  static const int    DEFAULT_ASIO_OUTPUTEN    = audioStreamer::DEFAULT_ASIO_OUTPUTE_N ;
+  static const int    DEFAULT_ASIO_CONTROL     = audioStreamer::DEFAULT_ASIO_CONTROL ;
+  static const int    DEFAULT_KS_INPUTN        = -1 ; // libninjam does not implement this
+  static const int    DEFAULT_KS_OUTPUTN       = -1 ; // libninjam does not implement this
+  static const int    DEFAULT_KS_SAMPLERATE    = audioStreamer::DEFAULT_SAMPLE_RATE ;
+  static const int    DEFAULT_KS_BITDEPTH      = audioStreamer::DEFAULT_BIT_DEPTH ;
+  static const int    DEFAULT_KS_NBLOCKS       = audioStreamer::DEFAULT_KS_N_BLOCKS ;
+  static const int    DEFAULT_KS_BLOCKSIZE     = audioStreamer::DEFAULT_KS_BLOCK_SIZE ;
+  static const String DEFAULT_DS_INPUT_NAME    = audioStreamer::DEFAULT_DS_DEVICE_NAME ;
+  static const String DEFAULT_DS_OUTPUT_NAME   = audioStreamer::DEFAULT_DS_DEVICE_NAME ;
+  static const int    DEFAULT_DS_SAMPLERATE    = audioStreamer::DEFAULT_SAMPLE_RATE ;
+  static const int    DEFAULT_DS_BITDEPTH      = audioStreamer::DEFAULT_BIT_DEPTH ;
+  static const int    DEFAULT_DS_NBLOCKS       = audioStreamer::DEFAULT_DS_N_BLOCKS ;
+  static const int    DEFAULT_DS_BLOCKSIZE     = audioStreamer::DEFAULT_DS_BLOCK_SIZE ;
+  static const int    DEFAULT_WAVE_INPUTN      = audioStreamer::DEFAULT_WAVE_INPUT_N ;
+  static const int    DEFAULT_WAVE_OUTPUTN     = audioStreamer::DEFAULT_WAVE_OUTPUT_N ;
+  static const int    DEFAULT_WAVE_SAMPLERATE  = audioStreamer::DEFAULT_SAMPLE_RATE ;
+  static const int    DEFAULT_WAVE_BITDEPTH    = audioStreamer::DEFAULT_BIT_DEPTH ;
+  static const int    DEFAULT_WAVE_NBLOCKS     = audioStreamer::DEFAULT_WAVE_N_BLOCKS ;
+  static const int    DEFAULT_WAVE_BLOCKSIZE   = audioStreamer::DEFAULT_WAVE_BLOCK_SIZE ;
 #else // _WIN32
 #  ifdef _MAC
-  static const int    DEFAULT_AUDIO_API       = (int)audioStreamer::MAC_AUDIO_CA ;
-  static const String DEFAULT_CA_DEVICES      = audioStreamer::DEFAULT_CA_DEVICES ;
-  static const int    DEFAULT_CA_SAMPLERATE   = audioStreamer::DEFAULT_SAMPLE_RATE ;
-  static const int    DEFAULT_CA_BITDEPTH     = audioStreamer::DEFAULT_BIT_DEPTH ;
+  static const int    DEFAULT_AUDIO_API        = (int)audioStreamer::MAC_AUDIO_CA ;
+  static const String DEFAULT_CA_INPUT_NAME    = audioStreamer::DEFAULT_CA_INPUT_NAME ;
+  static const String DEFAULT_CA_OUTPUT_NAME   = audioStreamer::DEFAULT_CA_OUTPUT_NAME ;
+  static const int    DEFAULT_CA_NCHANNELS     = audioStreamer::DEFAULT_N_INPUTS ;
+  static const int    DEFAULT_CA_SAMPLERATE    = audioStreamer::DEFAULT_SAMPLE_RATE ;
+  static const int    DEFAULT_CA_BITDEPTH      = audioStreamer::DEFAULT_BIT_DEPTH ;
 #  else // _MAC
-  static const int    DEFAULT_AUDIO_API       = (int)audioStreamer::NIX_AUDIO_JACK ;
-  static const int    DEFAULT_JACK_SERVERN    = 0 ; // libninjam does not implement this
-  static const String DEFAULT_JACK_NAME       = "LinJam" ;
-  static const String DEFAULT_ALSA_INPUT      = audioStreamer::DEFAULT_ALSA_INPUT ;
-  static const String DEFAULT_ALSA_OUTPUT     = audioStreamer::DEFAULT_ALSA_OUTPUT ;
-  static const int    DEFAULT_ALSA_SAMPLERATE = audioStreamer::DEFAULT_SAMPLE_RATE ;
-  static const int    DEFAULT_ALSA_BITDEPTH   = audioStreamer::DEFAULT_BIT_DEPTH ;
-  static const int    DEFAULT_ALSA_NBLOCKS    = audioStreamer::DEFAULT_ALSA_N_BLOCKS ;
-  static const int    DEFAULT_ALSA_BLOCKSIZE  = audioStreamer::DEFAULT_ALSA_BLOCK_SIZE ;
+  static const int    DEFAULT_AUDIO_API        = (int)audioStreamer::NIX_AUDIO_JACK ;
+  static const int    DEFAULT_JACK_SERVERN     = 0 ; // libninjam does not implement this
+  static const String DEFAULT_JACK_NAME        = "LinJam" ;
+  static const int    DEFAULT_JACK_NINPUTS     = audioStreamer::DEFAULT_N_INPUTS ;
+  static const int    DEFAULT_JACK_NOUTPUTS    = audioStreamer::DEFAULT_N_OUTPUTS ;
+  static const String DEFAULT_ALSA_INPUT_NAME  = audioStreamer::DEFAULT_ALSA_INPUT_NAME ;
+  static const String DEFAULT_ALSA_OUTPUT_NAME = audioStreamer::DEFAULT_ALSA_OUTPUT_NAME ;
+  static const int    DEFAULT_ALSA_NCHANNELS   = audioStreamer::DEFAULT_N_INPUTS ;
+  static const int    DEFAULT_ALSA_SAMPLERATE  = audioStreamer::DEFAULT_SAMPLE_RATE ;
+  static const int    DEFAULT_ALSA_BITDEPTH    = audioStreamer::DEFAULT_BIT_DEPTH ;
+  static const int    DEFAULT_ALSA_NBLOCKS     = audioStreamer::DEFAULT_ALSA_N_BLOCKS ;
+  static const int    DEFAULT_ALSA_BLOCKSIZE   = audioStreamer::DEFAULT_ALSA_BLOCK_SIZE ;
 #  endif // _MAC
 #endif // _WIN32
 
@@ -682,12 +703,12 @@ namespace CONFIG
   static const double     DEFAULT_VU            = -120.0 ;
 
   // config XML storage
-  static const String BOOL_TYPE          = "bool" ;
-  static const String DOUBLE_TYPE        = "double" ;
-  static const String INT_TYPE           = "int" ;
-  static const String STRING_TYPE        = "string" ;
-  static const String DEFAULT_CONFIG_XML = String(CONFIG_XML) ;
-  static const String CONFIG_TYPES       = String(CONFIG_TYPES_XML) ;
+  static const String BOOL_TYPE            = "bool" ;
+  static const String DOUBLE_TYPE          = "double" ;
+  static const String INT_TYPE             = "int" ;
+  static const String STRING_TYPE          = "string" ;
+  static const String DEFAULT_CONFIG_XML   = String(CONFIG_XML) ;
+  static const String CONFIG_DATATYPES_XML = String(CONFIG_TYPES_XML) ;
 
   // validation
   static const StringRef VALID_NAME_CHARS   = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- " ;
@@ -695,6 +716,8 @@ namespace CONFIG
 }
 
 
+/** GUI defines configuration and runtime constants
+  *     pertaining to graphical elements               */
 namespace GUI
 {
   // common
@@ -702,6 +725,14 @@ namespace GUI
   static const int PAD2 = PAD * 2 ;
   static const int PAD3 = PAD * 3 ;
   static const int PAD4 = PAD * 4 ;
+
+  // LinJamApplication
+  static const int CLIENT_TIMER_ID     = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
+  static const int AUDIO_INIT_TIMER_ID = 1 ; static const int AUDIO_INIT_DELAY  = 250 ;
+  static const int GUI_LO_TIMER_ID     = 2 ; static const int GUI_LO_UPDATE_IVL = 30000 ;
+  static const int GUI_MD_TIMER_ID     = 3 ; static const int GUI_MD_UPDATE_IVL = 2000 ;
+  static const int GUI_HI_TIMER_ID     = 4 ; static const int GUI_HI_UPDATE_IVLS[4] =
+                                                              { 0 , 62 , 125 , 1000 } ;
 
   // MainWindow
   static const String APP_NAME     = "LinJam" ;
@@ -721,29 +752,99 @@ namespace GUI
   static const String BACKGROUND_GUI_ID = "background-gui" ;
 
   // Config
-  static const String DISMISS_BTN_TEXT       = "done" ;
-  static const String DISMISS_BTN_ERROR_TEXT = "error" ;
-  static const int    AUDIO_TAB_IDX          = 0 ;
-  static const int    CLIENT_TAB_IDX         = 1 ;
-  static const int    SUBSCRIPTIONS_TAB_IDX  = 2 ;
-
-  // ConfigClient
-  static const String CONFIG_GUI_ID      = "config-gui" ;
-  static const int    CONFIG_SCROLLBAR_W = 12 ;
-  static const int    SUBSCRIPTIONS_X    = 24 ;
-  static const int    SUBSCRIPTIONS_Y    = 68 ;
-  static const int    SUBSCRIPTIONS_W    = 144 ;
-  static const int    SUBSCRIPTIONS_H    = 76 ;
+  static const String CONFIG_GUI_ID                 = "config-gui" ;
+  static const int    AUDIO_TAB_IDX                 = 0 ;
+  static const int    CLIENT_TAB_IDX                = 1 ;
+  static const int    GUI_TAB_IDX                   = 2 ;
+  static const int    BLACKLIST_TAB_IDX             = 3 ;
+  static const String AUDIO_TAB_TEXT                = "audio" ;
+  static const String CLIENT_TAB_TEXT               = "client" ;
+  static const String GUI_TAB_TEXT                  = "gui" ;
+  static const String BLACKLIST_TAB_TEXT            = "ignores" ;
+  static const Colour AUDIO_TAB_COLOR               = Colour(0xff002000) ;
+  static const Colour CLIENT_TAB_COLOR              = Colour(0xff202000) ;
+  static const Colour GUI_TAB_COLOR                 = Colour(0xff000020) ;
+  static const Colour BLACKLIST_TAB_COLOR           = Colour(0xff200000) ;
+  static const Colour DISMISS_BTN_OUT_INIT_COLOR    = Colour(0xff404000) ;
+  static const Colour DISMISS_BTN_OUT_ERROR_COLOR   = Colour(0xff400000) ;
+  static const Colour DISMISS_BTN_OUT_NORMAL_COLOR  = Colour(0xff004000) ;
+  static const Colour DISMISS_BTN_IN_INIT_COLOR     = Colour(0xff808000) ;
+  static const Colour DISMISS_BTN_IN_ERROR_COLOR    = Colour(0xff800000) ;
+  static const Colour DISMISS_BTN_IN_NORMAL_COLOR   = Colour(0xff008000) ;
+  static const Colour DISMISS_BTN_TEXT_INIT_COLOR   = Colour(0xffffff00) ;
+  static const Colour DISMISS_BTN_TEXT_ERROR_COLOR  = Colour(0xffff0000) ;
+  static const Colour DISMISS_BTN_TEXT_NORMAL_COLOR = Colour(0xff00ff00) ;
+  static const String DISMISS_BTN_INIT_TEXT         = "initializing" ;
+  static const String DISMISS_BTN_ERROR_TEXT        = "error" ;
+  static const String DISMISS_BTN_NORMAL_TEXT       = "done" ;
 
   // ConfigAudio
-  static const int    DEFAULT_DS_INDEX       = 0 ;
-  static const String BUFFERS_GROUP_TEXT     = "buffers" ;
-  static const String JACK_NAME_LABEL_TEXT   = "name" ;
-  static const String ALSA_CONFIG_LABEL_TEXT = "config" ;
+  static const int         DEFAULT_DS_INDEX     = 0 ;
+  static const int         DEFAULT_CA_INDEX     = 0 ;
+  static const int         DEFAULT_ALSA_INDEX   = 0 ;
+  static const String      BUFFERS_GROUP_TEXT   = "buffers" ;
+  static const String      NSOURCES_LABEL_TEXT  = "# of sources" ;
+  static const String      NCHANNELS_LABEL_TEXT = "# of channels" ;
+  static const String      ASIO_DEVICE_TYPE     = "ASIO" ;
+  static const String      KS_DEVICE_TYPE       = "KernelStreaming" ; // non-juce
+  static const String      DS_DEVICE_TYPE       = "DirectSound" ;
+  static const String      WAVE_DEVICE_TYPE     = "Wave" ;            // non-juce
+  static const String      WASAPI_DEVICE_TYPE   = "WASAPI" ;
+  static const String      CA_DEVICE_TYPE       = "CoreAudio" ;
+  static const String      JACK_DEVICE_TYPE     = "JACK" ;
+  static const String      ALSA_DEVICE_TYPE     = "ALSA" ;
+  static const String      ROID_DEVICE_TYPE     = "Android" ;
+  static const String      SLES_DEVICE_TYPE     = "OpenSLES" ;
+  static const String      IOS_DEVICE_TYPE      = "iOSAudio" ;
+  static const String      NFG_DEVICE_TYPE      = "unknown" ;         // non-juce
+#define WINAUDIOAPIS ASIO_DEVICE_TYPE + "\n" + KS_DEVICE_TYPE   + "\n" + \
+                     DS_DEVICE_TYPE   + "\n" + WAVE_DEVICE_TYPE
+#define MACAUDIOAPIS CA_DEVICE_TYPE
+#define NIXAUDIOAPIS JACK_DEVICE_TYPE + "\n" + ALSA_DEVICE_TYPE
+#define BUFFERSIZES  "32\n64\n128\n256\n512\n1024\n2048\n4096\n8192"
+#ifdef _WIN32
+  static const StringArray AUDIO_APIS           = StringArray::fromLines(WINAUDIOAPIS) ;
+#else // _WIN32
+#  ifdef _MAC
+  static const StringArray AUDIO_APIS           = StringArray::fromLines(MACAUDIOAPIS) ;
+#  else // _MAC
+  static const StringArray AUDIO_APIS           = StringArray::fromLines(NIXAUDIOAPIS) ;
+#  endif // _MAC
+#endif // _WIN32
+  static const StringArray BUFFER_SIZES         = StringArray::fromLines(BUFFERSIZES) ;
+  static const int         BIT_DEPTH_16         = 16 ;
+  static const int         BIT_DEPTH_24         = 24 ;
+  static const int         BIT_DEPTH_32         = 32 ;
+  static const int         SAMPLE_RATE_44100    = 44100 ;
+  static const int         SAMPLE_RATE_48000    = 48000 ;
+  static const int         SAMPLE_RATE_96000    = 96000 ;
+  static const int         MIN_N_BUFFERS        = 2 ;
+  static const int         MAX_N_BUFFERS        = 16 ;
+  static const int         MIN_N_SOURCES        = 0 ;
+  static const int         MAX_N_SOURCES        = 16 ;
+  static const int         MIN_N_SINKS          = 0 ;
+  static const int         MAX_N_SINKS          = 16 ;
 
-  // ConfigSubscriptions
-  static const int SUBSCRIPTION_W = SUBSCRIPTIONS_W - CONFIG_SCROLLBAR_W - PAD2 ;
-  static const int SUBSCRIPTION_H = 16 ;
+  // ConfigClient
+  static const int CONFIG_SCROLLBAR_W   = 12 ;
+  static const int BLACKLIST_X          = 24 ;
+  static const int BLACKLIST_Y          = 68 ;
+  static const int BLACKLIST_W          = 144 ;
+  static const int BLACKLIST_H          = 76 ;
+#define SAVEMODES "delete asap\ndo not save\nsave ogg\nsave ogg and wav"
+#define DEBUGLEVELS "silent\naudio\naudio and network\nlinjam trace"
+  static const StringArray SAVE_MODES   = StringArray::fromLines(SAVEMODES  ) ;
+  static const StringArray DEBUG_LEVELS = StringArray::fromLines(DEBUGLEVELS) ;
+
+  // ConfigGui
+#define FONTSIZES  "8\n10\n12\n14\n16\n18\n20\n22\n24"
+#define UPDATEIVLS "none\nslow\nnormal\nfast"
+  static const StringArray FONT_SIZES  = StringArray::fromLines(FONTSIZES ) ;
+  static const StringArray UPDATE_IVLS = StringArray::fromLines(UPDATEIVLS) ;
+
+  // ConfigBlacklist
+  static const int BLACKLIST_ENTRY_W = BLACKLIST_W - CONFIG_SCROLLBAR_W - PAD2 ;
+  static const int BLACKLIST_ENTRY_H = 16 ;
 
   // Login
   static const String LOGIN_GUI_ID            = "login-gui" ;
@@ -787,6 +888,8 @@ namespace GUI
   static const int              HOVER_BTN_H                = 16 ;
   static const int              HOVER_BTN_XC               = HOVER_BTN_W / 2 ;
   static const int              HOVER_BTN_YC               = HOVER_BTN_H / 2 ;
+  static const double           VU_DB_RANGE                = 140.0 ;
+  static const double           VU_DB_MIN                  = -120.0 ;
 
   // Channels
   static const  Identifier MASTERS_GUI_ID     = CONFIG::MASTERS_ID ;
@@ -811,34 +914,37 @@ namespace GUI
   static const int    FIRST_REMOTE_IDX        = 1 ;
   static const int    CHANNEL_SCROLL_BTN_H    = MIXERGROUP_H / 4 ;
   static const int    CHANNEL_SCROLL_BTN_W    = 24 ;
-  static const int    CHANNEL_SCROLL_BTN_Y    = MIXERGROUP_Y +
-                                               (MIXERGROUP_H / 2) -
-                                               (CHANNEL_SCROLL_BTN_H / 2) ;
+  static const int    CHANNEL_SCROLL_BTN_Y    = MIXERGROUP_Y               +
+                                                (MIXERGROUP_H / 2)         -
+                                                (CHANNEL_SCROLL_BTN_H / 2) ;
 
   // StatusBar
-  static const String STATUS_GUI_ID                 = "statusbar-gui" ;
-  static const String AUDIO_INIT_MSG                = "initializing audio" ;
-  static const String AUDIO_INIT_ERROR_MSG          = "audio device error" ;
-  static const String CONFIG_PENDING_MSG            = "press '" + DISMISS_BTN_TEXT + "' to continue" ;
-  static const String DISCONNECTED_STATUS_TEXT      = "Disconnected" ;
-  static const String ROOM_FULL_STATUS_TEXT         = "Jam room full" ;
-  static const String INVALID_AUTH_STATUS_TEXT      = "Invalid login/pass" ;
-  static const String PENDING_LICENSE_STATUS_TEXT   = "Pending license" ;
-  static const String FAILED_CONNECTION_STATUS_TEXT = "Connection failed" ;
-  static const String CONNECTING_STATUS_TEXT        = "Connecting to " ;
-  static const String CONNECTED_STATUS_TEXT         = "Connected to " ;
-  static const String IDLE_STATUS_TEXT              = "Ready" ;
-  static const int    STATUSBAR_H                   = 24 ;
-  static const int    STATUS_W                      = 160 ;
-  static const int    STATUS_H                      = 16 ;
-  static const int    STATUS_PAD_X                  = 8 ;
-  static const int    STATUS_PAD_Y                  = 2 ;
+  static const String STATUS_GUI_ID          = "statusbar-gui" ;
+  static const String AUDIO_INIT_MSG         = "initializing audio" ;
+  static const String AUDIO_INIT_ERROR_MSG   = "audio device error" ;
+  static const String CONFIG_PENDING_MSG     = "press '" + DISMISS_BTN_NORMAL_TEXT + "' to continue" ;
+  static const String DISCONNECTED_TEXT      = "Disconnected" ;
+  static const String ROOM_FULL_TEXT         = "Jam room full" ;
+  static const String INVALID_AUTH_TEXT      = "Invalid login/pass" ;
+  static const String LICENSE_PENDING_TEXT   = "Pending license" ;
+  static const String FAILED_CONNECTION_TEXT = "Connection failed" ;
+  static const String CONNECTING_TEXT        = "Connecting to " ;
+  static const String CONNECTED_TEXT         = "Connected to " ;
+  static const String IDLE_TEXT              = "Ready" ;
+  static const int    STATUSBAR_H            = 24 ;
+  static const int    STATUS_W               = 160 ;
+  static const int    STATUS_H               = 16 ;
+  static const int    STATUS_PAD_X           = 8 ;
+  static const int    STATUS_PAD_Y           = 2 ;
 
   // Loop
-  static const String LOOP_GUI_ID          = "loop-gui" ;
-  static const int    LOOP_X               = STATUS_W + PAD3 ;
-  static const int    LOOP_H               = STATUS_H ;
-  static const double BEAT_PROGRESS_OFFSET = CLIENT::GUI_HI_UPDATE_IVL * 0.002 ;
+  static const String LOOP_GUI_ID = "loop-gui" ;
+  static const int    LOOP_X      = STATUS_W + PAD3 ;
+  static const int    LOOP_H      = STATUS_H ;
 }
+
+
+// KLUDGE: no valid conversion for String(a_var) on linux
+#define str(a_var) a_var.toString()
 
 #endif // _CONSTANTS_H_

@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef _CONFIGCHANNEL_H_
-#define _CONFIGCHANNEL_H_
+#ifndef _BLACKLIST_H_
+#define _BLACKLIST_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -31,18 +31,17 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-  ConfigChannel is the instantiation and configurations dialog
-      for individual mixer slices
+  instances of BlacklistEntry are subcomponents of the Blacklist container
+  they represent an individual user on the NJClient subscriptions list
                                                                     //[/Comments]
 */
-class ConfigChannel  : public Component,
-                       public ButtonListener,
-                       public ComboBoxListener
+class BlacklistEntry  : public Component,
+                        public ButtonListener
 {
 public:
     //==============================================================================
-    ConfigChannel (ValueTree channel_store);
-    ~ConfigChannel();
+    BlacklistEntry (ValueTree blacklist_store);
+    ~BlacklistEntry();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -50,47 +49,62 @@ public:
 
     void paint (Graphics& g);
     void resized();
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
+    void buttonClicked (Button* buttonThatWasClicked);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  ValueTree      channelStore ;
-  SortedSet<int> freeAudioSourceNs ;
-  SortedSet<int> freeAudioSourcePairNs ;
-  StringArray    freeAudioSourceOptions ;
-  StringArray    freeAudioSourcePairOptions ;
-  bool           isNewChannel ;
-  int            sourceN ;
-  bool           isStereo ;
-
-
-  void   buttonClicked(             Button* a_button) ;
-  String makeMonoSelectOption(      int channel_n) ;
-  String makeStereoSelectOption(    int channel_n) ;
-  void   createChannelSelectOptions() ;
-  void   populateChannelSelect() ;
+  ValueTree blacklistStore ;
 
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> nameLabel;
-    ScopedPointer<TextEditor> nameText;
-    ScopedPointer<ToggleButton> monoButton;
-    ScopedPointer<ToggleButton> stereoButton;
-    ScopedPointer<Label> inputLabel;
-    ScopedPointer<ComboBox> channelSelect;
-    ScopedPointer<TextButton> okButton;
-    ScopedPointer<TextButton> cancelButton;
+    ScopedPointer<TextButton> removeButton;
+    ScopedPointer<Label> userLabel;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigChannel)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (BlacklistEntry)
 };
 
 //[EndFile] You can add extra defines here...
+
+/**
+  Blacklist is the GUI container for BlacklistEntry instances
+*/
+class Blacklist : public Component , public ValueTree::Listener
+{
+  friend class BlacklistEntry ;
+
+
+public:
+
+  Blacklist(ValueTree blacklist_store) ;
+  ~Blacklist() ;
+
+
+private:
+
+  ValueTree blacklistStore ;
+
+
+  void resized() ;
+  int  resize() ;
+  void removeBlacklistEntry(BlacklistEntry* a_blacklist_entry) ;
+  void valueTreeChildAdded( ValueTree& a_parent_node , ValueTree& a_node) override  ;
+
+  // unused ValueTree::Listener interface implementations
+  void valueTreePropertyChanged(  ValueTree& a_node , const Identifier& key)    override {} ;
+  void valueTreeChildRemoved(     ValueTree& a_parent_node , ValueTree& a_node) override {} ;
+  void valueTreeChildOrderChanged(ValueTree& a_parent_node)                     override {} ;
+  void valueTreeParentChanged(    ValueTree& a_node)                            override {} ;
+  void valueTreeRedirected(       ValueTree& a_node)                            override {} ;
+
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Blacklist)
+} ;
+
 //[/EndFile]
 
-#endif // _CONFIGCHANNEL_H_
+#endif // _BLACKLIST_H_

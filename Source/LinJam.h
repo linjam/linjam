@@ -1,18 +1,10 @@
-/*
-  ==============================================================================
 
-    LinJam.h
-    Created: 24 May 2014 5:03:01pm
-    Author:  me
-
-  ==============================================================================
-*/
 #ifndef _LINJAM_H_
 #define _LINJAM_H_
 
 
 /* NOTE: the following refs require libninjam v0.07
-             * function NJClient::GetLocalChannelName() 
+             * function NJClient::GetLocalChannelName()
              * function audioStreamer::NewASIO()
              * function audioStreamer::NewALSA() override
              * function audioStreamer::GetASIODriverName()
@@ -33,6 +25,11 @@
 #include "MainContent.h"
 
 
+/**
+  LinJam is the main app controller class
+  many of the view components handle their own interactions
+      but most of the business eventually flows through here
+*/
 class LinJam
 {
   friend class LinJamApplication ;
@@ -44,26 +41,10 @@ class LinJam
 
 public:
 
-  // extension to NJClient::ConnectionStatus
-  enum LinJamStatus { LINJAM_STATUS_INIT           = -10 ,
-                      LINJAM_STATUS_AUDIOINIT      = -9  ,
-                      LINJAM_STATUS_CONFIGPENDING  = -8  ,
-                      LINJAM_STATUS_AUDIOERROR     = -7  ,
-                      LINJAM_STATUS_READY          = -6  ,
-                      LINJAM_STATUS_LICENSEPENDING = -5  ,
-                      LINJAM_STATUS_ROOMFULL       = -4  } ;
-//                    NJC_STATUS_DISCONNECTED      = -3 // NJClient::ConnectionStatus
-//                    NJC_STATUS_INVALIDAUTH       = -2 // NJClient::ConnectionStatus
-//                    NJC_STATUS_CANTCONNECT       = -1 // NJClient::ConnectionStatus
-//                    NJC_STATUS_OK                =  0 // NJClient::ConnectionStatus
-//                    NJC_STATUS_PRECONNECT        =  1 // NJClient::ConnectionStatus
-
-
   // state
   static void SignIn(String host_name , String login , String pass , bool is_anonymous) ;
   static void Connect() ;
   static void Disconnect() ;
-  static void Shutdown() ;
 
   // getters/setters
   static ValueTree      GetCredentials(String host_name) ;
@@ -75,6 +56,7 @@ public:
   static bool AddLocalChannel(   ValueTree channel_store) ;
   static void RemoveLocalChannel(ValueTree channel_store) ;
   static void SendChat(          String chat_text) ;
+  static void CleanSessionDir() ;
 
 
 private:
@@ -96,15 +78,16 @@ private:
 
 
   // setup
-  static bool Initialize(NJClient*  nj_client   , MainContent*  main_content ,
-                        MultiTimer* multi_timer , const String& cli_args     ) ;
+  static bool Initialize(NJClient*   nj_client   , MainContent*  main_content ,
+                         MultiTimer* multi_timer , const String& cli_args     ) ;
   static void InitializeConstants() ;
   static bool PrepareSessionDirectory() ;
   static void ConfigureNinjam() ;
-  static void ConfigureSubscriptions() ;
+  static void ConfigureBlacklist() ;
   static bool InitializeAudio() ;
   static void ConfigureInitialChannels() ;
-//   static void CleanSessionDir() ;
+  static void ConfigureGui() ;
+  static void Shutdown() ;
 
   // NJClient callbacks
   static int  OnLicense(int user32 , char* license_text) ;
@@ -127,12 +110,12 @@ private:
   static void UpdateRecordingTime() ;
 
   // NJClient configuration
-  static void   ConfigureAudio() ;
-  static void   ConfigureMasterChannel(Identifier a_key) ;
-  static void   ConfigureMetroChannel( Identifier a_key) ;
-  static void   ConfigureLocalChannel( ValueTree  channel_store , Identifier a_key) ;
-  static void   ConfigureRemoteChannel(ValueTree  user_store    ,
-                                       ValueTree  channel_store , Identifier a_key) ;
+  static void ConfigureAudio() ;
+  static void ConfigureMasterChannel(Identifier a_key) ;
+  static void ConfigureMetroChannel( Identifier a_key) ;
+  static void ConfigureLocalChannel( ValueTree  channel_store , Identifier a_key) ;
+  static void ConfigureRemoteChannel(ValueTree  user_store    ,
+                                     ValueTree  channel_store , Identifier a_key) ;
 
   // audio signal helpers
   static double AddDecibels(       double l_vu , double r_vu) ;
@@ -151,7 +134,8 @@ private:
   static String GetRemoteUserName(         int user_idx) ;
   static String GetRemoteChannelClientName(int user_idx , int channel_idx) ;
   static bool   IsConfiguredChannel(       int channel_idx) ;
-
+  static double GetChannelDb(              int channel_idx) ;
+  static double GetChannelDb(              int user_idx , int channel_idx) ;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;
 } ;

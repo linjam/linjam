@@ -31,12 +31,11 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Introjucer.
-
-    Describe your class and how it works here!
+  License is the per-server license presentation and configuration "screen"
                                                                     //[/Comments]
 */
 class License  : public Component,
+                 public ValueListener,
                  public ButtonListener
 {
 public:
@@ -61,8 +60,10 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
   ValueTree loginStore ;
+  Value     alwaysAgree ;
 
 
+  void valueChanged(  Value& a_value) override ;
   void setLicenseText(String license_text) ;
   void setConfig(     Identifier a_key , var a_value) ;
 

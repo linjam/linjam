@@ -13,6 +13,7 @@
 //         arrange that "windows.h" be included before "JuceHeader.h" in all contexts
 //       also arrange to include "JuceHeader.h" before any "*Component.h"
 #include "LinJam.h" // includes "windows.h" and "JuceHeader.h"
+#include "Login.h"
 
 
 class LinJamApplication : public JUCEApplication , NJClient , MultiTimer
@@ -23,10 +24,9 @@ public:
 
   void initialise(const String& command_line) override
   {
-    this->mainWindow          = new MainWindow() ;
-    MainContent* main_content = (MainContent*)this->mainWindow->mainContent ;
+    this->mainWindow = new MainWindow() ;
 
-    if (!LinJam::Initialize(this , main_content , this , command_line))
+    if (!LinJam::Initialize(this , this->mainWindow->mainContent , this , command_line))
     {
       LinJam::Shutdown() ; quit() ;
     }
@@ -37,15 +37,10 @@ public:
     // When another instance of the app is launched while this one is running,
     // this method is invoked, and the commandLine parameter tells you what
     // the other instance's command-line arguments were.
-    LinJam::Shutdown() ; quit() ;
+    String host = command_line ; this->mainWindow->mainContent->login->quickLogin(host) ;
   }
 
-  void shutdown() override
-  {
-    LinJam::Shutdown() ;
-
-    this->mainWindow = nullptr ;
-  }
+  void shutdown() override { LinJam::Shutdown() ; this->mainWindow = nullptr ; }
 
   void         systemRequestedQuit()        override { this->quit() ; }
   const String getApplicationName()         override { return ProjectInfo::projectName ; }

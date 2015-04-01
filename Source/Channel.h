@@ -31,9 +31,8 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Introjucer.
-
-    Describe your class and how it works here!
+  instances of Channel represent individual mixer channel slices
+  they are contained within a Channels group
                                                                     //[/Comments]
 */
 class Channel  : public Component,
@@ -72,11 +71,10 @@ private:
   Value vuRight ;
 
 
-  void  buttonClicked(  Button* a_button) override ;
-  void  valueChanged(   Value& a_value)   override ;
-  void  updateChannelVU(Slider* a_vu_slider , Label* a_vu_label , double vu) ;
-  Value getValueObject( Identifier a_key) ;
-  void  setConfig(      Identifier a_key , var a_value) ;
+  void  buttonClicked( Button* a_button) override ;
+  void  valueChanged(  Value& a_value)   override ;
+  void  updateVU(      Slider* a_vu_slider , Label* a_vu_label , Value vu_var) ;
+  void  setConfig(     Identifier a_key , var a_value) ;
 
 
 protected:

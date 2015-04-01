@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -35,6 +35,9 @@
 //==============================================================================
 Channels::Channels ()
 {
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
+
     addAndMakeVisible (channelsLabel = new Label ("channelsLabel",
                                                   String::empty));
     channelsLabel->setFont (Font (12.00f, Font::plain));
@@ -120,6 +123,9 @@ void Channels::paint (Graphics& g)
 
 void Channels::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     channelsLabel->setBounds (4, 4, getWidth() - 8, 12);
     addButton->setBounds (getWidth() - 15, 0, 15, 16);
     expandButton->setBounds (getWidth() - 15, 0, 15, 16);
@@ -225,16 +231,15 @@ LocalChannels::LocalChannels()
   this->ignoreButton ->setVisible(false) ;
 }
 
-RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree subscriptions)
-                              : userStore(user_store)
+RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree blacklist_store)
+                              : userStore(user_store) , blacklistStore(blacklist_store)
 {
   this->channelsLabel->setText(String(user_store.getType()) , juce::dontSendNotification) ;
   this->expandButton ->addListener(this) ;
   this->ignoreButton ->addListener(this) ;
   this->addButton    ->setVisible(false) ;
 
-  this->subscriptions = subscriptions ;
-  this->isExpanded    = false ;
+  this->isExpanded = false ;
 }
 
 
@@ -261,10 +266,8 @@ void LocalChannels::buttonClicked(Button* a_button)
 
 void RemoteChannels::buttonClicked(Button* a_button)
 {
-  if      (a_button == this->expandButton)
-    toggleExpandChannels() ;
-  else if (a_button == this->ignoreButton)
-    this->subscriptions.addChild(ValueTree(this->userStore.getType()) , -1  , nullptr) ;
+  if      (a_button == this->expandButton) toggleExpandChannels() ;
+  else if (a_button == this->ignoreButton) addUserToBlacklist() ;
 }
 
 void RemoteChannels::toggleExpandChannels()
@@ -273,6 +276,12 @@ void RemoteChannels::toggleExpandChannels()
 
 // TODO: (issue #45)
 DBG("RemoteChannels::toggleExpandChannels() this->isExpanded=" + String(this->isExpanded)) ;
+}
+
+void RemoteChannels::addUserToBlacklist()
+{
+  ValueTree blacklist_entry_store = ValueTree(this->userStore.getType()) ;
+  this->blacklistStore.addChild(blacklist_entry_store , -1  , nullptr) ;
 }
 
 Channel* MasterChannels::newChannel(ValueTree channel_store)

@@ -22,7 +22,10 @@
 
 //[Headers]     -- You can add your own extra header files here --
 
-#include "JuceHeader.h"
+#include "ConfigAudio.h"
+#include "ConfigClient.h"
+#include "ConfigGui.h"
+#include "ConfigBlacklist.h"
 
 //[/Headers]
 
@@ -31,9 +34,8 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Introjucer.
-
-    Describe your class and how it works here!
+  Config is the configuration screen
+  specific configuration options are distriibuted across several tabs
                                                                     //[/Comments]
 */
 class Config  : public Component,
@@ -42,8 +44,7 @@ class Config  : public Component,
 {
 public:
     //==============================================================================
-    Config (ValueTree audio_store, ValueTree client_store, ValueTree subscriptions_store,
-            Value linjam_status);
+    Config (ValueTree audio_store, ValueTree client_store, ValueTree gui_store, ValueTree blacklist_store, Value linjam_status);
     ~Config();
 
     //==============================================================================
@@ -58,6 +59,16 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+  ScopedPointer<ConfigAudio>     configAudio ;
+  ScopedPointer<ConfigClient>    configClient ;
+  ScopedPointer<ConfigGui>       configGui ;
+  ScopedPointer<ConfigBlacklist> configBlacklist ;
+
+//   ConfigAudio*     configAudio ;
+//   ConfigClient*    configClient ;
+//   ConfigGui*       configGui ;
+//   ConfigBlacklist* configBlacklist ;
 
   void valueChanged(Value& a_value) ;
 

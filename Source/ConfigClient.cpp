@@ -19,7 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 
-#include "Constants.h"
+#include "LinJam.h"
 
 //[/Headers]
 
@@ -33,6 +33,9 @@
 ConfigClient::ConfigClient (ValueTree client_store)
     : clientStore(client_store)
 {
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
+
     addAndMakeVisible (saveAudioLabel = new Label ("saveAudioLabel",
                                                    TRANS("save audio")));
     saveAudioLabel->setFont (Font (15.00f, Font::plain));
@@ -48,10 +51,6 @@ ConfigClient::ConfigClient (ValueTree client_store)
     saveAudioComboBox->setJustificationType (Justification::centredLeft);
     saveAudioComboBox->setTextWhenNothingSelected (String::empty);
     saveAudioComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    saveAudioComboBox->addItem (TRANS("delete asap"), 1);
-    saveAudioComboBox->addItem (TRANS("dont save"), 2);
-    saveAudioComboBox->addItem (TRANS("save ogg"), 3);
-    saveAudioComboBox->addItem (TRANS("save ogg and wav"), 4);
     saveAudioComboBox->addListener (this);
 
     addAndMakeVisible (oggMixdownButton = new ToggleButton ("oggMixdownButton"));
@@ -81,10 +80,6 @@ ConfigClient::ConfigClient (ValueTree client_store)
     debugLevelComboBox->setJustificationType (Justification::centredLeft);
     debugLevelComboBox->setTextWhenNothingSelected (String::empty);
     debugLevelComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    debugLevelComboBox->addItem (TRANS("silent"), 1);
-    debugLevelComboBox->addItem (TRANS("audio"), 2);
-    debugLevelComboBox->addItem (TRANS("audio and network"), 3);
-    debugLevelComboBox->addItem (TRANS("linjam trace"), 4);
     debugLevelComboBox->addListener (this);
 
     addAndMakeVisible (saveLogButton = new ToggleButton ("saveLogButton"));
@@ -100,6 +95,11 @@ ConfigClient::ConfigClient (ValueTree client_store)
     hideBotsButton->setToggleState (true, dontSendNotification);
     hideBotsButton->setColour (ToggleButton::textColourId, Colours::white);
 
+    addAndMakeVisible (cleanButton = new TextButton ("cleanButton"));
+    cleanButton->setExplicitFocusOrder (7);
+    cleanButton->setButtonText (TRANS("clean session dir"));
+    cleanButton->addListener (this);
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -109,13 +109,16 @@ ConfigClient::ConfigClient (ValueTree client_store)
 
     //[Constructor] You can add your own custom stuff here..
 
-  int  save_audio_mode    = int( this->clientStore[CONFIG::SAVE_AUDIO_MODE_ID]) ;
-  int  mixdown_mode       = int( this->clientStore[CONFIG::MIXDOWN_MODE_ID]) ;
-  int  debug_level        = int( this->clientStore[CONFIG::DEBUG_LEVEL_ID]) ;
-  bool should_save_log    = bool(this->clientStore[CONFIG::SHOULD_SAVE_LOG_KEY]) ;
+  int  save_audio_mode    = int( this->clientStore[CONFIG::SAVE_AUDIO_MODE_ID  ]) ;
+  int  mixdown_mode       = int( this->clientStore[CONFIG::MIXDOWN_MODE_ID     ]) ;
+  int  debug_level        = int( this->clientStore[CONFIG::DEBUG_LEVEL_ID      ]) ;
+  bool should_save_log    = bool(this->clientStore[CONFIG::SHOULD_SAVE_LOG_KEY ]) ;
   bool should_hide_bots   = bool(this->clientStore[CONFIG::SHOULD_HIDE_BOTS_KEY]) ;
   bool should_mixdown_ogg = !!(mixdown_mode & (int)NJClient::MIXDOWN_OGG) ;
   bool should_mixdown_wav = !!(mixdown_mode & (int)NJClient::MIXDOWN_WAV) ;
+
+  this->saveAudioComboBox ->addItemList(GUI::SAVE_MODES   , 1) ;
+  this->debugLevelComboBox->addItemList(GUI::DEBUG_LEVELS , 1) ;
 
   saveAudioComboBox ->setSelectedId(save_audio_mode + CONFIG::SAVE_AUDIO_ENUM_OFFSET) ;
   debugLevelComboBox->setSelectedItemIndex(debug_level) ;
@@ -140,6 +143,7 @@ ConfigClient::~ConfigClient()
     debugLevelComboBox = nullptr;
     saveLogButton = nullptr;
     hideBotsButton = nullptr;
+    cleanButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -172,6 +176,7 @@ void ConfigClient::resized()
     debugLevelComboBox->setBounds (20, 106, 152, 16);
     saveLogButton->setBounds (20, 130, 74, 16);
     hideBotsButton->setBounds (98, 130, 74, 16);
+    cleanButton->setBounds (20, 164, 150, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -262,6 +267,14 @@ void ConfigClient::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_hideBotsButton]
     }
+    else if (buttonThatWasClicked == cleanButton)
+    {
+        //[UserButtonCode_cleanButton] -- add your button handler code here..
+
+      LinJam::CleanSessionDir() ;
+
+        //[/UserButtonCode_cleanButton]
+    }
 
     //[UserbuttonClicked_Post]
 
@@ -306,8 +319,7 @@ BEGIN_JUCER_METADATA
          fontsize="15" bold="0" italic="0" justification="12"/>
   <COMBOBOX name="saveAudioComboBox" id="195d38c0dfa0b780" memberName="saveAudioComboBox"
             virtualName="" explicitFocusOrder="1" pos="20 38 152 16" editable="0"
-            layout="33" items="delete asap&#10;dont save&#10;save ogg&#10;save ogg and wav"
-            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="oggMixdownButton" id="ccb740c03ababc9f" memberName="oggMixdownButton"
                 virtualName="" explicitFocusOrder="2" pos="20 58 74 16" txtcol="ffffffff"
                 buttonText="ogg mixdown" connectedEdges="0" needsCallback="1"
@@ -323,8 +335,7 @@ BEGIN_JUCER_METADATA
          fontsize="15" bold="0" italic="0" justification="12"/>
   <COMBOBOX name="debugLevelComboBox" id="3b81e2ff4dec7469" memberName="debugLevelComboBox"
             virtualName="" explicitFocusOrder="4" pos="20 106 152 16" editable="0"
-            layout="33" items="silent&#10;audio&#10;audio and network&#10;linjam trace"
-            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="saveLogButton" id="a9eb5bfc0df5b172" memberName="saveLogButton"
                 virtualName="" explicitFocusOrder="5" pos="20 130 74 16" txtcol="ffffffff"
                 buttonText="save log" connectedEdges="0" needsCallback="1" radioGroupId="0"
@@ -333,6 +344,9 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="6" pos="98 130 74 16" txtcol="ffffffff"
                 buttonText="hide bots" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="1"/>
+  <TEXTBUTTON name="cleanButton" id="6134f446448d4d2b" memberName="cleanButton"
+              virtualName="" explicitFocusOrder="7" pos="20 164 150 24" buttonText="clean session dir"
+              connectedEdges="0" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

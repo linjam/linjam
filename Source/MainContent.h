@@ -1,8 +1,7 @@
+
 #ifndef _MAIN_CONTENT_H_
 #define _MAIN_CONTENT_H_
 
-
-#include "JuceHeader.h"
 
 #include "Background.h"
 #include "Chat.h"
@@ -14,9 +13,10 @@
 #include "Config.h"
 
 
-/** this is the main GUI container class */
+/** MainContent is the main view container class */
 class MainContent : public Component , public ButtonListener
 {
+  friend class LinJamApplication ;
   friend class LinJam ;
 
 
@@ -45,8 +45,10 @@ private:
 
 
   void instantiateLogin( ValueTree login_store) ;
-  void instantiateConfig(ValueTree audio_store         , ValueTree client_store ,
-                         ValueTree subscriptions_store , Value     linjam_status) ;
+  void instantiateMixer( ValueTree blacklist_store) ;
+  void instantiateConfig(ValueTree audio_store , ValueTree client_store    ,
+                         ValueTree gui_store   , ValueTree blacklist_store ,
+                         Value     linjam_status                           ) ;
   void setTitle(         String title_text) ;
   void buttonClicked(    Button* a_button) ;
 

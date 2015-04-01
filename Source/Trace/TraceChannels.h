@@ -1,6 +1,6 @@
 #if DEBUG
 
-#  include "Trace.h"
+#include "Trace.h"
 
 
 /* channels */
@@ -21,8 +21,8 @@
 #endif // TRACE_DUMP_CHANNELS_GUI
 
 #define DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL                                 \
-  String ch_id        = String(channel_store.getType()) ;                \
-  String ch_name      = String(channel_store[CONFIG::CHANNEL_NAME_ID]) ; \
+  String ch_id        = str(channel_store.getType()) ;                   \
+  String ch_name      = str(channel_store[CONFIG::CHANNEL_NAME_ID]) ;    \
   int    stereo_state = int(   channel_store[CONFIG::STEREO_ID      ]) ; \
   String dbg   = "adding channel slice " + ch_id + " '" + ch_name +      \
                  "' to '" + getComponentID() + "' channels" ;            \
@@ -49,7 +49,7 @@
 #else // TRACE_ADD_CHANNEL_GUI_VB
 #  define DEBUG_TRACE_ADD_CHANNEL_GUI                                  \
   Trace::TraceGui("added channel slice " + String(channel_id) + " '" + \
-                  String(channel_store[CONFIG::CHANNEL_NAME_ID])     + \
+                  str(channel_store[CONFIG::CHANNEL_NAME_ID])        + \
                   "' to '" + String(getComponentID()) + "'") ;         \
   DEBUG_TRACE_DUMP_CHANNELS_GUI_VB
 #endif // TRACE_ADD_CHANNEL_GUI_VB
@@ -72,7 +72,7 @@
   Channel* ch           = getChannel(channel_id) ;                                         \
   bool     is_stereo    = ch && int(ch->channelStore[CONFIG::STEREO_ID]) != CONFIG::MONO ; \
   String   channel_type = (ch) ? ((!is_stereo)? "mono" : "stereo") : "unknown" ;           \
-  String   channel_name = (ch) ? String(ch->channelStore[CONFIG::CHANNEL_NAME_ID]) : "" ;  \
+  String   channel_name = (ch) ? str(ch->channelStore[CONFIG::CHANNEL_NAME_ID]) : "" ;     \
   String   dbg          = "removing " + channel_type                             +         \
                           " channel " + String(channel_id) + " '" + channel_name +         \
                           "' from '"  + getComponentID()   + "' channels" ;                \
@@ -81,8 +81,8 @@
 
 #define DEBUG_TRACE_STEREO_STATE_GUI                                                  \
   int        stereo_status = int(this->stereoStatus.getValue()) ;                     \
-  Identifier parent_id     = (!this->channelStore.getParent().isValid())? "orphan" :   \
-                             this->channelStore.getParent().getType() ;                \
+  Identifier parent_id     = (!this->channelStore.getParent().isValid())? "orphan" :  \
+                             this->channelStore.getParent().getType() ;               \
   Trace::TraceGui(String(parent_id) + " channel '" + this->nameLabel->getText()     + \
                   "' stereo status is "                                             + \
                   ((stereo_status == CONFIG::MONO)    ? "MONO"     :                  \

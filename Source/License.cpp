@@ -33,6 +33,9 @@
 License::License (ValueTree login_store)
     : loginStore(login_store)
 {
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
+
     setName ("License");
     addAndMakeVisible (licenseTextEditor = new TextEditor ("licenseTextEditor"));
     licenseTextEditor->setMultiLine (true);
@@ -71,6 +74,11 @@ License::License (ValueTree login_store)
 
 
     //[Constructor] You can add your own custom stuff here..
+
+  this->alwaysAgree.referTo(LinJamConfig::GetValueHolder(this->loginStore       ,
+                                                         CONFIG::CHANNEL_NAME_ID)) ;
+  this->alwaysAgree.addListener(this) ;
+
     //[/Constructor]
 }
 
@@ -170,6 +178,14 @@ void License::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void License::valueChanged(Value& a_value)
+{
+  if (!a_value.refersToSameSourceAs(this->alwaysAgree)) return ;
+
+  bool alwaysAgree = bool(this->alwaysAgree.getValue()) ;
+  this->alwaysButton->setToggleState(alwaysAgree , juce::dontSendNotification) ;
+}
+
 void License::setLicenseText(String license_text)
 {
   this->licenseTextEditor->setText(TRANS(license_text)) ;
@@ -193,7 +209,7 @@ void License::setConfig(Identifier a_key , var a_value)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="License" componentName="License"
-                 parentClasses="public Component" constructorParams="ValueTree login_store"
+                 parentClasses="public Component, public ValueListener" constructorParams="ValueTree login_store"
                  variableInitialisers="loginStore(login_store)" snapPixels="8"
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
                  initialWidth="622" initialHeight="442">

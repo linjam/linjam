@@ -193,6 +193,9 @@
     <ClCompile Include="..\..\Source\Background.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Blacklist.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\Channel.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
@@ -208,13 +211,16 @@
     <ClCompile Include="..\..\Source\ConfigAudio.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ConfigBlacklist.cpp">
+      <Filter>LinJam\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\ConfigChannel.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\ConfigClient.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\ConfigSubscriptions.cpp">
+    <ClCompile Include="..\..\Source\ConfigGui.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Constants.cpp">
@@ -245,9 +251,6 @@
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\StatusBar.cpp">
-      <Filter>LinJam\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Source\Subscriptions.cpp">
       <Filter>LinJam\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Trace\Trace.cpp">
@@ -1065,31 +1068,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\Trace\Trace.h">
-      <Filter>LinJam\Headers\Trace</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Trace\TraceChannels.h">
-      <Filter>LinJam\Headers\Trace</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Trace\TraceConfig.h">
-      <Filter>LinJam\Headers\Trace</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Trace\TraceLinJam.h">
-      <Filter>LinJam\Headers\Trace</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Trace\TraceLinJamConfig.h">
-      <Filter>LinJam\Headers\Trace</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Trace\TraceLogin.h">
-      <Filter>LinJam\Headers\Trace</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Trace\TraceMain.h">
-      <Filter>LinJam\Headers\Trace</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Source\Trace\TraceMixer.h">
-      <Filter>LinJam\Headers\Trace</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Source\Background.h">
+      <Filter>LinJam\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Blacklist.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Channel.h">
@@ -1107,13 +1089,16 @@
     <ClInclude Include="..\..\Source\ConfigAudio.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\ConfigBlacklist.h">
+      <Filter>LinJam\Headers</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ConfigChannel.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ConfigClient.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\ConfigSubscriptions.h">
+    <ClInclude Include="..\..\Source\ConfigGui.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Constants.h">
@@ -1143,8 +1128,26 @@
     <ClInclude Include="..\..\Source\StatusBar.h">
       <Filter>LinJam\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\Subscriptions.h">
-      <Filter>LinJam\Headers</Filter>
+    <ClInclude Include="..\..\Source\Trace\Trace.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceChannels.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceConfig.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceLinJam.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceLinJamConfig.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceLogin.h">
+      <Filter>LinJam\Headers\Trace</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Trace\TraceMixer.h">
+      <Filter>LinJam\Headers\Trace</Filter>
     </ClInclude>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharacterFunctions.h">
       <Filter>Juce Modules\juce_core\text</Filter>
@@ -2086,6 +2089,9 @@
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_core\juce_module_info">
       <Filter>Juce Modules\juce_core</Filter>
+    </None>
+    <None Include="..\..\JuceLibraryCode\modules\juce_data_structures\values\juce_ValueTree.cpp~">
+      <Filter>Juce Modules\juce_data_structures\values</Filter>
     </None>
     <None Include="..\..\JuceLibraryCode\modules\juce_data_structures\juce_module_info">
       <Filter>Juce Modules\juce_data_structures</Filter>

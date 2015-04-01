@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -31,8 +31,12 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-Mixer::Mixer ()
+Mixer::Mixer (ValueTree blacklist_store)
+    : blacklistStore(blacklist_store)
 {
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
+
     setName ("Mixer");
 
     //[UserPreSize]
@@ -41,16 +45,16 @@ Mixer::Mixer ()
   this->localChannels    = new LocalChannels() ;
   this->prevScrollButton = new TextButton("prevScrollButton") ;
   this->nextScrollButton = new TextButton("nextScrollButton") ;
-  this->localsResizer    = new ResizableEdgeComponent(this->localChannels  , nullptr ,
+  this->localsResizer    = new ResizableEdgeComponent(this->localChannels  , nullptr   ,
                                                       ResizableEdgeComponent::rightEdge) ;
-  this->mastersResizer   = new ResizableEdgeComponent(this->masterChannels , nullptr ,
-                                                      ResizableEdgeComponent::leftEdge) ;
+  this->mastersResizer   = new ResizableEdgeComponent(this->masterChannels , nullptr   ,
+                                                      ResizableEdgeComponent::leftEdge ) ;
 
   addChannels(    this->masterChannels , GUI::MASTERS_GUI_ID) ;
-  addChannels(    this->localChannels  , GUI::LOCALS_GUI_ID) ;
+  addChannels(    this->localChannels  , GUI::LOCALS_GUI_ID ) ;
   addScrollButton(this->prevScrollButton , "<") ;
   addScrollButton(this->nextScrollButton , ">") ;
-  addResizer(     this->localsResizer) ;
+  addResizer(     this->localsResizer ) ;
   addResizer(     this->mastersResizer) ;
 
   this->masterChannels  ->setAlwaysOnTop(true) ;
@@ -109,6 +113,9 @@ void Mixer::paint (Graphics& g)
 
 void Mixer::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     //[UserResized] Add your own custom resize handling here..
 
 DEBUG_TRACE_MIXER_COMPONENTS_VB
@@ -196,13 +203,13 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
 
 /* Mixer class public instence methods */
 
-bool Mixer::addRemoteUser(ValueTree user_store , ValueTree subscriptions)
+bool Mixer::addRemoteUser(ValueTree user_store)
 {
   // ensure GUI for this user does not already exist
   Identifier user_id = user_store.getType() ; if (getChannels(user_id)) return false ;
 
   // create remote user GUI
-  addChannels(new RemoteChannels(user_store , subscriptions) , user_id) ;
+  addChannels(new RemoteChannels(user_store , this->blacklistStore) , user_id) ;
 
 DEBUG_TRACE_ADD_REMOTE_USER
 
@@ -341,9 +348,10 @@ int Mixer::getMastersResizerNextX() { return masterChannels->getX() - GUI::RESIZ
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Mixer" componentName="Mixer"
-                 parentClasses="public Component, public ButtonListener" constructorParams=""
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="0" initialWidth="622" initialHeight="284">
+                 parentClasses="public Component, public ButtonListener" constructorParams="ValueTree blacklist_store"
+                 variableInitialisers="blacklistStore(blacklist_store)" snapPixels="8"
+                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
+                 initialWidth="622" initialHeight="284">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>

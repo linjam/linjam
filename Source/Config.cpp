@@ -19,10 +19,11 @@
 
 //[Headers] You can add your own extra header files here...
 
-#include "LinJam.h"
+#include "Constants.h"
 #include "ConfigAudio.h"
 #include "ConfigClient.h"
-#include "ConfigSubscriptions.h"
+#include "ConfigGui.h"
+#include "ConfigBlacklist.h"
 
 //[/Headers]
 
@@ -33,17 +34,15 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-Config::Config (ValueTree audio_store, ValueTree client_store, ValueTree subscriptions_store ,
-                Value linjam_status)
+Config::Config (ValueTree audio_store, ValueTree client_store, ValueTree gui_store, ValueTree blacklist_store, Value linjam_status)
+    : linjamStatus(linjam_status)
 {
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
+
     addAndMakeVisible (configTabs = new TabbedComponent (TabbedButtonBar::TabsAtTop));
     configTabs->setExplicitFocusOrder (1);
     configTabs->setTabBarDepth (24);
-    configTabs->addTab (TRANS("audio"), Colour (0xff002000), new ConfigAudio (audio_store , linjam_status), true);
-    configTabs->addTab (TRANS("client"), Colour (0xff202000), new ConfigClient (client_store), true);
-    configTabs->addTab (TRANS("ignores"), Colour (0xff200000), new ConfigSubscriptions (subscriptions_store), true);
-    configTabs->setCurrentTabIndex (0);
-
     addAndMakeVisible (dismissButton = new TextButton ("dismissButton"));
     dismissButton->setExplicitFocusOrder (4);
     dismissButton->setButtonText (TRANS("done"));
@@ -62,10 +61,24 @@ Config::Config (ValueTree audio_store, ValueTree client_store, ValueTree subscri
 
     //[Constructor] You can add your own custom stuff here..
 
-  this->linjamStatus.referTo(linjam_status) ; this->linjamStatus.addListener(this) ;
-
+  // populate config tabs
+  this->configAudio     = new ConfigAudio(    audio_store     ) ;
+  this->configClient    = new ConfigClient(   client_store    ) ;
+  this->configGui       = new ConfigGui(      gui_store       ) ;
+  this->configBlacklist = new ConfigBlacklist(blacklist_store) ;
+  this->configTabs->addTab(TRANS("audio")        , GUI::AUDIO_TAB_COLOR          ,
+                           this->configAudio     , false , GUI::AUDIO_TAB_IDX    ) ;
+  this->configTabs->addTab(TRANS("client")       , GUI::CLIENT_TAB_COLOR         ,
+                           this->configClient    , false , GUI::CLIENT_TAB_IDX   ) ;
+  this->configTabs->addTab(TRANS("gui")          , GUI::GUI_TAB_COLOR            ,
+                           this->configGui       , false , GUI::GUI_TAB_IDX      ) ;
+  this->configTabs->addTab(TRANS("ignores")      , GUI::BLACKLIST_TAB_COLOR      ,
+                           this->configBlacklist , false , GUI::BLACKLIST_TAB_IDX) ;
+  this->configTabs->setCurrentTabIndex(GUI::AUDIO_TAB_IDX) ;
   this->configTabs->setOutline(0) ;
   this->configTabs->setIndent(0) ;
+
+  this->linjamStatus.addListener(this) ;
 
     //[/Constructor]
 }
@@ -119,7 +132,7 @@ void Config::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_dismissButton] -- add your button handler code here..
 
-      this->linjamStatus = LinJam::LINJAM_STATUS_READY ;
+      this->linjamStatus = STATUS::LINJAM_STATUS_READY ;
 
         //[/UserButtonCode_dismissButton]
     }
@@ -136,17 +149,28 @@ void Config::valueChanged(Value& a_value)
 {
   int linjam_status = int(a_value.getValue()) ;
   if (!a_value.refersToSameSourceAs(this->linjamStatus) ||
-      linjam_status < LinJam::LINJAM_STATUS_AUDIOERROR  ||
-      linjam_status > LinJam::LINJAM_STATUS_CONFIGPENDING) return ;
+      linjam_status < STATUS::LINJAM_STATUS_AUDIOINIT   ||
+      linjam_status > STATUS::LINJAM_STATUS_AUDIOERROR   ) return ;
 
-  bool   is_audio_error   = linjam_status == LinJam::LINJAM_STATUS_AUDIOERROR ;
-  Colour button_out_color = (is_audio_error) ? Colour(0xff400000) : Colour(0xff004000) ;
-  Colour button_in_color  = (is_audio_error) ? Colours::maroon    : Colours::green ;
-  Colour text_out_color   = (is_audio_error) ? Colours::red       : Colours::lime ;
-  Colour text_in_color    = (is_audio_error) ? Colours::red       : Colours::lime ;
-  String button_text      = (is_audio_error) ? GUI::DISMISS_BTN_ERROR_TEXT :
-                                               GUI::DISMISS_BTN_TEXT ;
+  bool   is_audio_init    = linjam_status == STATUS::LINJAM_STATUS_AUDIOINIT ;
+  bool   is_audio_error   = linjam_status == STATUS::LINJAM_STATUS_AUDIOERROR ;
+  Colour button_out_color = (is_audio_init ) ? GUI::DISMISS_BTN_OUT_INIT_COLOR    :
+                            (is_audio_error) ? GUI::DISMISS_BTN_OUT_ERROR_COLOR   :
+                                               GUI::DISMISS_BTN_OUT_NORMAL_COLOR  ;
+  Colour button_in_color  = (is_audio_init ) ? GUI::DISMISS_BTN_IN_INIT_COLOR     :
+                            (is_audio_error) ? GUI::DISMISS_BTN_IN_ERROR_COLOR    :
+                                               GUI::DISMISS_BTN_IN_NORMAL_COLOR   ;
+  Colour text_out_color   = (is_audio_init ) ? GUI::DISMISS_BTN_TEXT_INIT_COLOR   :
+                            (is_audio_error) ? GUI::DISMISS_BTN_TEXT_ERROR_COLOR  :
+                                               GUI::DISMISS_BTN_TEXT_NORMAL_COLOR ;
+  Colour text_in_color    = (is_audio_init ) ? GUI::DISMISS_BTN_TEXT_INIT_COLOR   :
+                            (is_audio_error) ? GUI::DISMISS_BTN_TEXT_ERROR_COLOR  :
+                                               GUI::DISMISS_BTN_TEXT_NORMAL_COLOR ;
+  String button_text      = (is_audio_init ) ? GUI::DISMISS_BTN_INIT_TEXT         :
+                            (is_audio_error) ? GUI::DISMISS_BTN_ERROR_TEXT        :
+                                               GUI::DISMISS_BTN_NORMAL_TEXT       ;
 
+  // /disable/enable dismissButton
   this->dismissButton->setColour(TextButton::buttonColourId   , button_out_color) ;
   this->dismissButton->setColour(TextButton::buttonOnColourId , button_in_color ) ;
   this->dismissButton->setColour(TextButton::textColourOnId   , text_in_color   ) ;
@@ -154,7 +178,10 @@ void Config::valueChanged(Value& a_value)
   this->dismissButton->setEnabled(!is_audio_error) ;
   this->dismissButton->setButtonText(button_text) ;
 
-  this->configTabs->setCurrentTabIndex(GUI::AUDIO_TAB_IDX  , false) ;
+  // set ConfigAudio tab state
+  this->configTabs->setCurrentTabIndex(GUI::AUDIO_TAB_IDX , false) ;
+  if (is_audio_init) this->configAudio->disableComponents() ;
+  else               this->configAudio->loadParams() ;
 }
 
 //[/MiscUserCode]
@@ -170,23 +197,17 @@ void Config::valueChanged(Value& a_value)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Config" componentName=""
-                 parentClasses="public Component, public ValueListener" constructorParams="ValueTree audio_store, ValueTree client_store, ValueTree subscriptions_store"
-                 variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
-                 overlayOpacity="0.330" fixedSize="0" initialWidth="622" initialHeight="442">
+                 parentClasses="public Component, public ValueListener" constructorParams="ValueTree audio_store, ValueTree client_store, ValueTree gui_store, ValueTree blacklist_store, Value linjam_status"
+                 variableInitialisers="linjamStatus(linjam_status)" snapPixels="8"
+                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
+                 initialWidth="622" initialHeight="442">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff202020" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <TABBEDCOMPONENT name="configTabs" id="72016394fc1784e9" memberName="configTabs"
                    virtualName="" explicitFocusOrder="1" pos="4 0 8M 4M" orientation="top"
-                   tabBarDepth="24" initialTab="0">
-    <TAB name="audio" colour="ff002000" useJucerComp="0" contentClassName="ConfigAudio"
-         constructorParams="audio_store" jucerComponentFile=""/>
-    <TAB name="client" colour="ff202000" useJucerComp="0" contentClassName="ConfigClient"
-         constructorParams="client_store" jucerComponentFile=""/>
-    <TAB name="ignores" colour="ff200000" useJucerComp="0" contentClassName="ConfigSubscriptions"
-         constructorParams="subscriptions_store" jucerComponentFile=""/>
-  </TABBEDCOMPONENT>
+                   tabBarDepth="24" initialTab="-1"/>
   <TEXTBUTTON name="dismissButton" id="becd368b728d32c0" memberName="dismissButton"
               virtualName="" explicitFocusOrder="4" pos="64R 0 64 24" bgColOff="ff004000"
               bgColOn="ff008000" textCol="ff00ff00" textColOn="ff00ff00" buttonText="done"

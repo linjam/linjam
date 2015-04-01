@@ -1,12 +1,3 @@
-/*
-  ==============================================================================
-
-    LinJamConfig.h
-    Created: 12 Jun 2014 7:05:12am
-    Author:  me
-
-  ==============================================================================
-*/
 
 #ifndef _LINJAMCONFIG_H_
 #define _LINJAMCONFIG_H_
@@ -16,7 +7,14 @@
 #include "JuceHeader.h"
 
 
-class LinJamConfig : public ValueTree::Listener , public Value::Listener
+/**
+  LinJamConfig is the model class
+  it holds the runtime configuration via shared value holders
+      and handles persistence via flat XML files
+  it is also the controller for its shared value holders
+      because the LinJmam controller class is currently static
+*/
+class LinJamConfig : public Value::Listener , public ValueTree::Listener
 {
   friend class LinJam ;
 
@@ -36,19 +34,23 @@ public:
   static int        ParseStereoStatus(String channel_name) ;
   static ValueTree  NewChannel(       String channel_name = CONFIG::DEFAULT_CHANNEL_NAME ,
                                       int    channel_idx  = CONFIG::DEFAULT_CHANNEL_IDX  ) ;
+  static Value      GetValueHolder(   ValueTree config_store , Identifier a_key) ;
 
 
-  /* value holders (see Constants.h CONFIG_XML and CONFIG_TYPES_XML) */
+  /* value holders (see Constants.h CONFIG_XML and CONFIG_DATATYPES_XML) */
 
 private:
   // config root (STORAGE_TYPES_KEY datatypes)
   ValueTree configRoot ;     // STORAGE_ID node - parent of all nodes below
 public:
+  // client config (GUI_KEY datatypes)
+  ValueTree gui ;            // GUI_ID node - gui-specific data
+
   // client config (CLIENT_KEY datatypes)
   ValueTree client ;         // CLIENT_ID node - client-specific data
 
-  // subscriptions (SUBSCRIPTIONS_KEY datatypes)
-  ValueTree subscriptions ;  // SUBSCRIPTIONS_ID node - subscriptions-specific data
+  // blacklist (BLACKLIST_KEY datatypes)
+  ValueTree blacklist ;      // BLACKLIST_ID node - blacklist-specific data
 
   // audio device config (AUDIO_KEY datatypes)
   ValueTree audio ;          // AUDIO_KEY node - api-specific audio hardware initialization data
@@ -117,12 +119,9 @@ private:
   void valueTreeChildRemoved(   ValueTree& a_parent_node , ValueTree& a_node) override ;
 
   // unused ValueTree::Listener interface implementations
-  // called when a tree's children have been re-shuffled.
-  void valueTreeChildOrderChanged(ValueTree& a_parent_node)                override {} ;
-  // called when a tree has been added or removed from a parent node.
-  void valueTreeParentChanged(    ValueTree& a_node)                       override {} ;
-  // called when a tree is made to point to a different internal shared object.
-  void valueTreeRedirected(       ValueTree& a_node)                       override {} ;
+  void valueTreeChildOrderChanged(ValueTree& a_parent_node) override {} ;
+  void valueTreeParentChanged(    ValueTree& a_node)        override {} ;
+  void valueTreeRedirected(       ValueTree& a_node)        override {} ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJamConfig) ;

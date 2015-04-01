@@ -19,7 +19,7 @@
 
 //[Headers] You can add your own extra header files here...
 
-#include "LinJam.h"
+#include "Constants.h"
 #include "./Trace/TraceConfig.h"
 
 //[/Headers]
@@ -31,9 +31,12 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-ConfigAudio::ConfigAudio (ValueTree audio_store, Value linjam_status)
+ConfigAudio::ConfigAudio (ValueTree audio_store)
     : audioStore(audio_store)
 {
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
+
     addAndMakeVisible (ioGroup = new GroupComponent ("ioGroup",
                                                      TRANS("i/o")));
     ioGroup->setTextLabelPosition (Justification::centredLeft);
@@ -75,13 +78,13 @@ ConfigAudio::ConfigAudio (ValueTree audio_store, Value linjam_status)
     modeLabel->setColour (TextEditor::textColourId, Colours::black);
     modeLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (modeComboBox = new ComboBox ("modeComboBox"));
-    modeComboBox->setExplicitFocusOrder (1);
-    modeComboBox->setEditableText (false);
-    modeComboBox->setJustificationType (Justification::centredLeft);
-    modeComboBox->setTextWhenNothingSelected (String::empty);
-    modeComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
-    modeComboBox->addListener (this);
+    addAndMakeVisible (apiComboBox = new ComboBox ("apiComboBox"));
+    apiComboBox->setExplicitFocusOrder (1);
+    apiComboBox->setEditableText (false);
+    apiComboBox->setJustificationType (Justification::centredLeft);
+    apiComboBox->setTextWhenNothingSelected (String::empty);
+    apiComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    apiComboBox->addListener (this);
 
     addAndMakeVisible (driverLabel = new Label ("driverLabel",
                                                 TRANS("driver:")));
@@ -238,26 +241,26 @@ ConfigAudio::ConfigAudio (ValueTree audio_store, Value linjam_status)
     bytesLabel->setColour (TextEditor::textColourId, Colours::black);
     bytesLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (nixConfigLabel = new Label ("nixConfigLabel",
-                                                   TRANS("client name")));
-    nixConfigLabel->setFont (Font (15.00f, Font::plain));
-    nixConfigLabel->setJustificationType (Justification::centredLeft);
-    nixConfigLabel->setEditable (false, false, false);
-    nixConfigLabel->setColour (Label::textColourId, Colours::white);
-    nixConfigLabel->setColour (TextEditor::textColourId, Colours::black);
-    nixConfigLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    addAndMakeVisible (jackNameLabel = new Label ("jackNameLabel",
+                                                  TRANS("client name")));
+    jackNameLabel->setFont (Font (15.00f, Font::plain));
+    jackNameLabel->setJustificationType (Justification::centredLeft);
+    jackNameLabel->setEditable (false, false, false);
+    jackNameLabel->setColour (Label::textColourId, Colours::white);
+    jackNameLabel->setColour (TextEditor::textColourId, Colours::black);
+    jackNameLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (nixConfigText = new TextEditor ("nixConfigText"));
-    nixConfigText->setExplicitFocusOrder (12);
-    nixConfigText->setMultiLine (false);
-    nixConfigText->setReturnKeyStartsNewLine (false);
-    nixConfigText->setReadOnly (false);
-    nixConfigText->setScrollbarsShown (true);
-    nixConfigText->setCaretVisible (true);
-    nixConfigText->setPopupMenuEnabled (false);
-    nixConfigText->setColour (TextEditor::textColourId, Colours::grey);
-    nixConfigText->setColour (TextEditor::backgroundColourId, Colours::black);
-    nixConfigText->setText (GUI::JACK_NAME_LABEL_TEXT);
+    addAndMakeVisible (jackNameText = new TextEditor ("jackNameText"));
+    jackNameText->setExplicitFocusOrder (12);
+    jackNameText->setMultiLine (false);
+    jackNameText->setReturnKeyStartsNewLine (false);
+    jackNameText->setReadOnly (false);
+    jackNameText->setScrollbarsShown (true);
+    jackNameText->setCaretVisible (true);
+    jackNameText->setPopupMenuEnabled (false);
+    jackNameText->setColour (TextEditor::textColourId, Colours::grey);
+    jackNameText->setColour (TextEditor::backgroundColourId, Colours::black);
+    jackNameText->setText (String::empty);
 
     addAndMakeVisible (nSourcesLabel = new Label ("nSourcesLabel",
                                                   TRANS("# of sources")));
@@ -269,7 +272,7 @@ ConfigAudio::ConfigAudio (ValueTree audio_store, Value linjam_status)
     nSourcesLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (nSourcesSlider = new Slider ("nSourcesSlider"));
-    nSourcesSlider->setExplicitFocusOrder (13);
+    nSourcesSlider->setExplicitFocusOrder (14);
     nSourcesSlider->setRange (0, 16, 1);
     nSourcesSlider->setSliderStyle (Slider::IncDecButtons);
     nSourcesSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 80, 20);
@@ -285,11 +288,18 @@ ConfigAudio::ConfigAudio (ValueTree audio_store, Value linjam_status)
     nSinksLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (nSinksSlider = new Slider ("nSinksSlider"));
-    nSinksSlider->setExplicitFocusOrder (14);
+    nSinksSlider->setExplicitFocusOrder (15);
     nSinksSlider->setRange (0, 16, 1);
     nSinksSlider->setSliderStyle (Slider::IncDecButtons);
     nSinksSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 80, 20);
     nSinksSlider->addListener (this);
+
+    addAndMakeVisible (jackPortsButton = new ToggleButton ("jackPortsButton"));
+    jackPortsButton->setExplicitFocusOrder (13);
+    jackPortsButton->setButtonText (TRANS("auto-connect ports"));
+    jackPortsButton->addListener (this);
+    jackPortsButton->setToggleState (true, dontSendNotification);
+    jackPortsButton->setColour (ToggleButton::textColourId, Colours::white);
 
 
     //[UserPreSize]
@@ -300,14 +310,12 @@ ConfigAudio::ConfigAudio (ValueTree audio_store, Value linjam_status)
 
     //[Constructor] You can add your own custom stuff here..
 
-  this->linjamStatus.referTo(linjam_status) ; this->linjamStatus.addListener(this) ;
-
-  int audio_api_n = int(this->audioStore[CONFIG::AUDIO_API_ID]) ;
-  this->modeComboBox  ->addItemList(CLIENT::AUDIO_APIS , 1) ;
-  this->modeComboBox  ->setSelectedItemIndex(audio_api_n , juce::dontSendNotification) ;
-  this->nBuffersSlider->setRange(CLIENT::MIN_N_BUFFERS , CLIENT::MAX_N_BUFFERS , 1) ;
-  this->nSourcesSlider->setRange(CLIENT::MIN_N_SOURCES , CLIENT::MAX_N_SOURCES , 1) ;
-  this->nSinksSlider  ->setRange(CLIENT::MIN_N_SINKS   , CLIENT::MAX_N_SINKS   , 1) ;
+  int audio_api_n     = int(this->audioStore[CONFIG::AUDIO_API_ID]) ;
+  this->apiComboBox   ->addItemList(GUI::AUDIO_APIS , 1) ;
+  this->apiComboBox   ->setSelectedItemIndex(audio_api_n , juce::dontSendNotification) ;
+  this->nBuffersSlider->setRange(GUI::MIN_N_BUFFERS , GUI::MAX_N_BUFFERS , 1) ;
+  this->nSourcesSlider->setRange(GUI::MIN_N_SOURCES , GUI::MAX_N_SOURCES , 1) ;
+  this->nSinksSlider  ->setRange(GUI::MIN_N_SINKS   , GUI::MAX_N_SINKS   , 1) ;
 
     //[/Constructor]
 }
@@ -324,7 +332,7 @@ ConfigAudio::~ConfigAudio()
     defaultsButton = nullptr;
     asioButton = nullptr;
     modeLabel = nullptr;
-    modeComboBox = nullptr;
+    apiComboBox = nullptr;
     driverLabel = nullptr;
     driverComboBox = nullptr;
     sourceLabel = nullptr;
@@ -344,12 +352,13 @@ ConfigAudio::~ConfigAudio()
     xLabel = nullptr;
     bufferComboBox = nullptr;
     bytesLabel = nullptr;
-    nixConfigLabel = nullptr;
-    nixConfigText = nullptr;
+    jackNameLabel = nullptr;
+    jackNameText = nullptr;
     nSourcesLabel = nullptr;
     nSourcesSlider = nullptr;
     nSinksLabel = nullptr;
     nSinksSlider = nullptr;
+    jackPortsButton = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -381,7 +390,7 @@ void ConfigAudio::resized()
     defaultsButton->setBounds (getWidth() - 68, 4, 64, 24);
     asioButton->setBounds (getWidth() - 68, 4, 64, 24);
     modeLabel->setBounds (140, 56, 64, 18);
-    modeComboBox->setBounds (212, 56, 256, 18);
+    apiComboBox->setBounds (212, 56, 256, 18);
     driverLabel->setBounds (140, 82, 64, 18);
     driverComboBox->setBounds (212, 82, 256, 18);
     sourceLabel->setBounds (140, 108, 64, 18);
@@ -401,12 +410,13 @@ void ConfigAudio::resized()
     xLabel->setBounds (275, 268, 16, 18);
     bufferComboBox->setBounds (292, 268, 52, 18);
     bytesLabel->setBounds (346, 268, 64, 18);
-    nixConfigLabel->setBounds (140, 332, 64, 18);
-    nixConfigText->setBounds (212, 332, 256, 18);
+    jackNameLabel->setBounds (140, 332, 64, 18);
+    jackNameText->setBounds (212, 332, 136, 18);
     nSourcesLabel->setBounds (140, 358, 64, 18);
     nSourcesSlider->setBounds (214, 358, 64, 18);
     nSinksLabel->setBounds (330, 358, 64, 18);
     nSinksSlider->setBounds (404, 358, 64, 18);
+    jackPortsButton->setBounds (352, 332, 120, 18);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -439,7 +449,7 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 #else // _WIN32
 #  ifndef _MAC
   sample_rate_key = CONFIG::CA_SAMPLERATE_ID ;
-  bit_depth_key   = CONFIG::CA_BITDEPTH_ID;
+  bit_depth_key   = CONFIG::CA_BITDEPTH_ID ;
 #  else // _MAC
   switch ((audioStreamer::NixApi)audio_api_n)
   {
@@ -452,19 +462,19 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 #  endif // _MAC
 #endif // _WIN32
 
-  int bit_depth   = (this->bps16Button->getToggleState())? CLIENT::BIT_DEPTH_16 :
-                    (this->bps24Button->getToggleState())? CLIENT::BIT_DEPTH_24 :
-                    (this->bps32Button->getToggleState())? CLIENT::BIT_DEPTH_32 : 0 ;
-  int sample_rate = (this->kHz44Button->getToggleState())? CLIENT::SAMPLE_RATE_44100 :
-                    (this->kHz48Button->getToggleState())? CLIENT::SAMPLE_RATE_48000 :
-                    (this->kHz96Button->getToggleState())? CLIENT::SAMPLE_RATE_96000 : 0 ;
+  int bit_depth   = (this->bps16Button->getToggleState())? GUI::BIT_DEPTH_16 :
+                    (this->bps24Button->getToggleState())? GUI::BIT_DEPTH_24 :
+                    (this->bps32Button->getToggleState())? GUI::BIT_DEPTH_32 : 0 ;
+  int sample_rate = (this->kHz44Button->getToggleState())? GUI::SAMPLE_RATE_44100 :
+                    (this->kHz48Button->getToggleState())? GUI::SAMPLE_RATE_48000 :
+                    (this->kHz96Button->getToggleState())? GUI::SAMPLE_RATE_96000 : 0 ;
 
   Identifier config_key ;
   var        value ;
 
     //[/UserbuttonClicked_Pre]
 
-    if      (buttonThatWasClicked == defaultsButton)
+    if (buttonThatWasClicked == defaultsButton)
     {
         //[UserButtonCode_defaultsButton] -- add your button handler code here..
 
@@ -536,6 +546,11 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_kHz96Button]
     }
+    else if (buttonThatWasClicked == jackPortsButton)
+    {
+        //[UserButtonCode_jackPortsButton] -- add your button handler code here..
+        //[/UserButtonCode_jackPortsButton]
+    }
 
     //[UserbuttonClicked_Post]
 
@@ -556,16 +571,16 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
     //[/UsercomboBoxChanged_Pre]
 
-    if      (comboBoxThatHasChanged == modeComboBox)
+    if (comboBoxThatHasChanged == apiComboBox)
     {
-        //[UserComboBoxCode_modeComboBox] -- add your combo box handling code here..
+        //[UserComboBoxCode_apiComboBox] -- add your combo box handling code here..
 
       key   = CONFIG::AUDIO_API_ID ;
       value = var((~option_n) ? option_n : CONFIG::DEFAULT_AUDIO_API) ;
 
-      this->modeComboBox->setSelectedItemIndex(option_n) ;
+      this->apiComboBox->setSelectedItemIndex(option_n) ;
 
-        //[/UserComboBoxCode_modeComboBox]
+        //[/UserComboBoxCode_apiComboBox]
     }
     else if (comboBoxThatHasChanged == driverComboBox)
     {
@@ -614,11 +629,20 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         default:                                                                 break ;
       }
 #else // _WIN32
-#  ifndef _MAC
+#  ifdef _MAC
+      key      = CONFIG::CA_INPUT_ID ;
+      option_n = (~option_n) ? option_n : GUI::DEFAULT_CA_INDEX ;
+      value    = var(option_text) ;
+      this->sourceComboBox->setSelectedItemIndex(option_n) ;
+#  else //  _MAC
       switch ((audioStreamer::NixApi)audio_api_n)
       {
-        case audioStreamer::NIX_AUDIO_ALSA: /* TODO: */ break ;
-        default:                                        break ;
+        case audioStreamer::NIX_AUDIO_ALSA:
+          key      = CONFIG::ALSA_INPUT_ID ;
+          option_n = (~option_n) ? option_n : GUI::DEFAULT_ALSA_INDEX ;
+          value    = var(option_text) ;
+          this->sourceComboBox->setSelectedItemIndex(option_n) ;        break ;
+        default:                                                        break ;
       }
 #  endif //  _MAC
 #endif // _WIN32
@@ -655,11 +679,20 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         default:                                                                  break ;
       }
 #else // _WIN32
-#  ifndef _MAC
+#  ifdef _MAC
+      key      = CONFIG::CA_OUTPUT_ID ;
+      option_n = (~option_n) ? option_n : GUI::DEFAULT_CA_INDEX ;
+      value    = var(option_text) ;
+      this->sourceComboBox->setSelectedItemIndex(option_n) ;
+#  else //  _MAC
       switch ((audioStreamer::NixApi)audio_api_n)
       {
-        case audioStreamer::NIX_AUDIO_ALSA: /* TODO: */ break ;
-        default:                                        break ;
+        case audioStreamer::NIX_AUDIO_ALSA:
+          key      = CONFIG::ALSA_OUTPUT_ID ;
+          option_n = (~option_n) ? option_n : GUI::DEFAULT_ALSA_INDEX ;
+          value    = var(option_text) ;
+          this->sinkComboBox->setSelectedItemIndex(option_n) ;          break ;
+        default:                                                        break ;
       }
 #  endif //  _MAC
 #endif // _WIN32
@@ -711,7 +744,7 @@ void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
 
     //[/UsersliderValueChanged_Pre]
 
-    if      (sliderThatWasMoved == nBuffersSlider)
+    if (sliderThatWasMoved == nBuffersSlider)
     {
         //[UserSliderCode_nBuffersSlider] -- add your slider handling code here..
 
@@ -741,7 +774,7 @@ void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
 
 #ifndef _WIN32
 #  ifdef _MAC
-      config_key = CONFIG::CA_NINPUTS_KEY ;
+      config_key = CONFIG::CA_NCHANNELS_ID ;
 #  else // _MAC
       switch ((audioStreamer::NixApi)audio_api_n)
       {
@@ -786,67 +819,57 @@ void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
 
 /* ConfigAudio class private instance methods */
 
-void ConfigAudio::valueChanged(Value& a_value)
-{
-  int linjam_status = int(a_value.getValue()) ;
-  if (!a_value.refersToSameSourceAs(this->linjamStatus) ||
-      linjam_status < LinJam::LINJAM_STATUS_AUDIOINIT   ||
-      linjam_status > LinJam::LINJAM_STATUS_AUDIOERROR   ) return ;
-
-  if (linjam_status == LinJam::LINJAM_STATUS_AUDIOINIT) disableComponents() ;
-  else                                                  loadParams() ;
-}
-
 void ConfigAudio::loadParams()
 {
   // initialize or reset GUI state
   populateDevices() ;
 
   // load config
-  int    audio_api_n          = int(   this->audioStore[CONFIG::AUDIO_API_ID      ]) ;
+  int    audio_api_n          = int(this->audioStore[CONFIG::AUDIO_API_ID      ]) ;
 #ifdef _WIN32
-  int    asio_driver_n        = int(   this->audioStore[CONFIG::ASIO_DRIVER_ID    ]) ;
-  int    asio_input_b_n       = int(   this->audioStore[CONFIG::ASIO_INPUTB_ID    ]) ;
-  int    asio_input_e_n       = int(   this->audioStore[CONFIG::ASIO_INPUTE_ID    ]) ;
-  int    asio_output_b_n      = int(   this->audioStore[CONFIG::ASIO_OUTPUTB_ID   ]) ;
-  int    asio_output_e_n      = int(   this->audioStore[CONFIG::ASIO_OUTPUTE_ID   ]) ;
-  int    should_show_asio_cp  = int(   this->audioStore[CONFIG::ASIO_CONTROL_ID   ]) ;
-  int    ks_input_device_n    = int(   this->audioStore[CONFIG::KS_INPUT_ID       ]) ;
-  int    ks_output_device_n   = int(   this->audioStore[CONFIG::KS_OUTPUT_ID      ]) ;
-  int    ks_sample_rate       = int(   this->audioStore[CONFIG::KS_SAMPLERATE_ID  ]) ;
-  int    ks_bit_depth         = int(   this->audioStore[CONFIG::KS_BITDEPTH_ID    ]) ;
-  int    ks_n_buffers         = int(   this->audioStore[CONFIG::KS_NBLOCKS_ID     ]) ;
-  int    ks_buffer_size       = int(   this->audioStore[CONFIG::KS_BLOCKSIZE_ID   ]) ;
-  String ds_input_device      = String(this->audioStore[CONFIG::DS_INPUT_ID       ]) ;
-  String ds_output_device     = String(this->audioStore[CONFIG::DS_OUTPUT_ID      ]) ;
-  int    ds_sample_rate       = int(   this->audioStore[CONFIG::DS_SAMPLERATE_ID  ]) ;
-  int    ds_bit_depth         = int(   this->audioStore[CONFIG::DS_BITDEPTH_ID    ]) ;
-  int    ds_n_buffers         = int(   this->audioStore[CONFIG::DS_NBLOCKS_ID     ]) ;
-  int    ds_buffer_size       = int(   this->audioStore[CONFIG::DS_BLOCKSIZE_ID   ]) ;
-  int    wave_input_device_n  = int(   this->audioStore[CONFIG::WAVE_INPUT_ID     ]) ;
-  int    wave_output_device_n = int(   this->audioStore[CONFIG::WAVE_OUTPUT_ID    ]) ;
-  int    wave_sample_rate     = int(   this->audioStore[CONFIG::WAVE_SAMPLERATE_ID]) ;
-  int    wave_bit_depth       = int(   this->audioStore[CONFIG::WAVE_BITDEPTH_ID  ]) ;
-  int    wave_n_buffers       = int(   this->audioStore[CONFIG::WAVE_NBLOCKS_ID   ]) ;
-  int    wave_buffer_size     = int(   this->audioStore[CONFIG::WAVE_BLOCKSIZE_ID ]) ;
+  int    asio_driver_n        = int(this->audioStore[CONFIG::ASIO_DRIVER_ID    ]) ;
+  int    asio_input_b_n       = int(this->audioStore[CONFIG::ASIO_INPUTB_ID    ]) ;
+  int    asio_input_e_n       = int(this->audioStore[CONFIG::ASIO_INPUTE_ID    ]) ;
+  int    asio_output_b_n      = int(this->audioStore[CONFIG::ASIO_OUTPUTB_ID   ]) ;
+  int    asio_output_e_n      = int(this->audioStore[CONFIG::ASIO_OUTPUTE_ID   ]) ;
+  int    should_show_asio_cp  = int(this->audioStore[CONFIG::ASIO_CONTROL_ID   ]) ;
+  int    ks_input_device_n    = int(this->audioStore[CONFIG::KS_INPUT_ID       ]) ;
+  int    ks_output_device_n   = int(this->audioStore[CONFIG::KS_OUTPUT_ID      ]) ;
+  int    ks_sample_rate       = int(this->audioStore[CONFIG::KS_SAMPLERATE_ID  ]) ;
+  int    ks_bit_depth         = int(this->audioStore[CONFIG::KS_BITDEPTH_ID    ]) ;
+  int    ks_n_buffers         = int(this->audioStore[CONFIG::KS_NBLOCKS_ID     ]) ;
+  int    ks_buffer_size       = int(this->audioStore[CONFIG::KS_BLOCKSIZE_ID   ]) ;
+  String ds_input_device      = str(this->audioStore[CONFIG::DS_INPUT_ID       ]) ;
+  String ds_output_device     = str(this->audioStore[CONFIG::DS_OUTPUT_ID      ]) ;
+  int    ds_sample_rate       = int(this->audioStore[CONFIG::DS_SAMPLERATE_ID  ]) ;
+  int    ds_bit_depth         = int(this->audioStore[CONFIG::DS_BITDEPTH_ID    ]) ;
+  int    ds_n_buffers         = int(this->audioStore[CONFIG::DS_NBLOCKS_ID     ]) ;
+  int    ds_buffer_size       = int(this->audioStore[CONFIG::DS_BLOCKSIZE_ID   ]) ;
+  int    wave_input_device_n  = int(this->audioStore[CONFIG::WAVE_INPUT_ID     ]) ;
+  int    wave_output_device_n = int(this->audioStore[CONFIG::WAVE_OUTPUT_ID    ]) ;
+  int    wave_sample_rate     = int(this->audioStore[CONFIG::WAVE_SAMPLERATE_ID]) ;
+  int    wave_bit_depth       = int(this->audioStore[CONFIG::WAVE_BITDEPTH_ID  ]) ;
+  int    wave_n_buffers       = int(this->audioStore[CONFIG::WAVE_NBLOCKS_ID   ]) ;
+  int    wave_buffer_size     = int(this->audioStore[CONFIG::WAVE_BLOCKSIZE_ID ]) ;
 #else // _WIN32
 #  ifdef _MAC
-  String ca_device_name       = String(this->audioStore[CONFIG::CA_DEVICE_ID      ]) ;
-  int    ca_n_channels        = int(   this->audioStore[CONFIG::CA_NCHANNELS_ID   ]) ;
-  int    ca_sample_rate       = int(   this->audioStore[CONFIG::CA_SAMPLERATE_ID  ]) ;
-  int    ca_bit_depth         = int(   this->audioStore[CONFIG::CA_BITDEPTH_ID    ]) ;
+  String ca_input_device      = str(this->audioStore[CONFIG::CA_INPUT_ID       ]) ;
+  String ca_output_device     = str(this->audioStore[CONFIG::CA_OUTPUT_ID      ]) ;
+  int    ca_n_channels        = int(this->audioStore[CONFIG::CA_NCHANNELS_ID   ]) ;
+  int    ca_sample_rate       = int(this->audioStore[CONFIG::CA_SAMPLERATE_ID  ]) ;
+  int    ca_bit_depth         = int(this->audioStore[CONFIG::CA_BITDEPTH_ID    ]) ;
 #  else // _MAC
-  int    jack_server_n        = int(   this->audioStore[CONFIG::JACK_SERVER_ID    ]) ;
-  String jack_name            = String(this->audioStore[CONFIG::JACK_NAME_ID      ]) ;
-  int    jack_n_inputs        = int(   this->audioStore[CONFIG::JACK_NINPUTS_ID   ]) ;
-  int    jack_n_outputs       = int(   this->audioStore[CONFIG::JACK_NOUTPUTS_ID  ]) ;
-  String alsa_input_device    = String(this->audioStore[CONFIG::ALSA_INPUT_ID     ]) ;
-  String alsa_output_device   = String(this->audioStore[CONFIG::ALSA_OUTPUT_ID    ]) ;
-  int    alsa_n_channels      = int(   this->audioStore[CONFIG::ALSA_NCHANNELS_ID ]) ;
-  int    alsa_sample_rate     = int(   this->audioStore[CONFIG::ALSA_SAMPLERATE_ID]) ;
-  int    alsa_bit_depth       = int(   this->audioStore[CONFIG::ALSA_BITDEPTH_ID  ]) ;
-  int    alsa_n_buffers       = int(   this->audioStore[CONFIG::ALSA_NBLOCKS_ID   ]) ;
-  int    alsa_buffer_size     = int(   this->audioStore[CONFIG::ALSA_BLOCKSIZE_ID ]) ;
+  int    jack_server_n        = int(this->audioStore[CONFIG::JACK_SERVER_ID    ]) ;
+  String jack_client_name     = str(this->audioStore[CONFIG::JACK_NAME_ID      ]) ;
+  int    jack_n_inputs        = int(this->audioStore[CONFIG::JACK_NINPUTS_ID   ]) ;
+  int    jack_n_outputs       = int(this->audioStore[CONFIG::JACK_NOUTPUTS_ID  ]) ;
+  String alsa_input_device    = str(this->audioStore[CONFIG::ALSA_INPUT_ID     ]) ;
+  String alsa_output_device   = str(this->audioStore[CONFIG::ALSA_OUTPUT_ID    ]) ;
+  int    alsa_n_channels      = int(this->audioStore[CONFIG::ALSA_NCHANNELS_ID ]) ;
+  int    alsa_sample_rate     = int(this->audioStore[CONFIG::ALSA_SAMPLERATE_ID]) ;
+  int    alsa_bit_depth       = int(this->audioStore[CONFIG::ALSA_BITDEPTH_ID  ]) ;
+  int    alsa_n_buffers       = int(this->audioStore[CONFIG::ALSA_NBLOCKS_ID   ]) ;
+  int    alsa_buffer_size     = int(this->audioStore[CONFIG::ALSA_BLOCKSIZE_ID ]) ;
 #  endif // _MAC
 #endif // _WIN32
 
@@ -860,6 +883,7 @@ void ConfigAudio::loadParams()
   int    n_buffers      = 0 ;
   int    buffer_size    = 0 ;
   String jack_name_text = "" ;
+  String n_sources_text = GUI::NSOURCES_LABEL_TEXT ;
 
   // set API-specific GUI state
 #ifdef _WIN32
@@ -915,34 +939,33 @@ void ConfigAudio::loadParams()
   }
 #else // _WIN32
 #  ifdef _MAC
-
+  source_n    = getItemIndex(this->sourceComboBox , ca_input_device ) ;
+  sink_n      = getItemIndex(this->sinkComboBox   , ca_output_device) ;
   n_inputs    = ca_n_channels ;
-  sample_rate = wave_sample_rate ;
-  bit_depth   = wave_bit_depth ;
-
-  this->nSourcesSlider->setValue(ca_n_inputs) ;
-
+  sample_rate = ca_sample_rate ;
+  bit_depth   = ca_bit_depth ;
 #  else // _MAC
   switch ((audioStreamer::NixApi)audio_api_n)
   {
     case audioStreamer::NIX_AUDIO_JACK:
     {
       driver_n       = jack_server_n ;
-      n_inputs       = jack_n_channels ;
-      n_outputs      = jack_n_channels ;
-      jack_name_text = jack_name ;
+      n_inputs       = jack_n_inputs ;
+      n_outputs      = jack_n_outputs ;
+      jack_name_text = jack_client_name ;
 
       break ;
     }
     case audioStreamer::NIX_AUDIO_ALSA:
     {
-      source_n    = getItemIndex(this->sourceComboBox , alsa_input_device) ;
-      sink_n      = getItemIndex(this->sinkComboBox   , alsa_output_device) ;
-      n_inputs    = alsa_n_channels ;
-      sample_rate = alsa_sample_rate ;
-      bit_depth   = alsa_bit_depth ;
-      n_buffers   = alsa_n_buffers ;
-      buffer_size = alsa_buffer_size ;
+      source_n       = getItemIndex(this->sourceComboBox , alsa_input_device ) ;
+      sink_n         = getItemIndex(this->sinkComboBox   , alsa_output_device) ;
+      n_inputs       = alsa_n_channels ;
+      sample_rate    = alsa_sample_rate ;
+      bit_depth      = alsa_bit_depth ;
+      n_buffers      = alsa_n_buffers ;
+      buffer_size    = alsa_buffer_size ;
+      n_sources_text = GUI::NCHANNELS_LABEL_TEXT ;
 
       break ;
     }
@@ -951,13 +974,13 @@ void ConfigAudio::loadParams()
 #  endif // _MAC
 #endif // _WIN32
 
-  bool is_44_khz     = sample_rate == CLIENT::SAMPLE_RATE_44100 ;
-  bool is_48_khz     = sample_rate == CLIENT::SAMPLE_RATE_48000 ;
-  bool is_96_khz     = sample_rate == CLIENT::SAMPLE_RATE_96000 ;
-  bool is_16_bps     = bit_depth   == CLIENT::BIT_DEPTH_16 ;
-  bool is_24_bps     = bit_depth   == CLIENT::BIT_DEPTH_24 ;
-  bool is_32_bps     = bit_depth   == CLIENT::BIT_DEPTH_32 ;
-  int  buffer_size_n = CLIENT::BUFFER_SIZES.indexOf(String(buffer_size)) ;
+  bool is_44_khz     = sample_rate == GUI::SAMPLE_RATE_44100 ;
+  bool is_48_khz     = sample_rate == GUI::SAMPLE_RATE_48000 ;
+  bool is_96_khz     = sample_rate == GUI::SAMPLE_RATE_96000 ;
+  bool is_16_bps     = bit_depth   == GUI::BIT_DEPTH_16 ;
+  bool is_24_bps     = bit_depth   == GUI::BIT_DEPTH_24 ;
+  bool is_32_bps     = bit_depth   == GUI::BIT_DEPTH_32 ;
+  int  buffer_size_n = GUI::BUFFER_SIZES.indexOf(String(buffer_size)) ;
 
   this->driverComboBox->setSelectedItemIndex(driver_n) ;
   this->sourceComboBox->setSelectedItemIndex(source_n) ;
@@ -970,7 +993,8 @@ void ConfigAudio::loadParams()
   this->kHz96Button   ->setToggleState      (is_96_khz      , juce::dontSendNotification) ;
   this->nBuffersSlider->setValue            (n_buffers) ;
   this->bufferComboBox->setSelectedItemIndex(buffer_size_n) ;
-  this->nixConfigText ->setText             (jack_name_text , juce::dontSendNotification) ;
+  this->jackNameText  ->setText             (jack_name_text , juce::dontSendNotification) ;
+  this->nSourcesLabel ->setText             (n_sources_text , juce::dontSendNotification) ;
   this->nSourcesSlider->setValue            (n_inputs) ;
   this->nSinksSlider  ->setValue            (n_outputs) ;
 
@@ -1012,13 +1036,13 @@ void ConfigAudio::populateDevices()
 void ConfigAudio::restoreDefaults()
 {
   int audio_api_n = int(this->audioStore[CONFIG::AUDIO_API_ID]) ;
-  int n_apis      = this->modeComboBox->getNumItems() ;
+  int n_apis      = this->apiComboBox->getNumItems() ;
 
   // sanity check
   if (audio_api_n < 0 || audio_api_n >= n_apis)
   {
     audio_api_n = CONFIG::DEFAULT_AUDIO_API ;
-    this->modeComboBox->setSelectedItemIndex(audio_api_n , juce::dontSendNotification) ;
+    this->apiComboBox->setSelectedItemIndex(audio_api_n , juce::dontSendNotification) ;
     setConfig(CONFIG::AUDIO_API_ID , audio_api_n) ;
   }
 
@@ -1028,9 +1052,9 @@ void ConfigAudio::restoreDefaults()
   {
     case audioStreamer::WIN_AUDIO_ASIO:
     {
-      setConfig(CONFIG::ASIO_DRIVER_ID  , CONFIG::DEFAULT_ASIO_DRIVERN) ;
-      setConfig(CONFIG::ASIO_INPUTB_ID  , CONFIG::DEFAULT_ASIO_INPUTBN) ;
-      setConfig(CONFIG::ASIO_INPUTE_ID  , CONFIG::DEFAULT_ASIO_INPUTEN) ;
+      setConfig(CONFIG::ASIO_DRIVER_ID  , CONFIG::DEFAULT_ASIO_DRIVERN ) ;
+      setConfig(CONFIG::ASIO_INPUTB_ID  , CONFIG::DEFAULT_ASIO_INPUTBN ) ;
+      setConfig(CONFIG::ASIO_INPUTE_ID  , CONFIG::DEFAULT_ASIO_INPUTEN ) ;
       setConfig(CONFIG::ASIO_OUTPUTB_ID , CONFIG::DEFAULT_ASIO_OUTPUTBN) ;
       setConfig(CONFIG::ASIO_OUTPUTE_ID , CONFIG::DEFAULT_ASIO_OUTPUTEN) ;
 
@@ -1038,65 +1062,66 @@ void ConfigAudio::restoreDefaults()
     }
     case audioStreamer::WIN_AUDIO_KS:
     {
-      setConfig(CONFIG::KS_INPUT_ID      , CONFIG::DEFAULT_KS_INPUTN) ;
-      setConfig(CONFIG::KS_OUTPUT_ID     , CONFIG::DEFAULT_KS_OUTPUTN) ;
+      setConfig(CONFIG::KS_INPUT_ID      , CONFIG::DEFAULT_KS_INPUTN    ) ;
+      setConfig(CONFIG::KS_OUTPUT_ID     , CONFIG::DEFAULT_KS_OUTPUTN   ) ;
       setConfig(CONFIG::KS_SAMPLERATE_ID , CONFIG::DEFAULT_KS_SAMPLERATE) ;
-      setConfig(CONFIG::KS_BITDEPTH_ID   , CONFIG::DEFAULT_KS_BITDEPTH) ;
-      setConfig(CONFIG::KS_NBLOCKS_ID    , CONFIG::DEFAULT_KS_NBLOCKS) ;
-      setConfig(CONFIG::KS_BLOCKSIZE_ID  , CONFIG::DEFAULT_KS_BLOCKSIZE) ;
+      setConfig(CONFIG::KS_BITDEPTH_ID   , CONFIG::DEFAULT_KS_BITDEPTH  ) ;
+      setConfig(CONFIG::KS_NBLOCKS_ID    , CONFIG::DEFAULT_KS_NBLOCKS   ) ;
+      setConfig(CONFIG::KS_BLOCKSIZE_ID  , CONFIG::DEFAULT_KS_BLOCKSIZE ) ;
 
       break ;
     }
     case audioStreamer::WIN_AUDIO_DS:
     {
-      setConfig(CONFIG::DS_INPUT_ID      , CONFIG::DEFAULT_DS_INPUT) ;
-      setConfig(CONFIG::DS_OUTPUT_ID     , CONFIG::DEFAULT_DS_OUTPUT) ;
+      setConfig(CONFIG::DS_INPUT_ID      , CONFIG::DEFAULT_DS_INPUT     ) ;
+      setConfig(CONFIG::DS_OUTPUT_ID     , CONFIG::DEFAULT_DS_OUTPUT    ) ;
       setConfig(CONFIG::DS_SAMPLERATE_ID , CONFIG::DEFAULT_DS_SAMPLERATE) ;
-      setConfig(CONFIG::DS_BITDEPTH_ID   , CONFIG::DEFAULT_DS_BITDEPTH) ;
-      setConfig(CONFIG::DS_NBLOCKS_ID    , CONFIG::DEFAULT_DS_NBLOCKS) ;
-      setConfig(CONFIG::DS_BLOCKSIZE_ID  , CONFIG::DEFAULT_DS_BLOCKSIZE) ;
+      setConfig(CONFIG::DS_BITDEPTH_ID   , CONFIG::DEFAULT_DS_BITDEPTH  ) ;
+      setConfig(CONFIG::DS_NBLOCKS_ID    , CONFIG::DEFAULT_DS_NBLOCKS   ) ;
+      setConfig(CONFIG::DS_BLOCKSIZE_ID  , CONFIG::DEFAULT_DS_BLOCKSIZE ) ;
 
       break ;
     }
     case audioStreamer::WIN_AUDIO_WAVE:
     {
-      setConfig(CONFIG::WAVE_INPUT_ID      , CONFIG::DEFAULT_WAVE_INPUTN) ;
-      setConfig(CONFIG::WAVE_OUTPUT_ID     , CONFIG::DEFAULT_WAVE_OUTPUTN) ;
+      setConfig(CONFIG::WAVE_INPUT_ID      , CONFIG::DEFAULT_WAVE_INPUTN    ) ;
+      setConfig(CONFIG::WAVE_OUTPUT_ID     , CONFIG::DEFAULT_WAVE_OUTPUTN   ) ;
       setConfig(CONFIG::WAVE_SAMPLERATE_ID , CONFIG::DEFAULT_WAVE_SAMPLERATE) ;
-      setConfig(CONFIG::WAVE_BITDEPTH_ID   , CONFIG::DEFAULT_WAVE_BITDEPTH) ;
-      setConfig(CONFIG::WAVE_NBLOCKS_ID    , CONFIG::DEFAULT_WAVE_NBLOCKS) ;
-      setConfig(CONFIG::WAVE_BLOCKSIZE_ID  , CONFIG::DEFAULT_WAVE_BLOCKSIZE) ;
+      setConfig(CONFIG::WAVE_BITDEPTH_ID   , CONFIG::DEFAULT_WAVE_BITDEPTH  ) ;
+      setConfig(CONFIG::WAVE_NBLOCKS_ID    , CONFIG::DEFAULT_WAVE_NBLOCKS   ) ;
+      setConfig(CONFIG::WAVE_BLOCKSIZE_ID  , CONFIG::DEFAULT_WAVE_BLOCKSIZE ) ;
 
       break ;
     }
   }
 #else // _WIN32
 #  ifdef _MAC
-  setConfig(CONFIG::CA_DEVICE_ID     , CONFIG::DEFAULT_CA_DEVICE) ;
-  setConfig(CONFIG::CA_NINPUTS_ID    , CONFIG::DEFAULT_N_INPUTS) ;
-  setConfig(CONFIG::CA_SAMPLERATE_ID , CONFIG::DEFAULT_CA_SAMPLERATE) ;
-  setConfig(CONFIG::CA_BITDEPTH_ID   , CONFIG::DEFAULT_CA_BITDEPTH) ;
+  setConfig(CONFIG::CA_INPUT_ID      , CONFIG::DEFAULT_CA_INPUT_NAME ) ;
+  setConfig(CONFIG::CA_OUTPUT_ID     , CONFIG::DEFAULT_CA_OUTPUT_NAME) ;
+  setConfig(CONFIG::CA_NCHANNELS_ID  , CONFIG::DEFAULT_CA_NCHANNELS  ) ;
+  setConfig(CONFIG::CA_SAMPLERATE_ID , CONFIG::DEFAULT_CA_SAMPLERATE ) ;
+  setConfig(CONFIG::CA_BITDEPTH_ID   , CONFIG::DEFAULT_CA_BITDEPTH   ) ;
 #  else // _MAC
   switch ((audioStreamer::NixApi)audio_api_n)
   {
     case audioStreamer::NIX_AUDIO_JACK:
     {
-      setConfig(CONFIG::JACK_SERVER_ID   , CONFIG::DEFAULT_JACK_SERVER) ;
-      setConfig(CONFIG::JACK_NAME_ID     , CONFIG::DEFAULT_JACK_NAME) ;
-      setConfig(CONFIG::JACK_NINPUTS_ID  , CONFIG::DEFAULT_N_INPUTS) ;
-      setConfig(CONFIG::JACK_NOUTPUTS_ID , CONFIG::DEFAULT_N_OUTPUTS) ;
+      setConfig(CONFIG::JACK_SERVER_ID   , CONFIG::DEFAULT_JACK_SERVERN ) ;
+      setConfig(CONFIG::JACK_NAME_ID     , CONFIG::DEFAULT_JACK_NAME    ) ;
+      setConfig(CONFIG::JACK_NINPUTS_ID  , CONFIG::DEFAULT_JACK_NINPUTS ) ;
+      setConfig(CONFIG::JACK_NOUTPUTS_ID , CONFIG::DEFAULT_JACK_NOUTPUTS) ;
 
       break ;
     }
     case audioStreamer::NIX_AUDIO_ALSA:
     {
-      setConfig(CONFIG::ALSA_INPUT_ID      , CONFIG::DEFAULT_ALSA_INPUT) ;
-      setConfig(CONFIG::ALSA_OUTPUT_ID     , CONFIG::DEFAULT_ALSA_OUTPUT) ;
-      setConfig(CONFIG::ALSA_NCHANNELS_ID  , CONFIG::DEFAULT_ALSA_NCHANNELS) ;
-      setConfig(CONFIG::ALSA_SAMPLERATE_ID , CONFIG::DEFAULT_ALSA_SAMPLERATE) ;
-      setConfig(CONFIG::ALSA_BITDEPTH_ID   , CONFIG::DEFAULT_ALSA_BITDEPTH) ;
-      setConfig(CONFIG::ALSA_NBLOCKS_ID    , CONFIG::DEFAULT_ALSA_NBLOCKS) ;
-      setConfig(CONFIG::ALSA_BLOCKSIZE_ID  , CONFIG::DEFAULT_ALSA_BLOCKSIZE) ;
+      setConfig(CONFIG::ALSA_INPUT_ID      , CONFIG::DEFAULT_ALSA_INPUT_NAME ) ;
+      setConfig(CONFIG::ALSA_OUTPUT_ID     , CONFIG::DEFAULT_ALSA_OUTPUT_NAME) ;
+      setConfig(CONFIG::ALSA_NCHANNELS_ID  , CONFIG::DEFAULT_ALSA_NCHANNELS  ) ;
+      setConfig(CONFIG::ALSA_SAMPLERATE_ID , CONFIG::DEFAULT_ALSA_SAMPLERATE ) ;
+      setConfig(CONFIG::ALSA_BITDEPTH_ID   , CONFIG::DEFAULT_ALSA_BITDEPTH   ) ;
+      setConfig(CONFIG::ALSA_NBLOCKS_ID    , CONFIG::DEFAULT_ALSA_NBLOCKS    ) ;
+      setConfig(CONFIG::ALSA_BLOCKSIZE_ID  , CONFIG::DEFAULT_ALSA_BLOCKSIZE  ) ;
 
       break ;
     }
@@ -1109,7 +1134,7 @@ void ConfigAudio::disableComponents()
 {
   this->defaultsButton ->setVisible(false) ; this->asioButton    ->setVisible(false) ;
   this->ioGroup        ->setEnabled(false) ; //---------------ioGroup---------------->
-  this->modeLabel      ->setEnabled(false) ; this->modeComboBox  ->setEnabled(false) ;
+  this->modeLabel      ->setEnabled(false) ; this->apiComboBox   ->setEnabled(false) ;
   this->driverLabel    ->setEnabled(false) ; this->driverComboBox->setEnabled(false) ;
   this->sourceLabel    ->setEnabled(false) ; this->sourceComboBox->setEnabled(false) ;
   this->sinkLabel      ->setEnabled(false) ; this->sinkComboBox  ->setEnabled(false) ;
@@ -1123,7 +1148,7 @@ void ConfigAudio::disableComponents()
   this->xLabel         ->setEnabled(false) ; this->bufferComboBox->setEnabled(false) ;
   this->bytesLabel     ->setEnabled(false) ;
   this->routingGroup   ->setEnabled(false) ; //-------------routingGroup------------->
-  this->nixConfigLabel ->setEnabled(false) ; this->nixConfigText ->setEnabled(false) ;
+  this->jackNameLabel  ->setEnabled(false) ; this->jackNameText  ->setEnabled(false) ;
   this->nSourcesLabel  ->setEnabled(false) ; this->nSourcesSlider->setEnabled(false) ;
   this->nSinksLabel    ->setEnabled(false) ; this->nSinksSlider  ->setEnabled(false) ;
 }
@@ -1154,7 +1179,7 @@ void ConfigAudio::enableComponents()
   // io group
   this->ioGroup        ->setEnabled(true                                               ) ;
   this->modeLabel      ->setEnabled(!is_ca                                             ) ;
-  this->modeComboBox   ->setEnabled(!is_ca                                             ) ;
+  this->apiComboBox    ->setEnabled(!is_ca                                             ) ;
   this->driverLabel    ->setEnabled( is_asio || is_jack                                ) ;
   this->driverComboBox ->setEnabled( is_asio || is_jack                                ) ;
   this->sourceLabel    ->setEnabled(!is_asio && !is_jack                               ) ;
@@ -1180,8 +1205,8 @@ void ConfigAudio::enableComponents()
   this->bytesLabel     ->setEnabled( is_ks   || is_ds   || is_wave || is_alsa          ) ;
   // routing group
   this->routingGroup   ->setEnabled( is_jack || is_alsa || is_ca                       ) ;
-  this->nixConfigLabel ->setEnabled( is_jack || is_alsa                                ) ;
-  this->nixConfigText  ->setEnabled( is_jack || is_alsa                                ) ;
+  this->jackNameLabel  ->setEnabled( is_jack || is_alsa                                ) ;
+  this->jackNameText   ->setEnabled( is_jack || is_alsa                                ) ;
   this->nSourcesLabel  ->setEnabled( is_jack || is_ca   || is_alsa                     ) ;
   this->nSourcesSlider ->setEnabled( is_jack || is_ca   || is_alsa                     ) ;
   this->nSinksLabel    ->setEnabled( is_jack                                           ) ;
@@ -1195,17 +1220,17 @@ bool ConfigAudio::queryAsioDevices()
 {
 #  ifndef NO_SUPPORT_ASIO
   bool   is_asio_available = audioStreamer::IsNjasiodrvAvailable() ;
-  String driver_name       = audioStreamer::GetASIODriverName() ;
+  String asio_driver_name  = audioStreamer::GetASIODriverName() ;
 
 #  else // NO_SUPPORT_ASIO
   bool is_asio_available = false ;
 #  endif // NO_SUPPORT_ASIO
 
-  if (is_asio_available && driver_name.isNotEmpty())
+  if (is_asio_available && asio_driver_name.isNotEmpty())
   {
-    this->driverComboBox->addItem(driver_name     , 1) ;
-    this->sourceComboBox->addItem("ASIO device 0" , 1) ;
-    this->sinkComboBox  ->addItem("ASIO device 0" , 1) ;
+    this->driverComboBox->addItem(asio_driver_name , 1) ;
+    this->sourceComboBox->addItem("ASIO device 0"  , 1) ;
+    this->sinkComboBox  ->addItem("ASIO device 0"  , 1) ;
   }
   else
   {
@@ -1231,7 +1256,7 @@ bool ConfigAudio::queryKsDevices()
   {
     this->sourceComboBox->addItem("default device" , 1) ;
     this->sinkComboBox  ->addItem("default device" , 1) ;
-    this->bufferComboBox->addItemList(CLIENT::BUFFER_SIZES , 1) ;
+    this->bufferComboBox->addItemList(GUI::BUFFER_SIZES , 1) ;
   }
   else
   {
@@ -1245,15 +1270,14 @@ bool ConfigAudio::queryKsDevices()
 bool ConfigAudio::queryDsDevices()
 {
 #  ifndef NO_SUPPORT_DS
-  String      device_names    = audioStreamer::GetDsNamesCSV("\n") ;
-  StringArray ds_device_names = StringArray::fromLines(device_names) ;
+  StringArray ds_device_names = StringArray::fromLines(audioStreamer::GetDsNamesCSV("\n")) ;
   bool        is_ds_available = !!ds_device_names.size() ;
 
   if (is_ds_available)
   {
     this->sourceComboBox->addItemList(ds_device_names      , 1) ;
     this->sinkComboBox  ->addItemList(ds_device_names      , 1) ;
-    this->bufferComboBox->addItemList(CLIENT::BUFFER_SIZES , 1) ;
+    this->bufferComboBox->addItemList(GUI::BUFFER_SIZES , 1) ;
   }
   else
   {
@@ -1272,7 +1296,7 @@ bool ConfigAudio::queryWaveDevices()
 #  ifndef NO_SUPPORT_WAVE
   // NOTE: see MMsystem.h
   WAVEOUTCAPS capabilities ;
-  StringArray device_names ;
+  StringArray wave_device_names ;
   UINT        caps_size         = sizeof(capabilities) ;
   int         n_devices         = (int)waveOutGetNumDevs() ;
   bool        is_wave_available = !!n_devices ;
@@ -1281,14 +1305,13 @@ bool ConfigAudio::queryWaveDevices()
   {
     for (int device_n = -1 ; device_n < n_devices ; ++device_n)
     {
-      UINT caps_result = waveOutGetDevCaps(device_n , &capabilities , caps_size) ;
-
-      device_names.add(String((caps_result == MMSYSERR_NOERROR) ? capabilities.szPname :
-                                                                  "(device error)"     )) ;
+      if (waveOutGetDevCaps(device_n , &capabilities , caps_size) == MMSYSERR_NOERROR)
+           wave_device_names.add(capabilities.szPname) ;
+      else wave_device_names.add("(device error)"    ) ;
     }
-    this->sourceComboBox->addItemList(device_names         , 1) ;
-    this->sinkComboBox  ->addItemList(device_names         , 1) ;
-    this->bufferComboBox->addItemList(CLIENT::BUFFER_SIZES , 1) ;
+    this->sourceComboBox->addItemList(wave_device_names    , 1) ;
+    this->sinkComboBox  ->addItemList(wave_device_names    , 1) ;
+    this->bufferComboBox->addItemList(GUI::BUFFER_SIZES , 1) ;
   }
   else
   {
@@ -1303,18 +1326,34 @@ bool ConfigAudio::queryWaveDevices()
 }
 #else // _WIN32
 #  ifdef _MAC
-bool ConfigAudio::queryCaDevices() { return true ; } // TODO: juce or ryo ?
-#  else // _MAC
-bool ConfigAudio::queryJackServers() // TODO: juce or ryo ?
+bool ConfigAudio::queryCaDevices() // TODO: juce or ryo ? (issue #12)
 {
-  // jackd -R -S -d portaudio -l // windows returns wav, ds, and asio devices
-  // jackd -R -S -d alsa -l      // nix untested
+  bool is_ca_available = true ;
+
+  this->sourceComboBox->addItem("(default coreaudio device)" , 1) ;
+  this->sinkComboBox  ->addItem("(default coreaudio device)" , 1) ;
+
+  return is_ca_available ;
+}
+#  else // _MAC
+bool ConfigAudio::queryJackServers() // TODO: juce or ryo ? (issue #12)
+{
+  // jackd -R -S -d portaudio -l // on windows returns wav, ds, and asio devices
+  bool is_jack_available = true ;
+
   this->driverComboBox->addItem("default jack server" , 1) ;
+
+  return is_jack_available ;
+}
+
+bool ConfigAudio::queryAlsaDevices() // TODO: juce or ryo ? (issue #12)
+{
+  this->sourceComboBox->addItem(CONFIG::DEFAULT_ALSA_INPUT_NAME  , 1) ;
+  this->sinkComboBox  ->addItem(CONFIG::DEFAULT_ALSA_OUTPUT_NAME , 1) ;
+  this->bufferComboBox->addItemList(GUI::BUFFER_SIZES            , 1) ;
 
   return true ;
 }
-
-bool ConfigAudio::queryAlsaDevices() { return true ; } // TODO: juce or ryo ?
 #  endif // _MAC
 #endif // _WIN32
 
@@ -1398,104 +1437,15 @@ void ConfigAudio::updateLatency()
     int latency_ms   = (n_buffers * buffer_size) / bytes_per_ms ;
     latency_text     = (!!latency_ms) ? " (" + String(latency_ms) + "ms)" : "" ;
 
-//DEBUG_TRACE_UPDATE_LATENCY
+DEBUG_TRACE_UPDATE_LATENCY
   }
   this->buffersGroup->setText(GUI::BUFFERS_GROUP_TEXT + latency_text) ;
 }
 
 void ConfigAudio::setConfig(Identifier a_key , var a_value)
 {
-  // loadParams() sets values to all GUI components
-  //     even those non-applicable (and unhandled)
-  //     so we must guard for null key here
   if (a_key.isValid()) this->audioStore.setProperty(a_key , a_value , nullptr) ;
 }
-
-
-#ifdef _WIN32_THESE_MOVED_TO_LIBNINJAM
-/* ConfigAudio class public class methods */
-
-StringPairArray ConfigAudio::getDsDevices()
-{
-  // see dsound.h
-  StringPairArray  ds_devices ;
-  LPDSENUMCALLBACK ds_enum_cb      = (LPDSENUMCALLBACK)DSEnumProc ;
-  HRESULT          result          = DirectSoundEnumerate(ds_enum_cb , &ds_devices) ;
-  bool             is_ds_available = !FAILED(result) ;
-
-  if (is_ds_available) ds_devices.clear() ;
-
-  return ds_devices ;
-}
-
-StringArray ConfigAudio::getDsDeviceNames() { return getDsDevices().getAllKeys() ; }
-
-StringArray ConfigAudio::getDsDeviceGuids() { return getDsDevices().getAllValues() ; }
-
-
-/* ConfigAudio class private class methods */
-
-BOOL CALLBACK ConfigAudio::DSEnumProc(LPGUID  lpGUID      , LPCTSTR lpszDesc  ,
-                                      LPCTSTR lpszDrvName , LPVOID  ds_devices)
-{
-// NOTE: DirectSound is currently hard-coded to use only default device (issue #12)
-
-/* TODO: if we want to store guids
-  LPGUID guid = nullptr ;
-  if (lpGUID != nullptr) // NULL == "Primary Sound Driver" (always first)
-  {
-    if ((guid = (LPGUID)malloc(sizeof(GUID))) == nullptr) return TRUE ;
-
-    memcpy(guid , lpGUID , sizeof(GUID)) ;
-  }
-  Array<LPGUID>.add(guid) ;
-  return TRUE ;
-  // free(guid) ; // then eventually for each
-*/
-/* TODO: if we want to marshall guids
-/ * e.g. GUID: 6B29FC40-CA47-1067-B31D-00DD010662DA
-typedef struct _GUID {
-  DWORD Data1;    // Specifies the first 8 hexadecimal digits of the GUID.
-  WORD  Data2;    // Specifies the first group of 4 hexadecimal digits.
-  WORD  Data3;    // Specifies the second group of 4 hexadecimal digits.
-  BYTE  Data4[8]; // Array of 8 bytes. The first 2 bytes contain the third group of 4 hexadecimal digits. The remaining 6 bytes contain the final 12 hexadecimal digits.
-} GUID;
-*/
-#pragma comment(lib, "rpcrt4.lib")
-if (lpGUID != nullptr)
-{
-  BYTE* guid_str ;
-  UuidToString((UUID*)lpGUID , &guid_str) ;
-  String guid_juce = String((LPTSTR)guid_str) ;
-  RpcStringFree(&guid_str) ;
-
-DBG("ConfigAudio::DSEnumProc() guid_juce=" + guid_juce) ;
-
-  ((StringPairArray*)ds_devices)->set(String(lpszDesc) , guid_juce) ;
-}
-else { ((StringPairArray*)ds_devices)->set("Primary Sound Driver" , "") ;
-DBG("ConfigAudio::DSEnumProc() guid_juce=NULL_GUID") ;}
-/*
-#ifdef _WIN32
-struct DsDevice
-{
-  LPGUID  guid       ,
-  LPCTSTR deviceName ,
-  LPCTSTR driverName
-} ;
-#endif // _WIN32
-  memcpy(&((DsDevice*)ds_devices)->guid       , lpGUID      , sizeof(GUID)) ;
-  memcpy(&((DsDevice*)ds_devices)->deviceName , lpszDesc    , sizeof(GUID)) ;
-  memcpy(&((DsDevice*)ds_devices)->driverName , lpszDrvName , sizeof(GUID)) ;
-*/
-/*
-  ((WDL_String*)ds_devices)->Append("\"") ;
-  ((WDL_String*)ds_devices)->Append(lpszDesc) ;
-  ((WDL_String*)ds_devices)->Append("\" ") ;
-*/
-  return TRUE ;
-}
-#endif // _WIN32
 
 //[/MiscUserCode]
 
@@ -1540,7 +1490,7 @@ BEGIN_JUCER_METADATA
          edTextCol="ff000000" edBkgCol="0" labelText="interface:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
-  <COMBOBOX name="modeComboBox" id="d9fdbc02138c7335" memberName="modeComboBox"
+  <COMBOBOX name="apiComboBox" id="d9fdbc02138c7335" memberName="apiComboBox"
             virtualName="" explicitFocusOrder="1" pos="212 56 256 18" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="driverLabel" id="5cb85d669129843" memberName="driverLabel"
@@ -1623,13 +1573,13 @@ BEGIN_JUCER_METADATA
          edTextCol="ff000000" edBkgCol="0" labelText="bytes" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
-  <LABEL name="nixConfigLabel" id="78568b552c534b6d" memberName="nixConfigLabel"
+  <LABEL name="jackNameLabel" id="78568b552c534b6d" memberName="jackNameLabel"
          virtualName="" explicitFocusOrder="0" pos="140 332 64 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="client name" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
-  <TEXTEDITOR name="nixConfigText" id="fdccbcd88a94d4bb" memberName="nixConfigText"
-              virtualName="" explicitFocusOrder="12" pos="212 332 256 18" textcol="ff808080"
+  <TEXTEDITOR name="jackNameText" id="fdccbcd88a94d4bb" memberName="jackNameText"
+              virtualName="" explicitFocusOrder="12" pos="212 332 136 18" textcol="ff808080"
               bkgcol="ff000000" initialText="" multiline="0" retKeyStartsLine="0"
               readonly="0" scrollbars="1" caret="1" popupmenu="0"/>
   <LABEL name="nSourcesLabel" id="fa0df2e2a11e57d8" memberName="nSourcesLabel"
@@ -1638,7 +1588,7 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <SLIDER name="nSourcesSlider" id="3a13d77beb71d910" memberName="nSourcesSlider"
-          virtualName="" explicitFocusOrder="13" pos="214 358 64 18" min="0"
+          virtualName="" explicitFocusOrder="14" pos="214 358 64 18" min="0"
           max="16" int="1" style="IncDecButtons" textBoxPos="TextBoxLeft"
           textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
   <LABEL name="nSinksLabel" id="2da0a2441a20f3b0" memberName="nSinksLabel"
@@ -1647,9 +1597,13 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <SLIDER name="nSinksSlider" id="182ff4a5ae799417" memberName="nSinksSlider"
-          virtualName="" explicitFocusOrder="14" pos="404 358 64 18" min="0"
+          virtualName="" explicitFocusOrder="15" pos="404 358 64 18" min="0"
           max="16" int="1" style="IncDecButtons" textBoxPos="TextBoxLeft"
           textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
+  <TOGGLEBUTTON name="jackPortsButton" id="2e760aa1269d4107" memberName="jackPortsButton"
+                virtualName="" explicitFocusOrder="13" pos="352 332 120 18" txtcol="ffffffff"
+                buttonText="auto-connect ports" connectedEdges="0" needsCallback="1"
+                radioGroupId="0" state="1"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

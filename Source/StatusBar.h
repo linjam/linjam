@@ -32,9 +32,8 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Introjucer.
-
-    Describe your class and how it works here!
+  StatusBar is a sub-section of the main jam "screen"
+  it displays state information such as current server, BPM, BPI
                                                                     //[/Comments]
 */
 class StatusBar  : public Component

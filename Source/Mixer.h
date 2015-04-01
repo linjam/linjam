@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -20,11 +20,9 @@
 #ifndef _MIXER_H_
 #define _MIXER_H_
 
-
 //[Headers]     -- You can add your own extra header files here --
 
 #include "Channels.h"
-#include "JuceHeader.h"
 
 //[/Headers]
 
@@ -33,9 +31,9 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Introjucer.
-
-    Describe your class and how it works here!
+  Mixer is a sub-section of the main jam "screen"
+  it is the container for Channels channel groups
+     each of which contain a number of individual Channel mixer slices
                                                                     //[/Comments]
 */
 class Mixer  : public Component,
@@ -43,13 +41,13 @@ class Mixer  : public Component,
 {
 public:
     //==============================================================================
-    Mixer ();
+    Mixer (ValueTree blacklist_store);
     ~Mixer();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  bool addRemoteUser(   ValueTree user_store , ValueTree subscriptions) ;
+  bool addRemoteUser(   ValueTree user_store) ;
   bool addChannel(      Identifier channels_id , ValueTree channel_store) ;
   void removeChannel(   Identifier channels_id , Identifier channel_id) ;
   void positionResizers() ;
@@ -72,7 +70,8 @@ private:
   ScopedPointer<ResizableEdgeComponent> localsResizer ;
   ScopedPointer<ResizableEdgeComponent> mastersResizer ;
 
-  uint8 scrollZ ;
+  ValueTree blacklistStore ;
+  uint8     scrollZ ;
 
 
   void      buttonClicked(         Button* buttonThatWasClicked) override ;

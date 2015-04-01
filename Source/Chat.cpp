@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -32,6 +32,9 @@
 //==============================================================================
 Chat::Chat ()
 {
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
+
     setName ("Chat");
     addAndMakeVisible (chatText = new TextEditor ("chatText"));
     chatText->setMultiLine (true);
@@ -152,6 +155,9 @@ void Chat::paint (Graphics& g)
 
 void Chat::resized()
 {
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
     chatText->setBounds (8, 8, getWidth() - 16, getHeight() - 44);
     chatEntryText->setBounds (8, getHeight() - 24, getWidth() - 16, 16);
     topicLabel->setBounds (8, 10, getWidth() - 16, 16);

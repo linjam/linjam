@@ -31,7 +31,14 @@ void Trace::TraceError(String msg)
 //   { if (DEBUG_TRACE_EVENTS) DBG("\033[0;32m[NETWORK]: " + msg + "\033[0m") ; }
 #endif // DEBUG_ANSI_COLORS
 void Trace::DumpStoreXml(ValueTree store)
-{ DBG(String(store.getType()) + " xml=\n" + store.toXmlString()) ; }
+{
+  DBG(String(store.getType()) + " xml=\n" + store.toXmlString()) ;
+}
+
+void Trace::TraceKVP(String indent , String a_key , String a_value)
+{
+  DBG(indent + a_key.paddedRight(' ' , 20) + " => " + a_value) ;
+}
 
 String Trace::DumpStoredChannels()
 {
@@ -75,8 +82,8 @@ String Trace::DumpClientChannels()
 
 String Trace::DumpConfig(ValueTree default_config , ValueTree stored_config , String pad)
 {
-  if (!default_config.isValid()) return "\nERROR: default config invalid" ;
-  if (!stored_config .isValid()) return "\nERROR: stored config invalid" ;
+  if (!default_config.isValid()) return "ERROR: default config invalid" ;
+  if (!stored_config .isValid()) return "ERROR: stored config invalid" ;
 
   Identifier node_name          = default_config.getType() ;
   int        n_properties       = default_config.getNumProperties() ;
@@ -92,12 +99,12 @@ String Trace::DumpConfig(ValueTree default_config , ValueTree stored_config , St
       if (!default_config.getChildWithName(child_node_name).isValid())
         ++n_unique_children ;
     }
-  String dbg = "\n" + pad + "node => "       + String(node_name)                         +
-                            " (properties: " + String(n_properties      )                +
-                            " - children: "  + String(n_default_children) + " default, " +
-                                               String(n_stored_children ) + " stored, "  +
-                                               String(n_unique_children ) + " unique"    +
-               ((!stored_config.isValid()) ?   "- stored node n/a - adding)" : ")")      ;
+  String dbg = pad + "node => "       + String(node_name)                         +
+                     " (properties: " + String(n_properties      )                +
+                     " - children: "  + String(n_default_children) + " default, " +
+                                        String(n_stored_children ) + " stored, "  +
+                                        String(n_unique_children ) + " unique"    +
+        ((!stored_config.isValid()) ?   "- stored node n/a - adding)" : ")")      ;
 
   // enumnerate properties
   if (n_properties)
@@ -125,10 +132,10 @@ String Trace::DumpConfig(ValueTree default_config , ValueTree stored_config , St
 
   // user-defined nodes
   Array<Identifier> user_keys ;
-  user_keys.add(CONFIG::SUBSCRIPTIONS_ID) ;
-  user_keys.add(CONFIG::SERVERS_ID) ;
-  user_keys.add(CONFIG::LOCALS_ID) ;
-  user_keys.add(CONFIG::REMOTES_ID) ;
+  user_keys.add(CONFIG::BLACKLIST_ID) ;
+  user_keys.add(CONFIG::SERVERS_ID  ) ;
+  user_keys.add(CONFIG::LOCALS_ID   ) ;
+  user_keys.add(CONFIG::REMOTES_ID  ) ;
   if (user_keys.contains(node_name))
   {
     for (int child_n = 0 ; child_n < stored_config.getNumChildren() ; ++child_n)
@@ -185,23 +192,20 @@ void Trace::TraceTypeMismatch(ValueTree a_node           , String a_property_nam
                     VarType(a_var)     + " (expected "    + expected_type + ")") ;
 }
 
-String Trace::VarType(var a_var)
+String Trace::VarType(var a_var) // juce var dynamic datatypes
 {
-  String dynamic_type = "unknown" ;
-
-  if      (a_var.isVoid())       dynamic_type = "void" ;
-  else if (a_var.isUndefined())  dynamic_type = "undefined" ;
-  else if (a_var.isInt())        dynamic_type = "int" ;
-  else if (a_var.isInt64())      dynamic_type = "int64" ;
-  else if (a_var.isBool())       dynamic_type = "bool" ;
-  else if (a_var.isDouble())     dynamic_type = "double" ;
-  else if (a_var.isString())     dynamic_type = "string" ;
-  else if (a_var.isObject())     dynamic_type = "object" ;
-  else if (a_var.isArray())      dynamic_type = "array" ;
-  else if (a_var.isBinaryData()) dynamic_type = "binary" ;
-  else if (a_var.isMethod())     dynamic_type = "method" ;
-
-  return dynamic_type ;
+  return (a_var.isVoid()      ) ? "void" :
+         (a_var.isUndefined() ) ? "undefined" :
+         (a_var.isInt()       ) ? "int" :
+         (a_var.isInt64()     ) ? "int64" :
+         (a_var.isBool()      ) ? "bool" :
+         (a_var.isDouble()    ) ? "double" :
+         (a_var.isString()    ) ? "string" :
+         (a_var.isObject()    ) ? "object" :
+         (a_var.isArray()     ) ? "array" :
+         (a_var.isBinaryData()) ? "binary" :
+         (a_var.isMethod()    ) ? "method" :
+                                  "unknown" ;
 }
 
 String Trace::DumpVar(String val_name , var a_var)
@@ -213,18 +217,19 @@ String Trace::DumpVar(String val_name , var a_var)
 
 String Trace::Status2String(int status)
 {
-  return (status == -9)? "LINJAM_STATUS_INIT"                :
-         (status == -8)? "LINJAM_STATUS_AUDIOERROR"          :
-         (status == -7)? "LINJAM_STATUS_CONFIGPENDING"       :
-         (status == -6)? "LINJAM_STATUS_READY"               :
-         (status == -5)? "LINJAM_STATUS_LICENSEPENDING"      :
-         (status == -4)? "LINJAM_STATUS_ROOMFULL"            :
-         (status == -3)? "NJC_STATUS_DISCONNECTED"           :
-         (status == -2)? "NJC_STATUS_INVALIDAUTH"            :
-         (status == -1)? "NJC_STATUS_CANTCONNECT"            :
-         (status ==  0)? "NJC_STATUS_OK"                     :
-         (status ==  1)? "NJC_STATUS_PRECONNECT"             :
-                         "(unknown: " + String(status) + ")" ;
+  return (status == -10) ? "LINJAM_STATUS_INIT"                :
+         (status ==  -9) ? "LINJAM_STATUS_AUDIOINIT"           :
+         (status ==  -8) ? "LINJAM_STATUS_CONFIGPENDING"       :
+         (status ==  -7) ? "LINJAM_STATUS_AUDIOERROR"          :
+         (status ==  -6) ? "LINJAM_STATUS_READY"               :
+         (status ==  -5) ? "LINJAM_STATUS_LICENSEPENDING"      :
+         (status ==  -4) ? "LINJAM_STATUS_ROOMFULL"            :
+         (status ==  -3) ? "NJC_STATUS_DISCONNECTED"           :
+         (status ==  -2) ? "NJC_STATUS_INVALIDAUTH"            :
+         (status ==  -1) ? "NJC_STATUS_CANTCONNECT"            :
+         (status ==   0) ? "NJC_STATUS_OK"                     :
+         (status ==   1) ? "NJC_STATUS_PRECONNECT"             :
+                           "(unknown: " + String(status) + ")" ;
 }
 
 #endif // #if DEBUG

@@ -1,31 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="V5yqRw" name="LinJam" projectType="guiapp" version="0.0.1"
-              bundleIdentifier="com.yourcompany.LinJam" includeBinaryInAppConfig="1"
+<JUCERPROJECT id="V5yqRw" name="LinJam" projectType="guiapp" version="0.27.0"
+              bundleIdentifier="com.bill-auger.LinJam" includeBinaryInAppConfig="1"
               jucerVersion="3.1.1">
   <MAINGROUP id="dT83m5" name="LinJam">
     <GROUP id="{51F23963-7F0B-17B4-72A3-B564BDD36515}" name="Headers">
-      <GROUP id="{898BA01D-C501-5789-07B4-1B9CFAD5762A}" name="Trace">
-        <FILE id="ZVSczB" name="Trace.h" compile="0" resource="0" file="Source/Trace/Trace.h"/>
-        <FILE id="scLvDE" name="TraceChannels.h" compile="0" resource="0" file="Source/Trace/TraceChannels.h"/>
-        <FILE id="jzGg2W" name="TraceConfig.h" compile="0" resource="0" file="Source/Trace/TraceConfig.h"/>
-        <FILE id="lwYkgg" name="TraceLinJam.h" compile="0" resource="0" file="Source/Trace/TraceLinJam.h"/>
-        <FILE id="Yq62xt" name="TraceLinJamConfig.h" compile="0" resource="0"
-              file="Source/Trace/TraceLinJamConfig.h"/>
-        <FILE id="JnGmPv" name="TraceLogin.h" compile="0" resource="0" file="Source/Trace/TraceLogin.h"/>
-        <FILE id="KOcVrw" name="TraceMain.h" compile="0" resource="0" file="Source/Trace/TraceMain.h"/>
-        <FILE id="ukJ9Ys" name="TraceMixer.h" compile="0" resource="0" file="Source/Trace/TraceMixer.h"/>
-      </GROUP>
       <FILE id="A4xouB" name="Background.h" compile="0" resource="0" file="Source/Background.h"/>
+      <FILE id="gV1wc4" name="Blacklist.h" compile="0" resource="0" file="Source/Blacklist.h"/>
       <FILE id="XeDmZL" name="Channel.h" compile="0" resource="0" file="Source/Channel.h"/>
       <FILE id="SBrFCQ" name="Channels.h" compile="0" resource="0" file="Source/Channels.h"/>
       <FILE id="pNseOT" name="Chat.h" compile="0" resource="0" file="Source/Chat.h"/>
       <FILE id="i9D3OJ" name="Config.h" compile="0" resource="0" file="Source/Config.h"/>
       <FILE id="VwLcwq" name="ConfigAudio.h" compile="0" resource="0" file="Source/ConfigAudio.h"/>
+      <FILE id="vmBwrh" name="ConfigBlacklist.h" compile="0" resource="0"
+            file="Source/ConfigBlacklist.h"/>
       <FILE id="MFeN91" name="ConfigChannel.h" compile="0" resource="0" file="Source/ConfigChannel.h"/>
       <FILE id="DC1YXt" name="ConfigClient.h" compile="0" resource="0" file="Source/ConfigClient.h"/>
-      <FILE id="vmBwrh" name="ConfigSubscriptions.h" compile="0" resource="0"
-            file="Source/ConfigSubscriptions.h"/>
+      <FILE id="G08mMg" name="ConfigGui.h" compile="0" resource="0" file="Source/ConfigGui.h"/>
       <FILE id="oLQgCw" name="Constants.h" compile="0" resource="0" file="Source/Constants.h"/>
       <FILE id="xqc9VC" name="License.h" compile="0" resource="0" file="Source/License.h"/>
       <FILE id="rS1R2S" name="LinJam.h" compile="0" resource="0" file="Source/LinJam.h"/>
@@ -35,21 +26,32 @@
       <FILE id="sKUFRy" name="MainContent.h" compile="0" resource="0" file="Source/MainContent.h"/>
       <FILE id="DDFUUa" name="Mixer.h" compile="0" resource="0" file="Source/Mixer.h"/>
       <FILE id="N6kt6x" name="StatusBar.h" compile="0" resource="0" file="Source/StatusBar.h"/>
-      <FILE id="qCn9WW" name="Subscriptions.h" compile="0" resource="0" file="Source/Subscriptions.h"/>
+      <GROUP id="{898BA01D-C501-5789-07B4-1B9CFAD5762A}" name="Trace">
+        <FILE id="ZVSczB" name="Trace.h" compile="0" resource="0" file="Source/Trace/Trace.h"/>
+        <FILE id="scLvDE" name="TraceChannels.h" compile="0" resource="0" file="Source/Trace/TraceChannels.h"/>
+        <FILE id="jzGg2W" name="TraceConfig.h" compile="0" resource="0" file="Source/Trace/TraceConfig.h"/>
+        <FILE id="lwYkgg" name="TraceLinJam.h" compile="0" resource="0" file="Source/Trace/TraceLinJam.h"/>
+        <FILE id="Yq62xt" name="TraceLinJamConfig.h" compile="0" resource="0"
+              file="Source/Trace/TraceLinJamConfig.h"/>
+        <FILE id="JnGmPv" name="TraceLogin.h" compile="0" resource="0" file="Source/Trace/TraceLogin.h"/>
+        <FILE id="ukJ9Ys" name="TraceMixer.h" compile="0" resource="0" file="Source/Trace/TraceMixer.h"/>
+      </GROUP>
     </GROUP>
     <GROUP id="{F298109F-8531-F160-2BC9-F72C3764B7EF}" name="Source">
       <FILE id="WuNCUn" name="Background.cpp" compile="1" resource="0" file="Source/Background.cpp"/>
+      <FILE id="uu2nmQ" name="Blacklist.cpp" compile="1" resource="0" file="Source/Blacklist.cpp"/>
       <FILE id="pasbMc" name="Channel.cpp" compile="1" resource="0" file="Source/Channel.cpp"/>
       <FILE id="BwFSNp" name="Channels.cpp" compile="1" resource="0" file="Source/Channels.cpp"/>
       <FILE id="CywiEf" name="Chat.cpp" compile="1" resource="0" file="Source/Chat.cpp"/>
       <FILE id="y46vLK" name="Config.cpp" compile="1" resource="0" file="Source/Config.cpp"/>
       <FILE id="n06BPs" name="ConfigAudio.cpp" compile="1" resource="0" file="Source/ConfigAudio.cpp"/>
+      <FILE id="F2ecSO" name="ConfigBlacklist.cpp" compile="1" resource="0"
+            file="Source/ConfigBlacklist.cpp"/>
       <FILE id="ZuG12h" name="ConfigChannel.cpp" compile="1" resource="0"
             file="Source/ConfigChannel.cpp"/>
       <FILE id="Q4scAY" name="ConfigClient.cpp" compile="1" resource="0"
             file="Source/ConfigClient.cpp"/>
-      <FILE id="F2ecSO" name="ConfigSubscriptions.cpp" compile="1" resource="0"
-            file="Source/ConfigSubscriptions.cpp"/>
+      <FILE id="CRZyL2" name="ConfigGui.cpp" compile="1" resource="0" file="Source/ConfigGui.cpp"/>
       <FILE id="Avs6aI" name="Constants.cpp" compile="1" resource="0" file="Source/Constants.cpp"/>
       <FILE id="HugMKb" name="License.cpp" compile="1" resource="0" file="Source/License.cpp"/>
       <FILE id="ZHvRfB" name="LinJam.cpp" compile="1" resource="0" file="Source/LinJam.cpp"/>
@@ -61,8 +63,6 @@
       <FILE id="JelDpp" name="MainContent.cpp" compile="1" resource="0" file="Source/MainContent.cpp"/>
       <FILE id="aYeN5b" name="Mixer.cpp" compile="1" resource="0" file="Source/Mixer.cpp"/>
       <FILE id="XO5clN" name="StatusBar.cpp" compile="1" resource="0" file="Source/StatusBar.cpp"/>
-      <FILE id="Jt9zYE" name="Subscriptions.cpp" compile="1" resource="0"
-            file="Source/Subscriptions.cpp"/>
       <FILE id="mMho7r" name="Trace.cpp" compile="1" resource="0" file="Source/Trace/Trace.cpp"/>
     </GROUP>
   </MAINGROUP>
@@ -105,7 +105,7 @@
                        optimisation="3" targetName="LinJam" defines="" libraryPath="&quot;$(LIBNINJAM)\Win32\Release\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"
                        headerPath=""/>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" isDebug="1"
-                       optimisation="1" targetName="LinJam" defines="" libraryPath="&quot;$(LIBNINJAM)\Win32\Debug\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"
+                       optimisation="1" targetName="LinJamDbg" defines="" libraryPath="&quot;$(LIBNINJAM)\Win32\Debug\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"
                        headerPath=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>

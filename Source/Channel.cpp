@@ -143,8 +143,8 @@ Channel::Channel (ValueTree channel_store)
 
   this->vuLeftSlider ->setSliderStyle(Slider::LinearBarVertical) ;
   this->vuRightSlider->setSliderStyle(Slider::LinearBarVertical) ;
-  this->vuLeftSlider ->setValue(CLIENT::VU_DB_MIN) ;
-  this->vuRightSlider->setValue(CLIENT::VU_DB_MIN) ;
+  this->vuLeftSlider ->setValue(GUI::VU_DB_MIN) ;
+  this->vuRightSlider->setValue(GUI::VU_DB_MIN) ;
 
     //[/UserPreSize]
 
@@ -153,52 +153,53 @@ Channel::Channel (ValueTree channel_store)
 
     //[Constructor] You can add your own custom stuff here..
 
-  String channel_name = String(channel_store[CONFIG::CHANNEL_NAME_ID]) ;
+  String channel_name = str(   channel_store[CONFIG::CHANNEL_NAME_ID]) ;
   double volume       = double(channel_store[CONFIG::VOLUME_ID      ]) ;
   double pan          = double(channel_store[CONFIG::PAN_ID         ]) ;
   bool   is_xmit      = bool(  channel_store[CONFIG::IS_XMIT_RCV_ID ]) ;
   bool   is_muted     = bool(  channel_store[CONFIG::IS_MUTED_ID    ]) ;
   bool   is_solo      = bool(  channel_store[CONFIG::IS_SOLO_ID     ]) ;
   double vu_min       = 0.0 ;
-  double vu_max       = CLIENT::VU_DB_RANGE ;
-  double gain_min     = CLIENT::VU_DB_MIN ;
-  double gain_max     = CLIENT::VU_DB_MIN + CLIENT::VU_DB_RANGE ;
+  double vu_max       = GUI::VU_DB_RANGE ;
+  double gain_min     = GUI::VU_DB_MIN ;
+  double gain_max     = GUI::VU_DB_MIN + GUI::VU_DB_RANGE ;
 
-  this->nameLabel ->setText(       channel_name , juce::dontSendNotification) ;
   this->gainSlider->setValue(      volume) ;
   this->panSlider ->setValue(      pan) ;
   this->xmitButton->setToggleState(is_xmit      , juce::dontSendNotification) ;
   this->muteButton->setToggleState(is_muted     , juce::dontSendNotification) ;
   this->soloButton->setToggleState(is_solo      , juce::dontSendNotification) ;
+  this->nameLabel ->setText(       channel_name , juce::dontSendNotification) ;
 
   this->gainSlider   ->setDoubleClickReturnValue(true , 0.0) ;
   this->panSlider    ->setDoubleClickReturnValue(true , 0.0) ;
   this->vuLeftSlider ->setInterceptsMouseClicks(false , false) ;
   this->vuRightSlider->setInterceptsMouseClicks(false , false) ;
+  this->gainSlider   ->setRange(gain_min , gain_max , 0) ;
   this->vuLeftSlider ->setRange(vu_min   , vu_max   , 0) ;
   this->vuRightSlider->setRange(vu_min   , vu_max   , 0) ;
-  this->gainSlider   ->setRange(gain_min , gain_max , 0) ;
 
+  // local event handlers
   this->removeButton->addListener(this) ;
   this->configButton->addListener(this) ;
   this->xmitButton  ->addListener(this) ;
   this->muteButton  ->addListener(this) ;
   this->soloButton  ->addListener(this) ;
 
-  // establish shared config storage and listeners
-  this->channelStore  = channel_store ;
-  Value name_value    = getValueObject(CONFIG::CHANNEL_NAME_ID) ;
-  Value stereo_value  = getValueObject(CONFIG::STEREO_ID      ) ;
-  Value vu_l_value    = getValueObject(CONFIG::VU_LEFT_ID     ) ;
-  Value vu_r_value    = getValueObject(CONFIG::VU_RIGHT_ID    ) ;
-  this->channelName .referTo(name_value  ) ;
-  this->stereoStatus.referTo(stereo_value) ;
-  this->vuLeft      .referTo(vu_l_value  ) ;
-  this->vuRight     .referTo(vu_r_value  ) ;
-  this->channelName .addListener(this) ;
-  this->stereoStatus.addListener(this) ;
-  this->vuLeft      .addListener(this) ;
-  this->vuRight     .addListener(this) ;
+  // establish shared config value holders and listeners
+  this->channelStore = channel_store ;
+  this->channelName  .referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
+                                                           CONFIG::CHANNEL_NAME_ID)) ;
+  this->stereoStatus .referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
+                                                           CONFIG::STEREO_ID      )) ;
+  this->vuLeft       .referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
+                                                           CONFIG::VU_LEFT_ID     )) ;
+  this->vuRight      .referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
+                                                           CONFIG::VU_RIGHT_ID    )) ;
+  this->channelName  .addListener(this) ;
+  this->stereoStatus .addListener(this) ;
+  this->vuLeft       .addListener(this) ;
+  this->vuRight      .addListener(this) ;
 
     //[/Constructor]
 }
@@ -279,15 +280,17 @@ void Channel::resized()
 void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
+
+  var        value = var(sliderThatWasMoved->getValue()) ;
+  Identifier key ;
+
     //[/UsersliderValueChanged_Pre]
 
     if (sliderThatWasMoved == panSlider)
     {
         //[UserSliderCode_panSlider] -- add your slider handling code here..
 
-      // set stored config for this channel pan (configures NJClient implicitly)
-      double pan = sliderThatWasMoved->getValue() ;
-      setConfig(CONFIG::PAN_ID , var(pan)) ;
+      key = CONFIG::PAN_ID ;
 
         //[/UserSliderCode_panSlider]
     }
@@ -295,24 +298,31 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
 
-      // set stored config for this channel volume (configures NJClient implicitly)
-      double gain = sliderThatWasMoved->getValue() ;
-      setConfig(CONFIG::VOLUME_ID , var(gain)) ;
+      key = CONFIG::VOLUME_ID ;
 
         //[/UserSliderCode_gainSlider]
     }
     else if (sliderThatWasMoved == vuLeftSlider)
     {
         //[UserSliderCode_vuLeftSlider] -- add your slider handling code here..
+
+      // read only - unhandled
+
         //[/UserSliderCode_vuLeftSlider]
     }
     else if (sliderThatWasMoved == vuRightSlider)
     {
         //[UserSliderCode_vuRightSlider] -- add your slider handling code here..
+
+      // read only - unhandled
+
         //[/UserSliderCode_vuRightSlider]
     }
 
     //[UsersliderValueChanged_Post]
+
+  setConfig(key , value) ;
+
     //[/UsersliderValueChanged_Post]
 }
 
@@ -327,7 +337,6 @@ void Channel::labelTextChanged (Label* labelThatHasChanged)
 
 DEBUG_TRACE_RENAME_CHANNEL_GUI_VIA_LABEL
 
-      // store new channel name (configures NJClient asynchronously)
       setConfig(CONFIG::CHANNEL_NAME_ID , var(this->nameLabel->getText())) ;
 
         //[/UserLabelCode_nameLabel]
@@ -348,51 +357,45 @@ void Channel::buttonClicked(Button* a_button) { handleButtonClicked(a_button) ; 
 
 void Channel::valueChanged(Value& a_value)
 {
-  if      (a_value.refersToSameSourceAs(this->vuLeft))
-    updateChannelVU(this->vuLeftSlider  , this->vuLeftLabel  ,
-                    double(this->vuLeft.getValue())) ;
+  bool is_vu_left  = a_value.refersToSameSourceAs(this->vuLeft      ) ;
+  bool is_vu_right = a_value.refersToSameSourceAs(this->vuRight     ) ;
+  bool is_stereo   = a_value.refersToSameSourceAs(this->stereoStatus) ;
+  bool is_name     = a_value.refersToSameSourceAs(this->channelName ) ;
 
-  else if (a_value.refersToSameSourceAs(this->vuRight))
-    updateChannelVU(this->vuRightSlider , this->vuRightLabel ,
-                    double(this->vuRight.getValue())) ;
-
-  else if (a_value.refersToSameSourceAs(this->stereoStatus)) setStereoState() ;
-
-  else if (a_value.refersToSameSourceAs(this->channelName))
+  if      (is_vu_left ) updateVU(this->vuLeftSlider  , this->vuLeftLabel  , this->vuLeft) ;
+  else if (is_vu_right) updateVU(this->vuRightSlider , this->vuRightLabel , this->vuRight) ;
+  else if (is_stereo  ) setStereoState() ;
+  else if (is_name    )
   {
 DEBUG_TRACE_RENAME_CHANNEL_GUI_VIA_CALLOUTBOX
 
-    String new_channel_name = this->channelName.getValue().toString() ;
+    String new_channel_name = str(this->channelName.getValue()) ;
     this->nameLabel->setText(new_channel_name , juce::dontSendNotification) ;
   }
 }
 
-void Channel::updateChannelVU(Slider* a_vu_slider , Label* a_vu_label , double vu)
+void Channel::updateVU(Slider* a_vu_slider , Label* a_vu_label , Value vu_var)
 {
-  double actual_vu    = vu + CLIENT::VU_DB_MIN ;
+  double vu_value     = double(vu_var.getValue()) ;
+  double actual_vu    = vu_value + GUI::VU_DB_MIN ;
   bool   is_metro     = this->channelStore.getType() == CONFIG::METRO_ID ;
   bool   is_saturated = actual_vu >= 0.0 && !is_metro ;
-  String label_text   = (vu <= CLIENT::VU_DB_RANGE)? String(int(actual_vu))     :
-                                                     String(GUI::INFINITY_CHAR) ;
+  String label_text   = (vu_value <= GUI::VU_DB_RANGE) ? String(int(actual_vu)    ) :
+                                                         String(GUI::INFINITY_CHAR) ;
 
-  a_vu_slider->setValue(vu) ;
+  a_vu_slider->setValue(vu_value) ;
   a_vu_label ->setText(label_text , juce::dontSendNotification) ;
   a_vu_slider->setColour(Slider::thumbColourId , (is_saturated)      ?
-                                                 Colours::red        :
+                                                 Colour(0xFFFF0000)  :
                                                  Colour(0xFFBBBBFF)) ;
   a_vu_slider->setColour(Slider::trackColourId , (is_saturated)      ?
-                                                 Colour(0x01800000)  :
-                                                 Colour(0x01008000)) ;
-}
-
-Value Channel::getValueObject(Identifier a_key)
-{
-  return this->channelStore.getPropertyAsValue(a_key , nullptr) ;
+                                                 Colour(0x80800000)  :
+                                                 Colour(0x80008000)) ;
 }
 
 void Channel::setConfig(Identifier a_key , var a_value)
 {
-  this->channelStore.setProperty(a_key , a_value , nullptr) ;
+  if (a_key.isValid()) this->channelStore.setProperty(a_key , a_value , nullptr) ;
 }
 
 
@@ -400,16 +403,16 @@ void Channel::setConfig(Identifier a_key , var a_value)
 
 bool Channel::handleButtonClicked(Button* a_button)
 {
-  // set stored config for this channel (configures NJClient implicitly)
-  if      (a_button == this->xmitButton)
-    setConfig(CONFIG::IS_XMIT_RCV_ID , var(a_button->getToggleState())) ;
-  else if (a_button == this->muteButton)
-    setConfig(CONFIG::IS_MUTED_ID    , var(a_button->getToggleState())) ;
-  else if (a_button == this->soloButton)
-    setConfig(CONFIG::IS_SOLO_ID     , var(a_button->getToggleState())) ;
-  else return false ;
+  Identifier key   = (a_button == this->xmitButton) ? CONFIG::IS_XMIT_RCV_ID :
+                     (a_button == this->muteButton) ? CONFIG::IS_MUTED_ID    :
+                     (a_button == this->soloButton) ? CONFIG::IS_SOLO_ID     :
+                                                      Identifier::null       ;
+  var        value = var(a_button->getToggleState()) ;
+  bool was_handled = key.isValid() ;
 
-  return true ;
+  if (was_handled) setConfig(key , value) ;
+
+  return was_handled ;
 }
 
 void Channel::setStereoState()
@@ -425,7 +428,7 @@ DEBUG_TRACE_STEREO_STATE_GUI
   this->vuRightLabel ->setVisible(is_stereo && !is_metro) ;
 
   // set channel name
-  String channel_name   = this->channelName.getValue().toString() ;
+  String channel_name   = str(this->channelName.getValue()) ;
   String stereo_postfix = channel_name.getLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
 
   if (is_stereo && !stereo_postfix.compare(CLIENT::STEREO_L_POSTFIX))

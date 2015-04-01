@@ -30,8 +30,8 @@
 namespace ProjectInfo
 {
     const char* const  projectName    = "LinJam";
-    const char* const  versionString  = "0.0.1";
-    const int          versionNumber  = 0x1;
+    const char* const  versionString  = "0.27.0";
+    const int          versionNumber  = 0x1b00;
 }
 #endif
 

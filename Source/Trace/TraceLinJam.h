@@ -5,9 +5,9 @@
 
 // enable debug features
 // #define DEBUG_EXIT_IMMEDIAYELY
-// #define DEBUG_AUTOJOIN_HOST cli_args = "localhost:2049"
-// #define DEBUG_AUTOJOIN_HOST cli_args = "ninbot.com:2049"
-// #define DEBUG_AUTOJOIN_HOST cli_args = "ninjamer.com:2051"
+// #define DEBUG_AUTOJOIN_HOST if (cli_args.isEmpty()) cli_args = "localhost:2049"
+// #define DEBUG_AUTOJOIN_HOST if (cli_args.isEmpty()) cli_args = "ninbot.com:2049"
+// #define DEBUG_AUTOJOIN_HOST if (cli_args.isEmpty()) cli_args = "ninjamer.com:2051"
 
 
 /* state */
@@ -23,33 +23,29 @@
   Trace::TraceClient("preparing session dir '" + SessionDir.getFullPathName() + "'- " + \
                      (SessionDir.isDirectory() ? "already exists" : "created")        ) ;
 
-static int PrevStatus = LinJam::LINJAM_STATUS_INIT ;
+static int DbgPrevStatus = STATUS::LINJAM_STATUS_INIT ;
 #define DEBUG_TRACE_STATUS_CHANGED                                                      \
-  int    prev_status   = PrevStatus ;                                                   \
-  int    curr_status   = (PrevStatus = int(Status.getValue())) ;                        \
-  String prev_msg      = Trace::Status2String(prev_status) ;                            \
-  String curr_msg      = Trace::Status2String(curr_status) ;                            \
-  String host_name     = Client->GetHostName() ;                                        \
+  int    prev_status   = DbgPrevStatus ;                                                \
+  int    curr_status   = (DbgPrevStatus = int(Status.getValue())) ;                     \
+  String prev_state    = Trace::Status2String(prev_status) ;                            \
+  String curr_state    = Trace::Status2String(curr_status) ;                            \
   char*  client_error  = Client->GetErrorStr() ;                                        \
-  String changed_msg   = prev_msg + " -> " + curr_msg ;                                 \
-  String connected_msg = "connected to host: " + host_name ;                            \
-  String error_msg     = "Error: " + CharPointer_UTF8(client_error) ;                   \
-  if      (curr_status == LINJAM_STATUS_AUDIOERROR) Trace::TraceClient(curr_msg) ;      \
-  else if (prev_status == LINJAM_STATUS_AUDIOERROR) Trace::TraceState(curr_msg) ;       \
-  else                                              Trace::TraceState(changed_msg) ;    \
-  if      (curr_status == NJClient::NJC_STATUS_OK)  Trace::TraceServer(connected_msg) ; \
-  if      (client_error[0])                         Trace::TraceServer(error_msg) ;     \
+  Trace::TraceState(prev_state + " -> " + curr_state) ;                                 \
+  if (curr_status == STATUS::NJC_STATUS_OK)                                             \
+    Trace::TraceServer("connected to host: " + String(Client->GetHostName())) ;         \
+  if (client_error[0])                                                                  \
+    Trace::TraceServer("Error: " + CharPointer_UTF8(client_error)) ;                    \
   Trace::TraceGui(                                                                      \
-      (Status == LINJAM_STATUS_AUDIOERROR         ) ? "showing config pane"    :        \
-      (Status == LINJAM_STATUS_CONFIGPENDING      ) ? "showing config pane"    :        \
-      (Status == LINJAM_STATUS_LICENSEPENDING     ) ? "showing license pane"   :        \
-      (Status == LINJAM_STATUS_ROOMFULL           ) ? "showing login pane"     :        \
-      (Status == NJClient::NJC_STATUS_DISCONNECTED) ? "showing login pane"     :        \
-      (Status == NJClient::NJC_STATUS_INVALIDAUTH ) ? "showing login pane"     :        \
-      (Status == NJClient::NJC_STATUS_CANTCONNECT ) ? "showing login pane"     :        \
-      (Status == NJClient::NJC_STATUS_OK          ) ? "showing main pane"      :        \
-      (Status == NJClient::NJC_STATUS_PRECONNECT  ) ? "showing login pane"     :        \
-                                                      "showing background pane")  ;
+      (Status == STATUS::LINJAM_STATUS_AUDIOERROR    ) ? "showing config pane"    :     \
+      (Status == STATUS::LINJAM_STATUS_CONFIGPENDING ) ? "showing config pane"    :     \
+      (Status == STATUS::LINJAM_STATUS_LICENSEPENDING) ? "showing license pane"   :     \
+      (Status == STATUS::LINJAM_STATUS_ROOMFULL      ) ? "showing login pane"     :     \
+      (Status == STATUS::NJC_STATUS_DISCONNECTED     ) ? "showing login pane"     :     \
+      (Status == STATUS::NJC_STATUS_INVALIDAUTH      ) ? "showing login pane"     :     \
+      (Status == STATUS::NJC_STATUS_CANTCONNECT      ) ? "showing login pane"     :     \
+      (Status == STATUS::NJC_STATUS_OK               ) ? "showing main pane"      :     \
+      (Status == STATUS::NJC_STATUS_PRECONNECT       ) ? "showing login pane"     :     \
+                                                         "showing background pane")  ;
 
 #define DEBUG_TRACE_CONNECT                                                  \
   Trace::TraceState((!IsAgreed())? "connecting to " + host :                 \
@@ -64,87 +60,87 @@ static int PrevStatus = LinJam::LINJAM_STATUS_INIT ;
 
 /* audio */
 
-#define DEBUG_TRACE_AUDIO_INIT_WIN                                                       \
-  String type =                                                                          \
-      (audio_api_n == audioStreamer::WIN_AUDIO_ASIO) ? CLIENT::ASIO_DEVICE_TYPE :        \
-      (audio_api_n == audioStreamer::WIN_AUDIO_KS)   ? CLIENT::KS_DEVICE_TYPE   :        \
-      (audio_api_n == audioStreamer::WIN_AUDIO_DS)   ? CLIENT::DS_DEVICE_TYPE   :        \
-      (audio_api_n == audioStreamer::WIN_AUDIO_WAVE) ? CLIENT::WAVE_DEVICE_TYPE :        \
-                                                       CLIENT::NFG_DEVICE_TYPE  ;        \
-  String dbg = "initializing " + type + " audiostreamer =>" ;                            \
-  switch ((audioStreamer::WinApi)audio_api_n)                                            \
-  {                                                                                      \
-    case audioStreamer::WIN_AUDIO_ASIO: dbg = dbg                              +         \
-          "\n\t" + CONFIG::ASIO_DRIVER_KEY  + " => " + String(asio_driver_n)   +         \
-          "\n\t" + CONFIG::ASIO_INPUTB_KEY  + " => " + String(asio_input_b_n)  +         \
-          "\n\t" + CONFIG::ASIO_INPUTE_KEY  + " => " + String(asio_input_e_n)  +         \
-          "\n\t" + CONFIG::ASIO_OUTPUTB_KEY + " => " + String(asio_output_b_n) +         \
-          "\n\t" + CONFIG::ASIO_OUTPUTE_KEY + " => " + String(asio_output_e_n) ;         \
-    break ;                                                                              \
-    case audioStreamer::WIN_AUDIO_KS: dbg = dbg                                +         \
-          "\n\t" + CONFIG::KS_SAMPLERATE_KEY + " => " + String(ks_sample_rate) +         \
-          "\n\t" + CONFIG::KS_BITDEPTH_KEY   + " => " + String(ks_bit_depth)   +         \
-          "\n\t" + CONFIG::KS_NBLOCKS_KEY    + " => " + String(ks_n_buffers)   +         \
-          "\n\t" + CONFIG::KS_BLOCKSIZE_KEY  + " => " + String(ks_buffer_size) ;         \
-    break ;                                                                              \
-    case audioStreamer::WIN_AUDIO_DS: dbg = dbg                                  +       \
-          "\n\t" + CONFIG::DS_INPUT_KEY      + " => " + String(ds_input_device)  +       \
-          "\n\t" + CONFIG::DS_OUTPUT_KEY     + " => " + String(ds_output_device) +       \
-          "\n\t" + CONFIG::DS_SAMPLERATE_KEY + " => " + String(ds_sample_rate)   +       \
-          "\n\t" + CONFIG::DS_BITDEPTH_KEY   + " => " + String(ds_bit_depth)     +       \
-          "\n\t" + CONFIG::DS_NBLOCKS_KEY    + " => " + String(ds_n_buffers)     +       \
-          "\n\t" + CONFIG::DS_BLOCKSIZE_KEY  + " => " + String(ds_buffer_size)   ;       \
-    break ;                                                                              \
-    case audioStreamer::WIN_AUDIO_WAVE: dbg = dbg                                      + \
-          "\n\t" + CONFIG::WAVE_INPUT_KEY      + " => " + String(wave_input_device_n)  + \
-          "\n\t" + CONFIG::WAVE_OUTPUT_KEY     + " => " + String(wave_output_device_n) + \
-          "\n\t" + CONFIG::WAVE_SAMPLERATE_KEY + " => " + String(wave_sample_rate)     + \
-          "\n\t" + CONFIG::WAVE_BITDEPTH_KEY   + " => " + String(wave_bit_depth)       + \
-          "\n\t" + CONFIG::WAVE_NBLOCKS_KEY    + " => " + String(wave_n_buffers)       + \
-          "\n\t" + CONFIG::WAVE_BLOCKSIZE_KEY  + " => " + String(wave_buffer_size)     ; \
-    break ;                                                                              \
-  }                                                                                      \
-  if (TRACE_AUDIO_INIT_VB) Trace::TraceClient(dbg) ;
+#define DEBUG_TRACE_AUDIO_INIT_WIN                                                           \
+  String type =(audio_api_n == audioStreamer::WIN_AUDIO_ASIO) ? GUI::ASIO_DEVICE_TYPE :      \
+               (audio_api_n == audioStreamer::WIN_AUDIO_KS)   ? GUI::KS_DEVICE_TYPE   :      \
+               (audio_api_n == audioStreamer::WIN_AUDIO_DS)   ? GUI::DS_DEVICE_TYPE   :      \
+               (audio_api_n == audioStreamer::WIN_AUDIO_WAVE) ? GUI::WAVE_DEVICE_TYPE :      \
+                                                                GUI::NFG_DEVICE_TYPE  ;      \
+  String init_msg = "initializing " + type + " audiostreamer" ;                              \
+  if (!TRACE_AUDIO_INIT_VB) Trace::TraceClient(init_msg) ;                                   \
+  else {                    Trace::TraceClient(init_msg + " =>") ;                           \
+    switch ((audioStreamer::WinApi)audio_api_n)                                              \
+    {                                                                                        \
+      case audioStreamer::WIN_AUDIO_ASIO:                                                    \
+        Trace::TraceKVP("\t" , CONFIG::ASIO_DRIVER_KEY     , String(asio_driver_n       )) ; \
+        Trace::TraceKVP("\t" , CONFIG::ASIO_INPUTB_KEY     , String(asio_input_b_n      )) ; \
+        Trace::TraceKVP("\t" , CONFIG::ASIO_INPUTE_KEY     , String(asio_input_e_n      )) ; \
+        Trace::TraceKVP("\t" , CONFIG::ASIO_OUTPUTB_KEY    , String(asio_output_b_n     )) ; \
+        Trace::TraceKVP("\t" , CONFIG::ASIO_OUTPUTE_KEY    , String(asio_output_e_n     )) ; \
+      break ;                                                                                \
+      case audioStreamer::WIN_AUDIO_KS:                                                      \
+        Trace::TraceKVP("\t" , CONFIG::KS_SAMPLERATE_KEY   , String(ks_sample_rate      )) ; \
+        Trace::TraceKVP("\t" , CONFIG::KS_BITDEPTH_KEY     , String(ks_bit_depth        )) ; \
+        Trace::TraceKVP("\t" , CONFIG::KS_NBLOCKS_KEY      , String(ks_n_buffers        )) ; \
+        Trace::TraceKVP("\t" , CONFIG::KS_BLOCKSIZE_KEY    , String(ks_buffer_size      )) ; \
+      break ;                                                                                \
+      case audioStreamer::WIN_AUDIO_DS:                                                      \
+        Trace::TraceKVP("\t" , CONFIG::DS_INPUT_KEY        , String(ds_input_device     )) ; \
+        Trace::TraceKVP("\t" , CONFIG::DS_OUTPUT_KEY       , String(ds_output_device    )) ; \
+        Trace::TraceKVP("\t" , CONFIG::DS_SAMPLERATE_KEY   , String(ds_sample_rate      )) ; \
+        Trace::TraceKVP("\t" , CONFIG::DS_BITDEPTH_KEY     , String(ds_bit_depth        )) ; \
+        Trace::TraceKVP("\t" , CONFIG::DS_NBLOCKS_KEY      , String(ds_n_buffers        )) ; \
+        Trace::TraceKVP("\t" , CONFIG::DS_BLOCKSIZE_KEY    , String(ds_buffer_size      )) ; \
+      break ;                                                                                \
+      case audioStreamer::WIN_AUDIO_WAVE:                                                    \
+        Trace::TraceKVP("\t" , CONFIG::WAVE_INPUT_KEY      , String(wave_input_device_n )) ; \
+        Trace::TraceKVP("\t" , CONFIG::WAVE_OUTPUT_KEY     , String(wave_output_device_n)) ; \
+        Trace::TraceKVP("\t" , CONFIG::WAVE_SAMPLERATE_KEY , String(wave_sample_rate    )) ; \
+        Trace::TraceKVP("\t" , CONFIG::WAVE_BITDEPTH_KEY   , String(wave_bit_depth      )) ; \
+        Trace::TraceKVP("\t" , CONFIG::WAVE_NBLOCKS_KEY    , String(wave_n_buffers      )) ; \
+        Trace::TraceKVP("\t" , CONFIG::WAVE_BLOCKSIZE_KEY  , String(wave_buffer_size    )) ; \
+      break ;                                                                                \
+    }
 
-#define DEBUG_TRACE_AUDIO_INIT_MAC                                             \
-  String type = CLIENT::CA_DEVICE_TYPE ;                                       \
-  if (TRACE_AUDIO_INIT_VB)                                                     \
-    Trace::TraceClient("initializing "     + type   + " audiostreamer =>"    + \
-        "\n\t" + CONFIG::CA_DEVICE_KEY     + " => " + ca_device_name         + \
-        "\n\t" + CONFIG::CA_NCHANNELS_KEY  + " => " + String(ca_n_channels)  + \
-        "\n\t" + CONFIG::CA_SAMPLERATE_KEY + " => " + String(ca_sample_rate) + \
-        "\n\t" + CONFIG::CA_BITDEPTH_KEY   + " => " + String(ca_bit_depth)   ) ;
+#define DEBUG_TRACE_AUDIO_INIT_MAC                                               \
+  String type = GUI::CA_DEVICE_TYPE ;                                            \
+  String init_msg = "initializing " + type + " audiostreamer" ;                  \
+  if (!TRACE_AUDIO_INIT_VB) Trace::TraceClient(init_msg) ;                       \
+  else {                    Trace::TraceClient(init_msg + " =>") ;               \
+    Trace::TraceKVP("\t" , CONFIG::CA_INPUT_KEY      , ca_input_name         ) ; \
+    Trace::TraceKVP("\t" , CONFIG::CA_OUTPUT_KEY     , ca_output_name        ) ; \
+    Trace::TraceKVP("\t" , CONFIG::CA_NCHANNELS_KEY  , String(ca_n_channels )) ; \
+    Trace::TraceKVP("\t" , CONFIG::CA_SAMPLERATE_KEY , String(ca_sample_rate)) ; \
+    Trace::TraceKVP("\t" , CONFIG::CA_BITDEPTH_KEY   , String(ca_bit_depth  )) ; }
 
-#define DEBUG_TRACE_AUDIO_INIT_NIX                                                   \
-  String type =                                                                      \
-      (audio_api_n == audioStreamer::NIX_AUDIO_JACK) ? CLIENT::JACK_DEVICE_TYPE :    \
-      (audio_api_n == audioStreamer::NIX_AUDIO_ALSA) ? CLIENT::ALSA_DEVICE_TYPE :    \
-                                                       CLIENT::NFG_DEVICE_TYPE ;     \
-  if (!TRACE_AUDIO_INIT_VB)                                                          \
-    Trace::TraceClient("initializing " + type + " audiostreamer") ;                  \
-  else if (audio_api_n == audioStreamer::NIX_AUDIO_JACK) DEBUG_TRACE_AUDIO_INIT_JACK \
-  else if (audio_api_n == audioStreamer::NIX_AUDIO_ALSA) DEBUG_TRACE_AUDIO_INIT_ALSA
+#define DEBUG_TRACE_AUDIO_INIT_JACK                                            \
+  Trace::TraceKVP("\t" , CONFIG::JACK_NAME_KEY     , jack_client_name      ) ; \
+  Trace::TraceKVP("\t" , CONFIG::JACK_NINPUTS_KEY  , String(jack_n_inputs )) ; \
+  Trace::TraceKVP("\t" , CONFIG::JACK_NOUTPUTS_KEY , String(jack_n_outputs)) ;
 
-#define DEBUG_TRACE_AUDIO_INIT_JACK                                          \
-  Trace::TraceClient("initializing "     + type   + " audiostreamer =>"    + \
-      "\n\t" + CONFIG::JACK_NAME_KEY     + " => " + jack_name              + \
-      "\n\t" + CONFIG::JACK_NINPUTS_KEY  + " => " + String(jack_n_inputs)  + \
-      "\n\t" + CONFIG::JACK_NOUTPUTS_KEY + " => " + String(jack_n_outputs) ) ;
+#define DEBUG_TRACE_AUDIO_INIT_ALSA                                                \
+  Trace::TraceKVP("\t" , CONFIG::ALSA_INPUT_KEY      , alsa_input_device       ) ; \
+  Trace::TraceKVP("\t" , CONFIG::ALSA_OUTPUT_KEY     , alsa_output_device      ) ; \
+  Trace::TraceKVP("\t" , CONFIG::ALSA_NCHANNELS_KEY  , String(alsa_n_channels) ) ; \
+  Trace::TraceKVP("\t" , CONFIG::ALSA_SAMPLERATE_KEY , String(alsa_sample_rate)) ; \
+  Trace::TraceKVP("\t" , CONFIG::ALSA_BITDEPTH_KEY   , String(alsa_bit_depth)  ) ; \
+  Trace::TraceKVP("\t" , CONFIG::ALSA_NBLOCKS_KEY    , String(alsa_n_buffers)  ) ; \
+  Trace::TraceKVP("\t" , CONFIG::ALSA_BLOCKSIZE_KEY  , String(alsa_buffer_size)) ;
 
-#define DEBUG_TRACE_AUDIO_INIT_ALSA                                           \
-  Trace::TraceClient("initializing "    + type   + " audiostreamer =>"      + \
-      "\n" + CONFIG::ALSA_INPUT_ID      + " => " + alsa_input_device        + \
-      "\n" + CONFIG::ALSA_OUTPUT_ID     + " => " + alsa_output_device       + \
-      "\n" + CONFIG::ALSA_NCHANNELS_ID  + " => " + String(alsa_n_channels)  + \
-      "\n" + CONFIG::ALSA_SAMPLERATE_ID + " => " + String(alsa_sample_rate) + \
-      "\n" + CONFIG::ALSA_BITDEPTH_ID   + " => " + String(alsa_bit_depth)   + \
-      "\n" + CONFIG::ALSA_NBLOCKS_ID    + " => " + String(alsa_n_buffers)   + \
-      "\n" + CONFIG::ALSA_BLOCKSIZE_ID  + " => " + String(alsa_buffer_size) ) ;
+#define DEBUG_TRACE_AUDIO_INIT_NIX                                                       \
+  String type = (audio_api_n == audioStreamer::NIX_AUDIO_JACK) ? GUI::JACK_DEVICE_TYPE : \
+                (audio_api_n == audioStreamer::NIX_AUDIO_ALSA) ? GUI::ALSA_DEVICE_TYPE : \
+                                                                 GUI::NFG_DEVICE_TYPE ;  \
+  String init_msg = "initializing " + type + " audiostreamer" ;                          \
+  if (!TRACE_AUDIO_INIT_VB) Trace::TraceClient(init_msg) ;                               \
+  else {                    Trace::TraceClient(init_msg + " =>") ;                       \
+    if (audio_api_n == audioStreamer::NIX_AUDIO_JACK) DEBUG_TRACE_AUDIO_INIT_JACK ;      \
+    if (audio_api_n == audioStreamer::NIX_AUDIO_ALSA) DEBUG_TRACE_AUDIO_INIT_ALSA        }
 
-#define DEBUG_TRACE_AUDIO_INIT_JACK_FAIL                                                 \
-  if (!Audio) { Trace::TraceState("could not connect to " + CLIENT::JACK_DEVICE_TYPE +   \
-                                  " - falling back to "   + CLIENT::ALSA_DEVICE_TYPE ) ; \
-                type = CLIENT::ALSA_DEVICE_TYPE ; DEBUG_TRACE_AUDIO_INIT_ALSA }
+#define DEBUG_TRACE_AUDIO_INIT_JACK_FAIL                                              \
+  if (!Audio) { Trace::TraceState("could not connect to " + GUI::JACK_DEVICE_TYPE +   \
+                                  " - falling back to "   + GUI::ALSA_DEVICE_TYPE ) ; \
+                type = GUI::ALSA_DEVICE_TYPE ; DEBUG_TRACE_AUDIO_INIT_ALSA }
 
 #define DEBUG_TRACE_AUDIO_INIT                                                            \
   String streamer_msg = " audio device using " + type  + " AudioStreamer" ;               \
@@ -164,10 +160,10 @@ static int PrevStatus = LinJam::LINJAM_STATUS_INIT ;
   else Trace::TraceConfig("restoring " + String(n_chs) + " stored local channels") ;
 
 #define DEBUG_TRACE_ADD_LOCAL_CHANNEL                                                     \
-  String channel_name = String(channel_store[CONFIG::CHANNEL_NAME_ID]) ;                  \
-  int    ch_idx       = int(   channel_store[CONFIG::CHANNEL_IDX_ID ]) ;                  \
-  int    source       = int(   channel_store[CONFIG::SOURCE_N_ID    ]) ;                  \
-  bool   stereo       = int(   channel_store[CONFIG::STEREO_ID      ]) != CONFIG::MONO ;  \
+  String channel_name = str(channel_store[CONFIG::CHANNEL_NAME_ID]) ;                     \
+  int    ch_idx       = int(channel_store[CONFIG::CHANNEL_IDX_ID ]) ;                     \
+  int    source       = int(channel_store[CONFIG::SOURCE_N_ID    ]) ;                     \
+  bool   stereo       = int(channel_store[CONFIG::STEREO_ID      ]) != CONFIG::MONO ;     \
   String type         = (!stereo)? "mono" : "stereo" ;                                    \
   bool   is_new       = ch_idx == CONFIG::DEFAULT_CHANNEL_IDX ;                           \
   bool   exists       = IsConfiguredChannel(ch_idx) ;                                     \
@@ -192,44 +188,44 @@ static int PrevStatus = LinJam::LINJAM_STATUS_INIT ;
   Trace::TraceState("instantiating local " + type + " " +                        \
                     String(channel_store.getType()) + " '" + channel_name + "'") ;
 
-#define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL                                      \
-  String ch_name   = GetStoredChannelName(channel_store) ;                       \
-         ch_name   = Config->MakeStereoName(ch_name , stereo_status) ;           \
-  String ch_id     = String(channel_store.getType()) ;                           \
-  bool   is_new    = !IsConfiguredChannel(channel_idx) ;                         \
-  bool   is_stereo = stereo_status != CONFIG::MONO ;                             \
-  String pairidx   = (stereo_status == CONFIG::MONO)                    ?        \
-                     String(pair_idx) + ((!is_new)? " (deleting)" : "") :        \
-                     (stereo_status == CONFIG::STEREO_L)                ?        \
-                     String(pair_idx) + " (pending)"                    :        \
-                     String(pair_idx)                                   ;        \
-  String type      = (!is_stereo)   ? "mono" : "stereo" ;                        \
-  String prev_type = (is_stereo)    ? "mono" : "stereo" ;                        \
-  String dbg       = String((is_new)? "new"  : "existing") + " local " +         \
-                     type + " " + ch_id + " '" + ch_name + "'" ;                 \
-  String pann   = String(pan) + ((stereo_status == CONFIG::MONO)       ? "" :    \
-                  " (" + String(ComputeStereoPan(pan , stereo_status)) +         \
-                  " faux-stereo)") ;                                             \
-  String stereo = String(is_stereo)                                    +         \
-                  ((stereo_status == CONFIG::MONO)    ? " (MONO)"      :         \
-                   (stereo_status == CONFIG::STEREO_L)? " (STEREO_L)" :          \
-                   (stereo_status == CONFIG::STEREO_R)? " (STEREO_R)" : "") ;    \
-  if (stereo_status == CONFIG::STEREO_L) dbg += " and its stereo pair" ;         \
-  if (TRACE_LOCAL_CHANNELS_VB)  dbg +=                                           \
-    ((should_set_name)?      "\n  name        => " + ch_name             : "") + \
-    ((should_init_all)?      "\n  channel_idx => " + String(channel_idx) : "") + \
-    ((should_set_stereo)?    "\n  pair_idx    => " + pairidx             : "") + \
-    ((should_set_volume)?    "\n  volume      => " + String(volume)      : "") + \
-    ((should_set_pan)?       "\n  pan         => " + pann                : "") + \
-    ((should_set_is_xmit)?   "\n  is_xmit     => " + String(is_xmit)     : "") + \
-    ((should_set_is_muted)?  "\n  is_muted    => " + String(is_muted)    : "") + \
-    ((should_set_is_solo)?   "\n  is_solo     => " + String(is_solo)     : "") + \
-    ((should_set_source_n)?  "\n  source_n    => " + String(source_n)    : "") + \
-    ((should_set_bit_depth)? "\n  bit_depth   => " + String(bit_depth)   : "") + \
-    ((should_set_stereo)?    "\n  is_stereo   => " + stereo              : "") ; \
-  if (should_set_stereo && !should_init_all)                                     \
-    Trace::TraceClient("converting existing local " + prev_type + " " +          \
-                       ch_id + " '" + ch_name + "' to " + type) ;                \
+#define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL                                       \
+  String ch_name   = GetStoredChannelName(channel_store) ;                        \
+         ch_name   = Config->MakeStereoName(ch_name , stereo_status) ;            \
+  String ch_id     = String(channel_store.getType()) ;                            \
+  bool   is_new    = !IsConfiguredChannel(channel_idx) ;                          \
+  bool   is_stereo = stereo_status != CONFIG::MONO ;                              \
+  String pairidx   = (stereo_status == CONFIG::MONO)                    ?         \
+                     String(pair_idx) + ((!is_new)? " (deleting)" : "") :         \
+                     (stereo_status == CONFIG::STEREO_L)                ?         \
+                     String(pair_idx) + " (pending)"                    :         \
+                     String(pair_idx)                                   ;         \
+  String type      = (!is_stereo)   ? "mono" : "stereo" ;                         \
+  String prev_type = (is_stereo)    ? "mono" : "stereo" ;                         \
+  String dbg       = String((is_new)? "new"  : "existing") + " local " +          \
+                     type + " " + ch_id + " '" + ch_name + "'" ;                  \
+  String pann   = String(pan) + ((stereo_status == CONFIG::MONO)       ? "" :     \
+                  " (" + String(ComputeStereoPan(pan , stereo_status)) +          \
+                  " faux-stereo)") ;                                              \
+  String stereo = String(is_stereo)                                    +          \
+                  ((stereo_status == CONFIG::MONO)    ? " (MONO)"      :          \
+                   (stereo_status == CONFIG::STEREO_L)? " (STEREO_L)" :           \
+                   (stereo_status == CONFIG::STEREO_R)? " (STEREO_R)" : "") ;     \
+  if (stereo_status == CONFIG::STEREO_L) dbg += " and its stereo pair" ;          \
+  if (TRACE_LOCAL_CHANNELS_VB)  dbg +=                                            \
+    ((should_set_name     ) ? "\n  name        => " + ch_name             : "") + \
+    ((should_init_all     ) ? "\n  channel_idx => " + String(channel_idx) : "") + \
+    ((should_set_stereo   ) ? "\n  pair_idx    => " + pairidx             : "") + \
+    ((should_set_volume   ) ? "\n  volume      => " + String(volume)      : "") + \
+    ((should_set_pan      ) ? "\n  pan         => " + pann                : "") + \
+    ((should_set_is_xmit  ) ? "\n  is_xmit     => " + String(is_xmit)     : "") + \
+    ((should_set_is_muted ) ? "\n  is_muted    => " + String(is_muted)    : "") + \
+    ((should_set_is_solo  ) ? "\n  is_solo     => " + String(is_solo)     : "") + \
+    ((should_set_source_n ) ? "\n  source_n    => " + String(source_n)    : "") + \
+    ((should_set_bit_depth) ? "\n  bit_depth   => " + String(bit_depth)   : "") + \
+    ((should_set_stereo   ) ? "\n  is_stereo   => " + stereo              : "") ; \
+  if (should_set_stereo && !should_init_all)                                      \
+    Trace::TraceClient("converting existing local " + prev_type + " " +           \
+                       ch_id + " '" + ch_name + "' to " + type) ;                 \
   Trace::TraceClient("configuring " + dbg) ;
 
 #define DEBUG_TRACE_REMOVE_LOCAL_CHANNEL                                       \
@@ -330,24 +326,24 @@ static int PrevStatus = LinJam::LINJAM_STATUS_INIT ;
   if      (a_key == CONFIG::STEREO_ID && stereo_status == CONFIG::STEREO_R) ;          \
   else if (!(~user_idx))    Trace::TraceError("user index out of range "    + dbg) ;   \
   else if (!(~channel_idx)) Trace::TraceError("channel index out of range " + dbg) ;   \
-  else if (TRACE_REMOTE_CHANNELS_VB) Trace::TraceClient(dbg                 +          \
-      ((should_set_volume)?   "\n  volume      => " + String(volume)    : "") +        \
-      ((should_set_pan)?      "\n  pan         => " + pann              : "") +        \
-      ((should_set_is_rcv)?   "\n  is_rcv      => " + String(is_rcv)    : "") +        \
-      ((should_set_is_muted)? "\n  is_muted    => " + String(is_muted)  : "") +        \
-      ((should_set_is_solo)?  "\n  is_solo     => " + String(is_solo)   : "") +        \
-      ((should_init_all)?     "\n  sink_n      => " + String(sink_n)    : "") +        \
-      ((should_init_all)?     "\n  is_pannable => " + pannable          : "") ) ;      \
+  else if (TRACE_REMOTE_CHANNELS_VB) Trace::TraceClient(dbg                    +       \
+      ((should_set_volume  ) ? "\n  volume      => " + String(volume)    : "") +       \
+      ((should_set_pan     ) ? "\n  pan         => " + pann              : "") +       \
+      ((should_set_is_rcv  ) ? "\n  is_rcv      => " + String(is_rcv)    : "") +       \
+      ((should_set_is_muted) ? "\n  is_muted    => " + String(is_muted)  : "") +       \
+      ((should_set_is_solo ) ? "\n  is_solo     => " + String(is_solo)   : "") +       \
+      ((should_init_all    ) ? "\n  sink_n      => " + String(sink_n)    : "") +       \
+      ((should_init_all    ) ? "\n  is_pannable => " + pannable          : "") ) ;     \
   if (is_master && !should_set_volume && !should_set_pan && !should_set_is_muted &&    \
      (should_set_is_rcv || should_set_is_solo))                                        \
     Trace::TraceClient("applying user master " + pseudo_control               +        \
                        " pseudo control over all " + user_name + " channels") ;
 
 
-/* subscriptions */
+/* blacklist */
 
-#define DEBUG_TRACE_SUBSCRIPTIONS                                                     \
-  ValueTree             subs  = Config->subscriptions.createCopy() ;                  \
+#define DEBUG_TRACE_BLACKLIST                                                         \
+  ValueTree             subs  = Config->blacklist.createCopy() ;                      \
   std::set<std::string> users = Client->config_autosubscribe_userlist ;               \
   for (int user_n = 0 ; user_n < subs.getNumChildren() ; ++user_n)                    \
   {                                                                                   \
@@ -361,7 +357,7 @@ static int PrevStatus = LinJam::LINJAM_STATUS_INIT ;
     if (subs.getChildWithName(Identifier(user_name)).isValid())                       \
       Trace::TraceClient("subscribing to remote user '" + user_name + "'") ;          \
   }                                                                                   \
-  if (TRACE_DUMP_SUBSCRIPTIONS)                                                       \
+  if (TRACE_DUMP_BLACKLIST)                                                           \
   {                                                                                   \
     String dbg = "ignore_list =>" ; int n_users = subs.getNumChildren() ;             \
     for (int user_n = 0 ; user_n < n_users ; ++user_n)                                \
@@ -373,7 +369,7 @@ static int PrevStatus = LinJam::LINJAM_STATUS_INIT ;
 /* chat */
 
 #define DEBUG_TRACE_CHAT_IN                                                        \
-  if (chat_user.compare(String(Config->server[CONFIG::LOGIN_ID])))                 \
+  if (chat_user.compare(str(Config->server[CONFIG::LOGIN_ID])))                    \
     Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 
 #define DEBUG_TRACE_CHAT_OUT                                                    \
@@ -396,6 +392,8 @@ static int PrevStatus = LinJam::LINJAM_STATUS_INIT ;
 #define DEBUG_TRACE_AUDIO_INIT_MAC            ;
 #define DEBUG_TRACE_AUDIO_INIT_JACK           ;
 #define DEBUG_TRACE_AUDIO_INIT_ALSA           ;
+#define DEBUG_TRACE_AUDIO_INIT_JACK_FAIL      ;
+#define DEBUG_TRACE_AUDIO_INIT_NIX            ;
 #define DEBUG_TRACE_AUDIO_INIT                ;
 // channels
 #define DEBUG_TRACE_INITIAL_CHANNELS          ;
@@ -407,8 +405,8 @@ static int PrevStatus = LinJam::LINJAM_STATUS_INIT ;
 #define DEBUG_TRACE_REMOTE_CHANNELS           ;
 #define DEBUG_TRACE_REMOTE_CHANNELS_VB        ;
 #define DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL  ;
-// subscriptions
-#define DEBUG_TRACE_SUBSCRIPTIONS             ;
+// blacklist
+#define DEBUG_TRACE_BLACKLIST                 ;
 // chat
 #define DEBUG_TRACE_CHAT_IN                   ;
 #define DEBUG_TRACE_CHAT_OUT                  ;

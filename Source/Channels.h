@@ -7,7 +7,7 @@
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.0
+  Created with Introjucer version: 3.1.1
 
   ------------------------------------------------------------------------------
 
@@ -23,7 +23,6 @@
 //[Headers]     -- You can add your own extra header files here --
 
 #include "Channel.h"
-#include "JuceHeader.h"
 
 //[/Headers]
 
@@ -32,10 +31,10 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    This is the component superclass of channels mixergroups.
+  Channels is the abstract superclass of channel mixergroups:
+      LocalChannels, RemoteChannels, MaseterChannels
+      which are containers for related Channel mixer slices
 
-    It is a container for related Channel mixer slices
-        with an expand/add button.
                                                                     //[/Comments]
 */
 class Channels  : public Component
@@ -115,18 +114,19 @@ class RemoteChannels : public Channels , public ButtonListener
 {
 public:
 
-  RemoteChannels(ValueTree user_store , ValueTree subscriptions) ;
+  RemoteChannels(ValueTree user_store , ValueTree blacklist_store) ;
 
 
 private:
 
   ValueTree userStore ;
-  ValueTree subscriptions ;
+  ValueTree blacklistStore ;
   bool      isExpanded ;
 
 
   void     buttonClicked(       Button* buttonThatWasClicked) ;
   void     toggleExpandChannels() ;
+  void     addUserToBlacklist() ;
   Channel* newChannel(          ValueTree channel_store) override ;
 } ;
 

@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef _CONFIGCHANNEL_H_
-#define _CONFIGCHANNEL_H_
+#ifndef _CONFIGGUI_H_
+#define _CONFIGGUI_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -31,18 +31,17 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-  ConfigChannel is the instantiation and configurations dialog
-      for individual mixer slices
+  ConfigGui is a tab of the configuration screen
+  it configures options specific to the LinJam GUI
                                                                     //[/Comments]
 */
-class ConfigChannel  : public Component,
-                       public ButtonListener,
-                       public ComboBoxListener
+class ConfigGui  : public Component,
+                   public ComboBoxListener
 {
 public:
     //==============================================================================
-    ConfigChannel (ValueTree channel_store);
-    ~ConfigChannel();
+    ConfigGui (ValueTree gui_store);
+    ~ConfigGui();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -57,40 +56,27 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  ValueTree      channelStore ;
-  SortedSet<int> freeAudioSourceNs ;
-  SortedSet<int> freeAudioSourcePairNs ;
-  StringArray    freeAudioSourceOptions ;
-  StringArray    freeAudioSourcePairOptions ;
-  bool           isNewChannel ;
-  int            sourceN ;
-  bool           isStereo ;
+  ValueTree guiStore ;
 
 
-  void   buttonClicked(             Button* a_button) ;
-  String makeMonoSelectOption(      int channel_n) ;
-  String makeStereoSelectOption(    int channel_n) ;
-  void   createChannelSelectOptions() ;
-  void   populateChannelSelect() ;
+  void setConfig(Identifier a_key , var a_value) ;
 
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> nameLabel;
-    ScopedPointer<TextEditor> nameText;
-    ScopedPointer<ToggleButton> monoButton;
-    ScopedPointer<ToggleButton> stereoButton;
-    ScopedPointer<Label> inputLabel;
-    ScopedPointer<ComboBox> channelSelect;
-    ScopedPointer<TextButton> okButton;
-    ScopedPointer<TextButton> cancelButton;
+    ScopedPointer<GroupComponent> mixerGroup;
+    ScopedPointer<GroupComponent> chatGroup;
+    ScopedPointer<Label> fontsizeLabel;
+    ScopedPointer<Label> updateLabel;
+    ScopedPointer<ComboBox> updateComboBox;
+    ScopedPointer<ComboBox> fontsizeComboBox;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigChannel)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigGui)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif // _CONFIGCHANNEL_H_
+#endif // _CONFIGGUI_H_

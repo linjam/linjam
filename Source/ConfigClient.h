@@ -31,9 +31,9 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Introjucer.
-
-    Describe your class and how it works here!
+  ConfigClient is a tab of the configuration screen
+  it configures misc options specific to the NJClient
+      that are not otherwise on the ConfigAudio or ConfigBlacklist tabs
                                                                     //[/Comments]
 */
 class ConfigClient  : public Component,
@@ -75,6 +75,7 @@ private:
     ScopedPointer<ComboBox> debugLevelComboBox;
     ScopedPointer<ToggleButton> saveLogButton;
     ScopedPointer<ToggleButton> hideBotsButton;
+    ScopedPointer<TextButton> cleanButton;
 
 
     //==============================================================================

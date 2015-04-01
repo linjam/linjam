@@ -112,11 +112,11 @@ ConfigChannel::ConfigChannel (ValueTree channel_store)
   // TODO: change option colors
 
   // set initial channel state and populate input select options
-  this->channelStore      =        channel_store ;
-  Identifier channel_id   =        channel_store.getType() ;
-  String     channel_name = String(channel_store[CONFIG::CHANNEL_NAME_ID]) ;
-  this->sourceN           = int(   channel_store[CONFIG::SOURCE_N_ID    ]) ;
-  this->isStereo          = int(   channel_store[CONFIG::STEREO_ID      ]) != CONFIG::MONO ;
+  this->channelStore      =     channel_store ;
+  Identifier channel_id   =     channel_store.getType() ;
+  String     channel_name = str(channel_store[CONFIG::CHANNEL_NAME_ID]) ;
+  this->sourceN           = int(channel_store[CONFIG::SOURCE_N_ID    ]) ;
+  this->isStereo          = int(channel_store[CONFIG::STEREO_ID      ]) != CONFIG::MONO ;
   this->isNewChannel      = (channel_id == CONFIG::NEWCHANNEL_ID) ;
 
   nameText    ->setText(channel_name) ;

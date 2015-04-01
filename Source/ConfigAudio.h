@@ -31,24 +31,25 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Introjucer.
-
-    Describe your class and how it works here!
+  ConfigAudio is a tab of the configuration screen
+  it instantiates and configures the current AudioStreamer
                                                                     //[/Comments]
 */
 class ConfigAudio  : public Component,
                      public ButtonListener,
                      public ComboBoxListener,
-                     public SliderListener,
-                     public ValueListener
+                     public SliderListener
 {
 public:
     //==============================================================================
-    ConfigAudio (ValueTree audio_store , Value linjam_status);
+    ConfigAudio (ValueTree audio_store);
     ~ConfigAudio();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+  friend class Config ;
+
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -63,10 +64,8 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
   ValueTree audioStore ;
-  Value     linjamStatus ;
 
 
-  void valueChanged(Value& a_value) ;
   void loadParams() ;
   void populateDevices() ;
   void restoreDefaults() ;
@@ -89,17 +88,6 @@ private:
   void updateLatency() ;
   void setConfig(    Identifier a_key , var a_value) ;
 
-
-#ifdef _WIN32_THESE_MOVED_TO_LIBNINJAM
-public:
-  static StringPairArray getDsDevices() ;
-  static StringArray     getDsDeviceNames() ;
-  static StringArray     getDsDeviceGuids() ;
-private:
-  static BOOL CALLBACK DSEnumProc(LPGUID  lpGUID      , LPCTSTR lpszDesc ,
-                                  LPCTSTR lpszDrvName , LPVOID  device_names) ;
-#endif // _WIN32
-
     //[/UserVariables]
 
     //==============================================================================
@@ -110,7 +98,7 @@ private:
     ScopedPointer<TextButton> defaultsButton;
     ScopedPointer<TextButton> asioButton;
     ScopedPointer<Label> modeLabel;
-    ScopedPointer<ComboBox> modeComboBox;
+    ScopedPointer<ComboBox> apiComboBox;
     ScopedPointer<Label> driverLabel;
     ScopedPointer<ComboBox> driverComboBox;
     ScopedPointer<Label> sourceLabel;
@@ -130,12 +118,13 @@ private:
     ScopedPointer<Label> xLabel;
     ScopedPointer<ComboBox> bufferComboBox;
     ScopedPointer<Label> bytesLabel;
-    ScopedPointer<Label> nixConfigLabel;
-    ScopedPointer<TextEditor> nixConfigText;
+    ScopedPointer<Label> jackNameLabel;
+    ScopedPointer<TextEditor> jackNameText;
     ScopedPointer<Label> nSourcesLabel;
     ScopedPointer<Slider> nSourcesSlider;
     ScopedPointer<Label> nSinksLabel;
     ScopedPointer<Slider> nSinksSlider;
+    ScopedPointer<ToggleButton> jackPortsButton;
 
 
     //==============================================================================
@@ -145,4 +134,4 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // _CONFIGAUDIO_H_
+#endif // _CONFIGAUDIO_H_

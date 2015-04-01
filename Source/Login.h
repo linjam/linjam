@@ -31,9 +31,8 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Introjucer.
-
-    Describe your class and how it works here!
+  Login is the initial lobby "screen" that contains quick-login buttons
+      and custom server/login configuration
                                                                     //[/Comments]
 */
 class Login  : public Component,

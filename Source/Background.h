@@ -20,7 +20,6 @@
 #ifndef _BACKGROUND_H_
 #define _BACKGROUND_H_
 
-
 //[Headers]     -- You can add your own extra header files here --
 
 #include "JuceHeader.h"
@@ -32,9 +31,8 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Introjucer.
-
-    Describe your class and how it works here!
+  Background is simply the backdrop for other "screens"
+  although it may eventually sport a logo or spinner
                                                                     //[/Comments]
 */
 class Background  : public Component

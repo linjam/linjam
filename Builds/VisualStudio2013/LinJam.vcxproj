@@ -58,7 +58,7 @@
       <Optimization>Disabled</Optimization>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.0.1;JUCE_APP_VERSION_HEX=0x1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;DEBUG;_DEBUG;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.27.0;JUCE_APP_VERSION_HEX=0x1b00;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -102,7 +102,7 @@
     <ClCompile>
       <Optimization>MinSpace</Optimization>
       <AdditionalIncludeDirectories>..\..\JuceLibraryCode;..\..\JuceLibraryCode\modules;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.0.1;JUCE_APP_VERSION_HEX=0x1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;JUCER_VS2013_78A5020=1;JUCE_APP_VERSION=0.27.0;JUCE_APP_VERSION_HEX=0x1b00;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <PrecompiledHeader/>
@@ -138,14 +138,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Background.cpp"/>
+    <ClCompile Include="..\..\Source\Blacklist.cpp"/>
     <ClCompile Include="..\..\Source\Channel.cpp"/>
     <ClCompile Include="..\..\Source\Channels.cpp"/>
     <ClCompile Include="..\..\Source\Chat.cpp"/>
     <ClCompile Include="..\..\Source\Config.cpp"/>
     <ClCompile Include="..\..\Source\ConfigAudio.cpp"/>
+    <ClCompile Include="..\..\Source\ConfigBlacklist.cpp"/>
     <ClCompile Include="..\..\Source\ConfigChannel.cpp"/>
     <ClCompile Include="..\..\Source\ConfigClient.cpp"/>
-    <ClCompile Include="..\..\Source\ConfigSubscriptions.cpp"/>
+    <ClCompile Include="..\..\Source\ConfigGui.cpp"/>
     <ClCompile Include="..\..\Source\Constants.cpp"/>
     <ClCompile Include="..\..\Source\License.cpp"/>
     <ClCompile Include="..\..\Source\LinJam.cpp"/>
@@ -156,7 +158,6 @@
     <ClCompile Include="..\..\Source\MainContent.cpp"/>
     <ClCompile Include="..\..\Source\Mixer.cpp"/>
     <ClCompile Include="..\..\Source\StatusBar.cpp"/>
-    <ClCompile Include="..\..\Source\Subscriptions.cpp"/>
     <ClCompile Include="..\..\Source\Trace\Trace.cpp"/>
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharacterFunctions.cpp">
       <ExcludedFromBuild>true</ExcludedFromBuild>
@@ -912,23 +913,17 @@
     <ClCompile Include="..\..\JuceLibraryCode\modules\juce_gui_basics\juce_gui_basics.cpp"/>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\Trace\Trace.h"/>
-    <ClInclude Include="..\..\Source\Trace\TraceChannels.h"/>
-    <ClInclude Include="..\..\Source\Trace\TraceConfig.h"/>
-    <ClInclude Include="..\..\Source\Trace\TraceLinJam.h"/>
-    <ClInclude Include="..\..\Source\Trace\TraceLinJamConfig.h"/>
-    <ClInclude Include="..\..\Source\Trace\TraceLogin.h"/>
-    <ClInclude Include="..\..\Source\Trace\TraceMain.h"/>
-    <ClInclude Include="..\..\Source\Trace\TraceMixer.h"/>
     <ClInclude Include="..\..\Source\Background.h"/>
+    <ClInclude Include="..\..\Source\Blacklist.h"/>
     <ClInclude Include="..\..\Source\Channel.h"/>
     <ClInclude Include="..\..\Source\Channels.h"/>
     <ClInclude Include="..\..\Source\Chat.h"/>
     <ClInclude Include="..\..\Source\Config.h"/>
     <ClInclude Include="..\..\Source\ConfigAudio.h"/>
+    <ClInclude Include="..\..\Source\ConfigBlacklist.h"/>
     <ClInclude Include="..\..\Source\ConfigChannel.h"/>
     <ClInclude Include="..\..\Source\ConfigClient.h"/>
-    <ClInclude Include="..\..\Source\ConfigSubscriptions.h"/>
+    <ClInclude Include="..\..\Source\ConfigGui.h"/>
     <ClInclude Include="..\..\Source\Constants.h"/>
     <ClInclude Include="..\..\Source\License.h"/>
     <ClInclude Include="..\..\Source\LinJam.h"/>
@@ -938,7 +933,13 @@
     <ClInclude Include="..\..\Source\MainContent.h"/>
     <ClInclude Include="..\..\Source\Mixer.h"/>
     <ClInclude Include="..\..\Source\StatusBar.h"/>
-    <ClInclude Include="..\..\Source\Subscriptions.h"/>
+    <ClInclude Include="..\..\Source\Trace\Trace.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceChannels.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceConfig.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceLinJam.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceLinJamConfig.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceLogin.h"/>
+    <ClInclude Include="..\..\Source\Trace\TraceMixer.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharacterFunctions.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_ASCII.h"/>
     <ClInclude Include="..\..\JuceLibraryCode\modules\juce_core\text\juce_CharPointer_UTF8.h"/>
@@ -1254,6 +1255,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\JuceLibraryCode\modules\juce_core\juce_module_info"/>
+    <None Include="..\..\JuceLibraryCode\modules\juce_data_structures\values\juce_ValueTree.cpp~"/>
     <None Include="..\..\JuceLibraryCode\modules\juce_data_structures\juce_module_info"/>
     <None Include="..\..\JuceLibraryCode\modules\juce_events\juce_module_info"/>
     <None Include="..\..\JuceLibraryCode\modules\juce_graphics\juce_module_info"/>

@@ -17,8 +17,8 @@
   ==============================================================================
 */
 
-#ifndef _CONFIGCHANNEL_H_
-#define _CONFIGCHANNEL_H_
+#ifndef _CONFIGBLACKLIST_H_
+#define _CONFIGBLACKLIST_H_
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -31,18 +31,17 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-  ConfigChannel is the instantiation and configurations dialog
-      for individual mixer slices
+  ConfigBlacklist is a tab of the configuration screen
+  it configures options specific to the NJClient subscriptions list
                                                                     //[/Comments]
 */
-class ConfigChannel  : public Component,
-                       public ButtonListener,
-                       public ComboBoxListener
+class ConfigBlacklist  : public Component,
+                         public ButtonListener
 {
 public:
     //==============================================================================
-    ConfigChannel (ValueTree channel_store);
-    ~ConfigChannel();
+    ConfigBlacklist (ValueTree blacklist_store);
+    ~ConfigBlacklist();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -50,47 +49,32 @@ public:
 
     void paint (Graphics& g);
     void resized();
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
+    void buttonClicked (Button* buttonThatWasClicked);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  ValueTree      channelStore ;
-  SortedSet<int> freeAudioSourceNs ;
-  SortedSet<int> freeAudioSourcePairNs ;
-  StringArray    freeAudioSourceOptions ;
-  StringArray    freeAudioSourcePairOptions ;
-  bool           isNewChannel ;
-  int            sourceN ;
-  bool           isStereo ;
+  ValueTree blacklistStore ;
 
 
-  void   buttonClicked(             Button* a_button) ;
-  String makeMonoSelectOption(      int channel_n) ;
-  String makeStereoSelectOption(    int channel_n) ;
-  void   createChannelSelectOptions() ;
-  void   populateChannelSelect() ;
+  void setConfig(Identifier a_key , var a_value) ;
 
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> nameLabel;
-    ScopedPointer<TextEditor> nameText;
-    ScopedPointer<ToggleButton> monoButton;
-    ScopedPointer<ToggleButton> stereoButton;
-    ScopedPointer<Label> inputLabel;
-    ScopedPointer<ComboBox> channelSelect;
-    ScopedPointer<TextButton> okButton;
-    ScopedPointer<TextButton> cancelButton;
+    ScopedPointer<ToggleButton> subscribeButton;
+    ScopedPointer<ToggleButton> ignoreButton;
+    ScopedPointer<Label> bansLabel;
+    ScopedPointer<Viewport> blacklistViewport;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigChannel)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ConfigBlacklist)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif // _CONFIGCHANNEL_H_
+#endif // _CONFIGBLACKLIST_H_

@@ -20,7 +20,6 @@
 #ifndef _LOOP_H_
 #define _LOOP_H_
 
-
 //[Headers]     -- You can add your own extra header files here --
 
 #include "JuceHeader.h"
@@ -32,9 +31,7 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-    An auto-generated component, created by the Introjucer.
-
-    Describe your class and how it works here!
+  Loop is the interval progress indicator in the statusbar
                                                                     //[/Comments]
 */
 class Loop  : public Component
