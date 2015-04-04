@@ -48,7 +48,7 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-    void quickLogin(String host) ;
+    bool quickLogin(String host) ;
 
     //[/UserMethods]
 
@@ -77,10 +77,11 @@ private:
 
   // helpers
   void sortLoginButtons() ;
-  void signIn() ;
+  bool signIn() ;
   bool validateHost() ;
   bool validateLogin() ;
   bool validatePass() ;
+  void setTextErrorState(TextEditor* a_text_editor , bool is_error_state) ;
 
     //[/UserVariables]
 

@@ -721,10 +721,14 @@ namespace CONFIG
 namespace GUI
 {
   // common
-  static const int PAD  = 4 ;
-  static const int PAD2 = PAD * 2 ;
-  static const int PAD3 = PAD * 3 ;
-  static const int PAD4 = PAD * 4 ;
+  static const int    PAD                 = 4 ;
+  static const int    PAD2                = PAD * 2 ;
+  static const int    PAD3                = PAD * 3 ;
+  static const int    PAD4                = PAD * 4 ;
+  static const Colour TEXT_EMPTY_COLOR    = Colour(0x80808080) ;
+  static const Colour TEXT_NORMAL_COLOR   = Colour(0xffffffff) ;
+  static const Colour TEXT_HILITE_COLOR   = Colour(0xffffffff) ;
+  static const Colour TEXT_HILITEBG_COLOR = Colour(0xff000040) ;
 
   // LinJamApplication
   static const int CLIENT_TIMER_ID     = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
@@ -847,12 +851,21 @@ namespace GUI
   static const int BLACKLIST_ENTRY_H = 16 ;
 
   // Login
-  static const String LOGIN_GUI_ID            = "login-gui" ;
-  static const int    N_STATIC_LOGIN_CHILDREN = 6 ;
-  static const int    LOGIN_BUTTON_L          = GUI::PAD ;
-  static const int    LOGIN_BUTTON_T          = GUI::PAD ;
-  static const int    LOGIN_BUTTON_W          = 128 ;
-  static const int    LOGIN_BUTTON_H          = 24 ;
+  static const String LOGIN_GUI_ID                   = "login-gui" ;
+  static const int    N_STATIC_LOGIN_CHILDREN        = 6 ;
+  static const int    LOGIN_BUTTON_L                 = GUI::PAD ;
+  static const int    LOGIN_BUTTON_T                 = GUI::PAD ;
+  static const int    LOGIN_BUTTON_W                 = 128 ;
+  static const int    LOGIN_BUTTON_H                 = 24 ;
+  static const Colour PROMPT_BACKGROUND_NORMAL_COLOR = Colour(0xff000000) ;
+  static const Colour PROMPT_BORDER_NORMAL_COLOR     = Colour(0xffffffff) ;
+  static const Colour PROMPT_FOCUS_NORMAL_COLOR      = Colour(0xffffffff) ;
+  static const Colour PROMPT_BACKGROUND_ERROR_COLOR  = Colour(0xff200000) ;
+  static const Colour PROMPT_BORDER_ERROR_COLOR      = Colour(0xff800000) ;
+  static const Colour PROMPT_FOCUS_ERROR_COLOR       = Colour(0xffff0000) ;
+  static const String HOST_PROMPT_TEXT               = "<type a server url here>" ;
+  static const String LOGIN_PROMPT_TEXT              = "<type a nickname here>" ;
+  static const String PASS_PROMPT_TEXT               = "<type a password here>" ;
 
   // License
   static const String LICENSE_GUI_ID = "license-gui" ;

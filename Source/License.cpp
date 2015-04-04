@@ -76,7 +76,7 @@ License::License (ValueTree login_store)
     //[Constructor] You can add your own custom stuff here..
 
   this->alwaysAgree.referTo(LinJamConfig::GetValueHolder(this->loginStore       ,
-                                                         CONFIG::CHANNEL_NAME_ID)) ;
+                                                         CONFIG::SHOULD_AGREE_ID)) ;
   this->alwaysAgree.addListener(this) ;
 
     //[/Constructor]

@@ -100,7 +100,7 @@ static int DbgPrevStatus = STATUS::LINJAM_STATUS_INIT ;
         Trace::TraceKVP("\t" , CONFIG::WAVE_NBLOCKS_KEY    , String(wave_n_buffers      )) ; \
         Trace::TraceKVP("\t" , CONFIG::WAVE_BLOCKSIZE_KEY  , String(wave_buffer_size    )) ; \
       break ;                                                                                \
-    }
+  } }
 
 #define DEBUG_TRACE_AUDIO_INIT_MAC                                               \
   String type = GUI::CA_DEVICE_TYPE ;                                            \

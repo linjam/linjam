@@ -499,7 +499,7 @@ DEBUG_TRACE_AUDIO_INIT
 
   // set audio and status value holders for Config GUI
   Status = (isAudioEnabled) ? STATUS::LINJAM_STATUS_CONFIGPENDING :
-                              STATUS::LINJAM_STATUS_AUDIOERROR ;
+                              STATUS::LINJAM_STATUS_AUDIOERROR    ;
 
   return isAudioEnabled ;
 }
@@ -741,19 +741,24 @@ DEBUG_TRACE_STATUS_CHANGED
     // retry login
     case STATUS::NJC_STATUS_INVALIDAUTH:
     case STATUS::NJC_STATUS_CANTCONNECT: // retry login (server occasionally rejects)
-      if (RetryLogin-- > 0) Connect() ;                                 break ;
+      if (RetryLogin-- > 0) Connect() ;                                        break ;
     case STATUS::NJC_STATUS_OK:          // store server credentials and present mixer GUI
       Config->setServer() ;
       UpdateGuiLowPriority() ;
       Gui->mixer->toFront(false) ;
-      Gui->loop ->toFront(false) ;                                      break ;
+      Gui->loop ->toFront(false) ;                                             break ;
     case STATUS::NJC_STATUS_PRECONNECT:  // auto-join
       if (AutoJoinHost.isNotEmpty())
       {
+        if (Gui->login->quickLogin(AutoJoinHost)) Gui->background->toFront(true) ;
+        AutoJoinHost = "" ;
+      }                                                                        break ;
+/*
+      if (Gui->login->quickLogin(AutoJoinHost))
         Gui->background->toFront(true) ;
-        Gui->login     ->quickLogin(AutoJoinHost) ; AutoJoinHost = "" ;
-      }                                                                 break ;
-    default:                                                            break ;
+      AutoJoinHost = "" ;                                                    break ;
+*/
+    default:                                                                   break ;
   }
 }
 

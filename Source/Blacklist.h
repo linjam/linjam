@@ -91,7 +91,7 @@ private:
 
 
   void resized() ;
-  int  resize() ;
+  void resize() ;
   void removeBlacklistEntry(BlacklistEntry* a_blacklist_entry) ;
   void valueTreeChildAdded( ValueTree& a_parent_node , ValueTree& a_node) override  ;
 

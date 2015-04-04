@@ -136,6 +136,18 @@ Login::Login (ValueTree login_store)
   this->hostText   ->addListener(this) ;
   this->loginText  ->addListener(this) ;
   this->passText   ->addListener(this) ;
+  this->hostText   ->setColour(TextEditor::textColourId            , GUI::TEXT_NORMAL_COLOR  ) ;
+  this->loginText  ->setColour(TextEditor::textColourId            , GUI::TEXT_NORMAL_COLOR  ) ;
+  this->passText   ->setColour(TextEditor::textColourId            , GUI::TEXT_NORMAL_COLOR  ) ;
+  this->hostText   ->setColour(TextEditor::highlightColourId       , GUI::TEXT_HILITEBG_COLOR) ;
+  this->loginText  ->setColour(TextEditor::highlightColourId       , GUI::TEXT_HILITEBG_COLOR) ;
+  this->passText   ->setColour(TextEditor::highlightColourId       , GUI::TEXT_HILITEBG_COLOR) ;
+  this->hostText   ->setColour(TextEditor::highlightedTextColourId , GUI::TEXT_HILITE_COLOR  ) ;
+  this->loginText  ->setColour(TextEditor::highlightedTextColourId , GUI::TEXT_HILITE_COLOR  ) ;
+  this->passText   ->setColour(TextEditor::highlightedTextColourId , GUI::TEXT_HILITE_COLOR  ) ;
+  this->hostText   ->setTextToShowWhenEmpty(GUI::HOST_PROMPT_TEXT  , GUI::TEXT_EMPTY_COLOR   ) ;
+  this->loginText  ->setTextToShowWhenEmpty(GUI::LOGIN_PROMPT_TEXT , GUI::TEXT_EMPTY_COLOR   ) ;
+  this->passText   ->setTextToShowWhenEmpty(GUI::PASS_PROMPT_TEXT  , GUI::TEXT_EMPTY_COLOR   ) ;
   this->passText   ->setPasswordCharacter('*') ;
 
   // instantiate known host login buttons
@@ -273,7 +285,7 @@ void Login::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-void Login::quickLogin(String host)
+bool Login::quickLogin(String host)
 {
   ValueTree credentials = LinJam::GetCredentials(host) ;
 
@@ -292,7 +304,7 @@ DEBUG_TRACE_LOBBY_QUICKLOGIN
     this->anonButton->setToggleState(is_anonymous , juce::dontSendNotification) ;
   }
 
-  signIn() ;
+  return signIn() ;
 }
 
 
@@ -356,7 +368,7 @@ void Login::sortLoginButtons()
   }
 }
 
-void Login::signIn()
+bool Login::signIn()
 {
   String host         = this->hostText  ->getText().trim() ;
   String login        = this->loginText ->getText().trim() ;
@@ -365,19 +377,23 @@ void Login::signIn()
 
 DEBUG_TRACE_LOGIN_VALIDATION
 
-  if (!validateHost() || !validateLogin() || !validatePass()) return ;
+  bool are_valid_credentials = validateHost() && validateLogin() && validatePass() ;
 
-  LinJam::SignIn(host , login , pass , is_anonymous) ;
+  if (are_valid_credentials) LinJam::SignIn(host , login , pass , is_anonymous) ;
+
+  return are_valid_credentials ;
 }
 
 bool Login::validateHost()
 {
-  String host           = this->hostText->getText().trim() ;
-  String server         = host  .upToFirstOccurrenceOf(StringRef(":") , false , true) ;
-  String name           = server.upToLastOccurrenceOf( StringRef(".") , false , true) ;
-  String tld            = server.fromLastOccurrenceOf( StringRef(".") , false , true) ;
-  String port           = host  .fromFirstOccurrenceOf(StringRef(":") , false , true) ;
+  // parse url tokens
+  String host   = this->hostText->getText().trim() ;
+  String server = host  .upToFirstOccurrenceOf(StringRef(":") , false , true) ;
+  String name   = server.upToLastOccurrenceOf( StringRef(".") , false , true) ;
+  String tld    = server.fromLastOccurrenceOf( StringRef(".") , false , true) ;
+  String port   = host  .fromFirstOccurrenceOf(StringRef(":") , false , true) ;
 
+  // validate
   bool   is_localhost   = !NETWORK::LOCALHOST_HOSTNAME.compare(server) ;
   bool   is_known_host  = NETWORK::IsKnownHost(host) ;
   bool   has_valid_form = host.matchesWildcard(NETWORK::HOST_MASK , true) ;
@@ -385,23 +401,20 @@ bool Login::validateHost()
   bool   is_valid_tld   = tld .containsOnly(   NETWORK::LETTERS)   && tld .isNotEmpty() ;
   bool   is_valid_port  = port.containsOnly(   NETWORK::DIGITS)    && port.isNotEmpty() ;
   bool   is_custom_host = has_valid_form && is_valid_name && is_valid_tld && is_valid_port ;
-
   bool   is_valid_host  = is_localhost || is_known_host || is_custom_host ;
 
-  Colour border_color = (is_valid_host)? Colours::white : Colours::red ;
-  this->hostText->setColour(TextEditor::outlineColourId , border_color) ;
-
 DEBUG_TRACE_LOGIN_HOST_VB
+
+  setTextErrorState(this->hostText , !is_valid_host) ;
 
   return is_valid_host ;
 }
 
 bool Login::validateLogin()
 {
-  bool  is_valid_login = this->loginText->getText().trim().containsNonWhitespaceChars() ;
-  Colour border_color  = (is_valid_login)? Colours::white : Colours::red ;
+  bool is_valid_login = this->loginText->getText().trim().containsNonWhitespaceChars() ;
 
-  this->loginText->setColour(TextEditor::outlineColourId , border_color) ;
+  setTextErrorState(this->loginText , !is_valid_login) ;
 
   return is_valid_login ;
 }
@@ -411,11 +424,24 @@ bool Login::validatePass()
   String pass          = this->passText->getText().trim() ;
   bool   is_anonymous  = this->anonButton ->getToggleState() ;
   bool   is_valid_pass = is_anonymous || pass.containsNonWhitespaceChars() ;
-  Colour border_color  = (is_valid_pass)? Colours::white : Colours::red ;
 
-  this->passText->setColour(TextEditor::outlineColourId , border_color) ;
+  setTextErrorState(this->passText , !is_valid_pass) ;
 
   return is_valid_pass ;
+}
+
+void Login::setTextErrorState(TextEditor* a_text_editor , bool is_error_state)
+{
+  Colour background_color = (is_error_state) ? GUI::PROMPT_BACKGROUND_ERROR_COLOR  :
+                                               GUI::PROMPT_BACKGROUND_NORMAL_COLOR ;
+  Colour border_color     = (is_error_state) ? GUI::PROMPT_BORDER_ERROR_COLOR      :
+                                               GUI::PROMPT_BORDER_NORMAL_COLOR     ;
+  Colour focus_color      = (is_error_state) ? GUI::PROMPT_FOCUS_ERROR_COLOR       :
+                                               GUI::PROMPT_FOCUS_NORMAL_COLOR      ;
+
+  a_text_editor->setColour(TextEditor::backgroundColourId     , background_color) ;
+  a_text_editor->setColour(TextEditor::outlineColourId        , border_color    ) ;
+  a_text_editor->setColour(TextEditor::focusedOutlineColourId , focus_color     ) ;
 }
 
 //[/MiscUserCode]

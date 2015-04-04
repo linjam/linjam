@@ -13,12 +13,12 @@
   String status = String((credentials.isValid()) ? "" : "not ") ;                        \
   Trace::TraceEvent("quick-login - storage " + status + "found for host '" + host + "'") ;
 
-#define DEBUG_TRACE_LOGIN_VALIDATION                                               \
-  if (!validateHost() || !validateLogin() || !validatePass())                      \
-    Trace::TraceError("error validating"                                         + \
-                      String((validateHost() ) ? " host='"  + host  + "'" : "" ) + \
-                      String((validateLogin()) ? " login='" + login + "'" : "" ) + \
-                      String((validatePass())  ? " pass"                  : "" ) ) ;
+#define DEBUG_TRACE_LOGIN_VALIDATION                                                           \
+  if (!validateHost() || !validateLogin() || !validatePass())                                  \
+    Trace::TraceError(String("error validating credentials:")                                + \
+                      " host("  + String((validateHost() ) ? "ok)" : "nfg)='" + host  + "'") + \
+                      " login(" + String((validateLogin()) ? "ok)" : "nfg)='" + login + "'") + \
+                      " pass("  + String((validatePass() ) ? "ok)" : "nfg)"                ) ) ;
 
 
 /* network */

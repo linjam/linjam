@@ -1073,12 +1073,12 @@ void ConfigAudio::restoreDefaults()
     }
     case audioStreamer::WIN_AUDIO_DS:
     {
-      setConfig(CONFIG::DS_INPUT_ID      , CONFIG::DEFAULT_DS_INPUT     ) ;
-      setConfig(CONFIG::DS_OUTPUT_ID     , CONFIG::DEFAULT_DS_OUTPUT    ) ;
-      setConfig(CONFIG::DS_SAMPLERATE_ID , CONFIG::DEFAULT_DS_SAMPLERATE) ;
-      setConfig(CONFIG::DS_BITDEPTH_ID   , CONFIG::DEFAULT_DS_BITDEPTH  ) ;
-      setConfig(CONFIG::DS_NBLOCKS_ID    , CONFIG::DEFAULT_DS_NBLOCKS   ) ;
-      setConfig(CONFIG::DS_BLOCKSIZE_ID  , CONFIG::DEFAULT_DS_BLOCKSIZE ) ;
+      setConfig(CONFIG::DS_INPUT_ID      , CONFIG::DEFAULT_DS_INPUT_NAME ) ;
+      setConfig(CONFIG::DS_OUTPUT_ID     , CONFIG::DEFAULT_DS_OUTPUT_NAME) ;
+      setConfig(CONFIG::DS_SAMPLERATE_ID , CONFIG::DEFAULT_DS_SAMPLERATE ) ;
+      setConfig(CONFIG::DS_BITDEPTH_ID   , CONFIG::DEFAULT_DS_BITDEPTH   ) ;
+      setConfig(CONFIG::DS_NBLOCKS_ID    , CONFIG::DEFAULT_DS_NBLOCKS    ) ;
+      setConfig(CONFIG::DS_BLOCKSIZE_ID  , CONFIG::DEFAULT_DS_BLOCKSIZE  ) ;
 
       break ;
     }
@@ -1270,7 +1270,8 @@ bool ConfigAudio::queryKsDevices()
 bool ConfigAudio::queryDsDevices()
 {
 #  ifndef NO_SUPPORT_DS
-  StringArray ds_device_names = StringArray::fromLines(audioStreamer::GetDsNamesCSV("\n")) ;
+  String      device_names    = audioStreamer::GetDsNamesCSV("\n") ;
+  StringArray ds_device_names = StringArray::fromLines(device_names) ;
   bool        is_ds_available = !!ds_device_names.size() ;
 
   if (is_ds_available)

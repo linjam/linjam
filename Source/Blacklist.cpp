@@ -168,7 +168,7 @@ void Blacklist::resized()
   }
 }
 
-int Blacklist::resize()
+void Blacklist::resize()
 {
   setSize(GUI::BLACKLIST_W ,
           GUI::PAD + (getNumChildComponents() * (GUI::BLACKLIST_ENTRY_H + GUI::PAD))) ;
