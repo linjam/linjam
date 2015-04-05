@@ -337,7 +337,11 @@ void Channel::labelTextChanged (Label* labelThatHasChanged)
 
 DEBUG_TRACE_RENAME_CHANNEL_GUI_VIA_LABEL
 
-      setConfig(CONFIG::CHANNEL_NAME_ID , var(this->nameLabel->getText())) ;
+      String gui_name      = this->nameLabel->getText() ;
+      int    stereo_status = int(this->stereoStatus.getValue()) ;
+      String client_name   = LinJamConfig::MakeStereoName(gui_name , stereo_status) ;
+
+      setConfig(CONFIG::CHANNEL_NAME_ID , var(client_name)) ;
 
         //[/UserLabelCode_nameLabel]
     }
@@ -369,8 +373,9 @@ void Channel::valueChanged(Value& a_value)
   {
 DEBUG_TRACE_RENAME_CHANNEL_GUI_VIA_CALLOUTBOX
 
-    String new_channel_name = str(this->channelName.getValue()) ;
-    this->nameLabel->setText(new_channel_name , juce::dontSendNotification) ;
+    String client_name = str(this->channelName.getValue()) ;
+    String gui_name    = LinJamConfig::TrimStereoName(client_name) ;
+    this->nameLabel->setText(gui_name , juce::dontSendNotification) ;
   }
 }
 
@@ -488,7 +493,6 @@ void LocalChannel::buttonClicked(Button* a_button)
 
   if      (a_button == this->removeButton)
     LinJam::RemoveLocalChannel(this->channelStore) ;
-
   else if (a_button == this->configButton)
   {
     ConfigChannel* configChannel = new ConfigChannel(this->channelStore) ;

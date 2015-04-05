@@ -39,9 +39,9 @@ Identifier LinJamConfig::MakeChannelId(int channel_idx)
 
 String LinJamConfig::MakeStereoName(String channel_name , int stereo_status)
 {
-  return TrimStereoName(channel_name) +
-         ((stereo_status == CONFIG::STEREO_L)? CLIENT::STEREO_L_POSTFIX :
-          (stereo_status == CONFIG::STEREO_R)? CLIENT::STEREO_R_POSTFIX : "") ;
+  return TrimStereoName(channel_name)                                          +
+         ((stereo_status == CONFIG::STEREO_L) ? CLIENT::STEREO_L_POSTFIX :
+          (stereo_status == CONFIG::STEREO_R) ? CLIENT::STEREO_R_POSTFIX : "") ;
 }
 
 String LinJamConfig::TrimStereoName(String channel_name)
@@ -49,7 +49,7 @@ String LinJamConfig::TrimStereoName(String channel_name)
   String stereo_postfix = channel_name.getLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
 
   return (stereo_postfix != CLIENT::STEREO_L_POSTFIX &&
-          stereo_postfix != CLIENT::STEREO_R_POSTFIX  )? channel_name  :
+          stereo_postfix != CLIENT::STEREO_R_POSTFIX  ) ? channel_name    :
           channel_name.dropLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
 }
 

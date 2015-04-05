@@ -80,7 +80,6 @@ private:
   // setup
   static bool Initialize(NJClient*   nj_client   , MainContent*  main_content ,
                          MultiTimer* multi_timer , const String& cli_args     ) ;
-  static void InitializeConstants() ;
   static bool PrepareSessionDirectory() ;
   static void ConfigureNinjam() ;
   static void ConfigureBlacklist() ;
@@ -113,16 +112,16 @@ private:
   static void ConfigureAudio() ;
   static void ConfigureMasterChannel(Identifier a_key) ;
   static void ConfigureMetroChannel( Identifier a_key) ;
-  static void ConfigureLocalChannel( ValueTree  channel_store , Identifier a_key) ;
-  static void ConfigureRemoteChannel(ValueTree  user_store    ,
-                                     ValueTree  channel_store , Identifier a_key) ;
+  static void ConfigureLocalChannel( ValueTree channel_store , Identifier a_key) ;
+  static void ConfigureRemoteChannel(ValueTree user_store    ,
+                                     ValueTree channel_store , Identifier a_key) ;
 
   // audio signal helpers
   static double AddDecibels(       double l_vu , double r_vu) ;
   static void   ComputePannedVus(  double pan , double* l_vu , double* r_vu) ;
   static void   ScalePannedMonoVus(double  vu_mono , double  pan ,
                                    double* l_vu    , double* r_vu) ;
-  static float  ComputeStereoPan(  float pan , int stereo_status) ;
+  static float  ClientPan(         float pan , int stereo_status) ;
 
   // NJClient/audioStreamer helpers
   static int    GetNumAudioSources() ;

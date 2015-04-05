@@ -3,12 +3,17 @@
 #include "LinJamConfig.h"
 
 
+// timers
+int              gui_hi_update_ivls[4]   = { 0 , 1000 , 125 , 62 } ;
+const Array<int> APP::GUI_HI_UPDATE_IVLS = Array<int>(gui_hi_update_ivls , 4) ;
+
+
 // login and validations
 const int       NETWORK::N_LOGIN_RETRIES = 3 ;
 const StringRef NETWORK::HOST_MASK       = "*.*:*" ;
 const StringRef NETWORK::LETTERS         = "abcdefghijklmnopqrstuvwxyz" ;
 const StringRef NETWORK::DIGITS          = "0123456789" ;
-const StringRef NETWORK::URL_CHARS       = "0123456789abcdefghijklmnopqrstuvwxyz-." ;
+const StringRef NETWORK::HOST_CHARS      = "0123456789abcdefghijklmnopqrstuvwxyz-." ;
 
 // known hosts and bots
 const String      NETWORK::LOCALHOST_HOSTNAME = "localhost" ;
@@ -35,18 +40,22 @@ const Identifier  NETWORK::JAMBOT_USER        = "Jambot" ;
 const Identifier  NETWORK::BEERBOT_USER       = "LiveStream" ;
 const String      NETWORK::KNOWN_HOSTS_KEY    = "known-hosts" ;
 const String      NETWORK::KNOWN_BOTS_KEY     = "known-bots" ;
-const XmlElement* NETWORK::KNOWN_HOSTS ;
-const XmlElement* NETWORK::KNOWN_BOTS ;
+const XmlElement* NETWORK::KNOWN_HOSTS ; // APP::Initialize()
+const XmlElement* NETWORK::KNOWN_BOTS ;  // APP::Initialize()
 
-// setup
-void NETWORK::Initialize()
+
+/* setup */
+
+void APP::Initialize()
 {
   // KNOWN_HOSTS and KNOWN_BOTS are destroyed in LinJam::Shutdown()
-  KNOWN_HOSTS = XmlDocument::parse(String(KNOWN_HOSTS_XML)) ;
-  KNOWN_BOTS  = XmlDocument::parse(String(KNOWN_BOTS_XML )) ;
+  NETWORK::KNOWN_HOSTS = XmlDocument::parse(String(KNOWN_HOSTS_XML)) ;
+  NETWORK::KNOWN_BOTS  = XmlDocument::parse(String(KNOWN_BOTS_XML )) ;
 }
 
-// helpers
+
+/* helpers */
+
 bool NETWORK::IsKnownHost(String host)
 {
   return host.isNotEmpty() && KNOWN_HOSTS->getChildByName(host) != nullptr ;

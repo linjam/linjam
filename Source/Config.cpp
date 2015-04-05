@@ -132,7 +132,7 @@ void Config::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_dismissButton] -- add your button handler code here..
 
-      this->linjamStatus = STATUS::LINJAM_STATUS_READY ;
+      this->linjamStatus = APP::LINJAM_STATUS_READY ;
 
         //[/UserButtonCode_dismissButton]
     }
@@ -149,11 +149,11 @@ void Config::valueChanged(Value& a_value)
 {
   int linjam_status = int(a_value.getValue()) ;
   if (!a_value.refersToSameSourceAs(this->linjamStatus) ||
-      linjam_status < STATUS::LINJAM_STATUS_AUDIOINIT   ||
-      linjam_status > STATUS::LINJAM_STATUS_AUDIOERROR   ) return ;
+      linjam_status < APP::LINJAM_STATUS_AUDIOINIT      ||
+      linjam_status > APP::LINJAM_STATUS_AUDIOERROR      ) return ;
 
-  bool   is_audio_init    = linjam_status == STATUS::LINJAM_STATUS_AUDIOINIT ;
-  bool   is_audio_error   = linjam_status == STATUS::LINJAM_STATUS_AUDIOERROR ;
+  bool   is_audio_init    = linjam_status == APP::LINJAM_STATUS_AUDIOINIT ;
+  bool   is_audio_error   = linjam_status == APP::LINJAM_STATUS_AUDIOERROR ;
   Colour button_out_color = (is_audio_init ) ? GUI::DISMISS_BTN_OUT_INIT_COLOR    :
                             (is_audio_error) ? GUI::DISMISS_BTN_OUT_ERROR_COLOR   :
                                                GUI::DISMISS_BTN_OUT_NORMAL_COLOR  ;

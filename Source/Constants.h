@@ -109,7 +109,7 @@
     CONFIG_VERSION_KEY     + "=\"" + String(CONFIG_VERSION          ) + "\""  + \
   "><"                                                                        + \
     GUI_KEY                +                                            " "   + \
-      FONT_SIZE_KEY        + "=\"" + String(DEFAULT_FONT_SIZE       ) + "\" " + \
+      FONT_SIZE_KEY        + "=\"" + String(DEFAULT_FONT_SIZE_N     ) + "\" " + \
       UPDATE_IVL_KEY       + "=\"" + String(DEFAULT_UPDATE_IVL_N    ) + "\" " + \
     "/><"                                                                     + \
     CLIENT_KEY             +                                            " "   + \
@@ -259,18 +259,18 @@
     "/>"                                                  + \
   "</" + STORAGE_TYPES_KEY + "> "
 
-#define KNOWN_HOSTS_XML XML_HEADER + \
-  KNOWN_HOSTS_KEY       + "><"     + \
-    LOCALHOST_2049_URL  + " /><"   + \
-    NINBOT_2049_URL     + " /><"   + \
-    NINBOT_2050_URL     + " /><"   + \
-    NINBOT_2051_URL     + " /><"   + \
-    NINBOT_2052_URL     + " /><"   + \
-    NINJAMER_2049_URL   + " /><"   + \
-    NINJAMER_2050_URL   + " /><"   + \
-    NINJAMER_2051_URL   + " /><"   + \
-    NINJAMER_2052_URL   + " /></"  + \
-  KNOWN_HOSTS_KEY       + ">"
+#define KNOWN_HOSTS_XML XML_HEADER         + \
+  NETWORK::KNOWN_HOSTS_KEY      + "><"     + \
+    NETWORK::LOCALHOST_2049_URL + " /><"   + \
+    NETWORK::NINBOT_2049_URL    + " /><"   + \
+    NETWORK::NINBOT_2050_URL    + " /><"   + \
+    NETWORK::NINBOT_2051_URL    + " /><"   + \
+    NETWORK::NINBOT_2052_URL    + " /><"   + \
+    NETWORK::NINJAMER_2049_URL  + " /><"   + \
+    NETWORK::NINJAMER_2050_URL  + " /><"   + \
+    NETWORK::NINJAMER_2051_URL  + " /><"   + \
+    NETWORK::NINJAMER_2052_URL  + " /></"  + \
+  NETWORK::KNOWN_HOSTS_KEY      + ">"
 
 #define KNOWN_BOTS_XML XML_HEADER                                         + \
   NETWORK::KNOWN_BOTS_KEY                                         + " "   + \
@@ -297,10 +297,13 @@
 
 /* global constants */
 
-/** STATUS defines the LinJamStatus enum of app states
-  *     which is an extension on NJClient::ConnectionStatus */
-namespace STATUS
+/** APP defines configuration and runtime constants
+  *     pertaining to the core LinJam application and business logic */
+class APP
 {
+public:
+
+  // app state
   enum LinJamStatus { LINJAM_STATUS_INIT           = -10 ,
                       LINJAM_STATUS_AUDIOINIT      = -9  ,
                       LINJAM_STATUS_CONFIGPENDING  = -8  ,
@@ -313,7 +316,17 @@ namespace STATUS
                       NJC_STATUS_CANTCONNECT       = -1  ,   // NJClient::ConnectionStatus
                       NJC_STATUS_OK                =  0  ,   // NJClient::ConnectionStatus
                       NJC_STATUS_PRECONNECT        =  1  } ; // NJClient::ConnectionStatus
-}
+
+  // timers
+  static const int CLIENT_TIMER_ID     = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
+  static const int AUDIO_INIT_TIMER_ID = 1 ; static const int AUDIO_INIT_DELAY  = 250 ;
+  static const int GUI_LO_TIMER_ID     = 2 ; static const int GUI_LO_UPDATE_IVL = 30000 ;
+  static const int GUI_MD_TIMER_ID     = 3 ; static const int GUI_MD_UPDATE_IVL = 2000 ;
+  static const int GUI_HI_TIMER_ID     = 4 ; static const Array<int> GUI_HI_UPDATE_IVLS ;
+
+
+  static void Initialize() ;
+} ;
 
 
 /** CLIENT defines configuration and runtime constants
@@ -321,11 +334,11 @@ namespace STATUS
 namespace CLIENT
 {
   // server
-  static const String SERVER_FULL_STATUS = "server full" ;
-  static const int    CHATMSG_TYPE_IDX   = 0 ;
-  static const int    CHATMSG_USER_IDX   = 1 ;
-  static const int    CHATMSG_MSG_IDX    = 2 ;
-  static const int    BOT_CHANNELIDX     = 0 ;
+  static const String SERVER_FULL_ERROR = "server full" ;
+  static const int    CHATMSG_TYPE_IDX  = 0 ;
+  static const int    CHATMSG_USER_IDX  = 1 ;
+  static const int    CHATMSG_MSG_IDX   = 2 ;
+  static const int    BOT_CHANNELIDX    = 0 ;
 
   // chat
   static const String    CHATMSG_TYPE_TOPIC   = "TOPIC" ;
@@ -366,12 +379,13 @@ namespace CLIENT
 class NETWORK
 {
 public:
+
   // login and validations
   static const int       N_LOGIN_RETRIES ;
   static const StringRef HOST_MASK ;
-  static const StringRef LETTERS   ;
-  static const StringRef DIGITS    ;
-  static const StringRef URL_CHARS ;
+  static const StringRef LETTERS ;
+  static const StringRef DIGITS ;
+  static const StringRef HOST_CHARS ;
 
   // known hosts and bots
   static const String      LOCALHOST_HOSTNAME ;
@@ -402,7 +416,6 @@ public:
   static const XmlElement* KNOWN_BOTS ;
 
 
-  static void Initialize() ;
   static bool IsKnownHost(String host) ;
 } ;
 
@@ -604,7 +617,7 @@ namespace CONFIG
   static const double CONFIG_VERSION = 0.27 ; // major.minor at last schema change
 
   // gui config defaults
-  static const int  DEFAULT_FONT_SIZE    = 12 ;
+  static const int  DEFAULT_FONT_SIZE_N  = 2 ;
   static const int  DEFAULT_UPDATE_IVL_N = 3 ;
 
   // client config defaults
@@ -729,14 +742,6 @@ namespace GUI
   static const Colour TEXT_NORMAL_COLOR   = Colour(0xffffffff) ;
   static const Colour TEXT_HILITE_COLOR   = Colour(0xffffffff) ;
   static const Colour TEXT_HILITEBG_COLOR = Colour(0xff000040) ;
-
-  // LinJamApplication
-  static const int CLIENT_TIMER_ID     = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
-  static const int AUDIO_INIT_TIMER_ID = 1 ; static const int AUDIO_INIT_DELAY  = 250 ;
-  static const int GUI_LO_TIMER_ID     = 2 ; static const int GUI_LO_UPDATE_IVL = 30000 ;
-  static const int GUI_MD_TIMER_ID     = 3 ; static const int GUI_MD_UPDATE_IVL = 2000 ;
-  static const int GUI_HI_TIMER_ID     = 4 ; static const int GUI_HI_UPDATE_IVLS[4] =
-                                                              { 0 , 62 , 125 , 1000 } ;
 
   // MainWindow
   static const String APP_NAME     = "LinJam" ;

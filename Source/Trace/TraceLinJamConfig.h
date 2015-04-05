@@ -995,30 +995,32 @@
   String key    = String(a_key) ;                                  \
   String val    = a_node[a_key].toString() ;                       \
   if (a_key != CONFIG::VU_LEFT_ID && a_key != CONFIG::VU_RIGHT_ID) \
-    Trace::TraceEvent("value changed for " + parent              + \
+    Trace::TraceEvent("value changed for " + parent            +   \
                       " => " + node + "[" + key + "] => " + val) ;
 
 #define DEBUG_TRACE_CONFIG_TREE_ADDED                                      \
   if (a_parent_node == this->blacklist)                                    \
     Trace::TraceEvent("node added to " + String(a_parent_node.getType()) + \
-                      " => " + String(a_node.getType())) ;
+                      " => " + String(a_node.getType())                  ) ;
 
 #define DEBUG_TRACE_CONFIG_TREE_REMOVED                                        \
   if (a_parent_node == this->blacklist)                                        \
     Trace::TraceEvent("node removed from " + String(a_parent_node.getType()) + \
-                      " => " + String(a_node.getType())) ;
+                      " => " + String(a_node.getType())                      ) ;
 
 
 /* channels */
 
-#define DEBUG_TRACE_STEREO_STATUS                                                     \
-  String status      = (stereo_status == CONFIG::STEREO_L)? "STEREO_L" :              \
-                       (stereo_status == CONFIG::STEREO_R)? "STEREO_R" : "MONO" +     \
-                       String((is_paired)? " (paired)" : " (unpaired)") ;             \
-  String pair_status = ((pair_stereo_status == CONFIG::STEREO_L)?                     \
-                       "STEREO_L" : "STEREO_R") + String(" (paired)") ;               \
-  String dbgA        = "setting remote channel '" ; String dbgB = "' status to " ;    \
-  if (is_paired) Trace::TraceConfig(dbgA + pair_name    + dbgB + pair_status) ;       \
+#define DEBUG_TRACE_STEREO_STATUS                                                  \
+  bool is_stereo_l   = stereo_status == CONFIG::STEREO_L ;                         \
+  bool is_stereo_r   = stereo_status == CONFIG::STEREO_R ;                         \
+  String status      = String((is_stereo_l) ? "STEREO_L"  :                        \
+                              (is_stereo_r) ? "STEREO_R"  : "MONO"       ) +       \
+                       String((is_paired  ) ? " (paired)" : " (unpaired)") ;       \
+  String pair_status = ((pair_stereo_status == CONFIG::STEREO_L) ?                 \
+                       "STEREO_L" : "STEREO_R") + String(" (paired)") ;            \
+  String dbgA        = "setting remote channel '" ; String dbgB = "' status to " ; \
+  if (is_paired) Trace::TraceConfig(dbgA + pair_name    + dbgB + pair_status) ;    \
                  Trace::TraceConfig(dbgA + channel_name + dbgB + status) ;
 
 #define DEBUG_TRACE_MONO_STATUS                                                 \

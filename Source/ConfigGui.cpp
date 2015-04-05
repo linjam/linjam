@@ -91,8 +91,13 @@ ConfigGui::ConfigGui (ValueTree gui_store)
 
     //[Constructor] You can add your own custom stuff here..
 
+  int font_size_n            = int(this->guiStore[CONFIG::FONT_SIZE_ID ]) ;
+  int gui_update_hipri_ivl_n = int(this->guiStore[CONFIG::UPDATE_IVL_ID]) ;
+
   this->fontsizeComboBox->addItemList(GUI::FONT_SIZES  , 1) ;
   this->updateComboBox  ->addItemList(GUI::UPDATE_IVLS , 1) ;
+  this->fontsizeComboBox->setSelectedItemIndex(font_size_n           ) ;
+  this->updateComboBox  ->setSelectedItemIndex(gui_update_hipri_ivl_n) ;
 
     //[/Constructor]
 }
@@ -158,6 +163,7 @@ void ConfigGui::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
       key   = CONFIG::UPDATE_IVL_ID ;
       value = var((~option_n) ? option_n : CONFIG::DEFAULT_UPDATE_IVL_N) ;
+      this->updateComboBox->setSelectedItemIndex(option_n) ;
 
         //[/UserComboBoxCode_updateComboBox]
     }
@@ -165,8 +171,10 @@ void ConfigGui::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     {
         //[UserComboBoxCode_fontsizeComboBox] -- add your combo box handling code here..
 
-      key = CONFIG::FONT_SIZE_ID ;
-      value = var(option_text.getIntValue()) ;
+      key   = CONFIG::FONT_SIZE_ID ;
+      value = var((~option_n) ? option_n : 0) ;
+
+      this->fontsizeComboBox->setSelectedItemIndex(option_n) ;
 
         //[/UserComboBoxCode_fontsizeComboBox]
     }

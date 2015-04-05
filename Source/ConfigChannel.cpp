@@ -111,17 +111,16 @@ ConfigChannel::ConfigChannel (ValueTree channel_store)
   this->channelSelect->setColour(ComboBox::backgroundColourId  , Colours::black) ;
   // TODO: change option colors
 
-  // set initial channel state and populate input select options
-  this->channelStore      =     channel_store ;
-  Identifier channel_id   =     channel_store.getType() ;
-  String     channel_name = str(channel_store[CONFIG::CHANNEL_NAME_ID]) ;
-  this->sourceN           = int(channel_store[CONFIG::SOURCE_N_ID    ]) ;
-  this->isStereo          = int(channel_store[CONFIG::STEREO_ID      ]) != CONFIG::MONO ;
-  this->isNewChannel      = (channel_id == CONFIG::NEWCHANNEL_ID) ;
+  // set channel config state
+  this->channelStore =     channel_store ;
+  this->isNewChannel =    (channel_store.getType() == CONFIG::NEWCHANNEL_ID) ;
+  String client_name = str(channel_store[CONFIG::CHANNEL_NAME_ID]) ;
+  this->sourceN      = int(channel_store[CONFIG::SOURCE_N_ID    ]) ;
+  this->isStereo     = int(channel_store[CONFIG::STEREO_ID      ]) != CONFIG::MONO ;
 
-  nameText    ->setText(channel_name) ;
-  stereoButton->setToggleState(this->isStereo , juce::dontSendNotification) ;
-
+  // set GUI state and populate input select options
+  this->nameText    ->setText(LinJamConfig::TrimStereoName(client_name)) ;
+  this->stereoButton->setToggleState(this->isStereo , juce::dontSendNotification) ;
   createChannelSelectOptions() ; populateChannelSelect() ;
 
     //[/Constructor]
@@ -209,14 +208,15 @@ void ConfigChannel::buttonClicked(Button* a_button)
   }
   else if (a_button == this->okButton)
   {
-    String channel_name  = this->nameText->getText() ;
+    String gui_name      = this->nameText     ->getText() ;
     int    selection_n   = this->channelSelect->getSelectedItemIndex() ;
-    int    stereo_status = (!this->isStereo)? CONFIG::MONO : CONFIG::STEREO_L ;
-    int    source_n      = (!this->isStereo)? this->freeAudioSourceNs    [selection_n] :
-                                              this->freeAudioSourcePairNs[selection_n] ;
+    int    stereo_status = (!this->isStereo) ? CONFIG::MONO : CONFIG::STEREO_L ;
+    int    source_n      = (!this->isStereo) ? this->freeAudioSourceNs    [selection_n] :
+                                               this->freeAudioSourcePairNs[selection_n] ;
+    String client_name   = LinJamConfig::MakeStereoName(gui_name , stereo_status) ;
 
     // update existing channel asynchronously
-    this->channelStore.setProperty(CONFIG::CHANNEL_NAME_ID , channel_name  , nullptr)
+    this->channelStore.setProperty(CONFIG::CHANNEL_NAME_ID , client_name   , nullptr)
                       .setProperty(CONFIG::SOURCE_N_ID     , source_n      , nullptr)
                       .setProperty(CONFIG::STEREO_ID       , stereo_status , nullptr) ;
 
@@ -271,13 +271,12 @@ void ConfigChannel::populateChannelSelect()
                           this->freeAudioSourcePairOptions ;
   this->channelSelect->addItemList(options , 1) ;
 
-  // pre-select current config option for existing channel or de-select
+  // pre-select current input option for existing channel
   int  preselection_n = (this->isNewChannel)                                ? 0 :
                         (!this->isStereo)                                       ?
                           this->freeAudioSourceNs    .indexOf(this->sourceN)    :
                           this->freeAudioSourcePairNs.indexOf(this->sourceN)    ;
-  if (!(~preselection_n)) preselection_n = 0 ;
-  this->channelSelect->setSelectedItemIndex(preselection_n) ;
+  this->channelSelect->setSelectedItemIndex((~preselection_n) ? preselection_n : 0) ;
 }
 
 //[/MiscUserCode]

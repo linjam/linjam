@@ -71,10 +71,10 @@ private:
   Value vuRight ;
 
 
-  void  buttonClicked( Button* a_button) override ;
-  void  valueChanged(  Value& a_value)   override ;
-  void  updateVU(      Slider* a_vu_slider , Label* a_vu_label , Value vu_var) ;
-  void  setConfig(     Identifier a_key , var a_value) ;
+  void  buttonClicked(Button* a_button) override ;
+  void  valueChanged( Value& a_value)   override ;
+  void  updateVU(     Slider* a_vu_slider , Label* a_vu_label , Value vu_var) ;
+  void  setConfig(    Identifier a_key , var a_value) ;
 
 
 protected:

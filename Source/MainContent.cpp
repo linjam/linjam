@@ -189,5 +189,5 @@ void MainContent::setTitle(String title_text)
 void MainContent::buttonClicked(Button* a_button)
 {
   if (a_button == this->configButton)
-    this->linjamStatus = STATUS::LINJAM_STATUS_CONFIGPENDING ;
+    this->linjamStatus = APP::LINJAM_STATUS_CONFIGPENDING ;
 }

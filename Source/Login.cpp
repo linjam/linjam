@@ -397,9 +397,9 @@ bool Login::validateHost()
   bool   is_localhost   = !NETWORK::LOCALHOST_HOSTNAME.compare(server) ;
   bool   is_known_host  = NETWORK::IsKnownHost(host) ;
   bool   has_valid_form = host.matchesWildcard(NETWORK::HOST_MASK , true) ;
-  bool   is_valid_name  = name.containsOnly(   NETWORK::URL_CHARS) && name.isNotEmpty() ;
-  bool   is_valid_tld   = tld .containsOnly(   NETWORK::LETTERS)   && tld .isNotEmpty() ;
-  bool   is_valid_port  = port.containsOnly(   NETWORK::DIGITS)    && port.isNotEmpty() ;
+  bool   is_valid_name  = name.containsOnly(   NETWORK::HOST_CHARS) && name.isNotEmpty() ;
+  bool   is_valid_tld   = tld .containsOnly(   NETWORK::LETTERS   ) && tld .isNotEmpty() ;
+  bool   is_valid_port  = port.containsOnly(   NETWORK::DIGITS    ) && port.isNotEmpty() ;
   bool   is_custom_host = has_valid_form && is_valid_name && is_valid_tld && is_valid_port ;
   bool   is_valid_host  = is_localhost || is_known_host || is_custom_host ;
 

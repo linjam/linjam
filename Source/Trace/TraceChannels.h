@@ -54,19 +54,19 @@
   DEBUG_TRACE_DUMP_CHANNELS_GUI_VB
 #endif // TRACE_ADD_CHANNEL_GUI_VB
 
-#define DEBUG_TRACE_RENAME_CHANNEL_GUI_VIA_LABEL                         \
-  String prev_name = this->channelName.getValue().toString() ;           \
-  String new_name  = this->nameLabel->getText() ;                        \
-  if (prev_name.compare(new_name))                                       \
-    Trace::TraceGui("renaming channel " + getComponentID() +             \
-                    " from '" + prev_name + "' to '"  + new_name  + "'") ;
+#define DEBUG_TRACE_RENAME_CHANNEL_GUI_VIA_LABEL                       \
+  String prev_name = this->channelName.getValue().toString() ;         \
+  String new_name  = this->nameLabel->getText() ;                      \
+  if (prev_name.compare(new_name))                                     \
+    Trace::TraceGui("renaming channel " + getComponentID() +           \
+                    " from '" + prev_name + "' to '" + new_name + "'") ;
 
-#define DEBUG_TRACE_RENAME_CHANNEL_GUI_VIA_CALLOUTBOX                    \
-  String prev_name = this->nameLabel->getText() ;                        \
-  String new_name  = this->channelName.getValue().toString() ;           \
-  if (prev_name.compare(new_name))                                       \
-    Trace::TraceGui("renaming channel " + getComponentID() +             \
-                    " from '" + prev_name + "' to '"  + new_name  + "'") ;
+#define DEBUG_TRACE_RENAME_CHANNEL_GUI_VIA_CALLOUTBOX                   \
+  String prev_name = this->nameLabel->getText() ;                       \
+  String new_name  = this->channelName.getValue().toString() ;          \
+  if (prev_name.compare(new_name))                                      \
+    Trace::TraceGui("renaming channel " + getComponentID() +            \
+                    " from '" + prev_name + "' to '" + new_name  + "'") ;
 
 #define DEBUG_TRACE_REMOVE_CHANNEL_GUI                                                     \
   Channel* ch           = getChannel(channel_id) ;                                         \
