@@ -30,8 +30,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-License::License (ValueTree login_store)
-    : loginStore(login_store)
+License::License (Value is_agreed , Value always_agree)
+    : isAgreed(is_agreed) , alwaysAgree(always_agree)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -75,8 +75,6 @@ License::License (ValueTree login_store)
 
     //[Constructor] You can add your own custom stuff here..
 
-  this->alwaysAgree.referTo(LinJamConfig::GetValueHolder(this->loginStore       ,
-                                                         CONFIG::SHOULD_AGREE_ID)) ;
   this->alwaysAgree.addListener(this) ;
 
     //[/Constructor]
@@ -144,7 +142,7 @@ void License::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_cancelButton] -- add your button handler code here..
 
-      is_agreed = false ;
+      this->isAgreed = false ;
 
         //[/UserButtonCode_cancelButton]
     }
@@ -152,7 +150,7 @@ void License::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_agreeButton] -- add your button handler code here..
 
-      is_agreed = true ;
+      this->isAgreed = true ;
 
         //[/UserButtonCode_agreeButton]
     }
@@ -160,16 +158,15 @@ void License::buttonClicked (Button* buttonThatWasClicked)
     {
         //[UserButtonCode_alwaysButton] -- add your button handler code here..
 
-      is_agreed = this->alwaysButton->getToggleState() ;
-      setConfig(CONFIG::SHOULD_AGREE_ID , is_agreed) ;
+      this->isAgreed    = this->alwaysButton->getToggleState() ;
+      this->alwaysAgree = this->alwaysButton->getToggleState() ;
 
         //[/UserButtonCode_alwaysButton]
     }
 
     //[UserbuttonClicked_Post]
 
-  setConfig(CONFIG::IS_AGREED_ID , is_agreed) ;
-  LinJam::Disconnect() ; if (is_agreed) LinJam::Connect() ;
+  LinJam::Disconnect() ; if (this->isAgreed == true) LinJam::Connect() ;
 
     //[/UserbuttonClicked_Post]
 }
@@ -189,11 +186,6 @@ void License::valueChanged(Value& a_value)
 void License::setLicenseText(String license_text)
 {
   this->licenseTextEditor->setText(TRANS(license_text)) ;
-}
-
-void License::setConfig(Identifier a_key , var a_value)
-{
-  this->loginStore.setProperty(a_key , a_value , nullptr) ;
 }
 
 //[/MiscUserCode]

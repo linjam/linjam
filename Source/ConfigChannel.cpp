@@ -101,11 +101,6 @@ ConfigChannel::ConfigChannel (ValueTree channel_store)
 
     //[Constructor] You can add your own custom stuff here..
 
-  this->monoButton  ->addListener(this) ;
-  this->stereoButton->addListener(this) ;
-  this->okButton    ->addListener(this) ;
-  this->cancelButton->addListener(this) ;
-
   this->nameText     ->setColour(CaretComponent::caretColourId , Colours::white) ;
   this->channelSelect->setColour(ComboBox::textColourId        , Colours::grey) ;
   this->channelSelect->setColour(ComboBox::backgroundColourId  , Colours::black) ;
@@ -122,6 +117,12 @@ ConfigChannel::ConfigChannel (ValueTree channel_store)
   this->nameText    ->setText(LinJamConfig::TrimStereoName(client_name)) ;
   this->stereoButton->setToggleState(this->isStereo , juce::dontSendNotification) ;
   createChannelSelectOptions() ; populateChannelSelect() ;
+
+  // local event handlers
+  this->monoButton  ->addListener(this) ;
+  this->stereoButton->addListener(this) ;
+  this->okButton    ->addListener(this) ;
+  this->cancelButton->addListener(this) ;
 
     //[/Constructor]
 }

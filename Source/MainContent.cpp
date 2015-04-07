@@ -17,30 +17,6 @@ MainContent::MainContent(DocumentWindow* main_window , TextButton* config_button
   // MainContent (this)
   setName("MainContent") ;
   setSize(GUI::CONTENT_W , GUI::CONTENT_H) ;
-
-  // background pane
-  this->background = new Background() ;
-  this->addChildAndSetID(this->background , GUI::BACKGROUND_GUI_ID) ;
-  this->background->toFront(true) ;
-
-  // chat pane
-  this->chat = new Chat() ;
-  this->addChildAndSetID(this->chat , GUI::CHAT_GUI_ID) ;
-  this->chat->toBack() ;
-
-  // statusbar pane
-  this->statusbar = new StatusBar() ;
-  this->addChildAndSetID(this->statusbar , GUI::STATUS_GUI_ID) ;
-  this->statusbar->setAlwaysOnTop(true) ;
-  this->statusbar->setStatusL(GUI::DISCONNECTED_TEXT) ;
-
-  // loop pane
-  this->loop = new Loop() ;
-  this->addChildAndSetID(this->loop , GUI::LOOP_GUI_ID) ;
-  this->loop->setAlwaysOnTop(true) ;
-  this->loop->toFront(false) ;
-
-  // login , license , mixer , and config panes deferred pending configuration
 }
 
 MainContent::~MainContent()
@@ -146,39 +122,52 @@ void MainContent::resized()
   this->config      ->setBounds(config_x  , config_y  , config_w  , config_h) ;
 }
 
-void MainContent::instantiateLogin(ValueTree login_store)
+void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store ,
+                              ValueTree blacklist_store , ValueTree audio_store  , 
+                              ValueTree login_store     , Value     linjam_status)
+                              
 {
-  // login pane
-  this->login = new Login(login_store) ;
-  this->addChildAndSetID(this->login , GUI::LOGIN_GUI_ID) ;
-  this->login->toBack() ;
+  // extract specific values for components that do not require an entire store
+  Value agreed_value   = LinJamConfig::GetValueHolder(login_store , CONFIG::IS_AGREED_ID   ) ;
+  Value agree_value    = LinJamConfig::GetValueHolder(login_store , CONFIG::SHOULD_AGREE_ID) ;
+  Value fontsize_value = LinJamConfig::GetValueHolder(gui_store   , CONFIG::FONT_SIZE_ID   ) ;
 
-  // license pane
-  this->license = new License(login_store) ;
-  this->addChildAndSetID(this->license , GUI::LICENSE_GUI_ID) ;
-  this->license->toBack() ;
-}
+  // instantiate components requiring model hooks
+  this->background = new Background(                                           ) ;
+  this->config     = new Config(    audio_store     , client_store , gui_store ,
+                                    blacklist_store , linjam_status            ) ;
+  this->login      = new Login(     login_store                                ) ;
+  this->license    = new License(   agreed_value    , agree_value              ) ;
+  this->chat       = new Chat(      fontsize_value                             ) ;
+  this->mixer      = new Mixer(     blacklist_store                            ) ;
+  this->statusbar  = new StatusBar(                                            ) ;
+  this->loop       = new Loop(                                                 ) ;
 
-void MainContent::instantiateMixer(ValueTree blacklist_store)
-{
-  // mixer pane
-  this->mixer = new Mixer(blacklist_store) ;
-  this->addChildAndSetID(this->mixer , GUI::MIXER_GUI_ID) ;
-  this->mixer->toBack() ;
-}
+  this->addChildAndSetID(this->background , GUI::BACKGROUND_GUI_ID) ;
+  this->addChildAndSetID(this->config     , GUI::CONFIG_GUI_ID    ) ;
+  this->addChildAndSetID(this->login      , GUI::LOGIN_GUI_ID     ) ;
+  this->addChildAndSetID(this->license    , GUI::LICENSE_GUI_ID   ) ;
+  this->addChildAndSetID(this->chat       , GUI::CHAT_GUI_ID      ) ;
+  this->addChildAndSetID(this->mixer      , GUI::MIXER_GUI_ID     ) ;
+  this->addChildAndSetID(this->statusbar  , GUI::STATUS_GUI_ID    ) ;
+  this->addChildAndSetID(this->loop       , GUI::LOOP_GUI_ID      ) ;
 
-void MainContent::instantiateConfig(ValueTree audio_store   , ValueTree client_store    ,
-                                    ValueTree gui_store     , ValueTree blacklist_store ,
-                                    Value     linjam_status                             )
-{
-  // config pane
-  this->config = new Config(audio_store   , client_store , gui_store , blacklist_store ,
-                            linjam_status                                              ) ;
-  this->addChildAndSetID(this->config , GUI::CONFIG_GUI_ID) ;
-  this->config->toBack() ;
-  resized() ;
+  this->background->toFront(true) ;
+  this->config    ->toBack() ;
+  this->login     ->toBack() ;
+  this->license   ->toBack() ;
+  this->chat      ->toBack() ;
+  this->mixer     ->toBack() ;
+  this->loop      ->toFront(false) ;
+
+  this->statusbar->setAlwaysOnTop(true) ;
+  this->loop     ->setAlwaysOnTop(true) ;
+
+  this->statusbar->setStatusL(GUI::DISCONNECTED_TEXT) ;
 
   this->linjamStatus.referTo(linjam_status) ;
+
+  resized() ;
 }
 
 void MainContent::setTitle(String title_text)

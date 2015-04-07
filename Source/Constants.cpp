@@ -7,7 +7,6 @@
 int              gui_hi_update_ivls[4]   = { 0 , 1000 , 125 , 62 } ;
 const Array<int> APP::GUI_HI_UPDATE_IVLS = Array<int>(gui_hi_update_ivls , 4) ;
 
-
 // login and validations
 const int       NETWORK::N_LOGIN_RETRIES = 3 ;
 const StringRef NETWORK::HOST_MASK       = "*.*:*" ;

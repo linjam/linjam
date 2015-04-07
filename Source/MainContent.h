@@ -44,13 +44,11 @@ private:
   Value                     linjamStatus ;
 
 
-  void instantiateLogin( ValueTree login_store) ;
-  void instantiateMixer( ValueTree blacklist_store) ;
-  void instantiateConfig(ValueTree audio_store , ValueTree client_store    ,
-                         ValueTree gui_store   , ValueTree blacklist_store ,
-                         Value     linjam_status                           ) ;
-  void setTitle(         String title_text) ;
-  void buttonClicked(    Button* a_button) ;
+  void instantiate(  ValueTree gui_store       , ValueTree client_store ,
+                     ValueTree blacklist_store , ValueTree audio_store  , 
+                     ValueTree login_store     , Value     linjam_status) ;
+  void setTitle(     String title_text) ;
+  void buttonClicked(Button* a_button) ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContent)

@@ -734,14 +734,34 @@ namespace CONFIG
 namespace GUI
 {
   // common
-  static const int    PAD                 = 4 ;
-  static const int    PAD2                = PAD * 2 ;
-  static const int    PAD3                = PAD * 3 ;
-  static const int    PAD4                = PAD * 4 ;
-  static const Colour TEXT_EMPTY_COLOR    = Colour(0x80808080) ;
-  static const Colour TEXT_NORMAL_COLOR   = Colour(0xffffffff) ;
-  static const Colour TEXT_HILITE_COLOR   = Colour(0xffffffff) ;
-  static const Colour TEXT_HILITEBG_COLOR = Colour(0xff000040) ;
+  static const int    PAD                   = 4 ;
+  static const float  PADF                  = 4.0f ;
+  static const int    PAD2                  = PAD  * 2 ;
+  static const float  PAD2F                 = PADF * 2.0f ;
+  static const int    PAD3                  = PAD  * 3 ;
+  static const float  PAD3F                 = PADF * 3.0f ;
+  static const int    PAD4                  = PAD  * 4 ;
+  static const float  PAD4F                 = PADF * 4.0f ;
+  static const int    PAD5                  = PAD  * 5 ;
+  static const float  PAD5F                 = PADF * 5.0f ;
+  static const float  BORDER_PX             = 1.0f ;
+  static const float  BORDER2_PX            = 2.0f ;
+  static const float  BORDER_RADIUS         = 10.0f ;
+  static const Colour BORDER_L0_COLOR       = Colour(0xFF808080) ; // nest level 0
+  static const Colour BORDER_L1_COLOR       = Colour(0xFFA0A0A0) ; // ...
+  static const Colour BORDER_L2_COLOR       = Colour(0xFFC0C0C0) ; // ...
+  static const Colour BORDER_L3_COLOR       = Colour(0xFFE0E0E0) ; // ...
+  static const Colour BORDER_L4_COLOR       = Colour(0xFFFFFFFF) ; // nest level 4
+  static const Colour BACKGROUND_L0_COLOR   = Colour(0xFF404040) ; // nest level 0
+  static const Colour BACKGROUND_L1_COLOR   = Colour(0xFF303030) ; // ...
+  static const Colour BACKGROUND_L2_COLOR   = Colour(0xFF202020) ; // ...
+  static const Colour BACKGROUND_L3_COLOR   = Colour(0xFF101010) ; // ...
+  static const Colour BACKGROUND_LTOP_COLOR = Colour(0xFF000000) ; // innermost nest level
+  static const Colour TEXT_EMPTY_COLOR      = Colour(0x80808080) ;
+  static const Colour TEXT_NORMAL_COLOR     = Colour(0xFFFFFFFF) ;
+  static const Colour TEXT_HILITE_COLOR     = Colour(0xFFFFFFFF) ;
+  static const Colour TEXT_HILITEBG_COLOR   = Colour(0xFF000040) ;
+  static const Colour TEXT_CARET_COLOR      = Colour(0xFFBBBBFF) ;
 
   // MainWindow
   static const String APP_NAME     = "LinJam" ;
@@ -770,19 +790,19 @@ namespace GUI
   static const String CLIENT_TAB_TEXT               = "client" ;
   static const String GUI_TAB_TEXT                  = "gui" ;
   static const String BLACKLIST_TAB_TEXT            = "ignores" ;
-  static const Colour AUDIO_TAB_COLOR               = Colour(0xff002000) ;
-  static const Colour CLIENT_TAB_COLOR              = Colour(0xff202000) ;
-  static const Colour GUI_TAB_COLOR                 = Colour(0xff000020) ;
-  static const Colour BLACKLIST_TAB_COLOR           = Colour(0xff200000) ;
-  static const Colour DISMISS_BTN_OUT_INIT_COLOR    = Colour(0xff404000) ;
-  static const Colour DISMISS_BTN_OUT_ERROR_COLOR   = Colour(0xff400000) ;
-  static const Colour DISMISS_BTN_OUT_NORMAL_COLOR  = Colour(0xff004000) ;
-  static const Colour DISMISS_BTN_IN_INIT_COLOR     = Colour(0xff808000) ;
-  static const Colour DISMISS_BTN_IN_ERROR_COLOR    = Colour(0xff800000) ;
-  static const Colour DISMISS_BTN_IN_NORMAL_COLOR   = Colour(0xff008000) ;
-  static const Colour DISMISS_BTN_TEXT_INIT_COLOR   = Colour(0xffffff00) ;
-  static const Colour DISMISS_BTN_TEXT_ERROR_COLOR  = Colour(0xffff0000) ;
-  static const Colour DISMISS_BTN_TEXT_NORMAL_COLOR = Colour(0xff00ff00) ;
+  static const Colour AUDIO_TAB_COLOR               = Colour(0xFF002000) ;
+  static const Colour CLIENT_TAB_COLOR              = Colour(0xFF202000) ;
+  static const Colour GUI_TAB_COLOR                 = Colour(0xFF000020) ;
+  static const Colour BLACKLIST_TAB_COLOR           = Colour(0xFF200000) ;
+  static const Colour DISMISS_BTN_OUT_INIT_COLOR    = Colour(0xFF404000) ;
+  static const Colour DISMISS_BTN_OUT_ERROR_COLOR   = Colour(0xFF400000) ;
+  static const Colour DISMISS_BTN_OUT_NORMAL_COLOR  = Colour(0xFF004000) ;
+  static const Colour DISMISS_BTN_IN_INIT_COLOR     = Colour(0xFF808000) ;
+  static const Colour DISMISS_BTN_IN_ERROR_COLOR    = Colour(0xFF800000) ;
+  static const Colour DISMISS_BTN_IN_NORMAL_COLOR   = Colour(0xFF008000) ;
+  static const Colour DISMISS_BTN_TEXT_INIT_COLOR   = Colour(0xFFFFFF00) ;
+  static const Colour DISMISS_BTN_TEXT_ERROR_COLOR  = Colour(0xFFFF0000) ;
+  static const Colour DISMISS_BTN_TEXT_NORMAL_COLOR = Colour(0xFF00FF00) ;
   static const String DISMISS_BTN_INIT_TEXT         = "initializing" ;
   static const String DISMISS_BTN_ERROR_TEXT        = "error" ;
   static const String DISMISS_BTN_NORMAL_TEXT       = "done" ;
@@ -846,7 +866,7 @@ namespace GUI
   static const StringArray DEBUG_LEVELS = StringArray::fromLines(DEBUGLEVELS) ;
 
   // ConfigGui
-#define FONTSIZES  "8\n10\n12\n14\n16\n18\n20\n22\n24"
+#define FONTSIZES  "12\n16\n20\n24\n36\n48"
 #define UPDATEIVLS "none\nslow\nnormal\nfast"
   static const StringArray FONT_SIZES  = StringArray::fromLines(FONTSIZES ) ;
   static const StringArray UPDATE_IVLS = StringArray::fromLines(UPDATEIVLS) ;
@@ -862,12 +882,12 @@ namespace GUI
   static const int    LOGIN_BUTTON_T                 = GUI::PAD ;
   static const int    LOGIN_BUTTON_W                 = 128 ;
   static const int    LOGIN_BUTTON_H                 = 24 ;
-  static const Colour PROMPT_BACKGROUND_NORMAL_COLOR = Colour(0xff000000) ;
-  static const Colour PROMPT_BORDER_NORMAL_COLOR     = Colour(0xffffffff) ;
-  static const Colour PROMPT_FOCUS_NORMAL_COLOR      = Colour(0xffffffff) ;
-  static const Colour PROMPT_BACKGROUND_ERROR_COLOR  = Colour(0xff200000) ;
-  static const Colour PROMPT_BORDER_ERROR_COLOR      = Colour(0xff800000) ;
-  static const Colour PROMPT_FOCUS_ERROR_COLOR       = Colour(0xffff0000) ;
+  static const Colour PROMPT_BACKGROUND_NORMAL_COLOR = Colour(0xFF000000) ;
+  static const Colour PROMPT_BORDER_NORMAL_COLOR     = Colour(0xFFFFFFFF) ;
+  static const Colour PROMPT_FOCUS_NORMAL_COLOR      = Colour(0xFFFFFFFF) ;
+  static const Colour PROMPT_BACKGROUND_ERROR_COLOR  = Colour(0xFF200000) ;
+  static const Colour PROMPT_BORDER_ERROR_COLOR      = Colour(0xFF800000) ;
+  static const Colour PROMPT_FOCUS_ERROR_COLOR       = Colour(0xFFFF0000) ;
   static const String HOST_PROMPT_TEXT               = "<type a server url here>" ;
   static const String LOGIN_PROMPT_TEXT              = "<type a nickname here>" ;
   static const String PASS_PROMPT_TEXT               = "<type a password here>" ;
@@ -887,9 +907,36 @@ namespace GUI
   static const String JOINPART_TEXTb        = " the jam" ;
   static const String UNKNOWN_COMMAND_MSG   = "Error: unknown command" ;
   static const String INVALID_PM_MSG        = "Error: /msg requires a username and a message" ;
-  static const int    TOPIC_H               = 16 ;
-  static const int    TOPIC_PADDED_H        = TOPIC_H + PAD2 ;
+  static const String CHAT_PROMPT_TEXT      = "<type some chat here - then press ENTER key to send>" ;
+  static const Colour TOPIC_TEXT_COLOR      = Colour(0xFF8080FF) ;
+  static const Colour CHAT_TEXT_COLOR       = Colour(0xFF808080) ;
+  static const Colour CHAT_OUTLINE_COLOR    = Colour(0x00000000) ;
+  static const Colour CHAT_FOCUS_COLOR      = Colour(0x00000000) ;
+  static const Colour CHAT_SHADOW_COLOR     = Colour(0x00000000) ;
+  static const Colour CHAT_TEXT_BG_COLOR    = Colour(0x00000000) ;
   static const int    MIN_SHOW_TOPIC_CHAT_H = 200 ;
+  static const float  CHAT_PANE_BORDER_X    = 0.0f ;
+  static const float  CHAT_PANE_BORDER_Y    = 0.0f ;
+  static const float  TOPIC_FONT_H          = 16.0f ;
+  static const int    TOPIC_H               = TOPIC_FONT_H ;
+  static const float  TOPIC_BORDER_X        = PAD2F ;
+  static const float  TOPIC_BORDER_Y        = PAD2F ;
+  static const float  TOPIC_BORDER_PADW     = PAD4F ;
+  static const float  TOPIC_BORDER_H        = TOPIC_H + PADF ;
+  static const int    TOPIC_X               = TOPIC_BORDER_X + PAD ;
+  static const int    TOPIC_PADW            = TOPIC_X * 2 ;
+  static const int    TOPIC_PADH            = PAD / 2 ;
+  static const int    TOPIC_Y               = TOPIC_BORDER_Y + TOPIC_PADH ;
+  static const int    CHAT_X                = PAD2 ;
+  static const int    CHAT_Y                = PAD2 ;
+  static const int    CHAT_WITH_TOPIC_Y     = CHAT_Y + TOPIC_H + PAD2 ;
+  static const int    CHAT_PADH             = PAD3 ;
+  static const int    CHAT_PADW             = CHAT_X * 2 ;
+  static const float  CHAT_ENTRY_PADH       = PADF / 2.0 ;
+  static const int    CHAT_ENTRY_PADY       = (CHAT_ENTRY_PADH * 2) + PAD ;
+  static const float  CHAT_BORDER_X         = PADF ;
+  static const float  CHAT_BORDER_Y         = PADF ;
+  static const float  CHAT_BORDER_PADW      = CHAT_BORDER_X * 2.0 ;
 
   // Channel
   static const Identifier       MASTER_GUI_ID              = CONFIG::MASTER_ID ;

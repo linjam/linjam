@@ -37,11 +37,12 @@
 */
 class Chat  : public Component,
               public TextEditor::Listener,
-              public LabelListener
+              public LabelListener,
+              public ValueListener
 {
 public:
     //==============================================================================
-    Chat ();
+    Chat (Value font_size);
     ~Chat();
 
     //==============================================================================
@@ -49,8 +50,6 @@ public:
 
   void setTopic(   String topic_text) ;
   void addChatLine(String chat_user , String chat_text) ;
-
-  void textEditorReturnKeyPressed(TextEditor& a_text_editor) override ;
 
     //[/UserMethods]
 
@@ -63,7 +62,21 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  String prevTopicText ;
+  ValueTree guiStore ;
+  Value     fontSize ;
+  String    prevTopicText ;
+
+
+  void valueChanged(              Value& a_value)            override ;
+  void textEditorReturnKeyPressed(TextEditor& a_text_editor) override ;
+  void setFontSize() ;
+  int  getFontSize() ;
+  bool shouldShowTopic() ;
+
+
+#ifdef DEBUG_RESIZE_FONT_VIA_CHAT
+void debugResizeFontViaChat() ;
+#endif // DEBUG_RESIZE_FONT_VIA_CHAT
 
     //[/UserVariables]
 

@@ -1,6 +1,6 @@
 #if DEBUG
 
-#  include "Trace.h"
+#include "Trace.h"
 
 
 /* state */

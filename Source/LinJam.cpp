@@ -51,6 +51,8 @@ void LinJam::SignIn(String host , String login , String pass , bool is_anonymous
 
 void LinJam::Connect()
 {
+DBG("LinJam::Connect() RetryLogin=" + String(RetryLogin)) ;
+
   Client->Disconnect() ;
 
   String host         = str( Config->server[CONFIG::HOST_ID        ]) ;
@@ -231,11 +233,9 @@ DEBUG_TRACE_INIT
       !Config->isConfigValid()                 ||
       !PrepareSessionDirectory()                ) return false ;
 
-  // instantiate GUI components requiring configuration
-  Gui->instantiateLogin( Config->server                            ) ;
-  Gui->instantiateMixer( Config->blacklist                         ) ;
-  Gui->instantiateConfig(Config->audio , Config->client            ,
-                         Config->gui   , Config->blacklist , Status) ;
+  // instantiate GUI components requiring model hooks
+  Gui->instantiate(Config->gui   , Config->client , Config->blacklist ,
+                   Config->audio , Config->server , Status            ) ;
 
   // configure NINJAM client and initialize networking
   ConfigureNinjam() ; JNL::open_socketlib() ;
@@ -774,18 +774,18 @@ DEBUG_TRACE_STATUS_CHANGED
     // retry login
     case APP::NJC_STATUS_INVALIDAUTH:
     case APP::NJC_STATUS_CANTCONNECT: // retry login (server occasionally rejects)
-      if (RetryLogin-- > 0) Connect() ;         break ;
+      if (RetryLogin-- > 0) Connect() ;                                      break ;
     case APP::NJC_STATUS_OK:          // store server credentials and present mixer GUI
       Config->setServer() ;
       UpdateGuiLowPriority() ;
       Gui->mixer->toFront(false) ;
-      Gui->loop ->toFront(false) ;              break ;
+      Gui->loop ->toFront(false) ;                                           break ;
     case APP::NJC_STATUS_PRECONNECT:  // auto-join
-      if (Gui->login->quickLogin(AutoJoinHost))
+      if (AutoJoinHost.isNotEmpty() && Gui->login->quickLogin(AutoJoinHost))
         Gui->background->toFront(true) ;
-      AutoJoinHost = "" ;                       break ;
+      AutoJoinHost = "" ;                                                    break ;
 
-    default:                                    break ;
+    default:                                                                 break ;
   }
 }
 
