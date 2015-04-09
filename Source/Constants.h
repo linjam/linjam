@@ -13,17 +13,23 @@
 /*\ CAVEATS:
 |*|  when adding GUI components to Channels be sure to update N_STATIC_CHANNELS_CHILDREN
 |*|    and when adding GUI components to Mixer be sure to update N_STATIC_MIXER_CHILDREN
-|*|    or else segfault is a near certainty
 |*|
 |*|  when adding nodes or properties to CONFIG_XML be sure to
-|*|    * if new property - denote datatype in Constants.h #define CONFIG_TYPES_XML
+|*|    * if new property - denote datatype in #define CONFIG_TYPES_XML
+|*|                      - sanitize data in   LinJamConfig::sanitizeGui()
+|*|                                           LinJamConfig::sanitizeClient()    // TODO: nyi
+|*|                                           LinJamConfig::sanitizeBlacklist() // TODO: nyi
+|*|                                           LinJamConfig::sanitizeAudio()     // TODO: nyi
+|*|                                           LinJamConfig::sanitizeServer()    // TODO: nyi
+|*|                                           LinJamConfig::sanitizeUser()      // TODO: nyi
+|*|                                           LinJamConfig::sanitizeChannel()   // TODO: nyi
 |*|    * if user property - verify data in    LinJamConfig::validateUsers()
 |*|    * if channel property - verify data in LinJamConfig::validateChannels()
 |*|                          - add to         LinJamConfig::newChannel()
 |*|    * if new node - switch in              LinJamConfig::restoreVarTypeInfo()
 |*|                  - validate in            LinJamConfig::validateConfig()
 |*|                  - invalidate in          LinJamConfig::isConfigValid()
-|*|    * optionally trace data/errors in      #define DEBUG_VALIDATE_CONFIG_DEFAULTS
+|*|    * validate and trace data/errors in    #define DEBUG_VALIDATE_CONFIG_DEFAULTS
 |*|                                           #define DEBUG_VALIDATE_CONFIG_ROOT
 |*|                                           #define DEBUG_VALIDATE_CONFIG_GUI
 |*|                                           #define DEBUG_VALIDATE_CONFIG_CLIENT
@@ -38,6 +44,13 @@
 |*|                                           #define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
 |*|                                           #define DEBUG_TRACE_REMOTE_CHANNELS
 |*|                                           #define DEBUG_TRACE_CONFIGURE_REMOTE
+|*|                                           #define DEBUG_TRACE_SANITIZE_GUI
+|*|                                           #define DEBUG_TRACE_SANITIZE_CLIENT
+|*|                                           #define DEBUG_TRACE_SANITIZE_BLACKLIST
+|*|                                           #define DEBUG_TRACE_SANITIZE_AUDIO
+|*|                                           #define DEBUG_TRACE_SANITIZE_SERVER
+|*|                                           #define DEBUG_TRACE_SANITIZE_USER
+|*|                                           #define DEBUG_TRACE_SANITIZE_CHANNEL
 \*/
 
 
@@ -325,6 +338,7 @@ public:
   static const int GUI_HI_TIMER_ID     = 4 ; static const Array<int> GUI_HI_UPDATE_IVLS ;
 
 
+  // runtime initialization of static constants
   static void Initialize() ;
 } ;
 
@@ -385,7 +399,8 @@ public:
   static const StringRef HOST_MASK ;
   static const StringRef LETTERS ;
   static const StringRef DIGITS ;
-  static const StringRef HOST_CHARS ;
+  static const String    HOST_CHARS ;
+  static const String    NICK_CHARS ;
 
   // known hosts and bots
   static const String      LOCALHOST_HOSTNAME ;

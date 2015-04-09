@@ -962,7 +962,11 @@
   DEBUG_VALIDATE_CONFIG_SERVER                                                     \
   DEBUG_VALIDATE_CONFIG_MASTERS
 
-//#define DEBUG_TRACE_SANITIZE_GUI       // TODO: (issue #61)
+#define DEBUG_TRACE_SANITIZE_GUI                                 \
+  if (is_invalid_font_size )                                     \
+    Trace::TraceInvalidValue(this->gui , CONFIG::FONT_SIZE_ID) ; \
+  if (is_invalid_update_ivl)                                     \
+    Trace::TraceInvalidValue(this->gui , CONFIG::UPDATE_IVL_ID)  ;
 //#define DEBUG_TRACE_SANITIZE_CLIENT    // TODO: (issue #61)
 //#define DEBUG_TRACE_SANITIZE_BLACKLIST // TODO: (issue #61)
 //#define DEBUG_TRACE_SANITIZE_AUDIO     // TODO: (issue #61)
@@ -1052,16 +1056,16 @@
   if (TRACE_LOCAL_CHANNELS_VB)                                                      \
     DBG(Trace::DumpStoredChannels() + Trace::DumpClientChannels()) ;
 
-#define DEBUG_TRACE_REMOVE_CHANNEL_STORE                                      \
-  String channel_id   = String(channel_store.getType()) ;                     \
-  String channel_name = LinJam::GetStoredChannelName(channel_store) ;         \
-  String user_id      = String(channels_store.getType()) ;                    \
-  String dbgA         = "destroyed storage for " ;                            \
-  String dbgB         = " " + channel_id + " '" + channel_name + "' " ;       \
-  if (channel_store.getParent() == channels_store)                            \
-    if (channels_store == this->localChannels)                                \
-        Trace::TraceConfig(dbgA + "local"  + dbgB) ;                          \
-    else Trace::TraceConfig(dbgA + "remote" + dbgB + "for '" + user_id + "'") ;
+#define DEBUG_TRACE_REMOVE_CHANNEL_STORE                                        \
+  String channel_id   = String(channel_store.getType()) ;                       \
+  String channel_name = LinJam::GetStoredChannelName(channel_store) ;           \
+  String user_id      = String(channels_store.getType()) ;                      \
+  String dbgA         = "destroyed storage for " ;                              \
+  String dbgB         = " " + channel_id + " '" + channel_name + "' " ;         \
+  if (channel_store.getParent() == channels_store) {                            \
+    if (channels_store == this->localChannels)                                  \
+        Trace::TraceConfig(dbgA + "local"  + dbgB) ;                            \
+    else Trace::TraceConfig(dbgA + "remote" + dbgB + "for '" + user_id + "'") ; }
 
 #define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                              \
   Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;                      \
@@ -1090,7 +1094,7 @@
 #define DEBUG_TRACE_VALIDATE_USER          ;
 #define DEBUG_TRACE_VALIDATE_CHANNEL       ;
 #define DEBUG_TRACE_VALIDATE_CONFIG        ;
-//#define DEBUG_TRACE_SANITIZE_GUI         ;
+#define DEBUG_TRACE_SANITIZE_GUI           ;
 //#define DEBUG_TRACE_SANITIZE_CLIENT      ;
 //#define DEBUG_TRACE_SANITIZE_BLACKLIST   ;
 //#define DEBUG_TRACE_SANITIZE_AUDIO       ;

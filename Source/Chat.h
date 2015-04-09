@@ -74,10 +74,6 @@ private:
   bool shouldShowTopic() ;
 
 
-#ifdef DEBUG_RESIZE_FONT_VIA_CHAT
-void debugResizeFontViaChat() ;
-#endif // DEBUG_RESIZE_FONT_VIA_CHAT
-
     //[/UserVariables]
 
     //==============================================================================

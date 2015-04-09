@@ -340,9 +340,9 @@ DEBUG_TRACE_LOGIN_LOAD
 
 void Login::textEditorTextChanged(TextEditor& a_text_editor)
 {
-  if      (&a_text_editor == &(*hostText))  validateHost() ;
-  else if (&a_text_editor == &(*loginText)) validateLogin() ;
-  else if (&a_text_editor == &(*passText))  validatePass() ;
+  if      (&a_text_editor == hostText ) validateHost() ;
+  else if (&a_text_editor == loginText) validateLogin() ;
+  else if (&a_text_editor == passText ) validatePass() ;
 }
 
 void Login::valueChanged(Value& a_value)
@@ -350,6 +350,7 @@ void Login::valueChanged(Value& a_value)
 /* TODO: we are not listening on any data here nor is there yet any data to listen on
              probably the only data of interest here would be server status updates
              for populating quick-login buttons (issue #7) */
+  UNUSED(a_value) ;
 }
 
 
@@ -412,7 +413,8 @@ DEBUG_TRACE_LOGIN_HOST_VB
 
 bool Login::validateLogin()
 {
-  bool is_valid_login = this->loginText->getText().trim().containsNonWhitespaceChars() ;
+  String nick           = this->loginText->getText().trim() ;
+  bool   is_valid_login = nick.containsOnly(NETWORK::NICK_CHARS) && nick.isNotEmpty() ;
 
   setTextErrorState(this->loginText , !is_valid_login) ;
 
@@ -421,9 +423,9 @@ bool Login::validateLogin()
 
 bool Login::validatePass()
 {
-  String pass          = this->passText->getText().trim() ;
-  bool   is_anonymous  = this->anonButton ->getToggleState() ;
-  bool   is_valid_pass = is_anonymous || pass.containsNonWhitespaceChars() ;
+  String pass          = this->passText  ->getText().trim() ;
+  bool   is_anonymous  = this->anonButton->getToggleState() ;
+  bool   is_valid_pass = is_anonymous || pass.isNotEmpty() ;
 
   setTextErrorState(this->passText , !is_valid_pass) ;
 

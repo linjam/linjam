@@ -318,9 +318,7 @@ void Chat::valueChanged(Value& a_value)
 
 void Chat::textEditorReturnKeyPressed(TextEditor& a_text_editor)
 {
-#ifdef DEBUG_RESIZE_FONT_VIA_CHAT
-debugChangeFontSizeViaChat() ; return ;
-#endif // DEBUG_RESIZE_FONT_VIA_CHAT
+  if (&a_text_editor != this->chatEntryText)  return ;
 
   LinJam::SendChat(this->chatEntryText->getText()) ;
   this->chatEntryText->clear() ;
@@ -343,33 +341,11 @@ int Chat::getFontSize()
 {
   int font_size_n = int(this->fontSize.getValue()) ;
   int font_size   = GUI::FONT_SIZES[font_size_n].getIntValue() ;
-  
+
   return font_size ;
 }
 
 bool Chat::shouldShowTopic() { return (getHeight() > GUI::MIN_SHOW_TOPIC_CHAT_H) ; }
-
-
-/* debug */
-
-#ifdef DEBUG_RESIZE_FONT_VIA_CHAT
-void Chat::debugResizeFontViaChat()
-{
-  String dbg ; addChatLine(dbg = "current fontsize=" + String(getFontSize())) ; DBG("" , dbg) ;
-
-  int font_size_n        = this->chatEntryText->getText().getIntValue() ;
-  int current_size       = getFontSize() ;
-  int font_size          = GUI::FONT_SIZES[font_size_n].getIntValue() ;
-  int smallest_font_size = GUI::FONT_SIZES[0].getIntValue() ;
-
-  if (font_size >= smallest_font_size)
-  {
-    addChatLine(dbg = "setting fontsize=" + String(font_size)) ; DBG("" , dbg) ;
-    this->fontSize = font_size_n ;
-  }
-  this->chatEntryText->clear() ;
-}
-#endif // DEBUG_RESIZE_FONT_VIA_CHAT
 
 //[/MiscUserCode]
 

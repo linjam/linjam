@@ -133,9 +133,6 @@ void License::resized()
 void License::buttonClicked (Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
-
-  bool is_agreed = false ;
-
     //[/UserbuttonClicked_Pre]
 
     if (buttonThatWasClicked == cancelButton)

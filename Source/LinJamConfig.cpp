@@ -109,7 +109,7 @@ DEBUG_TRACE_LOAD_CONFIG
   double stored_version  = (!has_stored_config) ? 0.0                                :
                            stored_xml->getDoubleAttribute(CONFIG::CONFIG_VERSION_ID) ;
   bool do_versions_match = stored_version == CONFIG::CONFIG_VERSION ;
-  if (!do_versions_match) ; // TODO: convert (if ever necessary)
+  if (!do_versions_match) {;} // TODO: convert (if ever necessary)
 
 DEBUG_TRACE_DUMP_CONFIG
 
@@ -123,8 +123,10 @@ DEBUG_TRACE_DUMP_CONFIG
   establishSharedStore() ; restoreVarTypeInfo(this->configRoot) ;
 
   // prune any corrupted user-defined data
-  validateServers() ; validateUsers() ;
-  validateChannels(this->localChannels) ;
+  validateServers() ; validateUsers() ; validateChannels(this->localChannels) ;
+
+  // repair any rouge values
+  sanitizeGui() ;
 
   // write back sanitized config to disk and cleanup
   storeConfig() ; delete default_xml ; delete stored_xml ;
@@ -132,7 +134,7 @@ DEBUG_TRACE_DUMP_CONFIG
   // register listener on LinJamStatus for Gui state
   LinJam::Status.addListener(this) ;
 
-  // register listeners on interesting nodes for central dispatcher
+  // register listeners on interesting config nodes for central dispatcher
   this->gui           .addListener(this) ;
   this->blacklist     .addListener(this) ;
   this->audio         .addListener(this) ;
@@ -321,6 +323,22 @@ void LinJamConfig::validateChannels(ValueTree channels)
 
 DEBUG_TRACE_VALIDATE_CHANNEL
   }
+}
+
+void LinJamConfig::sanitizeGui()
+{
+  int font_size_n  = int(this->gui[CONFIG::FONT_SIZE_ID ]) ;
+  int update_ivl_n = int(this->gui[CONFIG::UPDATE_IVL_ID]) ;
+
+  bool is_invalid_font_size  = font_size_n  < 0 || font_size_n  >= GUI::FONT_SIZES .size() ;
+  bool is_invalid_update_ivl = update_ivl_n < 0 || update_ivl_n >= GUI::UPDATE_IVLS.size() ;
+
+DEBUG_TRACE_SANITIZE_GUI
+
+  if (is_invalid_font_size)
+    this->gui.setProperty(CONFIG::FONT_SIZE_ID  , CONFIG::DEFAULT_FONT_SIZE_N  , nullptr) ;
+  if (is_invalid_update_ivl)
+    this->gui.setProperty(CONFIG::UPDATE_IVL_ID , CONFIG::DEFAULT_UPDATE_IVL_N , nullptr) ;
 }
 
 bool LinJamConfig::validateConfig()
@@ -662,7 +680,7 @@ void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier
 
 DEBUG_TRACE_CONFIG_TREE_CHANGED
 
-  if      (is_gui      ) LinJam::ConfigureGui() ;
+  if      (is_gui      ) LinJam::ConfigureGui(a_key) ;
   else if (is_blacklist) LinJam::ConfigureBlacklist() ;
   else if (is_audio    ) LinJam::ConfigureAudio() ;
   else if (is_master   ) LinJam::ConfigureMasterChannel(a_key) ;

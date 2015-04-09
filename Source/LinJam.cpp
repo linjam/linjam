@@ -51,8 +51,6 @@ void LinJam::SignIn(String host , String login , String pass , bool is_anonymous
 
 void LinJam::Connect()
 {
-DBG("LinJam::Connect() RetryLogin=" + String(RetryLogin)) ;
-
   Client->Disconnect() ;
 
   String host         = str( Config->server[CONFIG::HOST_ID        ]) ;
@@ -171,7 +169,7 @@ DEBUG_TRACE_CHAT_OUT
                              !command.compare(CLIENT::CHATMSG_CMD_BPM)    ) ;
 
 #ifndef ACCEPT_CHAT_COMMANDS // (issue #19)
-    Gui->chat->addChatLine(GUI::SERVER_NICK , "commands disabled") ; if (false)
+    Gui->chat->addChatLine(GUI::SERVER_NICK , "commands disabled") ; return ;
 #endif // CHAT_COMMANDS_BUGGY
 
     if      (is_me_command)
@@ -247,7 +245,8 @@ DEBUG_TRACE_INIT
   Timer->startTimer(APP::CLIENT_TIMER_ID , APP::CLIENT_DRIVER_IVL) ;
   Timer->startTimer(APP::GUI_LO_TIMER_ID , APP::GUI_LO_UPDATE_IVL) ;
 //Timer->startTimer(APP::GUI_MD_TIMER_ID , APP::GUI_MD_UPDATE_IVL) ; // unused
-  Timer->startTimer(APP::GUI_HI_TIMER_ID , APP::GUI_LO_UPDATE_IVL) ; ConfigureGui() ;
+  Timer->startTimer(APP::GUI_HI_TIMER_ID , APP::GUI_LO_UPDATE_IVL) ;
+  ConfigureGui(CONFIG::UPDATE_IVL_ID) ;
 
   return true ;
 }
@@ -286,6 +285,46 @@ void LinJam::ConfigureNinjam()
 
   // add bots and ignored users to ignore list
   ConfigureBlacklist() ;
+}
+
+void LinJam::ConfigureGui(const Identifier& a_key)
+{
+  if (a_key != CONFIG::UPDATE_IVL_ID) return ;
+
+  int gui_update_ivl_n = int(Config->gui[CONFIG::UPDATE_IVL_ID]) ;
+  int gui_update_ivl   = APP::GUI_HI_UPDATE_IVLS[gui_update_ivl_n] ;
+
+  if (!!gui_update_ivl) Timer->startTimer(APP::GUI_HI_TIMER_ID , gui_update_ivl) ;
+  else                  Timer->stopTimer( APP::GUI_HI_TIMER_ID                 ) ;
+
+  if (!!gui_update_ivl) return ;
+
+  // zero all VUs
+  int n_channels = Config->localChannels.getNumChildren() ;
+  for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
+  {
+    ValueTree channel_store = Config->localChannels.getChild(channel_n) ;
+    channel_store.setProperty(CONFIG::VU_LEFT_ID  , 0.0 , nullptr) ;
+    channel_store.setProperty(CONFIG::VU_RIGHT_ID , 0.0 , nullptr) ;
+  }
+  int n_users = Config->remoteUsers.getNumChildren() ;
+  for (int user_n = 0 ; user_n < n_users ; ++user_n)
+  {
+    ValueTree user_store = Config->remoteUsers.getChild(user_n) ;
+    int       n_channels = user_store.getNumChildren() ;
+    for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
+    {
+      ValueTree channel_store = user_store.getChild(channel_n) ;
+      channel_store.setProperty(CONFIG::VU_LEFT_ID  , 0.0 , nullptr) ;
+      channel_store.setProperty(CONFIG::VU_RIGHT_ID , 0.0 , nullptr) ;
+    }
+  }
+  ValueTree master_store = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::MASTER_ID) ;
+  ValueTree metro_store  = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID ) ;
+  master_store.setProperty(CONFIG::VU_LEFT_ID  , 0.0 , nullptr) ;
+  master_store.setProperty(CONFIG::VU_RIGHT_ID , 0.0 , nullptr) ;
+  metro_store .setProperty(CONFIG::VU_LEFT_ID  , 0.0 , nullptr) ;
+  metro_store .setProperty(CONFIG::VU_RIGHT_ID , 0.0 , nullptr) ;
 }
 
 void LinJam::ConfigureBlacklist()
@@ -430,6 +469,8 @@ DEBUG_TRACE_AUDIO_INIT_WIN
   }
 #else // _WIN32
 #  ifdef _MAC
+  UNUSED(audio_api_n) ;
+
   std::string input_device  = ca_input_device .toStdString() ;
   std::string output_device = ca_output_device.toStdString() ;
   Audio = audioStreamer::NewCA(OnSamples     , input_device   , output_device ,
@@ -446,6 +487,8 @@ DEBUG_TRACE_AUDIO_INIT_NIX
   {
     case audioStreamer::NIX_AUDIO_JACK:
     {
+      UNUSED(jack_server_n) ;
+
       std::string jack_name = jack_client_name.toStdString() ;
       Audio = audioStreamer::NewJACK(OnSamples , Client                        ,
                                      jack_name , jack_n_inputs , jack_n_outputs) ;
@@ -531,48 +574,6 @@ DEBUG_TRACE_INITIAL_CHANNELS
   }
 }
 
-void LinJam::ConfigureGui()
-{
-
-  int font_size        = int(Config->gui[CONFIG::FONT_SIZE_ID ]) ;
-  int gui_update_ivl_n = int(Config->gui[CONFIG::UPDATE_IVL_ID]) ;
-  int gui_update_ivl   = APP::GUI_HI_UPDATE_IVLS[gui_update_ivl_n] ;
-
-  // TODO: font size nyi
-
-  if (!!gui_update_ivl) Timer->startTimer(APP::GUI_HI_TIMER_ID , gui_update_ivl) ;
-  else                  Timer->stopTimer( APP::GUI_HI_TIMER_ID             ) ;
-
-  if (!!gui_update_ivl) return ;
-
-  // zero all VUs
-  int n_channels = Config->localChannels.getNumChildren() ;
-  for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
-  {
-    ValueTree channel_store = Config->localChannels.getChild(channel_n) ;
-    channel_store.setProperty(CONFIG::VU_LEFT_ID  , 0.0 , nullptr) ;
-    channel_store.setProperty(CONFIG::VU_RIGHT_ID , 0.0 , nullptr) ;
-  }
-  int n_users = Config->remoteUsers.getNumChildren() ;
-  for (int user_n = 0 ; user_n < n_users ; ++user_n)
-  {
-    ValueTree user_store = Config->remoteUsers.getChild(user_n) ;
-    int       n_channels = user_store.getNumChildren() ;
-    for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
-    {
-      ValueTree channel_store = user_store.getChild(channel_n) ;
-      channel_store.setProperty(CONFIG::VU_LEFT_ID  , 0.0 , nullptr) ;
-      channel_store.setProperty(CONFIG::VU_RIGHT_ID , 0.0 , nullptr) ;
-    }
-  }
-  ValueTree master_store = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::MASTER_ID) ;
-  ValueTree metro_store  = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID ) ;
-  master_store.setProperty(CONFIG::VU_LEFT_ID  , 0.0 , nullptr) ;
-  master_store.setProperty(CONFIG::VU_RIGHT_ID , 0.0 , nullptr) ;
-  metro_store .setProperty(CONFIG::VU_LEFT_ID  , 0.0 , nullptr) ;
-  metro_store .setProperty(CONFIG::VU_RIGHT_ID , 0.0 , nullptr) ;
-}
-
 void LinJam::Shutdown()
 {
   // NJClient teardown
@@ -592,6 +593,8 @@ DEBUG_TRACE_SHUTDOWN
 
 int LinJam::OnLicense(int user32 , char* license_text)
 {
+  UNUSED(user32) ;
+
   if (!IsAgreed()) Gui->license->setLicenseText(CharPointer_UTF8(license_text)) ;
 
 DEBUG_TRACE_LICENSE
@@ -601,6 +604,7 @@ DEBUG_TRACE_LICENSE
 
 void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , int nparms)
 {
+  UNUSED(user32) ; UNUSED(instance) ; UNUSED(nparms) ;
   if (!parms[0]) return ;
 
   String chat_type    = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_TYPE_IDX])) ;

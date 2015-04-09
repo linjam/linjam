@@ -96,11 +96,11 @@ private:
   void valueTreeChildAdded( ValueTree& a_parent_node , ValueTree& a_node) override  ;
 
   // unused ValueTree::Listener interface implementations
-  void valueTreePropertyChanged(  ValueTree& a_node , const Identifier& key)    override {} ;
-  void valueTreeChildRemoved(     ValueTree& a_parent_node , ValueTree& a_node) override {} ;
-  void valueTreeChildOrderChanged(ValueTree& a_parent_node)                     override {} ;
-  void valueTreeParentChanged(    ValueTree& a_node)                            override {} ;
-  void valueTreeRedirected(       ValueTree& a_node)                            override {} ;
+  void valueTreePropertyChanged(  ValueTree& a_node , const Identifier& a_key)  override { UNUSED(a_node) ;        UNUSED(a_key) ;  } ;
+  void valueTreeChildRemoved(     ValueTree& a_parent_node , ValueTree& a_node) override { UNUSED(a_parent_node) ; UNUSED(a_node) ; } ;
+  void valueTreeChildOrderChanged(ValueTree& a_parent_node)                     override { UNUSED(a_parent_node) ;                  } ;
+  void valueTreeParentChanged(    ValueTree& a_node)                            override { UNUSED(a_node) ;                         } ;
+  void valueTreeRedirected(       ValueTree& a_node)                            override { UNUSED(a_node) ;                         } ;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Blacklist)
 } ;

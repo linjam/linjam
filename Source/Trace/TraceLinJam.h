@@ -23,10 +23,9 @@
   Trace::TraceClient("preparing session dir '" + SessionDir.getFullPathName() + "'- " + \
                      (SessionDir.isDirectory() ? "already exists" : "created")        ) ;
 
-static int DbgPrevStatus = APP::LINJAM_STATUS_INIT ;
 #define DEBUG_TRACE_STATUS_CHANGED                                               \
-  int    prev_status   = DbgPrevStatus ;                                         \
-  int    curr_status   = (DbgPrevStatus = int(Status.getValue())) ;              \
+  int    prev_status   = Trace::DbgPrevStatus ;                                  \
+  int    curr_status   = Trace::DbgPrevStatus = int(Status.getValue()) ;         \
   String prev_state    = Trace::Status2String(prev_status) ;                     \
   String curr_state    = Trace::Status2String(curr_status) ;                     \
   char*  client_error  = Client->GetErrorStr() ;                                 \
@@ -140,7 +139,8 @@ static int DbgPrevStatus = APP::LINJAM_STATUS_INIT ;
 #define DEBUG_TRACE_AUDIO_INIT_JACK_FAIL                                              \
   if (!Audio) { Trace::TraceState("could not connect to " + GUI::JACK_DEVICE_TYPE +   \
                                   " - falling back to "   + GUI::ALSA_DEVICE_TYPE ) ; \
-                type = GUI::ALSA_DEVICE_TYPE ; DEBUG_TRACE_AUDIO_INIT_ALSA }
+                type = GUI::ALSA_DEVICE_TYPE ;                                        \
+                if (TRACE_AUDIO_INIT_VB) { DEBUG_TRACE_AUDIO_INIT_ALSA }              }
 
 #define DEBUG_TRACE_AUDIO_INIT                                                            \
   String streamer_msg = " audio device using " + type  + " AudioStreamer" ;               \
@@ -169,7 +169,7 @@ static int DbgPrevStatus = APP::LINJAM_STATUS_INIT ;
   bool   exists       = IsConfiguredChannel(ch_idx) ;                                     \
   bool   valid_source = source >= 0 && source < GetNumAudioSources() ;                    \
   int    n_vacant     = GetNumVacantChannels() ;                                          \
-  bool   no_free_chs  = (!stereo && n_vacant < 1 || stereo && n_vacant < 2) ;             \
+  bool   no_free_chs  = (!stereo && n_vacant < 1) || (stereo && n_vacant < 2) ;           \
   String dbg          = "when adding " + String((is_new)? "new" : "stored") + " local " + \
                         type + " input[" + String(source) + "] '" + channel_name + "'" ;  \
   if (exists)                                                                             \
@@ -242,35 +242,34 @@ static int DbgPrevStatus = APP::LINJAM_STATUS_INIT ;
 #  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB ;
 #endif // TRACE_DUMP_FREE_INPUTS
 
-#define DEBUG_TRACE_REMOTE_CHANNELS                                                   \
-    bool   is_bot  = NETWORK::KNOWN_BOTS->compareAttribute(host , String(u_id)) ;     \
-    String hidden  = (hide_bots && NETWORK::KNOWN_BOTS->hasAttribute(String(u_id))) ? \
-                     " (bot hidden)" : "" ;                                           \
-    String dbg = "NJClient remote user[" + String(u_idx) + "] =>" + hidden +          \
-        "\n  user_name   => "   + String(u_name)                  +                   \
-        "\n  user_volume => "   + String(u_vol)                   +                   \
-        "\n  user_pan    => "   + String(u_pan)                   +                   \
-        "\n  user_mute   => "   + String(u_mute) ;                                    \
-    int ch_n = -1 ; int ch_idx ;                                                      \
-    while (~(ch_idx = LinJam::Client->EnumUserChannels(u_idx , ++ch_n)))              \
-    {                                                                                 \
-      bool ch_rcv ;  float ch_vol ;  float ch_pan ; bool ch_mute ;                    \
-      bool ch_solo ; int   ch_sink ; bool  ch_pannable ;                              \
-      String ch_name = LinJam::GetRemoteChannelClientName(u_idx , ch_idx) ;           \
-      LinJam::Client->GetUserChannelState(u_idx    , ch_idx   , &ch_rcv   ,           \
-                                          &ch_vol  , &ch_pan  , &ch_mute  ,           \
-                                          &ch_solo , &ch_sink , &ch_pannable) ;       \
-      dbg += "\n  found remote channel[" + String(ch_n)   + "] =>" +                  \
-             "\n    channel_idx    => "  + String(ch_idx)          +                  \
-             "\n    channel_name   => "  + String(ch_name)         +                  \
-             "\n    channel_volume => "  + String(ch_vol)          +                  \
-             "\n    channel_pan    => "  + String(ch_pan)          +                  \
-             "\n    is_rcv         => "  + String(ch_rcv)          +                  \
-             "\n    channel_mute   => "  + String(ch_mute)         +                  \
-             "\n    is_solo        => "  + String(ch_solo)         +                  \
-             "\n    sink_n         => "  + String(ch_sink)         +                  \
-             "\n    is_pannable    => "  + String(ch_pannable) ;                      \
-    }                                                                                 \
+#define DEBUG_TRACE_REMOTE_CHANNELS                                              \
+    bool   is_bot = NETWORK::KNOWN_BOTS->compareAttribute(host , String(u_id)) ; \
+    String hidden = (hide_bots && is_bot) ? " (bot hidden)" : "" ;               \
+    String dbg    = "NJClient remote user[" + String(u_idx) + "] =>" + hidden +  \
+        "\n  user_name   => "   + String(u_name)                              +  \
+        "\n  user_volume => "   + String(u_vol)                               +  \
+        "\n  user_pan    => "   + String(u_pan)                               +  \
+        "\n  user_mute   => "   + String(u_mute)                              ;  \
+    int ch_n = -1 ; int ch_idx ;                                                 \
+    while (~(ch_idx = LinJam::Client->EnumUserChannels(u_idx , ++ch_n)))         \
+    {                                                                            \
+      bool ch_rcv ;  float ch_vol ;  float ch_pan ; bool ch_mute ;               \
+      bool ch_solo ; int   ch_sink ; bool  ch_pannable ;                         \
+      String ch_name = LinJam::GetRemoteChannelClientName(u_idx , ch_idx) ;      \
+      LinJam::Client->GetUserChannelState(u_idx    , ch_idx   , &ch_rcv   ,      \
+                                          &ch_vol  , &ch_pan  , &ch_mute  ,      \
+                                          &ch_solo , &ch_sink , &ch_pannable) ;  \
+      dbg += "\n  found remote channel[" + String(ch_n)   + "] =>" +             \
+             "\n    channel_idx    => "  + String(ch_idx)          +             \
+             "\n    channel_name   => "  + String(ch_name)         +             \
+             "\n    channel_volume => "  + String(ch_vol)          +             \
+             "\n    channel_pan    => "  + String(ch_pan)          +             \
+             "\n    is_rcv         => "  + String(ch_rcv)          +             \
+             "\n    channel_mute   => "  + String(ch_mute)         +             \
+             "\n    is_solo        => "  + String(ch_solo)         +             \
+             "\n    sink_n         => "  + String(ch_sink)         +             \
+             "\n    is_pannable    => "  + String(ch_pannable) ;                 \
+    }                                                                            \
     Trace::TraceState(dbg) ;
 
 #if TRACE_REMOTE_CHANNELS_VB

@@ -12,7 +12,8 @@ const int       NETWORK::N_LOGIN_RETRIES = 3 ;
 const StringRef NETWORK::HOST_MASK       = "*.*:*" ;
 const StringRef NETWORK::LETTERS         = "abcdefghijklmnopqrstuvwxyz" ;
 const StringRef NETWORK::DIGITS          = "0123456789" ;
-const StringRef NETWORK::HOST_CHARS      = "0123456789abcdefghijklmnopqrstuvwxyz-." ;
+const String    NETWORK::HOST_CHARS      = NINJAM::HOST_CHARS ;
+const String    NETWORK::NICK_CHARS      = NINJAM::NICK_CHARS ;
 
 // known hosts and bots
 const String      NETWORK::LOCALHOST_HOSTNAME = "localhost" ;

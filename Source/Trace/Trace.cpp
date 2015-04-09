@@ -5,9 +5,9 @@
 #  include "Trace.h"
 
 
-/* Trace class private class variables */
+/* Trace class public class variables */
 
-Array<String> Trace::UnknowwnChannels = Array<String>() ;
+int Trace::DbgPrevStatus = APP::LINJAM_STATUS_INIT ;
 
 
 /* Trace class public class methods */
@@ -190,6 +190,15 @@ void Trace::TraceTypeMismatch(ValueTree a_node           , String a_property_nam
   Trace::TraceError("type mismatch - " + parent_node_name + a_node_name        +
                     "["                + a_property_name  + "] => "            +
                     VarType(a_var)     + " (expected "    + expected_type + ")") ;
+}
+
+void Trace::TraceInvalidValue(ValueTree a_node , Identifier a_property_id)
+{
+  String a_node_name     = String(a_node.getType()) ;
+  String a_property_name = String(a_property_id) ;
+  String a_value         = a_node[a_property_id].toString() ;
+  TraceError(a_node_name + " property " + a_property_name + " value " + a_value +
+             " out of bounds - restoring default"                               ) ;
 }
 
 String Trace::VarType(var a_var) // juce var dynamic datatypes

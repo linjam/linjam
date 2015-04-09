@@ -448,6 +448,8 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
   }
 #else // _WIN32
 #  ifndef _MAC
+  UNUSED(audio_api_n) ;
+
   sample_rate_key = CONFIG::CA_SAMPLERATE_ID ;
   bit_depth_key   = CONFIG::CA_BITDEPTH_ID ;
 #  else // _MAC
@@ -630,6 +632,8 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
       }
 #else // _WIN32
 #  ifdef _MAC
+      UNUSED(audio_api_n) ;
+
       key      = CONFIG::CA_INPUT_ID ;
       option_n = (~option_n) ? option_n : GUI::DEFAULT_CA_INDEX ;
       value    = var(option_text) ;
@@ -680,6 +684,8 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
       }
 #else // _WIN32
 #  ifdef _MAC
+      UNUSED(audio_api_n) ;
+
       key      = CONFIG::CA_OUTPUT_ID ;
       option_n = (~option_n) ? option_n : GUI::DEFAULT_CA_INDEX ;
       value    = var(option_text) ;
@@ -774,6 +780,8 @@ void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
 
 #ifndef _WIN32
 #  ifdef _MAC
+      UNUSED(audio_api_n) ;
+
       config_key = CONFIG::CA_NCHANNELS_ID ;
 #  else // _MAC
       switch ((audioStreamer::NixApi)audio_api_n)
@@ -939,6 +947,8 @@ void ConfigAudio::loadParams()
   }
 #else // _WIN32
 #  ifdef _MAC
+  UNUSED(audio_api_n) ;
+
   source_n    = getItemIndex(this->sourceComboBox , ca_input_device ) ;
   sink_n      = getItemIndex(this->sinkComboBox   , ca_output_device) ;
   n_inputs    = ca_n_channels ;
@@ -1021,6 +1031,8 @@ void ConfigAudio::populateDevices()
   }
 #else // _WIN32
 #  ifdef _MAC
+  UNUSED(audio_api_n) ;
+
   if (!queryCaDevices()) restoreDefaults() ;
 #  else // _MAC
   switch ((audioStreamer::NixApi)audio_api_n)
@@ -1096,6 +1108,8 @@ void ConfigAudio::restoreDefaults()
   }
 #else // _WIN32
 #  ifdef _MAC
+  UNUSED(audio_api_n) ;
+
   setConfig(CONFIG::CA_INPUT_ID      , CONFIG::DEFAULT_CA_INPUT_NAME ) ;
   setConfig(CONFIG::CA_OUTPUT_ID     , CONFIG::DEFAULT_CA_OUTPUT_NAME) ;
   setConfig(CONFIG::CA_NCHANNELS_ID  , CONFIG::DEFAULT_CA_NCHANNELS  ) ;

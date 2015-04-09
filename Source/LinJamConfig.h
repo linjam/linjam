@@ -87,6 +87,7 @@ private:
   void      validateServers() ;
   void      validateUsers() ;
   void      validateChannels(ValueTree channels) ;
+  void      sanitizeGui() ;
   bool      validateConfig() ;
   bool      isConfigValid() ;
 
@@ -119,9 +120,9 @@ private:
   void valueTreeChildRemoved(   ValueTree& a_parent_node , ValueTree& a_node) override ;
 
   // unused ValueTree::Listener interface implementations
-  void valueTreeChildOrderChanged(ValueTree& a_parent_node) override {} ;
-  void valueTreeParentChanged(    ValueTree& a_node)        override {} ;
-  void valueTreeRedirected(       ValueTree& a_node)        override {} ;
+  void valueTreeChildOrderChanged(ValueTree& a_parent_node) override { UNUSED(a_parent_node) ; } ;
+  void valueTreeParentChanged(    ValueTree& a_node)        override { UNUSED(a_node) ;        } ;
+  void valueTreeRedirected(       ValueTree& a_node)        override { UNUSED(a_node) ;        } ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJamConfig) ;

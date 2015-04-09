@@ -176,6 +176,8 @@ void Blacklist::resize()
 
 void Blacklist::valueTreeChildAdded(ValueTree& a_parent_node , ValueTree& a_node)
 {
+  UNUSED(a_parent_node) ;
+
   addAndMakeVisible(new BlacklistEntry(a_node)) ; resize() ;
 }
 

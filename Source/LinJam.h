@@ -82,10 +82,10 @@ private:
                          MultiTimer* multi_timer , const String& cli_args     ) ;
   static bool PrepareSessionDirectory() ;
   static void ConfigureNinjam() ;
+  static void ConfigureGui(const Identifier& a_key) ;
   static void ConfigureBlacklist() ;
   static bool InitializeAudio() ;
   static void ConfigureInitialChannels() ;
-  static void ConfigureGui() ;
   static void Shutdown() ;
 
   // NJClient callbacks
