@@ -40,7 +40,7 @@ class License  : public Component,
 {
 public:
     //==============================================================================
-    License (Value is_agreed , Value always_agree);
+    License (Value is_agreed, Value always_agree);
     ~License();
 
     //==============================================================================

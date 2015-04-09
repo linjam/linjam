@@ -31,7 +31,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-Chat::Chat (Value font_size) : fontSize(font_size)
+Chat::Chat (Value font_size)
+    : fontSize(font_size)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -43,7 +44,7 @@ Chat::Chat (Value font_size) : fontSize(font_size)
     chatText->setReadOnly (true);
     chatText->setScrollbarsShown (true);
     chatText->setCaretVisible (false);
-    chatText->setPopupMenuEnabled (false);
+    chatText->setPopupMenuEnabled (true);
     chatText->setColour (TextEditor::textColourId, Colours::grey);
     chatText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
     chatText->setColour (TextEditor::highlightColourId, Colour (0x00000000));
@@ -57,7 +58,7 @@ Chat::Chat (Value font_size) : fontSize(font_size)
     chatEntryText->setReadOnly (false);
     chatEntryText->setScrollbarsShown (false);
     chatEntryText->setCaretVisible (true);
-    chatEntryText->setPopupMenuEnabled (false);
+    chatEntryText->setPopupMenuEnabled (true);
     chatEntryText->setColour (TextEditor::textColourId, Colours::grey);
     chatEntryText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
     chatEntryText->setColour (TextEditor::highlightColourId, Colour (0x00000000));
@@ -90,6 +91,7 @@ Chat::Chat (Value font_size) : fontSize(font_size)
 
     setSize (622, 162);
 
+
     //[Constructor] You can add your own custom stuff here..
 
   // set text editor colors
@@ -120,8 +122,6 @@ Chat::Chat (Value font_size) : fontSize(font_size)
   this->chatText     ->setColour(TextEditor::backgroundColourId      , GUI::CHAT_TEXT_BG_COLOR ) ;
   this->chatEntryText->setColour(TextEditor::backgroundColourId      , GUI::CHAT_TEXT_BG_COLOR ) ;
 
-  this->chatText     ->setPopupMenuEnabled(true) ;
-  this->chatEntryText->setPopupMenuEnabled(true) ;
   this->chatEntryText->setSelectAllWhenFocused(true) ;
   this->chatEntryText->setTextToShowWhenEmpty(GUI::CHAT_PROMPT_TEXT , GUI::TEXT_EMPTY_COLOR) ;
   this->chatEntryText->setInputRestrictions(1024) ;
@@ -246,7 +246,7 @@ void Chat::resized()
 
     chatText->setBounds (8, 8, getWidth() - 16, getHeight() - 44);
     chatEntryText->setBounds (8, getHeight() - 24, getWidth() - 16, 16);
-    topicLabel->setBounds (8, 10, getWidth() - 16, 16);
+    topicLabel->setBounds (12, 10, getWidth() - 24, 16);
     //[UserResized] Add your own custom resize handling here..
 #endif // DRAW_JUCER_CHAT_RESIZE
 
@@ -360,10 +360,10 @@ bool Chat::shouldShowTopic() { return (getHeight() > GUI::MIN_SHOW_TOPIC_CHAT_H)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Chat" componentName="Chat"
-                 parentClasses="public Component, public TextEditor::Listener"
-                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
-                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="622"
-                 initialHeight="162">
+                 parentClasses="public Component, public TextEditor::Listener, public ValueListener"
+                 constructorParams="Value font_size" variableInitialisers="fontSize(font_size)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="622" initialHeight="162">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
@@ -377,14 +377,14 @@ BEGIN_JUCER_METADATA
   <TEXTEDITOR name="chatText" id="ba11ad8bfe4752c1" memberName="chatText" virtualName=""
               explicitFocusOrder="0" pos="8 8 16M 44M" textcol="ff808080" bkgcol="0"
               hilitecol="0" outlinecol="0" initialText="" multiline="1" retKeyStartsLine="0"
-              readonly="1" scrollbars="1" caret="0" popupmenu="0"/>
+              readonly="1" scrollbars="1" caret="0" popupmenu="1"/>
   <TEXTEDITOR name="chatEntryText" id="412133d948ede027" memberName="chatEntryText"
               virtualName="" explicitFocusOrder="1" pos="8 24R 16M 16" textcol="ff808080"
               bkgcol="0" hilitecol="0" outlinecol="0" caretcol="ffffffff" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
-              caret="1" popupmenu="0"/>
+              caret="1" popupmenu="1"/>
   <LABEL name="topicLabel" id="3544f00ed11410e1" memberName="topicLabel"
-         virtualName="" explicitFocusOrder="0" pos="8 10 16M 16" bkgCol="0"
+         virtualName="" explicitFocusOrder="0" pos="12 10 24M 16" bkgCol="0"
          textCol="ff808080" edTextCol="ff808080" edBkgCol="0" hiliteCol="ffbbbbff"
          labelText="" editableSingleClick="1" editableDoubleClick="1"
          focusDiscardsChanges="1" fontname="Default monospaced font" fontsize="15"

@@ -30,8 +30,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-License::License (Value is_agreed , Value always_agree)
-    : isAgreed(is_agreed) , alwaysAgree(always_agree)
+License::License (Value is_agreed, Value always_agree)
+    : isAgreed(is_agreed), alwaysAgree(always_agree)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -198,10 +198,10 @@ void License::setLicenseText(String license_text)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="License" componentName="License"
-                 parentClasses="public Component, public ValueListener" constructorParams="ValueTree login_store"
-                 variableInitialisers="loginStore(login_store)" snapPixels="8"
-                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
-                 initialWidth="622" initialHeight="442">
+                 parentClasses="public Component, public ValueListener" constructorParams="Value is_agreed, Value always_agree"
+                 variableInitialisers="isAgreed(is_agreed), alwaysAgree(always_agree)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="622" initialHeight="442">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>

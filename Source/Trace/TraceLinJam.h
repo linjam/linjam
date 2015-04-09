@@ -229,14 +229,14 @@
                     String(channel_store.getType()) + "'"                    ) ;
 
 #if TRACE_DUMP_FREE_INPUTS
-#  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB                                            \
-  SortedSet<int> monos   = FreeAudioSources ;     int n_monos   = monos.size() ;     \
-  SortedSet<int> stereos = FreeAudioSourcePairs ; int n_stereos = stereos.size() ;   \
-  String dump = String(n_monos)   + " FreeAudioSources     = [" ;                    \
-  for (int i = 0 ; i < n_monos ; ++i)   dump += String(monos[i])   + " " ;           \
-  Trace::TraceVerbose(dump.trim() + "]") ;                                           \
-  dump        = String(n_stereos) + " FreeAudioSourcePairs = [" ;                    \
-  for (int i = 0 ; i < n_stereos ; ++i) dump += String(stereos[i]) + " " ;           \
+#  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB                                          \
+  SortedSet<int> monos   = FreeAudioSources ;     int n_monos   = monos.size() ;   \
+  SortedSet<int> stereos = FreeAudioSourcePairs ; int n_stereos = stereos.size() ; \
+  String dump = String(n_monos)   + " FreeAudioSources     = [" ;                  \
+  for (int i = 0 ; i < n_monos ; ++i)   dump += String(monos[i])   + " " ;         \
+  Trace::TraceVerbose(dump.trim() + "]") ;                                         \
+  dump       = String(n_stereos)  + " FreeAudioSourcePairs = [" ;                  \
+  for (int i = 0 ; i < n_stereos ; ++i) dump += String(stereos[i]) + " " ;         \
   Trace::TraceVerbose(dump.trim() + "]") ;
 #else // TRACE_DUMP_FREE_INPUTS
 #  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB ;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="V5yqRw" name="LinJam" projectType="guiapp" version="0.27.0"
+<JUCERPROJECT id="V5yqRw" name="LinJam" projectType="guiapp" version="0.31.0"
               bundleIdentifier="com.bill-auger.LinJam" includeBinaryInAppConfig="1"
               jucerVersion="3.1.1">
   <MAINGROUP id="dT83m5" name="LinJam">

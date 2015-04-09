@@ -69,7 +69,7 @@ ConfigGui::ConfigGui (ValueTree gui_store)
     addAndMakeVisible (updateComboBox = new ComboBox ("updateComboBox"));
     updateComboBox->setExplicitFocusOrder (2);
     updateComboBox->setEditableText (false);
-    updateComboBox->setJustificationType (Justification::centredLeft);
+    updateComboBox->setJustificationType (Justification::centredRight);
     updateComboBox->setTextWhenNothingSelected (String::empty);
     updateComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     updateComboBox->addListener (this);
@@ -136,12 +136,12 @@ void ConfigGui::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    mixerGroup->setBounds (220, 100, 175, 48);
-    chatGroup->setBounds (220, 38, 175, 48);
-    fontsizeLabel->setBounds (228, 56, 96, 18);
-    updateLabel->setBounds (228, 118, 96, 18);
-    updateComboBox->setBounds (332, 118, 52, 18);
-    fontsizeComboBox->setBounds (332, 56, 52, 18);
+    mixerGroup->setBounds (214, 100, 188, 48);
+    chatGroup->setBounds (214, 38, 188, 48);
+    fontsizeLabel->setBounds (222, 56, 96, 18);
+    updateLabel->setBounds (222, 118, 96, 18);
+    updateComboBox->setBounds (326, 118, 64, 18);
+    fontsizeComboBox->setBounds (326, 56, 64, 18);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -214,26 +214,26 @@ BEGIN_JUCER_METADATA
                  initialHeight="400">
   <BACKGROUND backgroundColour="ff000020"/>
   <GROUPCOMPONENT name="mixerGroup" id="5f4710d68a339cda" memberName="mixerGroup"
-                  virtualName="" explicitFocusOrder="0" pos="220 100 175 48" outlinecol="ff808080"
+                  virtualName="" explicitFocusOrder="0" pos="214 100 188 48" outlinecol="ff808080"
                   textcol="ffffffff" title="mixer" textpos="33"/>
   <GROUPCOMPONENT name="chatGroup" id="35b859a43662c4ca" memberName="chatGroup"
-                  virtualName="" explicitFocusOrder="0" pos="220 38 175 48" outlinecol="ff808080"
+                  virtualName="" explicitFocusOrder="0" pos="214 38 188 48" outlinecol="ff808080"
                   textcol="ffffffff" title="chat" textpos="33"/>
   <LABEL name="fontsizeLabel" id="5cb85d669129843" memberName="fontsizeLabel"
-         virtualName="" explicitFocusOrder="0" pos="228 56 96 18" textCol="ffffffff"
+         virtualName="" explicitFocusOrder="0" pos="222 56 96 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="chat font size:"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <LABEL name="updateLabel" id="116b9ce3acfaa0e6" memberName="updateLabel"
-         virtualName="" explicitFocusOrder="0" pos="228 118 96 18" textCol="ffffffff"
+         virtualName="" explicitFocusOrder="0" pos="222 118 96 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="vu update speed:"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="updateComboBox" id="bef2196516ab5821" memberName="updateComboBox"
-            virtualName="" explicitFocusOrder="2" pos="332 118 52 18" editable="0"
-            layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
+            virtualName="" explicitFocusOrder="2" pos="326 118 64 18" editable="0"
+            layout="34" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <COMBOBOX name="fontsizeComboBox" id="128e0c382d0cdf83" memberName="fontsizeComboBox"
-            virtualName="" explicitFocusOrder="1" pos="332 56 52 18" editable="0"
+            virtualName="" explicitFocusOrder="1" pos="326 56 64 18" editable="0"
             layout="34" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
 </JUCER_COMPONENT>
 
