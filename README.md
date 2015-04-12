@@ -1,6 +1,25 @@
-### LinJam is not NINJAM - Oh wait, yes it is!<br />LinJam is linear NINJAM
-
+### LinJam Is Not .... - Oh wait, Yes it is!<br />LinJam is linear NINJAM
 ![LinJam screenshot](http://teamstream.herokuapp.com/linjam.png)
+| build | status |
+| ----  | ------ |
+| linux | [![Build Status](https://travis-ci.org/linjam/linjam.svg?branch=linux)](https://travis-ci.org/linjam/linjam) |
+| dev   | [![Build Status](https://travis-ci.org/linjam/linjam.svg)](https://travis-ci.org/linjam/linjam) |
+
+#### Get LinJam
+###### LinJam for windows
+* coming soon (get the source for now)
+
+###### LinJam for penguins
+```
+  # subscribe to the repository
+  $ curl https://packagecloud.io/install/repositories/ninjam/ninjam/script.deb | sudo bash
+
+  # install the package
+  $ sudo apt-get install libninjam-full
+```
+
+###### LinJam for apples
+* coming soon (get the source for now)
 
 #### About LinJam
 

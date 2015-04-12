@@ -68,7 +68,7 @@
   </MAINGROUP>
   <EXPORTFORMATS>
     <LINUX_MAKE targetFolder="Builds/Linux" extraLinkerFlags="&#96;pkg-config ninjam --libs&#96;&#10;&#96;pkg-config ninjam-client --libs&#96;"
-                extraCompilerFlags="&#96;pkg-config ninjam --cflags&#96;&#10;-Wno-write-strings&#10;-malign-double">
+                extraCompilerFlags="&#96;pkg-config ninjam --cflags&#96;&#10;-Wall&#10;-Wextra&#10;$(if $(filter-out x86_64 , $(shell uname -m)) , -malign-double , -fPIC)">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
                        targetName="linjam-dbg"/>
