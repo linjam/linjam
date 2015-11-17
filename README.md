@@ -12,10 +12,10 @@
 ###### LinJam for penguins
 ```
   # subscribe to the repository
-  $ curl https://packagecloud.io/install/repositories/ninjam/ninjam/script.deb | sudo bash
+  $ curl -s https://packagecloud.io/install/repositories/ninjam/ninjam/script.deb.sh | sudo bash
 
   # install the package
-  $ sudo apt-get install libninjam-full
+  $ sudo apt-get install linjam
 ```
 
 ###### LinJam for apples

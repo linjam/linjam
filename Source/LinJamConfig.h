@@ -1,6 +1,7 @@
 #ifndef _LINJAMCONFIG_H_
 #define _LINJAMCONFIG_H_
 
+
 #include "Constants.h"
 #include "JuceHeader.h"
 
@@ -105,7 +106,7 @@ private:
   void      setCredentials(       String host         , String login , String pass ,
                                   bool   is_anonymous                              ) ;
   ValueTree getCredentials(       String host) ;
-  void      setServer() ;
+  void      storeServer          () ;
   ValueTree getServer(            String host) ;
   void      setStereo(            ValueTree channel_store , int stereo_status) ;
   int       setRemoteStereo(      ValueTree user_store        , ValueTree channel_store ,

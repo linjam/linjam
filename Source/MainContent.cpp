@@ -21,14 +21,14 @@ MainContent::MainContent(DocumentWindow* main_window , TextButton* config_button
 
 MainContent::~MainContent()
 {
-  this->background   = nullptr ;
-  this->login        = nullptr ;
-  this->license      = nullptr ;
-  this->chat         = nullptr ;
-  this->mixer        = nullptr ;
-  this->statusbar    = nullptr ;
-  this->loop         = nullptr ;
-  this->config       = nullptr ;
+  this->background = nullptr ;
+  this->login      = nullptr ;
+  this->license    = nullptr ;
+  this->chat       = nullptr ;
+  this->mixer      = nullptr ;
+  this->statusbar  = nullptr ;
+  this->loop       = nullptr ;
+  this->config     = nullptr ;
 }
 
 void MainContent::paint(Graphics& g)
@@ -59,7 +59,7 @@ void MainContent::resized()
   int cfg_btn_w = GUI::CONFIG_BTN_W ;
   int cfg_btn_h = GUI::CONFIG_BTN_H ;
 
-  // content div
+  // main content
   int content_w = window_w - GUI::PAD2 ;
   int content_h = window_h - GUI::STATUSBAR_H - GUI::PAD3 ;
 
@@ -93,7 +93,7 @@ void MainContent::resized()
   int chat_w = content_w ;
   int chat_h = content_h - GUI::MIXER_H - GUI::PAD ;
 
-  // status div
+  // statusbar
   int status_x = GUI::PAD ;
   int status_y = window_h - GUI::STATUSBAR_H - GUI::PAD ;
   int status_w = content_w ;
@@ -112,20 +112,19 @@ void MainContent::resized()
   int config_h = content_h ;
 
   this->configButton->setBounds(cfg_btn_x , cfg_btn_y , cfg_btn_w , cfg_btn_h) ;
-  this->background  ->setBounds(bg_x      , bg_y      , bg_w      , bg_h) ;
-  this->login       ->setBounds(login_x   , login_y   , login_w   , login_h) ;
+  this->background  ->setBounds(bg_x      , bg_y      , bg_w      , bg_h     ) ;
+  this->login       ->setBounds(login_x   , login_y   , login_w   , login_h  ) ;
   this->license     ->setBounds(license_x , license_y , license_w , license_h) ;
-  this->chat        ->setBounds(chat_x    , chat_y    , chat_w    , chat_h) ;
-  this->mixer       ->setBounds(mixer_x   , mixer_y   , mixer_w   , mixer_h) ;
-  this->statusbar   ->setBounds(status_x  , status_y  , status_w  , status_h) ;
-  this->loop        ->setBounds(loop_x    , loop_y    , loop_w    , loop_h) ;
-  this->config      ->setBounds(config_x  , config_y  , config_w  , config_h) ;
+  this->chat        ->setBounds(chat_x    , chat_y    , chat_w    , chat_h   ) ;
+  this->mixer       ->setBounds(mixer_x   , mixer_y   , mixer_w   , mixer_h  ) ;
+  this->statusbar   ->setBounds(status_x  , status_y  , status_w  , status_h ) ;
+  this->loop        ->setBounds(loop_x    , loop_y    , loop_w    , loop_h   ) ;
+  this->config      ->setBounds(config_x  , config_y  , config_w  , config_h ) ;
 }
 
 void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store ,
-                              ValueTree blacklist_store , ValueTree audio_store  , 
+                              ValueTree blacklist_store , ValueTree audio_store  ,
                               ValueTree login_store     , Value     linjam_status)
-                              
 {
   // extract specific values for components that do not require an entire store
   Value agreed_value   = LinJamConfig::GetValueHolder(login_store , CONFIG::IS_AGREED_ID   ) ;

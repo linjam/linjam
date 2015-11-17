@@ -318,7 +318,7 @@ void Chat::valueChanged(Value& a_value)
 
 void Chat::textEditorReturnKeyPressed(TextEditor& a_text_editor)
 {
-  if (&a_text_editor != this->chatEntryText)  return ;
+  if (&a_text_editor != this->chatEntryText) return ;
 
   LinJam::SendChat(this->chatEntryText->getText()) ;
   this->chatEntryText->clear() ;

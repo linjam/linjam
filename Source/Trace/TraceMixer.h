@@ -20,10 +20,10 @@
 #  define DEBUG_TRACE_MIXER_COMPONENTS_VB                                       \
   if (this->masterChannels   == nullptr || this->localChannels    == nullptr || \
       this->prevScrollButton == nullptr || this->nextScrollButton == nullptr  ) \
-    Trace::TraceVerbose("mixer resized - GUI not ready") ;                      \
+    Trace::TraceGuiVb("mixer resized - GUI not ready") ;                        \
   String dbg = "mixer resized " + String(getNumChildComponents())    +          \
-                " mixer components ("                                 +          \
-                String(GUI::N_STATIC_MIXER_CHILDREN) + " static) =>"  ;          \
+               " mixer components ("                                 +          \
+               String(GUI::N_STATIC_MIXER_CHILDREN) + " static) =>"  ;          \
   for (int n = 0 ; n < getNumChildComponents() ; ++n)                           \
   {                                                                             \
     Component* child = getChildComponent(n) ; String id ;                       \
@@ -35,7 +35,7 @@
     else                                      id = child->getComponentID() ;    \
     dbg += "\n  component[" + String(n) + "] => " + String(id) ;                \
   }                                                                             \
-  Trace::TraceVerbose(dbg) ;
+  Trace::TraceGuiVb(dbg) ;
 #else // TRACE_MIXER_COMPONENTS
 #  define DEBUG_TRACE_MIXER_COMPONENTS_VB ;
 #endif // TRACE_MIXER_COMPONENTS

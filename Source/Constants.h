@@ -115,8 +115,8 @@
 #endif // _WIN32
 
 /** CONFIG_XML, WIN_AUDIO_XML, NIX_AUDIO_XML, MAC_AUDIO_XML
-  *     define the schema and default values for the configuration/persistence model
-  * this data is instantiated below as DEFAULT_CONFIG_XML */
+        define the schema and default values for the configuration/persistence model
+    this data is instantiated below as DEFAULT_CONFIG_XML                            */
 #define CONFIG_XML XML_HEADER                                                 + \
   STORAGE_KEY              +                                            " "   + \
     CONFIG_VERSION_KEY     + "=\"" + String(CONFIG_VERSION          ) + "\""  + \
@@ -178,11 +178,11 @@
   "</" + STORAGE_KEY       + ">"
 
 /** CONFIG_TYPES_XML denotes the property datatypes for the CONFIG_XML data above
-  *      there is not a one-to-one correspondence with the schema
-  *  these are grouped by leaf type
-  *      because <channel> leaves for example are found in several locations
-  *      and some list nodes such as <locals> have no intrinsic properties
-  *  this data is instantiated below as CONFIG_DATATYPES_XML */
+         there is not a one-to-one correspondence with the schema
+     these are grouped by leaf type
+         because <channel> leaves for example are found in several locations
+         and some list nodes such as <locals> have no intrinsic properties
+     this data is instantiated below as CONFIG_DATATYPES_XML                      */
 #define CONFIG_TYPES_XML XML_HEADER                       + \
   STORAGE_TYPES_KEY        +                       " "    + \
     CONFIG_VERSION_KEY     + "=\"" + DOUBLE_TYPE + "\"><" + \
@@ -310,8 +310,8 @@
 
 /* global constants */
 
-/** APP defines configuration and runtime constants
-  *     pertaining to the core LinJam application and business logic */
+/** the APP namespace defines configuration and runtime constants
+        pertaining to the core LinJam application and business logic */
 class APP
 {
 public:
@@ -343,8 +343,8 @@ public:
 } ;
 
 
-/** CLIENT defines configuration and runtime constants
-  *     pertaining to NJClient                            */
+/** the CLIENT namespace defines configuration and runtime constants
+        pertaining to NJClient                                       */
 namespace CLIENT
 {
   // server
@@ -388,8 +388,8 @@ namespace CLIENT
 }
 
 
-/** NETWORK defines configuration and runtime constants
-  *     pertaining to login and communications */
+/** the NETWORK namespace defines configuration and runtime constants
+        pertaining to login and communications                        */
 class NETWORK
 {
 public:
@@ -435,8 +435,8 @@ public:
 } ;
 
 
-/** CONFIG defines keys/value pairs and default value constants
-        pertaining to the configuration/persistence model          */
+/** the CONFIG namespace defines keys/value pairs and default value constants
+        pertaining to the configuration/persistence model                     */
 namespace CONFIG
 {
   /* config XML and ValueTree keys */
@@ -744,8 +744,8 @@ namespace CONFIG
 }
 
 
-/** GUI defines configuration and runtime constants
-  *     pertaining to graphical elements               */
+/** the GUI namespace defines configuration and runtime constants
+        pertaining to graphical elements                          */
 namespace GUI
 {
   // common

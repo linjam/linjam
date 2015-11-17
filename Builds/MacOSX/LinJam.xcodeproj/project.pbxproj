@@ -527,7 +527,6 @@
 		C25A35DBC631312A672AC4DD = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = LinJamConfig.h; path = ../../Source/LinJamConfig.h; sourceTree = "SOURCE_ROOT"; };
 		C2A982CDA110BD47AE4CCBDC = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "juce_TabbedComponent.h"; path = "../../JuceLibraryCode/modules/juce_gui_basics/layout/juce_TabbedComponent.h"; sourceTree = "SOURCE_ROOT"; };
 		C318B8CEF6D1A1E06727083D = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "juce_ResizableEdgeComponent.cpp"; path = "../../JuceLibraryCode/modules/juce_gui_basics/layout/juce_ResizableEdgeComponent.cpp"; sourceTree = "SOURCE_ROOT"; };
-		C371B88307F383E6B18322F0 = {isa = PBXFileReference; lastKnownFileType = "file.cpp~"; name = "juce_ValueTree.cpp~"; path = "../../JuceLibraryCode/modules/juce_data_structures/values/juce_ValueTree.cpp~"; sourceTree = "SOURCE_ROOT"; };
 		C3BA904FDD93B123BDDE7834 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "juce_PathStrokeType.h"; path = "../../JuceLibraryCode/modules/juce_graphics/geometry/juce_PathStrokeType.h"; sourceTree = "SOURCE_ROOT"; };
 		C3E868CA597FD2FFC73C6EF3 = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "juce_ComboBox.h"; path = "../../JuceLibraryCode/modules/juce_gui_basics/widgets/juce_ComboBox.h"; sourceTree = "SOURCE_ROOT"; };
 		C45423A871A13E82A5F64404 = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Constants.cpp; path = ../../Source/Constants.cpp; sourceTree = "SOURCE_ROOT"; };
@@ -971,7 +970,6 @@
 					90D26DBC5613E9E164DB2CAB,
 					5C7A75292C83C4D8F124EFBA,
 					41B4E058BCFC6820796C8321,
-					C371B88307F383E6B18322F0,
 					E8FFD3D20364E21BB5CFA76B, ); name = values; sourceTree = "<group>"; };
 		04BE9D4D63020D33FA71D4F3 = {isa = PBXGroup; children = (
 					6BF39FAFC74060220B8D74F0,
@@ -1457,26 +1455,6 @@
 					5CB3A728089DA5B85416F869,
 					B13CC64E5B2BD402F5D52749,
 					209F965AA868D902BF863598, ); name = Source; sourceTree = "<group>"; };
-		01FCBDF691D14DE4D8F07D5E = {isa = XCBuildConfiguration; buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
-				CLANG_LINK_OBJC_RUNTIME = NO;
-				COMBINE_HIDPI_IMAGES = YES;
-				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"_DEBUG=1",
-					"DEBUG=1",
-					"JUCER_XCODE_MAC_F6D2F4CF=1",
-					"JUCE_APP_VERSION=0.31.0",
-					"JUCE_APP_VERSION_HEX=0x1f00", );
-				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
-				HEADER_SEARCH_PATHS = ("../../JuceLibraryCode", "../../JuceLibraryCode/modules", "$(inherited)");
-				INFOPLIST_FILE = Info.plist;
-				INSTALL_PATH = "$(HOME)/Applications";
-				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
-				SDKROOT_ppc = macosx10.5; }; name = Debug; };
 		E74514C7E9FC451C551329A3 = {isa = XCBuildConfiguration; buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -1498,6 +1476,41 @@
 				INSTALL_PATH = "$(HOME)/Applications";
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				SDKROOT_ppc = macosx10.5; }; name = Release; };
+		01FCBDF691D14DE4D8F07D5E = {isa = XCBuildConfiguration; buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_LINK_OBJC_RUNTIME = NO;
+				COMBINE_HIDPI_IMAGES = YES;
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/build/$(CONFIGURATION)";
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_DEBUG=1",
+					"DEBUG=1",
+					"JUCER_XCODE_MAC_F6D2F4CF=1",
+					"JUCE_APP_VERSION=0.31.0",
+					"JUCE_APP_VERSION_HEX=0x1f00", );
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				HEADER_SEARCH_PATHS = ("../../JuceLibraryCode", "../../JuceLibraryCode/modules", "$(inherited)");
+				INFOPLIST_FILE = Info.plist;
+				INSTALL_PATH = "$(HOME)/Applications";
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
+				SDKROOT_ppc = macosx10.5; }; name = Debug; };
+		8EA92222482922E4F11B0407 = {isa = XCBuildConfiguration; buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PRODUCT_NAME = "LinJam";
+				WARNING_CFLAGS = -Wreorder;
+				ZERO_LINK = NO; }; name = Release; };
 		2F4862F01400B334DE7B880E = {isa = XCBuildConfiguration; buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf";
@@ -1514,27 +1527,12 @@
 				PRODUCT_NAME = "LinJam";
 				WARNING_CFLAGS = -Wreorder;
 				ZERO_LINK = NO; }; name = Debug; };
-		8EA92222482922E4F11B0407 = {isa = XCBuildConfiguration; buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf";
-				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
-				GCC_WARN_MISSING_PARENTHESES = YES;
-				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
-				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				PRODUCT_NAME = "LinJam";
-				WARNING_CFLAGS = -Wreorder;
-				ZERO_LINK = NO; }; name = Release; };
 		79BC11B3D2B86E4EDDF31C2B = {isa = XCConfigurationList; buildConfigurations = (
-					2F4862F01400B334DE7B880E,
-					8EA92222482922E4F11B0407, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Debug; };
+					8EA92222482922E4F11B0407,
+					2F4862F01400B334DE7B880E, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		ED8EC314482A8FFF558959E1 = {isa = XCConfigurationList; buildConfigurations = (
-					01FCBDF691D14DE4D8F07D5E,
-					E74514C7E9FC451C551329A3, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Debug; };
+					E74514C7E9FC451C551329A3,
+					01FCBDF691D14DE4D8F07D5E, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 		C0DA8AA589682456B16C5515 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (
 					4D6C97F765C898A08D6BB116, ); runOnlyForDeploymentPostprocessing = 0; };
 		AF1617AD5CA73E775C24D38C = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (

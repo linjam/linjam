@@ -18,10 +18,16 @@
 
 
 // tracing
-#define DEBUG_TRACE              (DEBUG          && 1)
-#define DEBUG_TRACE_EVENTS       (DEBUG          && 1)
-#define DEBUG_TRACE_STATE        (DEBUG          && 1)
-#define DEBUG_TRACE_VB           (DEBUG          && 0)
+#define DEBUG_TRACE              (DEBUG              &&              1)
+#define DEBUG_TRACE_EVENTS       (DEBUG_TRACE        &&              1)
+#define DEBUG_TRACE_STATE        (DEBUG_TRACE        &&              1)
+#define DEBUG_TRACE_VB           (DEBUG_TRACE        &&              0)
+#define DEBUG_TRACE_CONFIG       (DEBUG_TRACE_STATE                   )
+#define DEBUG_TRACE_CONFIG_VB    (DEBUG_TRACE_CONFIG && DEBUG_TRACE_VB)
+#define DEBUG_TRACE_CLIENT       (DEBUG_TRACE_STATE                   )
+#define DEBUG_TRACE_SERVER       (DEBUG_TRACE_STATE                   )
+#define DEBUG_TRACE_GUI          (DEBUG_TRACE_EVENTS                  )
+#define DEBUG_TRACE_GUI_VB       (DEBUG_TRACE_GUI    && DEBUG_TRACE_VB)
 #define TRACE_DUMP_CONFIG        (DEBUG_TRACE_VB && 0) // full compare default<->stored
 #define TRACE_CONFIG_TYPES       (DEBUG_TRACE_VB && 0) // per property datatype info
 #define TRACE_STORE_CONFIG_VB    (DEBUG_TRACE_VB && 0) // dump output XML
@@ -43,32 +49,33 @@ public:
   static int DbgPrevStatus ;
 
 
-  static void TraceEvent(  String msg) ;
-  static void TraceConfig( String msg) ;
-  static void TraceClient( String msg) ;
-  static void TraceGui(    String msg) ;
-  static void TraceVerbose(String msg) ;
-  static void TraceState(  String msg) ;
+  static void TraceEvent   (String msg) ;
+  static void TraceConfig  (String msg) ;
+  static void TraceConfigVb(String msg) ;
+  static void TraceClient  (String msg) ;
+  static void TraceGui     (String msg) ;
+  static void TraceGuiVb   (String msg) ;
+  static void TraceState   (String msg) ;
 //   static void TraceNetwork(String msg) ;
-  static void TraceError(  String msg) ;
-  static void TraceServer( String msg) ;
+  static void TraceError   (String msg) ;
+  static void TraceServer  (String msg) ;
 
-  static void   DumpStoreXml(      ValueTree store) ;
-  static void   TraceKVP(          String indent , String a_key , String a_value) ;
+  static void   DumpStoreXml      (ValueTree store) ;
+  static void   TraceKVP          (String indent , String a_key , String a_value) ;
   static String DumpStoredChannels() ;
   static String DumpClientChannels() ;
 
-  static String DumpConfig(          ValueTree default_config , ValueTree stored_config ,
+  static String DumpConfig          (ValueTree default_config , ValueTree stored_config ,
                                      String    pad                                      ) ;
-  static void   TraceInvalidDefault( String a_default_name) ;
-  static void   TraceInvalidNode(    String a_node_key) ;
-  static void   TraceMissingValue(   String a_node_name , String a_value_key) ;
+  static void   TraceInvalidDefault (String a_default_name) ;
+  static void   TraceInvalidNode    (String a_node_key) ;
+  static void   TraceMissingValue   (String a_node_name , String a_value_key) ;
   static void   TraceMissingProperty(String a_node_name      , String a_property_name ,
                                      String parent_node_name = String::empty          ) ;
-  static void   TraceTypeMismatch(   ValueTree a_node           , String a_property_name ,
+  static void   TraceTypeMismatch   (ValueTree a_node           , String a_property_name ,
                                      String    expected_type    , var    a_var           ,
                                      String    parent_node_name = String::empty          ) ;
-  static void   TraceInvalidValue(   ValueTree a_node , Identifier a_property_id) ;
+  static void   TraceInvalidValue   (ValueTree a_node , Identifier a_property_id) ;
 
   static String VarType(var a_var) ;
   static String DumpVar(String val_name , var a_var) ;

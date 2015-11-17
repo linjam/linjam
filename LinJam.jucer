@@ -67,13 +67,14 @@
     </GROUP>
   </MAINGROUP>
   <EXPORTFORMATS>
-    <LINUX_MAKE targetFolder="Builds/Linux" extraLinkerFlags="&#96;pkg-config ninjam --libs&#96;&#10;&#96;pkg-config ninjam-client --libs&#96;"
-                extraCompilerFlags="&#96;pkg-config ninjam --cflags&#96;&#10;-Wall&#10;-Wextra&#10;$(if $(filter-out x86_64 , $(shell uname -m)) , -malign-double , -fPIC)">
+    <LINUX_MAKE targetFolder="Builds/Makefile" extraLinkerFlags="-L/usr/X11R6/lib/&#10;&#96;pkg-config ninjam --libs&#96;&#10;&#96;pkg-config ninjam-client --libs&#96;"
+                extraCompilerFlags="&#96;pkg-config ninjam --cflags&#96;&#10;-Wall&#10;-Wextra&#10;$(if $(filter-out x86_64 , $(shell uname -m)) , -malign-double , -fPIC)"
+                extraDefs="" externalLibraries="">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" libraryPath="/usr/X11R6/lib/" isDebug="1" optimisation="1"
-                       targetName="linjam-dbg"/>
-        <CONFIGURATION name="Release" libraryPath="/usr/X11R6/lib/" isDebug="0" optimisation="3"
-                       targetName="linjam"/>
+        <CONFIGURATION name="Release" libraryPath="" isDebug="0" optimisation="3" targetName="linjam"/>
+        <CONFIGURATION name="Debug" libraryPath="" isDebug="1" optimisation="1" targetName="linjam-dbg"/>
+        <CONFIGURATION name="Debug32" libraryPath="" linuxArchitecture="-m32" isDebug="1"
+                       headerPath=""/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>
@@ -85,10 +86,10 @@
     </LINUX_MAKE>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
-                       isDebug="1" optimisation="1" targetName="LinJam"/>
         <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
                        isDebug="0" optimisation="2" targetName="LinJam"/>
+        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
+                       isDebug="1" optimisation="1" targetName="LinJam"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
@@ -119,12 +120,12 @@
     <VS2013 targetFolder="Builds/VisualStudio2013" externalLibraries="" extraCompilerFlags="/I &quot;$(LIBNINJAM)&quot;&#10;/I &quot;$(LIBOGG)\include&quot;&#10;/I &quot;$(LIBVORBIS)\include&quot;&#10;/I &quot;$(DXSDK_DIR)include&quot;&#10;/I &quot;$(MSSDK)\include&quot;"
             extraDefs="" extraLinkerFlags="/L libninjam_static.lib&#10;/L libogg_static.lib&#10;/L libvorbis_static.lib&#10;/L dsound.lib">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="LinJam" headerPath=""
-                       libraryPath="&quot;$(LIBNINJAM)\Win32\Debug\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
                        isDebug="0" optimisation="2" targetName="LinJam" headerPath=""
                        libraryPath="&quot;$(LIBNINJAM)\Win32\Release\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"/>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="LinJam" headerPath=""
+                       libraryPath="&quot;$(LIBNINJAM)\Win32\Debug\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>

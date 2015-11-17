@@ -5,22 +5,23 @@
 
 /* storage */
 
-#define DEBUG_TRACE_LOAD_CONFIG                                                   \
-  Identifier root_node_id = CONFIG::STORAGE_ID ;                                  \
-  if (default_xml == nullptr || !default_xml->hasTagName(root_node_id))           \
-      Trace::TraceConfig("default config invalid - bailing") ;                    \
-  else Trace::TraceConfig("default config loaded") ;                              \
-  if (stored_xml == nullptr)                                                      \
-      Trace::TraceConfig("stored config not found - falling back on defaults") ;  \
-  else if (!stored_xml->hasTagName(CONFIG::STORAGE_ID))                           \
-      Trace::TraceConfig("stored config is invalid - falling back on defaults") ; \
+#define DEBUG_TRACE_LOAD_CONFIG                                                    \
+  if (default_xml == nullptr || !default_xml->hasTagName(CONFIG::STORAGE_ID))      \
+       Trace::TraceConfig("default config invalid - bailing") ;                    \
+  else Trace::TraceConfig("default config loaded") ;                               \
+  if (stored_xml == nullptr)                                                       \
+       Trace::TraceConfig("stored config not found - falling back on defaults") ;  \
+  else if (!stored_xml->hasTagName(CONFIG::STORAGE_ID))                            \
+       Trace::TraceConfig("stored config is invalid - falling back on defaults") ; \
   else Trace::TraceConfig("stored config found") ;
 
 #define DEBUG_TRACE_DUMP_CONFIG                                                         \
   String latest_version = String(CONFIG::CONFIG_VERSION) ;                              \
-  Trace::TraceConfig("stored config parsed successfully v" + String(stored_version) +   \
+  String success_msg = "stored config parsed successfully v" + String(stored_version) ; \
+  String fail_msg    = "stored config not found" ;                                      \
+  Trace::TraceConfig(((has_stored_config) ? success_msg : fail_msg              ) +     \
                      ((do_versions_match) ? ""                                  :       \
-                     " (latest is v" + latest_version + " - restoring defualts)")   ) ; \
+                     " (latest is v" + latest_version + " - restoring defualts)") ) ;   \
   if (TRACE_DUMP_CONFIG && has_stored_config)                                           \
     Trace::TraceConfig(Trace::DumpConfig(ValueTree::fromXml(*default_xml) ,             \
                                          ValueTree::fromXml(*stored_xml)  , "  "))      ;

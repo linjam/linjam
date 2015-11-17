@@ -4,14 +4,14 @@ Project("{EC98C0D8-7612-FD43-4E30-9777D2156EAA}") = "LinJam", "LinJam.vcxproj", 
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
 		Release|Win32 = Release|Win32
+		Debug|Win32 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6EEEF2DD-3F47-D2EE-F28D-74236E657879}.Debug|Win32.ActiveCfg = Debug|Win32
-		{6EEEF2DD-3F47-D2EE-F28D-74236E657879}.Debug|Win32.Build.0 = Debug|Win32
 		{6EEEF2DD-3F47-D2EE-F28D-74236E657879}.Release|Win32.ActiveCfg = Release|Win32
 		{6EEEF2DD-3F47-D2EE-F28D-74236E657879}.Release|Win32.Build.0 = Release|Win32
+		{6EEEF2DD-3F47-D2EE-F28D-74236E657879}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6EEEF2DD-3F47-D2EE-F28D-74236E657879}.Debug|Win32.Build.0 = Debug|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

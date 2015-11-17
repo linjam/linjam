@@ -22,10 +22,10 @@ class MainContent : public Component , public ButtonListener
 
 public:
 
-  MainContent(DocumentWindow* main_window , TextButton* config_button) ;
+  MainContent (DocumentWindow* main_window , TextButton* config_button) ;
   ~MainContent() ;
 
-  void paint(Graphics&) ;
+  void paint  (Graphics&) ;
   void resized() ;
 
 
@@ -44,10 +44,11 @@ private:
   Value                     linjamStatus ;
 
 
-  void instantiate(  ValueTree gui_store       , ValueTree client_store ,
-                     ValueTree blacklist_store , ValueTree audio_store  , 
-                     ValueTree login_store     , Value     linjam_status) ;
-  void setTitle(     String title_text) ;
+  void instantiate  (ValueTree gui_store       , ValueTree client_store  ,
+                     ValueTree blacklist_store , ValueTree audio_store   ,
+                     ValueTree login_store     , ValueTree servers_store ,
+                     Value     linjam_status                             ) ;
+  void setTitle     (String title_text) ;
   void buttonClicked(Button* a_button) ;
 
 

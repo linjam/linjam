@@ -71,7 +71,7 @@ private:
   void restoreDefaults() ;
   void disableComponents() ;
   void enableComponents() ;
-#if _WIN32
+#ifdef _WIN32
   bool queryAsioDevices() ;
   bool queryKsDevices() ;
   bool queryDsDevices() ;

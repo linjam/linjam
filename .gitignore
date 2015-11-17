@@ -1,7 +1,7 @@
 
 # nix
-Builds/Linux/build
-Builds/Linux/.gdbinit
+Builds/Makefile/build
+Builds/Makefile/.gdbinit
 *~
 *.kate-swp
 .kateproject*
@@ -10,15 +10,13 @@ Builds/Linux/.gdbinit
 *Debug
 *Release
 lib
+*.ncb
+*.suo
+*.user
+[Tt]humbs.db
+*.DS_Store
 
 # etc
 mk*
 dbg*
 *.ninjam
-
-[Tt]humbs.db
-*.DS_Store
-
-*.ncb
-*.suo
-*.user

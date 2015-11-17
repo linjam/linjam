@@ -12,27 +12,31 @@ int Trace::DbgPrevStatus = APP::LINJAM_STATUS_INIT ;
 
 /* Trace class public class methods */
 
-void Trace::TraceEvent(String msg)   { if (DEBUG_TRACE_EVENTS) DBG("[EVENT]:   " + msg) ; }
-void Trace::TraceConfig(String msg)  { if (DEBUG_TRACE_STATE)  DBG("[CONFIG]:  " + msg) ; }
-void Trace::TraceClient(String msg)  { if (DEBUG_TRACE_STATE)  DBG("[CLIENT]:  " + msg) ; }
-void Trace::TraceServer(String msg)  { if (DEBUG_TRACE_STATE)  DBG("[SERVER]:  " + msg) ; }
-void Trace::TraceGui(String msg)     { if (DEBUG_TRACE_EVENTS) DBG("[GUI]:     " + msg) ; }
-void Trace::TraceVerbose(String msg) { if (DEBUG_TRACE_VB)     DBG("[DEBUG]:   " + msg) ; }
+void Trace::TraceEvent   (String msg) { if (DEBUG_TRACE_EVENTS   ) DBG("[EVENT]:   " + msg) ; }
+void Trace::TraceConfig  (String msg) { if (DEBUG_TRACE_CONFIG   ) DBG("[CONFIG]:  " + msg) ; }
+void Trace::TraceConfigVb(String msg) { if (DEBUG_TRACE_CONFIG_VB) DBG("[CONFIG]:  " + msg) ; }
+void Trace::TraceClient  (String msg) { if (DEBUG_TRACE_CLIENT   ) DBG("[CLIENT]:  " + msg) ; }
+void Trace::TraceServer  (String msg) { if (DEBUG_TRACE_SERVER   ) DBG("[SERVER]:  " + msg) ; }
+void Trace::TraceGui     (String msg) { if (DEBUG_TRACE_GUI      ) DBG("[GUI]:     " + msg) ; }
+void Trace::TraceGuiVb   (String msg) { if (DEBUG_TRACE_GUI_VB   ) DBG("[GUI]:     " + msg) ; }
 #ifndef DEBUG_ANSI_COLORS
-void Trace::TraceState(String msg)   { if (DEBUG_TRACE_STATE)  DBG("[STATE]:   " + msg) ; }
-void Trace::TraceError(String msg)   { if (DEBUG_TRACE_STATE)  DBG("[ERROR]:   " + msg) ; }
+void Trace::TraceState   (String msg) { if (DEBUG_TRACE_STATE    ) DBG("[STATE]:   " + msg) ; }
+void Trace::TraceError   (String msg) { if (DEBUG_TRACE_STATE    ) DBG("[ERROR]:   " + msg) ; }
 // void Trace::TraceNetwork(String msg) { if (DEBUG_TRACE_EVENTS) DBG("[NETWORK]: " + msg) ; }
 #else // DEBUG_ANSI_COLORS
-void Trace::TraceState(String msg)
+void Trace::TraceState   (String msg)
   { if (DEBUG_TRACE_STATE)  DBG("\033[1;33m[STATE]:   " + msg + "\033[0m") ; }
-void Trace::TraceError(String msg)
+void Trace::TraceError   (String msg)
   { if (DEBUG_TRACE_STATE)  DBG("\033[0;31m[ERROR]:   " + msg + "\033[0m") ; }
 // void Trace::TraceNetwork(String msg)
 //   { if (DEBUG_TRACE_EVENTS) DBG("\033[0;32m[NETWORK]: " + msg + "\033[0m") ; }
 #endif // DEBUG_ANSI_COLORS
 void Trace::DumpStoreXml(ValueTree store)
 {
-  DBG(String(store.getType()) + " xml=\n" + store.toXmlString()) ;
+  StringArray xml_lines = StringArray::fromLines(store.toXmlString()) ;
+
+  xml_lines.removeRange(0 , 1) ; // supress doctype
+  DBG(String(store.getType()) + " xml=\n" + xml_lines.joinIntoString("\n")) ;
 }
 
 void Trace::TraceKVP(String indent , String a_key , String a_value)

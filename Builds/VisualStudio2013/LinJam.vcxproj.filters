@@ -2090,9 +2090,6 @@
     <None Include="..\..\JuceLibraryCode\modules\juce_core\juce_module_info">
       <Filter>Juce Modules\juce_core</Filter>
     </None>
-    <None Include="..\..\JuceLibraryCode\modules\juce_data_structures\values\juce_ValueTree.cpp~">
-      <Filter>Juce Modules\juce_data_structures\values</Filter>
-    </None>
     <None Include="..\..\JuceLibraryCode\modules\juce_data_structures\juce_module_info">
       <Filter>Juce Modules\juce_data_structures</Filter>
     </None>

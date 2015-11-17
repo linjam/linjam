@@ -221,7 +221,16 @@ void LinJamConfig::storeConfig()
 {
 DEBUG_TRACE_STORE_CONFIG
 
-  XmlElement* config_xml = this->configRoot.createXml() ;
+  ValueTree root_clone    = this->configRoot.createCopy() ;
+  ValueTree servers_store = root_clone.getChildWithName(CONFIG::SERVERS_ID) ;
+  for (int server_n = 0 ; server_n < servers_store.getNumChildren() ; ++server_n)
+  {
+    ValueTree server_store  = servers_store.getChild(server_n) ;
+    ValueTree clients_store = server_store.getChildWithName(CONFIG::CLIENTS_ID) ;
+    server_store.removeChild(clients_store , nullptr) ;
+  }
+
+  XmlElement* config_xml = root_clone.createXml() ;
 
   config_xml->writeToFile(this->configXmlFile , StringRef() , StringRef("UTF-8") , 0) ;
   delete config_xml ;
@@ -272,7 +281,29 @@ ValueTree LinJamConfig::sanitizeConfig(ValueTree default_config , ValueTree stor
   return stored_config ;
 }
 
-void LinJamConfig::validateServers() {} // TODO: (issue #61)
+void LinJamConfig::validateServers()
+{
+  ValueTree volatile_server = this->server.createCopy() ;
+
+  forEachXmlChildElement(*NETWORK::KNOWN_HOSTS , host_node) // macro
+  {
+    String    known_host = host_node->getTagName() ;
+    ValueTree server     = getServer(known_host) ;
+
+    if (!server.isValid())
+    {
+      // creat new per server storage
+      this->server.setProperty(CONFIG::HOST_ID         , known_host                   , nullptr)
+                  .setProperty(CONFIG::LOGIN_ID        , CONFIG::DEFAULT_LOGIN        , nullptr)
+                  .setProperty(CONFIG::PASS_ID         , CONFIG::DEFAULT_PASS         , nullptr)
+                  .setProperty(CONFIG::IS_ANONYMOUS_ID , CONFIG::DEFAULT_IS_ANONYMOUS , nullptr)
+                  .setProperty(CONFIG::SHOULD_AGREE_ID , CONFIG::DEFAULT_SHOULD_AGREE , nullptr) ;
+      storeServer() ;
+    }
+    // append empty clients list
+    else server.getOrCreateChildWithName(CONFIG::CLIENTS_ID , nullptr) ;
+  }
+}
 
 void LinJamConfig::validateUsers()
 {
@@ -534,7 +565,7 @@ ValueTree LinJamConfig::getCredentials(String host)
   return server_copy ;
 }
 
-void LinJamConfig::setServer()
+void LinJamConfig::storeServer()
 {
   // copy volatile login state to persistent storage
   String    host         = str( this->server[CONFIG::HOST_ID        ]) ;
@@ -547,9 +578,13 @@ void LinJamConfig::setServer()
   // create new server entry
   if (!server.isValid())
   {
+DEBUG_TRACE_STORE_SERVER
+
     server = ValueTree(MakeHostId(host)) ;
     this->servers.addChild(server , -1 , nullptr) ;
   }
+  // create clients list
+  server.getOrCreateChildWithName(CONFIG::CLIENTS_ID , nullptr) ;
 
   // set per server credentials
   server.setProperty(CONFIG::HOST_ID         , host         , nullptr)
