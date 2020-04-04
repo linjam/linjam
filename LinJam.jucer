@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="V5yqRw" name="LinJam" projectType="guiapp" version="0.31.0"
-              bundleIdentifier="com.bill-auger.LinJam" includeBinaryInAppConfig="1"
-              jucerVersion="3.1.1">
+<JUCERPROJECT id="V5yqRw" name="LinJam" projectType="guiapp" version="0.31.1"
+              bundleIdentifier="bill-auger.LinJam" includeBinaryInAppConfig="1"
+              jucerVersion="5.4.7" companyWebsite="https://github.com/linjam/linjam/issues"
+              projectLineFeed="&#10;">
   <MAINGROUP id="dT83m5" name="LinJam">
     <GROUP id="{51F23963-7F0B-17B4-72A3-B564BDD36515}" name="Headers">
       <FILE id="A4xouB" name="Background.h" compile="0" resource="0" file="Source/Background.h"/>
@@ -86,10 +87,8 @@
     </LINUX_MAKE>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION name="Release" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
-                       isDebug="0" optimisation="2" targetName="LinJam"/>
-        <CONFIGURATION name="Debug" osxSDK="default" osxCompatibility="default" osxArchitecture="default"
-                       isDebug="1" optimisation="1" targetName="LinJam"/>
+        <CONFIGURATION name="Release" isDebug="0" optimisation="2" targetName="LinJam"/>
+        <CONFIGURATION name="Debug" isDebug="1" optimisation="1" targetName="LinJam"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
@@ -117,31 +116,16 @@
         <MODULEPATH id="juce_core" path="JuceLibraryCode/modules"/>
       </MODULEPATHS>
     </VS2008>
-    <VS2013 targetFolder="Builds/VisualStudio2013" externalLibraries="" extraCompilerFlags="/I &quot;$(LIBNINJAM)&quot;&#10;/I &quot;$(LIBOGG)\include&quot;&#10;/I &quot;$(LIBVORBIS)\include&quot;&#10;/I &quot;$(DXSDK_DIR)include&quot;&#10;/I &quot;$(MSSDK)\include&quot;"
-            extraDefs="" extraLinkerFlags="/L libninjam_static.lib&#10;/L libogg_static.lib&#10;/L libvorbis_static.lib&#10;/L dsound.lib">
-      <CONFIGURATIONS>
-        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="2" targetName="LinJam" headerPath=""
-                       libraryPath="&quot;$(LIBNINJAM)\Win32\Release\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"/>
-        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="LinJam" headerPath=""
-                       libraryPath="&quot;$(LIBNINJAM)\Win32\Debug\&quot;&#10;&quot;$(DXSDK_DIR)Lib\x86\&quot;"/>
-      </CONFIGURATIONS>
-      <MODULEPATHS>
-        <MODULEPATH id="juce_gui_basics" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_graphics" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_events" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_data_structures" path="JuceLibraryCode/modules"/>
-        <MODULEPATH id="juce_core" path="JuceLibraryCode/modules"/>
-      </MODULEPATHS>
-    </VS2013>
   </EXPORTFORMATS>
   <MODULES>
-    <MODULES id="juce_core" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_events" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
-    <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_core" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULES id="juce_events" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
+    <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
   </MODULES>
   <JUCEOPTIONS/>
+  <LIVE_SETTINGS>
+    <LINUX/>
+  </LIVE_SETTINGS>
 </JUCERPROJECT>

@@ -1,273 +1,276 @@
-# Automatically generated makefile, created by the Introjucer
-# Don't edit this file! Your changes will be overwritten when you re-save the Introjucer project!
+# Automatically generated makefile, created by the Projucer
+# Don't edit this file! Your changes will be overwritten when you re-save the Projucer project!
+
+# build with "V=1" for verbose builds
+ifeq ($(V), 1)
+V_AT =
+else
+V_AT = @
+endif
 
 # (this disables dependency generation if multiple architectures are set)
 DEPFLAGS := $(if $(word 2, $(TARGET_ARCH)), , -MMD)
+
+ifndef STRIP
+  STRIP=strip
+endif
+
+ifndef AR
+  AR=ar
+endif
 
 ifndef CONFIG
   CONFIG=Release
 endif
 
-ifndef DESTDIR
-  DESTDIR=
-endif
-
-ifndef PREFIX
-  PREFIX=/usr
-endif
-
-INSTALLDIR=$(DESTDIR)$(PREFIX)
+JUCE_ARCH_LABEL := $(shell uname -m)
 
 ifeq ($(CONFIG),Release)
-  BINDIR := build
-  LIBDIR := build
-  OBJDIR := build/intermediate/Release
-  OUTDIR := build
+  JUCE_BINDIR := build
+  JUCE_LIBDIR := build
+  JUCE_OBJDIR := build/intermediate/Release
+  JUCE_OUTDIR := build
 
   ifeq ($(TARGET_ARCH),)
-    TARGET_ARCH := -march=native
+    TARGET_ARCH := 
   endif
 
-  CPPFLAGS := $(DEPFLAGS) -std=c++11 -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_9CCEB774=1" -D "JUCE_APP_VERSION=0.31.0" -D "JUCE_APP_VERSION_HEX=0x1f00" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -O3 `pkg-config ninjam --cflags` -Wall -Wextra $(if $(filter-out x86_64 , $(shell uname -m)) , -malign-double , -fPIC)
-  CXXFLAGS += $(CFLAGS)
-  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -fvisibility=hidden -lX11 -lXext -lXinerama -ldl -lfreetype -lpthread -lrt -L/usr/X11R6/lib/ `pkg-config ninjam --libs` `pkg-config ninjam-client --libs`
-  LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "NDEBUG=1" -D "JUCER_LINUX_MAKE_9CCEB774=1" -D "JUCE_APP_VERSION=0.31.0" -D "JUCE_APP_VERSION_HEX=0x1f00" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
-  TARGET := linjam
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
-  CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
+  JUCE_CPPFLAGS := $(DEPFLAGS) -DLINUX=1 -DNDEBUG=1 -DJUCER_LINUX_MAKE_9CCEB774=1 -DJUCE_APP_VERSION=0.31.1 -DJUCE_APP_VERSION_HEX=0x1f01 $(shell pkg-config --cflags x11 xinerama xext freetype2 libcurl) -pthread -I../../JuceLibraryCode -I../../JuceLibraryCode/modules $(CPPFLAGS)
+  JUCE_CPPFLAGS_APP := -DJucePlugin_Build_VST=0 -DJucePlugin_Build_VST3=0 -DJucePlugin_Build_AU=0 -DJucePlugin_Build_AUv3=0 -DJucePlugin_Build_RTAS=0 -DJucePlugin_Build_AAX=0 -DJucePlugin_Build_Standalone=0 -DJucePlugin_Build_Unity=0
+  JUCE_TARGET_APP := linjam
+
+  JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -O3 `pkg-config ninjam --cflags` -Wall -Wextra $(if $(filter-out x86_64 , $(shell uname -m)) , -malign-double , -fPIC) $(CFLAGS)
+  JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=c++14 $(CXXFLAGS)
+  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell pkg-config --libs x11 xinerama xext freetype2 libcurl) -fvisibility=hidden -L/usr/X11R6/lib/ `pkg-config ninjam --libs` `pkg-config ninjam-client --libs` -lrt -ldl -lpthread $(LDFLAGS)
+
+  CLEANCMD = rm -rf $(JUCE_OUTDIR)/$(TARGET) $(JUCE_OBJDIR)
 endif
 
 ifeq ($(CONFIG),Debug)
-  BINDIR := build
-  LIBDIR := build
-  OBJDIR := build/intermediate/Debug
-  OUTDIR := build
+  JUCE_BINDIR := build
+  JUCE_LIBDIR := build
+  JUCE_OBJDIR := build/intermediate/Debug
+  JUCE_OUTDIR := build
 
   ifeq ($(TARGET_ARCH),)
-    TARGET_ARCH := -march=native
+    TARGET_ARCH := 
   endif
 
-  CPPFLAGS := $(DEPFLAGS) -std=c++11 -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_9CCEB774=1" -D "JUCE_APP_VERSION=0.31.0" -D "JUCE_APP_VERSION_HEX=0x1f00" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 `pkg-config ninjam --cflags` -Wall -Wextra $(if $(filter-out x86_64 , $(shell uname -m)) , -malign-double , -fPIC)
-  CXXFLAGS += $(CFLAGS)
-  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -lX11 -lXext -lXinerama -ldl -lfreetype -lpthread -lrt -L/usr/X11R6/lib/ `pkg-config ninjam --libs` `pkg-config ninjam-client --libs`
-  LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_9CCEB774=1" -D "JUCE_APP_VERSION=0.31.0" -D "JUCE_APP_VERSION_HEX=0x1f00" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
-  TARGET := linjam-dbg
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
-  CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
+  JUCE_CPPFLAGS := $(DEPFLAGS) -DLINUX=1 -DDEBUG=1 -D_DEBUG=1 -DJUCER_LINUX_MAKE_9CCEB774=1 -DJUCE_APP_VERSION=0.31.1 -DJUCE_APP_VERSION_HEX=0x1f01 $(shell pkg-config --cflags x11 xinerama xext freetype2 libcurl) -pthread -I../../JuceLibraryCode -I../../JuceLibraryCode/modules $(CPPFLAGS)
+  JUCE_CPPFLAGS_APP := -DJucePlugin_Build_VST=0 -DJucePlugin_Build_VST3=0 -DJucePlugin_Build_AU=0 -DJucePlugin_Build_AUv3=0 -DJucePlugin_Build_RTAS=0 -DJucePlugin_Build_AAX=0 -DJucePlugin_Build_Standalone=0 -DJucePlugin_Build_Unity=0
+  JUCE_TARGET_APP := linjam-dbg
+
+  JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 `pkg-config ninjam --cflags` -Wall -Wextra $(if $(filter-out x86_64 , $(shell uname -m)) , -malign-double , -fPIC) $(CFLAGS)
+  JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=c++14 $(CXXFLAGS)
+  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell pkg-config --libs x11 xinerama xext freetype2 libcurl) -L/usr/X11R6/lib/ `pkg-config ninjam --libs` `pkg-config ninjam-client --libs` -lrt -ldl -lpthread $(LDFLAGS)
+
+  CLEANCMD = rm -rf $(JUCE_OUTDIR)/$(TARGET) $(JUCE_OBJDIR)
 endif
 
 ifeq ($(CONFIG),Debug32)
-  BINDIR := build
-  LIBDIR := build
-  OBJDIR := build/intermediate/Debug32
-  OUTDIR := build
+  JUCE_BINDIR := build
+  JUCE_LIBDIR := build
+  JUCE_OBJDIR := build/intermediate/Debug32
+  JUCE_OUTDIR := build
 
   ifeq ($(TARGET_ARCH),)
     TARGET_ARCH := -m32
   endif
 
-  CPPFLAGS := $(DEPFLAGS) -std=c++11 -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_9CCEB774=1" -D "JUCE_APP_VERSION=0.31.0" -D "JUCE_APP_VERSION_HEX=0x1f00" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
-  CFLAGS += $(CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 `pkg-config ninjam --cflags` -Wall -Wextra $(if $(filter-out x86_64 , $(shell uname -m)) , -malign-double , -fPIC)
-  CXXFLAGS += $(CFLAGS)
-  LDFLAGS += $(TARGET_ARCH) -L$(BINDIR) -L$(LIBDIR) -lX11 -lXext -lXinerama -ldl -lfreetype -lpthread -lrt -L/usr/X11R6/lib/ `pkg-config ninjam --libs` `pkg-config ninjam-client --libs`
-  LDDEPS :=
-  RESFLAGS :=  -D "LINUX=1" -D "DEBUG=1" -D "_DEBUG=1" -D "JUCER_LINUX_MAKE_9CCEB774=1" -D "JUCE_APP_VERSION=0.31.0" -D "JUCE_APP_VERSION_HEX=0x1f00" -I /usr/include -I /usr/include/freetype2 -I ../../JuceLibraryCode -I ../../JuceLibraryCode/modules
-  TARGET := 
-  BLDCMD = $(CXX) -o $(OUTDIR)/$(TARGET) $(OBJECTS) $(LDFLAGS) $(RESOURCES) $(TARGET_ARCH)
-  CLEANCMD = rm -rf $(OUTDIR)/$(TARGET) $(OBJDIR)
+  JUCE_CPPFLAGS := $(DEPFLAGS) -DLINUX=1 -DDEBUG=1 -D_DEBUG=1 -DJUCER_LINUX_MAKE_9CCEB774=1 -DJUCE_APP_VERSION=0.31.1 -DJUCE_APP_VERSION_HEX=0x1f01 $(shell pkg-config --cflags x11 xinerama xext freetype2 libcurl) -pthread -I../../JuceLibraryCode -I../../JuceLibraryCode/modules $(CPPFLAGS)
+  JUCE_CPPFLAGS_APP := -DJucePlugin_Build_VST=0 -DJucePlugin_Build_VST3=0 -DJucePlugin_Build_AU=0 -DJucePlugin_Build_AUv3=0 -DJucePlugin_Build_RTAS=0 -DJucePlugin_Build_AAX=0 -DJucePlugin_Build_Standalone=0 -DJucePlugin_Build_Unity=0
+  JUCE_TARGET_APP := LinJam
+
+  JUCE_CFLAGS += $(JUCE_CPPFLAGS) $(TARGET_ARCH) -g -ggdb -O0 `pkg-config ninjam --cflags` -Wall -Wextra $(if $(filter-out x86_64 , $(shell uname -m)) , -malign-double , -fPIC) $(CFLAGS)
+  JUCE_CXXFLAGS += $(JUCE_CFLAGS) -std=c++14 $(CXXFLAGS)
+  JUCE_LDFLAGS += $(TARGET_ARCH) -L$(JUCE_BINDIR) -L$(JUCE_LIBDIR) $(shell pkg-config --libs x11 xinerama xext freetype2 libcurl) -L/usr/X11R6/lib/ `pkg-config ninjam --libs` `pkg-config ninjam-client --libs` -lrt -ldl -lpthread $(LDFLAGS)
+
+  CLEANCMD = rm -rf $(JUCE_OUTDIR)/$(TARGET) $(JUCE_OBJDIR)
 endif
 
-OBJECTS := \
-  $(OBJDIR)/Background_ba4a3b7.o \
-  $(OBJDIR)/Blacklist_42ebe7fe.o \
-  $(OBJDIR)/Channel_14ad93e4.o \
-  $(OBJDIR)/Channels_84b8f659.o \
-  $(OBJDIR)/Chat_e7196be1.o \
-  $(OBJDIR)/Config_5aed31cb.o \
-  $(OBJDIR)/ConfigAudio_37708215.o \
-  $(OBJDIR)/ConfigBlacklist_73aebedc.o \
-  $(OBJDIR)/ConfigChannel_53548a42.o \
-  $(OBJDIR)/ConfigClient_9ea4fbb6.o \
-  $(OBJDIR)/ConfigGui_8149577a.o \
-  $(OBJDIR)/Constants_e698e730.o \
-  $(OBJDIR)/License_de20cc22.o \
-  $(OBJDIR)/LinJam_a166dece.o \
-  $(OBJDIR)/LinJamConfig_8af59670.o \
-  $(OBJDIR)/Login_37b1de4a.o \
-  $(OBJDIR)/Loop_17fb192d.o \
-  $(OBJDIR)/Main_90ebc5c2.o \
-  $(OBJDIR)/MainContent_6313eee1.o \
-  $(OBJDIR)/Mixer_d95e2aea.o \
-  $(OBJDIR)/StatusBar_3fb23a2.o \
-  $(OBJDIR)/Trace_fd3024bc.o \
-  $(OBJDIR)/juce_core_aff681cc.o \
-  $(OBJDIR)/juce_data_structures_bdd6d488.o \
-  $(OBJDIR)/juce_events_79b2840.o \
-  $(OBJDIR)/juce_graphics_c8f1e7a4.o \
-  $(OBJDIR)/juce_gui_basics_a630dd20.o \
+OBJECTS_APP := \
+  $(JUCE_OBJDIR)/Background_ba4a3b7.o \
+  $(JUCE_OBJDIR)/Blacklist_42ebe7fe.o \
+  $(JUCE_OBJDIR)/Channel_14ad93e4.o \
+  $(JUCE_OBJDIR)/Channels_84b8f659.o \
+  $(JUCE_OBJDIR)/Chat_e7196be1.o \
+  $(JUCE_OBJDIR)/Config_5aed31cb.o \
+  $(JUCE_OBJDIR)/ConfigAudio_37708215.o \
+  $(JUCE_OBJDIR)/ConfigBlacklist_73aebedc.o \
+  $(JUCE_OBJDIR)/ConfigChannel_53548a42.o \
+  $(JUCE_OBJDIR)/ConfigClient_9ea4fbb6.o \
+  $(JUCE_OBJDIR)/ConfigGui_8149577a.o \
+  $(JUCE_OBJDIR)/Constants_e698e730.o \
+  $(JUCE_OBJDIR)/License_de20cc22.o \
+  $(JUCE_OBJDIR)/LinJam_a166dece.o \
+  $(JUCE_OBJDIR)/LinJamConfig_8af59670.o \
+  $(JUCE_OBJDIR)/Login_37b1de4a.o \
+  $(JUCE_OBJDIR)/Loop_17fb192d.o \
+  $(JUCE_OBJDIR)/Main_90ebc5c2.o \
+  $(JUCE_OBJDIR)/MainContent_6313eee1.o \
+  $(JUCE_OBJDIR)/Mixer_d95e2aea.o \
+  $(JUCE_OBJDIR)/StatusBar_3fb23a2.o \
+  $(JUCE_OBJDIR)/Trace_fd3024bc.o \
+  $(JUCE_OBJDIR)/include_juce_core_f26d17db.o \
+  $(JUCE_OBJDIR)/include_juce_data_structures_7471b1e3.o \
+  $(JUCE_OBJDIR)/include_juce_events_fd7d695.o \
+  $(JUCE_OBJDIR)/include_juce_graphics_f817e147.o \
+  $(JUCE_OBJDIR)/include_juce_gui_basics_e3f79785.o \
 
-.PHONY: clean
+.PHONY: clean all strip
 
-$(OUTDIR)/$(TARGET): $(OBJECTS) $(LDDEPS) $(RESOURCES)
-	@echo Linking LinJam
-	-@mkdir -p $(BINDIR)
-	-@mkdir -p $(LIBDIR)
-	-@mkdir -p $(OUTDIR)
-	@$(BLDCMD)
+all : $(JUCE_OUTDIR)/$(JUCE_TARGET_APP)
 
-install:
-	@echo Installing LinJam
-	@install -m 755 $(OUTDIR)/$(TARGET) $(INSTALLDIR)/bin/
+$(JUCE_OUTDIR)/$(JUCE_TARGET_APP) : $(OBJECTS_APP) $(RESOURCES)
+	@command -v pkg-config >/dev/null 2>&1 || { echo >&2 "pkg-config not installed. Please, install it."; exit 1; }
+	@pkg-config --print-errors x11 xinerama xext freetype2 libcurl
+	@echo Linking "LinJam - App"
+	-$(V_AT)mkdir -p $(JUCE_BINDIR)
+	-$(V_AT)mkdir -p $(JUCE_LIBDIR)
+	-$(V_AT)mkdir -p $(JUCE_OUTDIR)
+	$(V_AT)$(CXX) -o $(JUCE_OUTDIR)/$(JUCE_TARGET_APP) $(OBJECTS_APP) $(JUCE_LDFLAGS) $(JUCE_LDFLAGS_APP) $(RESOURCES) $(TARGET_ARCH)
 
-uninstall:
-	@echo Uninstalling LinJam
-	@rm $(INSTALLDIR)/bin/$(TARGET) > /dev/null
+$(JUCE_OBJDIR)/Background_ba4a3b7.o: ../../Source/Background.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling Background.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Blacklist_42ebe7fe.o: ../../Source/Blacklist.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling Blacklist.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Channel_14ad93e4.o: ../../Source/Channel.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling Channel.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Channels_84b8f659.o: ../../Source/Channels.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling Channels.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Chat_e7196be1.o: ../../Source/Chat.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling Chat.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Config_5aed31cb.o: ../../Source/Config.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling Config.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/ConfigAudio_37708215.o: ../../Source/ConfigAudio.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling ConfigAudio.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/ConfigBlacklist_73aebedc.o: ../../Source/ConfigBlacklist.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling ConfigBlacklist.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/ConfigChannel_53548a42.o: ../../Source/ConfigChannel.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling ConfigChannel.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/ConfigClient_9ea4fbb6.o: ../../Source/ConfigClient.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling ConfigClient.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/ConfigGui_8149577a.o: ../../Source/ConfigGui.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling ConfigGui.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Constants_e698e730.o: ../../Source/Constants.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling Constants.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/License_de20cc22.o: ../../Source/License.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling License.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/LinJam_a166dece.o: ../../Source/LinJam.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling LinJam.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/LinJamConfig_8af59670.o: ../../Source/LinJamConfig.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling LinJamConfig.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Login_37b1de4a.o: ../../Source/Login.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling Login.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Loop_17fb192d.o: ../../Source/Loop.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling Loop.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling Main.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/MainContent_6313eee1.o: ../../Source/MainContent.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling MainContent.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Mixer_d95e2aea.o: ../../Source/Mixer.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling Mixer.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/StatusBar_3fb23a2.o: ../../Source/StatusBar.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling StatusBar.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Trace_fd3024bc.o: ../../Source/Trace/Trace.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling Trace.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/include_juce_core_f26d17db.o: ../../JuceLibraryCode/include_juce_core.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling include_juce_core.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/include_juce_data_structures_7471b1e3.o: ../../JuceLibraryCode/include_juce_data_structures.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling include_juce_data_structures.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/include_juce_events_fd7d695.o: ../../JuceLibraryCode/include_juce_events.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling include_juce_events.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/include_juce_graphics_f817e147.o: ../../JuceLibraryCode/include_juce_graphics.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling include_juce_graphics.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/include_juce_gui_basics_e3f79785.o: ../../JuceLibraryCode/include_juce_gui_basics.cpp
+	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
+	@echo "Compiling include_juce_gui_basics.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 clean:
 	@echo Cleaning LinJam
-	@$(CLEANCMD)
+	$(V_AT)$(CLEANCMD)
 
 strip:
 	@echo Stripping LinJam
-	-@strip --strip-unneeded $(OUTDIR)/$(TARGET)
+	-$(V_AT)$(STRIP) --strip-unneeded $(JUCE_OUTDIR)/$(TARGET)
 
-$(OBJDIR)/Background_ba4a3b7.o: ../../Source/Background.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Background.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Blacklist_42ebe7fe.o: ../../Source/Blacklist.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Blacklist.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Channel_14ad93e4.o: ../../Source/Channel.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Channel.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Channels_84b8f659.o: ../../Source/Channels.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Channels.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Chat_e7196be1.o: ../../Source/Chat.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Chat.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Config_5aed31cb.o: ../../Source/Config.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Config.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ConfigAudio_37708215.o: ../../Source/ConfigAudio.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ConfigAudio.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ConfigBlacklist_73aebedc.o: ../../Source/ConfigBlacklist.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ConfigBlacklist.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ConfigChannel_53548a42.o: ../../Source/ConfigChannel.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ConfigChannel.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ConfigClient_9ea4fbb6.o: ../../Source/ConfigClient.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ConfigClient.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/ConfigGui_8149577a.o: ../../Source/ConfigGui.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling ConfigGui.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Constants_e698e730.o: ../../Source/Constants.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Constants.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/License_de20cc22.o: ../../Source/License.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling License.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/LinJam_a166dece.o: ../../Source/LinJam.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LinJam.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/LinJamConfig_8af59670.o: ../../Source/LinJamConfig.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling LinJamConfig.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Login_37b1de4a.o: ../../Source/Login.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Login.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Loop_17fb192d.o: ../../Source/Loop.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Loop.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Main_90ebc5c2.o: ../../Source/Main.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Main.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/MainContent_6313eee1.o: ../../Source/MainContent.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling MainContent.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Mixer_d95e2aea.o: ../../Source/Mixer.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Mixer.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/StatusBar_3fb23a2.o: ../../Source/StatusBar.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling StatusBar.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/Trace_fd3024bc.o: ../../Source/Trace/Trace.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling Trace.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/juce_core_aff681cc.o: ../../JuceLibraryCode/modules/juce_core/juce_core.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling juce_core.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/juce_data_structures_bdd6d488.o: ../../JuceLibraryCode/modules/juce_data_structures/juce_data_structures.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling juce_data_structures.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/juce_events_79b2840.o: ../../JuceLibraryCode/modules/juce_events/juce_events.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling juce_events.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/juce_graphics_c8f1e7a4.o: ../../JuceLibraryCode/modules/juce_graphics/juce_graphics.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling juce_graphics.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
-$(OBJDIR)/juce_gui_basics_a630dd20.o: ../../JuceLibraryCode/modules/juce_gui_basics/juce_gui_basics.cpp
-	-@mkdir -p $(OBJDIR)
-	@echo "Compiling juce_gui_basics.cpp ($(CONFIG))"
-	@$(CXX) $(CXXFLAGS) -o "$@" -c "$<"
-
--include $(OBJECTS:%.o=%.d)
+-include $(OBJECTS_APP:%.o=%.d)
