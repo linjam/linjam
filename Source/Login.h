@@ -38,7 +38,7 @@
 class Login  : public Component,
                public TextEditor::Listener,
                public ValueTree::Listener,
-               public ButtonListener
+               public Button::Listener
 {
 public:
     //==============================================================================
@@ -49,16 +49,18 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
   // event handlers
-  void broughtToFront            ()                                             override ;
-  void textEditorTextChanged     (TextEditor& a_text_editor)                    override ;
-  void valueTreeChildAdded       (ValueTree& a_parent_node , ValueTree& a_node) override ;
-  void valueTreeChildRemoved     (ValueTree& a_parent_node , ValueTree& a_node) override ;
-  void valueTreeChildOrderChanged(ValueTree& a_parent_node)                     override ;
+  void broughtToFront            ()                                           override ;
+  void textEditorTextChanged     (TextEditor& text_editor)                    override ;
+  void valueTreeChildAdded       (ValueTree& parent_node  , ValueTree& node)  override ;
+  void valueTreeChildRemoved     (ValueTree& parent_node  , ValueTree& node ,
+                                  int        /*prev_idx*/                   ) override ;
+  void valueTreeChildOrderChanged(ValueTree& parent_node  ,
+                                  int        /*prev_idx*/ , int /*curr_idx*/) override ;
 
   // unused ValueTree::Listener interface implementations
-  void valueTreePropertyChanged(ValueTree& /*a_node*/ , const Identifier& /*key*/) override {} ;
-  void valueTreeParentChanged  (ValueTree& /*a_node*/                            ) override {} ;
-  void valueTreeRedirected     (ValueTree& /*a_node*/                            ) override {} ;
+  void valueTreePropertyChanged(ValueTree& /*node*/ , const Identifier& /*key*/) override {} ;
+  void valueTreeParentChanged  (ValueTree& /*node*/                            ) override {} ;
+  void valueTreeRedirected     (ValueTree& /*node*/                            ) override {} ;
 
   // helpers
   bool quickLogin       (String host) ;

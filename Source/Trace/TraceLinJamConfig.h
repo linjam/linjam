@@ -1070,21 +1070,21 @@
         Trace::TraceConfig(dbgA + "local"  + dbgB) ;                            \
     else Trace::TraceConfig(dbgA + "remote" + dbgB + "for '" + user_id + "'") ; }
 
-#define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                              \
-  Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;                      \
-  Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;       \
-  if (TRACE_REMOTE_CHANNELS_VB)                                                        \
-  {                                                                                    \
-    StringRef host      = MakeHostId(str(this->server[CONFIG::HOST_ID])) ;             \
-    bool      has_bot   = NETWORK::KNOWN_BOTS->hasAttribute(host) ;                    \
-    bool      hide_bots = has_bot && bool(this->client[CONFIG::SHOULD_HIDE_BOTS_ID]) ; \
-    float     u_vol     = CONFIG::DEFAULT_VOLUME ;                                     \
-    bool      u_mute    = CONFIG::DEFAULT_IS_MUTED ;                                   \
-    float     u_pan     = CONFIG::DEFAULT_PAN ;                                        \
-    int       u_idx     = -1 ; String u_name ; Identifier u_id ;                       \
-    while ((u_name = LinJam::GetRemoteUserName(++u_idx)).isNotEmpty())                 \
-      { u_id = MakeUserId(u_name) ; if (user_id == u_id) break ; }                     \
-    DEBUG_TRACE_REMOTE_CHANNELS                                                        \
+#define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                               \
+  Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;                       \
+  Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;        \
+  if (TRACE_REMOTE_CHANNELS_VB)                                                         \
+  {                                                                                     \
+    Identifier host      = MakeHostId(str(this->server[CONFIG::HOST_ID])) ;             \
+    bool       has_bot   = NETWORK::KNOWN_BOTS.getChildWithName(host).isValid() ;       \
+    bool       hide_bots = has_bot && bool(this->client[CONFIG::SHOULD_HIDE_BOTS_ID]) ; \
+    float      u_vol     = CONFIG::DEFAULT_VOLUME ;                                     \
+    bool       u_mute    = CONFIG::DEFAULT_IS_MUTED ;                                   \
+    float      u_pan     = CONFIG::DEFAULT_PAN ;                                        \
+    int        u_idx     = -1 ; String u_name ; Identifier u_id ;                       \
+    while ((u_name = LinJam::GetRemoteUserName(++u_idx)).isNotEmpty())                  \
+      { u_id = MakeUserId(u_name) ; if (user_id == u_id) break ; }                      \
+    DEBUG_TRACE_REMOTE_CHANNELS                                                         \
   }
 
 #else // DEBUG

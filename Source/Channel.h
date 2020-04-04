@@ -36,10 +36,10 @@
                                                                     //[/Comments]
 */
 class Channel  : public Component,
-                 public ButtonListener,
-                 public SliderListener,
+                 public Button::Listener,
+                 public Slider::Listener,
                  public Value::Listener,
-                 public LabelListener
+                 public Label::Listener
 {
 public:
     //==============================================================================

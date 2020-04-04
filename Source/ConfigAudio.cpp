@@ -82,7 +82,7 @@ ConfigAudio::ConfigAudio (ValueTree audio_store)
     apiComboBox->setExplicitFocusOrder (1);
     apiComboBox->setEditableText (false);
     apiComboBox->setJustificationType (Justification::centredLeft);
-    apiComboBox->setTextWhenNothingSelected (String::empty);
+    apiComboBox->setTextWhenNothingSelected (String());
     apiComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     apiComboBox->addListener (this);
 
@@ -99,7 +99,7 @@ ConfigAudio::ConfigAudio (ValueTree audio_store)
     driverComboBox->setExplicitFocusOrder (1);
     driverComboBox->setEditableText (false);
     driverComboBox->setJustificationType (Justification::centredLeft);
-    driverComboBox->setTextWhenNothingSelected (String::empty);
+    driverComboBox->setTextWhenNothingSelected (String());
     driverComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     driverComboBox->addListener (this);
 
@@ -116,7 +116,7 @@ ConfigAudio::ConfigAudio (ValueTree audio_store)
     sourceComboBox->setExplicitFocusOrder (2);
     sourceComboBox->setEditableText (false);
     sourceComboBox->setJustificationType (Justification::centredLeft);
-    sourceComboBox->setTextWhenNothingSelected (String::empty);
+    sourceComboBox->setTextWhenNothingSelected (String());
     sourceComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     sourceComboBox->addListener (this);
 
@@ -133,7 +133,7 @@ ConfigAudio::ConfigAudio (ValueTree audio_store)
     sinkComboBox->setExplicitFocusOrder (3);
     sinkComboBox->setEditableText (false);
     sinkComboBox->setJustificationType (Justification::centredLeft);
-    sinkComboBox->setTextWhenNothingSelected (String::empty);
+    sinkComboBox->setTextWhenNothingSelected (String());
     sinkComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     sinkComboBox->addListener (this);
 
@@ -228,7 +228,7 @@ ConfigAudio::ConfigAudio (ValueTree audio_store)
     bufferComboBox->setExplicitFocusOrder (11);
     bufferComboBox->setEditableText (false);
     bufferComboBox->setJustificationType (Justification::centredLeft);
-    bufferComboBox->setTextWhenNothingSelected (String::empty);
+    bufferComboBox->setTextWhenNothingSelected (String());
     bufferComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     bufferComboBox->addListener (this);
 
@@ -260,7 +260,7 @@ ConfigAudio::ConfigAudio (ValueTree audio_store)
     jackNameText->setPopupMenuEnabled (false);
     jackNameText->setColour (TextEditor::textColourId, Colours::grey);
     jackNameText->setColour (TextEditor::backgroundColourId, Colours::black);
-    jackNameText->setText (String::empty);
+    jackNameText->setText (String());
 
     addAndMakeVisible (nSourcesLabel = new Label ("nSourcesLabel",
                                                   TRANS("# of sources")));

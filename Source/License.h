@@ -35,8 +35,8 @@
                                                                     //[/Comments]
 */
 class License  : public Component,
-                 public ValueListener,
-                 public ButtonListener
+                 public Value::Listener,
+                 public Button::Listener
 {
 public:
     //==============================================================================

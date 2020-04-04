@@ -14,7 +14,7 @@
 
 
 /** MainContent is the main view container class */
-class MainContent : public Component , public ButtonListener
+class MainContent : public Component , public Button::Listener
 {
   friend class LinJamApplication ;
   friend class LinJam ;

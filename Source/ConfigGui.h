@@ -36,7 +36,7 @@
                                                                     //[/Comments]
 */
 class ConfigGui  : public Component,
-                   public ComboBoxListener
+                   public ComboBox::Listener
 {
 public:
     //==============================================================================

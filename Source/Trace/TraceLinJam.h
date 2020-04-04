@@ -242,48 +242,48 @@
 #  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB ;
 #endif // TRACE_DUMP_FREE_INPUTS
 
-#define DEBUG_TRACE_REMOTE_CHANNELS                                              \
-    bool   is_bot = NETWORK::KNOWN_BOTS->compareAttribute(host , String(u_id)) ; \
-    String hidden = (hide_bots && is_bot) ? " (bot hidden)" : "" ;               \
-    String dbg    = "NJClient remote user[" + String(u_idx) + "] =>" + hidden +  \
-        "\n  user_name   => "   + String(u_name)                              +  \
-        "\n  user_volume => "   + String(u_vol)                               +  \
-        "\n  user_pan    => "   + String(u_pan)                               +  \
-        "\n  user_mute   => "   + String(u_mute)                              ;  \
-    int ch_n = -1 ; int ch_idx ;                                                 \
-    while (~(ch_idx = LinJam::Client->EnumUserChannels(u_idx , ++ch_n)))         \
-    {                                                                            \
-      bool ch_rcv ;  float ch_vol ;  float ch_pan ; bool ch_mute ;               \
-      bool ch_solo ; int   ch_sink ; bool  ch_pannable ;                         \
-      String ch_name = LinJam::GetRemoteChannelClientName(u_idx , ch_idx) ;      \
-      LinJam::Client->GetUserChannelState(u_idx    , ch_idx   , &ch_rcv   ,      \
-                                          &ch_vol  , &ch_pan  , &ch_mute  ,      \
-                                          &ch_solo , &ch_sink , &ch_pannable) ;  \
-      dbg += "\n  found remote channel[" + String(ch_n)   + "] =>" +             \
-             "\n    channel_idx    => "  + String(ch_idx)          +             \
-             "\n    channel_name   => "  + String(ch_name)         +             \
-             "\n    channel_volume => "  + String(ch_vol)          +             \
-             "\n    channel_pan    => "  + String(ch_pan)          +             \
-             "\n    is_rcv         => "  + String(ch_rcv)          +             \
-             "\n    channel_mute   => "  + String(ch_mute)         +             \
-             "\n    is_solo        => "  + String(ch_solo)         +             \
-             "\n    sink_n         => "  + String(ch_sink)         +             \
-             "\n    is_pannable    => "  + String(ch_pannable) ;                 \
-    }                                                                            \
+#define DEBUG_TRACE_REMOTE_CHANNELS                                                   \
+    bool   is_bot = str(NETWORK::KNOWN_BOTS.getProperty(host , "")) == String(u_id) ; \
+    String hidden = (hide_bots && is_bot) ? " (bot hidden)" : "" ;                    \
+    String dbg    = "NJClient remote user[" + String(u_idx) + "] =>" + hidden +       \
+        "\n  user_name   => "   + String(u_name)                              +       \
+        "\n  user_volume => "   + String(u_vol)                               +       \
+        "\n  user_pan    => "   + String(u_pan)                               +       \
+        "\n  user_mute   => "   + String(u_mute)                              ;       \
+    int ch_n = -1 ; int ch_idx ;                                                      \
+    while (~(ch_idx = LinJam::Client->EnumUserChannels(u_idx , ++ch_n)))              \
+    {                                                                                 \
+      bool ch_rcv ;  float ch_vol ;  float ch_pan ; bool ch_mute ;                    \
+      bool ch_solo ; int   ch_sink ; bool  ch_pannable ;                              \
+      String ch_name = LinJam::GetRemoteChannelClientName(u_idx , ch_idx) ;           \
+      LinJam::Client->GetUserChannelState(u_idx    , ch_idx   , &ch_rcv   ,           \
+                                          &ch_vol  , &ch_pan  , &ch_mute  ,           \
+                                          &ch_solo , &ch_sink , &ch_pannable) ;       \
+      dbg += "\n  found remote channel[" + String(ch_n)   + "] =>" +                  \
+             "\n    channel_idx    => "  + String(ch_idx)          +                  \
+             "\n    channel_name   => "  + String(ch_name)         +                  \
+             "\n    channel_volume => "  + String(ch_vol)          +                  \
+             "\n    channel_pan    => "  + String(ch_pan)          +                  \
+             "\n    is_rcv         => "  + String(ch_rcv)          +                  \
+             "\n    channel_mute   => "  + String(ch_mute)         +                  \
+             "\n    is_solo        => "  + String(ch_solo)         +                  \
+             "\n    sink_n         => "  + String(ch_sink)         +                  \
+             "\n    is_pannable    => "  + String(ch_pannable) ;                      \
+    }                                                                                 \
     Trace::TraceState(dbg) ;
 
 #if TRACE_REMOTE_CHANNELS_VB
-#  define                                                                               \
-  bool has_bot = NETWORK::KNOWN_BOTS->hasAttribute(host) ;                              \
-  bool hide_bots = has_bot && bool(Config->shouldHideBots.getValue()) ;                 \
-  Trace::TraceServer("user info changed - " +                                           \
-                     String(Client->GetNumUsers()) + " users") ;                        \
-  int u_idx = -1 ; String u_name ; float u_vol ; float u_pan ; bool u_mute ;            \
-  while ((u_name = GetRemoteUserName(++u_idx)).isNotEmpty())                            \
-  {                                                                                     \
-    Client->GetUserState(u_idx , &u_vol , &u_pan , &u_mute) ;                           \
-    Identifier u_id = Config->encodeUserId(String(u_name) , u_idx) ;                    \
-    DEBUG_TRACE_REMOTE_CHANNELS                                                         \
+#  define                                                                    \
+  bool has_bot = NETWORK::KNOWN_BOTS.getChildWithName(host).isValid() ;      \
+  bool hide_bots = has_bot && bool(Config->shouldHideBots.getValue()) ;      \
+  Trace::TraceServer("user info changed - " +                                \
+                     String(Client->GetNumUsers()) + " users") ;             \
+  int u_idx = -1 ; String u_name ; float u_vol ; float u_pan ; bool u_mute ; \
+  while ((u_name = GetRemoteUserName(++u_idx)).isNotEmpty())                 \
+  {                                                                          \
+    Client->GetUserState(u_idx , &u_vol , &u_pan , &u_mute) ;                \
+    Identifier u_id = Config->encodeUserId(String(u_name) , u_idx) ;         \
+    DEBUG_TRACE_REMOTE_CHANNELS                                              \
   }
 #else // TRACE_REMOTE_CHANNELS_VB
 #  define DEBUG_TRACE_REMOTE_CHANNELS_VB ;

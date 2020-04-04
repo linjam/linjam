@@ -49,7 +49,7 @@ ConfigClient::ConfigClient (ValueTree client_store)
     saveAudioComboBox->setExplicitFocusOrder (1);
     saveAudioComboBox->setEditableText (false);
     saveAudioComboBox->setJustificationType (Justification::centredLeft);
-    saveAudioComboBox->setTextWhenNothingSelected (String::empty);
+    saveAudioComboBox->setTextWhenNothingSelected (String());
     saveAudioComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     saveAudioComboBox->addListener (this);
 
@@ -78,7 +78,7 @@ ConfigClient::ConfigClient (ValueTree client_store)
     debugLevelComboBox->setExplicitFocusOrder (4);
     debugLevelComboBox->setEditableText (false);
     debugLevelComboBox->setJustificationType (Justification::centredLeft);
-    debugLevelComboBox->setTextWhenNothingSelected (String::empty);
+    debugLevelComboBox->setTextWhenNothingSelected (String());
     debugLevelComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     debugLevelComboBox->addListener (this);
 

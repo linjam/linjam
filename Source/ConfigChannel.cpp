@@ -52,7 +52,7 @@ ConfigChannel::ConfigChannel (ValueTree channel_store)
     nameText->setPopupMenuEnabled (false);
     nameText->setColour (TextEditor::textColourId, Colours::grey);
     nameText->setColour (TextEditor::backgroundColourId, Colours::black);
-    nameText->setText (String::empty);
+    nameText->setText (String());
 
     addAndMakeVisible (monoButton = new ToggleButton ("monoButton"));
     monoButton->setExplicitFocusOrder (2);

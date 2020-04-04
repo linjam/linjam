@@ -39,7 +39,7 @@ Channels::Channels ()
     //[/Constructor_pre]
 
     addAndMakeVisible (channelsLabel = new Label ("channelsLabel",
-                                                  String::empty));
+                                                  String()));
     channelsLabel->setFont (Font (12.00f, Font::plain));
     channelsLabel->setJustificationType (Justification::centredBottom);
     channelsLabel->setEditable (false, false, false);
@@ -179,7 +179,7 @@ DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL
 
   // create channel GUI
   Channel* channel = newChannel(channel_store) ;
-  addChildAndSetID(channel , String(channel_id)) ;
+  addChildAndSetID(channel , STRING(channel_id)) ;
   channel->toFront(false) ;
 
   // resize and shift channel slices
@@ -209,7 +209,7 @@ int Channels::getNumChannels()
 
 Channel* Channels::getChannel(Identifier channel_id)
 {
-  return (Channel*)findChildWithID(StringRef(String(channel_id))) ;
+  return (Channel*)findChildWithID(StringRef(STRING(channel_id))) ;
 }
 
 
@@ -234,7 +234,7 @@ LocalChannels::LocalChannels()
 RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree blacklist_store)
                               : userStore(user_store) , blacklistStore(blacklist_store)
 {
-  this->channelsLabel->setText(String(user_store.getType()) , juce::dontSendNotification) ;
+  this->channelsLabel->setText(STRING(user_store.getType()) , juce::dontSendNotification) ;
   this->expandButton ->addListener(this) ;
   this->ignoreButton ->addListener(this) ;
   this->addButton    ->setVisible(false) ;

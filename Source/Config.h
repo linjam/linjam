@@ -39,8 +39,8 @@
                                                                     //[/Comments]
 */
 class Config  : public Component,
-                public ValueListener,
-                public ButtonListener
+                public Value::Listener,
+                public Button::Listener
 {
 public:
     //==============================================================================

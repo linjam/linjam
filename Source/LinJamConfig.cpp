@@ -95,15 +95,15 @@ void LinJamConfig::initialize()
   this->dataDir = File::getSpecialLocation(File::userApplicationDataDirectory) ;
   if (!this->dataDir.isDirectory()) return ;
 
-  this->      configXmlFile     = this->dataDir.getChildFile(CLIENT::STORAGE_FILENAME) ;
-  XmlElement* default_xml       = XmlDocument::parse(CONFIG::DEFAULT_CONFIG_XML) ;
-  XmlElement* stored_xml        = XmlDocument::parse(this->configXmlFile) ;
-  bool        has_stored_config = stored_xml != nullptr                     &&
-                                  stored_xml->hasTagName(CONFIG::STORAGE_ID) ;
+  this->           configXmlFile     = this->dataDir.getChildFile(CLIENT::STORAGE_FILENAME) ;
+  UPTR<XmlElement> default_xml       = XmlDocument::parse(CONFIG::DEFAULT_CONFIG_XML) ;
+  UPTR<XmlElement> stored_xml        = XmlDocument::parse(this->configXmlFile) ;
+  bool             has_stored_config = stored_xml != nullptr                     &&
+                                       stored_xml->hasTagName(CONFIG::STORAGE_ID) ;
 
 DEBUG_TRACE_LOAD_CONFIG
 
-  if (default_xml == nullptr) { delete stored_xml ; return ; } // panic
+  if (default_xml == nullptr) { stored_xml.reset() ; return ; } // panic
 
   // validate config version
   double stored_version  = (!has_stored_config) ? 0.0                                :
@@ -129,7 +129,7 @@ DEBUG_TRACE_DUMP_CONFIG
   sanitizeGui() ;
 
   // write back sanitized config to disk and cleanup
-  storeConfig() ; delete default_xml ; delete stored_xml ;
+  storeConfig() ; default_xml.reset() ; stored_xml.reset() ;
 
   // register listener on LinJamStatus for Gui state
   LinJam::Status.addListener(this) ;
@@ -165,31 +165,31 @@ void LinJamConfig::establishSharedStore()
 
 void LinJamConfig::restoreVarTypeInfo(ValueTree config_store)
 {
-  Identifier  node_id          = config_store.getType() ;   // for leaves at toplevel
-  ValueTree   parent_node      = config_store.getParent() ; // for leaves in list
-  ValueTree   grandparent_node = parent_node .getParent() ; // for leaves in nested list
-  XmlElement* config_types_xml = XmlDocument::parse(CONFIG::CONFIG_DATATYPES_XML) ;
-  ValueTree   config_types     = ValueTree::fromXml(*config_types_xml) ;
-  ValueTree   root_types       = config_types ;
-  ValueTree   toplevel_types   = config_types.getChildWithName(node_id            ) ;
-  ValueTree   server_types     = config_types.getChildWithName(CONFIG::SERVER_ID  ) ;
-  ValueTree   user_types       = config_types.getChildWithName(CONFIG::USERS_ID   ) ;
-  ValueTree   channel_types    = config_types.getChildWithName(CONFIG::CHANNELS_ID) ;
-  ValueTree   types_store ; delete config_types_xml ;
+  Identifier       node_id          = config_store.getType() ;   // for leaves at toplevel
+  ValueTree        parent_node      = config_store.getParent() ; // for leaves in list
+  ValueTree        grandparent_node = parent_node .getParent() ; // for leaves in nested list
+  UPTR<XmlElement> config_types_xml = XmlDocument::parse(CONFIG::CONFIG_DATATYPES_XML) ;
+  ValueTree        config_types     = ValueTree::fromXml(*config_types_xml) ;
+  ValueTree        root_types       = config_types ;
+  ValueTree        toplevel_types   = config_types.getChildWithName(node_id            ) ;
+  ValueTree        server_types     = config_types.getChildWithName(CONFIG::SERVER_ID  ) ;
+  ValueTree        user_types       = config_types.getChildWithName(CONFIG::USERS_ID   ) ;
+  ValueTree        channel_types    = config_types.getChildWithName(CONFIG::CHANNELS_ID) ;
+  ValueTree        types_store ; config_types_xml.reset() ;
 
   // load property datatypes info for this node
-  types_store = (config_store     == this->configRoot       ) ? root_types         :
+  types_store = (config_store     == this->configRoot       ) ? root_types     :
                 (config_store     == this->gui             ||
                  config_store     == this->client          ||
                  config_store     == this->blacklist       ||
                  config_store     == this->audio           ||
-                 config_store     == this->server           ) ? toplevel_types     :
-                (parent_node      == this->servers          ) ? server_types       :
-                (parent_node      == this->remoteUsers      ) ? user_types         :
+                 config_store     == this->server           ) ? toplevel_types :
+                (parent_node      == this->servers          ) ? server_types   :
+                (parent_node      == this->remoteUsers      ) ? user_types     :
                 (parent_node      == this->masterChannels  ||
                  parent_node      == this->localChannels   ||
-                 grandparent_node == this->remoteUsers      ) ? channel_types      :
-                                                                ValueTree::invalid ;
+                 grandparent_node == this->remoteUsers      ) ? channel_types  :
+                                                                ValueTree()    ;
 
 DEBUG_TRACE_CONFIG_TYPES_VB
 
@@ -230,10 +230,10 @@ DEBUG_TRACE_STORE_CONFIG
     server_store.removeChild(clients_store , nullptr) ;
   }
 
-  XmlElement* config_xml = root_clone.createXml() ;
+  UPTR<XmlElement> config_xml = root_clone.createXml() ;
 
   config_xml->writeToFile(this->configXmlFile , StringRef() , StringRef("UTF-8") , 0) ;
-  delete config_xml ;
+  config_xml.reset() ;
 }
 
 
@@ -285,14 +285,14 @@ void LinJamConfig::validateServers()
 {
   ValueTree volatile_server = this->server.createCopy() ;
 
-  forEachXmlChildElement(*NETWORK::KNOWN_HOSTS , host_node) // macro
+  for (int server_n = 0 ; server_n < NETWORK::KNOWN_HOSTS.getNumChildren() ; ++server_n)
   {
-    String    known_host = host_node->getTagName() ;
+    String    known_host = STRING(NETWORK::KNOWN_HOSTS.getChild(server_n).getType()) ;
     ValueTree server     = getServer(known_host) ;
 
     if (!server.isValid())
     {
-      // creat new per server storage
+      // create new per-server storage
       this->server.setProperty(CONFIG::HOST_ID         , known_host                   , nullptr)
                   .setProperty(CONFIG::LOGIN_ID        , CONFIG::DEFAULT_LOGIN        , nullptr)
                   .setProperty(CONFIG::PASS_ID         , CONFIG::DEFAULT_PASS         , nullptr)
@@ -403,16 +403,16 @@ bool LinJamConfig::isConfigValid()
 
   if (!is_config_valid)
   {
-    this->configRoot     = ValueTree::invalid ;
-    this->gui            = ValueTree::invalid ; this->gui           .removeListener(this) ;
-    this->client         = ValueTree::invalid ;
-    this->blacklist      = ValueTree::invalid ; this->blacklist     .removeListener(this) ;
-    this->audio          = ValueTree::invalid ; this->audio         .removeListener(this) ;
-    this->server         = ValueTree::invalid ;
-    this->servers        = ValueTree::invalid ;
-    this->masterChannels = ValueTree::invalid ; this->masterChannels.removeListener(this) ;
-    this->localChannels  = ValueTree::invalid ; this->localChannels .removeListener(this) ;
-    this->remoteUsers    = ValueTree::invalid ; this->remoteUsers   .removeListener(this) ;
+    this->configRoot     = ValueTree() ;
+    this->gui            = ValueTree() ; this->gui           .removeListener(this) ;
+    this->client         = ValueTree() ;
+    this->blacklist      = ValueTree() ; this->blacklist     .removeListener(this) ;
+    this->audio          = ValueTree() ; this->audio         .removeListener(this) ;
+    this->server         = ValueTree() ;
+    this->servers        = ValueTree() ;
+    this->masterChannels = ValueTree() ; this->masterChannels.removeListener(this) ;
+    this->localChannels  = ValueTree() ; this->localChannels .removeListener(this) ;
+    this->remoteUsers    = ValueTree() ; this->remoteUsers   .removeListener(this) ;
 
 DEBUG_TRACE_CLOBBER_CONFIG
 
@@ -436,7 +436,7 @@ ValueTree LinJamConfig::addChannel(ValueTree channels_store  ,
 DEBUG_TRACE_ADD_CHANNEL_STORE
 
   // ensure trees are valid and storage does not already exist for this channel
-  if (!channels_store.isValid() || !new_channel_node.isValid())  return ValueTree::invalid ;
+  if (!channels_store.isValid() || !new_channel_node.isValid())  return ValueTree() ;
   if (new_channel_node.getParent() == channels_store)            return new_channel_node ;
 
   int       channel_idx   = int(new_channel_node[CONFIG::CHANNEL_IDX_ID]) ;
@@ -540,7 +540,7 @@ void LinJamConfig::setCredentials(String host , String login       ,
 {
   if (is_anonymous) pass = "" ;
   bool   is_agreed = bool(getServer(host)[CONFIG::SHOULD_AGREE_ID]) ;
-  String bot_name  = NETWORK::KNOWN_BOTS->getStringAttribute(MakeHostId(host) , "") ;
+  String bot_name  = str(NETWORK::KNOWN_BOTS.getProperty(MakeHostId(host) , "")) ;
   int    bot_idx   = CONFIG::DEFAULT_BOT_USERIDX ;
 
   this->server.setProperty(CONFIG::HOST_ID         , host         , nullptr)
@@ -560,7 +560,7 @@ ValueTree LinJamConfig::getCredentials(String host)
   ValueTree server_copy   = ValueTree(MakeHostId(host)) ;
 
   if (stored_server.isValid()) server_copy.copyPropertiesFrom(stored_server , nullptr) ;
-  else                         server_copy = ValueTree::invalid ;
+  else                         server_copy = ValueTree() ;
 
   return server_copy ;
 }
@@ -724,12 +724,12 @@ DEBUG_TRACE_CONFIG_TREE_CHANGED
   else if (is_remote   ) LinJam::ConfigureRemoteChannel(parent_node , a_node , a_key) ;
 }
 
-void LinJamConfig::valueTreeChildAdded(ValueTree& a_parent_node , ValueTree& a_node)
+void LinJamConfig::valueTreeChildAdded(ValueTree& parent_node , ValueTree& node)
 {
 DEBUG_TRACE_CONFIG_TREE_ADDED
 
-  Identifier node_id      = a_node.getType() ;
-  bool       is_blacklist = a_parent_node == this->blacklist ;
+  Identifier node_id      = node.getType() ;
+  bool       is_blacklist = parent_node == this->blacklist ;
 
   if (is_blacklist)
   {
@@ -737,12 +737,13 @@ DEBUG_TRACE_CONFIG_TREE_ADDED
   }
 }
 
-void LinJamConfig::valueTreeChildRemoved(ValueTree& a_parent_node , ValueTree& a_node)
+void LinJamConfig::valueTreeChildRemoved(ValueTree& parent_node , ValueTree& node ,
+                                         int        /*prev_idx*/                  )
 {
 DEBUG_TRACE_CONFIG_TREE_REMOVED
 
-  Identifier node_id      = a_node.getType() ;
-  bool       is_blacklist = a_parent_node == this->blacklist ;
+  Identifier node_id      = node.getType() ;
+  bool       is_blacklist = parent_node == this->blacklist ;
 
   if (is_blacklist)
   {

@@ -64,7 +64,7 @@ BlacklistEntry::BlacklistEntry (ValueTree blacklist_store)
 
   setSize(GUI::BLACKLIST_ENTRY_W , GUI::BLACKLIST_ENTRY_H) ;
 
-  userLabel->setText(String(blacklist_store.getType()) , juce::dontSendNotification) ;
+  userLabel->setText(STRING(blacklist_store.getType()) , juce::dontSendNotification) ;
 
     //[/Constructor]
 }
@@ -174,16 +174,14 @@ void Blacklist::resize()
           GUI::PAD + (getNumChildComponents() * (GUI::BLACKLIST_ENTRY_H + GUI::PAD))) ;
 }
 
-void Blacklist::valueTreeChildAdded(ValueTree& a_parent_node , ValueTree& a_node)
+void Blacklist::removeBlacklistEntry(BlacklistEntry* blacklist_entry)
 {
-  UNUSED(a_parent_node) ;
-
-  addAndMakeVisible(new BlacklistEntry(a_node)) ; resize() ;
+  delete blacklist_entry ; resize() ;
 }
 
-void Blacklist::removeBlacklistEntry(BlacklistEntry* a_blacklist_entry)
+void Blacklist::valueTreeChildAdded(ValueTree& /*parent_node*/ , ValueTree& node)
 {
-  delete a_blacklist_entry ; resize() ;
+  addAndMakeVisible(new BlacklistEntry(node)) ; resize() ;
 }
 
 //[/MiscUserCode]

@@ -49,7 +49,7 @@ Chat::Chat (Value font_size)
     chatText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
     chatText->setColour (TextEditor::highlightColourId, Colour (0x00000000));
     chatText->setColour (TextEditor::outlineColourId, Colour (0x00000000));
-    chatText->setText (String::empty);
+    chatText->setText (String());
 
     addAndMakeVisible (chatEntryText = new TextEditor ("chatEntryText"));
     chatEntryText->setExplicitFocusOrder (1);
@@ -64,10 +64,10 @@ Chat::Chat (Value font_size)
     chatEntryText->setColour (TextEditor::highlightColourId, Colour (0x00000000));
     chatEntryText->setColour (TextEditor::outlineColourId, Colour (0x00000000));
     chatEntryText->setColour (CaretComponent::caretColourId, Colours::white);
-    chatEntryText->setText (String::empty);
+    chatEntryText->setText (String());
 
     addAndMakeVisible (topicLabel = new Label ("topicLabel",
-                                               String::empty));
+                                               String()));
     topicLabel->setFont (Font (Font::getDefaultMonospacedFontName(), 15.00f, Font::bold));
     topicLabel->setJustificationType (Justification::centredTop);
     topicLabel->setEditable (true, true, true);
@@ -83,7 +83,7 @@ Chat::Chat (Value font_size)
 
   // set fonts and sizes
   Font  topic_font    = this->topicLabel->getFont().withHeight(GUI::TOPIC_FONT_H) ;
-  this->prevTopicText = String::empty ;
+  this->prevTopicText = String() ;
   this->topicLabel->setFont(topic_font) ;
   setFontSize() ;
 

@@ -40,8 +40,8 @@ const Identifier  NETWORK::JAMBOT_USER        = "Jambot" ;
 const Identifier  NETWORK::BEERBOT_USER       = "LiveStream" ;
 const String      NETWORK::KNOWN_HOSTS_KEY    = "known-hosts" ;
 const String      NETWORK::KNOWN_BOTS_KEY     = "known-bots" ;
-const XmlElement* NETWORK::KNOWN_HOSTS ; // APP::Initialize()
-const XmlElement* NETWORK::KNOWN_BOTS ;  // APP::Initialize()
+ValueTree         NETWORK::KNOWN_HOSTS ; // APP::Initialize()
+ValueTree         NETWORK::KNOWN_BOTS ;  // APP::Initialize()
 
 // http requests
 const String NETWORK::WEBSITE_URL = "http://teamstream.herokuapp.com" ;
@@ -63,8 +63,12 @@ const String NETWORK::USER_KEY    = "user" ;
 void APP::Initialize()
 {
   // KNOWN_HOSTS and KNOWN_BOTS are destroyed in LinJam::Shutdown()
-  NETWORK::KNOWN_HOSTS = XmlDocument::parse(String(KNOWN_HOSTS_XML)) ;
-  NETWORK::KNOWN_BOTS  = XmlDocument::parse(String(KNOWN_BOTS_XML )) ;
+//   NETWORK::KNOWN_HOSTS = XmlDocument::parse(String(KNOWN_HOSTS_XML)) ;
+//   NETWORK::KNOWN_BOTS  = XmlDocument::parse(String(KNOWN_BOTS_XML )) ;
+  UPTR<XmlElement> known_hosts = XmlDocument::parse(String(KNOWN_HOSTS_XML)) ;
+  NETWORK::KNOWN_HOSTS         = ValueTree::fromXml(*known_hosts) ;
+  UPTR<XmlElement> known_bots  = XmlDocument::parse(String(KNOWN_BOTS_XML)) ;
+  NETWORK::KNOWN_BOTS          = ValueTree::fromXml(*known_bots) ;
 }
 
 
@@ -80,7 +84,7 @@ StringArray APP::ParseLines(String a_string)
 
 StringArray APP::ParseCSV(String a_string)
 {
-  return StringArray::fromTokens(a_string , "," , String::empty) ;
+  return StringArray::fromTokens(a_string , "," , String()) ;
 }
 
 String APP::Pluck(StringArray* a_stringarray , int idx)
@@ -92,5 +96,5 @@ String APP::Pluck(StringArray* a_stringarray , int idx)
 
 bool NETWORK::IsKnownHost(String host)
 {
-  return host.isNotEmpty() && KNOWN_HOSTS->getChildByName(host) != nullptr ;
+  return host.isNotEmpty() && KNOWN_HOSTS.getChildWithName(Identifier(host)).isValid() ;
 }

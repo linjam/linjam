@@ -74,7 +74,7 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     hostText->setColour (TextEditor::backgroundColourId, Colours::black);
     hostText->setColour (TextEditor::outlineColourId, Colours::grey);
     hostText->setColour (CaretComponent::caretColourId, Colours::white);
-    hostText->setText (String::empty);
+    hostText->setText (String());
 
     addAndMakeVisible (loginText = new TextEditor ("loginText"));
     loginText->setTooltip (TRANS("Enter a username using only the characters a-z 0-9 - and _"));
@@ -89,7 +89,7 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     loginText->setColour (TextEditor::backgroundColourId, Colours::black);
     loginText->setColour (TextEditor::outlineColourId, Colours::grey);
     loginText->setColour (CaretComponent::caretColourId, Colours::white);
-    loginText->setText (String::empty);
+    loginText->setText (String());
 
     addAndMakeVisible (passText = new TextEditor ("passText"));
     passText->setTooltip (TRANS("Some servers require a password. Try logging in with the anonymous button ticked first."));
@@ -104,7 +104,7 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     passText->setColour (TextEditor::backgroundColourId, Colours::black);
     passText->setColour (TextEditor::outlineColourId, Colours::grey);
     passText->setColour (CaretComponent::caretColourId, Colours::white);
-    passText->setText (String::empty);
+    passText->setText (String());
 
     addAndMakeVisible (loginButton = new TextButton ("loginButton"));
     loginButton->setTooltip (TRANS("Click this to connect to the specified server."));
@@ -330,26 +330,28 @@ DEBUG_TRACE_LOGIN_LOAD
   this->anonButton ->setToggleState(is_anonymous , juce::dontSendNotification) ;
 }
 
-void Login::textEditorTextChanged(TextEditor& a_text_editor)
+void Login::textEditorTextChanged(TextEditor& text_editor)
 {
-  if      (&a_text_editor == hostText ) validateHost() ;
-  else if (&a_text_editor == loginText) validateLogin() ;
-  else if (&a_text_editor == passText ) validatePass() ;
+  if      (&text_editor == hostText ) validateHost() ;
+  else if (&text_editor == loginText) validateLogin() ;
+  else if (&text_editor == passText ) validatePass() ;
 }
 
-void Login::valueTreeChildAdded(ValueTree& a_parent_node , ValueTree& /*a_node*/)
+void Login::valueTreeChildAdded(ValueTree& parent_node , ValueTree& /*node*/)
 {
-  if (a_parent_node.getType() == CONFIG::CLIENTS_ID) updateClients(a_parent_node) ;
+  if (parent_node.getType() == CONFIG::CLIENTS_ID) updateClients(parent_node) ;
 }
 
-void Login::valueTreeChildRemoved(ValueTree& a_parent_node , ValueTree& /*a_node*/)
+void Login::valueTreeChildRemoved(ValueTree& parent_node  , ValueTree& /*node*/ ,
+                                  int        /*prev_idx*/                       )
 {
-  if (a_parent_node.getType() == CONFIG::CLIENTS_ID) updateClients(a_parent_node) ;
+  if (parent_node.getType() == CONFIG::CLIENTS_ID) updateClients(parent_node) ;
 }
 
-void Login::valueTreeChildOrderChanged(ValueTree& a_parent_node)
+void Login::valueTreeChildOrderChanged(ValueTree& parent_node  , int /*prev_idx*/ ,
+                                       int        /*curr_idx*/                    )
 {
-  if (a_parent_node.getType() == CONFIG::SERVERS_ID) arrangeRooms() ;
+  if (parent_node.getType() == CONFIG::SERVERS_ID) arrangeRooms() ;
 }
 
 

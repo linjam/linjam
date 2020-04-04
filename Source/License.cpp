@@ -46,7 +46,7 @@ License::License (Value is_agreed, Value always_agree)
     licenseTextEditor->setPopupMenuEnabled (false);
     licenseTextEditor->setColour (TextEditor::textColourId, Colours::grey);
     licenseTextEditor->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    licenseTextEditor->setText (String::empty);
+    licenseTextEditor->setText (String());
 
     addAndMakeVisible (cancelButton = new TextButton ("cancelButton"));
     cancelButton->setTooltip (TRANS("Check this if you do not agree to these above terms. You will not be able to jam here."));

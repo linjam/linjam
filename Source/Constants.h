@@ -128,9 +128,9 @@
     CLIENT_KEY             +                                            " "   + \
       SAVE_AUDIO_MODE_KEY  + "=\"" + String(DEFAULT_SAVE_AUDIO_MODE ) + "\" " + \
       MIXDOWN_MODE_KEY     + "=\"" + String(DEFAULT_MIXDOWN_MODE    ) + "\" " + \
-      SHOULD_SAVE_LOG_KEY  + "=\"" + String(DEFAULT_SHOULD_SAVE_LOG ) + "\" " + \
+      SHOULD_SAVE_LOG_KEY  + "=\"" + BOOLSTR(DEFAULT_SHOULD_SAVE_LOG ) + "\" " + \
       DEBUG_LEVEL_KEY      + "=\"" + String(DEFAULT_DEBUG_LEVEL     ) + "\" " + \
-      SHOULD_HIDE_BOTS_KEY + "=\"" + String(DEFAULT_SHOULD_HIDE_BOTS) + "\" " + \
+      SHOULD_HIDE_BOTS_KEY + "=\"" + BOOLSTR(DEFAULT_SHOULD_HIDE_BOTS) + "\" " + \
     "/><"                                                                     + \
     BLACKLIST_KEY          +                                            " "   + \
       SUBSCRIBE_MODE_KEY   + "=\"" + String(DEFAULT_SUBSCRIBE_MODE  ) + "\" " + \
@@ -145,9 +145,9 @@
       HOST_KEY             + "=\"" + String(DEFAULT_HOST            ) + "\" " + \
       LOGIN_KEY            + "=\"" + String(DEFAULT_LOGIN           ) + "\" " + \
       PASS_KEY             + "=\"" + String(DEFAULT_PASS            ) + "\" " + \
-      IS_ANONYMOUS_KEY     + "=\"" + String(DEFAULT_IS_ANONYMOUS    ) + "\" " + \
-      IS_AGREED_KEY        + "=\"" + String(DEFAULT_IS_AGREED       ) + "\" " + \
-      SHOULD_AGREE_KEY     + "=\"" + String(DEFAULT_SHOULD_AGREE    ) + "\" " + \
+      IS_ANONYMOUS_KEY     + "=\"" + BOOLSTR(DEFAULT_IS_ANONYMOUS    ) + "\" " + \
+      IS_AGREED_KEY        + "=\"" + BOOLSTR(DEFAULT_IS_AGREED       ) + "\" " + \
+      SHOULD_AGREE_KEY     + "=\"" + BOOLSTR(DEFAULT_SHOULD_AGREE    ) + "\" " + \
       BOT_NAME_KEY         + "=\"" + String(DEFAULT_BOT_NAME        ) + "\" " + \
       BOT_USERIDX_KEY      + "=\"" + String(DEFAULT_BOT_USERIDX     ) + "\" " + \
     "/><"                                                                     + \
@@ -157,7 +157,7 @@
         CHANNEL_NAME_KEY   + "=\"" + String(MASTER_KEY              ) + "\" " + \
         VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME          ) + "\" " + \
         PAN_KEY            + "=\"" + String(DEFAULT_PAN             ) + "\" " + \
-        IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED        ) + "\" " + \
+        IS_MUTED_KEY       + "=\"" + BOOLSTR(DEFAULT_IS_MUTED        ) + "\" " + \
         STEREO_KEY         + "=\"" + String(STEREO                  ) + "\" " + \
         VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU              ) + "\" " + \
         VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU              ) + "\" " + \
@@ -166,7 +166,7 @@
         CHANNEL_NAME_KEY   + "=\"" + String(METRO_KEY               ) + "\" " + \
         VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME          ) + "\" " + \
         PAN_KEY            + "=\"" + String(DEFAULT_PAN             ) + "\" " + \
-        IS_MUTED_KEY       + "=\"" + String(DEFAULT_IS_MUTED        ) + "\" " + \
+        IS_MUTED_KEY       + "=\"" + BOOLSTR(DEFAULT_IS_MUTED        ) + "\" " + \
         SOURCE_N_KEY       + "=\"" + String(DEFAULT_SOURCE_N        ) + "\" " + \
         STEREO_KEY         + "=\"" + String(STEREO                  ) + "\" " + \
         VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU              ) + "\" " + \
@@ -285,24 +285,24 @@
 
 #define KNOWN_BOTS_XML XML_HEADER                                         + \
   NETWORK::KNOWN_BOTS_KEY                                         + " "   + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2049_URL   )) + "=\"" + \
-    String(NETWORK::NINBOT_USER)                                  + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2050_URL   )) + "=\"" + \
-    String(NETWORK::NINBOT_USER)                                  + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2051_URL   )) + "=\"" + \
-    String(NETWORK::NINBOT_USER)                                  + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINBOT_2052_URL   )) + "=\"" + \
-    String(NETWORK::NINBOT_USER)                                  + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2049_URL )) + "=\"" + \
-    String(NETWORK::JAMBOT_USER)                                  + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2050_URL )) + "=\"" + \
-    String(NETWORK::JAMBOT_USER)                                  + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2051_URL )) + "=\"" + \
-    String(NETWORK::JAMBOT_USER)                                  + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2052_URL )) + "=\"" + \
-    String(NETWORK::JAMBOT_USER)                                  + "\" " + \
-    String(LinJamConfig::MakeHostId(NETWORK::SERVEBEER_2049_URL)) + "=\"" + \
-    String(NETWORK::BEERBOT_USER)                                 + "\" " + \
+    STRING(LinJamConfig::MakeHostId(NETWORK::NINBOT_2049_URL   )) + "=\"" + \
+    STRING(NETWORK::NINBOT_USER)                                  + "\" " + \
+    STRING(LinJamConfig::MakeHostId(NETWORK::NINBOT_2050_URL   )) + "=\"" + \
+    STRING(NETWORK::NINBOT_USER)                                  + "\" " + \
+    STRING(LinJamConfig::MakeHostId(NETWORK::NINBOT_2051_URL   )) + "=\"" + \
+    STRING(NETWORK::NINBOT_USER)                                  + "\" " + \
+    STRING(LinJamConfig::MakeHostId(NETWORK::NINBOT_2052_URL   )) + "=\"" + \
+    STRING(NETWORK::NINBOT_USER)                                  + "\" " + \
+    STRING(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2049_URL )) + "=\"" + \
+    STRING(NETWORK::JAMBOT_USER)                                  + "\" " + \
+    STRING(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2050_URL )) + "=\"" + \
+    STRING(NETWORK::JAMBOT_USER)                                  + "\" " + \
+    STRING(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2051_URL )) + "=\"" + \
+    STRING(NETWORK::JAMBOT_USER)                                  + "\" " + \
+    STRING(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2052_URL )) + "=\"" + \
+    STRING(NETWORK::JAMBOT_USER)                                  + "\" " + \
+    STRING(LinJamConfig::MakeHostId(NETWORK::SERVEBEER_2049_URL)) + "=\"" + \
+    STRING(NETWORK::BEERBOT_USER)                                 + "\" " + \
   "/>"
 
 
@@ -430,8 +430,8 @@ public:
   static const Identifier  BEERBOT_USER ;
   static const String      KNOWN_HOSTS_KEY ;
   static const String      KNOWN_BOTS_KEY ;
-  static const XmlElement* KNOWN_HOSTS ;
-  static const XmlElement* KNOWN_BOTS ;
+  static       ValueTree   KNOWN_HOSTS ;
+  static       ValueTree   KNOWN_BOTS ;
 
   // http requests
   static const String WEBSITE_URL ;

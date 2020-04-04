@@ -289,7 +289,7 @@ void Mixer::buttonClicked(Button* a_button)
 void Mixer::addChannels(Channels* channels , Identifier channels_id)
 {
   // add channels group to the mixer
-  addChildAndSetID(channels , String(channels_id)) ; channels->toFront(true) ;
+  addChildAndSetID(channels , STRING(channels_id)) ; channels->toFront(true) ;
 
   // update mixer layout
   resized() ;
@@ -323,7 +323,7 @@ void Mixer::addResizer(ResizableEdgeComponent* resizer)
 
 Channels* Mixer::getChannels(Identifier channels_id)
 {
-  return (Channels*)findChildWithID(StringRef(String(channels_id))) ;
+  return (Channels*)findChildWithID(StringRef(STRING(channels_id))) ;
 }
 
 int Mixer::getNumDynamicMixers()

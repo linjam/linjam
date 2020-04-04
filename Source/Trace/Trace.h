@@ -71,10 +71,10 @@ public:
   static void   TraceInvalidNode    (String a_node_key) ;
   static void   TraceMissingValue   (String a_node_name , String a_value_key) ;
   static void   TraceMissingProperty(String a_node_name      , String a_property_name ,
-                                     String parent_node_name = String::empty          ) ;
+                                     String parent_node_name = String()               ) ;
   static void   TraceTypeMismatch   (ValueTree a_node           , String a_property_name ,
                                      String    expected_type    , var    a_var           ,
-                                     String    parent_node_name = String::empty          ) ;
+                                     String    parent_node_name = String()               ) ;
   static void   TraceInvalidValue   (ValueTree a_node , Identifier a_property_id) ;
 
   static String VarType(var a_var) ;

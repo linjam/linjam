@@ -37,8 +37,8 @@
 */
 class Chat  : public Component,
               public TextEditor::Listener,
-              public ValueListener,
-              public LabelListener
+              public Value::Listener,
+              public Label::Listener
 {
 public:
     //==============================================================================

@@ -70,7 +70,7 @@ ConfigGui::ConfigGui (ValueTree gui_store)
     updateComboBox->setExplicitFocusOrder (2);
     updateComboBox->setEditableText (false);
     updateComboBox->setJustificationType (Justification::centredRight);
-    updateComboBox->setTextWhenNothingSelected (String::empty);
+    updateComboBox->setTextWhenNothingSelected (String());
     updateComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     updateComboBox->addListener (this);
 
@@ -78,7 +78,7 @@ ConfigGui::ConfigGui (ValueTree gui_store)
     fontsizeComboBox->setExplicitFocusOrder (1);
     fontsizeComboBox->setEditableText (false);
     fontsizeComboBox->setJustificationType (Justification::centredRight);
-    fontsizeComboBox->setTextWhenNothingSelected (String::empty);
+    fontsizeComboBox->setTextWhenNothingSelected (String());
     fontsizeComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
     fontsizeComboBox->addListener (this);
 

@@ -36,9 +36,9 @@
                                                                     //[/Comments]
 */
 class ConfigAudio  : public Component,
-                     public ButtonListener,
-                     public ComboBoxListener,
-                     public SliderListener
+                     public Button::Listener,
+                     public ComboBox::Listener,
+                     public Slider::Listener
 {
 public:
     //==============================================================================

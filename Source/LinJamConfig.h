@@ -106,22 +106,24 @@ private:
   void      setCredentials(       String host         , String login , String pass ,
                                   bool   is_anonymous                              ) ;
   ValueTree getCredentials(       String host) ;
-  void      storeServer          () ;
+  void      storeServer() ;
   ValueTree getServer(            String host) ;
   void      setStereo(            ValueTree channel_store , int stereo_status) ;
   int       setRemoteStereo(      ValueTree user_store        , ValueTree channel_store ,
                                   String    prev_channel_name                           ) ;
 
   // event handlers
-  void valueChanged(            Value& a_value)                               override ;
-  void valueTreePropertyChanged(ValueTree& a_node , const Identifier& key)    override ;
-  void valueTreeChildAdded(     ValueTree& a_parent_node , ValueTree& a_node) override ;
-  void valueTreeChildRemoved(   ValueTree& a_parent_node , ValueTree& a_node) override ;
+  void valueChanged(            Value& value)                              override ;
+  void valueTreePropertyChanged(ValueTree& node , const Identifier& key)   override ;
+  void valueTreeChildAdded(     ValueTree& parent_node , ValueTree& node)  override ;
+  void valueTreeChildRemoved(   ValueTree& parent_node , ValueTree& node ,
+                                int /*prev_idx*/                         ) override ;
 
   // unused ValueTree::Listener interface implementations
-  void valueTreeChildOrderChanged(ValueTree& a_parent_node) override { UNUSED(a_parent_node) ; } ;
-  void valueTreeParentChanged(    ValueTree& a_node)        override { UNUSED(a_node) ;        } ;
-  void valueTreeRedirected(       ValueTree& a_node)        override { UNUSED(a_node) ;        } ;
+  void valueTreeChildOrderChanged(ValueTree& /*parent_node*/ ,
+                                  int /*prev_idx*/           , int /*curr_idx*/) override {} ;
+  void valueTreeParentChanged(    ValueTree& /*node*/)                           override {} ;
+  void valueTreeRedirected(       ValueTree& /*node*/)                           override {} ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJamConfig) ;

@@ -36,7 +36,7 @@
                                                                     //[/Comments]
 */
 class BlacklistEntry  : public Component,
-                        public ButtonListener
+                        public Button::Listener
 {
 public:
     //==============================================================================
@@ -92,15 +92,17 @@ private:
 
   void resized() ;
   void resize() ;
-  void removeBlacklistEntry(BlacklistEntry* a_blacklist_entry) ;
-  void valueTreeChildAdded( ValueTree& a_parent_node , ValueTree& a_node) override  ;
+  void removeBlacklistEntry(BlacklistEntry* blacklist_entry) ;
+  void valueTreeChildAdded( ValueTree& parent_node , ValueTree& node) override  ;
 
   // unused ValueTree::Listener interface implementations
-  void valueTreePropertyChanged(  ValueTree& a_node , const Identifier& a_key)  override { UNUSED(a_node) ;        UNUSED(a_key) ;  } ;
-  void valueTreeChildRemoved(     ValueTree& a_parent_node , ValueTree& a_node) override { UNUSED(a_parent_node) ; UNUSED(a_node) ; } ;
-  void valueTreeChildOrderChanged(ValueTree& a_parent_node)                     override { UNUSED(a_parent_node) ;                  } ;
-  void valueTreeParentChanged(    ValueTree& a_node)                            override { UNUSED(a_node) ;                         } ;
-  void valueTreeRedirected(       ValueTree& a_node)                            override { UNUSED(a_node) ;                         } ;
+  void valueTreePropertyChanged(  ValueTree& /*node*/ , const Identifier& /*key*/)   override {} ;
+  void valueTreeChildRemoved(     ValueTree& /*parent_node*/ , ValueTree& /*node*/ ,
+                                  int        /*prev_idx*/                          ) override {} ;
+  void valueTreeChildOrderChanged(ValueTree& /*parent_node*/ ,
+                                  int        /*prev_idx*/    , int /*curr_idx*/)     override {} ;
+  void valueTreeParentChanged(    ValueTree& /*node*/)                               override {} ;
+  void valueTreeRedirected(       ValueTree& /*node*/)                               override {} ;
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Blacklist)
 } ;

@@ -96,7 +96,7 @@ private:
 } ;
 
 
-class LocalChannels : public Channels , public ButtonListener
+class LocalChannels : public Channels , public Button::Listener
 {
 public:
 
@@ -110,7 +110,7 @@ private:
 } ;
 
 
-class RemoteChannels : public Channels , public ButtonListener
+class RemoteChannels : public Channels , public Button::Listener
 {
 public:
 

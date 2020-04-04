@@ -31,7 +31,7 @@ StatusBar::StatusBar ()
 {
     setName ("StatusBar");
     addAndMakeVisible (statusLLabel = new Label ("statusLLabel",
-                                                 String::empty));
+                                                 String()));
     statusLLabel->setFont (Font (15.00f, Font::plain));
     statusLLabel->setJustificationType (Justification::centredLeft);
     statusLLabel->setEditable (false, false, false);
@@ -42,7 +42,7 @@ StatusBar::StatusBar ()
     statusLLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
     addAndMakeVisible (statusRLabel = new Label ("statusRLabel",
-                                                 String::empty));
+                                                 String()));
     statusRLabel->setFont (Font (15.00f, Font::plain));
     statusRLabel->setJustificationType (Justification::centredRight);
     statusRLabel->setEditable (false, false, false);
@@ -55,8 +55,8 @@ StatusBar::StatusBar ()
 
     //[UserPreSize]
 
-  this->statusLLabel->setText(String::empty , dontSendNotification) ;
-  this->statusRLabel->setText(String::empty , dontSendNotification) ;
+  this->statusLLabel->setText(String() , dontSendNotification) ;
+  this->statusRLabel->setText(String() , dontSendNotification) ;
 
     //[/UserPreSize]
 

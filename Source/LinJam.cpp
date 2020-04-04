@@ -343,15 +343,15 @@ DEBUG_TRACE_BLACKLIST
   if (!should_ignore_users) return ;
 
   if (should_hide_bots)
-    for (int bot_n = 0 ; bot_n < NETWORK::KNOWN_BOTS->getNumAttributes() ; ++bot_n)
+    for (int bot_n = 0 ; bot_n < NETWORK::KNOWN_BOTS.getNumChildren() ; ++bot_n)
     {
-      String bot_name = NETWORK::KNOWN_BOTS->getAttributeValue(bot_n) ;
-      blacklist.getOrCreateChildWithName(Identifier(bot_name) , nullptr) ;
+      Identifier bot_name = NETWORK::KNOWN_BOTS.getChild(bot_n).getType() ;
+      blacklist.getOrCreateChildWithName(bot_name , nullptr) ;
     }
 
   for (int user_n = 0 ; user_n < blacklist.getNumChildren() ; ++user_n)
   {
-    String user_name = String(blacklist.getChild(user_n).getType()) ;
+    String user_name = STRING(blacklist.getChild(user_n).getType()) ;
 
     Client->config_autosubscribe_userlist.insert(user_name.toStdString()) ;
   }
@@ -586,7 +586,7 @@ void LinJam::Shutdown()
   RoomSorter = nullptr ; delete Audio ; delete Config ;
 
   // Constants teardown
-  delete NETWORK::KNOWN_HOSTS ; delete NETWORK::KNOWN_BOTS ;
+//   delete NETWORK::KNOWN_HOSTS ; delete NETWORK::KNOWN_BOTS ;
 
 DEBUG_TRACE_SHUTDOWN
 }
@@ -802,7 +802,7 @@ void LinJam::HandleUserInfoChanged()
   return ;
 #endif // NO_UPDATE_REMOTES
 
-  StringRef host = LinJamConfig::MakeHostId(str(Config->server[CONFIG::HOST_ID])) ;
+  Identifier host = LinJamConfig::MakeHostId(str(Config->server[CONFIG::HOST_ID])) ;
 
 DEBUG_TRACE_REMOTE_CHANNELS_VB
 
@@ -814,9 +814,9 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
   while ((user_name = GetRemoteUserName(++user_idx)).isNotEmpty())
   {
     Identifier  user_id    = Config->MakeUserId(user_name) ;
-    std::string nick       = (user_name = String(user_id)).toStdString() ;
+    std::string nick       = (user_name = STRING(user_id)).toStdString() ;
     bool        is_ignored = !!Client->config_autosubscribe_userlist.count(nick) ;
-    bool        is_bot     = NETWORK::KNOWN_BOTS->compareAttribute(host , user_name) ;
+    bool        is_bot     = str(NETWORK::KNOWN_BOTS.getProperty(host , "")) == user_name ;
 
     // cache bot user_idx for recording time updates
     if (is_bot) Config->server.setProperty(CONFIG::BOT_USERIDX_ID , user_idx , nullptr) ;
@@ -868,7 +868,7 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
 
       // add channel to GUI prune list unless hidden stereo pair channel
       if (stereo_status != CONFIG::STEREO_R)
-        active_channels.add(var(String(channel_store.getType()))) ;
+        active_channels.add(var(STRING(channel_store.getType()))) ;
     }
     // add user to GUI prune list
     active_users.setProperty(user_id , active_channels , nullptr) ;
@@ -1110,7 +1110,7 @@ void LinJam::UpdateRecordingTime()
   String host           = String(Client->GetHostName()) ;
   String bpi            = String(Client->GetBPI()) ;
   String bpm            = String((int)Client->GetActualBPM()) ;
-  String recording_time = String::empty ;
+  String recording_time = String() ;
 
   if (~bot_useridx)
   {
@@ -1121,7 +1121,7 @@ void LinJam::UpdateRecordingTime()
     bool should_show_time           = (has_recording_time_changed && !is_this_first_pass) ;
 
     PrevRecordingTime = recording_time ;
-    recording_time    = (should_show_time)? " - " + recording_time : String::empty ;
+    recording_time    = (should_show_time)? " - " + recording_time : String() ;
   }
 
   Gui->setTitle(host + " - " + bpi + "bpi / " + bpm + "bpm" + recording_time) ;
