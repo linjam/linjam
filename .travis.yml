@@ -1,48 +1,23 @@
-language:       cpp
-compiler:       clang
+language: cpp
+compiler: clang
+
 before_install:
-  - VERSION=0.31.000
+  - LIBNINJAM_SOURCES_LIST=/etc/apt/sources.list.d/ninjam_ninjam.list
+  - VERSION=$(grep 'versionString' /home/travis/build/linjam/linjam/JuceLibraryCode/JuceHeader.h | \
+              sed -E 's|.*= "([0-9]+\.[0-9]+\.[0-9]+)";|\1|')
   - BUILD_DIR=/home/travis/build/linjam/linjam/Builds/Linux
   - DEB_DIR=$BUILD_DIR/debian
   - BIN_DIR=$DEB_DIR/usr/bin
   - DEB_PKG=linjam_"$VERSION"_amd64.deb
-  - curl https://packagecloud.io/install/repositories/ninjam/ninjam/script.deb | sudo bash
-  - sudo sed -i 's/precise/trusty/g' /etc/apt/sources.list.d/ninjam_ninjam.list
+  - sudo apt-get update -qq
+  - sudo apt-get install curl gnupg apt-transport-https
+  - curl -L https://packagecloud.io/ninjam/ninjam/gpgkey | sudo apt-key add -
+  - echo "deb     https://packagecloud.io/ninjam/ninjam/ubuntu/ trusty main  > $LIBNINJAM_SOURCES_LIST
+  - echo "deb-src https://packagecloud.io/ninjam/ninjam/ubuntu/ trusty main >> $LIBNINJAM_SOURCES_LIST
   - sudo apt-get update -qq
   - sudo apt-get install -y libninjam-full libfreetype6-dev libx11-dev libxinerama-dev
                             libxcursor-dev mesa-common-dev libasound2-dev libjack-dev
                             freeglut3-dev libxcomposite-dev libxrender-dev
-  - gem install --no-rdoc --no-ri fpm package_cloud
-script:         >
-  cd $BUILD_DIR                                                                    &&
-  make CONFIG=Release && mkdir -p $BIN_DIR && mv build/linjam $BIN_DIR/linjam      &&
-  fpm -s dir -t deb --name linjam --version $VERSION                                \
-    -C              $DEB_DIR                                                        \
-    --package       $DEB_DIR/linjam_VERSION_ARCH.deb                                \
-    --license       'GPL3'                                                          \
-    --maintainer    'bill-auger@programmer.net'                                     \
-    --vendor        'https://github.com/linjam/linjam'                              \
-    --url           'https://github.com/linjam/linjam'                              \
-    --depends       'freeglut3'                                                     \
-    --depends       'libfreetype6'                                                  \
-    --depends       'libgl1-mesa-glx | libgl1'                                      \
-    --depends       'libninjam-client >= 0.07'                                      \
-    --depends       'libninjam-common >= 0.07'                                      \
-    --depends       'libx11-6'                                                      \
-    --depends       'libxcomposite1'                                                \
-    --depends       'libxcursor1'                                                   \
-    --depends       'libxext6'                                                      \
-    --depends       'libxinerama1'                                                  \
-    --depends       'libxrender1'                                                   \
-    --description   'Novel Intervalic Network Jamming Architecture for Musicians
-                    \n\nNINJAM allows musicians to jam together over the internet
-                    in pseudo-realtime.\n\nLinJam is a cross-platform NINJAM client
-                    with linear chain-streaming mode. Built with the JUCE toolkit.' \
-    --deb-changelog $DEB_DIR/changelog                                              \
-    --deb-priority  'optional'                                                      \
-    --category      'sound'                                                         \
-    usr/                                                                           &&
-  echo "$DEB_PKG deb package built successfully"
-after_success:
-  - package_cloud yank ninjam/ninjam/ubuntu/trusty          $DEB_PKG
-  - package_cloud push ninjam/ninjam/ubuntu/trusty $DEB_DIR/$DEB_PKG
+script: >
+  cd $BUILD_DIR                                                               &&
+  make CONFIG=Release && mkdir -p $BIN_DIR && mv build/linjam $BIN_DIR/linjam
