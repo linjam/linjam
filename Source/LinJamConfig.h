@@ -1,7 +1,5 @@
-
 #ifndef _LINJAMCONFIG_H_
 #define _LINJAMCONFIG_H_
-
 
 #include "Constants.h"
 #include "JuceHeader.h"
