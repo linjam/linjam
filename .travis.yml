@@ -1,23 +1,18 @@
 language: cpp
-compiler: clang
+dist:     bionic
+compiler: gcc
 
 before_install:
   - LIBNINJAM_SOURCES_LIST=/etc/apt/sources.list.d/ninjam_ninjam.list
-  - VERSION=$(grep 'versionString' /home/travis/build/linjam/linjam/JuceLibraryCode/JuceHeader.h | \
-              sed -E 's|.*= "([0-9]+\.[0-9]+\.[0-9]+)";|\1|')
-  - BUILD_DIR=/home/travis/build/linjam/linjam/Builds/Linux
-  - DEB_DIR=$BUILD_DIR/debian
-  - BIN_DIR=$DEB_DIR/usr/bin
-  - DEB_PKG=linjam_"$VERSION"_amd64.deb
+  - BUILD_DIR=/home/travis/build/linjam/linjam/Builds/Makefile
+  - LIBNINJAM_DEPS='libogg-dev libvorbis-dev libasound2-dev libjack-dev'
+  - LINJAM_DEPS='libfreetype6-dev libx11-dev libxinerama-dev libxcursor-dev
+                 mesa-common-dev libasound2-dev libjack-dev freeglut3-dev
+                 libxcomposite-dev libxrandr-dev libxrender-dev'
   - sudo apt-get update -qq
-  - sudo apt-get install curl gnupg apt-transport-https
-  - curl -L https://packagecloud.io/ninjam/ninjam/gpgkey | sudo apt-key add -
-  - echo "deb     https://packagecloud.io/ninjam/ninjam/ubuntu/ trusty main  > $LIBNINJAM_SOURCES_LIST
-  - echo "deb-src https://packagecloud.io/ninjam/ninjam/ubuntu/ trusty main >> $LIBNINJAM_SOURCES_LIST
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libninjam-full libfreetype6-dev libx11-dev libxinerama-dev
-                            libxcursor-dev mesa-common-dev libasound2-dev libjack-dev
-                            freeglut3-dev libxcomposite-dev libxrender-dev
-script: >
-  cd $BUILD_DIR                                                               &&
-  make CONFIG=Release && mkdir -p $BIN_DIR && mv build/linjam $BIN_DIR/linjam
+  - sudo apt-get install -y $LIBNINJAM_DEPS $LINJAM_DEPS git
+  - git clone -b v0.7.0 https://github.com/libninjam/libninjam.git
+
+script:
+  - cd libninjam && make && sudo make install
+  - cd $BUILD_DIR && make CONFIG=Release
