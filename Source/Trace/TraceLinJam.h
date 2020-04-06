@@ -4,7 +4,7 @@
 
 
 // enable debug features
-// #define DEBUG_EXIT_IMMEDIAYELY
+// #define DEBUG_EXIT_IMMEDIATELY
 // #define DEBUG_AUTOJOIN_HOST if (cli_args.isEmpty()) cli_args = "localhost:2049"
 // #define DEBUG_AUTOJOIN_HOST if (cli_args.isEmpty()) cli_args = "ninbot.com:2049"
 // #define DEBUG_AUTOJOIN_HOST if (cli_args.isEmpty()) cli_args = "ninjamer.com:2051"
@@ -234,10 +234,10 @@
   SortedSet<int> stereos = FreeAudioSourcePairs ; int n_stereos = stereos.size() ; \
   String dump = String(n_monos)   + " FreeAudioSources     = [" ;                  \
   for (int i = 0 ; i < n_monos ; ++i)   dump += String(monos[i])   + " " ;         \
-  Trace::TraceVerbose(dump.trim() + "]") ;                                         \
+  Trace::TraceConfigVb(dump.trim() + "]") ;                                        \
   dump       = String(n_stereos)  + " FreeAudioSourcePairs = [" ;                  \
   for (int i = 0 ; i < n_stereos ; ++i) dump += String(stereos[i]) + " " ;         \
-  Trace::TraceVerbose(dump.trim() + "]") ;
+  Trace::TraceConfigVb(dump.trim() + "]") ;
 #else // TRACE_DUMP_FREE_INPUTS
 #  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB ;
 #endif // TRACE_DUMP_FREE_INPUTS
@@ -370,6 +370,18 @@
                       chat_text.upToFirstOccurrenceOf(" " , false , false) :    \
                       CLIENT::CHATMSG_TYPE_MSG)) ;
 
+/* rooms */
+
+#define DEBUG_UPDATE_ROOMS_RESP ;// Trace::TraceNetworkVb("LinJam::UpdateRooms() resp=" + response) ;
+// e.g. response:
+//   ninbot.com:2049,nick1,nick2,nick3,
+//   ninjamer.com:2049,nick1,
+//   user,THIS_NICK,999,0,false
+
+#define DEBUG_UPDATE_ROOMS_USERDATA ;//Trace::TraceCofigVb("LinJam::UpdateRooms() Status=" + String(int(Status.getValue())) + " is_ready=" + String(Status == APP::NJC_STATUS_OK) + " n_rooms=" + String(rooms.size()) + " userdata=" + userdata) ;
+
+#define DEBUG_UPDATE_ROOMS_ROOMDATA ;//Trace::TraceCofigVb("LinJam::UpdateRooms() roomdata=" + rooms[room_n]) ;
+
 #else // DEBUG
 
 // state
@@ -402,5 +414,9 @@
 // chat
 #define DEBUG_TRACE_CHAT_IN                   ;
 #define DEBUG_TRACE_CHAT_OUT                  ;
+// rooms
+#define DEBUG_UPDATE_ROOMS_RESP               ;
+#define DEBUG_UPDATE_ROOMS_USERDATA           ;
+#define DEBUG_UPDATE_ROOMS_ROOMDATA           ;
 
 #endif // DEBUG

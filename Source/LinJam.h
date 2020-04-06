@@ -61,20 +61,36 @@ public:
 
 private:
 
-  static NJClient*      Client ;
-  static MainContent*   Gui ;
-  static MultiTimer*    Timer ;
-  static LinJamConfig*  Config ;
-  static audioStreamer* Audio ;
-  static String         AutoJoinHost ;
-  static Value          Status ;
-  static bool           IsAudioInitialized ;
-  static SortedSet<int> FreeAudioSources ;
-  static SortedSet<int> FreeAudioSourcePairs ;
-  static double         GuiBeatOffset ;
-  static File           SessionDir ;
-  static int            RetryLogin ;
-  static String         PrevRecordingTime ;
+  class RoomSort
+  {
+  public:
+
+    static int compareElements(ValueTree a_server_store , ValueTree another_server_store)
+    {
+      int n_clients_a = a_server_store      .getChildWithName(CONFIG::CLIENTS_ID).getNumChildren() ;
+      int n_clients_b = another_server_store.getChildWithName(CONFIG::CLIENTS_ID).getNumChildren() ;
+
+      return (n_clients_a <  n_clients_b) ? 1 :
+             (n_clients_a == n_clients_b) ? 0 : -1 ;
+    }
+  } ;
+
+  static NJClient*               Client ;
+  static MainContent*            Gui ;
+  static MultiTimer*             Timer ;
+  static LinJamConfig*           Config ;
+  static audioStreamer*          Audio ;
+  static String                  AutoJoinHost ;
+  static Value                   Status ;
+  static bool                    IsAudioInitialized ;
+  static SortedSet<int>          FreeAudioSources ;
+  static SortedSet<int>          FreeAudioSourcePairs ;
+  static double                  GuiBeatOffset ;
+  static File                    SessionDir ;
+  static int                     RetryLogin ;
+  static String                  PrevRecordingTime ;
+  static URL                     PollUrl ;
+  static ScopedPointer<RoomSort> RoomSorter ;
 
 
   // setup
@@ -106,6 +122,7 @@ private:
   static void UpdateGuiLowPriority() ;
   static void UpdateLoopProgress() ;
   static void UpdateVuMeters() ;
+  static void UpdateRooms() ;
   static void UpdateRecordingTime() ;
 
   // NJClient configuration
@@ -135,6 +152,10 @@ private:
   static bool   IsConfiguredChannel(       int channel_idx) ;
   static double GetChannelDb(              int channel_idx) ;
   static double GetChannelDb(              int user_idx , int channel_idx) ;
+
+  // signalling
+  static void SetPollUrl() ;
+
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;
 } ;

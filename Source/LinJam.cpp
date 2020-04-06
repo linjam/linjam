@@ -24,19 +24,21 @@ LinJamConfig* LinJam::Config ;
 
 /* LinJam class private class variables */
 
-NJClient*      LinJam::Client               = nullptr ;          // Initialize()
-MainContent*   LinJam::Gui                  = nullptr ;          // Initialize()
-MultiTimer*    LinJam::Timer                = nullptr ;          // Initialize()
-audioStreamer* LinJam::Audio                = nullptr ;          // Initialize()
-String         LinJam::AutoJoinHost ;                            // Initialize()
-Value          LinJam::Status               = Value() ;          // Initialize()
-bool           LinJam::IsAudioInitialized   = false ;            // InitializeAudio()
-SortedSet<int> LinJam::FreeAudioSources     = SortedSet<int>() ; // InitializeAudio()
-SortedSet<int> LinJam::FreeAudioSourcePairs = SortedSet<int>() ; // InitializeAudio()
-double         LinJam::GuiBeatOffset ;                           // InitializeAudio()
-File           LinJam::SessionDir ;                              // PrepareSessionDirectory()
-int            LinJam::RetryLogin ;                              // Connect()
-String         LinJam::PrevRecordingTime ;                       // Disconnect()
+NJClient*                       LinJam::Client               = nullptr ;          // Initialize()
+MainContent*                    LinJam::Gui                  = nullptr ;          // Initialize()
+MultiTimer*                     LinJam::Timer                = nullptr ;          // Initialize()
+audioStreamer*                  LinJam::Audio                = nullptr ;          // Initialize()
+String                          LinJam::AutoJoinHost ;                            // Initialize()
+Value                           LinJam::Status               = Value() ;          // Initialize()
+bool                            LinJam::IsAudioInitialized   = false ;            // InitializeAudio()
+SortedSet<int>                  LinJam::FreeAudioSources     = SortedSet<int>() ; // InitializeAudio()
+SortedSet<int>                  LinJam::FreeAudioSourcePairs = SortedSet<int>() ; // InitializeAudio()
+double                          LinJam::GuiBeatOffset ;                           // InitializeAudio()
+File                            LinJam::SessionDir ;                              // PrepareSessionDirectory()
+int                             LinJam::RetryLogin ;                              // Connect()
+String                          LinJam::PrevRecordingTime ;                       // Disconnect()
+URL                             LinJam::PollUrl ;
+ScopedPointer<LinJam::RoomSort> LinJam::RoomSorter           = new LinJam::RoomSort() ;
 
 
 /* LinJam class public class methods */
@@ -233,7 +235,8 @@ DEBUG_TRACE_INIT
 
   // instantiate GUI components requiring model hooks
   Gui->instantiate(Config->gui   , Config->client , Config->blacklist ,
-                   Config->audio , Config->server , Status            ) ;
+                   Config->audio , Config->server , Config->servers   ,
+                   Status                                             ) ;
 
   // configure NINJAM client and initialize networking
   ConfigureNinjam() ; JNL::open_socketlib() ;
@@ -580,7 +583,7 @@ void LinJam::Shutdown()
   JNL::close_socketlib() ;
 
   // LinJam teardown
-  delete Audio ; delete Config ;
+  RoomSorter = nullptr ; delete Audio ; delete Config ;
 
   // Constants teardown
   delete NETWORK::KNOWN_HOSTS ; delete NETWORK::KNOWN_BOTS ;
@@ -689,9 +692,9 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 
 void LinJam::HandleTimer(int timer_id)
 {
-#if DEBUG_EXIT_IMMEDIAYELY
-DBG("[DEBUG]: DEBUG_EXIT_IMMEDIAYELY defined - bailing") ; Client->quit() ;
-#endif // DEBUG_EXIT_IMMEDIAYELY
+#ifdef DEBUG_EXIT_IMMEDIATELY
+DBG("[DEBUG]: DEBUG_EXIT_IMMEDIATELY defined - bailing") ; Client->quit() ;
+#endif // DEBUG_EXIT_IMMEDIATELY
 
   switch (timer_id)
   {
@@ -780,7 +783,7 @@ DEBUG_TRACE_STATUS_CHANGED
     case APP::NJC_STATUS_CANTCONNECT: // retry login (server occasionally rejects)
       if (RetryLogin-- > 0) Connect() ;                                      break ;
     case APP::NJC_STATUS_OK:          // store server credentials and present mixer GUI
-      Config->setServer() ;
+      Config->storeServer() ;
       UpdateGuiLowPriority() ;
       Gui->mixer->toFront(false) ;
       Gui->loop ->toFront(false) ;                                           break ;
@@ -876,7 +879,7 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
 
 void LinJam::UpdateGuiHighPriority() { UpdateLoopProgress() ; UpdateVuMeters() ; }
 
-void LinJam::UpdateGuiLowPriority() { UpdateRecordingTime() ; }
+void LinJam::UpdateGuiLowPriority() { UpdateRooms() ; UpdateRecordingTime() ; }
 
 void LinJam::UpdateLoopProgress()
 {
@@ -1034,6 +1037,62 @@ void LinJam::UpdateVuMeters()
 
   master_store.setProperty(CONFIG::VU_LEFT_ID  , master_vu_l , nullptr) ;
   master_store.setProperty(CONFIG::VU_RIGHT_ID , master_vu_r , nullptr) ;
+}
+
+void LinJam::UpdateRooms()
+{
+#ifdef NO_UPDATE_ROOMS_GUI
+  return ;
+#endif // NO_UPDATE_ROOMS_GUI
+
+  SetPollUrl() ; // TODO: shuld be done elsewhere on some state changes
+
+  String      response     = PollUrl.readEntireTextStream() ;
+  StringArray rooms        = APP::ParseLines(response) ;
+  int         userdata_idx = (Status == APP::NJC_STATUS_OK) ? rooms.size() - 1 : -1 ;
+  String      userdata     = APP::Pluck(&rooms , userdata_idx) ;
+
+DEBUG_UPDATE_ROOMS_RESP
+DEBUG_UPDATE_ROOMS_USERDATA
+
+  for (int room_n = 0 ; room_n < rooms.size() ; ++room_n)
+  {
+    StringArray nicks   = APP::ParseCSV(rooms[room_n]) ;
+    String      host    = APP::Pluck(&nicks , 0) ;
+    ValueTree   clients = ValueTree(CONFIG::CLIENTS_ID) ;
+    nicks.trim() ; nicks.removeEmptyStrings() ;
+
+DEBUG_UPDATE_ROOMS_ROOMDATA
+
+    while (nicks.size() > 0)
+    {
+      String    nick       = APP::Pluck(&nicks , 0) ;
+      ValueTree nick_store = ValueTree(Config->MakeUserId(nick)) ;
+      nick_store.setProperty(CONFIG::LOGIN_ID , var(nick) , nullptr) ;
+      clients.addChild(nick_store , -1 , nullptr) ;
+    }
+
+    ValueTree clients_store = Config->getServer(host).getChildWithName(CONFIG::CLIENTS_ID) ;
+
+    for (int client_n = 0 ; client_n < clients_store.getNumChildren() ; ++client_n)
+    {
+      ValueTree client_store = clients_store.getChild(client_n) ;
+
+      if (!clients.getChildWithName(client_store.getType()).isValid())
+        clients_store.removeChild(client_store , nullptr) ;
+    }
+
+    while (clients.getNumChildren() > 0)
+    {
+      ValueTree client = clients.getChild(0) ; clients.removeChild(client , nullptr) ;
+
+      if (!clients_store.getChildWithName(client.getType()).isValid())
+        clients_store.addChild(client , -1 , nullptr) ;
+    }
+  }
+
+  // sort rooms by occupancy
+  Config->servers.sort(*RoomSorter , nullptr , true) ;
 }
 
 void LinJam::UpdateRecordingTime()
@@ -1435,4 +1494,22 @@ double LinJam::GetChannelDb(int channel_idx)
 double LinJam::GetChannelDb(int user_idx , int channel_idx)
 {
   return VAL2DB(Client->GetUserChannelPeak(user_idx , channel_idx)) ;
+}
+
+
+/* signalling */
+
+void LinJam::SetPollUrl()
+{
+  // TODO: server should handle empty params
+//   String          current_user = Client->GetUserName() ;
+//   String          current_user = Config->server[CONFIG::LOGIN_ID] ;
+  String          current_user = "sumdood" ;
+  String          current_host = String(Client->GetHostName()) ;
+  StringPairArray poll_params  = StringPairArray() ;
+  poll_params.set(NETWORK::LOGIN_KEY , current_user) ;
+  if (current_host.isNotEmpty()) poll_params.set   (NETWORK::HOST_KEY , current_host) ;
+  else                           poll_params.remove(StringRef(NETWORK::HOST_KEY)) ;
+
+  PollUrl = NETWORK::POLL_URL.withParameters(poll_params) ;
 }

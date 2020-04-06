@@ -37,18 +37,38 @@
 */
 class Login  : public Component,
                public TextEditor::Listener,
-               public Value::Listener,
+               public ValueTree::Listener,
                public ButtonListener
 {
 public:
     //==============================================================================
-    Login (ValueTree login_store);
+    Login (ValueTree login_store, ValueTree servers_store);
     ~Login();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-    bool quickLogin(String host) ;
+  // event handlers
+  void broughtToFront            ()                                             override ;
+  void textEditorTextChanged     (TextEditor& a_text_editor)                    override ;
+  void valueTreeChildAdded       (ValueTree& a_parent_node , ValueTree& a_node) override ;
+  void valueTreeChildRemoved     (ValueTree& a_parent_node , ValueTree& a_node) override ;
+  void valueTreeChildOrderChanged(ValueTree& a_parent_node)                     override ;
+
+  // unused ValueTree::Listener interface implementations
+  void valueTreePropertyChanged(ValueTree& /*a_node*/ , const Identifier& /*key*/) override {} ;
+  void valueTreeParentChanged  (ValueTree& /*a_node*/                            ) override {} ;
+  void valueTreeRedirected     (ValueTree& /*a_node*/                            ) override {} ;
+
+  // helpers
+  bool quickLogin       (String host) ;
+  bool signIn           () ;
+  bool validateHost     () ;
+  bool validateLogin    () ;
+  bool validatePass     () ;
+  void setTextErrorState(TextEditor* a_text_editor , bool is_error_state) ;
+  void updateClients    (ValueTree clients_store) ;
+  void arrangeRooms     () ;
 
     //[/UserMethods]
 
@@ -61,27 +81,10 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  static StringRef HostValidationMask ;
-  static StringRef Letters ;
-  static StringRef Digits ;
-  static StringRef UrlChars ;
-
   ValueTree              loginStore ;
-  OwnedArray<TextButton> loginButtons ;
-
-
-  // event handlers
-  void broughtToFront()                                 override ;
-  void textEditorTextChanged(TextEditor& a_text_editor) override ;
-  void valueChanged(         Value&      login_value)   override ;
-
-  // helpers
-  void sortLoginButtons() ;
-  bool signIn() ;
-  bool validateHost() ;
-  bool validateLogin() ;
-  bool validatePass() ;
-  void setTextErrorState(TextEditor* a_text_editor , bool is_error_state) ;
+  ValueTree              serversStore ;
+  OwnedArray<TextButton> serverButtons ;
+  OwnedArray<Label     > clientsLabels ;
 
     //[/UserVariables]
 
@@ -95,6 +98,7 @@ private:
     ScopedPointer<TextButton> loginButton;
     ScopedPointer<TextButton> serverButton;
     ScopedPointer<ToggleButton> anonButton;
+    ScopedPointer<GroupComponent> groupComponent;
 
 
     //==============================================================================

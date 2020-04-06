@@ -122,9 +122,10 @@ void MainContent::resized()
   this->config      ->setBounds(config_x  , config_y  , config_w  , config_h ) ;
 }
 
-void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store ,
-                              ValueTree blacklist_store , ValueTree audio_store  ,
-                              ValueTree login_store     , Value     linjam_status)
+void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store  ,
+                              ValueTree blacklist_store , ValueTree audio_store   ,
+                              ValueTree login_store     , ValueTree servers_store ,
+                              Value     linjam_status                             )
 {
   // extract specific values for components that do not require an entire store
   Value agreed_value   = LinJamConfig::GetValueHolder(login_store , CONFIG::IS_AGREED_ID   ) ;
@@ -133,14 +134,14 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
 
   // instantiate components requiring model hooks
   this->background = new Background(                                           ) ;
-  this->config     = new Config(    audio_store     , client_store , gui_store ,
+  this->config     = new Config    (audio_store     , client_store , gui_store ,
                                     blacklist_store , linjam_status            ) ;
-  this->login      = new Login(     login_store                                ) ;
-  this->license    = new License(   agreed_value    , agree_value              ) ;
-  this->chat       = new Chat(      fontsize_value                             ) ;
-  this->mixer      = new Mixer(     blacklist_store                            ) ;
-  this->statusbar  = new StatusBar(                                            ) ;
-  this->loop       = new Loop(                                                 ) ;
+  this->login      = new Login     (login_store     , servers_store            ) ;
+  this->license    = new License   (agreed_value    , agree_value              ) ;
+  this->chat       = new Chat      (fontsize_value                             ) ;
+  this->mixer      = new Mixer     (blacklist_store                            ) ;
+  this->statusbar  = new StatusBar (                                           ) ;
+  this->loop       = new Loop      (                                           ) ;
 
   this->addChildAndSetID(this->background , GUI::BACKGROUND_GUI_ID) ;
   this->addChildAndSetID(this->config     , GUI::CONFIG_GUI_ID    ) ;

@@ -114,9 +114,9 @@
 #  endif // _MAC
 #endif // _WIN32
 
-/** CONFIG_XML, WIN_AUDIO_XML, NIX_AUDIO_XML, MAC_AUDIO_XML
-        define the schema and default values for the configuration/persistence model
-    this data is instantiated below as DEFAULT_CONFIG_XML                            */
+/** CONFIG_XML, WIN_AUDIO_XML, NIX_AUDIO_XML, MAC_AUDIO_XML define the schema
+        and default values for the configuration/persistence model
+    this data is instantiated below as DEFAULT_CONFIG_XML                     */
 #define CONFIG_XML XML_HEADER                                                 + \
   STORAGE_KEY              +                                            " "   + \
     CONFIG_VERSION_KEY     + "=\"" + String(CONFIG_VERSION          ) + "\""  + \
@@ -177,12 +177,11 @@
     REMOTES_KEY            + " />"                                            + \
   "</" + STORAGE_KEY       + ">"
 
-/** CONFIG_TYPES_XML denotes the property datatypes for the CONFIG_XML data above
-         there is not a one-to-one correspondence with the schema
-     these are grouped by leaf type
+/** CONFIG_TYPES_XML denotes the property datatypes for the schema above
+     these are grouped by leaf type (not a one-to-one correspondence)
          because <channel> leaves for example are found in several locations
          and some list nodes such as <locals> have no intrinsic properties
-     this data is instantiated below as CONFIG_DATATYPES_XML                      */
+     this data is instantiated below as CONFIG_DATATYPES_XML                 */
 #define CONFIG_TYPES_XML XML_HEADER                       + \
   STORAGE_TYPES_KEY        +                       " "    + \
     CONFIG_VERSION_KEY     + "=\"" + DOUBLE_TYPE + "\"><" + \
@@ -272,17 +271,16 @@
     "/>"                                                  + \
   "</" + STORAGE_TYPES_KEY + "> "
 
-#define KNOWN_HOSTS_XML XML_HEADER         + \
-  NETWORK::KNOWN_HOSTS_KEY      + "><"     + \
-    NETWORK::LOCALHOST_2049_URL + " /><"   + \
-    NETWORK::NINBOT_2049_URL    + " /><"   + \
-    NETWORK::NINBOT_2050_URL    + " /><"   + \
-    NETWORK::NINBOT_2051_URL    + " /><"   + \
-    NETWORK::NINBOT_2052_URL    + " /><"   + \
-    NETWORK::NINJAMER_2049_URL  + " /><"   + \
-    NETWORK::NINJAMER_2050_URL  + " /><"   + \
-    NETWORK::NINJAMER_2051_URL  + " /><"   + \
-    NETWORK::NINJAMER_2052_URL  + " /></"  + \
+#define KNOWN_HOSTS_XML XML_HEADER        + \
+  NETWORK::KNOWN_HOSTS_KEY      + "><"    + \
+    NETWORK::NINBOT_2049_URL    + " /><"  + \
+    NETWORK::NINBOT_2050_URL    + " /><"  + \
+    NETWORK::NINBOT_2051_URL    + " /><"  + \
+    NETWORK::NINBOT_2052_URL    + " /><"  + \
+    NETWORK::NINJAMER_2049_URL  + " /><"  + \
+    NETWORK::NINJAMER_2050_URL  + " /><"  + \
+    NETWORK::NINJAMER_2051_URL  + " /><"  + \
+    NETWORK::NINJAMER_2052_URL  + " /></" + \
   NETWORK::KNOWN_HOSTS_KEY      + ">"
 
 #define KNOWN_BOTS_XML XML_HEADER                                         + \
@@ -333,13 +331,18 @@ public:
   // timers
   static const int CLIENT_TIMER_ID     = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
   static const int AUDIO_INIT_TIMER_ID = 1 ; static const int AUDIO_INIT_DELAY  = 250 ;
-  static const int GUI_LO_TIMER_ID     = 2 ; static const int GUI_LO_UPDATE_IVL = 30000 ;
+  static const int GUI_LO_TIMER_ID     = 2 ; static const int GUI_LO_UPDATE_IVL = 10000 ;
   static const int GUI_MD_TIMER_ID     = 3 ; static const int GUI_MD_UPDATE_IVL = 2000 ;
   static const int GUI_HI_TIMER_ID     = 4 ; static const Array<int> GUI_HI_UPDATE_IVLS ;
 
 
   // runtime initialization of static constants
   static void Initialize() ;
+
+  // helpers
+  static StringArray ParseLines(String a_string) ;
+  static StringArray ParseCSV  (String a_string) ;
+  static String      Pluck     (StringArray* a_stringarray , int idx) ;
 } ;
 
 
@@ -429,6 +432,20 @@ public:
   static const String      KNOWN_BOTS_KEY ;
   static const XmlElement* KNOWN_HOSTS ;
   static const XmlElement* KNOWN_BOTS ;
+
+  // http requests
+  static const String WEBSITE_URL ;
+  static const String VERSION_URL ;
+  static const String CLIENTS_URL ;
+  // outbound control messages
+  static const String LOGIN_KEY ;
+  static const String HOST_KEY ;
+  // static const String MODE_KEY ;
+  // static const String LINKS_KEY ;
+  // static const String COLOR_KEY :
+  // inbound control messages
+  static const String USER_KEY ;
+  static const URL    POLL_URL ;
 
 
   static bool IsKnownHost(String host) ;
@@ -583,6 +600,7 @@ namespace CONFIG
   static const Identifier BOT_NAME_ID      = BOT_NAME_KEY ;
   static const String     BOT_USERIDX_KEY  = "bot-useridx" ;
   static const Identifier BOT_USERIDX_ID   = BOT_USERIDX_KEY ;
+  static const Identifier CLIENTS_ID       = "clients" ;
 
   // channel config keys
   static const Identifier CONFIG_INIT_ID   = "configure-all" ;
@@ -759,6 +777,7 @@ namespace GUI
   static const float  PAD4F                 = PADF * 4.0f ;
   static const int    PAD5                  = PAD  * 5 ;
   static const float  PAD5F                 = PADF * 5.0f ;
+  static const int    PAD6                  = PAD  * 6 ;
   static const float  BORDER_PX             = 1.0f ;
   static const float  BORDER2_PX            = 2.0f ;
   static const float  BORDER_RADIUS         = 10.0f ;
@@ -893,10 +912,14 @@ namespace GUI
   // Login
   static const String LOGIN_GUI_ID                   = "login-gui" ;
   static const int    N_STATIC_LOGIN_CHILDREN        = 6 ;
-  static const int    LOGIN_BUTTON_L                 = GUI::PAD ;
-  static const int    LOGIN_BUTTON_T                 = GUI::PAD ;
+  static const int    LOGIN_BUTTONS_GROUP_X          = GUI::PAD6 ;
+  static const int    LOGIN_BUTTONS_GROUP_Y          = GUI::PAD6 ;
+  static const int    LOGIN_BUTTON_L                 = LOGIN_BUTTONS_GROUP_X + GUI::PAD4 ;
+  static const int    LOGIN_BUTTON_T                 = LOGIN_BUTTONS_GROUP_Y + GUI::PAD4 ;
   static const int    LOGIN_BUTTON_W                 = 128 ;
   static const int    LOGIN_BUTTON_H                 = 24 ;
+  static const String LOGIN_BUTTON_TOOLTIP           = "Jammers:\n\t" ;
+  static const String ROOM_VACANT_TOOLTIP            = "(vacant)" ;
   static const Colour PROMPT_BACKGROUND_NORMAL_COLOR = Colour(0xFF000000) ;
   static const Colour PROMPT_BORDER_NORMAL_COLOR     = Colour(0xFFFFFFFF) ;
   static const Colour PROMPT_FOCUS_NORMAL_COLOR      = Colour(0xFFFFFFFF) ;

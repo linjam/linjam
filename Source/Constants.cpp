@@ -43,6 +43,20 @@ const String      NETWORK::KNOWN_BOTS_KEY     = "known-bots" ;
 const XmlElement* NETWORK::KNOWN_HOSTS ; // APP::Initialize()
 const XmlElement* NETWORK::KNOWN_BOTS ;  // APP::Initialize()
 
+// http requests
+const String NETWORK::WEBSITE_URL = "http://teamstream.herokuapp.com" ;
+const String NETWORK::VERSION_URL = WEBSITE_URL + "/version.txt" ;
+const String NETWORK::CLIENTS_URL = WEBSITE_URL + "/clients.text" ;
+const URL    NETWORK::POLL_URL    = URL(CLIENTS_URL) ;
+// outbound control messages
+const String NETWORK::LOGIN_KEY   = "login" ;
+const String NETWORK::HOST_KEY    = "server" ;
+// const String NETWORK::MODE_KEY    = "mode" ;
+// const String NETWORK::LINKS_KEY   = "links" ;
+// const String NETWORK::COLOR_KEY   = "color" ;
+// inbound control messages
+const String NETWORK::USER_KEY    = "user" ;
+
 
 /* setup */
 
@@ -55,6 +69,26 @@ void APP::Initialize()
 
 
 /* helpers */
+
+StringArray APP::ParseLines(String a_string)
+{
+  StringArray lines = StringArray::fromLines(a_string) ;
+  lines.trim() ; lines.removeEmptyStrings() ;
+
+  return lines ;
+}
+
+StringArray APP::ParseCSV(String a_string)
+{
+  return StringArray::fromTokens(a_string , "," , String::empty) ;
+}
+
+String APP::Pluck(StringArray* a_stringarray , int idx)
+{
+  String a_string = (*a_stringarray)[idx] ; a_stringarray->remove(idx) ;
+
+  return a_string ;
+}
 
 bool NETWORK::IsKnownHost(String host)
 {

@@ -31,8 +31,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-Login::Login (ValueTree login_store)
-    : loginStore(login_store)
+Login::Login (ValueTree login_store, ValueTree servers_store)
+    : loginStore(login_store), serversStore(servers_store)
 {
     setName ("Login");
     addAndMakeVisible (hostLabel = new Label ("hostLabel",
@@ -40,7 +40,7 @@ Login::Login (ValueTree login_store)
     hostLabel->setFont (Font (15.00f, Font::plain));
     hostLabel->setJustificationType (Justification::centredLeft);
     hostLabel->setEditable (false, false, false);
-    hostLabel->setColour (Label::textColourId, Colours::grey);
+    hostLabel->setColour (Label::textColourId, Colours::white);
     hostLabel->setColour (TextEditor::textColourId, Colours::black);
     hostLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
@@ -49,7 +49,7 @@ Login::Login (ValueTree login_store)
     loginLabel->setFont (Font (15.00f, Font::plain));
     loginLabel->setJustificationType (Justification::centredLeft);
     loginLabel->setEditable (false, false, false);
-    loginLabel->setColour (Label::textColourId, Colours::grey);
+    loginLabel->setColour (Label::textColourId, Colours::white);
     loginLabel->setColour (TextEditor::textColourId, Colours::black);
     loginLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
@@ -58,7 +58,7 @@ Login::Login (ValueTree login_store)
     passLabel->setFont (Font (15.00f, Font::plain));
     passLabel->setJustificationType (Justification::centredLeft);
     passLabel->setEditable (false, false, false);
-    passLabel->setColour (Label::textColourId, Colours::grey);
+    passLabel->setColour (Label::textColourId, Colours::white);
     passLabel->setColour (TextEditor::textColourId, Colours::black);
     passLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
@@ -72,7 +72,7 @@ Login::Login (ValueTree login_store)
     hostText->setPopupMenuEnabled (true);
     hostText->setColour (TextEditor::textColourId, Colours::grey);
     hostText->setColour (TextEditor::backgroundColourId, Colours::black);
-    hostText->setColour (TextEditor::outlineColourId, Colours::white);
+    hostText->setColour (TextEditor::outlineColourId, Colours::grey);
     hostText->setColour (CaretComponent::caretColourId, Colours::white);
     hostText->setText (String::empty);
 
@@ -87,7 +87,7 @@ Login::Login (ValueTree login_store)
     loginText->setPopupMenuEnabled (true);
     loginText->setColour (TextEditor::textColourId, Colours::grey);
     loginText->setColour (TextEditor::backgroundColourId, Colours::black);
-    loginText->setColour (TextEditor::outlineColourId, Colours::white);
+    loginText->setColour (TextEditor::outlineColourId, Colours::grey);
     loginText->setColour (CaretComponent::caretColourId, Colours::white);
     loginText->setText (String::empty);
 
@@ -102,7 +102,7 @@ Login::Login (ValueTree login_store)
     passText->setPopupMenuEnabled (true);
     passText->setColour (TextEditor::textColourId, Colours::grey);
     passText->setColour (TextEditor::backgroundColourId, Colours::black);
-    passText->setColour (TextEditor::outlineColourId, Colours::white);
+    passText->setColour (TextEditor::outlineColourId, Colours::grey);
     passText->setColour (CaretComponent::caretColourId, Colours::white);
     passText->setText (String::empty);
 
@@ -123,7 +123,13 @@ Login::Login (ValueTree login_store)
     anonButton->setButtonText (TRANS("anonymous"));
     anonButton->addListener (this);
     anonButton->setToggleState (true, dontSendNotification);
-    anonButton->setColour (ToggleButton::textColourId, Colours::grey);
+    anonButton->setColour (ToggleButton::textColourId, Colours::white);
+
+    addAndMakeVisible (groupComponent = new GroupComponent ("new group",
+                                                            TRANS("Jam Rooms")));
+    groupComponent->setTextLabelPosition (Justification::centredLeft);
+    groupComponent->setColour (GroupComponent::outlineColourId, Colours::grey);
+    groupComponent->setColour (GroupComponent::textColourId, Colours::white);
 
 
     //[UserPreSize]
@@ -151,20 +157,27 @@ Login::Login (ValueTree login_store)
   this->passText   ->setPasswordCharacter('*') ;
 
   // instantiate known host login buttons
-  int focus_order = GUI::N_STATIC_LOGIN_CHILDREN ;
-  forEachXmlChildElement(*NETWORK::KNOWN_HOSTS , host_node) // macro
+  for (int server_n = 0 ; server_n < this->serversStore.getNumChildren() ; ++server_n)
   {
-    String      known_host  = host_node->getTagName() ;
-    TextButton* loginButton = new TextButton(known_host + "Button") ;
+    ValueTree   server_store  = this->serversStore.getChild(server_n) ;
+    ValueTree   clients_store = server_store      .getChildWithName(CONFIG::CLIENTS_ID) ;
+    String      known_host    = server_store[CONFIG::HOST_ID] ;
+    TextButton* login_button  = new TextButton(known_host + "Button") ;
+    Label*      clients_label = new Label     (known_host + "Label") ;
 
-    addAndMakeVisible(loginButton) ;
-    loginButton->setExplicitFocusOrder(focus_order++) ;
-    loginButton->setButtonText(known_host) ;
-    loginButton->setSize(GUI::LOGIN_BUTTON_W , GUI::LOGIN_BUTTON_H) ;
-    loginButton->addListener(this) ;
+    addAndMakeVisible(login_button) ;
+    addAndMakeVisible(clients_label) ;
+    login_button ->setButtonText(known_host) ;
+    login_button ->setExplicitFocusOrder(GUI::N_STATIC_LOGIN_CHILDREN + server_n) ;
+    login_button ->setSize(GUI::LOGIN_BUTTON_W , GUI::LOGIN_BUTTON_H) ;
+    login_button ->addListener(this) ;
+    clients_label->setColour(Label::textColourId , Colours::white) ;
+    clients_label->setText("(vacant)" , juce::dontSendNotification) ;
 
-    this->loginButtons.add(loginButton) ;
+    this->serverButtons.add(login_button ) ;
+    this->clientsLabels.add(clients_label) ;
   }
+  this->serversStore.addListener(this) ;
 
     //[/UserPreSize]
 
@@ -189,6 +202,7 @@ Login::~Login()
     loginButton = nullptr;
     serverButton = nullptr;
     anonButton = nullptr;
+    groupComponent = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -225,9 +239,10 @@ void Login::resized()
     loginButton->setBounds ((getWidth() / 2) + 85, getHeight() - 112, 96, 24);
     serverButton->setBounds ((getWidth() / 2) + 85, getHeight() - 80, 96, 24);
     anonButton->setBounds ((getWidth() / 2) + 85, getHeight() - 48, 96, 24);
+    groupComponent->setBounds (24, 16, getWidth() - 48, getHeight() - 152);
     //[UserResized] Add your own custom resize handling here..
 
-  sortLoginButtons() ;
+  arrangeRooms() ;
 
     //[/UserResized]
 }
@@ -275,8 +290,8 @@ void Login::buttonClicked (Button* buttonThatWasClicked)
 
     //[UserbuttonClicked_Post]
 
-    else if (this->loginButtons.contains((TextButton*)buttonThatWasClicked))
-      quickLogin(buttonThatWasClicked->getButtonText().trim()) ;
+  else if (this->serverButtons.contains((TextButton*)buttonThatWasClicked))
+    quickLogin(buttonThatWasClicked->getButtonText().trim()) ;
 
     //[/UserbuttonClicked_Post]
 }
@@ -285,43 +300,20 @@ void Login::buttonClicked (Button* buttonThatWasClicked)
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-bool Login::quickLogin(String host)
-{
-  ValueTree credentials = LinJam::GetCredentials(host) ;
-
-DEBUG_TRACE_LOBBY_QUICKLOGIN
-
-  // set current host and restore stored credentials
-  this->hostText->setText(host) ;
-  if (credentials.isValid())
-  {
-    String login        =      credentials[CONFIG::LOGIN_ID       ].toString() ;
-    String pass         =      credentials[CONFIG::PASS_ID        ].toString() ;
-    bool   is_anonymous = bool(credentials[CONFIG::IS_ANONYMOUS_ID]) ;
-
-    this->loginText ->setText(       login) ;
-    this->passText  ->setText(       pass) ;
-    this->anonButton->setToggleState(is_anonymous , juce::dontSendNotification) ;
-  }
-
-  return signIn() ;
-}
-
-
 /* event handlers */
 
 void Login::broughtToFront()
 {
   // load previous login state
-  String host         =      this->loginStore[CONFIG::HOST_ID        ].toString() ;
-  String login        =      this->loginStore[CONFIG::LOGIN_ID       ].toString() ;
-  String pass         =      this->loginStore[CONFIG::PASS_ID        ].toString() ;
+  String host         = str (this->loginStore[CONFIG::HOST_ID        ]) ;
+  String login        = str (this->loginStore[CONFIG::LOGIN_ID       ]) ;
+  String pass         = str (this->loginStore[CONFIG::PASS_ID        ]) ;
   bool   is_anonymous = bool(this->loginStore[CONFIG::IS_ANONYMOUS_ID]) ;
 
   // restore previous login state
-  this->hostText ->setText(host) ;
+  this->hostText ->setText(host ) ;
   this->loginText->setText(login) ;
-  this->passText ->setText(pass) ;
+  this->passText ->setText(pass ) ;
 
 DEBUG_TRACE_LOGIN_LOAD
 
@@ -330,11 +322,11 @@ DEBUG_TRACE_LOGIN_LOAD
   this->loginButton->setVisible(is_custom_server) ;
   this->hostLabel  ->setVisible(is_custom_server) ;
   this->hostText   ->setVisible(is_custom_server) ;
-  this->passLabel  ->setVisible(!is_anonymous) ;
-  this->passText   ->setVisible(!is_anonymous) ;
-  this->hostText   ->setText((validateHost())  ? host  : "") ;
+  this->passLabel  ->setVisible(!is_anonymous   ) ;
+  this->passText   ->setVisible(!is_anonymous   ) ;
+  this->hostText   ->setText((validateHost ()) ? host  : "") ;
   this->loginText  ->setText((validateLogin()) ? login : "") ;
-  this->passText   ->setText((validatePass())  ? pass  : "") ;
+  this->passText   ->setText((validatePass ()) ? pass  : "") ;
   this->anonButton ->setToggleState(is_anonymous , juce::dontSendNotification) ;
 }
 
@@ -345,28 +337,44 @@ void Login::textEditorTextChanged(TextEditor& a_text_editor)
   else if (&a_text_editor == passText ) validatePass() ;
 }
 
-void Login::valueChanged(Value& a_value)
+void Login::valueTreeChildAdded(ValueTree& a_parent_node , ValueTree& /*a_node*/)
 {
-/* TODO: we are not listening on any data here nor is there yet any data to listen on
-             probably the only data of interest here would be server status updates
-             for populating quick-login buttons (issue #7) */
-  UNUSED(a_value) ;
+  if (a_parent_node.getType() == CONFIG::CLIENTS_ID) updateClients(a_parent_node) ;
+}
+
+void Login::valueTreeChildRemoved(ValueTree& a_parent_node , ValueTree& /*a_node*/)
+{
+  if (a_parent_node.getType() == CONFIG::CLIENTS_ID) updateClients(a_parent_node) ;
+}
+
+void Login::valueTreeChildOrderChanged(ValueTree& a_parent_node)
+{
+  if (a_parent_node.getType() == CONFIG::SERVERS_ID) arrangeRooms() ;
 }
 
 
 /* helpers */
 
-void Login::sortLoginButtons()
+bool Login::quickLogin(String host)
 {
-  // TODO: sort dynamically into occupied/vacant groups (issue #7)
-  for (int host_n = 0 ; host_n < this->loginButtons.size() ; ++host_n)
+  ValueTree credentials  = LinJam::GetCredentials(host) ;
+  String    login        = str (credentials[CONFIG::LOGIN_ID       ]) ;
+  String    pass         = str (credentials[CONFIG::PASS_ID        ]) ;
+  bool      is_anonymous = bool(credentials[CONFIG::IS_ANONYMOUS_ID]) ;
+  bool      should_agree = bool(credentials[CONFIG::SHOULD_AGREE_ID]) ;
+
+DEBUG_TRACE_LOBBY_QUICKLOGIN
+
+  // set current host and load stored credentials
+  this->hostText->setText(host) ;
+  if (credentials.isValid() && should_agree)
   {
-    int x = GUI::LOGIN_BUTTON_L ;
-    int y = GUI::LOGIN_BUTTON_T + ((GUI::LOGIN_BUTTON_H + GUI::PAD) * host_n) ;
-    int w = GUI::LOGIN_BUTTON_W ;
-    int h = GUI::LOGIN_BUTTON_H ;
-    this->loginButtons.getUnchecked(host_n)->setBounds(x , y , w , h) ;
+    this->loginText ->setText       (login) ;
+    this->passText  ->setText       (pass ) ;
+    this->anonButton->setToggleState(is_anonymous , juce::dontSendNotification) ;
   }
+
+  return signIn() ;
 }
 
 bool Login::signIn()
@@ -395,14 +403,14 @@ bool Login::validateHost()
   String port   = host  .fromFirstOccurrenceOf(StringRef(":") , false , true) ;
 
   // validate
-  bool   is_localhost   = !NETWORK::LOCALHOST_HOSTNAME.compare(server) ;
-  bool   is_known_host  = NETWORK::IsKnownHost(host) ;
-  bool   has_valid_form = host.matchesWildcard(NETWORK::HOST_MASK , true) ;
-  bool   is_valid_name  = name.containsOnly(   NETWORK::HOST_CHARS) && name.isNotEmpty() ;
-  bool   is_valid_tld   = tld .containsOnly(   NETWORK::LETTERS   ) && tld .isNotEmpty() ;
-  bool   is_valid_port  = port.containsOnly(   NETWORK::DIGITS    ) && port.isNotEmpty() ;
-  bool   is_custom_host = has_valid_form && is_valid_name && is_valid_tld && is_valid_port ;
-  bool   is_valid_host  = is_localhost || is_known_host || is_custom_host ;
+  bool is_localhost   = !NETWORK::LOCALHOST_HOSTNAME.compare(server) ;
+  bool is_known_host  = NETWORK::IsKnownHost(host) ;
+  bool has_valid_form = host.matchesWildcard(NETWORK::HOST_MASK , true) ;
+  bool is_valid_name  = name.containsOnly(   NETWORK::HOST_CHARS) && name.isNotEmpty() ;
+  bool is_valid_tld   = tld .containsOnly(   NETWORK::LETTERS   ) && tld .isNotEmpty() ;
+  bool is_valid_port  = port.containsOnly(   NETWORK::DIGITS    ) && port.isNotEmpty() ;
+  bool is_custom_host = has_valid_form && is_valid_name && is_valid_tld && is_valid_port ;
+  bool is_valid_host  = is_localhost || is_known_host || is_custom_host ;
 
 DEBUG_TRACE_LOGIN_HOST_VB
 
@@ -446,6 +454,58 @@ void Login::setTextErrorState(TextEditor* a_text_editor , bool is_error_state)
   a_text_editor->setColour(TextEditor::focusedOutlineColourId , focus_color     ) ;
 }
 
+void Login::updateClients(ValueTree clients_store)
+{
+  String      host_name = str(clients_store.getParent()[CONFIG::HOST_ID]) ;
+  StringArray clients ;
+
+  for (int host_n = 0 ; host_n < this->serversStore.getNumChildren() ; ++host_n)
+  {
+    TextButton* server_button = this->serverButtons.getUnchecked(host_n) ;
+    Label*      clients_label = this->clientsLabels.getUnchecked(host_n) ;
+    if (clients_label->getName() != host_name + "Label") continue ;
+
+    int n_clients = clients_store.getNumChildren() ;
+    if (n_clients == 0) clients.add(GUI::ROOM_VACANT_TOOLTIP) ;
+    else for (int client_n = 0 ; client_n < n_clients ; ++client_n)
+      clients.add(str(clients_store.getChild(client_n)[CONFIG::LOGIN_ID])) ;
+
+    server_button->setTooltip(GUI::LOGIN_BUTTON_TOOLTIP + clients.joinIntoString("\n\t")) ;
+    clients_label->setText   (clients.joinIntoString(" ") , juce::dontSendNotification) ;
+  }
+
+  arrangeRooms() ;
+}
+
+void Login::arrangeRooms()
+{
+  if (this->serversStore.getNumChildren() != this->serverButtons.size() ||
+      this->serversStore.getNumChildren() != this->clientsLabels.size()  ) return ; // TODO: assert fatal
+
+DEBUG_TRACE_LOGIN_ARRANGE_ROOMS
+
+  for (int host_n = 0 ; host_n < this->serversStore.getNumChildren() ; ++host_n)
+  {
+    TextButton* server_button = this->serverButtons.getUnchecked(host_n) ;
+    Label*      clients_label = this->clientsLabels.getUnchecked(host_n) ;
+    String      host_name     = server_button->getButtonText() ;
+    ValueTree   server_store  = this->serversStore.getChildWithProperty(CONFIG::HOST_ID , host_name) ;
+    int         sort_order    = this->serversStore.indexOf(server_store) ;
+
+    int btn_x = GUI::LOGIN_BUTTON_L ;
+    int btn_y = GUI::LOGIN_BUTTON_T + ((GUI::LOGIN_BUTTON_H + GUI::PAD) * sort_order) ;
+    int btn_w = GUI::LOGIN_BUTTON_W ;
+    int btn_h = GUI::LOGIN_BUTTON_H ;
+    int lbl_x = btn_x + btn_w + GUI::PAD2 ;
+    int lbl_y = btn_y ;
+    int lbl_w = getWidth() - lbl_x - GUI::PAD6 ;
+    int lbl_h = btn_h ;
+
+    server_button->setBounds(btn_x , btn_y , btn_w , btn_h) ;
+    clients_label->setBounds(lbl_x , lbl_y , lbl_w , lbl_h) ;
+  }
+}
+
 //[/MiscUserCode]
 
 
@@ -459,8 +519,9 @@ void Login::setTextErrorState(TextEditor* a_text_editor , bool is_error_state)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Login" componentName="Login"
-                 parentClasses="public Component, public TextEditor::Listener, public Value::Listener"
-                 constructorParams="ValueTree login_store" variableInitialisers="loginStore(login_store)"
+                 parentClasses="public Component, public TextEditor::Listener, public ValueTree::Listener"
+                 constructorParams="ValueTree login_store, ValueTree servers_store"
+                 variableInitialisers="loginStore(login_store), serversStore(servers_store)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="442">
   <BACKGROUND backgroundColour="0">
@@ -469,33 +530,33 @@ BEGIN_JUCER_METADATA
   </BACKGROUND>
   <LABEL name="hostLabel" id="916aefc37fc4e730" memberName="hostLabel"
          virtualName="" explicitFocusOrder="0" pos="-190C 112R 72 24"
-         textCol="ff808080" edTextCol="ff000000" edBkgCol="0" labelText="Server:"
+         textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="Server:"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <LABEL name="loginLabel" id="96b0f56176f33f63" memberName="loginLabel"
-         virtualName="" explicitFocusOrder="0" pos="-190C 80R 72 24" textCol="ff808080"
+         virtualName="" explicitFocusOrder="0" pos="-190C 80R 72 24" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="Username:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <LABEL name="passLabel" id="14f83e5255766a2c" memberName="passLabel"
-         virtualName="" explicitFocusOrder="0" pos="-190C 48R 72 24" textCol="ff808080"
+         virtualName="" explicitFocusOrder="0" pos="-190C 48R 72 24" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="Password:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="hostText" id="d540c830b7e8d52f" memberName="hostText" virtualName=""
               explicitFocusOrder="0" pos="-100C 112R 160 24" tooltip="Enter you server ip/port in the form: example.com:2050 or 123.123.123.123:2050 to use a private server."
-              textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" caretcol="ffffffff"
+              textcol="ff808080" bkgcol="ff000000" outlinecol="ff808080" caretcol="ffffffff"
               initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
               scrollbars="0" caret="1" popupmenu="1"/>
   <TEXTEDITOR name="loginText" id="5490b33873f48ebc" memberName="loginText"
               virtualName="" explicitFocusOrder="1" pos="-100C 80R 160 24"
               tooltip="Enter a username using only the characters a-z 0-9 - and _"
-              textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" caretcol="ffffffff"
+              textcol="ff808080" bkgcol="ff000000" outlinecol="ff808080" caretcol="ffffffff"
               initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
               scrollbars="0" caret="1" popupmenu="1"/>
   <TEXTEDITOR name="passText" id="3962fd184843da61" memberName="passText" virtualName=""
               explicitFocusOrder="2" pos="-100C 48R 160 24" tooltip="Some servers require a password. Try logging in with the anonymous button ticked first."
-              textcol="ff808080" bkgcol="ff000000" outlinecol="ffffffff" caretcol="ffffffff"
+              textcol="ff808080" bkgcol="ff000000" outlinecol="ff808080" caretcol="ffffffff"
               initialText="" multiline="0" retKeyStartsLine="0" readonly="0"
               scrollbars="0" caret="1" popupmenu="1"/>
   <TEXTBUTTON name="loginButton" id="7db8d8f23fee0f6a" memberName="loginButton"
@@ -507,9 +568,12 @@ BEGIN_JUCER_METADATA
               buttonText="Private Server" connectedEdges="0" needsCallback="1"
               radioGroupId="0"/>
   <TOGGLEBUTTON name="anonButton" id="42b61bb43a881103" memberName="anonButton"
-                virtualName="" explicitFocusOrder="5" pos="85C 48R 96 24" txtcol="ff808080"
+                virtualName="" explicitFocusOrder="5" pos="85C 48R 96 24" txtcol="ffffffff"
                 buttonText="anonymous" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="1"/>
+  <GROUPCOMPONENT name="new group" id="23aa8a0b33d17718" memberName="groupComponent"
+                  virtualName="" explicitFocusOrder="0" pos="24 16 48M 152M" outlinecol="ff808080"
+                  textcol="ffffffff" title="Jam Rooms" textpos="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -987,6 +987,8 @@
   Trace::TraceConfig("storing config xml '" + configXmlFile.getFullPathName() + "'") ;
 #endif // TRACE_STORE_CONFIG_VB
 
+#define DEBUG_TRACE_STORE_SERVER Trace::TraceConfig("creating storage for host '" + host +"'") ;
+
 #define DEBUG_TRACE_CONFIG_VALUE_CHANGED                                 \
   bool is_status_change = a_value.refersToSameSourceAs(LinJam::Status) ; \
   String a_var  = (is_status_change)? "Status" : "unknown" ;             \
@@ -1104,6 +1106,7 @@
 //#define DEBUG_TRACE_SANITIZE_CHANNEL     ;
 #define DEBUG_TRACE_CLOBBER_CONFIG         ;
 #define DEBUG_TRACE_STORE_CONFIG           ;
+#define DEBUG_TRACE_STORE_SERVER           ;
 #define DEBUG_TRACE_CONFIG_VALUE_CHANGED   ;
 #define DEBUG_TRACE_CONFIG_TREE_CHANGED    ;
 #define DEBUG_TRACE_CONFIG_TREE_ADDED      ;
