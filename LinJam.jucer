@@ -124,7 +124,7 @@
     <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
     <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="1" useGlobalPath="1"/>
   </MODULES>
-  <JUCEOPTIONS/>
+  <JUCEOPTIONS JUCE_USE_CURL="0"/>
   <LIVE_SETTINGS>
     <LINUX/>
   </LIVE_SETTINGS>
