@@ -36,7 +36,7 @@
 */
 class License  : public Component,
                  public Value::Listener,
-                 public Button::Listener
+                 public juce::Button::Listener
 {
 public:
     //==============================================================================

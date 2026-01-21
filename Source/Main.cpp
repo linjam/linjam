@@ -24,9 +24,9 @@ public:
 
   void initialise(const String& command_line) override
   {
-    this->mainWindow = new MainWindow() ;
+    this->mainWindow.reset(new MainWindow()) ;
 
-    if (!LinJam::Initialize(this , this->mainWindow->mainContent , this , command_line))
+    if (!LinJam::Initialize(this , this->mainWindow->mainContent.get() , this , command_line))
     {
       LinJam::Shutdown() ; quit() ;
     }
@@ -64,13 +64,13 @@ public:
                                   DocumentWindow::allButtons)
     {
       // config button (managed and handled by MainContent)
-      this->configButton = new TextButton("configButton") ;
-      Component::addAndMakeVisible(this->configButton) ;
+      this->configButton.reset(new TextButton("configButton")) ;
+      Component::addAndMakeVisible(this->configButton.get()) ;
 
       // main content (title managed by MainContent)
-      this->mainContent = new MainContent(this , this->configButton) ;
+      this->mainContent.reset(new MainContent(this , this->configButton.get())) ;
       this->mainContent->setComponentID(GUI::CONTENT_GUI_ID) ;
-      setContentOwned(this->mainContent , true) ;
+      setContentOwned(this->mainContent.get() , true) ;
 
       // this main desktop window
 #ifdef _MAC
@@ -93,8 +93,9 @@ public:
 
   private:
 
-    ScopedPointer<MainContent> mainContent ;
-    ScopedPointer<TextButton>  configButton ;
+    UPTR<TextButton>  configButton ;
+    UPTR<MainContent> mainContent ;
+
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainWindow)
   } ;
@@ -102,7 +103,7 @@ public:
 
 private:
 
-  ScopedPointer<MainWindow> mainWindow ;
+  UPTR<MainWindow> mainWindow ;
 
 
   void timerCallback(int timer_id) override { LinJam::HandleTimer(timer_id) ; }

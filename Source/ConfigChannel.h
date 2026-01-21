@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.1
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
 
-#ifndef _CONFIGCHANNEL_H_
-#define _CONFIGCHANNEL_H_
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -37,20 +36,20 @@
 */
 class ConfigChannel  : public Component,
                        public Button::Listener,
-                       public ComboBox::Listener
+                       public juce::ComboBox::Listener
 {
 public:
     //==============================================================================
     ConfigChannel (ValueTree channel_store);
-    ~ConfigChannel();
+    ~ConfigChannel() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     //[/UserMethods]
 
-    void paint (Graphics& g);
-    void resized();
-    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
+    void paint (juce::Graphics& g) override;
+    void resized() override;
+    void comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged) override;
 
 
 
@@ -72,18 +71,20 @@ private:
   String makeStereoSelectOption(    int channel_n) ;
   void   createChannelSelectOptions() ;
   void   populateChannelSelect() ;
+  void   refreshHardwareChannels() ;
+  void   configureLocalChannel() ;
 
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> nameLabel;
-    ScopedPointer<TextEditor> nameText;
-    ScopedPointer<ToggleButton> monoButton;
-    ScopedPointer<ToggleButton> stereoButton;
-    ScopedPointer<Label> inputLabel;
-    ScopedPointer<ComboBox> channelSelect;
-    ScopedPointer<TextButton> okButton;
-    ScopedPointer<TextButton> cancelButton;
+    std::unique_ptr<juce::Label> nameLabel;
+    std::unique_ptr<juce::TextEditor> nameText;
+    std::unique_ptr<juce::ToggleButton> monoButton;
+    std::unique_ptr<juce::ToggleButton> stereoButton;
+    std::unique_ptr<juce::Label> inputLabel;
+    std::unique_ptr<juce::ComboBox> channelSelect;
+    std::unique_ptr<juce::TextButton> okButton;
+    std::unique_ptr<juce::TextButton> cancelButton;
 
 
     //==============================================================================
@@ -93,4 +94,3 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif // _CONFIGCHANNEL_H_

@@ -38,45 +38,49 @@ Channels::Channels ()
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (channelsLabel = new Label ("channelsLabel",
-                                                  String()));
-    channelsLabel->setFont (Font (12.00f, Font::plain));
-    channelsLabel->setJustificationType (Justification::centredBottom);
-    channelsLabel->setEditable (false, false, false);
-    channelsLabel->setColour (Label::backgroundColourId, Colour (0x00000000));
-    channelsLabel->setColour (Label::textColourId, Colours::grey);
-    channelsLabel->setColour (Label::outlineColourId, Colour (0x00000000));
-    channelsLabel->setColour (TextEditor::textColourId, Colour (0x00000000));
-    channelsLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    loginLabel.reset (new juce::Label ("loginLabel",
+                                       juce::String()));
+    addAndMakeVisible (loginLabel.get());
+    loginLabel->setFont (juce::Font (12.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    loginLabel->setJustificationType (juce::Justification::centredBottom);
+    loginLabel->setEditable (false, false, false);
+    loginLabel->setColour (juce::Label::backgroundColourId, juce::Colour (0x00000000));
+    loginLabel->setColour (juce::Label::textColourId, juce::Colours::grey);
+    loginLabel->setColour (juce::Label::outlineColourId, juce::Colour (0x00000000));
+    loginLabel->setColour (juce::TextEditor::textColourId, juce::Colour (0x00000000));
+    loginLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (addButton = new TextButton ("addButton"));
-    addButton->setButtonText (TRANS("+"));
-    addButton->setColour (TextButton::buttonColourId, Colour (0xff004000));
-    addButton->setColour (TextButton::buttonOnColourId, Colours::green);
-    addButton->setColour (TextButton::textColourOnId, Colours::lime);
-    addButton->setColour (TextButton::textColourOffId, Colours::lime);
+    addButton.reset (new juce::TextButton ("addButton"));
+    addAndMakeVisible (addButton.get());
+    addButton->setButtonText (TRANS ("+"));
+    addButton->setColour (juce::TextButton::buttonColourId, juce::Colour (0xff004000));
+    addButton->setColour (juce::TextButton::buttonOnColourId, juce::Colours::green);
+    addButton->setColour (juce::TextButton::textColourOffId, juce::Colours::lime);
+    addButton->setColour (juce::TextButton::textColourOnId, juce::Colours::lime);
 
-    addAndMakeVisible (expandButton = new TextButton ("expandButton"));
-    expandButton->setButtonText (TRANS("+"));
-    expandButton->setColour (TextButton::buttonColourId, Colour (0xff404000));
-    expandButton->setColour (TextButton::buttonOnColourId, Colours::olive);
-    expandButton->setColour (TextButton::textColourOnId, Colours::yellow);
-    expandButton->setColour (TextButton::textColourOffId, Colours::yellow);
+    expandButton.reset (new juce::TextButton ("expandButton"));
+    addAndMakeVisible (expandButton.get());
+    expandButton->setButtonText (TRANS ("+"));
+    expandButton->setColour (juce::TextButton::buttonColourId, juce::Colour (0xff404000));
+    expandButton->setColour (juce::TextButton::buttonOnColourId, juce::Colours::olive);
+    expandButton->setColour (juce::TextButton::textColourOffId, juce::Colours::yellow);
+    expandButton->setColour (juce::TextButton::textColourOnId, juce::Colours::yellow);
 
-    addAndMakeVisible (ignoreButton = new TextButton ("ignoreButton"));
-    ignoreButton->setButtonText (TRANS("X"));
-    ignoreButton->setColour (TextButton::buttonColourId, Colour (0xff400000));
-    ignoreButton->setColour (TextButton::buttonOnColourId, Colours::maroon);
-    ignoreButton->setColour (TextButton::textColourOnId, Colours::red);
-    ignoreButton->setColour (TextButton::textColourOffId, Colours::red);
+    ignoreButton.reset (new juce::TextButton ("ignoreButton"));
+    addAndMakeVisible (ignoreButton.get());
+    ignoreButton->setButtonText (TRANS ("X"));
+    ignoreButton->setColour (juce::TextButton::buttonColourId, juce::Colour (0xff400000));
+    ignoreButton->setColour (juce::TextButton::buttonOnColourId, juce::Colours::maroon);
+    ignoreButton->setColour (juce::TextButton::textColourOffId, juce::Colours::red);
+    ignoreButton->setColour (juce::TextButton::textColourOnId, juce::Colours::red);
 
 
     //[UserPreSize]
 
-  this->channelsLabel->setAlwaysOnTop(true) ;
-  this->addButton    ->setAlwaysOnTop(true) ;
-  this->expandButton ->setAlwaysOnTop(true) ;
-  this->ignoreButton ->setAlwaysOnTop(true) ;
+  this->loginLabel  ->setAlwaysOnTop(true) ;
+  this->addButton   ->setAlwaysOnTop(true) ;
+  this->expandButton->setAlwaysOnTop(true) ;
+  this->ignoreButton->setAlwaysOnTop(true) ;
 
     //[/UserPreSize]
 
@@ -92,7 +96,7 @@ Channels::~Channels()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
-    channelsLabel = nullptr;
+    loginLabel = nullptr;
     addButton = nullptr;
     expandButton = nullptr;
     ignoreButton = nullptr;
@@ -106,16 +110,22 @@ Channels::~Channels()
 }
 
 //==============================================================================
-void Channels::paint (Graphics& g)
+void Channels::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.setColour (Colour (0xff101010));
-    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
-
-    g.setColour (Colours::white);
-    g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f, 1.000f);
+    {
+        float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = static_cast<float> (getHeight() - 0);
+        juce::Colour fillColour = juce::Colour (0xff101010);
+        juce::Colour strokeColour = juce::Colours::white;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.setColour (strokeColour);
+        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
+    }
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -126,7 +136,7 @@ void Channels::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    channelsLabel->setBounds (4, 4, getWidth() - 8, 12);
+    loginLabel->setBounds (4, 4, getWidth() - 8, 12);
     addButton->setBounds (getWidth() - 15, 0, 15, 16);
     expandButton->setBounds (getWidth() - 15, 0, 15, 16);
     ignoreButton->setBounds (getWidth() - 15, 16, 15, 16);
@@ -179,7 +189,7 @@ DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL
 
   // create channel GUI
   Channel* channel = newChannel(channel_store) ;
-  addChildAndSetID(channel , STRING(channel_id)) ;
+  addChildAndSetID(channel , Id2Str(channel_id)) ;
   channel->toFront(false) ;
 
   // resize and shift channel slices
@@ -209,7 +219,7 @@ int Channels::getNumChannels()
 
 Channel* Channels::getChannel(Identifier channel_id)
 {
-  return (Channel*)findChildWithID(StringRef(STRING(channel_id))) ;
+  return (Channel*)findChildWithID(StringRef(Id2Str(channel_id))) ;
 }
 
 
@@ -217,27 +227,27 @@ Channel* Channels::getChannel(Identifier channel_id)
 
 MasterChannels::MasterChannels()
 {
-  this->channelsLabel->setText(GUI::MASTERS_LABEL_TEXT , juce::dontSendNotification) ;
-  this->addButton    ->setVisible(false) ;
-  this->expandButton ->setVisible(false) ;
-  this->ignoreButton ->setVisible(false) ;
+  this->loginLabel  ->setText(GUI::MASTERS_LABEL_TEXT , juce::dontSendNotification) ;
+  this->addButton   ->setVisible(false) ;
+  this->expandButton->setVisible(false) ;
+  this->ignoreButton->setVisible(false) ;
 }
 
 LocalChannels::LocalChannels()
 {
-  this->channelsLabel->setText(GUI::LOCALS_LABEL_TEXT , juce::dontSendNotification) ;
-  this->addButton    ->addListener(this) ;
-  this->expandButton ->setVisible(false) ;
-  this->ignoreButton ->setVisible(false) ;
+  this->loginLabel  ->setText(GUI::LOCALS_LABEL_TEXT , juce::dontSendNotification) ;
+  this->addButton   ->addListener(this) ;
+  this->expandButton->setVisible(false) ;
+  this->ignoreButton->setVisible(false) ;
 }
 
 RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree blacklist_store)
                               : userStore(user_store) , blacklistStore(blacklist_store)
 {
-  this->channelsLabel->setText(STRING(user_store.getType()) , juce::dontSendNotification) ;
-  this->expandButton ->addListener(this) ;
-  this->ignoreButton ->addListener(this) ;
-  this->addButton    ->setVisible(false) ;
+  this->loginLabel  ->setText(Id2Str(user_store.getType()) , juce::dontSendNotification) ;
+  this->expandButton->addListener(this) ;
+  this->ignoreButton->addListener(this) ;
+  this->addButton   ->setVisible(false) ;
 
   this->isExpanded = false ;
 }
@@ -247,11 +257,11 @@ RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree blacklist_store)
 
 void LocalChannels::buttonClicked(Button* a_button)
 {
-  if (a_button == this->addButton)
+  if (a_button == this->addButton.get())
   {
-    ConfigChannel* configChannel = new ConfigChannel(LinJamConfig::NewChannel()) ;
-    Component*     mixer         = getParentComponent() ;
-    Component*     mainContent   = mixer->getParentComponent() ;
+    UPTR<Component> configChannel = std::make_unique<ConfigChannel>(LinJamConfig::NewChannel()) ;
+    Component*      mixer         = getParentComponent() ;
+    Component*      mainContent   = mixer->getParentComponent() ;
 
     // compute CallOutBox arrow target posistion
     int modalX = mixer->getX() + getX() + this->addButton->getX() + GUI::HOVER_BTN_XC ;
@@ -260,14 +270,14 @@ void LocalChannels::buttonClicked(Button* a_button)
 
     // instantiate ConfigChannel as CallOutBox
     configChannel->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
-    CallOutBox::launchAsynchronously(configChannel , modalRect , mainContent) ;
+    CallOutBox::launchAsynchronously(std::move(configChannel) , modalRect , mainContent) ;
   }
 }
 
 void RemoteChannels::buttonClicked(Button* a_button)
 {
-  if      (a_button == this->expandButton) toggleExpandChannels() ;
-  else if (a_button == this->ignoreButton) addUserToBlacklist() ;
+  if      (a_button == this->expandButton.get()) toggleExpandChannels() ;
+  else if (a_button == this->ignoreButton.get()) addUserToBlacklist() ;
 }
 
 void RemoteChannels::toggleExpandChannels()
@@ -275,7 +285,6 @@ void RemoteChannels::toggleExpandChannels()
   this->isExpanded = !this->isExpanded ;
 
 // TODO: (issue #45)
-DBG("RemoteChannels::toggleExpandChannels() this->isExpanded=" + String(this->isExpanded)) ;
 }
 
 void RemoteChannels::addUserToBlacklist()
@@ -304,9 +313,9 @@ Channel* RemoteChannels::newChannel(ValueTree channel_store)
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
@@ -316,15 +325,15 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="67" initialHeight="276">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
-  <LABEL name="channelsLabel" id="11f182b0c62d16d1" memberName="channelsLabel"
+  <LABEL name="loginLabel" id="11f182b0c62d16d1" memberName="loginLabel"
          virtualName="" explicitFocusOrder="0" pos="4 4 8M 12" bkgCol="0"
          textCol="ff808080" outlineCol="0" edTextCol="0" edBkgCol="0"
          labelText="" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="12"
-         bold="0" italic="0" justification="20"/>
+         focusDiscardsChanges="0" fontname="Default font" fontsize="12.0"
+         kerning="0.0" bold="0" italic="0" justification="20"/>
   <TEXTBUTTON name="addButton" id="e6ac05f3ca896afc" memberName="addButton"
               virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" bgColOff="ff004000"
               bgColOn="ff008000" textCol="ff00ff00" textColOn="ff00ff00" buttonText="+"
@@ -346,3 +355,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

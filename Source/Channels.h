@@ -17,8 +17,7 @@
   ==============================================================================
 */
 
-#ifndef _CHANNELS_H_
-#define _CHANNELS_H_
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -42,7 +41,7 @@ class Channels  : public Component
 public:
     //==============================================================================
     Channels ();
-    ~Channels();
+    ~Channels() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -53,8 +52,8 @@ public:
 
     //[/UserMethods]
 
-    void paint (Graphics& g);
-    void resized();
+    void paint (juce::Graphics& g) override;
+    void resized() override;
 
 
 
@@ -70,10 +69,10 @@ protected:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> channelsLabel;
-    ScopedPointer<TextButton> addButton;
-    ScopedPointer<TextButton> expandButton;
-    ScopedPointer<TextButton> ignoreButton;
+    std::unique_ptr<juce::Label> loginLabel;
+    std::unique_ptr<juce::TextButton> addButton;
+    std::unique_ptr<juce::TextButton> expandButton;
+    std::unique_ptr<juce::TextButton> ignoreButton;
 
 
     //==============================================================================
@@ -132,4 +131,3 @@ private:
 
 //[/EndFile]
 
-#endif // _CHANNELS_H_

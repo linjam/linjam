@@ -1,18 +1,18 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.1
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -36,22 +36,26 @@ BlacklistEntry::BlacklistEntry (ValueTree blacklist_store)
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (removeButton = new TextButton ("removeButton"));
-    removeButton->setButtonText (TRANS("X"));
+    removeButton.reset (new juce::TextButton ("removeButton"));
+    addAndMakeVisible (removeButton.get());
+    removeButton->setButtonText (TRANS ("X"));
     removeButton->addListener (this);
-    removeButton->setColour (TextButton::buttonColourId, Colour (0xff400000));
-    removeButton->setColour (TextButton::buttonOnColourId, Colours::maroon);
-    removeButton->setColour (TextButton::textColourOnId, Colours::red);
-    removeButton->setColour (TextButton::textColourOffId, Colours::red);
+    removeButton->setColour (juce::TextButton::buttonColourId, juce::Colour (0xff400000));
+    removeButton->setColour (juce::TextButton::buttonOnColourId, juce::Colours::maroon);
+    removeButton->setColour (juce::TextButton::textColourOffId, juce::Colours::red);
+    removeButton->setColour (juce::TextButton::textColourOnId, juce::Colours::red);
 
-    addAndMakeVisible (userLabel = new Label ("userLabel",
-                                              TRANS("label text")));
-    userLabel->setFont (Font (15.00f, Font::plain));
-    userLabel->setJustificationType (Justification::centredLeft);
+    removeButton->setBounds (0, 0, 15, 16);
+
+    userLabel.reset (new juce::Label ("userLabel",
+                                      TRANS ("label text")));
+    addAndMakeVisible (userLabel.get());
+    userLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    userLabel->setJustificationType (juce::Justification::centredLeft);
     userLabel->setEditable (false, false, false);
-    userLabel->setColour (Label::textColourId, Colours::grey);
-    userLabel->setColour (TextEditor::textColourId, Colours::black);
-    userLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    userLabel->setColour (juce::Label::textColourId, juce::Colours::grey);
+    userLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    userLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
 
     //[UserPreSize]
@@ -64,7 +68,7 @@ BlacklistEntry::BlacklistEntry (ValueTree blacklist_store)
 
   setSize(GUI::BLACKLIST_ENTRY_W , GUI::BLACKLIST_ENTRY_H) ;
 
-  userLabel->setText(STRING(blacklist_store.getType()) , juce::dontSendNotification) ;
+  userLabel->setText(Id2Str(blacklist_store.getType()) , juce::dontSendNotification) ;
 
     //[/Constructor]
 }
@@ -83,16 +87,22 @@ BlacklistEntry::~BlacklistEntry()
 }
 
 //==============================================================================
-void BlacklistEntry::paint (Graphics& g)
+void BlacklistEntry::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.setColour (Colours::black);
-    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), 16.0f, 10.000f);
-
-    g.setColour (Colours::white);
-    g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), 16.0f, 10.000f, 1.000f);
+    {
+        float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = 16.0f;
+        juce::Colour fillColour = juce::Colours::black;
+        juce::Colour strokeColour = juce::Colours::white;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.setColour (strokeColour);
+        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
+    }
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -103,18 +113,17 @@ void BlacklistEntry::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    removeButton->setBounds (0, 0, 15, 16);
     userLabel->setBounds (16, 0, getWidth() - 16, 16);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
 
-void BlacklistEntry::buttonClicked (Button* buttonThatWasClicked)
+void BlacklistEntry::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == removeButton)
+    if (buttonThatWasClicked == removeButton.get())
     {
         //[UserButtonCode_removeButton] -- add your button handler code here..
 
@@ -189,9 +198,9 @@ void Blacklist::valueTreeChildAdded(ValueTree& /*parent_node*/ , ValueTree& node
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
@@ -202,7 +211,7 @@ BEGIN_JUCER_METADATA
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="1"
                  initialWidth="132" initialHeight="16">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 16" cornerSize="10" fill="solid: ff000000" hasStroke="1"
+    <ROUNDRECT pos="0 0 0M 16" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <TEXTBUTTON name="removeButton" id="5ea28eb29c334aeb" memberName="removeButton"
@@ -213,7 +222,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="16 0 16M 16" textCol="ff808080"
          edTextCol="ff000000" edBkgCol="0" labelText="label text" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -223,3 +232,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

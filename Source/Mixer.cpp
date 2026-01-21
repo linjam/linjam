@@ -1,18 +1,18 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.1
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -96,16 +96,22 @@ Mixer::~Mixer()
 }
 
 //==============================================================================
-void Mixer::paint (Graphics& g)
+void Mixer::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.setColour (Colour (0xff101010));
-    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
-
-    g.setColour (Colours::white);
-    g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f, 1.000f);
+    {
+        float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = static_cast<float> (getHeight() - 0);
+        juce::Colour fillColour = juce::Colour (0xff101010);
+        juce::Colour strokeColour = juce::Colours::white;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.setColour (strokeColour);
+        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
+    }
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -289,7 +295,7 @@ void Mixer::buttonClicked(Button* a_button)
 void Mixer::addChannels(Channels* channels , Identifier channels_id)
 {
   // add channels group to the mixer
-  addChildAndSetID(channels , STRING(channels_id)) ; channels->toFront(true) ;
+  addChildAndSetID(channels , Id2Str(channels_id)) ; channels->toFront(true) ;
 
   // update mixer layout
   resized() ;
@@ -323,7 +329,8 @@ void Mixer::addResizer(ResizableEdgeComponent* resizer)
 
 Channels* Mixer::getChannels(Identifier channels_id)
 {
-  return (Channels*)findChildWithID(StringRef(STRING(channels_id))) ;
+  // return (Channels*)findChildWithID(StringRef(STRING(channels_id))) ;
+  return (Channels*)findChildWithID(StringRef(channels_id)) ;
 }
 
 int Mixer::getNumDynamicMixers()
@@ -340,9 +347,9 @@ int Mixer::getMastersResizerNextX() { return masterChannels->getX() - GUI::RESIZ
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
@@ -353,7 +360,7 @@ BEGIN_JUCER_METADATA
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
                  initialWidth="622" initialHeight="284">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
 </JUCER_COMPONENT>
@@ -365,3 +372,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

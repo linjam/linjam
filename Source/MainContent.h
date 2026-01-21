@@ -31,17 +31,17 @@ public:
 
 private:
 
-  ScopedPointer<Background> background ;
-  ScopedPointer<Login>      login ;
-  ScopedPointer<License>    license ;
-  ScopedPointer<Chat>       chat ;
-  ScopedPointer<Mixer>      mixer ;
-  ScopedPointer<StatusBar>  statusbar ;
-  ScopedPointer<Loop>       loop ;
-  ScopedPointer<Config>     config ;
-  DocumentWindow*           mainWindow ;
-  TextButton*               configButton ;
-  Value                     linjamStatus ;
+  UPTR<Background> background ;
+  UPTR<Login>      login ;
+  UPTR<License>    license ;
+  UPTR<Chat>       chat ;
+  UPTR<Mixer>      mixer ;
+  UPTR<StatusBar>  statusbar ;
+  UPTR<Loop>       loop ;
+  UPTR<Config>     config ;
+  DocumentWindow*  mainWindow ;
+  TextButton*      configButton ;
+  Value            linjamStatus ;
 
 
   void instantiate  (ValueTree gui_store       , ValueTree client_store  ,

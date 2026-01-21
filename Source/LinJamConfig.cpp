@@ -287,7 +287,7 @@ void LinJamConfig::validateServers()
 
   for (int server_n = 0 ; server_n < NETWORK::KNOWN_HOSTS.getNumChildren() ; ++server_n)
   {
-    String    known_host = STRING(NETWORK::KNOWN_HOSTS.getChild(server_n).getType()) ;
+    String    known_host = Id2Str(NETWORK::KNOWN_HOSTS.getChild(server_n).getType()) ;
     ValueTree server     = getServer(known_host) ;
 
     if (!server.isValid())

@@ -1,18 +1,18 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.1
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -37,220 +37,301 @@ ConfigAudio::ConfigAudio (ValueTree audio_store)
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (ioGroup = new GroupComponent ("ioGroup",
-                                                     TRANS("i/o")));
-    ioGroup->setTextLabelPosition (Justification::centredLeft);
-    ioGroup->setColour (GroupComponent::outlineColourId, Colours::grey);
-    ioGroup->setColour (GroupComponent::textColourId, Colours::white);
+    ioGroup.reset (new juce::GroupComponent ("ioGroup",
+                                             TRANS ("i/o")));
+    addAndMakeVisible (ioGroup.get());
+    ioGroup->setTextLabelPosition (juce::Justification::centredLeft);
+    ioGroup->setColour (juce::GroupComponent::outlineColourId, juce::Colours::grey);
+    ioGroup->setColour (juce::GroupComponent::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (formatGroup = new GroupComponent ("formatGroup",
-                                                         TRANS("format")));
-    formatGroup->setTextLabelPosition (Justification::centredLeft);
-    formatGroup->setColour (GroupComponent::outlineColourId, Colours::grey);
-    formatGroup->setColour (GroupComponent::textColourId, Colours::white);
+    ioGroup->setBounds (132, 38, 350, 126);
 
-    addAndMakeVisible (buffersGroup = new GroupComponent ("buffersGroup",
-                                                          TRANS("buffers (122.2ms)")));
-    buffersGroup->setTextLabelPosition (Justification::centredLeft);
-    buffersGroup->setColour (GroupComponent::outlineColourId, Colours::grey);
-    buffersGroup->setColour (GroupComponent::textColourId, Colours::white);
+    formatGroup.reset (new juce::GroupComponent ("formatGroup",
+                                                 TRANS ("format")));
+    addAndMakeVisible (formatGroup.get());
+    formatGroup->setTextLabelPosition (juce::Justification::centredLeft);
+    formatGroup->setColour (juce::GroupComponent::outlineColourId, juce::Colours::grey);
+    formatGroup->setColour (juce::GroupComponent::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (routingGroup = new GroupComponent ("routingGroup",
-                                                          TRANS("routing")));
-    routingGroup->setTextLabelPosition (Justification::centredLeft);
-    routingGroup->setColour (GroupComponent::outlineColourId, Colours::grey);
-    routingGroup->setColour (GroupComponent::textColourId, Colours::white);
+    formatGroup->setBounds (132, 176, 350, 60);
 
-    addAndMakeVisible (defaultsButton = new TextButton ("defaultsButton"));
-    defaultsButton->setButtonText (TRANS("defaults"));
+    buffersGroup.reset (new juce::GroupComponent ("buffersGroup",
+                                                  TRANS ("buffers (122.2ms)")));
+    addAndMakeVisible (buffersGroup.get());
+    buffersGroup->setTextLabelPosition (juce::Justification::centredLeft);
+    buffersGroup->setColour (juce::GroupComponent::outlineColourId, juce::Colours::grey);
+    buffersGroup->setColour (juce::GroupComponent::textColourId, juce::Colours::white);
+
+    buffersGroup->setBounds (132, 250, 350, 48);
+
+    routingGroup.reset (new juce::GroupComponent ("routingGroup",
+                                                  TRANS ("routing")));
+    addAndMakeVisible (routingGroup.get());
+    routingGroup->setTextLabelPosition (juce::Justification::centredLeft);
+    routingGroup->setColour (juce::GroupComponent::outlineColourId, juce::Colours::grey);
+    routingGroup->setColour (juce::GroupComponent::textColourId, juce::Colours::white);
+
+    routingGroup->setBounds (132, 312, 350, 74);
+
+    defaultsButton.reset (new juce::TextButton ("defaultsButton"));
+    addAndMakeVisible (defaultsButton.get());
+    defaultsButton->setButtonText (TRANS ("defaults"));
     defaultsButton->addListener (this);
 
-    addAndMakeVisible (asioButton = new TextButton ("asioButton"));
-    asioButton->setButtonText (TRANS("asio config"));
+    asioButton.reset (new juce::TextButton ("asioButton"));
+    addAndMakeVisible (asioButton.get());
+    asioButton->setButtonText (TRANS ("asio config"));
     asioButton->addListener (this);
 
-    addAndMakeVisible (modeLabel = new Label ("modeLabel",
-                                              TRANS("interface:")));
-    modeLabel->setFont (Font (15.00f, Font::plain));
-    modeLabel->setJustificationType (Justification::centredLeft);
+    modeLabel.reset (new juce::Label ("modeLabel",
+                                      TRANS ("interface:")));
+    addAndMakeVisible (modeLabel.get());
+    modeLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    modeLabel->setJustificationType (juce::Justification::centredLeft);
     modeLabel->setEditable (false, false, false);
-    modeLabel->setColour (Label::textColourId, Colours::white);
-    modeLabel->setColour (TextEditor::textColourId, Colours::black);
-    modeLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    modeLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    modeLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    modeLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (apiComboBox = new ComboBox ("apiComboBox"));
+    modeLabel->setBounds (140, 56, 64, 18);
+
+    apiComboBox.reset (new juce::ComboBox ("apiComboBox"));
+    addAndMakeVisible (apiComboBox.get());
     apiComboBox->setExplicitFocusOrder (1);
     apiComboBox->setEditableText (false);
-    apiComboBox->setJustificationType (Justification::centredLeft);
-    apiComboBox->setTextWhenNothingSelected (String());
-    apiComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    apiComboBox->setJustificationType (juce::Justification::centredLeft);
+    apiComboBox->setTextWhenNothingSelected (juce::String());
+    apiComboBox->setTextWhenNoChoicesAvailable (TRANS ("(no choices)"));
     apiComboBox->addListener (this);
 
-    addAndMakeVisible (driverLabel = new Label ("driverLabel",
-                                                TRANS("driver:")));
-    driverLabel->setFont (Font (15.00f, Font::plain));
-    driverLabel->setJustificationType (Justification::centredLeft);
-    driverLabel->setEditable (false, false, false);
-    driverLabel->setColour (Label::textColourId, Colours::white);
-    driverLabel->setColour (TextEditor::textColourId, Colours::black);
-    driverLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    apiComboBox->setBounds (212, 56, 256, 18);
 
-    addAndMakeVisible (driverComboBox = new ComboBox ("driverComboBox"));
+    driverLabel.reset (new juce::Label ("driverLabel",
+                                        TRANS ("driver:")));
+    addAndMakeVisible (driverLabel.get());
+    driverLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    driverLabel->setJustificationType (juce::Justification::centredLeft);
+    driverLabel->setEditable (false, false, false);
+    driverLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    driverLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    driverLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    driverLabel->setBounds (140, 82, 64, 18);
+
+    driverComboBox.reset (new juce::ComboBox ("driverComboBox"));
+    addAndMakeVisible (driverComboBox.get());
     driverComboBox->setExplicitFocusOrder (1);
     driverComboBox->setEditableText (false);
-    driverComboBox->setJustificationType (Justification::centredLeft);
-    driverComboBox->setTextWhenNothingSelected (String());
-    driverComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    driverComboBox->setJustificationType (juce::Justification::centredLeft);
+    driverComboBox->setTextWhenNothingSelected (juce::String());
+    driverComboBox->setTextWhenNoChoicesAvailable (TRANS ("(no choices)"));
     driverComboBox->addListener (this);
 
-    addAndMakeVisible (sourceLabel = new Label ("sourceLabel",
-                                                TRANS("input:")));
-    sourceLabel->setFont (Font (15.00f, Font::plain));
-    sourceLabel->setJustificationType (Justification::centredLeft);
-    sourceLabel->setEditable (false, false, false);
-    sourceLabel->setColour (Label::textColourId, Colours::white);
-    sourceLabel->setColour (TextEditor::textColourId, Colours::black);
-    sourceLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    driverComboBox->setBounds (212, 82, 256, 18);
 
-    addAndMakeVisible (sourceComboBox = new ComboBox ("sourceComboBox"));
+    sourceLabel.reset (new juce::Label ("sourceLabel",
+                                        TRANS ("input:")));
+    addAndMakeVisible (sourceLabel.get());
+    sourceLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    sourceLabel->setJustificationType (juce::Justification::centredLeft);
+    sourceLabel->setEditable (false, false, false);
+    sourceLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    sourceLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    sourceLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    sourceLabel->setBounds (140, 108, 64, 18);
+
+    sourceComboBox.reset (new juce::ComboBox ("sourceComboBox"));
+    addAndMakeVisible (sourceComboBox.get());
     sourceComboBox->setExplicitFocusOrder (2);
     sourceComboBox->setEditableText (false);
-    sourceComboBox->setJustificationType (Justification::centredLeft);
-    sourceComboBox->setTextWhenNothingSelected (String());
-    sourceComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    sourceComboBox->setJustificationType (juce::Justification::centredLeft);
+    sourceComboBox->setTextWhenNothingSelected (juce::String());
+    sourceComboBox->setTextWhenNoChoicesAvailable (TRANS ("(no choices)"));
     sourceComboBox->addListener (this);
 
-    addAndMakeVisible (sinkLabel = new Label ("sinkLabel",
-                                              TRANS("output:")));
-    sinkLabel->setFont (Font (15.00f, Font::plain));
-    sinkLabel->setJustificationType (Justification::centredLeft);
-    sinkLabel->setEditable (false, false, false);
-    sinkLabel->setColour (Label::textColourId, Colours::white);
-    sinkLabel->setColour (TextEditor::textColourId, Colours::black);
-    sinkLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    sourceComboBox->setBounds (212, 108, 256, 18);
 
-    addAndMakeVisible (sinkComboBox = new ComboBox ("sinkComboBox"));
+    sinkLabel.reset (new juce::Label ("sinkLabel",
+                                      TRANS ("output:")));
+    addAndMakeVisible (sinkLabel.get());
+    sinkLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    sinkLabel->setJustificationType (juce::Justification::centredLeft);
+    sinkLabel->setEditable (false, false, false);
+    sinkLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    sinkLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    sinkLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    sinkLabel->setBounds (140, 134, 64, 16);
+
+    sinkComboBox.reset (new juce::ComboBox ("sinkComboBox"));
+    addAndMakeVisible (sinkComboBox.get());
     sinkComboBox->setExplicitFocusOrder (3);
     sinkComboBox->setEditableText (false);
-    sinkComboBox->setJustificationType (Justification::centredLeft);
-    sinkComboBox->setTextWhenNothingSelected (String());
-    sinkComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    sinkComboBox->setJustificationType (juce::Justification::centredLeft);
+    sinkComboBox->setTextWhenNothingSelected (juce::String());
+    sinkComboBox->setTextWhenNoChoicesAvailable (TRANS ("(no choices)"));
     sinkComboBox->addListener (this);
 
-    addAndMakeVisible (bitdepthLabel = new Label ("bitdepthLabel",
-                                                  TRANS("bit depth:")));
-    bitdepthLabel->setFont (Font (15.00f, Font::plain));
-    bitdepthLabel->setJustificationType (Justification::centredLeft);
-    bitdepthLabel->setEditable (false, false, false);
-    bitdepthLabel->setColour (Label::textColourId, Colours::white);
-    bitdepthLabel->setColour (TextEditor::textColourId, Colours::black);
-    bitdepthLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    sinkComboBox->setBounds (212, 134, 256, 18);
 
-    addAndMakeVisible (bps16Button = new ToggleButton ("bps16Button"));
+    bitdepthLabel.reset (new juce::Label ("bitdepthLabel",
+                                          TRANS ("bit depth:")));
+    addAndMakeVisible (bitdepthLabel.get());
+    bitdepthLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    bitdepthLabel->setJustificationType (juce::Justification::centredLeft);
+    bitdepthLabel->setEditable (false, false, false);
+    bitdepthLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    bitdepthLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    bitdepthLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    bitdepthLabel->setBounds (140, 190, 64, 18);
+
+    bps16Button.reset (new juce::ToggleButton ("bps16Button"));
+    addAndMakeVisible (bps16Button.get());
     bps16Button->setExplicitFocusOrder (4);
-    bps16Button->setButtonText (TRANS("16bit"));
+    bps16Button->setButtonText (TRANS ("16bit"));
     bps16Button->setRadioGroupId (1);
     bps16Button->addListener (this);
-    bps16Button->setToggleState (true, dontSendNotification);
-    bps16Button->setColour (ToggleButton::textColourId, Colours::white);
+    bps16Button->setToggleState (true, juce::dontSendNotification);
+    bps16Button->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (bps24Button = new ToggleButton ("bps24Button"));
+    bps16Button->setBounds (212, 191, 64, 18);
+
+    bps24Button.reset (new juce::ToggleButton ("bps24Button"));
+    addAndMakeVisible (bps24Button.get());
     bps24Button->setExplicitFocusOrder (5);
-    bps24Button->setButtonText (TRANS("24bit"));
+    bps24Button->setButtonText (TRANS ("24bit"));
     bps24Button->setRadioGroupId (1);
     bps24Button->addListener (this);
-    bps24Button->setColour (ToggleButton::textColourId, Colours::white);
+    bps24Button->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (bps32Button = new ToggleButton ("bps32Button"));
+    bps24Button->setBounds (288, 191, 64, 18);
+
+    bps32Button.reset (new juce::ToggleButton ("bps32Button"));
+    addAndMakeVisible (bps32Button.get());
     bps32Button->setExplicitFocusOrder (6);
-    bps32Button->setButtonText (TRANS("32bit"));
+    bps32Button->setButtonText (TRANS ("32bit"));
     bps32Button->setRadioGroupId (1);
     bps32Button->addListener (this);
-    bps32Button->setColour (ToggleButton::textColourId, Colours::white);
+    bps32Button->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (samplerateLabel = new Label ("samplerateLabel",
-                                                    TRANS("sample rate:")));
-    samplerateLabel->setFont (Font (15.00f, Font::plain));
-    samplerateLabel->setJustificationType (Justification::centredLeft);
+    bps32Button->setBounds (364, 191, 64, 18);
+
+    samplerateLabel.reset (new juce::Label ("samplerateLabel",
+                                            TRANS ("sample rate:")));
+    addAndMakeVisible (samplerateLabel.get());
+    samplerateLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    samplerateLabel->setJustificationType (juce::Justification::centredLeft);
     samplerateLabel->setEditable (false, false, false);
-    samplerateLabel->setColour (Label::textColourId, Colours::white);
-    samplerateLabel->setColour (TextEditor::textColourId, Colours::black);
-    samplerateLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    samplerateLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    samplerateLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    samplerateLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (kHz44Button = new ToggleButton ("kHz44Button"));
+    samplerateLabel->setBounds (140, 210, 72, 18);
+
+    kHz44Button.reset (new juce::ToggleButton ("kHz44Button"));
+    addAndMakeVisible (kHz44Button.get());
     kHz44Button->setExplicitFocusOrder (7);
-    kHz44Button->setButtonText (TRANS("44.1kHz"));
+    kHz44Button->setButtonText (TRANS ("44.1kHz"));
     kHz44Button->setRadioGroupId (2);
     kHz44Button->addListener (this);
-    kHz44Button->setToggleState (true, dontSendNotification);
-    kHz44Button->setColour (ToggleButton::textColourId, Colours::white);
+    kHz44Button->setToggleState (true, juce::dontSendNotification);
+    kHz44Button->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (kHz48Button = new ToggleButton ("kHz48Button"));
+    kHz44Button->setBounds (212, 211, 64, 18);
+
+    kHz48Button.reset (new juce::ToggleButton ("kHz48Button"));
+    addAndMakeVisible (kHz48Button.get());
     kHz48Button->setExplicitFocusOrder (8);
-    kHz48Button->setButtonText (TRANS("48kHz"));
+    kHz48Button->setButtonText (TRANS ("48kHz"));
     kHz48Button->setRadioGroupId (2);
     kHz48Button->addListener (this);
-    kHz48Button->setColour (ToggleButton::textColourId, Colours::white);
+    kHz48Button->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (kHz96Button = new ToggleButton ("kHz96Button"));
+    kHz48Button->setBounds (288, 211, 64, 18);
+
+    kHz96Button.reset (new juce::ToggleButton ("kHz96Button"));
+    addAndMakeVisible (kHz96Button.get());
     kHz96Button->setExplicitFocusOrder (9);
-    kHz96Button->setButtonText (TRANS("96kHz"));
+    kHz96Button->setButtonText (TRANS ("96kHz"));
     kHz96Button->setRadioGroupId (2);
     kHz96Button->addListener (this);
-    kHz96Button->setColour (ToggleButton::textColourId, Colours::white);
+    kHz96Button->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (buffersLabel = new Label ("buffersLabel",
-                                                 TRANS("# of buffers")));
-    buffersLabel->setFont (Font (15.00f, Font::plain));
-    buffersLabel->setJustificationType (Justification::centredLeft);
+    kHz96Button->setBounds (364, 211, 64, 18);
+
+    buffersLabel.reset (new juce::Label ("buffersLabel",
+                                         TRANS ("# of buffers")));
+    addAndMakeVisible (buffersLabel.get());
+    buffersLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    buffersLabel->setJustificationType (juce::Justification::centredLeft);
     buffersLabel->setEditable (false, false, false);
-    buffersLabel->setColour (Label::textColourId, Colours::white);
-    buffersLabel->setColour (TextEditor::textColourId, Colours::black);
-    buffersLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    buffersLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    buffersLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    buffersLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (nBuffersSlider = new Slider ("nBuffersSlider"));
+    buffersLabel->setBounds (140, 268, 64, 18);
+
+    nBuffersSlider.reset (new juce::Slider ("nBuffersSlider"));
+    addAndMakeVisible (nBuffersSlider.get());
     nBuffersSlider->setExplicitFocusOrder (10);
     nBuffersSlider->setRange (0, 16, 1);
-    nBuffersSlider->setSliderStyle (Slider::IncDecButtons);
-    nBuffersSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 80, 20);
+    nBuffersSlider->setSliderStyle (juce::Slider::IncDecButtons);
+    nBuffersSlider->setTextBoxStyle (juce::Slider::TextBoxLeft, true, 80, 20);
     nBuffersSlider->addListener (this);
 
-    addAndMakeVisible (xLabel = new Label ("xLabel",
-                                           TRANS("x")));
-    xLabel->setFont (Font (15.00f, Font::plain));
-    xLabel->setJustificationType (Justification::centredLeft);
-    xLabel->setEditable (false, false, false);
-    xLabel->setColour (Label::textColourId, Colours::white);
-    xLabel->setColour (TextEditor::textColourId, Colours::black);
-    xLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    nBuffersSlider->setBounds (212, 268, 64, 18);
 
-    addAndMakeVisible (bufferComboBox = new ComboBox ("bufferComboBox"));
+    xLabel.reset (new juce::Label ("xLabel",
+                                   TRANS ("x")));
+    addAndMakeVisible (xLabel.get());
+    xLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    xLabel->setJustificationType (juce::Justification::centredLeft);
+    xLabel->setEditable (false, false, false);
+    xLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    xLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    xLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    xLabel->setBounds (275, 268, 16, 18);
+
+    bufferComboBox.reset (new juce::ComboBox ("bufferComboBox"));
+    addAndMakeVisible (bufferComboBox.get());
     bufferComboBox->setExplicitFocusOrder (11);
     bufferComboBox->setEditableText (false);
-    bufferComboBox->setJustificationType (Justification::centredLeft);
-    bufferComboBox->setTextWhenNothingSelected (String());
-    bufferComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    bufferComboBox->setJustificationType (juce::Justification::centredLeft);
+    bufferComboBox->setTextWhenNothingSelected (juce::String());
+    bufferComboBox->setTextWhenNoChoicesAvailable (TRANS ("(no choices)"));
     bufferComboBox->addListener (this);
 
-    addAndMakeVisible (bytesLabel = new Label ("bytesLabel",
-                                               TRANS("bytes")));
-    bytesLabel->setFont (Font (15.00f, Font::plain));
-    bytesLabel->setJustificationType (Justification::centredLeft);
+    bufferComboBox->setBounds (292, 268, 52, 18);
+
+    bytesLabel.reset (new juce::Label ("bytesLabel",
+                                       TRANS ("bytes")));
+    addAndMakeVisible (bytesLabel.get());
+    bytesLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    bytesLabel->setJustificationType (juce::Justification::centredLeft);
     bytesLabel->setEditable (false, false, false);
-    bytesLabel->setColour (Label::textColourId, Colours::white);
-    bytesLabel->setColour (TextEditor::textColourId, Colours::black);
-    bytesLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    bytesLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    bytesLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    bytesLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (jackNameLabel = new Label ("jackNameLabel",
-                                                  TRANS("client name")));
-    jackNameLabel->setFont (Font (15.00f, Font::plain));
-    jackNameLabel->setJustificationType (Justification::centredLeft);
+    bytesLabel->setBounds (346, 268, 64, 18);
+
+    jackNameLabel.reset (new juce::Label ("jackNameLabel",
+                                          TRANS ("client name")));
+    addAndMakeVisible (jackNameLabel.get());
+    jackNameLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    jackNameLabel->setJustificationType (juce::Justification::centredLeft);
     jackNameLabel->setEditable (false, false, false);
-    jackNameLabel->setColour (Label::textColourId, Colours::white);
-    jackNameLabel->setColour (TextEditor::textColourId, Colours::black);
-    jackNameLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    jackNameLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    jackNameLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    jackNameLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (jackNameText = new TextEditor ("jackNameText"));
+    jackNameLabel->setBounds (140, 332, 64, 18);
+
+    jackNameText.reset (new juce::TextEditor ("jackNameText"));
+    addAndMakeVisible (jackNameText.get());
     jackNameText->setExplicitFocusOrder (12);
     jackNameText->setMultiLine (false);
     jackNameText->setReturnKeyStartsNewLine (false);
@@ -258,48 +339,65 @@ ConfigAudio::ConfigAudio (ValueTree audio_store)
     jackNameText->setScrollbarsShown (true);
     jackNameText->setCaretVisible (true);
     jackNameText->setPopupMenuEnabled (false);
-    jackNameText->setColour (TextEditor::textColourId, Colours::grey);
-    jackNameText->setColour (TextEditor::backgroundColourId, Colours::black);
-    jackNameText->setText (String());
+    jackNameText->setColour (juce::TextEditor::textColourId, juce::Colours::grey);
+    jackNameText->setColour (juce::TextEditor::backgroundColourId, juce::Colours::black);
+    jackNameText->setText (juce::String());
 
-    addAndMakeVisible (nSourcesLabel = new Label ("nSourcesLabel",
-                                                  TRANS("# of sources")));
-    nSourcesLabel->setFont (Font (15.00f, Font::plain));
-    nSourcesLabel->setJustificationType (Justification::centredLeft);
+    jackNameText->setBounds (212, 332, 136, 18);
+
+    nSourcesLabel.reset (new juce::Label ("nSourcesLabel",
+                                          TRANS ("# of sources")));
+    addAndMakeVisible (nSourcesLabel.get());
+    nSourcesLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    nSourcesLabel->setJustificationType (juce::Justification::centredLeft);
     nSourcesLabel->setEditable (false, false, false);
-    nSourcesLabel->setColour (Label::textColourId, Colours::white);
-    nSourcesLabel->setColour (TextEditor::textColourId, Colours::black);
-    nSourcesLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    nSourcesLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    nSourcesLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    nSourcesLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (nSourcesSlider = new Slider ("nSourcesSlider"));
+    nSourcesLabel->setBounds (140, 358, 64, 18);
+
+    nSourcesSlider.reset (new juce::Slider ("nSourcesSlider"));
+    addAndMakeVisible (nSourcesSlider.get());
     nSourcesSlider->setExplicitFocusOrder (14);
     nSourcesSlider->setRange (0, 16, 1);
-    nSourcesSlider->setSliderStyle (Slider::IncDecButtons);
-    nSourcesSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 80, 20);
+    nSourcesSlider->setSliderStyle (juce::Slider::IncDecButtons);
+    nSourcesSlider->setTextBoxStyle (juce::Slider::TextBoxLeft, true, 80, 20);
     nSourcesSlider->addListener (this);
 
-    addAndMakeVisible (nSinksLabel = new Label ("nSinksLabel",
-                                                TRANS("# of sinks")));
-    nSinksLabel->setFont (Font (15.00f, Font::plain));
-    nSinksLabel->setJustificationType (Justification::centredLeft);
-    nSinksLabel->setEditable (false, false, false);
-    nSinksLabel->setColour (Label::textColourId, Colours::white);
-    nSinksLabel->setColour (TextEditor::textColourId, Colours::black);
-    nSinksLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    nSourcesSlider->setBounds (214, 358, 64, 18);
 
-    addAndMakeVisible (nSinksSlider = new Slider ("nSinksSlider"));
+    nSinksLabel.reset (new juce::Label ("nSinksLabel",
+                                        TRANS ("# of sinks")));
+    addAndMakeVisible (nSinksLabel.get());
+    nSinksLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    nSinksLabel->setJustificationType (juce::Justification::centredLeft);
+    nSinksLabel->setEditable (false, false, false);
+    nSinksLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    nSinksLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    nSinksLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    nSinksLabel->setBounds (330, 358, 64, 18);
+
+    nSinksSlider.reset (new juce::Slider ("nSinksSlider"));
+    addAndMakeVisible (nSinksSlider.get());
     nSinksSlider->setExplicitFocusOrder (15);
     nSinksSlider->setRange (0, 16, 1);
-    nSinksSlider->setSliderStyle (Slider::IncDecButtons);
-    nSinksSlider->setTextBoxStyle (Slider::TextBoxLeft, true, 80, 20);
+    nSinksSlider->setSliderStyle (juce::Slider::IncDecButtons);
+    nSinksSlider->setTextBoxStyle (juce::Slider::TextBoxLeft, true, 80, 20);
     nSinksSlider->addListener (this);
 
-    addAndMakeVisible (jackPortsButton = new ToggleButton ("jackPortsButton"));
+    nSinksSlider->setBounds (404, 358, 64, 18);
+
+    jackPortsButton.reset (new juce::ToggleButton ("jackPortsButton"));
+    addAndMakeVisible (jackPortsButton.get());
     jackPortsButton->setExplicitFocusOrder (13);
-    jackPortsButton->setButtonText (TRANS("auto-connect ports"));
+    jackPortsButton->setButtonText (TRANS ("auto-connect ports"));
     jackPortsButton->addListener (this);
-    jackPortsButton->setToggleState (true, dontSendNotification);
-    jackPortsButton->setColour (ToggleButton::textColourId, Colours::white);
+    jackPortsButton->setToggleState (true, juce::dontSendNotification);
+    jackPortsButton->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
+
+    jackPortsButton->setBounds (352, 332, 120, 18);
 
 
     //[UserPreSize]
@@ -366,13 +464,19 @@ ConfigAudio::~ConfigAudio()
 }
 
 //==============================================================================
-void ConfigAudio::paint (Graphics& g)
+void ConfigAudio::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.setColour (Colour (0xff002000));
-    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
+    {
+        float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = static_cast<float> (getHeight() - 0);
+        juce::Colour fillColour = juce::Colour (0xff002000);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+    }
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -383,45 +487,13 @@ void ConfigAudio::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    ioGroup->setBounds (132, 38, 350, 126);
-    formatGroup->setBounds (132, 176, 350, 60);
-    buffersGroup->setBounds (132, 250, 350, 48);
-    routingGroup->setBounds (132, 312, 350, 74);
     defaultsButton->setBounds (getWidth() - 68, 4, 64, 24);
     asioButton->setBounds (getWidth() - 68, 4, 64, 24);
-    modeLabel->setBounds (140, 56, 64, 18);
-    apiComboBox->setBounds (212, 56, 256, 18);
-    driverLabel->setBounds (140, 82, 64, 18);
-    driverComboBox->setBounds (212, 82, 256, 18);
-    sourceLabel->setBounds (140, 108, 64, 18);
-    sourceComboBox->setBounds (212, 108, 256, 18);
-    sinkLabel->setBounds (140, 134, 64, 16);
-    sinkComboBox->setBounds (212, 134, 256, 18);
-    bitdepthLabel->setBounds (140, 190, 64, 18);
-    bps16Button->setBounds (212, 191, 64, 18);
-    bps24Button->setBounds (288, 191, 64, 18);
-    bps32Button->setBounds (364, 191, 64, 18);
-    samplerateLabel->setBounds (140, 210, 72, 18);
-    kHz44Button->setBounds (212, 211, 64, 18);
-    kHz48Button->setBounds (288, 211, 64, 18);
-    kHz96Button->setBounds (364, 211, 64, 18);
-    buffersLabel->setBounds (140, 268, 64, 18);
-    nBuffersSlider->setBounds (212, 268, 64, 18);
-    xLabel->setBounds (275, 268, 16, 18);
-    bufferComboBox->setBounds (292, 268, 52, 18);
-    bytesLabel->setBounds (346, 268, 64, 18);
-    jackNameLabel->setBounds (140, 332, 64, 18);
-    jackNameText->setBounds (212, 332, 136, 18);
-    nSourcesLabel->setBounds (140, 358, 64, 18);
-    nSourcesSlider->setBounds (214, 358, 64, 18);
-    nSinksLabel->setBounds (330, 358, 64, 18);
-    nSinksSlider->setBounds (404, 358, 64, 18);
-    jackPortsButton->setBounds (352, 332, 120, 18);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
 
-void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
+void ConfigAudio::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
 
@@ -476,7 +548,7 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == defaultsButton)
+    if (buttonThatWasClicked == defaultsButton.get())
     {
         //[UserButtonCode_defaultsButton] -- add your button handler code here..
 
@@ -484,7 +556,7 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_defaultsButton]
     }
-    else if (buttonThatWasClicked == asioButton)
+    else if (buttonThatWasClicked == asioButton.get())
     {
         //[UserButtonCode_asioButton] -- add your button handler code here..
 
@@ -494,7 +566,7 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_asioButton]
     }
-    else if (buttonThatWasClicked == bps16Button)
+    else if (buttonThatWasClicked == bps16Button.get())
     {
         //[UserButtonCode_bps16Button] -- add your button handler code here..
 
@@ -503,7 +575,7 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_bps16Button]
     }
-    else if (buttonThatWasClicked == bps24Button)
+    else if (buttonThatWasClicked == bps24Button.get())
     {
         //[UserButtonCode_bps24Button] -- add your button handler code here..
 
@@ -512,7 +584,7 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_bps24Button]
     }
-    else if (buttonThatWasClicked == bps32Button)
+    else if (buttonThatWasClicked == bps32Button.get())
     {
         //[UserButtonCode_bps32Button] -- add your button handler code here..
 
@@ -521,7 +593,7 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_bps32Button]
     }
-    else if (buttonThatWasClicked == kHz44Button)
+    else if (buttonThatWasClicked == kHz44Button.get())
     {
         //[UserButtonCode_kHz44Button] -- add your button handler code here..
 
@@ -530,7 +602,7 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_kHz44Button]
     }
-    else if (buttonThatWasClicked == kHz48Button)
+    else if (buttonThatWasClicked == kHz48Button.get())
     {
         //[UserButtonCode_kHz48Button] -- add your button handler code here..
 
@@ -539,7 +611,7 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_kHz48Button]
     }
-    else if (buttonThatWasClicked == kHz96Button)
+    else if (buttonThatWasClicked == kHz96Button.get())
     {
         //[UserButtonCode_kHz96Button] -- add your button handler code here..
 
@@ -548,7 +620,7 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_kHz96Button]
     }
-    else if (buttonThatWasClicked == jackPortsButton)
+    else if (buttonThatWasClicked == jackPortsButton.get())
     {
         //[UserButtonCode_jackPortsButton] -- add your button handler code here..
         //[/UserButtonCode_jackPortsButton]
@@ -561,7 +633,7 @@ void ConfigAudio::buttonClicked (Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
-void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+void ConfigAudio::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
 
@@ -573,7 +645,7 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == apiComboBox)
+    if (comboBoxThatHasChanged == apiComboBox.get())
     {
         //[UserComboBoxCode_apiComboBox] -- add your combo box handling code here..
 
@@ -584,7 +656,7 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
         //[/UserComboBoxCode_apiComboBox]
     }
-    else if (comboBoxThatHasChanged == driverComboBox)
+    else if (comboBoxThatHasChanged == driverComboBox.get())
     {
         //[UserComboBoxCode_driverComboBox] -- add your combo box handling code here..
 
@@ -601,7 +673,7 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
         //[/UserComboBoxCode_driverComboBox]
     }
-    else if (comboBoxThatHasChanged == sourceComboBox)
+    else if (comboBoxThatHasChanged == sourceComboBox.get())
     {
         //[UserComboBoxCode_sourceComboBox] -- add your combo box handling code here..
 
@@ -653,7 +725,7 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
         //[/UserComboBoxCode_sourceComboBox]
     }
-    else if (comboBoxThatHasChanged == sinkComboBox)
+    else if (comboBoxThatHasChanged == sinkComboBox.get())
     {
         //[UserComboBoxCode_sinkComboBox] -- add your combo box handling code here..
 
@@ -705,7 +777,7 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
         //[/UserComboBoxCode_sinkComboBox]
     }
-    else if (comboBoxThatHasChanged == bufferComboBox)
+    else if (comboBoxThatHasChanged == bufferComboBox.get())
     {
         //[UserComboBoxCode_bufferComboBox] -- add your combo box handling code here..
 
@@ -735,12 +807,12 @@ void ConfigAudio::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
   setConfig(key , value) ;
 
-  if (comboBoxThatHasChanged == this->bufferComboBox) updateLatency() ;
+  if (comboBoxThatHasChanged == this->bufferComboBox.get()) updateLatency() ;
 
     //[/UsercomboBoxChanged_Post]
 }
 
-void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
+void ConfigAudio::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
 
@@ -750,7 +822,7 @@ void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
 
     //[/UsersliderValueChanged_Pre]
 
-    if (sliderThatWasMoved == nBuffersSlider)
+    if (sliderThatWasMoved == nBuffersSlider.get())
     {
         //[UserSliderCode_nBuffersSlider] -- add your slider handling code here..
 
@@ -774,7 +846,7 @@ void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
 
         //[/UserSliderCode_nBuffersSlider]
     }
-    else if (sliderThatWasMoved == nSourcesSlider)
+    else if (sliderThatWasMoved == nSourcesSlider.get())
     {
         //[UserSliderCode_nSourcesSlider] -- add your slider handling code here..
 
@@ -795,7 +867,7 @@ void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
 
         //[/UserSliderCode_nSourcesSlider]
     }
-    else if (sliderThatWasMoved == nSinksSlider)
+    else if (sliderThatWasMoved == nSinksSlider.get())
     {
         //[UserSliderCode_nSinksSlider] -- add your slider handling code here..
 
@@ -816,7 +888,7 @@ void ConfigAudio::sliderValueChanged (Slider* sliderThatWasMoved)
 
   setConfig(config_key , value) ;
 
-  if (sliderThatWasMoved == this->nBuffersSlider) updateLatency() ;
+  if (sliderThatWasMoved == this->nBuffersSlider.get()) updateLatency() ;
 
     //[/UsersliderValueChanged_Post]
 }
@@ -968,8 +1040,8 @@ void ConfigAudio::loadParams()
     }
     case audioStreamer::NIX_AUDIO_ALSA:
     {
-      source_n       = getItemIndex(this->sourceComboBox , alsa_input_device ) ;
-      sink_n         = getItemIndex(this->sinkComboBox   , alsa_output_device) ;
+      source_n       = getItemIndex(this->sourceComboBox.get() , alsa_input_device ) ;
+      sink_n         = getItemIndex(this->sinkComboBox  .get() , alsa_output_device) ;
       n_inputs       = alsa_n_channels ;
       sample_rate    = alsa_sample_rate ;
       bit_depth      = alsa_bit_depth ;
@@ -1467,9 +1539,9 @@ void ConfigAudio::setConfig(Identifier a_key , var a_value)
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
@@ -1480,7 +1552,7 @@ BEGIN_JUCER_METADATA
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="1"
                  initialWidth="614" initialHeight="434">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff002000" hasStroke="0"/>
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff002000" hasStroke="0"/>
   </BACKGROUND>
   <GROUPCOMPONENT name="ioGroup" id="35b859a43662c4ca" memberName="ioGroup" virtualName=""
                   explicitFocusOrder="0" pos="132 38 350 126" outlinecol="ff808080"
@@ -1504,7 +1576,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="140 56 64 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="interface:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="apiComboBox" id="d9fdbc02138c7335" memberName="apiComboBox"
             virtualName="" explicitFocusOrder="1" pos="212 56 256 18" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
@@ -1512,7 +1584,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="140 82 64 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="driver:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="driverComboBox" id="bc523f21b8e70676" memberName="driverComboBox"
             virtualName="" explicitFocusOrder="1" pos="212 82 256 18" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
@@ -1520,7 +1592,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="140 108 64 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="input:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="sourceComboBox" id="195d38c0dfa0b780" memberName="sourceComboBox"
             virtualName="" explicitFocusOrder="2" pos="212 108 256 18" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
@@ -1528,7 +1600,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="140 134 64 16" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="output:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="sinkComboBox" id="3b81e2ff4dec7469" memberName="sinkComboBox"
             virtualName="" explicitFocusOrder="3" pos="212 134 256 18" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
@@ -1536,7 +1608,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="140 190 64 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="bit depth:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="bps16Button" id="ccb740c03ababc9f" memberName="bps16Button"
                 virtualName="" explicitFocusOrder="4" pos="212 191 64 18" txtcol="ffffffff"
                 buttonText="16bit" connectedEdges="0" needsCallback="1" radioGroupId="1"
@@ -1553,7 +1625,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="140 210 72 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="sample rate:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TOGGLEBUTTON name="kHz44Button" id="56ab804241495c7b" memberName="kHz44Button"
                 virtualName="" explicitFocusOrder="7" pos="212 211 64 18" txtcol="ffffffff"
                 buttonText="44.1kHz" connectedEdges="0" needsCallback="1" radioGroupId="2"
@@ -1570,16 +1642,17 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="140 268 64 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="# of buffers" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <SLIDER name="nBuffersSlider" id="76a832d1fac666e" memberName="nBuffersSlider"
-          virtualName="" explicitFocusOrder="10" pos="212 268 64 18" min="0"
-          max="16" int="1" style="IncDecButtons" textBoxPos="TextBoxLeft"
-          textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
+          virtualName="" explicitFocusOrder="10" pos="212 268 64 18" min="0.0"
+          max="16.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
+          textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
   <LABEL name="xLabel" id="5a9596c9eb8db178" memberName="xLabel" virtualName=""
          explicitFocusOrder="0" pos="275 268 16 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="x" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="bufferComboBox" id="bef2196516ab5821" memberName="bufferComboBox"
             virtualName="" explicitFocusOrder="11" pos="292 268 52 18" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
@@ -1587,12 +1660,12 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="346 268 64 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="bytes" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="jackNameLabel" id="78568b552c534b6d" memberName="jackNameLabel"
          virtualName="" explicitFocusOrder="0" pos="140 332 64 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="client name" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="jackNameText" id="fdccbcd88a94d4bb" memberName="jackNameText"
               virtualName="" explicitFocusOrder="12" pos="212 332 136 18" textcol="ff808080"
               bkgcol="ff000000" initialText="" multiline="0" retKeyStartsLine="0"
@@ -1601,20 +1674,22 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="140 358 64 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="# of sources" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <SLIDER name="nSourcesSlider" id="3a13d77beb71d910" memberName="nSourcesSlider"
-          virtualName="" explicitFocusOrder="14" pos="214 358 64 18" min="0"
-          max="16" int="1" style="IncDecButtons" textBoxPos="TextBoxLeft"
-          textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
+          virtualName="" explicitFocusOrder="14" pos="214 358 64 18" min="0.0"
+          max="16.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
+          textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
   <LABEL name="nSinksLabel" id="2da0a2441a20f3b0" memberName="nSinksLabel"
          virtualName="" explicitFocusOrder="0" pos="330 358 64 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="# of sinks" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <SLIDER name="nSinksSlider" id="182ff4a5ae799417" memberName="nSinksSlider"
-          virtualName="" explicitFocusOrder="15" pos="404 358 64 18" min="0"
-          max="16" int="1" style="IncDecButtons" textBoxPos="TextBoxLeft"
-          textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1"/>
+          virtualName="" explicitFocusOrder="15" pos="404 358 64 18" min="0.0"
+          max="16.0" int="1.0" style="IncDecButtons" textBoxPos="TextBoxLeft"
+          textBoxEditable="0" textBoxWidth="80" textBoxHeight="20" skewFactor="1.0"
+          needsCallback="1"/>
   <TOGGLEBUTTON name="jackPortsButton" id="2e760aa1269d4107" memberName="jackPortsButton"
                 virtualName="" explicitFocusOrder="13" pos="352 332 120 18" txtcol="ffffffff"
                 buttonText="auto-connect ports" connectedEdges="0" needsCallback="1"
@@ -1628,3 +1703,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

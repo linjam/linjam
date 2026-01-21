@@ -1,18 +1,18 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.1
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -37,34 +37,46 @@ ConfigBlacklist::ConfigBlacklist (ValueTree blacklist_store)
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (subscribeButton = new ToggleButton ("subscribeButton"));
+    subscribeButton.reset (new juce::ToggleButton ("subscribeButton"));
+    addAndMakeVisible (subscribeButton.get());
     subscribeButton->setExplicitFocusOrder (1);
-    subscribeButton->setButtonText (TRANS("auto-receive"));
+    subscribeButton->setButtonText (TRANS ("auto-receive"));
     subscribeButton->addListener (this);
-    subscribeButton->setToggleState (true, dontSendNotification);
-    subscribeButton->setColour (ToggleButton::textColourId, Colours::white);
+    subscribeButton->setToggleState (true, juce::dontSendNotification);
+    subscribeButton->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (ignoreButton = new ToggleButton ("ignoreButton"));
+    subscribeButton->setBounds (20, 20, 74, 16);
+
+    ignoreButton.reset (new juce::ToggleButton ("ignoreButton"));
+    addAndMakeVisible (ignoreButton.get());
     ignoreButton->setExplicitFocusOrder (2);
-    ignoreButton->setButtonText (TRANS("auto-ignore"));
+    ignoreButton->setButtonText (TRANS ("auto-ignore"));
     ignoreButton->addListener (this);
-    ignoreButton->setToggleState (true, dontSendNotification);
-    ignoreButton->setColour (ToggleButton::textColourId, Colours::white);
+    ignoreButton->setToggleState (true, juce::dontSendNotification);
+    ignoreButton->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (bansLabel = new Label ("bansLabel",
-                                              TRANS("ignored users")));
-    bansLabel->setFont (Font (15.00f, Font::plain));
-    bansLabel->setJustificationType (Justification::centredTop);
+    ignoreButton->setBounds (98, 20, 74, 16);
+
+    bansLabel.reset (new juce::Label ("bansLabel",
+                                      TRANS ("ignored users")));
+    addAndMakeVisible (bansLabel.get());
+    bansLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    bansLabel->setJustificationType (juce::Justification::centredTop);
     bansLabel->setEditable (false, false, false);
-    bansLabel->setColour (Label::textColourId, Colours::white);
-    bansLabel->setColour (TextEditor::textColourId, Colours::black);
-    bansLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    bansLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    bansLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    bansLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (blacklistViewport = new Viewport ("blacklistViewport"));
+    bansLabel->setBounds (20, 44, 152, 16);
+
+    blacklistViewport.reset (new juce::Viewport ("blacklistViewport"));
+    addAndMakeVisible (blacklistViewport.get());
     blacklistViewport->setExplicitFocusOrder (3);
     blacklistViewport->setScrollBarsShown (true, false);
     blacklistViewport->setScrollBarThickness (12);
     blacklistViewport->setViewedComponent (new Blacklist (blacklist_store));
+
+    blacklistViewport->setBounds (24, 68, 144, 76);
 
 
     //[UserPreSize]
@@ -104,19 +116,31 @@ ConfigBlacklist::~ConfigBlacklist()
 }
 
 //==============================================================================
-void ConfigBlacklist::paint (Graphics& g)
+void ConfigBlacklist::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.setColour (Colour (0xff200000));
-    g.fillRoundedRectangle (0.0f, 0.0f, 192.0f, 172.0f, 10.000f);
+    {
+        float x = 0.0f, y = 0.0f, width = 192.0f, height = 172.0f;
+        juce::Colour fillColour = juce::Colour (0xff200000);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+    }
 
-    g.setColour (Colour (0xff101010));
-    g.fillRoundedRectangle (20.0f, 64.0f, 152.0f, 84.0f, 10.000f);
-
-    g.setColour (Colours::white);
-    g.drawRoundedRectangle (20.0f, 64.0f, 152.0f, 84.0f, 10.000f, 1.000f);
+    {
+        float x = 20.0f, y = 64.0f, width = 152.0f, height = 84.0f;
+        juce::Colour fillColour = juce::Colour (0xff101010);
+        juce::Colour strokeColour = juce::Colours::white;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.setColour (strokeColour);
+        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
+    }
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -127,25 +151,21 @@ void ConfigBlacklist::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    subscribeButton->setBounds (20, 20, 74, 16);
-    ignoreButton->setBounds (98, 20, 74, 16);
-    bansLabel->setBounds (20, 44, 152, 16);
-    blacklistViewport->setBounds (24, 68, 144, 76);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
 
-void ConfigBlacklist::buttonClicked (Button* buttonThatWasClicked)
+void ConfigBlacklist::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == subscribeButton)
+    if (buttonThatWasClicked == subscribeButton.get())
     {
         //[UserButtonCode_subscribeButton] -- add your button handler code here..
         //[/UserButtonCode_subscribeButton]
     }
-    else if (buttonThatWasClicked == ignoreButton)
+    else if (buttonThatWasClicked == ignoreButton.get())
     {
         //[UserButtonCode_ignoreButton] -- add your button handler code here..
         //[/UserButtonCode_ignoreButton]
@@ -178,9 +198,9 @@ void ConfigBlacklist::setConfig(Identifier a_key , var a_value)
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
@@ -191,8 +211,8 @@ BEGIN_JUCER_METADATA
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="1"
                  initialWidth="614" initialHeight="434">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 192 172" cornerSize="10" fill="solid: ff200000" hasStroke="0"/>
-    <ROUNDRECT pos="20 64 152 84" cornerSize="10" fill="solid: ff101010" hasStroke="1"
+    <ROUNDRECT pos="0 0 192 172" cornerSize="10.0" fill="solid: ff200000" hasStroke="0"/>
+    <ROUNDRECT pos="20 64 152 84" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <TOGGLEBUTTON name="subscribeButton" id="a9eb5bfc0df5b172" memberName="subscribeButton"
@@ -207,7 +227,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="20 44 152 16" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="ignored users" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="12"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="12"/>
   <VIEWPORT name="blacklistViewport" id="1da1a4f83d3dffa2" memberName="blacklistViewport"
             virtualName="" explicitFocusOrder="3" pos="24 68 144 76" vscroll="1"
             hscroll="0" scrollbarThickness="12" contentType="2" jucerFile=""
@@ -221,3 +241,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

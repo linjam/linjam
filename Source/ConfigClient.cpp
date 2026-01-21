@@ -1,18 +1,18 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.1
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -36,69 +36,96 @@ ConfigClient::ConfigClient (ValueTree client_store)
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (saveAudioLabel = new Label ("saveAudioLabel",
-                                                   TRANS("save audio")));
-    saveAudioLabel->setFont (Font (15.00f, Font::plain));
-    saveAudioLabel->setJustificationType (Justification::centredTop);
+    saveAudioLabel.reset (new juce::Label ("saveAudioLabel",
+                                           TRANS ("save audio")));
+    addAndMakeVisible (saveAudioLabel.get());
+    saveAudioLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    saveAudioLabel->setJustificationType (juce::Justification::centredTop);
     saveAudioLabel->setEditable (false, false, false);
-    saveAudioLabel->setColour (Label::textColourId, Colours::white);
-    saveAudioLabel->setColour (TextEditor::textColourId, Colours::black);
-    saveAudioLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    saveAudioLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    saveAudioLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    saveAudioLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (saveAudioComboBox = new ComboBox ("saveAudioComboBox"));
+    saveAudioLabel->setBounds (20, 18, 152, 16);
+
+    saveAudioComboBox.reset (new juce::ComboBox ("saveAudioComboBox"));
+    addAndMakeVisible (saveAudioComboBox.get());
     saveAudioComboBox->setExplicitFocusOrder (1);
     saveAudioComboBox->setEditableText (false);
-    saveAudioComboBox->setJustificationType (Justification::centredLeft);
-    saveAudioComboBox->setTextWhenNothingSelected (String());
-    saveAudioComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    saveAudioComboBox->setJustificationType (juce::Justification::centredLeft);
+    saveAudioComboBox->setTextWhenNothingSelected (juce::String());
+    saveAudioComboBox->setTextWhenNoChoicesAvailable (TRANS ("(no choices)"));
     saveAudioComboBox->addListener (this);
 
-    addAndMakeVisible (oggMixdownButton = new ToggleButton ("oggMixdownButton"));
+    saveAudioComboBox->setBounds (20, 38, 152, 16);
+
+    oggMixdownButton.reset (new juce::ToggleButton ("oggMixdownButton"));
+    addAndMakeVisible (oggMixdownButton.get());
     oggMixdownButton->setExplicitFocusOrder (2);
-    oggMixdownButton->setButtonText (TRANS("ogg mixdown"));
+    oggMixdownButton->setButtonText (TRANS ("ogg mixdown"));
     oggMixdownButton->addListener (this);
-    oggMixdownButton->setColour (ToggleButton::textColourId, Colours::white);
+    oggMixdownButton->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (wavMixdownButton = new ToggleButton ("wavMixdownButton"));
+    oggMixdownButton->setBounds (20, 58, 74, 16);
+
+    wavMixdownButton.reset (new juce::ToggleButton ("wavMixdownButton"));
+    addAndMakeVisible (wavMixdownButton.get());
     wavMixdownButton->setExplicitFocusOrder (3);
-    wavMixdownButton->setButtonText (TRANS("wav mixdown"));
+    wavMixdownButton->setButtonText (TRANS ("wav mixdown"));
     wavMixdownButton->addListener (this);
-    wavMixdownButton->setColour (ToggleButton::textColourId, Colours::white);
+    wavMixdownButton->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (debugLevelLabel = new Label ("debugLevelLabel",
-                                                    TRANS("debug level")));
-    debugLevelLabel->setFont (Font (15.00f, Font::plain));
-    debugLevelLabel->setJustificationType (Justification::centredTop);
+    wavMixdownButton->setBounds (98, 58, 74, 16);
+
+    debugLevelLabel.reset (new juce::Label ("debugLevelLabel",
+                                            TRANS ("debug level")));
+    addAndMakeVisible (debugLevelLabel.get());
+    debugLevelLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    debugLevelLabel->setJustificationType (juce::Justification::centredTop);
     debugLevelLabel->setEditable (false, false, false);
-    debugLevelLabel->setColour (Label::textColourId, Colours::white);
-    debugLevelLabel->setColour (TextEditor::textColourId, Colours::black);
-    debugLevelLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    debugLevelLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    debugLevelLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    debugLevelLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (debugLevelComboBox = new ComboBox ("debugLevelComboBox"));
+    debugLevelLabel->setBounds (20, 86, 152, 16);
+
+    debugLevelComboBox.reset (new juce::ComboBox ("debugLevelComboBox"));
+    addAndMakeVisible (debugLevelComboBox.get());
     debugLevelComboBox->setExplicitFocusOrder (4);
     debugLevelComboBox->setEditableText (false);
-    debugLevelComboBox->setJustificationType (Justification::centredLeft);
-    debugLevelComboBox->setTextWhenNothingSelected (String());
-    debugLevelComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    debugLevelComboBox->setJustificationType (juce::Justification::centredLeft);
+    debugLevelComboBox->setTextWhenNothingSelected (juce::String());
+    debugLevelComboBox->setTextWhenNoChoicesAvailable (TRANS ("(no choices)"));
     debugLevelComboBox->addListener (this);
 
-    addAndMakeVisible (saveLogButton = new ToggleButton ("saveLogButton"));
+    debugLevelComboBox->setBounds (20, 106, 152, 16);
+
+    saveLogButton.reset (new juce::ToggleButton ("saveLogButton"));
+    addAndMakeVisible (saveLogButton.get());
     saveLogButton->setExplicitFocusOrder (5);
-    saveLogButton->setButtonText (TRANS("save log"));
+    saveLogButton->setButtonText (TRANS ("save log"));
     saveLogButton->addListener (this);
-    saveLogButton->setColour (ToggleButton::textColourId, Colours::white);
+    saveLogButton->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (hideBotsButton = new ToggleButton ("hideBotsButton"));
+    saveLogButton->setBounds (20, 130, 74, 16);
+
+    hideBotsButton.reset (new juce::ToggleButton ("hideBotsButton"));
+    addAndMakeVisible (hideBotsButton.get());
     hideBotsButton->setExplicitFocusOrder (6);
-    hideBotsButton->setButtonText (TRANS("hide bots"));
+    hideBotsButton->setButtonText (TRANS ("hide bots"));
     hideBotsButton->addListener (this);
-    hideBotsButton->setToggleState (true, dontSendNotification);
-    hideBotsButton->setColour (ToggleButton::textColourId, Colours::white);
+    hideBotsButton->setToggleState (true, juce::dontSendNotification);
+    hideBotsButton->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (cleanButton = new TextButton ("cleanButton"));
+    hideBotsButton->setBounds (98, 130, 74, 16);
+
+    cleanButton.reset (new juce::TextButton ("cleanButton"));
+    addAndMakeVisible (cleanButton.get());
     cleanButton->setExplicitFocusOrder (7);
-    cleanButton->setButtonText (TRANS("clean session dir"));
+    cleanButton->setButtonText (TRANS ("clean session dir"));
     cleanButton->addListener (this);
+
+    cleanButton->setBounds (20, 164, 150, 24);
 
 
     //[UserPreSize]
@@ -151,13 +178,19 @@ ConfigClient::~ConfigClient()
 }
 
 //==============================================================================
-void ConfigClient::paint (Graphics& g)
+void ConfigClient::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.setColour (Colour (0xff202000));
-    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
+    {
+        float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = static_cast<float> (getHeight() - 0);
+        juce::Colour fillColour = juce::Colour (0xff202000);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+    }
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -168,20 +201,11 @@ void ConfigClient::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    saveAudioLabel->setBounds (20, 18, 152, 16);
-    saveAudioComboBox->setBounds (20, 38, 152, 16);
-    oggMixdownButton->setBounds (20, 58, 74, 16);
-    wavMixdownButton->setBounds (98, 58, 74, 16);
-    debugLevelLabel->setBounds (20, 86, 152, 16);
-    debugLevelComboBox->setBounds (20, 106, 152, 16);
-    saveLogButton->setBounds (20, 130, 74, 16);
-    hideBotsButton->setBounds (98, 130, 74, 16);
-    cleanButton->setBounds (20, 164, 150, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
 
-void ConfigClient::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+void ConfigClient::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
 
@@ -190,7 +214,7 @@ void ConfigClient::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == saveAudioComboBox)
+    if (comboBoxThatHasChanged == saveAudioComboBox.get())
     {
         //[UserComboBoxCode_saveAudioComboBox] -- add your combo box handling code here..
 
@@ -199,7 +223,7 @@ void ConfigClient::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
         //[/UserComboBoxCode_saveAudioComboBox]
     }
-    else if (comboBoxThatHasChanged == debugLevelComboBox)
+    else if (comboBoxThatHasChanged == debugLevelComboBox.get())
     {
         //[UserComboBoxCode_debugLevelComboBox] -- add your combo box handling code here..
 
@@ -216,7 +240,7 @@ void ConfigClient::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
     //[/UsercomboBoxChanged_Post]
 }
 
-void ConfigClient::buttonClicked (Button* buttonThatWasClicked)
+void ConfigClient::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
 
@@ -231,7 +255,7 @@ void ConfigClient::buttonClicked (Button* buttonThatWasClicked)
 
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == oggMixdownButton)
+    if (buttonThatWasClicked == oggMixdownButton.get())
     {
         //[UserButtonCode_oggMixdownButton] -- add your button handler code here..
 
@@ -240,7 +264,7 @@ void ConfigClient::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_oggMixdownButton]
     }
-    else if (buttonThatWasClicked == wavMixdownButton)
+    else if (buttonThatWasClicked == wavMixdownButton.get())
     {
         //[UserButtonCode_wavMixdownButton] -- add your button handler code here..
 
@@ -249,7 +273,7 @@ void ConfigClient::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_wavMixdownButton]
     }
-    else if (buttonThatWasClicked == saveLogButton)
+    else if (buttonThatWasClicked == saveLogButton.get())
     {
         //[UserButtonCode_saveLogButton] -- add your button handler code here..
 
@@ -258,7 +282,7 @@ void ConfigClient::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_saveLogButton]
     }
-    else if (buttonThatWasClicked == hideBotsButton)
+    else if (buttonThatWasClicked == hideBotsButton.get())
     {
         //[UserButtonCode_hideBotsButton] -- add your button handler code here..
 
@@ -267,7 +291,7 @@ void ConfigClient::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_hideBotsButton]
     }
-    else if (buttonThatWasClicked == cleanButton)
+    else if (buttonThatWasClicked == cleanButton.get())
     {
         //[UserButtonCode_cleanButton] -- add your button handler code here..
 
@@ -297,9 +321,9 @@ void ConfigClient::setConfig(Identifier a_key , var a_value)
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
@@ -310,13 +334,13 @@ BEGIN_JUCER_METADATA
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="1"
                  initialWidth="614" initialHeight="434">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff202000" hasStroke="0"/>
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff202000" hasStroke="0"/>
   </BACKGROUND>
   <LABEL name="saveAudioLabel" id="28e9c840504ea936" memberName="saveAudioLabel"
          virtualName="" explicitFocusOrder="0" pos="20 18 152 16" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="save audio" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="12"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="12"/>
   <COMBOBOX name="saveAudioComboBox" id="195d38c0dfa0b780" memberName="saveAudioComboBox"
             virtualName="" explicitFocusOrder="1" pos="20 38 152 16" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
@@ -332,7 +356,7 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="20 86 152 16" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="debug level" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="12"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="12"/>
   <COMBOBOX name="debugLevelComboBox" id="3b81e2ff4dec7469" memberName="debugLevelComboBox"
             virtualName="" explicitFocusOrder="4" pos="20 106 152 16" editable="0"
             layout="33" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
@@ -356,3 +380,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

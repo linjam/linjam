@@ -20,6 +20,7 @@
 #include <ninjam/njmisc.h> // VAL2DB and DB2VAL
 
 #include "JuceHeader.h"
+#include <array>
 
 #include "LinJamConfig.h"
 #include "MainContent.h"
@@ -91,7 +92,6 @@ private:
   static String                  PrevRecordingTime ;
   static URL                     PollUrl ;
   static ScopedPointer<RoomSort> RoomSorter ;
-
 
   // setup
   static bool Initialize(NJClient*   nj_client   , MainContent*  main_content ,

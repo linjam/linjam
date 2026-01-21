@@ -1,18 +1,18 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.1
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -62,18 +62,18 @@ Config::Config (ValueTree audio_store, ValueTree client_store, ValueTree gui_sto
     //[Constructor] You can add your own custom stuff here..
 
   // populate config tabs
-  this->configAudio     = new ConfigAudio(    audio_store     ) ;
-  this->configClient    = new ConfigClient(   client_store    ) ;
-  this->configGui       = new ConfigGui(      gui_store       ) ;
-  this->configBlacklist = new ConfigBlacklist(blacklist_store) ;
-  this->configTabs->addTab(TRANS("audio")        , GUI::AUDIO_TAB_COLOR          ,
-                           this->configAudio     , false , GUI::AUDIO_TAB_IDX    ) ;
-  this->configTabs->addTab(TRANS("client")       , GUI::CLIENT_TAB_COLOR         ,
-                           this->configClient    , false , GUI::CLIENT_TAB_IDX   ) ;
-  this->configTabs->addTab(TRANS("gui")          , GUI::GUI_TAB_COLOR            ,
-                           this->configGui       , false , GUI::GUI_TAB_IDX      ) ;
-  this->configTabs->addTab(TRANS("ignores")      , GUI::BLACKLIST_TAB_COLOR      ,
-                           this->configBlacklist , false , GUI::BLACKLIST_TAB_IDX) ;
+  this->configAudio    .reset(new ConfigAudio    (audio_store    )) ;
+  this->configClient   .reset(new ConfigClient   (client_store   )) ;
+  this->configGui      .reset(new ConfigGui      (gui_store      )) ;
+  this->configBlacklist.reset(new ConfigBlacklist(blacklist_store)) ;
+  this->configTabs->addTab(TRANS("Audio")              , GUI::AUDIO_TAB_COLOR          ,
+                           this->configAudio    .get() , false , GUI::AUDIO_TAB_IDX    ) ;
+  this->configTabs->addTab(TRANS("Client")             , GUI::CLIENT_TAB_COLOR         ,
+                           this->configClient   .get() , false , GUI::CLIENT_TAB_IDX   ) ;
+  this->configTabs->addTab(TRANS("Gui")                , GUI::GUI_TAB_COLOR            ,
+                           this->configGui      .get() , false , GUI::GUI_TAB_IDX      ) ;
+  this->configTabs->addTab(TRANS("Ignores")            , GUI::BLACKLIST_TAB_COLOR      ,
+                           this->configBlacklist.get() , false , GUI::BLACKLIST_TAB_IDX) ;
   this->configTabs->setCurrentTabIndex(GUI::AUDIO_TAB_IDX) ;
   this->configTabs->setOutline(0) ;
   this->configTabs->setIndent(0) ;
@@ -93,6 +93,12 @@ Config::~Config()
 
 
     //[Destructor]. You can add your own custom destruction code here..
+
+  configAudio     = nullptr ;
+  configClient    = nullptr ;
+  configGui       = nullptr ;
+  configBlacklist = nullptr ;
+
     //[/Destructor]
 }
 

@@ -33,7 +33,7 @@
   if (curr_status == APP::NJC_STATUS_OK)                                         \
     Trace::TraceServer("connected to host: " + String(Client->GetHostName())) ;  \
   if (client_error[0])                                                           \
-    Trace::TraceServer("Error: " + CharPointer_UTF8(client_error)) ;             \
+    Trace::TraceServer("Error: " + String(CharPointer_UTF8(client_error))) ;     \
   Trace::TraceGui(                                                               \
       (Status == APP::LINJAM_STATUS_AUDIOERROR    ) ? "showing config pane"    : \
       (Status == APP::LINJAM_STATUS_CONFIGPENDING ) ? "showing config pane"    : \
@@ -186,10 +186,10 @@
 
 #define DEBUG_TRACE_INSTANTIATE_LOCAL_CHANNEL                                    \
   Trace::TraceState("instantiating local " + type + " " +                        \
-                    String(channel_store.getType()) + " '" + channel_name + "'") ;
+                    Id2Str(channel_store.getType()) + " '" + channel_name + "'") ;
 
 #define DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL                                              \
-  String chan        = String(channel_store.getType()) + " '" + channel_name + "'" ;     \
+  String chan        = Id2Str(channel_store.getType()) + " '" + channel_name + "'" ;     \
   bool   is_new      = !IsConfiguredChannel(channel_idx) ;                               \
   bool   is_mono     = stereo_status == CONFIG::MONO ;                                   \
   bool   is_stereo   = stereo_status != CONFIG::MONO ;                                   \
@@ -200,10 +200,10 @@
   String type        = (is_mono  )    ? "mono"        : "stereo" ;                       \
   String prev_type   = (is_stereo)    ? "mono"        : "stereo" ;                       \
   String pan_str     = " (" + String(ClientPan(pan , stereo_status)) + " faux-stereo)" ; \
-  String pan_msg     = String(pan)       + ((is_mono    ) ? ""            : pan_str) ;   \
-  String stereo      = String(is_stereo) + ((is_mono    ) ? " (MONO)"     :              \
-                                            (is_stereo_l) ? " (STEREO_L)" :              \
-                                            (is_stereo_r) ? " (STEREO_R)" : "") ;        \
+  String pan_msg     = String(pan)        + ((is_mono    ) ? ""            : pan_str) ;  \
+  String stereo      = Bool2Str(is_stereo) + ((is_mono    ) ? " (MONO)"     :            \
+                                              (is_stereo_l) ? " (STEREO_L)" :            \
+                                              (is_stereo_r) ? " (STEREO_R)" : "") ;      \
   if (should_set_is_stereo && !should_init_all)                                          \
     Trace::TraceClient("converting local " + prev_type + " " + chan + " to " + type) ;   \
   Trace::TraceClient("configuring " + String((is_new) ? "new"  : "existing")           + \
@@ -214,9 +214,9 @@
        ((should_set_is_stereo) ? "\n  pair_idx    => " + pairidx             : "") +     \
        ((should_set_volume   ) ? "\n  volume      => " + String(volume)      : "") +     \
        ((should_set_pan      ) ? "\n  pan         => " + pan_msg             : "") +     \
-       ((should_set_is_xmit  ) ? "\n  is_xmit     => " + String(is_xmit)     : "") +     \
-       ((should_set_is_muted ) ? "\n  is_muted    => " + String(is_muted)    : "") +     \
-       ((should_set_is_solo  ) ? "\n  is_solo     => " + String(is_solo)     : "") +     \
+       ((should_set_is_xmit  ) ? "\n  is_xmit     => " + Bool2Str(is_xmit)   : "") +     \
+       ((should_set_is_muted ) ? "\n  is_muted    => " + Bool2Str(is_muted)  : "") +     \
+       ((should_set_is_solo  ) ? "\n  is_solo     => " + Bool2Str(is_solo)   : "") +     \
        ((should_set_source_n ) ? "\n  source_n    => " + String(source_n)    : "") +     \
        ((should_set_bit_depth) ? "\n  bit_depth   => " + String(bit_depth)   : "") +     \
        ((should_set_is_stereo) ? "\n  is_stereo   => " + stereo              : "") ) ) ) ;
@@ -226,7 +226,7 @@
                 "mono" : "stereo" ;                                            \
   Trace::TraceEvent("destroying local " + type + " channel["                 + \
                     channel_store[CONFIG::CHANNEL_IDX_ID].toString() + "] '" + \
-                    String(channel_store.getType()) + "'"                    ) ;
+                    Id2Str(channel_store.getType()) + "'"                    ) ;
 
 #if TRACE_DUMP_FREE_INPUTS
 #  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB                                          \
@@ -243,13 +243,13 @@
 #endif // TRACE_DUMP_FREE_INPUTS
 
 #define DEBUG_TRACE_REMOTE_CHANNELS                                                   \
-    bool   is_bot = str(NETWORK::KNOWN_BOTS.getProperty(host , "")) == String(u_id) ; \
+    bool   is_bot = str(NETWORK::KNOWN_BOTS.getProperty(host , "")) == Id2Str(u_id) ; \
     String hidden = (hide_bots && is_bot) ? " (bot hidden)" : "" ;                    \
     String dbg    = "NJClient remote user[" + String(u_idx) + "] =>" + hidden +       \
         "\n  user_name   => "   + String(u_name)                              +       \
         "\n  user_volume => "   + String(u_vol)                               +       \
         "\n  user_pan    => "   + String(u_pan)                               +       \
-        "\n  user_mute   => "   + String(u_mute)                              ;       \
+        "\n  user_mute   => "   + Bool2Str(u_mute)                            ;       \
     int ch_n = -1 ; int ch_idx ;                                                      \
     while (~(ch_idx = LinJam::Client->EnumUserChannels(u_idx , ++ch_n)))              \
     {                                                                                 \
@@ -264,11 +264,11 @@
              "\n    channel_name   => "  + String(ch_name)         +                  \
              "\n    channel_volume => "  + String(ch_vol)          +                  \
              "\n    channel_pan    => "  + String(ch_pan)          +                  \
-             "\n    is_rcv         => "  + String(ch_rcv)          +                  \
-             "\n    channel_mute   => "  + String(ch_mute)         +                  \
-             "\n    is_solo        => "  + String(ch_solo)         +                  \
+             "\n    is_rcv         => "  + Bool2Str(ch_rcv)        +                  \
+             "\n    channel_mute   => "  + Bool2Str(ch_mute)       +                  \
+             "\n    is_solo        => "  + Bool2Str(ch_solo)       +                  \
              "\n    sink_n         => "  + String(ch_sink)         +                  \
-             "\n    is_pannable    => "  + String(ch_pannable) ;                      \
+             "\n    is_pannable    => "  + Bool2Str(ch_pannable) ;                    \
     }                                                                                 \
     Trace::TraceState(dbg) ;
 
@@ -290,14 +290,14 @@
 #endif // TRACE_REMOTE_CHANNELS_VB
 
 #define DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL                                             \
-  String user_name   = String(user_store.getType()) ;                                    \
+  String user_name   = Id2Str(user_store.getType()) ;                                    \
   bool   is_mono     = stereo_status == CONFIG::MONO ;                                   \
-  String dbg         = "configuring remote " + String(channel_store.getType()) + " '" +  \
+  String dbg         = "configuring remote " + Id2Str(channel_store.getType()) + " '" +  \
                        GetStoredChannelName(channel_store) + "' for user["            +  \
                        String(user_idx) + "] '" + user_name + "'"                     ;  \
   String pan_str     = " (" + String(ClientPan(pan , stereo_status)) + " faux-stereo)" ; \
   String pan_msg     = String(pan) + ((is_mono) ? "" : pan_str) ;                        \
-  String pannable    = String(is_pannable)                                      +        \
+  String pannable    = Bool2Str(is_pannable)                                    +        \
                        ((stereo_status == CONFIG::MONO    ) ? " (MONO)"     :            \
                         (stereo_status == CONFIG::STEREO_L) ? " (STEREO_L)" :            \
                         (stereo_status == CONFIG::STEREO_R) ? " (STEREO_R)" : "") ;      \
@@ -321,9 +321,9 @@
   else if (TRACE_REMOTE_CHANNELS_VB) Trace::TraceClient(dbg                    +         \
       ((should_set_volume  ) ? "\n  volume      => " + String(volume)    : "") +         \
       ((should_set_pan     ) ? "\n  pan         => " + pan_msg           : "") +         \
-      ((should_set_is_rcv  ) ? "\n  is_rcv      => " + String(is_rcv)    : "") +         \
-      ((should_set_is_muted) ? "\n  is_muted    => " + String(is_muted)  : "") +         \
-      ((should_set_is_solo ) ? "\n  is_solo     => " + String(is_solo)   : "") +         \
+      ((should_set_is_rcv  ) ? "\n  is_rcv      => " + Bool2Str(is_rcv)   : "") +         \
+      ((should_set_is_muted) ? "\n  is_muted    => " + Bool2Str(is_muted) : "") +         \
+      ((should_set_is_solo ) ? "\n  is_solo     => " + Bool2Str(is_solo)  : "") +         \
       ((should_init_all    ) ? "\n  sink_n      => " + String(sink_n)    : "") +         \
       ((should_init_all    ) ? "\n  is_pannable => " + pannable          : "") ) ;       \
   if (is_master && !should_set_volume && !should_set_pan && !should_set_is_muted &&      \
@@ -339,7 +339,7 @@
   std::set<std::string> users = Client->config_autosubscribe_userlist ;               \
   for (int user_n = 0 ; user_n < subs.getNumChildren() ; ++user_n)                    \
   {                                                                                   \
-    String user_name = String(subs.getChild(user_n).getType()) ;                      \
+    String user_name = Id2Str(subs.getChild(user_n).getType()) ;                      \
     if (!users.count(user_name.toStdString()))                                        \
       Trace::TraceClient("ignoring remote user '" + user_name + "'") ;                \
   }                                                                                   \
@@ -353,7 +353,7 @@
   {                                                                                   \
     String dbg = "ignore_list =>" ; int n_users = subs.getNumChildren() ;             \
     for (int user_n = 0 ; user_n < n_users ; ++user_n)                                \
-      dbg += "\n  " + String(subs.getChild(user_n).getType()) ;                       \
+      dbg += "\n  " + Id2Str(subs.getChild(user_n).getType()) ;                       \
     Trace::TraceClient(dbg + ((!n_users)? " (none)" : "")) ;                          \
   }
 

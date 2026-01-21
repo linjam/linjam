@@ -119,64 +119,64 @@
 /** CONFIG_XML, WIN_AUDIO_XML, NIX_AUDIO_XML, MAC_AUDIO_XML define the schema
         and default values for the configuration/persistence model
     this data is instantiated below as DEFAULT_CONFIG_XML                     */
-#define CONFIG_XML XML_HEADER                                                 + \
-  STORAGE_KEY              +                                            " "   + \
-    CONFIG_VERSION_KEY     + "=\"" + String(CONFIG_VERSION          ) + "\""  + \
-  "><"                                                                        + \
-    GUI_KEY                +                                            " "   + \
-      FONT_SIZE_KEY        + "=\"" + String(DEFAULT_FONT_SIZE_N     ) + "\" " + \
-      UPDATE_IVL_KEY       + "=\"" + String(DEFAULT_UPDATE_IVL_N    ) + "\" " + \
-    "/><"                                                                     + \
-    CLIENT_KEY             +                                            " "   + \
-      SAVE_AUDIO_MODE_KEY  + "=\"" + String(DEFAULT_SAVE_AUDIO_MODE ) + "\" " + \
-      MIXDOWN_MODE_KEY     + "=\"" + String(DEFAULT_MIXDOWN_MODE    ) + "\" " + \
-      SHOULD_SAVE_LOG_KEY  + "=\"" + BOOLSTR(DEFAULT_SHOULD_SAVE_LOG ) + "\" " + \
-      DEBUG_LEVEL_KEY      + "=\"" + String(DEFAULT_DEBUG_LEVEL     ) + "\" " + \
-      SHOULD_HIDE_BOTS_KEY + "=\"" + BOOLSTR(DEFAULT_SHOULD_HIDE_BOTS) + "\" " + \
-    "/><"                                                                     + \
-    BLACKLIST_KEY          +                                            " "   + \
-      SUBSCRIBE_MODE_KEY   + "=\"" + String(DEFAULT_SUBSCRIBE_MODE  ) + "\" " + \
-    "/><"                                                                     + \
-    AUDIO_KEY              +                                            " "   + \
-      AUDIO_API_KEY        + "=\"" + String(DEFAULT_AUDIO_API       ) + "\" " + \
-      String(WIN_AUDIO_XML)                                                   + \
-      String(MAC_AUDIO_XML)                                                   + \
-      String(NIX_AUDIO_XML)                                                   + \
-    "/><"                                                                     + \
-    SERVER_KEY             +                                            " "   + \
-      HOST_KEY             + "=\"" + String(DEFAULT_HOST            ) + "\" " + \
-      LOGIN_KEY            + "=\"" + String(DEFAULT_LOGIN           ) + "\" " + \
-      PASS_KEY             + "=\"" + String(DEFAULT_PASS            ) + "\" " + \
-      IS_ANONYMOUS_KEY     + "=\"" + BOOLSTR(DEFAULT_IS_ANONYMOUS    ) + "\" " + \
-      IS_AGREED_KEY        + "=\"" + BOOLSTR(DEFAULT_IS_AGREED       ) + "\" " + \
-      SHOULD_AGREE_KEY     + "=\"" + BOOLSTR(DEFAULT_SHOULD_AGREE    ) + "\" " + \
-      BOT_NAME_KEY         + "=\"" + String(DEFAULT_BOT_NAME        ) + "\" " + \
-      BOT_USERIDX_KEY      + "=\"" + String(DEFAULT_BOT_USERIDX     ) + "\" " + \
-    "/><"                                                                     + \
-    SERVERS_KEY            + " /><"                                           + \
-    MASTERS_KEY            + "><"                                             + \
-      MASTER_KEY           +                                            " "   + \
-        CHANNEL_NAME_KEY   + "=\"" + String(MASTER_KEY              ) + "\" " + \
-        VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME          ) + "\" " + \
-        PAN_KEY            + "=\"" + String(DEFAULT_PAN             ) + "\" " + \
-        IS_MUTED_KEY       + "=\"" + BOOLSTR(DEFAULT_IS_MUTED        ) + "\" " + \
-        STEREO_KEY         + "=\"" + String(STEREO                  ) + "\" " + \
-        VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU              ) + "\" " + \
-        VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU              ) + "\" " + \
-    "/><"                                                                     + \
-      METRO_KEY            +                                            " "   + \
-        CHANNEL_NAME_KEY   + "=\"" + String(METRO_KEY               ) + "\" " + \
-        VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME          ) + "\" " + \
-        PAN_KEY            + "=\"" + String(DEFAULT_PAN             ) + "\" " + \
-        IS_MUTED_KEY       + "=\"" + BOOLSTR(DEFAULT_IS_MUTED        ) + "\" " + \
-        SOURCE_N_KEY       + "=\"" + String(DEFAULT_SOURCE_N        ) + "\" " + \
-        STEREO_KEY         + "=\"" + String(STEREO                  ) + "\" " + \
-        VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU              ) + "\" " + \
-        VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU              ) + "\" " + \
-    "/>"                                                                      + \
-    "</" + MASTERS_KEY     + "><"                                             + \
-    LOCALS_KEY             + " /><"                                           + \
-    REMOTES_KEY            + " />"                                            + \
+#define CONFIG_XML XML_HEADER                                                   + \
+  STORAGE_KEY              +                                              " "   + \
+    CONFIG_VERSION_KEY     + "=\"" + String(CONFIG_VERSION            ) + "\""  + \
+  "><"                                                                          + \
+    GUI_KEY                +                                              " "   + \
+      FONT_SIZE_KEY        + "=\"" + String(DEFAULT_FONT_SIZE_N       ) + "\" " + \
+      UPDATE_IVL_KEY       + "=\"" + String(DEFAULT_UPDATE_IVL_N      ) + "\" " + \
+    "/><"                                                                       + \
+    CLIENT_KEY             +                                              " "   + \
+      SAVE_AUDIO_MODE_KEY  + "=\"" + String(DEFAULT_SAVE_AUDIO_MODE   ) + "\" " + \
+      MIXDOWN_MODE_KEY     + "=\"" + String(DEFAULT_MIXDOWN_MODE      ) + "\" " + \
+      SHOULD_SAVE_LOG_KEY  + "=\"" + Bool2Str(DEFAULT_SHOULD_SAVE_LOG ) + "\" " + \
+      DEBUG_LEVEL_KEY      + "=\"" + String(DEFAULT_DEBUG_LEVEL       ) + "\" " + \
+      SHOULD_HIDE_BOTS_KEY + "=\"" + Bool2Str(DEFAULT_SHOULD_HIDE_BOTS) + "\" " + \
+    "/><"                                                                       + \
+    BLACKLIST_KEY          +                                              " "   + \
+      SUBSCRIBE_MODE_KEY   + "=\"" + String(DEFAULT_SUBSCRIBE_MODE    ) + "\" " + \
+    "/><"                                                                       + \
+    AUDIO_KEY              +                                              " "   + \
+      AUDIO_API_KEY        + "=\"" + String(DEFAULT_AUDIO_API         ) + "\" " + \
+      String(WIN_AUDIO_XML)                                                     + \
+      String(MAC_AUDIO_XML)                                                     + \
+      String(NIX_AUDIO_XML)                                                     + \
+    "/><"                                                                       + \
+    SERVER_KEY             +                                              " "   + \
+      HOST_KEY             + "=\"" + String(DEFAULT_HOST              ) + "\" " + \
+      LOGIN_KEY            + "=\"" + String(DEFAULT_LOGIN             ) + "\" " + \
+      PASS_KEY             + "=\"" + String(DEFAULT_PASS              ) + "\" " + \
+      IS_ANONYMOUS_KEY     + "=\"" + Bool2Str(DEFAULT_IS_ANONYMOUS    ) + "\" " + \
+      IS_AGREED_KEY        + "=\"" + Bool2Str(DEFAULT_IS_AGREED       ) + "\" " + \
+      SHOULD_AGREE_KEY     + "=\"" + Bool2Str(DEFAULT_SHOULD_AGREE    ) + "\" " + \
+      BOT_NAME_KEY         + "=\"" + String(DEFAULT_BOT_NAME          ) + "\" " + \
+      BOT_USERIDX_KEY      + "=\"" + String(DEFAULT_BOT_USERIDX       ) + "\" " + \
+    "/><"                                                                       + \
+    SERVERS_KEY            + " /><"                                             + \
+    MASTERS_KEY            + "><"                                               + \
+      MASTER_KEY           +                                              " "   + \
+        CHANNEL_NAME_KEY   + "=\"" + String(MASTER_KEY                ) + "\" " + \
+        VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME            ) + "\" " + \
+        PAN_KEY            + "=\"" + String(DEFAULT_PAN               ) + "\" " + \
+        IS_MUTED_KEY       + "=\"" + Bool2Str(DEFAULT_IS_MUTED        ) + "\" " + \
+        STEREO_KEY         + "=\"" + String(STEREO                    ) + "\" " + \
+        VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU                ) + "\" " + \
+        VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU                ) + "\" " + \
+    "/><"                                                                       + \
+      METRO_KEY            +                                              " "   + \
+        CHANNEL_NAME_KEY   + "=\"" + String(METRO_KEY                 ) + "\" " + \
+        VOLUME_KEY         + "=\"" + String(DEFAULT_VOLUME            ) + "\" " + \
+        PAN_KEY            + "=\"" + String(DEFAULT_PAN               ) + "\" " + \
+        IS_MUTED_KEY       + "=\"" + Bool2Str(DEFAULT_IS_MUTED        ) + "\" " + \
+        SOURCE_N_KEY       + "=\"" + String(DEFAULT_SOURCE_N          ) + "\" " + \
+        STEREO_KEY         + "=\"" + String(STEREO                    ) + "\" " + \
+        VU_LEFT_KEY        + "=\"" + String(DEFAULT_VU                ) + "\" " + \
+        VU_RIGHT_KEY       + "=\"" + String(DEFAULT_VU                ) + "\" " + \
+    "/>"                                                                        + \
+    "</" + MASTERS_KEY     + "><"                                               + \
+    LOCALS_KEY             + " /><"                                             + \
+    REMOTES_KEY            + " />"                                              + \
   "</" + STORAGE_KEY       + ">"
 
 /** CONFIG_TYPES_XML denotes the property datatypes for the schema above

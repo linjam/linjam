@@ -74,7 +74,6 @@ private:
   int  getFontSize() ;
   bool shouldShowTopic() ;
 
-
     //[/UserVariables]
 
     //==============================================================================

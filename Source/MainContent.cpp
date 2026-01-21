@@ -133,24 +133,24 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
   Value fontsize_value = LinJamConfig::GetValueHolder(gui_store   , CONFIG::FONT_SIZE_ID   ) ;
 
   // instantiate components requiring model hooks
-  this->background = new Background(                                           ) ;
-  this->config     = new Config    (audio_store     , client_store , gui_store ,
-                                    blacklist_store , linjam_status            ) ;
-  this->login      = new Login     (login_store     , servers_store            ) ;
-  this->license    = new License   (agreed_value    , agree_value              ) ;
-  this->chat       = new Chat      (fontsize_value                             ) ;
-  this->mixer      = new Mixer     (blacklist_store                            ) ;
-  this->statusbar  = new StatusBar (                                           ) ;
-  this->loop       = new Loop      (                                           ) ;
+  this->background.reset(new Background(                                           )) ;
+  this->config    .reset(new Config    (audio_store     , client_store , gui_store ,
+                                        blacklist_store , linjam_status            )) ;
+  this->login     .reset(new Login     (login_store     , servers_store            )) ;
+  this->license   .reset(new License   (agreed_value    , agree_value              )) ;
+  this->chat      .reset(new Chat      (fontsize_value                             )) ;
+  this->mixer     .reset(new Mixer     (blacklist_store                            )) ;
+  this->statusbar .reset(new StatusBar (                                           )) ;
+  this->loop      .reset(new Loop      (                                           )) ;
 
-  this->addChildAndSetID(this->background , GUI::BACKGROUND_GUI_ID) ;
-  this->addChildAndSetID(this->config     , GUI::CONFIG_GUI_ID    ) ;
-  this->addChildAndSetID(this->login      , GUI::LOGIN_GUI_ID     ) ;
-  this->addChildAndSetID(this->license    , GUI::LICENSE_GUI_ID   ) ;
-  this->addChildAndSetID(this->chat       , GUI::CHAT_GUI_ID      ) ;
-  this->addChildAndSetID(this->mixer      , GUI::MIXER_GUI_ID     ) ;
-  this->addChildAndSetID(this->statusbar  , GUI::STATUS_GUI_ID    ) ;
-  this->addChildAndSetID(this->loop       , GUI::LOOP_GUI_ID      ) ;
+  this->addChildAndSetID(this->background.get() , GUI::BACKGROUND_GUI_ID) ;
+  this->addChildAndSetID(this->config    .get() , GUI::CONFIG_GUI_ID    ) ;
+  this->addChildAndSetID(this->login     .get() , GUI::LOGIN_GUI_ID     ) ;
+  this->addChildAndSetID(this->license   .get() , GUI::LICENSE_GUI_ID   ) ;
+  this->addChildAndSetID(this->chat      .get() , GUI::CHAT_GUI_ID      ) ;
+  this->addChildAndSetID(this->mixer     .get() , GUI::MIXER_GUI_ID     ) ;
+  this->addChildAndSetID(this->statusbar .get() , GUI::STATUS_GUI_ID    ) ;
+  this->addChildAndSetID(this->loop      .get() , GUI::LOOP_GUI_ID      ) ;
 
   this->background->toFront(true) ;
   this->config    ->toBack() ;

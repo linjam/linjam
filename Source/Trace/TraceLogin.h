@@ -27,7 +27,7 @@
     ValueTree clients   = server.getChildWithName(CONFIG::CLIENTS_ID) ;          \
     String    n_clients = String(clients.getNumChildren()) ;                     \
     Trace::TraceGuiVb("button order: server[" + String(i) + "](" + n_clients +   \
-                      " clients)="            + String(server.getType())     ) ; }
+                      " clients)="            + Id2Str(server.getType())     ) ; }
 
 
 /* network */
@@ -40,13 +40,13 @@
     "\n  parsed name   '"   + name   + "'"                                     + \
     "\n  parsed tld    '"   + tld    + "'"                                     + \
     "\n  parsed port   '"   + port   + "'"                                     + \
-    "\n  is_localhost   = " + String(is_localhost)                             + \
-    "\n  is_known_host  = " + String(is_known_host)                            + \
-    "\n  is_custom_host = " + String(is_custom_host)                           + \
-    "\n  has_valid_form = " + String(has_valid_form)                           + \
-    "\n  is_valid_name  = " + String(is_valid_name)                            + \
-    "\n  is_valid_tld   = " + String(is_valid_tld)                             + \
-    "\n  is_valid_port  = " + String(is_valid_port)                            ) ;
+    "\n  is_localhost   = " + Bool2Str(is_localhost)                           + \
+    "\n  is_known_host  = " + Bool2Str(is_known_host)                          + \
+    "\n  is_custom_host = " + Bool2Str(is_custom_host)                         + \
+    "\n  has_valid_form = " + Bool2Str(has_valid_form)                         + \
+    "\n  is_valid_name  = " + Bool2Str(is_valid_name)                          + \
+    "\n  is_valid_tld   = " + Bool2Str(is_valid_tld)                           + \
+    "\n  is_valid_port  = " + Bool2Str(is_valid_port)                          ) ;
 #else // TRACE_LOGIN_HOST
 #  define DEBUG_TRACE_LOGIN_HOST_VB ;
 #endif // TRACE_LOGIN_HOST

@@ -1,21 +1,21 @@
-/*
-  ==============================================================================
+/*\
+|*|  Copyright 2014,2015,2020,2026 bill-auger <bill-auger@programmer.net>
+|*|
+|*|  This file is part of the LinJam program.
+|*|
+|*|  LinJam is free software: you can redistribute it and/or modify
+|*|  it under the terms of the GNU General Public License version 3
+|*|  as published by the Free Software Foundation.
+|*|
+|*|  LinJam is distributed in the hope that it will be useful,
+|*|  but WITHOUT ANY WARRANTY; without even the implied warranty of
+|*|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|*|  GNU General Public License for more details.
+|*|
+|*|  You should have received a copy of the GNU General Public License
+|*|  along with LinJam.  If not, see <http://www.gnu.org/licenses/>.
+\*/
 
-  This is an automatically generated GUI class created by the Introjucer!
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Created with Introjucer version: 3.1.1
-
-  ------------------------------------------------------------------------------
-
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
-
-  ==============================================================================
-*/
 
 //[Headers] You can add your own extra header files here...
 
@@ -34,109 +34,151 @@
 //==============================================================================
 Channel::Channel (ValueTree channel_store)
 {
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
+
     setName ("Channel");
-    addAndMakeVisible (xmitButton = new ToggleButton ("xmitButton"));
+    xmitButton.reset (new juce::ToggleButton ("xmitButton"));
+    addAndMakeVisible (xmitButton.get());
     xmitButton->setExplicitFocusOrder (1);
-    xmitButton->setButtonText (TRANS("XMIT"));
-    xmitButton->setColour (ToggleButton::textColourId, Colours::grey);
+    xmitButton->setButtonText (TRANS ("XMIT"));
+    xmitButton->setColour (juce::ToggleButton::textColourId, juce::Colours::grey);
 
-    addAndMakeVisible (muteButton = new ToggleButton ("muteButton"));
+    xmitButton->setBounds (4, 4, 36, 12);
+
+    muteButton.reset (new juce::ToggleButton ("muteButton"));
+    addAndMakeVisible (muteButton.get());
     muteButton->setExplicitFocusOrder (2);
-    muteButton->setButtonText (TRANS("MUTE"));
-    muteButton->setColour (ToggleButton::textColourId, Colours::grey);
+    muteButton->setButtonText (TRANS ("MUTE"));
+    muteButton->setColour (juce::ToggleButton::textColourId, juce::Colours::grey);
 
-    addAndMakeVisible (soloButton = new ToggleButton ("soloButton"));
+    muteButton->setBounds (4, 20, 36, 12);
+
+    soloButton.reset (new juce::ToggleButton ("soloButton"));
+    addAndMakeVisible (soloButton.get());
     soloButton->setExplicitFocusOrder (3);
-    soloButton->setButtonText (TRANS("SOLO"));
-    soloButton->setColour (ToggleButton::textColourId, Colours::grey);
+    soloButton->setButtonText (TRANS ("SOLO"));
+    soloButton->setColour (juce::ToggleButton::textColourId, juce::Colours::grey);
 
-    addAndMakeVisible (removeButton = new TextButton ("removeButton"));
+    soloButton->setBounds (4, 36, 36, 12);
+
+    removeButton.reset (new juce::TextButton ("removeButton"));
+    addAndMakeVisible (removeButton.get());
     removeButton->setExplicitFocusOrder (4);
-    removeButton->setButtonText (TRANS("X"));
-    removeButton->setColour (TextButton::buttonColourId, Colour (0xff400000));
-    removeButton->setColour (TextButton::buttonOnColourId, Colours::maroon);
-    removeButton->setColour (TextButton::textColourOnId, Colours::red);
-    removeButton->setColour (TextButton::textColourOffId, Colours::red);
+    removeButton->setButtonText (TRANS ("X"));
+    removeButton->setColour (juce::TextButton::buttonColourId, juce::Colour (0xff400000));
+    removeButton->setColour (juce::TextButton::buttonOnColourId, juce::Colours::maroon);
+    removeButton->setColour (juce::TextButton::textColourOffId, juce::Colours::red);
+    removeButton->setColour (juce::TextButton::textColourOnId, juce::Colours::red);
 
-    addAndMakeVisible (configButton = new TextButton ("configButton"));
+    removeButton->setBounds (45, 0, 15, 16);
+
+    configButton.reset (new juce::TextButton ("configButton"));
+    addAndMakeVisible (configButton.get());
     configButton->setExplicitFocusOrder (5);
-    configButton->setButtonText (TRANS("?"));
-    configButton->setColour (TextButton::buttonColourId, Colour (0xff404000));
-    configButton->setColour (TextButton::buttonOnColourId, Colours::olive);
-    configButton->setColour (TextButton::textColourOnId, Colours::yellow);
-    configButton->setColour (TextButton::textColourOffId, Colours::yellow);
+    configButton->setButtonText (TRANS ("?"));
+    configButton->setColour (juce::TextButton::buttonColourId, juce::Colour (0xff404000));
+    configButton->setColour (juce::TextButton::buttonOnColourId, juce::Colours::olive);
+    configButton->setColour (juce::TextButton::textColourOffId, juce::Colours::yellow);
+    configButton->setColour (juce::TextButton::textColourOnId, juce::Colours::yellow);
 
-    addAndMakeVisible (panSlider = new Slider ("panSlider"));
+    configButton->setBounds (45, 16, 15, 16);
+
+    panSlider.reset (new juce::Slider ("panSlider"));
+    addAndMakeVisible (panSlider.get());
     panSlider->setExplicitFocusOrder (6);
     panSlider->setRange (-1, 1, 0);
-    panSlider->setSliderStyle (Slider::Rotary);
-    panSlider->setTextBoxStyle (Slider::NoTextBox, true, 0, 12);
-    panSlider->setColour (Slider::textBoxTextColourId, Colours::grey);
-    panSlider->setColour (Slider::textBoxBackgroundColourId, Colours::black);
+    panSlider->setSliderStyle (juce::Slider::Rotary);
+    panSlider->setTextBoxStyle (juce::Slider::NoTextBox, true, 0, 12);
+    panSlider->setColour (juce::Slider::textBoxTextColourId, juce::Colours::grey);
+    panSlider->setColour (juce::Slider::textBoxBackgroundColourId, juce::Colours::black);
     panSlider->addListener (this);
 
-    addAndMakeVisible (gainSlider = new Slider ("gainSlider"));
+    panSlider->setBounds (12, 52, 36, 36);
+
+    gainSlider.reset (new juce::Slider ("gainSlider"));
+    addAndMakeVisible (gainSlider.get());
     gainSlider->setExplicitFocusOrder (7);
     gainSlider->setRange (-120, 20, 0);
-    gainSlider->setSliderStyle (Slider::LinearVertical);
-    gainSlider->setTextBoxStyle (Slider::NoTextBox, true, 48, 12);
-    gainSlider->setColour (Slider::textBoxTextColourId, Colours::grey);
-    gainSlider->setColour (Slider::textBoxBackgroundColourId, Colour (0x00000000));
+    gainSlider->setSliderStyle (juce::Slider::LinearVertical);
+    gainSlider->setTextBoxStyle (juce::Slider::NoTextBox, true, 48, 12);
+    gainSlider->setColour (juce::Slider::textBoxTextColourId, juce::Colours::grey);
+    gainSlider->setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0x00000000));
     gainSlider->addListener (this);
 
-    addAndMakeVisible (nameLabel = new Label ("nameLabel",
-                                              TRANS("channel name")));
+    gainSlider->setBounds (22, 92, 16, 128);
+
+    nameLabel.reset (new juce::Label ("nameLabel",
+                                      TRANS ("channel name")));
+    addAndMakeVisible (nameLabel.get());
     nameLabel->setExplicitFocusOrder (8);
-    nameLabel->setFont (Font (12.00f, Font::plain));
-    nameLabel->setJustificationType (Justification::centred);
+    nameLabel->setFont (juce::Font (12.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    nameLabel->setJustificationType (juce::Justification::centred);
     nameLabel->setEditable (true, true, true);
-    nameLabel->setColour (Label::textColourId, Colours::grey);
-    nameLabel->setColour (TextEditor::textColourId, Colours::black);
-    nameLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    nameLabel->setColour (juce::Label::textColourId, juce::Colours::grey);
+    nameLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    nameLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
     nameLabel->addListener (this);
 
-    addAndMakeVisible (stereoLabel = new Label ("stereoLabel",
-                                                TRANS("ST")));
-    stereoLabel->setFont (Font (10.00f, Font::bold));
-    stereoLabel->setJustificationType (Justification::centred);
-    stereoLabel->setEditable (false, false, false);
-    stereoLabel->setColour (Label::textColourId, Colours::green);
-    stereoLabel->setColour (TextEditor::textColourId, Colours::black);
-    stereoLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    nameLabel->setBounds (4, 236, 52, 12);
 
-    addAndMakeVisible (vuLeftSlider = new Slider ("vuLeftSlider"));
+    stereoLabel.reset (new juce::Label ("stereoLabel",
+                                        TRANS ("ST")));
+    addAndMakeVisible (stereoLabel.get());
+    stereoLabel->setFont (juce::Font (10.00f, juce::Font::plain).withTypefaceStyle ("Bold"));
+    stereoLabel->setJustificationType (juce::Justification::centred);
+    stereoLabel->setEditable (false, false, false);
+    stereoLabel->setColour (juce::Label::textColourId, juce::Colours::green);
+    stereoLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    stereoLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    stereoLabel->setBounds (12, 72, 36, 12);
+
+    vuLeftSlider.reset (new juce::Slider ("vuLeftSlider"));
+    addAndMakeVisible (vuLeftSlider.get());
     vuLeftSlider->setRange (-120, 20, 0);
-    vuLeftSlider->setSliderStyle (Slider::LinearBar);
-    vuLeftSlider->setTextBoxStyle (Slider::NoTextBox, true, 48, 12);
-    vuLeftSlider->setColour (Slider::textBoxTextColourId, Colours::grey);
-    vuLeftSlider->setColour (Slider::textBoxBackgroundColourId, Colour (0x00000000));
+    vuLeftSlider->setSliderStyle (juce::Slider::LinearBar);
+    vuLeftSlider->setTextBoxStyle (juce::Slider::NoTextBox, true, 48, 12);
+    vuLeftSlider->setColour (juce::Slider::textBoxTextColourId, juce::Colours::grey);
+    vuLeftSlider->setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0x00000000));
     vuLeftSlider->addListener (this);
 
-    addAndMakeVisible (vuRightSlider = new Slider ("vuRightSlider"));
+    vuLeftSlider->setBounds (6, 92, 16, 128);
+
+    vuRightSlider.reset (new juce::Slider ("vuRightSlider"));
+    addAndMakeVisible (vuRightSlider.get());
     vuRightSlider->setRange (-120, 20, 0);
-    vuRightSlider->setSliderStyle (Slider::LinearBar);
-    vuRightSlider->setTextBoxStyle (Slider::NoTextBox, true, 48, 12);
-    vuRightSlider->setColour (Slider::textBoxTextColourId, Colours::grey);
-    vuRightSlider->setColour (Slider::textBoxBackgroundColourId, Colour (0x00000000));
+    vuRightSlider->setSliderStyle (juce::Slider::LinearBar);
+    vuRightSlider->setTextBoxStyle (juce::Slider::NoTextBox, true, 48, 12);
+    vuRightSlider->setColour (juce::Slider::textBoxTextColourId, juce::Colours::grey);
+    vuRightSlider->setColour (juce::Slider::textBoxBackgroundColourId, juce::Colour (0x00000000));
     vuRightSlider->addListener (this);
 
-    addAndMakeVisible (vuLeftLabel = new Label ("vuLeftLabel",
-                                                TRANS("-120")));
-    vuLeftLabel->setFont (Font (10.00f, Font::plain));
-    vuLeftLabel->setJustificationType (Justification::centred);
-    vuLeftLabel->setEditable (false, false, false);
-    vuLeftLabel->setColour (Label::textColourId, Colours::grey);
-    vuLeftLabel->setColour (TextEditor::textColourId, Colours::black);
-    vuLeftLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    vuRightSlider->setBounds (38, 92, 16, 128);
 
-    addAndMakeVisible (vuRightLabel = new Label ("vuRightLabel",
-                                                 TRANS("-120")));
-    vuRightLabel->setFont (Font (10.00f, Font::plain));
-    vuRightLabel->setJustificationType (Justification::centred);
+    vuLeftLabel.reset (new juce::Label ("vuLeftLabel",
+                                        TRANS ("-120")));
+    addAndMakeVisible (vuLeftLabel.get());
+    vuLeftLabel->setFont (juce::Font (10.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    vuLeftLabel->setJustificationType (juce::Justification::centred);
+    vuLeftLabel->setEditable (false, false, false);
+    vuLeftLabel->setColour (juce::Label::textColourId, juce::Colours::grey);
+    vuLeftLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    vuLeftLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    vuLeftLabel->setBounds (4, 224, 24, 12);
+
+    vuRightLabel.reset (new juce::Label ("vuRightLabel",
+                                         TRANS ("-120")));
+    addAndMakeVisible (vuRightLabel.get());
+    vuRightLabel->setFont (juce::Font (10.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    vuRightLabel->setJustificationType (juce::Justification::centred);
     vuRightLabel->setEditable (false, false, false);
-    vuRightLabel->setColour (Label::textColourId, Colours::grey);
-    vuRightLabel->setColour (TextEditor::textColourId, Colours::black);
-    vuRightLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    vuRightLabel->setColour (juce::Label::textColourId, juce::Colours::grey);
+    vuRightLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    vuRightLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    vuRightLabel->setBounds (32, 224, 24, 12);
 
 
     //[UserPreSize]
@@ -229,16 +271,22 @@ Channel::~Channel()
 }
 
 //==============================================================================
-void Channel::paint (Graphics& g)
+void Channel::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.setColour (Colours::black);
-    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
-
-    g.setColour (Colours::white);
-    g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f, 1.000f);
+    {
+        float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = static_cast<float> (getHeight() - 0);
+        juce::Colour fillColour = juce::Colours::black;
+        juce::Colour strokeColour = juce::Colours::white;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.setColour (strokeColour);
+        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
+    }
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -249,19 +297,6 @@ void Channel::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    xmitButton->setBounds (4, 4, 36, 12);
-    muteButton->setBounds (4, 20, 36, 12);
-    soloButton->setBounds (4, 36, 36, 12);
-    removeButton->setBounds (45, 0, 15, 16);
-    configButton->setBounds (45, 16, 15, 16);
-    panSlider->setBounds (12, 52, 36, 36);
-    gainSlider->setBounds (22, 92, 16, 128);
-    nameLabel->setBounds (4, 236, 52, 12);
-    stereoLabel->setBounds (12, 72, 36, 12);
-    vuLeftSlider->setBounds (6, 92, 16, 128);
-    vuRightSlider->setBounds (38, 92, 16, 128);
-    vuLeftLabel->setBounds (4, 224, 24, 12);
-    vuRightLabel->setBounds (32, 224, 24, 12);
     //[UserResized] Add your own custom resize handling here..
 
   bool is_mono   = int(this->stereoStatus.getValue()) == CONFIG::MONO ;
@@ -277,7 +312,7 @@ void Channel::resized()
     //[/UserResized]
 }
 
-void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
+void Channel::sliderValueChanged (juce::Slider* sliderThatWasMoved)
 {
     //[UsersliderValueChanged_Pre]
 
@@ -286,7 +321,7 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 
     //[/UsersliderValueChanged_Pre]
 
-    if (sliderThatWasMoved == panSlider)
+    if (sliderThatWasMoved == panSlider.get())
     {
         //[UserSliderCode_panSlider] -- add your slider handling code here..
 
@@ -294,7 +329,7 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 
         //[/UserSliderCode_panSlider]
     }
-    else if (sliderThatWasMoved == gainSlider)
+    else if (sliderThatWasMoved == gainSlider.get())
     {
         //[UserSliderCode_gainSlider] -- add your slider handling code here..
 
@@ -302,7 +337,7 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 
         //[/UserSliderCode_gainSlider]
     }
-    else if (sliderThatWasMoved == vuLeftSlider)
+    else if (sliderThatWasMoved == vuLeftSlider.get())
     {
         //[UserSliderCode_vuLeftSlider] -- add your slider handling code here..
 
@@ -310,7 +345,7 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
 
         //[/UserSliderCode_vuLeftSlider]
     }
-    else if (sliderThatWasMoved == vuRightSlider)
+    else if (sliderThatWasMoved == vuRightSlider.get())
     {
         //[UserSliderCode_vuRightSlider] -- add your slider handling code here..
 
@@ -326,12 +361,12 @@ void Channel::sliderValueChanged (Slider* sliderThatWasMoved)
     //[/UsersliderValueChanged_Post]
 }
 
-void Channel::labelTextChanged (Label* labelThatHasChanged)
+void Channel::labelTextChanged (juce::Label* labelThatHasChanged)
 {
     //[UserlabelTextChanged_Pre]
     //[/UserlabelTextChanged_Pre]
 
-    if (labelThatHasChanged == nameLabel)
+    if (labelThatHasChanged == nameLabel.get())
     {
         //[UserLabelCode_nameLabel] -- add your label text handling code here..
 
@@ -366,8 +401,8 @@ void Channel::valueChanged(Value& a_value)
   bool is_stereo   = a_value.refersToSameSourceAs(this->stereoStatus) ;
   bool is_name     = a_value.refersToSameSourceAs(this->channelName ) ;
 
-  if      (is_vu_left ) updateVU(this->vuLeftSlider  , this->vuLeftLabel  , this->vuLeft) ;
-  else if (is_vu_right) updateVU(this->vuRightSlider , this->vuRightLabel , this->vuRight) ;
+  if      (is_vu_left ) updateVU(this->vuLeftSlider .get() , this->vuLeftLabel .get() , this->vuLeft ) ;
+  else if (is_vu_right) updateVU(this->vuRightSlider.get() , this->vuRightLabel.get() , this->vuRight) ;
   else if (is_stereo  ) setStereoState() ;
   else if (is_name    )
   {
@@ -408,10 +443,10 @@ void Channel::setConfig(Identifier a_key , var a_value)
 
 bool Channel::handleButtonClicked(Button* a_button)
 {
-  Identifier key   = (a_button == this->xmitButton) ? CONFIG::IS_XMIT_RCV_ID :
-                     (a_button == this->muteButton) ? CONFIG::IS_MUTED_ID    :
-                     (a_button == this->soloButton) ? CONFIG::IS_SOLO_ID     :
-                                                      Identifier::null       ;
+  Identifier key   = (a_button == this->xmitButton.get()) ? CONFIG::IS_XMIT_RCV_ID :
+                     (a_button == this->muteButton.get()) ? CONFIG::IS_MUTED_ID    :
+                     (a_button == this->soloButton.get()) ? CONFIG::IS_SOLO_ID     :
+                                                            Identifier::null       ;
   var        value = var(a_button->getToggleState()) ;
   bool was_handled = key.isValid() ;
 
@@ -491,13 +526,13 @@ void LocalChannel::buttonClicked(Button* a_button)
 {
   if (handleButtonClicked(a_button)) return ;
 
-  if      (a_button == this->removeButton)
+  if      (a_button == this->removeButton.get())
     LinJam::RemoveLocalChannel(this->channelStore) ;
-  else if (a_button == this->configButton)
+  else if (a_button == this->configButton.get())
   {
-    ConfigChannel* configChannel = new ConfigChannel(this->channelStore) ;
-    Component*     mixer         = getParentComponent()->getParentComponent() ;
-    Component*     mainContent   = mixer->getParentComponent() ;
+    UPTR<Component> configChannel = std::make_unique<ConfigChannel>(this->channelStore) ;
+    Component*      mixer         = getParentComponent()->getParentComponent() ;
+    Component*      mainContent   = mixer->getParentComponent() ;
 
     // compute CallOutBox arrow target posistion
     int modalX = mixer->getX() + getX() + this->configButton->getX() + GUI::HOVER_BTN_XC ;
@@ -506,7 +541,7 @@ void LocalChannel::buttonClicked(Button* a_button)
 
     // instantiate ConfigChannel as CallOutBox
     configChannel->setSize(GUI::CHANNEL_CONFIG_W , GUI::CHANNEL_CONFIG_H) ;
-    CallOutBox::launchAsynchronously(configChannel , modalRect , mainContent) ;
+    CallOutBox::launchAsynchronously(std::move(configChannel) , modalRect , mainContent) ;
   }
 }
 
@@ -515,9 +550,9 @@ void LocalChannel::buttonClicked(Button* a_button)
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
@@ -528,7 +563,7 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="60" initialHeight="252">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff000000" hasStroke="1"
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <TOGGLEBUTTON name="xmitButton" id="f45f759640162c62" memberName="xmitButton"
@@ -553,44 +588,45 @@ BEGIN_JUCER_METADATA
               connectedEdges="0" needsCallback="0" radioGroupId="0"/>
   <SLIDER name="panSlider" id="aa7c4f80abb603e9" memberName="panSlider"
           virtualName="" explicitFocusOrder="6" pos="12 52 36 36" textboxtext="ff808080"
-          textboxbkgd="ff000000" min="-1" max="1" int="0" style="Rotary"
+          textboxbkgd="ff000000" min="-1.0" max="1.0" int="0.0" style="Rotary"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="0" textBoxHeight="12"
-          skewFactor="1"/>
+          skewFactor="1.0" needsCallback="1"/>
   <SLIDER name="gainSlider" id="e34ef13291b2ec40" memberName="gainSlider"
           virtualName="" explicitFocusOrder="7" pos="22 92 16 128" textboxtext="ff808080"
-          textboxbkgd="0" min="-120" max="20" int="0" style="LinearVertical"
+          textboxbkgd="0" min="-120.0" max="20.0" int="0.0" style="LinearVertical"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="48"
-          textBoxHeight="12" skewFactor="1"/>
+          textBoxHeight="12" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="nameLabel" id="66bafa468220da02" memberName="nameLabel"
          virtualName="" explicitFocusOrder="8" pos="4 236 52 12" textCol="ff808080"
          edTextCol="ff000000" edBkgCol="0" labelText="channel name" editableSingleClick="1"
          editableDoubleClick="1" focusDiscardsChanges="1" fontname="Default font"
-         fontsize="12" bold="0" italic="0" justification="36"/>
+         fontsize="12.0" kerning="0.0" bold="0" italic="0" justification="36"/>
   <LABEL name="stereoLabel" id="deaf84482cab9f7d" memberName="stereoLabel"
          virtualName="" explicitFocusOrder="0" pos="12 72 36 12" textCol="ff008000"
          edTextCol="ff000000" edBkgCol="0" labelText="ST" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="10" bold="1" italic="0" justification="36"/>
+         fontsize="10.0" kerning="0.0" bold="1" italic="0" justification="36"
+         typefaceStyle="Bold"/>
   <SLIDER name="vuLeftSlider" id="fbb656fdc87f46ed" memberName="vuLeftSlider"
           virtualName="" explicitFocusOrder="0" pos="6 92 16 128" textboxtext="ff808080"
-          textboxbkgd="0" min="-120" max="20" int="0" style="LinearBar"
+          textboxbkgd="0" min="-120.0" max="20.0" int="0.0" style="LinearBar"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="48"
-          textBoxHeight="12" skewFactor="1"/>
+          textBoxHeight="12" skewFactor="1.0" needsCallback="1"/>
   <SLIDER name="vuRightSlider" id="31c942b6caa362dd" memberName="vuRightSlider"
           virtualName="" explicitFocusOrder="0" pos="38 92 16 128" textboxtext="ff808080"
-          textboxbkgd="0" min="-120" max="20" int="0" style="LinearBar"
+          textboxbkgd="0" min="-120.0" max="20.0" int="0.0" style="LinearBar"
           textBoxPos="NoTextBox" textBoxEditable="0" textBoxWidth="48"
-          textBoxHeight="12" skewFactor="1"/>
+          textBoxHeight="12" skewFactor="1.0" needsCallback="1"/>
   <LABEL name="vuLeftLabel" id="cdc1fb3056af7c9b" memberName="vuLeftLabel"
          virtualName="" explicitFocusOrder="0" pos="4 224 24 12" textCol="ff808080"
          edTextCol="ff000000" edBkgCol="0" labelText="-120" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="10" bold="0" italic="0" justification="36"/>
+         fontsize="10.0" kerning="0.0" bold="0" italic="0" justification="36"/>
   <LABEL name="vuRightLabel" id="4bb31261e6795ae1" memberName="vuRightLabel"
          virtualName="" explicitFocusOrder="0" pos="32 224 24 12" textCol="ff808080"
          edTextCol="ff000000" edBkgCol="0" labelText="-120" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="10" bold="0" italic="0" justification="36"/>
+         fontsize="10.0" kerning="0.0" bold="0" italic="0" justification="36"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

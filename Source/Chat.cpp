@@ -151,38 +151,98 @@ Chat::~Chat()
 }
 
 //==============================================================================
-void Chat::paint (Graphics& g)
+void Chat::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
-#ifdef DRAW_JUCER_BORDERS
+
+#define JUCER_DRAW_BORDERS
+#ifdef JUCER_DRAW_BORDERS
+
     //[/UserPrePaint]
 
-    g.setColour (Colour (0xff101010));
-    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
+    {
+        float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = static_cast<float> (getHeight() - 0);
+        juce::Colour fillColour = juce::Colour (0xff101010);
+        juce::Colour strokeColour = juce::Colours::white;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.setColour (strokeColour);
+        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
+    }
 
-    g.setColour (Colours::white);
-    g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f, 1.000f);
+    {
+        float x = 4.0f, y = 4.0f, width = static_cast<float> (getWidth() - 8), height = static_cast<float> (getHeight() - 36);
+        juce::Colour fillColour = juce::Colours::black;
+        juce::Colour strokeColour = juce::Colours::grey;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.setColour (strokeColour);
+        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
+    }
 
-    g.setColour (Colours::black);
-    g.fillRoundedRectangle (4.0f, 4.0f, static_cast<float> (getWidth() - 8), static_cast<float> (getHeight() - 36), 10.000f);
+    {
+        float x = 8.0f, y = 8.0f, width = static_cast<float> (getWidth() - 16), height = 20.0f;
+        juce::Colour fillColour = juce::Colour (0xff101010);
+        juce::Colour strokeColour = juce::Colours::grey;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.setColour (strokeColour);
+        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
+    }
 
-    g.setColour (Colours::grey);
-    g.drawRoundedRectangle (4.0f, 4.0f, static_cast<float> (getWidth() - 8), static_cast<float> (getHeight() - 36), 10.000f, 1.000f);
+    {
+        float x = 12.0f, y = 12.0f, width = 36.0f, height = 12.0f;
+        juce::Colour fillColour = juce::Colour (0xff442288);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+    }
 
-    g.setColour (Colours::black);
-    g.fillRoundedRectangle (4.0f, static_cast<float> (getHeight() - 28), static_cast<float> (getWidth() - 8), 24.0f, 10.000f);
+    {
+        int x = 50, y = 9, width = 12, height = 16;
+        juce::String text (TRANS ("@"));
+        juce::Colour fillColour = juce::Colours::white;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.setFont (juce::Font (juce::Font::getDefaultMonospacedFontName(), 12.00f, juce::Font::plain));
+        g.drawText (text, x, y, width, height,
+                    juce::Justification::centred, true);
+    }
 
-    g.setColour (Colours::grey);
-    g.drawRoundedRectangle (4.0f, static_cast<float> (getHeight() - 28), static_cast<float> (getWidth() - 8), 24.0f, 10.000f, 1.000f);
+    {
+        float x = 64.0f, y = 12.0f, width = 36.0f, height = 12.0f;
+        juce::Colour fillColour = juce::Colour (0xff442288);
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+    }
 
-    g.setColour (Colour (0xff101010));
-    g.fillRoundedRectangle (8.0f, 8.0f, static_cast<float> (getWidth() - 16), 20.0f, 10.000f);
-
-    g.setColour (Colours::grey);
-    g.drawRoundedRectangle (8.0f, 8.0f, static_cast<float> (getWidth() - 16), 20.0f, 10.000f, 1.000f);
+    {
+        float x = 4.0f, y = static_cast<float> (getHeight() - 28), width = static_cast<float> (getWidth() - 8), height = 24.0f;
+        juce::Colour fillColour = juce::Colours::black;
+        juce::Colour strokeColour = juce::Colours::grey;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.setColour (strokeColour);
+        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
+    }
 
     //[UserPaint] Add your own custom painting code here..
-#endif // DRAW_JUCER_BORDERS
+
+#else // JUCER_DRAW_BORDERS
+  UNUSED(g) ;
+
 
   bool  should_show_topic   = shouldShowTopic() ;
   float chat_pane_w         = static_cast<float>(getWidth()) ;
@@ -238,20 +298,25 @@ void Chat::paint (Graphics& g)
   g.drawRoundedRectangle(GUI::CHAT_BORDER_X  , chat_entry_border_y , chat_border_w ,
                          chat_entry_border_h , GUI::BORDER_RADIUS  , GUI::BORDER_PX) ;
 
+#endif // JUCER_DRAW_BORDERS
+
     //[/UserPaint]
 }
 
 void Chat::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
-#ifdef DRAW_JUCER_CHAT_RESIZE
+
+#ifdef JUCER_DRAW_CHAT_RESIZE
+
     //[/UserPreResize]
 
     chatText->setBounds (8, 8, getWidth() - 16, getHeight() - 44);
     chatEntryText->setBounds (8, getHeight() - 24, getWidth() - 16, 16);
     topicLabel->setBounds (12, 10, getWidth() - 24, 16);
     //[UserResized] Add your own custom resize handling here..
-#endif // DRAW_JUCER_CHAT_RESIZE
+
+#else // JUCER_DRAW_CHAT_RESIZE
 
   bool should_show_topic = shouldShowTopic() ;
   int  chat_y            = ((should_show_topic) ? GUI::CHAT_WITH_TOPIC_Y : GUI::CHAT_Y) ;
@@ -269,10 +334,12 @@ void Chat::resized()
 
   repaint() ;
 
+#endif // JUCER_DRAW_CHAT_RESIZE
+
     //[/UserResized]
 }
 
-void Chat::labelTextChanged (Label* labelThatHasChanged)
+void Chat::labelTextChanged (juce::Label* labelThatHasChanged)
 {
     //[UserlabelTextChanged_Pre]
     //[/UserlabelTextChanged_Pre]
@@ -321,7 +388,7 @@ void Chat::valueChanged(Value& a_value)
 
 void Chat::textEditorReturnKeyPressed(TextEditor& a_text_editor)
 {
-  if (&a_text_editor != this->chatEntryText) return ;
+  if (&a_text_editor != this->chatEntryText.get()) return ;
 
   LinJam::SendChat(this->chatEntryText->getText()) ;
   this->chatEntryText->clear() ;
@@ -355,26 +422,31 @@ bool Chat::shouldShowTopic() { return (getHeight() > GUI::MIN_SHOW_TOPIC_CHAT_H)
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Chat" componentName="Chat"
                  parentClasses="public Component, public TextEditor::Listener, public ValueListener"
-                 constructorParams="Value font_size" variableInitialisers="fontSize(font_size)"
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 constructorParams="Value font_size, Value linjam_status" variableInitialisers="fontSize(font_size) , linjamStatus(linjam_status)"
+                 snapPixels="8" snapActive="0" snapShown="0" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="162">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
-    <ROUNDRECT pos="4 4 8M 36M" cornerSize="10" fill="solid: ff000000" hasStroke="1"
+    <ROUNDRECT pos="4 4 8M 36M" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
-    <ROUNDRECT pos="4 28R 8M 24" cornerSize="10" fill="solid: ff000000" hasStroke="1"
+    <ROUNDRECT pos="8 8 16M 20" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
-    <ROUNDRECT pos="8 8 16M 20" cornerSize="10" fill="solid: ff101010" hasStroke="1"
+    <ROUNDRECT pos="12 12 36 12" cornerSize="10.0" fill="solid: ff442288" hasStroke="0"/>
+    <TEXT pos="50 9 12 16" fill="solid: ffffffff" hasStroke="0" text="@"
+          fontname="Default monospaced font" fontsize="12.0" kerning="0.0"
+          bold="0" italic="0" justification="36"/>
+    <ROUNDRECT pos="64 12 36 12" cornerSize="10.0" fill="solid: ff442288" hasStroke="0"/>
+    <ROUNDRECT pos="4 28R 8M 24" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
   </BACKGROUND>
   <TEXTEDITOR name="chatText" id="ba11ad8bfe4752c1" memberName="chatText" virtualName=""
@@ -386,12 +458,6 @@ BEGIN_JUCER_METADATA
               bkgcol="0" hilitecol="0" outlinecol="0" caretcol="ffffffff" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
               caret="1" popupmenu="1"/>
-  <LABEL name="topicLabel" id="3544f00ed11410e1" memberName="topicLabel"
-         virtualName="" explicitFocusOrder="0" pos="12 10 24M 16" bkgCol="0"
-         textCol="ff808080" edTextCol="ff808080" edBkgCol="0" hiliteCol="ffbbbbff"
-         labelText="" editableSingleClick="1" editableDoubleClick="1"
-         focusDiscardsChanges="1" fontname="Default monospaced font" fontsize="15"
-         bold="1" italic="0" justification="12"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -401,3 +467,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

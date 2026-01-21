@@ -1,18 +1,18 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.1
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -36,51 +36,69 @@ ConfigGui::ConfigGui (ValueTree gui_store)
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    addAndMakeVisible (mixerGroup = new GroupComponent ("mixerGroup",
-                                                        TRANS("mixer")));
-    mixerGroup->setTextLabelPosition (Justification::centredLeft);
-    mixerGroup->setColour (GroupComponent::outlineColourId, Colours::grey);
-    mixerGroup->setColour (GroupComponent::textColourId, Colours::white);
+    mixerGroup.reset (new juce::GroupComponent ("mixerGroup",
+                                                TRANS ("mixer")));
+    addAndMakeVisible (mixerGroup.get());
+    mixerGroup->setTextLabelPosition (juce::Justification::centredLeft);
+    mixerGroup->setColour (juce::GroupComponent::outlineColourId, juce::Colours::grey);
+    mixerGroup->setColour (juce::GroupComponent::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (chatGroup = new GroupComponent ("chatGroup",
-                                                       TRANS("chat")));
-    chatGroup->setTextLabelPosition (Justification::centredLeft);
-    chatGroup->setColour (GroupComponent::outlineColourId, Colours::grey);
-    chatGroup->setColour (GroupComponent::textColourId, Colours::white);
+    mixerGroup->setBounds (214, 100, 188, 48);
 
-    addAndMakeVisible (fontsizeLabel = new Label ("fontsizeLabel",
-                                                  TRANS("chat font size:")));
-    fontsizeLabel->setFont (Font (15.00f, Font::plain));
-    fontsizeLabel->setJustificationType (Justification::centredLeft);
+    chatGroup.reset (new juce::GroupComponent ("chatGroup",
+                                               TRANS ("chat")));
+    addAndMakeVisible (chatGroup.get());
+    chatGroup->setTextLabelPosition (juce::Justification::centredLeft);
+    chatGroup->setColour (juce::GroupComponent::outlineColourId, juce::Colours::grey);
+    chatGroup->setColour (juce::GroupComponent::textColourId, juce::Colours::white);
+
+    chatGroup->setBounds (214, 38, 188, 48);
+
+    fontsizeLabel.reset (new juce::Label ("fontsizeLabel",
+                                          TRANS ("chat font size:")));
+    addAndMakeVisible (fontsizeLabel.get());
+    fontsizeLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    fontsizeLabel->setJustificationType (juce::Justification::centredLeft);
     fontsizeLabel->setEditable (false, false, false);
-    fontsizeLabel->setColour (Label::textColourId, Colours::white);
-    fontsizeLabel->setColour (TextEditor::textColourId, Colours::black);
-    fontsizeLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    fontsizeLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    fontsizeLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    fontsizeLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (updateLabel = new Label ("updateLabel",
-                                                TRANS("vu update speed:")));
-    updateLabel->setFont (Font (15.00f, Font::plain));
-    updateLabel->setJustificationType (Justification::centredLeft);
+    fontsizeLabel->setBounds (222, 56, 96, 18);
+
+    updateLabel.reset (new juce::Label ("updateLabel",
+                                        TRANS ("vu update speed:")));
+    addAndMakeVisible (updateLabel.get());
+    updateLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    updateLabel->setJustificationType (juce::Justification::centredLeft);
     updateLabel->setEditable (false, false, false);
-    updateLabel->setColour (Label::textColourId, Colours::white);
-    updateLabel->setColour (TextEditor::textColourId, Colours::black);
-    updateLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    updateLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    updateLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    updateLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (updateComboBox = new ComboBox ("updateComboBox"));
+    updateLabel->setBounds (222, 118, 96, 18);
+
+    updateComboBox.reset (new juce::ComboBox ("updateComboBox"));
+    addAndMakeVisible (updateComboBox.get());
     updateComboBox->setExplicitFocusOrder (2);
     updateComboBox->setEditableText (false);
-    updateComboBox->setJustificationType (Justification::centredRight);
-    updateComboBox->setTextWhenNothingSelected (String());
-    updateComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    updateComboBox->setJustificationType (juce::Justification::centredRight);
+    updateComboBox->setTextWhenNothingSelected (juce::String());
+    updateComboBox->setTextWhenNoChoicesAvailable (TRANS ("(no choices)"));
     updateComboBox->addListener (this);
 
-    addAndMakeVisible (fontsizeComboBox = new ComboBox ("fontsizeComboBox"));
+    updateComboBox->setBounds (326, 118, 64, 18);
+
+    fontsizeComboBox.reset (new juce::ComboBox ("fontsizeComboBox"));
+    addAndMakeVisible (fontsizeComboBox.get());
     fontsizeComboBox->setExplicitFocusOrder (1);
     fontsizeComboBox->setEditableText (false);
-    fontsizeComboBox->setJustificationType (Justification::centredRight);
-    fontsizeComboBox->setTextWhenNothingSelected (String());
-    fontsizeComboBox->setTextWhenNoChoicesAvailable (TRANS("(no choices)"));
+    fontsizeComboBox->setJustificationType (juce::Justification::centredRight);
+    fontsizeComboBox->setTextWhenNothingSelected (juce::String());
+    fontsizeComboBox->setTextWhenNoChoicesAvailable (TRANS ("(no choices)"));
     fontsizeComboBox->addListener (this);
+
+    fontsizeComboBox->setBounds (326, 56, 64, 18);
 
 
     //[UserPreSize]
@@ -120,12 +138,12 @@ ConfigGui::~ConfigGui()
 }
 
 //==============================================================================
-void ConfigGui::paint (Graphics& g)
+void ConfigGui::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (Colour (0xff000020));
+    g.fillAll (juce::Colour (0xff000020));
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -136,17 +154,11 @@ void ConfigGui::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    mixerGroup->setBounds (214, 100, 188, 48);
-    chatGroup->setBounds (214, 38, 188, 48);
-    fontsizeLabel->setBounds (222, 56, 96, 18);
-    updateLabel->setBounds (222, 118, 96, 18);
-    updateComboBox->setBounds (326, 118, 64, 18);
-    fontsizeComboBox->setBounds (326, 56, 64, 18);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
 
-void ConfigGui::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
+void ConfigGui::comboBoxChanged (juce::ComboBox* comboBoxThatHasChanged)
 {
     //[UsercomboBoxChanged_Pre]
 
@@ -157,7 +169,7 @@ void ConfigGui::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
     //[/UsercomboBoxChanged_Pre]
 
-    if (comboBoxThatHasChanged == updateComboBox)
+    if (comboBoxThatHasChanged == updateComboBox.get())
     {
         //[UserComboBoxCode_updateComboBox] -- add your combo box handling code here..
 
@@ -167,7 +179,7 @@ void ConfigGui::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
 
         //[/UserComboBoxCode_updateComboBox]
     }
-    else if (comboBoxThatHasChanged == fontsizeComboBox)
+    else if (comboBoxThatHasChanged == fontsizeComboBox.get())
     {
         //[UserComboBoxCode_fontsizeComboBox] -- add your combo box handling code here..
 
@@ -200,9 +212,9 @@ void ConfigGui::setConfig(Identifier a_key , var a_value)
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
@@ -223,12 +235,14 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="222 56 96 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="chat font size:"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <LABEL name="updateLabel" id="116b9ce3acfaa0e6" memberName="updateLabel"
          virtualName="" explicitFocusOrder="0" pos="222 118 96 18" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="vu update speed:"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <COMBOBOX name="updateComboBox" id="bef2196516ab5821" memberName="updateComboBox"
             virtualName="" explicitFocusOrder="2" pos="326 118 64 18" editable="0"
             layout="34" items="" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
@@ -244,3 +258,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

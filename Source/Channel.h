@@ -1,24 +1,23 @@
-/*
-  ==============================================================================
+/*\
+|*|  Copyright 2014,2015,2020,2026 bill-auger <bill-auger@programmer.net>
+|*|
+|*|  This file is part of the LinJam program.
+|*|
+|*|  LinJam is free software: you can redistribute it and/or modify
+|*|  it under the terms of the GNU General Public License version 3
+|*|  as published by the Free Software Foundation.
+|*|
+|*|  LinJam is distributed in the hope that it will be useful,
+|*|  but WITHOUT ANY WARRANTY; without even the implied warranty of
+|*|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|*|  GNU General Public License for more details.
+|*|
+|*|  You should have received a copy of the GNU General Public License
+|*|  along with LinJam.  If not, see <http://www.gnu.org/licenses/>.
+\*/
 
-  This is an automatically generated GUI class created by the Introjucer!
 
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Created with Introjucer version: 3.1.1
-
-  ------------------------------------------------------------------------------
-
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
-
-  ==============================================================================
-*/
-
-#ifndef _CHANNEL_H_
-#define _CHANNEL_H_
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -36,15 +35,15 @@
                                                                     //[/Comments]
 */
 class Channel  : public Component,
-                 public Button::Listener,
-                 public Slider::Listener,
                  public Value::Listener,
-                 public Label::Listener
+                 public juce::Button::Listener,
+                 public juce::Slider::Listener,
+                 public juce::Label::Listener
 {
 public:
     //==============================================================================
     Channel (ValueTree channel_store);
-    ~Channel();
+    ~Channel() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -55,10 +54,10 @@ friend class Channels ;
 
     //[/UserMethods]
 
-    void paint (Graphics& g);
-    void resized();
-    void sliderValueChanged (Slider* sliderThatWasMoved);
-    void labelTextChanged (Label* labelThatHasChanged);
+    void paint (juce::Graphics& g) override;
+    void resized() override;
+    void sliderValueChanged (juce::Slider* sliderThatWasMoved) override;
+    void labelTextChanged (juce::Label* labelThatHasChanged) override;
 
 
 
@@ -88,19 +87,19 @@ protected:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ToggleButton> xmitButton;
-    ScopedPointer<ToggleButton> muteButton;
-    ScopedPointer<ToggleButton> soloButton;
-    ScopedPointer<TextButton> removeButton;
-    ScopedPointer<TextButton> configButton;
-    ScopedPointer<Slider> panSlider;
-    ScopedPointer<Slider> gainSlider;
-    ScopedPointer<Label> nameLabel;
-    ScopedPointer<Label> stereoLabel;
-    ScopedPointer<Slider> vuLeftSlider;
-    ScopedPointer<Slider> vuRightSlider;
-    ScopedPointer<Label> vuLeftLabel;
-    ScopedPointer<Label> vuRightLabel;
+    std::unique_ptr<juce::ToggleButton> xmitButton;
+    std::unique_ptr<juce::ToggleButton> muteButton;
+    std::unique_ptr<juce::ToggleButton> soloButton;
+    std::unique_ptr<juce::TextButton> removeButton;
+    std::unique_ptr<juce::TextButton> configButton;
+    std::unique_ptr<juce::Slider> panSlider;
+    std::unique_ptr<juce::Slider> gainSlider;
+    std::unique_ptr<juce::Label> nameLabel;
+    std::unique_ptr<juce::Label> stereoLabel;
+    std::unique_ptr<juce::Slider> vuLeftSlider;
+    std::unique_ptr<juce::Slider> vuRightSlider;
+    std::unique_ptr<juce::Label> vuLeftLabel;
+    std::unique_ptr<juce::Label> vuRightLabel;
 
 
     //==============================================================================
@@ -134,4 +133,3 @@ class RemoteChannel : public Channel
 
 //[/EndFile]
 
-#endif // _CHANNEL_H_

@@ -233,6 +233,9 @@ DEBUG_TRACE_INIT
       !Config->isConfigValid()                 ||
       !PrepareSessionDirectory()                ) return false ;
 
+  // LinJam::RoomSorter.reset(new LinJam::RoomSort()) ;
+  RoomSorter.reset(new RoomSort()) ;
+
   // instantiate GUI components requiring model hooks
   Gui->instantiate(Config->gui   , Config->client , Config->blacklist ,
                    Config->audio , Config->server , Config->servers   ,
@@ -351,7 +354,7 @@ DEBUG_TRACE_BLACKLIST
 
   for (int user_n = 0 ; user_n < blacklist.getNumChildren() ; ++user_n)
   {
-    String user_name = STRING(blacklist.getChild(user_n).getType()) ;
+    String user_name = Id2Str(blacklist.getChild(user_n).getType()) ;
 
     Client->config_autosubscribe_userlist.insert(user_name.toStdString()) ;
   }
@@ -814,7 +817,7 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
   while ((user_name = GetRemoteUserName(++user_idx)).isNotEmpty())
   {
     Identifier  user_id    = Config->MakeUserId(user_name) ;
-    std::string nick       = (user_name = STRING(user_id)).toStdString() ;
+    std::string nick       = (user_name = Id2Str(user_id)).toStdString() ;
     bool        is_ignored = !!Client->config_autosubscribe_userlist.count(nick) ;
     bool        is_bot     = str(NETWORK::KNOWN_BOTS.getProperty(host , "")) == user_name ;
 
@@ -868,7 +871,7 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
 
       // add channel to GUI prune list unless hidden stereo pair channel
       if (stereo_status != CONFIG::STEREO_R)
-        active_channels.add(var(STRING(channel_store.getType()))) ;
+        active_channels.add(var(Id2Str(channel_store.getType()))) ;
     }
     // add user to GUI prune list
     active_users.setProperty(user_id , active_channels , nullptr) ;

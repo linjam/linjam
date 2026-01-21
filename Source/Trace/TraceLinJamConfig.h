@@ -50,7 +50,7 @@
 #endif // TRACE_CONFIG_TYPES
 
 #define DEBUG_TRACE_VALIDATE_USER                                                      \
-  String user_name = String(user_store.getType()) ;                                    \
+  String user_name = Id2Str(user_store.getType()) ;                                    \
   if (!user_has_useridx_property)                                                      \
   {                                                                                    \
     Trace::TraceMissingProperty(user_name , CONFIG::USER_IDX_KEY) ;                    \
@@ -58,7 +58,7 @@
   }
 
 #define DEBUG_TRACE_VALIDATE_CHANNEL                                                       \
-  String channels_name = String(channels.getType()) ;                                      \
+  String channels_name = Id2Str(channels.getType()) ;                                      \
   String channel_name  = LinJam::GetStoredChannelName(channel) ;                           \
                                                                                            \
   /* query channel datatypes */                                                            \
@@ -996,24 +996,24 @@
   if (DEBUG_TRACE_VB && is_status_change)                                \
     Trace::TraceEvent("value changed => " + a_var + " => " + status)     ;
 
-#define DEBUG_TRACE_CONFIG_TREE_CHANGED                            \
-  String node   = String(a_node.getType()) ;                       \
-  String parent = String(a_node.getParent().getType()) ;           \
-  String key    = String(a_key) ;                                  \
-  String val    = a_node[a_key].toString() ;                       \
-  if (a_key != CONFIG::VU_LEFT_ID && a_key != CONFIG::VU_RIGHT_ID) \
-    Trace::TraceEvent("value changed for " + parent            +   \
-                      " => " + node + "[" + key + "] => " + val) ;
+#define DEBUG_TRACE_CONFIG_TREE_CHANGED                        \
+  String nodeid   = Id2Str(node_id) ;                          \
+  String parentid = Id2Str(parent_id) ;                        \
+  String k        = Id2Str(key) ;                              \
+  String v        = node[key].toString() ;                     \
+  if (key != CONFIG::VU_LEFT_ID && key != CONFIG::VU_RIGHT_ID) \
+    Trace::TraceEvent("value changed for " + parentid        + \
+                      " => " + nodeid + "[" + k + "] => " + v) ;
 
-#define DEBUG_TRACE_CONFIG_TREE_ADDED                                      \
-  if (a_parent_node == this->blacklist)                                    \
-    Trace::TraceEvent("node added to " + String(a_parent_node.getType()) + \
-                      " => " + String(a_node.getType())                  ) ;
+#define DEBUG_TRACE_CONFIG_TREE_ADDED                                    \
+  if (parent_node == this->blacklist)                                    \
+    Trace::TraceEvent("node added to " + Id2Str(parent_node.getType()) + \
+                      " => " + Id2Str(node_id)                         ) ;
 
-#define DEBUG_TRACE_CONFIG_TREE_REMOVED                                        \
-  if (a_parent_node == this->blacklist)                                        \
-    Trace::TraceEvent("node removed from " + String(a_parent_node.getType()) + \
-                      " => " + String(a_node.getType())                      ) ;
+#define DEBUG_TRACE_CONFIG_TREE_REMOVED                                      \
+  if (parent_node == this->blacklist)                                        \
+    Trace::TraceEvent("node removed from " + Id2Str(parent_node.getType()) + \
+                      " => " + Id2Str(node_id)                             ) ;
 
 
 /* channels */
@@ -1039,9 +1039,9 @@
     Trace::TraceConfig(dbgA + channel_name + dbgB) ;
 
 #define DEBUG_TRACE_ADD_CHANNEL_STORE                                               \
-  String user_id      = String(channels_store.getType()) ;                          \
+  String user_id      = Id2Str(channels_store.getType()) ;                          \
   int    ch_idx       = int(new_channel_node[CONFIG::CHANNEL_IDX_ID]) ;             \
-  String channel_id   = String(MakeChannelId(ch_idx)) ;                             \
+  String channel_id   = Id2Str(MakeChannelId(ch_idx)) ;                             \
   String channel_name = LinJam::GetStoredChannelName(new_channel_node) ;            \
   bool   is_local     = channels_store == this->localChannels ;                     \
   String group        = (is_local)? "local" : "remote" ;                            \
@@ -1060,9 +1060,9 @@
     DBG(Trace::DumpStoredChannels() + Trace::DumpClientChannels()) ;
 
 #define DEBUG_TRACE_REMOVE_CHANNEL_STORE                                        \
-  String channel_id   = String(channel_store.getType()) ;                       \
+  String channel_id   = Id2Str(channel_store.getType()) ;                       \
   String channel_name = LinJam::GetStoredChannelName(channel_store) ;           \
-  String user_id      = String(channels_store.getType()) ;                      \
+  String user_id      = Id2Str(channels_store.getType()) ;                      \
   String dbgA         = "destroyed storage for " ;                              \
   String dbgB         = " " + channel_id + " '" + channel_name + "' " ;         \
   if (channel_store.getParent() == channels_store) {                            \
@@ -1071,8 +1071,8 @@
     else Trace::TraceConfig(dbgA + "remote" + dbgB + "for '" + user_id + "'") ; }
 
 #define DEBUG_TRACE_ADD_REMOTE_USER_STORE                                               \
-  Trace::TraceEvent("user joined => '" + String(user_id) + "'") ;                       \
-  Trace::TraceConfig("created storage for new remote user " + String(user_id)) ;        \
+  Trace::TraceEvent("user joined => '" + Id2Str(user_id) + "'") ;                       \
+  Trace::TraceConfig("created storage for new remote user " + Id2Str(user_id)) ;        \
   if (TRACE_REMOTE_CHANNELS_VB)                                                         \
   {                                                                                     \
     Identifier host      = MakeHostId(str(this->server[CONFIG::HOST_ID])) ;             \

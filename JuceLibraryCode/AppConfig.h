@@ -16,6 +16,7 @@
 //==============================================================================
 // [BEGIN_USER_CODE_SECTION]
 
+#define str(a_var) String(a_var)
 // #define STRING(x) (__typeof__(x) == "bool") ? (!!x) ? "true" : "false" : x.toString()
 #define Bool2Str(x) ((!!x) ? String("true") : String("false"))
 // #define IDSTR(x)   x.toString()

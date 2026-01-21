@@ -60,15 +60,15 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  ScopedPointer<ConfigAudio>     configAudio ;
-  ScopedPointer<ConfigClient>    configClient ;
-  ScopedPointer<ConfigGui>       configGui ;
-  ScopedPointer<ConfigBlacklist> configBlacklist ;
-
 //   ConfigAudio*     configAudio ;
 //   ConfigClient*    configClient ;
 //   ConfigGui*       configGui ;
 //   ConfigBlacklist* configBlacklist ;
+  UPTR<ConfigAudio>     configAudio ;
+  UPTR<ConfigClient>    configClient ;
+  UPTR<ConfigGui>       configGui ;
+  UPTR<ConfigBlacklist> configBlacklist ;
+
 
   void valueChanged(Value& a_value) ;
 

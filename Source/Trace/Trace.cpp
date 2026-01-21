@@ -36,7 +36,7 @@ void Trace::DumpStoreXml(ValueTree store)
   StringArray xml_lines = StringArray::fromLines(store.toXmlString()) ;
 
   xml_lines.removeRange(0 , 1) ; // supress doctype
-  DBG(String(store.getType()) + " xml=\n" + xml_lines.joinIntoString("\n")) ;
+  DBG(Id2Str(store.getType()) + " xml=\n" + xml_lines.joinIntoString("\n")) ;
 }
 
 void Trace::TraceKVP(String indent , String a_key , String a_value)
@@ -58,7 +58,7 @@ String Trace::DumpStoredChannels()
   {
     channels = users.getChild(user_n) ;
     for (int ch_n = 0 ; ch_n < channels.getNumChildren() ; ++ch_n)
-      dump += "\n    " + String(channels.getType()) + " "                +
+      dump += "\n    " + Id2Str(channels.getType()) + " "                +
               channels.getChild(ch_n)[CONFIG::CHANNEL_NAME_ID].toString() ;
   }
 
@@ -103,7 +103,7 @@ String Trace::DumpConfig(ValueTree default_config , ValueTree stored_config , St
       if (!default_config.getChildWithName(child_node_name).isValid())
         ++n_unique_children ;
     }
-  String dbg = pad + "node => "       + String(node_name)                         +
+  String dbg = pad + "node => "       + Id2Str(node_name)                         +
                      " (properties: " + String(n_properties      )                +
                      " - children: "  + String(n_default_children) + " default, " +
                                         String(n_stored_children ) + " stored, "  +
@@ -119,7 +119,7 @@ String Trace::DumpConfig(ValueTree default_config , ValueTree stored_config , St
       var        default_value = default_config.getProperty(key) ;
       var        stored_value  = (!stored_config.isValid()) ?      "n/a - adding" :
                                    stored_config.getProperty(key , "n/a - adding") ;
-      dbg += "\n" + pad + "  key => "             + String(key)              +
+      dbg += "\n" + pad + "  key => "             + Id2Str(key)              +
              "\n" + pad + "    default_value => " + default_value.toString() +
              "\n" + pad + "    stored_value  => " + stored_value.toString()  ;
     }
@@ -152,14 +152,14 @@ String Trace::DumpConfig(ValueTree default_config , ValueTree stored_config , St
 
       if (default_child.isValid() || n_children) continue ;
 
-      dbg += "\n" + pad + "  stored node => " + String(node_name) + " (" +
+      dbg += "\n" + pad + "  stored node => " + Id2Str(node_name) + " (" +
               ((n_properties)? String(n_properties) + " properties" : "empty") + ")" ;
 
       for (int property_n = 0 ; property_n < n_properties ; ++property_n)
       {
         Identifier key          = stored_child.getPropertyName(property_n) ;
         String     stored_value = stored_child.getProperty(key).toString() ;
-        dbg += "\n" + pad + "    key => "             + String(key)   +
+        dbg += "\n" + pad + "    key => "             + Id2Str(key)   +
                "\n" + pad + "      stored_value  => " + stored_value ;
       }
     }
@@ -189,7 +189,7 @@ void Trace::TraceTypeMismatch(ValueTree a_node           , String a_property_nam
                               String    expected_type    , var    a_var           ,
                               String    parent_node_name                          )
 {
-  String a_node_name = String(a_node.getType()) ;
+  String a_node_name = Id2Str(a_node.getType()) ;
   if (parent_node_name.isNotEmpty()) parent_node_name += " " ;
   Trace::TraceError("type mismatch - " + parent_node_name + a_node_name        +
                     "["                + a_property_name  + "] => "            +
@@ -198,9 +198,9 @@ void Trace::TraceTypeMismatch(ValueTree a_node           , String a_property_nam
 
 void Trace::TraceInvalidValue(ValueTree a_node , Identifier a_property_id)
 {
-  String a_node_name     = String(a_node.getType()) ;
-  String a_property_name = String(a_property_id) ;
-  String a_value         = a_node[a_property_id].toString() ;
+  String a_node_name     = Id2Str(a_node.getType()) ;
+  String a_property_name = Id2Str(a_property_id) ;
+  String a_value         = str(a_node[a_property_id]) ;
   TraceError(a_node_name + " property " + a_property_name + " value " + a_value +
              " out of bounds - restoring default"                               ) ;
 }

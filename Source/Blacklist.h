@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.1
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
 
-#ifndef _BLACKLIST_H_
-#define _BLACKLIST_H_
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -36,20 +35,20 @@
                                                                     //[/Comments]
 */
 class BlacklistEntry  : public Component,
-                        public Button::Listener
+                        public juce::Button::Listener
 {
 public:
     //==============================================================================
     BlacklistEntry (ValueTree blacklist_store);
-    ~BlacklistEntry();
+    ~BlacklistEntry() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     //[/UserMethods]
 
-    void paint (Graphics& g);
-    void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
+    void paint (juce::Graphics& g) override;
+    void resized() override;
+    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
 
 
@@ -61,8 +60,8 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TextButton> removeButton;
-    ScopedPointer<Label> userLabel;
+    std::unique_ptr<juce::TextButton> removeButton;
+    std::unique_ptr<juce::Label> userLabel;
 
 
     //==============================================================================
@@ -109,4 +108,3 @@ private:
 
 //[/EndFile]
 
-#endif // _BLACKLIST_H_

@@ -1,21 +1,21 @@
-/*
-  ==============================================================================
+/*\
+|*|  Copyright 2014,2015,2020,2026 bill-auger <bill-auger@programmer.net>
+|*|
+|*|  This file is part of the LinJam program.
+|*|
+|*|  LinJam is free software: you can redistribute it and/or modify
+|*|  it under the terms of the GNU General Public License version 3
+|*|  as published by the Free Software Foundation.
+|*|
+|*|  LinJam is distributed in the hope that it will be useful,
+|*|  but WITHOUT ANY WARRANTY; without even the implied warranty of
+|*|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|*|  GNU General Public License for more details.
+|*|
+|*|  You should have received a copy of the GNU General Public License
+|*|  along with LinJam.  If not, see <http://www.gnu.org/licenses/>.
+\*/
 
-  This is an automatically generated GUI class created by the Introjucer!
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Created with Introjucer version: 3.1.1
-
-  ------------------------------------------------------------------------------
-
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
-
-  ==============================================================================
-*/
 
 //[Headers] You can add your own extra header files here...
 
@@ -34,50 +34,58 @@
 Login::Login (ValueTree login_store, ValueTree servers_store)
     : loginStore(login_store), serversStore(servers_store)
 {
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
+
     setName ("Login");
-    addAndMakeVisible (hostLabel = new Label ("hostLabel",
-                                              TRANS("Server:")));
-    hostLabel->setFont (Font (15.00f, Font::plain));
-    hostLabel->setJustificationType (Justification::centredLeft);
+    hostLabel.reset (new juce::Label ("hostLabel",
+                                      TRANS ("Server:")));
+    addAndMakeVisible (hostLabel.get());
+    hostLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    hostLabel->setJustificationType (juce::Justification::centredLeft);
     hostLabel->setEditable (false, false, false);
-    hostLabel->setColour (Label::textColourId, Colours::white);
-    hostLabel->setColour (TextEditor::textColourId, Colours::black);
-    hostLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    hostLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    hostLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    hostLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (loginLabel = new Label ("loginLabel",
-                                               TRANS("Username:")));
-    loginLabel->setFont (Font (15.00f, Font::plain));
-    loginLabel->setJustificationType (Justification::centredLeft);
+    loginLabel.reset (new juce::Label ("loginLabel",
+                                       TRANS ("Username:")));
+    addAndMakeVisible (loginLabel.get());
+    loginLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    loginLabel->setJustificationType (juce::Justification::centredLeft);
     loginLabel->setEditable (false, false, false);
-    loginLabel->setColour (Label::textColourId, Colours::white);
-    loginLabel->setColour (TextEditor::textColourId, Colours::black);
-    loginLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    loginLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    loginLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    loginLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (passLabel = new Label ("passLabel",
-                                              TRANS("Password:")));
-    passLabel->setFont (Font (15.00f, Font::plain));
-    passLabel->setJustificationType (Justification::centredLeft);
+    passLabel.reset (new juce::Label ("passLabel",
+                                      TRANS ("Password:")));
+    addAndMakeVisible (passLabel.get());
+    passLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    passLabel->setJustificationType (juce::Justification::centredLeft);
     passLabel->setEditable (false, false, false);
-    passLabel->setColour (Label::textColourId, Colours::white);
-    passLabel->setColour (TextEditor::textColourId, Colours::black);
-    passLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    passLabel->setColour (juce::Label::textColourId, juce::Colours::white);
+    passLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    passLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
-    addAndMakeVisible (hostText = new TextEditor ("hostText"));
-    hostText->setTooltip (TRANS("Enter you server ip/port in the form: example.com:2050 or 123.123.123.123:2050 to use a private server."));
+    hostText.reset (new juce::TextEditor ("hostText"));
+    addAndMakeVisible (hostText.get());
+    hostText->setTooltip (TRANS ("Enter you server ip/port in the form: example.com:2050 or 123.123.123.123:2050 to use a private server."));
     hostText->setMultiLine (false);
     hostText->setReturnKeyStartsNewLine (false);
     hostText->setReadOnly (false);
     hostText->setScrollbarsShown (false);
     hostText->setCaretVisible (true);
     hostText->setPopupMenuEnabled (true);
-    hostText->setColour (TextEditor::textColourId, Colours::grey);
-    hostText->setColour (TextEditor::backgroundColourId, Colours::black);
-    hostText->setColour (TextEditor::outlineColourId, Colours::grey);
-    hostText->setColour (CaretComponent::caretColourId, Colours::white);
-    hostText->setText (String());
+    hostText->setColour (juce::TextEditor::textColourId, juce::Colours::grey);
+    hostText->setColour (juce::TextEditor::backgroundColourId, juce::Colours::black);
+    hostText->setColour (juce::TextEditor::outlineColourId, juce::Colours::grey);
+    hostText->setColour (juce::CaretComponent::caretColourId, juce::Colours::white);
+    hostText->setText (juce::String());
 
-    addAndMakeVisible (loginText = new TextEditor ("loginText"));
-    loginText->setTooltip (TRANS("Enter a username using only the characters a-z 0-9 - and _"));
+    loginText.reset (new juce::TextEditor ("loginText"));
+    addAndMakeVisible (loginText.get());
+    loginText->setTooltip (TRANS ("Enter a username using only the characters a-z 0-9 - and _"));
     loginText->setExplicitFocusOrder (1);
     loginText->setMultiLine (false);
     loginText->setReturnKeyStartsNewLine (false);
@@ -85,14 +93,15 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     loginText->setScrollbarsShown (false);
     loginText->setCaretVisible (true);
     loginText->setPopupMenuEnabled (true);
-    loginText->setColour (TextEditor::textColourId, Colours::grey);
-    loginText->setColour (TextEditor::backgroundColourId, Colours::black);
-    loginText->setColour (TextEditor::outlineColourId, Colours::grey);
-    loginText->setColour (CaretComponent::caretColourId, Colours::white);
-    loginText->setText (String());
+    loginText->setColour (juce::TextEditor::textColourId, juce::Colours::grey);
+    loginText->setColour (juce::TextEditor::backgroundColourId, juce::Colours::black);
+    loginText->setColour (juce::TextEditor::outlineColourId, juce::Colours::grey);
+    loginText->setColour (juce::CaretComponent::caretColourId, juce::Colours::white);
+    loginText->setText (juce::String());
 
-    addAndMakeVisible (passText = new TextEditor ("passText"));
-    passText->setTooltip (TRANS("Some servers require a password. Try logging in with the anonymous button ticked first."));
+    passText.reset (new juce::TextEditor ("passText"));
+    addAndMakeVisible (passText.get());
+    passText->setTooltip (TRANS ("Some servers require a password. Try logging in with the anonymous button ticked first."));
     passText->setExplicitFocusOrder (2);
     passText->setMultiLine (false);
     passText->setReturnKeyStartsNewLine (false);
@@ -100,36 +109,40 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     passText->setScrollbarsShown (false);
     passText->setCaretVisible (true);
     passText->setPopupMenuEnabled (true);
-    passText->setColour (TextEditor::textColourId, Colours::grey);
-    passText->setColour (TextEditor::backgroundColourId, Colours::black);
-    passText->setColour (TextEditor::outlineColourId, Colours::grey);
-    passText->setColour (CaretComponent::caretColourId, Colours::white);
-    passText->setText (String());
+    passText->setColour (juce::TextEditor::textColourId, juce::Colours::grey);
+    passText->setColour (juce::TextEditor::backgroundColourId, juce::Colours::black);
+    passText->setColour (juce::TextEditor::outlineColourId, juce::Colours::grey);
+    passText->setColour (juce::CaretComponent::caretColourId, juce::Colours::white);
+    passText->setText (juce::String());
 
-    addAndMakeVisible (loginButton = new TextButton ("loginButton"));
-    loginButton->setTooltip (TRANS("Click this to connect to the specified server."));
+    loginButton.reset (new juce::TextButton ("loginButton"));
+    addAndMakeVisible (loginButton.get());
+    loginButton->setTooltip (TRANS ("Click this to connect to the specified server."));
     loginButton->setExplicitFocusOrder (3);
-    loginButton->setButtonText (TRANS("<--   Connect"));
+    loginButton->setButtonText (TRANS ("<--   Connect"));
     loginButton->addListener (this);
 
-    addAndMakeVisible (serverButton = new TextButton ("serverButton"));
-    serverButton->setTooltip (TRANS("Click this to enter the adress of a private server."));
+    serverButton.reset (new juce::TextButton ("serverButton"));
+    addAndMakeVisible (serverButton.get());
+    serverButton->setTooltip (TRANS ("Click this to enter the adress of a private server."));
     serverButton->setExplicitFocusOrder (4);
-    serverButton->setButtonText (TRANS("Private Server"));
+    serverButton->setButtonText (TRANS ("Private Server"));
     serverButton->addListener (this);
 
-    addAndMakeVisible (anonButton = new ToggleButton ("anonButton"));
+    anonButton.reset (new juce::ToggleButton ("anonButton"));
+    addAndMakeVisible (anonButton.get());
     anonButton->setExplicitFocusOrder (5);
-    anonButton->setButtonText (TRANS("anonymous"));
+    anonButton->setButtonText (TRANS ("anonymous"));
     anonButton->addListener (this);
-    anonButton->setToggleState (true, dontSendNotification);
-    anonButton->setColour (ToggleButton::textColourId, Colours::white);
+    anonButton->setToggleState (true, juce::dontSendNotification);
+    anonButton->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    addAndMakeVisible (groupComponent = new GroupComponent ("new group",
-                                                            TRANS("Jam Rooms")));
-    groupComponent->setTextLabelPosition (Justification::centredLeft);
-    groupComponent->setColour (GroupComponent::outlineColourId, Colours::grey);
-    groupComponent->setColour (GroupComponent::textColourId, Colours::white);
+    groupComponent.reset (new juce::GroupComponent ("new group",
+                                                    TRANS ("Jam Rooms")));
+    addAndMakeVisible (groupComponent.get());
+    groupComponent->setTextLabelPosition (juce::Justification::centredLeft);
+    groupComponent->setColour (juce::GroupComponent::outlineColourId, juce::Colours::grey);
+    groupComponent->setColour (juce::GroupComponent::textColourId, juce::Colours::white);
 
 
     //[UserPreSize]
@@ -210,16 +223,22 @@ Login::~Login()
 }
 
 //==============================================================================
-void Login::paint (Graphics& g)
+void Login::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.setColour (Colour (0xff101010));
-    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
-
-    g.setColour (Colours::white);
-    g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f, 1.000f);
+    {
+        float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = static_cast<float> (getHeight() - 0);
+        juce::Colour fillColour = juce::Colour (0xff101010);
+        juce::Colour strokeColour = juce::Colours::white;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.setColour (strokeColour);
+        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
+    }
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -247,12 +266,12 @@ void Login::resized()
     //[/UserResized]
 }
 
-void Login::buttonClicked (Button* buttonThatWasClicked)
+void Login::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == loginButton)
+    if (buttonThatWasClicked == loginButton.get())
     {
         //[UserButtonCode_loginButton] -- add your button handler code here..
 
@@ -260,7 +279,7 @@ void Login::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_loginButton]
     }
-    else if (buttonThatWasClicked == serverButton)
+    else if (buttonThatWasClicked == serverButton.get())
     {
         //[UserButtonCode_serverButton] -- add your button handler code here..
 
@@ -274,7 +293,7 @@ void Login::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_serverButton]
     }
-    else if (buttonThatWasClicked == anonButton)
+    else if (buttonThatWasClicked == anonButton.get())
     {
         //[UserButtonCode_anonButton] -- add your button handler code here..
 
@@ -332,9 +351,9 @@ DEBUG_TRACE_LOGIN_LOAD
 
 void Login::textEditorTextChanged(TextEditor& text_editor)
 {
-  if      (&text_editor == hostText ) validateHost() ;
-  else if (&text_editor == loginText) validateLogin() ;
-  else if (&text_editor == passText ) validatePass() ;
+  if      (&text_editor == this->hostText .get()) validateHost() ;
+  else if (&text_editor == this->loginText.get()) validateLogin() ;
+  else if (&text_editor == this->passText .get()) validatePass() ;
 }
 
 void Login::valueTreeChildAdded(ValueTree& parent_node , ValueTree& /*node*/)
@@ -416,7 +435,7 @@ bool Login::validateHost()
 
 DEBUG_TRACE_LOGIN_HOST_VB
 
-  setTextErrorState(this->hostText , !is_valid_host) ;
+  setTextErrorState(this->hostText.get() , !is_valid_host) ;
 
   return is_valid_host ;
 }
@@ -426,7 +445,7 @@ bool Login::validateLogin()
   String nick           = this->loginText->getText().trim() ;
   bool   is_valid_login = nick.containsOnly(NETWORK::NICK_CHARS) && nick.isNotEmpty() ;
 
-  setTextErrorState(this->loginText , !is_valid_login) ;
+  setTextErrorState(this->loginText.get() , !is_valid_login) ;
 
   return is_valid_login ;
 }
@@ -437,7 +456,7 @@ bool Login::validatePass()
   bool   is_anonymous  = this->anonButton->getToggleState() ;
   bool   is_valid_pass = is_anonymous || pass.isNotEmpty() ;
 
-  setTextErrorState(this->passText , !is_valid_pass) ;
+  setTextErrorState(this->passText.get() , !is_valid_pass) ;
 
   return is_valid_pass ;
 }
@@ -513,9 +532,9 @@ DEBUG_TRACE_LOGIN_ARRANGE_ROOMS
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
@@ -527,24 +546,25 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="442">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <LABEL name="hostLabel" id="916aefc37fc4e730" memberName="hostLabel"
          virtualName="" explicitFocusOrder="0" pos="-190C 112R 72 24"
          textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="Server:"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
-         fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
+         fontname="Default font" fontsize="15.0" kerning="0.0" bold="0"
+         italic="0" justification="33"/>
   <LABEL name="loginLabel" id="96b0f56176f33f63" memberName="loginLabel"
          virtualName="" explicitFocusOrder="0" pos="-190C 80R 72 24" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="Username:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="passLabel" id="14f83e5255766a2c" memberName="passLabel"
          virtualName="" explicitFocusOrder="0" pos="-190C 48R 72 24" textCol="ffffffff"
          edTextCol="ff000000" edBkgCol="0" labelText="Password:" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
+         fontsize="15.0" kerning="0.0" bold="0" italic="0" justification="33"/>
   <TEXTEDITOR name="hostText" id="d540c830b7e8d52f" memberName="hostText" virtualName=""
               explicitFocusOrder="0" pos="-100C 112R 160 24" tooltip="Enter you server ip/port in the form: example.com:2050 or 123.123.123.123:2050 to use a private server."
               textcol="ff808080" bkgcol="ff000000" outlinecol="ff808080" caretcol="ffffffff"
@@ -585,3 +605,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+
