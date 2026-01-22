@@ -213,6 +213,10 @@ Channel::Channel (ValueTree channel_store)
   this->soloButton->setToggleState(is_solo      , juce::dontSendNotification) ;
   this->nameLabel ->setText(       channel_name , juce::dontSendNotification) ;
 
+  setTickColor(this->xmitButton.get()) ;
+  setTickColor(this->muteButton.get()) ;
+  setTickColor(this->soloButton.get()) ;
+
   this->gainSlider   ->setDoubleClickReturnValue(true , 0.0) ;
   this->panSlider    ->setDoubleClickReturnValue(true , 0.0) ;
   this->vuLeftSlider ->setInterceptsMouseClicks(false , false) ;
@@ -441,6 +445,18 @@ void Channel::setConfig(Identifier a_key , var a_value)
 
 /* Channel class protected instance methods */
 
+void Channel::setTickColor(Button* a_button)
+{
+  Colour off_color = Colours::grey ;
+  Colour on_color  = ( (a_button == this->xmitButton.get()) ? Colour(0xFFFF00FF) :
+                       (a_button == this->muteButton.get()) ? Colour(0xFF0000FF) :
+                       (a_button == this->soloButton.get()) ? Colour(0xFF00FFFF) :
+                                                              Colour(0xFFFFFFFF) ) ;
+  Colour color     = a_button->getToggleState() ? on_color : off_color ;
+
+  a_button->setColour(ToggleButton::tickDisabledColourId , color) ;
+}
+
 bool Channel::handleButtonClicked(Button* a_button)
 {
   Identifier key   = (a_button == this->xmitButton.get()) ? CONFIG::IS_XMIT_RCV_ID :
@@ -450,7 +466,7 @@ bool Channel::handleButtonClicked(Button* a_button)
   var        value = var(a_button->getToggleState()) ;
   bool was_handled = key.isValid() ;
 
-  if (was_handled) setConfig(key , value) ;
+  if (was_handled) { setConfig(key , value) ; setTickColor(a_button) ; }
 
   return was_handled ;
 }

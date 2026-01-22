@@ -80,7 +80,7 @@ protected:
 
   ValueTree channelStore ;
 
-
+  void setTickColor(Button* a_button) ;
   bool handleButtonClicked(Button* a_button) ;
   void setStereoState() ;
 
