@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -27,8 +26,108 @@
 namespace juce
 {
 
+struct GraphicsFontHelpers
+{
+    static auto compareFont (const Font& a, const Font& b) { return Font::compare (a, b); }
+};
+
+static auto operator< (const Font& a, const Font& b)
+{
+    return GraphicsFontHelpers::compareFont (a, b);
+}
+
+template <typename T>
+static auto operator< (const Rectangle<T>& a, const Rectangle<T>& b)
+{
+    const auto tie = [] (auto& t) { return std::make_tuple (t.getX(), t.getY(), t.getWidth(), t.getHeight()); };
+    return tie (a) < tie (b);
+}
+
+static auto operator< (const Justification& a, const Justification& b)
+{
+    return a.getFlags() < b.getFlags();
+}
+
+//==============================================================================
 namespace
 {
+    struct ConfiguredArrangement
+    {
+        void draw (const Graphics& g) const { arrangement.draw (g, transform); }
+
+        GlyphArrangement arrangement;
+        AffineTransform transform;
+    };
+
+    template <typename ArrangementArgs>
+    class GlyphArrangementCache final : public DeletedAtShutdown
+    {
+    public:
+        GlyphArrangementCache() = default;
+
+        ~GlyphArrangementCache() override
+        {
+            clearSingletonInstance();
+        }
+
+        template <typename ConfigureArrangement>
+        void draw (const Graphics& g, ArrangementArgs&& args, ConfigureArrangement&& configureArrangement)
+        {
+            const ScopedTryLock stl (lock);
+
+            if (! stl.isLocked())
+            {
+                configureArrangement (args).draw (g);
+                return;
+            }
+
+            const auto cached = [&]
+            {
+                const auto iter = cache.find (args);
+
+                if (iter != cache.end())
+                {
+                    if (iter->second.cachePosition != cacheOrder.begin())
+                        cacheOrder.splice (cacheOrder.begin(), cacheOrder, iter->second.cachePosition);
+
+                    return iter;
+                }
+
+                auto result = cache.emplace (std::move (args), CachedGlyphArrangement { configureArrangement (args), {} }).first;
+                cacheOrder.push_front (result);
+                return result;
+            }();
+
+            cached->second.cachePosition = cacheOrder.begin();
+            cached->second.configured.draw (g);
+
+            while (cache.size() > cacheSize)
+            {
+                cache.erase (cacheOrder.back());
+                cacheOrder.pop_back();
+            }
+        }
+
+        JUCE_DECLARE_SINGLETON (GlyphArrangementCache<ArrangementArgs>, false)
+
+    private:
+        struct CachedGlyphArrangement
+        {
+            using CachePtr = typename std::map<ArrangementArgs, CachedGlyphArrangement>::const_iterator;
+            ConfiguredArrangement configured;
+            typename std::list<CachePtr>::const_iterator cachePosition;
+        };
+
+        static constexpr size_t cacheSize = 128;
+        std::map<ArrangementArgs, CachedGlyphArrangement> cache;
+        std::list<typename CachedGlyphArrangement::CachePtr> cacheOrder;
+        CriticalSection lock;
+    };
+
+    template <typename ArrangementArgs>
+    juce::SingletonHolder<GlyphArrangementCache<ArrangementArgs>, juce::CriticalSection, false> GlyphArrangementCache<ArrangementArgs>::singletonHolder;
+
+    //==============================================================================
     template <typename Type>
     Rectangle<Type> coordsToRectangle (Type x, Type y, Type w, Type h) noexcept
     {
@@ -46,10 +145,6 @@ namespace
 }
 
 //==============================================================================
-LowLevelGraphicsContext::LowLevelGraphicsContext() {}
-LowLevelGraphicsContext::~LowLevelGraphicsContext() {}
-
-//==============================================================================
 Graphics::Graphics (const Image& imageToDrawOnto)
     : contextHolder (imageToDrawOnto.createLowLevelContext()),
       context (*contextHolder)
@@ -59,10 +154,6 @@ Graphics::Graphics (const Image& imageToDrawOnto)
 
 Graphics::Graphics (LowLevelGraphicsContext& internalContext) noexcept
     : context (internalContext)
-{
-}
-
-Graphics::~Graphics()
 {
 }
 
@@ -240,67 +331,120 @@ Font Graphics::getCurrentFont() const
 void Graphics::drawSingleLineText (const String& text, const int startX, const int baselineY,
                                    Justification justification) const
 {
-    if (text.isNotEmpty())
+    if (text.isEmpty())
+        return;
+
+    // Don't pass any vertical placement flags to this method - they'll be ignored.
+    jassert (justification.getOnlyVerticalFlags() == 0);
+
+    auto flags = justification.getOnlyHorizontalFlags();
+
+    if (flags == Justification::right && startX < context.getClipBounds().getX())
+        return;
+
+    if (flags == Justification::left && startX > context.getClipBounds().getRight())
+        return;
+
+    struct ArrangementArgs
     {
-        // Don't pass any vertical placement flags to this method - they'll be ignored.
-        jassert (justification.getOnlyVerticalFlags() == 0);
+        auto tie() const noexcept { return std::tie (font, text, startX, baselineY); }
+        bool operator< (const ArrangementArgs& other) const { return tie() < other.tie(); }
 
-        auto flags = justification.getOnlyHorizontalFlags();
+        const Font font;
+        const String text;
+        const int startX, baselineY, flags;
+    };
 
-        if (flags == Justification::right && startX < context.getClipBounds().getX())
-            return;
+    auto configureArrangement = [] (const ArrangementArgs& args)
+    {
+        AffineTransform transform;
+        GlyphArrangement arrangement;
+        arrangement.addLineOfText (args.font, args.text, (float) args.startX, (float) args.baselineY);
 
-        if (flags == Justification::left && startX > context.getClipBounds().getRight())
-            return;
-
-        GlyphArrangement arr;
-        arr.addLineOfText (context.getFont(), text, (float) startX, (float) baselineY);
-
-        if (flags != Justification::left)
+        if (args.flags != Justification::left)
         {
-            auto w = arr.getBoundingBox (0, -1, true).getWidth();
+            auto w = arrangement.getBoundingBox (0, -1, true).getWidth();
 
-            if ((flags & (Justification::horizontallyCentred | Justification::horizontallyJustified)) != 0)
+            if ((args.flags & (Justification::horizontallyCentred | Justification::horizontallyJustified)) != 0)
                 w /= 2.0f;
 
-            arr.draw (*this, AffineTransform::translation (-w, 0));
+            transform = AffineTransform::translation (-w, 0);
         }
-        else
-        {
-            arr.draw (*this);
-        }
-    }
+
+        return ConfiguredArrangement { std::move (arrangement), std::move (transform) };
+    };
+
+    GlyphArrangementCache<ArrangementArgs>::getInstance()->draw (*this,
+                                                                 { context.getFont(), text, startX, baselineY, flags },
+                                                                 std::move (configureArrangement));
 }
 
 void Graphics::drawMultiLineText (const String& text, const int startX,
                                   const int baselineY, const int maximumLineWidth,
                                   Justification justification, const float leading) const
 {
-    if (text.isNotEmpty()
-         && startX < context.getClipBounds().getRight())
+    if (text.isEmpty() || startX >= context.getClipBounds().getRight())
+        return;
+
+    struct ArrangementArgs
     {
-        GlyphArrangement arr;
-        arr.addJustifiedText (context.getFont(), text,
-                              (float) startX, (float) baselineY, (float) maximumLineWidth,
-                              justification, leading);
-        arr.draw (*this);
-    }
+        auto tie() const noexcept { return std::tie (font, text, startX, baselineY, maximumLineWidth, justification, leading); }
+        bool operator< (const ArrangementArgs& other) const { return tie() < other.tie(); }
+
+        const Font font;
+        const String text;
+        const int startX, baselineY, maximumLineWidth;
+        const Justification justification;
+        const float leading;
+    };
+
+    auto configureArrangement = [] (const ArrangementArgs& args)
+    {
+        GlyphArrangement arrangement;
+        arrangement.addJustifiedText (args.font, args.text,
+                                      (float) args.startX, (float) args.baselineY, (float) args.maximumLineWidth,
+                                      args.justification, args.leading);
+        return ConfiguredArrangement { std::move (arrangement), {} };
+    };
+
+    GlyphArrangementCache<ArrangementArgs>::getInstance()->draw (*this,
+                                                                 { context.getFont(), text, startX, baselineY, maximumLineWidth, justification, leading },
+                                                                 std::move (configureArrangement));
 }
 
 void Graphics::drawText (const String& text, Rectangle<float> area,
                          Justification justificationType, bool useEllipsesIfTooBig) const
 {
-    if (text.isNotEmpty() && context.clipRegionIntersects (area.getSmallestIntegerContainer()))
-    {
-        GlyphArrangement arr;
-        arr.addCurtailedLineOfText (context.getFont(), text, 0.0f, 0.0f,
-                                    area.getWidth(), useEllipsesIfTooBig);
+    if (text.isEmpty() || ! context.clipRegionIntersects (area.getSmallestIntegerContainer()))
+        return;
 
-        arr.justifyGlyphs (0, arr.getNumGlyphs(),
-                           area.getX(), area.getY(), area.getWidth(), area.getHeight(),
-                           justificationType);
-        arr.draw (*this);
-    }
+    struct ArrangementArgs
+    {
+        auto tie() const noexcept { return std::tie (font, text, area, justificationType, useEllipsesIfTooBig); }
+        bool operator< (const ArrangementArgs& other) const { return tie() < other.tie(); }
+
+        const Font font;
+        const String text;
+        const Rectangle<float> area;
+        const Justification justificationType;
+        const bool useEllipsesIfTooBig;
+    };
+
+    auto configureArrangement = [] (const ArrangementArgs& args)
+    {
+        GlyphArrangement arrangement;
+        arrangement.addCurtailedLineOfText (args.font, args.text, 0.0f, 0.0f,
+                                            args.area.getWidth(), args.useEllipsesIfTooBig);
+
+        arrangement.justifyGlyphs (0, arrangement.getNumGlyphs(),
+                                   args.area.getX(), args.area.getY(), args.area.getWidth(), args.area.getHeight(),
+                                   args.justificationType);
+        return ConfiguredArrangement { std::move (arrangement), {} };
+    };
+
+    GlyphArrangementCache<ArrangementArgs>::getInstance()->draw (*this,
+                                                                 { context.getFont(), text, area, justificationType, useEllipsesIfTooBig },
+                                                                 std::move (configureArrangement));
 }
 
 void Graphics::drawText (const String& text, Rectangle<int> area,
@@ -320,18 +464,37 @@ void Graphics::drawFittedText (const String& text, Rectangle<int> area,
                                const int maximumNumberOfLines,
                                const float minimumHorizontalScale) const
 {
-    if (text.isNotEmpty() && (! area.isEmpty()) && context.clipRegionIntersects (area))
-    {
-        GlyphArrangement arr;
-        arr.addFittedText (context.getFont(), text,
-                           (float) area.getX(), (float) area.getY(),
-                           (float) area.getWidth(), (float) area.getHeight(),
-                           justification,
-                           maximumNumberOfLines,
-                           minimumHorizontalScale);
+    if (text.isEmpty() || area.isEmpty() || ! context.clipRegionIntersects (area))
+        return;
 
-        arr.draw (*this);
-    }
+    struct ArrangementArgs
+    {
+        auto tie() const noexcept { return std::tie (font, text, area, justification, maximumNumberOfLines, minimumHorizontalScale); }
+        bool operator< (const ArrangementArgs& other) const noexcept { return tie() < other.tie(); }
+
+        const Font font;
+        const String text;
+        const Rectangle<float> area;
+        const Justification justification;
+        const int maximumNumberOfLines;
+        const float minimumHorizontalScale;
+    };
+
+    auto configureArrangement = [] (const ArrangementArgs& args)
+    {
+        GlyphArrangement arrangement;
+        arrangement.addFittedText (args.font, args.text,
+                                   args.area.getX(), args.area.getY(),
+                                   args.area.getWidth(), args.area.getHeight(),
+                                   args.justification,
+                                   args.maximumNumberOfLines,
+                                   args.minimumHorizontalScale);
+        return ConfiguredArrangement { std::move (arrangement), {} };
+    };
+
+    GlyphArrangementCache<ArrangementArgs>::getInstance()->draw (*this,
+                                                                 { context.getFont(), text, area.toFloat(), justification, maximumNumberOfLines, minimumHorizontalScale },
+                                                                 std::move (configureArrangement));
 }
 
 void Graphics::drawFittedText (const String& text, int x, int y, int width, int height,
@@ -377,18 +540,16 @@ void Graphics::fillRectList (const RectangleList<int>& rects) const
 
 void Graphics::fillAll() const
 {
-    fillRect (context.getClipBounds());
+    context.fillAll();
 }
 
 void Graphics::fillAll (Colour colourToUse) const
 {
     if (! colourToUse.isTransparent())
     {
-        auto clip = context.getClipBounds();
-
         context.saveState();
         context.setFill (colourToUse);
-        context.fillRect (clip, false);
+        context.fillAll();
         context.restoreState();
     }
 }
@@ -466,7 +627,7 @@ void Graphics::drawEllipse (Rectangle<float> area, float lineThickness) const
 {
     Path p;
 
-    if (area.getWidth() == area.getHeight())
+    if (approximatelyEqual (area.getWidth(), area.getHeight()))
     {
         // For a circle, we can avoid having to generate a stroke
         p.addEllipse (area.expanded (lineThickness * 0.5f));
@@ -533,10 +694,10 @@ void Graphics::fillCheckerBoard (Rectangle<float> area, float checkWidth, float 
 
             if (! clipped.isEmpty())
             {
-                const int checkNumX = (int) ((clipped.getX() - area.getX()) / checkWidth);
-                const int checkNumY = (int) ((clipped.getY() - area.getY()) / checkHeight);
-                const float startX = area.getX() + checkNumX * checkWidth;
-                const float startY = area.getY() + checkNumY * checkHeight;
+                const int checkNumX = (int) (((float) clipped.getX() - area.getX()) / checkWidth);
+                const int checkNumY = (int) (((float) clipped.getY() - area.getY()) / checkHeight);
+                const float startX = area.getX() + (float) checkNumX * checkWidth;
+                const float startY = area.getY() + (float) checkNumY * checkHeight;
                 const float right  = (float) clipped.getRight();
                 const float bottom = (float) clipped.getBottom();
 
@@ -620,7 +781,7 @@ void Graphics::drawDashedLine (Line<float> line, const float* dashLengths,
                 const Line<float> segment (line.getStart() + (delta * lastAlpha).toFloat(),
                                            line.getStart() + (delta * jmin (1.0, alpha)).toFloat());
 
-                if (lineThickness != 1.0f)
+                if (! approximatelyEqual (lineThickness, 1.0f))
                     drawLine (segment, lineThickness);
                 else
                     context.drawLine (segment);
@@ -667,7 +828,7 @@ void Graphics::drawImage (const Image& imageToDraw,
 {
     if (imageToDraw.isValid() && context.clipRegionIntersects (coordsToRectangle (dx, dy, dw, dh)))
         drawImageTransformed (imageToDraw.getClippedImage (coordsToRectangle (sx, sy, sw, sh)),
-                              AffineTransform::scale (dw / (float) sw, dh / (float) sh)
+                              AffineTransform::scale ((float) dw / (float) sw, (float) dh / (float) sh)
                                               .translated ((float) dx, (float) dy),
                               fillAlphaChannelWithCurrentBrush);
 }

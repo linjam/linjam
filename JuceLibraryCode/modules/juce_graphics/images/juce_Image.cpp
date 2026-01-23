@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -79,7 +78,7 @@ Image ImageType::convert (const Image& source) const
 }
 
 //==============================================================================
-class SoftwarePixelData  : public ImagePixelData
+class SoftwarePixelData final : public ImagePixelData
 {
 public:
     SoftwarePixelData (Image::PixelFormat formatToUse, int w, int h, bool clearImage)
@@ -98,7 +97,9 @@ public:
 
     void initialiseBitmapData (Image::BitmapData& bitmap, int x, int y, Image::BitmapData::ReadWriteMode mode) override
     {
-        bitmap.data = imageData + (size_t) x * (size_t) pixelStride + (size_t) y * (size_t) lineStride;
+        const auto offset = (size_t) x * (size_t) pixelStride + (size_t) y * (size_t) lineStride;
+        bitmap.data = imageData + offset;
+        bitmap.size = (size_t) (height * lineStride) - offset;
         bitmap.pixelFormat = pixelFormat;
         bitmap.lineStride = lineStride;
         bitmap.pixelStride = pixelStride;
@@ -145,7 +146,7 @@ int NativeImageType::getTypeID() const
     return 1;
 }
 
-#if JUCE_WINDOWS || JUCE_LINUX
+#if JUCE_WINDOWS || JUCE_LINUX || JUCE_BSD
 ImagePixelData::Ptr NativeImageType::create (Image::PixelFormat format, int width, int height, bool clearImage) const
 {
     return new SoftwarePixelData (format, width, height, clearImage);
@@ -153,7 +154,7 @@ ImagePixelData::Ptr NativeImageType::create (Image::PixelFormat format, int widt
 #endif
 
 //==============================================================================
-class SubsectionPixelData  : public ImagePixelData
+class SubsectionPixelData final : public ImagePixelData
 {
 public:
     SubsectionPixelData (ImagePixelData::Ptr source, Rectangle<int> r)
@@ -266,8 +267,6 @@ Image::~Image()
 {
 }
 
-JUCE_DECLARE_DEPRECATED_STATIC (const Image Image::null;)
-
 int Image::getReferenceCount() const noexcept           { return image == nullptr ? 0 : image->getSharedCount(); }
 int Image::getWidth() const noexcept                    { return image == nullptr ? 0 : image->width; }
 int Image::getHeight() const noexcept                   { return image == nullptr ? 0 : image->height; }
@@ -310,8 +309,8 @@ Image Image::rescaled (int newWidth, int newHeight, Graphics::ResamplingQuality 
 
     Graphics g (newImage);
     g.setImageResamplingQuality (quality);
-    g.drawImageTransformed (*this, AffineTransform::scale (newWidth  / (float) image->width,
-                                                           newHeight / (float) image->height), false);
+    g.drawImageTransformed (*this, AffineTransform::scale ((float) newWidth  / (float) image->width,
+                                                           (float) newHeight / (float) image->height), false);
     return newImage;
 }
 
@@ -426,6 +425,7 @@ Colour Image::BitmapData::getPixelColour (int x, int y) const noexcept
         case Image::ARGB:           return Colour ( ((const PixelARGB*)  pixel)->getUnpremultiplied());
         case Image::RGB:            return Colour (*((const PixelRGB*)   pixel));
         case Image::SingleChannel:  return Colour (*((const PixelAlpha*) pixel));
+        case Image::UnknownFormat:
         default:                    jassertfalse; break;
     }
 
@@ -444,6 +444,7 @@ void Image::BitmapData::setPixelColour (int x, int y, Colour colour) const noexc
         case Image::ARGB:           ((PixelARGB*)  pixel)->set (col); break;
         case Image::RGB:            ((PixelRGB*)   pixel)->set (col); break;
         case Image::SingleChannel:  ((PixelAlpha*) pixel)->set (col); break;
+        case Image::UnknownFormat:
         default:                    jassertfalse; break;
     }
 }
@@ -521,6 +522,7 @@ static void performPixelOp (const Image::BitmapData& data, const PixelOperation&
         case Image::ARGB:           PixelIterator<PixelARGB> ::iterate (data, pixelOp); break;
         case Image::RGB:            PixelIterator<PixelRGB>  ::iterate (data, pixelOp); break;
         case Image::SingleChannel:  PixelIterator<PixelAlpha>::iterate (data, pixelOp); break;
+        case Image::UnknownFormat:
         default:                    jassertfalse; break;
     }
 }
@@ -660,7 +662,7 @@ void Image::moveImageSection (int dx, int dy,
         auto dst = destData.getPixelPointer (dx - minX, dy - minY);
         auto src = destData.getPixelPointer (sx - minX, sy - minY);
 
-        auto lineSize = (size_t) (destData.pixelStride * w);
+        auto lineSize = (size_t) destData.pixelStride * (size_t) w;
 
         if (dy > sy)
         {
@@ -681,5 +683,18 @@ void Image::moveImageSection (int dx, int dy,
         }
     }
 }
+
+//==============================================================================
+#if JUCE_ALLOW_STATIC_NULL_VARIABLES
+
+JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE ("-Wdeprecated-declarations")
+JUCE_BEGIN_IGNORE_WARNINGS_MSVC (4996)
+
+const Image Image::null;
+
+JUCE_END_IGNORE_WARNINGS_GCC_LIKE
+JUCE_END_IGNORE_WARNINGS_MSVC
+
+#endif
 
 } // namespace juce

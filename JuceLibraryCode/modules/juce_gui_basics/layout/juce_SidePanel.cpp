@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -40,17 +39,25 @@ SidePanel::SidePanel (StringRef title, int width, bool positionOnLeft,
     dismissButton.onClick = [this] { showOrHide (false); };
     addAndMakeVisible (dismissButton);
 
-    Desktop::getInstance().addGlobalMouseListener (this);
+    auto& desktop = Desktop::getInstance();
+
+    desktop.addGlobalMouseListener (this);
+    desktop.getAnimator().addChangeListener (this);
 
     if (contentToDisplay != nullptr)
         setContent (contentToDisplay, deleteComponentWhenNoLongerNeeded);
 
     setOpaque (false);
+    setVisible (false);
+    setAlwaysOnTop (true);
 }
 
 SidePanel::~SidePanel()
 {
-    Desktop::getInstance().removeGlobalMouseListener (this);
+    auto& desktop = Desktop::getInstance();
+
+    desktop.removeGlobalMouseListener (this);
+    desktop.getAnimator().removeChangeListener (this);
 
     if (parent != nullptr)
         parent->removeComponentListener (this);
@@ -99,15 +106,14 @@ void SidePanel::showOrHide (bool show)
         Desktop::getInstance().getAnimator().animateComponent (this, calculateBoundsInParent (*parent),
                                                                1.0f, 250, true, 1.0, 0.0);
 
-        if (onPanelShowHide != nullptr)
-            onPanelShowHide (isShowing);
+        if (isShowing && ! isVisible())
+            setVisible (true);
     }
 }
 
 void SidePanel::moved()
 {
-    if (onPanelMove != nullptr)
-        onPanelMove();
+    NullCheckedInvocation::invoke (onPanelMove);
 }
 
 void SidePanel::resized()
@@ -152,7 +158,8 @@ void SidePanel::paint (Graphics& g)
                                                                                 : shadowArea.getTopLeft()).toFloat(), false));
     g.fillRect (shadowArea);
 
-    g.excludeClipRegion (shadowArea);
+    g.reduceClipRegion (getLocalBounds().withTrimmedRight (shadowArea.getWidth())
+                                        .withX (isOnLeft ? 0 : shadowArea.getWidth()));
     g.fillAll (bgColour);
 }
 
@@ -235,12 +242,21 @@ void SidePanel::lookAndFeelChanged()
     titleLabel.setJustificationType (lf.getSidePanelTitleJustification (*this));
 }
 
-void SidePanel::componentMovedOrResized (Component& component, bool wasMoved, bool wasResized)
+void SidePanel::componentMovedOrResized (Component& component, [[maybe_unused]] bool wasMoved, bool wasResized)
 {
-    ignoreUnused (wasMoved);
-
     if (wasResized && (&component == parent))
         setBounds (calculateBoundsInParent (component));
+}
+
+void SidePanel::changeListenerCallback (ChangeBroadcaster*)
+{
+    if (! Desktop::getInstance().getAnimator().isAnimating (this))
+    {
+        NullCheckedInvocation::invoke (onPanelShowHide, isShowing);
+
+        if (isVisible() && ! isShowing)
+            setVisible (false);
+    }
 }
 
 Rectangle<int> SidePanel::calculateBoundsInParent (Component& parentComp) const
@@ -273,6 +289,12 @@ bool SidePanel::isMouseEventInThisOrChildren (Component* eventComponent)
             return true;
 
     return false;
+}
+
+//==============================================================================
+std::unique_ptr<AccessibilityHandler> SidePanel::createAccessibilityHandler()
+{
+    return std::make_unique<AccessibilityHandler> (*this, AccessibilityRole::group);
 }
 
 } // namespace juce

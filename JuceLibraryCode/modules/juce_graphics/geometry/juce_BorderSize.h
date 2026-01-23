@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -41,15 +40,14 @@ namespace juce
 template <typename ValueType>
 class BorderSize
 {
+    auto tie() const { return std::tie (top, left, bottom, right); }
+
 public:
     //==============================================================================
     /** Creates a null border.
         All sizes are left as 0.
     */
     BorderSize() = default;
-
-    /** Creates a copy of another border. */
-    BorderSize (const BorderSize&) = default;
 
     /** Creates a border with the given gaps. */
     BorderSize (ValueType topGap, ValueType leftGap, ValueType bottomGap, ValueType rightGap) noexcept
@@ -102,10 +100,10 @@ public:
     /** Returns a rectangle with these borders removed from it. */
     Rectangle<ValueType> subtractedFrom (const Rectangle<ValueType>& original) const noexcept
     {
-        return Rectangle<ValueType> (original.getX() + left,
-                                     original.getY() + top,
-                                     original.getWidth() - (left + right),
-                                     original.getHeight() - (top + bottom));
+        return { original.getX() + left,
+                 original.getY() + top,
+                 original.getWidth() - (left + right),
+                 original.getHeight() - (top + bottom) };
     }
 
     /** Removes this border from a given rectangle. */
@@ -117,12 +115,11 @@ public:
     /** Returns a rectangle with these borders added around it. */
     Rectangle<ValueType> addedTo (const Rectangle<ValueType>& original) const noexcept
     {
-        return Rectangle<ValueType> (original.getX() - left,
-                                     original.getY() - top,
-                                     original.getWidth() + (left + right),
-                                     original.getHeight() + (top + bottom));
+        return { original.getX() - left,
+                 original.getY() - top,
+                 original.getWidth() + (left + right),
+                 original.getHeight() + (top + bottom) };
     }
-
 
     /** Adds this border around a given rectangle. */
     void addTo (Rectangle<ValueType>& rectangle) const noexcept
@@ -130,16 +127,37 @@ public:
         rectangle = addedTo (rectangle);
     }
 
-    //==============================================================================
-    bool operator== (const BorderSize& other) const noexcept
+    /** Removes this border from another border. */
+    BorderSize<ValueType> subtractedFrom (const BorderSize<ValueType>& other) const noexcept
     {
-        return top == other.top && left == other.left && bottom == other.bottom && right == other.right;
+        return { other.top    - top,
+                 other.left   - left,
+                 other.bottom - bottom,
+                 other.right  - right };
     }
 
-    bool operator!= (const BorderSize& other) const noexcept
+    /** Adds this border to another border. */
+    BorderSize<ValueType> addedTo (const BorderSize<ValueType>& other) const noexcept
     {
-        return ! operator== (other);
+        return { other.top    + top,
+                 other.left   + left,
+                 other.bottom + bottom,
+                 other.right  + right };
     }
+
+    /** Multiplies each member of the border by a scalar. */
+    template <typename ScalarType>
+    BorderSize<ValueType> multipliedBy (ScalarType scalar) const noexcept
+    {
+        return { static_cast<ValueType> (scalar * top),
+                 static_cast<ValueType> (scalar * left),
+                 static_cast<ValueType> (scalar * bottom),
+                 static_cast<ValueType> (scalar * right) };
+    }
+
+    //==============================================================================
+    bool operator== (const BorderSize& other) const noexcept { return tie() == other.tie(); }
+    bool operator!= (const BorderSize& other) const noexcept { return tie() != other.tie(); }
 
 private:
     //==============================================================================

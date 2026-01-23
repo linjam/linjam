@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -41,6 +40,11 @@ DrawableImage::DrawableImage (const DrawableImage& other)
     setBounds (other.getBounds());
 }
 
+DrawableImage::DrawableImage (const Image& imageToUse)
+{
+    setImageInternal (imageToUse);
+}
+
 DrawableImage::~DrawableImage()
 {
 }
@@ -53,13 +57,8 @@ std::unique_ptr<Drawable> DrawableImage::createCopy() const
 //==============================================================================
 void DrawableImage::setImage (const Image& imageToUse)
 {
-    if (image != imageToUse)
-    {
-        image = imageToUse;
-        setBounds (image.getBounds());
-        setBoundingBox (image.getBounds().toFloat());
+    if (setImageInternal (imageToUse))
         repaint();
-    }
 }
 
 void DrawableImage::setOpacity (const float newOpacity)
@@ -132,6 +131,26 @@ bool DrawableImage::hitTest (int x, int y)
 Path DrawableImage::getOutlineAsPath() const
 {
     return {}; // not applicable for images
+}
+
+//==============================================================================
+bool DrawableImage::setImageInternal (const Image& imageToUse)
+{
+    if (image != imageToUse)
+    {
+        image = imageToUse;
+        setBounds (image.getBounds());
+        setBoundingBox (image.getBounds().toFloat());
+        return true;
+    }
+
+    return false;
+}
+
+//==============================================================================
+std::unique_ptr<AccessibilityHandler> DrawableImage::createAccessibilityHandler()
+{
+    return std::make_unique<AccessibilityHandler> (*this, AccessibilityRole::image);
 }
 
 } // namespace juce

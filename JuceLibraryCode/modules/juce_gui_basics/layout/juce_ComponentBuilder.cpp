@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -161,7 +160,7 @@ ComponentBuilder::TypeHandler* ComponentBuilder::getHandlerForState (const Value
 
     for (int i = 0; i < types.size(); ++i)
     {
-        TypeHandler* const t = types.getUnchecked(i);
+        TypeHandler* const t = types.getUnchecked (i);
 
         if (t->type == targetType)
             return t;
@@ -280,7 +279,7 @@ void ComponentBuilder::updateChildComponents (Component& parent, const ValueTree
         componentsInOrder.getLast()->toFront (false);
 
         for (int i = componentsInOrder.size() - 1; --i >= 0;)
-            componentsInOrder.getUnchecked(i)->toBehind (componentsInOrder.getUnchecked (i + 1));
+            componentsInOrder.getUnchecked (i)->toBehind (componentsInOrder.getUnchecked (i + 1));
     }
 }
 

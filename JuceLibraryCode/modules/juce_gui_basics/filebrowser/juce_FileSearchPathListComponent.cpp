@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -82,10 +81,6 @@ FileSearchPathListComponent::FileSearchPathListComponent()
     updateButtons();
 }
 
-FileSearchPathListComponent::~FileSearchPathListComponent()
-{
-}
-
 void FileSearchPathListComponent::updateButtons()
 {
     const bool anythingSelected = listBox.getNumSelectedRows() > 0;
@@ -130,11 +125,11 @@ void FileSearchPathListComponent::paintListBoxItem (int rowNumber, Graphics& g, 
         g.fillAll (findColour (TextEditor::highlightColourId));
 
     g.setColour (findColour (ListBox::textColourId));
-    Font f (height * 0.7f);
+    Font f ((float) height * 0.7f);
     f.setHorizontalScale (0.9f);
     g.setFont (f);
 
-    g.drawText (path[rowNumber].getFullPathName(),
+    g.drawText (path.getRawString (rowNumber),
                 4, 0, width - 6, height,
                 Justification::centredLeft, true);
 }
@@ -150,18 +145,18 @@ void FileSearchPathListComponent::deleteKeyPressed (int row)
 
 void FileSearchPathListComponent::returnKeyPressed (int row)
 {
-   #if JUCE_MODAL_LOOPS_PERMITTED
-    FileChooser chooser (TRANS("Change folder..."), path[row], "*");
+    chooser = std::make_unique<FileChooser> (TRANS ("Change folder..."), path.getRawString (row), "*");
+    auto chooserFlags = FileBrowserComponent::openMode | FileBrowserComponent::canSelectDirectories;
 
-    if (chooser.browseForDirectory())
+    chooser->launchAsync (chooserFlags, [this, row] (const FileChooser& fc)
     {
+        if (fc.getResult() == File{})
+            return;
+
         path.remove (row);
-        path.add (chooser.getResult(), row);
+        path.add (fc.getResult(), row);
         changed();
-    }
-   #else
-    ignoreUnused (row);
-   #endif
+    });
 }
 
 void FileSearchPathListComponent::listBoxItemDoubleClicked (int row, const MouseEvent&)
@@ -227,16 +222,17 @@ void FileSearchPathListComponent::addPath()
     if (start == File())
         start = File::getCurrentWorkingDirectory();
 
-   #if JUCE_MODAL_LOOPS_PERMITTED
-    FileChooser chooser (TRANS("Add a folder..."), start, "*");
+    chooser = std::make_unique<FileChooser> (TRANS ("Add a folder..."), start, "*");
+    auto chooserFlags = FileBrowserComponent::openMode | FileBrowserComponent::canSelectDirectories;
 
-    if (chooser.browseForDirectory())
-        path.add (chooser.getResult(), listBox.getSelectedRow());
+    chooser->launchAsync (chooserFlags, [this] (const FileChooser& fc)
+    {
+        if (fc.getResult() == File{})
+            return;
 
-    changed();
-   #else
-    jassertfalse; // needs rewriting to deal with non-modal environments
-   #endif
+        path.add (fc.getResult(), listBox.getSelectedRow());
+        changed();
+    });
 }
 
 void FileSearchPathListComponent::deleteSelected()
@@ -262,7 +258,7 @@ void FileSearchPathListComponent::moveSelection (int delta)
 
         if (currentRow != newRow)
         {
-            auto f = path[currentRow];
+            const auto f = File::createFileWithoutCheckingPath (path.getRawString (currentRow));
             path.remove (currentRow);
             path.add (f, newRow);
             listBox.selectRow (newRow);

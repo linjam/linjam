@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -45,7 +44,7 @@ private:
     class DereferencingIterator
     {
     public:
-        using value_type = typename std::remove_reference<decltype(**std::declval<Iterator>())>::type;
+        using value_type = std::remove_reference_t<decltype(**std::declval<Iterator>())>;
         using difference_type = typename std::iterator_traits<Iterator>::difference_type;
         using pointer = value_type*;
         using reference = value_type&;
@@ -146,9 +145,6 @@ public:
     {
     public:
         Glyph (int glyphCode, Point<float> anchor, float width) noexcept;
-        Glyph (const Glyph&) noexcept;
-        Glyph& operator= (const Glyph&) noexcept;
-        ~Glyph() noexcept;
 
         /** The code number of this glyph. */
         int glyphCode;
@@ -169,21 +165,18 @@ public:
     class JUCE_API  Run
     {
     public:
-        Run() noexcept;
-        Run (const Run&);
+        Run() = default;
         Run (Range<int> stringRange, int numGlyphsToPreallocate);
-        ~Run() noexcept;
 
         /** Returns the X position range which contains all the glyphs in this run. */
         Range<float> getRunBoundsX() const noexcept;
 
-        Font font;              /**< The run's font. */
-        Colour colour;          /**< The run's colour. */
-        Array<Glyph> glyphs;    /**< The glyphs in this run. */
-        Range<int> stringRange; /**< The character range that this run represents in the
-                                     original string that was used to create it. */
+        Font font;                      /**< The run's font. */
+        Colour colour { 0xff000000 };   /**< The run's colour. */
+        Array<Glyph> glyphs;            /**< The glyphs in this run. */
+        Range<int> stringRange;         /**< The character range that this run represents in the
+                                             original string that was used to create it. */
     private:
-        Run& operator= (const Run&);
         JUCE_LEAK_DETECTOR (Run)
     };
 
@@ -192,11 +185,17 @@ public:
     class JUCE_API  Line
     {
     public:
-        Line() noexcept;
-        Line (const Line&);
+        Line() = default;
         Line (Range<int> stringRange, Point<float> lineOrigin,
               float ascent, float descent, float leading, int numRunsToPreallocate);
-        ~Line() noexcept;
+
+        Line (const Line&);
+        Line& operator= (const Line&);
+
+        Line (Line&&) noexcept = default;
+        Line& operator= (Line&&) noexcept = default;
+
+        ~Line() noexcept = default;
 
         /** Returns the X position range which contains all the glyphs in this line. */
         Range<float> getLineBoundsX() const noexcept;
@@ -207,14 +206,15 @@ public:
         /** Returns the smallest rectangle which contains all the glyphs in this line. */
         Rectangle<float> getLineBounds() const noexcept;
 
+        void swap (Line& other) noexcept;
+
         OwnedArray<Run> runs;           /**< The glyph-runs in this line. */
         Range<int> stringRange;         /**< The character range that this line represents in the
                                              original string that was used to create it. */
         Point<float> lineOrigin;        /**< The line's baseline origin. */
-        float ascent, descent, leading;
+        float ascent = 0.0f, descent = 0.0f, leading = 0.0f;
 
     private:
-        Line& operator= (const Line&);
         JUCE_LEAK_DETECTOR (Line)
     };
 

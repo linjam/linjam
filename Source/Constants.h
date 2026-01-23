@@ -1,8 +1,10 @@
 /* Constants.h
    this file defines global configuration/persistence and runtime constants
 */
-#ifndef _CONSTANTS_H_
-#define _CONSTANTS_H_
+
+
+#pragma once
+
 
 #include <ninjam/audiostream.h>
 #include <ninjam/njclient.h>
@@ -1045,9 +1047,3 @@ namespace GUI
   static const int    LOOP_X      = STATUS_W + PAD3 ;
   static const int    LOOP_H      = STATUS_H ;
 }
-
-
-// KLUDGE: no valid conversion for String(a_var) on linux
-#define str(a_var) a_var.toString()
-
-#endif // _CONSTANTS_H_

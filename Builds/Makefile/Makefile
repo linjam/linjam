@@ -110,6 +110,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/MainContent_6313eee1.o \
   $(JUCE_OBJDIR)/Mixer_d95e2aea.o \
   $(JUCE_OBJDIR)/StatusBar_3fb23a2.o \
+  $(JUCE_OBJDIR)/Toolbox_88ca0c14.o \
   $(JUCE_OBJDIR)/Trace_fd3024bc.o \
   $(JUCE_OBJDIR)/include_juce_core_f26d17db.o \
   $(JUCE_OBJDIR)/include_juce_data_structures_7471b1e3.o \
@@ -233,6 +234,11 @@ $(JUCE_OBJDIR)/Mixer_d95e2aea.o: ../../Source/Mixer.cpp
 $(JUCE_OBJDIR)/StatusBar_3fb23a2.o: ../../Source/StatusBar.cpp
 	-$(V_AT)mkdir -p $(JUCE_OBJDIR)
 	@echo "Compiling StatusBar.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Toolbox_88ca0c14.o: ../../Source/Toolbox.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling Toolbox.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Trace_fd3024bc.o: ../../Source/Trace/Trace.cpp

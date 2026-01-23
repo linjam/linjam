@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -28,7 +27,7 @@ namespace juce
 {
 
 //==============================================================================
-struct CustomMenuBarItemHolder    : public Component
+struct CustomMenuBarItemHolder final : public Component
 {
     CustomMenuBarItemHolder (const ReferenceCountedObjectPtr<PopupMenu::CustomComponent>& customComponent)
     {
@@ -64,9 +63,7 @@ struct CustomMenuBarItemHolder    : public Component
 //==============================================================================
 BurgerMenuComponent::BurgerMenuComponent (MenuBarModel* modelToUse)
 {
-    auto& lf = getLookAndFeel();
-
-    listBox.setRowHeight (roundToInt (lf.getPopupMenuFont().getHeight() * 2.0f));
+    lookAndFeelChanged();
     listBox.addMouseListener (this, true);
 
     setModel (modelToUse);
@@ -289,6 +286,17 @@ void BurgerMenuComponent::handleCommandMessage (int commandID)
         refresh();
         listBox.updateContent();
     }
+}
+
+void BurgerMenuComponent::lookAndFeelChanged()
+{
+    listBox.setRowHeight (roundToInt (getLookAndFeel().getPopupMenuFont().getHeight() * 2.0f));
+}
+
+//==============================================================================
+std::unique_ptr<AccessibilityHandler> BurgerMenuComponent::createAccessibilityHandler()
+{
+    return std::make_unique<AccessibilityHandler> (*this, AccessibilityRole::menuBar);
 }
 
 } // namespace juce

@@ -17,8 +17,9 @@
   ==============================================================================
 */
 
-#ifndef _CHAT_H_
-#define _CHAT_H_
+
+#pragma once
+
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -38,12 +39,12 @@
 class Chat  : public Component,
               public TextEditor::Listener,
               public Value::Listener,
-              public Label::Listener
+              public juce::Label::Listener
 {
 public:
     //==============================================================================
-    Chat (Value font_size);
-    ~Chat();
+    Chat (Value font_size, Value linjam_status);
+    ~Chat() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -53,9 +54,9 @@ public:
 
     //[/UserMethods]
 
-    void paint (Graphics& g);
-    void resized();
-    void labelTextChanged (Label* labelThatHasChanged);
+    void paint (juce::Graphics& g) override;
+    void resized() override;
+    void labelTextChanged (juce::Label* labelThatHasChanged) override;
 
 
 
@@ -77,9 +78,9 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TextEditor> chatText;
-    ScopedPointer<TextEditor> chatEntryText;
-    ScopedPointer<Label> topicLabel;
+    std::unique_ptr<juce::TextEditor> chatText;
+    std::unique_ptr<juce::Label> topicLabel;
+    std::unique_ptr<juce::TextEditor> chatEntryText;
 
 
     //==============================================================================
@@ -88,5 +89,3 @@ private:
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
-
-#endif // _CHAT_H_

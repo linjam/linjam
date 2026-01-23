@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -27,18 +26,16 @@
 namespace juce
 {
 
-struct MarkerListScope  : public Expression::Scope
+struct MarkerListScope final : public Expression::Scope
 {
     MarkerListScope (Component& comp) : component (comp) {}
 
     Expression getSymbolValue (const String& symbol) const override
     {
-        switch (RelativeCoordinate::StandardStrings::getTypeOf (symbol))
-        {
-            case RelativeCoordinate::StandardStrings::width:  return Expression ((double) component.getWidth());
-            case RelativeCoordinate::StandardStrings::height: return Expression ((double) component.getHeight());
-            default: break;
-        }
+        auto type = RelativeCoordinate::StandardStrings::getTypeOf (symbol);
+
+        if (type == RelativeCoordinate::StandardStrings::width)   return Expression ((double) component.getWidth());
+        if (type == RelativeCoordinate::StandardStrings::height)  return Expression ((double) component.getHeight());
 
         MarkerList* list;
 
@@ -116,6 +113,8 @@ Expression RelativeCoordinatePositionerBase::ComponentScope::getSymbolValue (con
         case RelativeCoordinate::StandardStrings::height: return Expression ((double) component.getHeight());
         case RelativeCoordinate::StandardStrings::right:  return Expression ((double) component.getRight());
         case RelativeCoordinate::StandardStrings::bottom: return Expression ((double) component.getBottom());
+        case RelativeCoordinate::StandardStrings::parent:
+        case RelativeCoordinate::StandardStrings::unknown:
         default: break;
     }
 
@@ -157,7 +156,7 @@ Component* RelativeCoordinatePositionerBase::ComponentScope::findSiblingComponen
 }
 
 //==============================================================================
-class RelativeCoordinatePositionerBase::DependencyFinderScope  : public ComponentScope
+class RelativeCoordinatePositionerBase::DependencyFinderScope final : public ComponentScope
 {
 public:
     DependencyFinderScope (Component& comp, RelativeCoordinatePositionerBase& p, bool& result)
@@ -180,6 +179,8 @@ public:
                 positioner.registerComponentListener (component);
                 break;
 
+            case RelativeCoordinate::StandardStrings::parent:
+            case RelativeCoordinate::StandardStrings::unknown:
             default:
                 if (auto* parent = component.getParentComponent())
                 {
@@ -322,10 +323,10 @@ void RelativeCoordinatePositionerBase::registerMarkerListListener (MarkerList* c
 void RelativeCoordinatePositionerBase::unregisterListeners()
 {
     for (int i = sourceComponents.size(); --i >= 0;)
-        sourceComponents.getUnchecked(i)->removeComponentListener (this);
+        sourceComponents.getUnchecked (i)->removeComponentListener (this);
 
     for (int i = sourceMarkerLists.size(); --i >= 0;)
-        sourceMarkerLists.getUnchecked(i)->removeListener (this);
+        sourceMarkerLists.getUnchecked (i)->removeListener (this);
 
     sourceComponents.clear();
     sourceMarkerLists.clear();

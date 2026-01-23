@@ -197,7 +197,7 @@ void Config::valueChanged(Value& a_value)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Config" componentName=""
-                 parentClasses="public Component, public ValueListener" constructorParams="ValueTree audio_store, ValueTree client_store, ValueTree gui_store, ValueTree blacklist_store, Value linjam_status"
+                 parentClasses="public Component, public Value::Listener" constructorParams="ValueTree audio_store, ValueTree client_store, ValueTree gui_store, ValueTree blacklist_store, Value linjam_status"
                  variableInitialisers="linjamStatus(linjam_status)" snapPixels="8"
                  snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
                  initialWidth="622" initialHeight="442">

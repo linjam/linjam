@@ -38,20 +38,22 @@ Chat::Chat (Value font_size)
     //[/Constructor_pre]
 
     setName ("Chat");
-    addAndMakeVisible (chatText = new TextEditor ("chatText"));
+    chatText.reset (new juce::TextEditor ("chatText"));
+    addAndMakeVisible (chatText.get());
     chatText->setMultiLine (true);
     chatText->setReturnKeyStartsNewLine (false);
     chatText->setReadOnly (true);
     chatText->setScrollbarsShown (true);
     chatText->setCaretVisible (false);
     chatText->setPopupMenuEnabled (true);
-    chatText->setColour (TextEditor::textColourId, Colours::grey);
-    chatText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    chatText->setColour (TextEditor::highlightColourId, Colour (0x00000000));
-    chatText->setColour (TextEditor::outlineColourId, Colour (0x00000000));
-    chatText->setText (String());
+    chatText->setColour (juce::TextEditor::textColourId, juce::Colours::grey);
+    chatText->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+    chatText->setColour (juce::TextEditor::highlightColourId, juce::Colour (0x00000000));
+    chatText->setColour (juce::TextEditor::outlineColourId, juce::Colour (0x00000000));
+    chatText->setText (juce::String());
 
-    addAndMakeVisible (chatEntryText = new TextEditor ("chatEntryText"));
+    chatEntryText.reset (new juce::TextEditor ("chatEntryText"));
+    addAndMakeVisible (chatEntryText.get());
     chatEntryText->setExplicitFocusOrder (1);
     chatEntryText->setMultiLine (false);
     chatEntryText->setReturnKeyStartsNewLine (false);
@@ -59,12 +61,13 @@ Chat::Chat (Value font_size)
     chatEntryText->setScrollbarsShown (false);
     chatEntryText->setCaretVisible (true);
     chatEntryText->setPopupMenuEnabled (true);
-    chatEntryText->setColour (TextEditor::textColourId, Colours::grey);
-    chatEntryText->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    chatEntryText->setColour (TextEditor::highlightColourId, Colour (0x00000000));
-    chatEntryText->setColour (TextEditor::outlineColourId, Colour (0x00000000));
-    chatEntryText->setColour (CaretComponent::caretColourId, Colours::white);
-    chatEntryText->setText (String());
+    chatEntryText->setColour (juce::TextEditor::textColourId, juce::Colours::grey);
+    chatEntryText->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+    chatEntryText->setColour (juce::TextEditor::highlightColourId, juce::Colour (0x00000000));
+    chatEntryText->setColour (juce::TextEditor::outlineColourId, juce::Colour (0x00000000));
+    chatEntryText->setColour (juce::CaretComponent::caretColourId, juce::Colours::white);
+    chatEntryText->setText (juce::String());
+
 
     addAndMakeVisible (topicLabel = new Label ("topicLabel",
                                                String()));

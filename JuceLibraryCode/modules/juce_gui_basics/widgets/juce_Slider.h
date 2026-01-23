@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -425,6 +424,9 @@ public:
     */
     void setNormalisableRange (NormalisableRange<double> newNormalisableRange);
 
+    /** Returns the slider's normalisable range. */
+    NormalisableRange<double> getNormalisableRange() const noexcept;
+
     /** Returns the slider's range. */
     Range<double> getRange() const noexcept;
 
@@ -606,10 +608,10 @@ public:
     std::function<void()> onDragEnd;
 
     /** You can assign a lambda that will be used to convert textual values to the slider's normalised position. */
-    std::function<double(const String&)> valueFromTextFunction;
+    std::function<double (const String&)> valueFromTextFunction;
 
     /** You can assign a lambda that will be used to convert the slider's normalised position to a textual value. */
-    std::function<String(double)> textFromValueFunction;
+    std::function<String (double)> textFromValueFunction;
 
     //==============================================================================
     /** This lets you choose whether double-clicking or single-clicking with a specified
@@ -701,6 +703,9 @@ public:
         By default it's enabled.
     */
     void setScrollWheelEnabled (bool enabled);
+
+    /** Returns true if the scroll wheel can move the slider. */
+    bool isScrollWheelEnabled() const noexcept;
 
     /** Returns a number to indicate which thumb is currently being dragged by the mouse.
 
@@ -885,6 +890,27 @@ public:
     };
 
     //==============================================================================
+    /** An RAII class for sending slider listener drag messages.
+
+        This is useful if you are programmatically updating the slider's value and want
+        to imitate a mouse event, for example in a custom AccessibilityHandler.
+
+        @see Slider::Listener
+    */
+    class JUCE_API  ScopedDragNotification
+    {
+    public:
+        explicit ScopedDragNotification (Slider&);
+        ~ScopedDragNotification();
+
+    private:
+        Slider& sliderBeingDragged;
+
+        JUCE_DECLARE_NON_MOVEABLE (ScopedDragNotification)
+        JUCE_DECLARE_NON_COPYABLE (ScopedDragNotification)
+    };
+
+    //==============================================================================
     /** This abstract base class is implemented by LookAndFeel classes to provide
         slider drawing functionality.
     */
@@ -898,7 +924,7 @@ public:
                                        float sliderPos,
                                        float minSliderPos,
                                        float maxSliderPos,
-                                       const Slider::SliderStyle,
+                                       Slider::SliderStyle,
                                        Slider&) = 0;
 
         virtual void drawLinearSliderBackground (Graphics&,
@@ -906,15 +932,20 @@ public:
                                                  float sliderPos,
                                                  float minSliderPos,
                                                  float maxSliderPos,
-                                                 const Slider::SliderStyle style,
+                                                 Slider::SliderStyle,
                                                  Slider&) = 0;
+
+        virtual void drawLinearSliderOutline (Graphics&,
+                                              int x, int y, int width, int height,
+                                              Slider::SliderStyle,
+                                              Slider&) = 0;
 
         virtual void drawLinearSliderThumb (Graphics&,
                                             int x, int y, int width, int height,
                                             float sliderPos,
                                             float minSliderPos,
                                             float maxSliderPos,
-                                            const Slider::SliderStyle,
+                                            Slider::SliderStyle,
                                             Slider&) = 0;
 
         virtual int getSliderThumbRadius (Slider&) = 0;
@@ -968,6 +999,25 @@ public:
     void mouseExit (const MouseEvent&) override;
     /** @internal */
     void mouseEnter (const MouseEvent&) override;
+    /** @internal */
+    bool keyPressed (const KeyPress&) override;
+    /** @internal */
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override;
+
+    //==============================================================================
+   #ifndef DOXYGEN
+    // These methods' bool parameters have changed: see the new method signature.
+    [[deprecated]] void setValue (double, bool);
+    [[deprecated]] void setValue (double, bool, bool);
+    [[deprecated]] void setMinValue (double, bool, bool, bool);
+    [[deprecated]] void setMinValue (double, bool, bool);
+    [[deprecated]] void setMinValue (double, bool);
+    [[deprecated]] void setMaxValue (double, bool, bool, bool);
+    [[deprecated]] void setMaxValue (double, bool, bool);
+    [[deprecated]] void setMaxValue (double, bool);
+    [[deprecated]] void setMinAndMaxValues (double, double, bool, bool);
+    [[deprecated]] void setMinAndMaxValues (double, double, bool);
+   #endif
 
 private:
     //==============================================================================
@@ -975,20 +1025,6 @@ private:
     std::unique_ptr<Pimpl> pimpl;
 
     void init (SliderStyle, TextEntryBoxPosition);
-
-   #if JUCE_CATCH_DEPRECATED_CODE_MISUSE
-    // These methods' bool parameters have changed: see the new method signature.
-    JUCE_DEPRECATED (void setValue (double, bool));
-    JUCE_DEPRECATED (void setValue (double, bool, bool));
-    JUCE_DEPRECATED (void setMinValue (double, bool, bool, bool));
-    JUCE_DEPRECATED (void setMinValue (double, bool, bool));
-    JUCE_DEPRECATED (void setMinValue (double, bool));
-    JUCE_DEPRECATED (void setMaxValue (double, bool, bool, bool));
-    JUCE_DEPRECATED (void setMaxValue (double, bool, bool));
-    JUCE_DEPRECATED (void setMaxValue (double, bool));
-    JUCE_DEPRECATED (void setMinAndMaxValues (double, double, bool, bool));
-    JUCE_DEPRECATED (void setMinAndMaxValues (double, double, bool));
-   #endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Slider)
 };

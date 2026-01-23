@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -53,6 +52,24 @@ namespace
                 break;
             }
         }
+    }
+
+    inline bool areInvariantsMaintained (const String& text, const Array<AttributedString::Attribute>& atts)
+    {
+        if (atts.isEmpty())
+            return true;
+
+        if (atts.getFirst().range.getStart() != 0)
+            return false;
+
+        if (atts.getLast().range.getEnd() != text.length())
+            return false;
+
+        for (auto it = std::next (atts.begin()); it != atts.end(); ++it)
+            if (it->range.getStart() != std::prev (it)->range.getEnd())
+                return false;
+
+        return true;
     }
 
     Range<int> splitAttributeRanges (Array<AttributedString::Attribute>& atts, Range<int> newRange)
@@ -152,30 +169,35 @@ void AttributedString::setText (const String& newText)
         truncate (attributes, newLength);
 
     text = newText;
+    jassert (areInvariantsMaintained (text, attributes));
 }
 
 void AttributedString::append (const String& textToAppend)
 {
     text += textToAppend;
     appendRange (attributes, textToAppend.length(), nullptr, nullptr);
+    jassert (areInvariantsMaintained (text, attributes));
 }
 
 void AttributedString::append (const String& textToAppend, const Font& font)
 {
     text += textToAppend;
     appendRange (attributes, textToAppend.length(), &font, nullptr);
+    jassert (areInvariantsMaintained (text, attributes));
 }
 
 void AttributedString::append (const String& textToAppend, Colour colour)
 {
     text += textToAppend;
     appendRange (attributes, textToAppend.length(), nullptr, &colour);
+    jassert (areInvariantsMaintained (text, attributes));
 }
 
 void AttributedString::append (const String& textToAppend, const Font& font, Colour colour)
 {
     text += textToAppend;
     appendRange (attributes, textToAppend.length(), &font, &colour);
+    jassert (areInvariantsMaintained (text, attributes));
 }
 
 void AttributedString::append (const AttributedString& other)
@@ -189,6 +211,7 @@ void AttributedString::append (const AttributedString& other)
         attributes.getReference (i).range += originalLength;
 
     mergeAdjacentRanges (attributes);
+    jassert (areInvariantsMaintained (text, attributes));
 }
 
 void AttributedString::clear()
@@ -220,21 +243,25 @@ void AttributedString::setLineSpacing (const float newLineSpacing) noexcept
 void AttributedString::setColour (Range<int> range, Colour colour)
 {
     applyFontAndColour (attributes, range, nullptr, &colour);
+    jassert (areInvariantsMaintained (text, attributes));
 }
 
 void AttributedString::setFont (Range<int> range, const Font& font)
 {
     applyFontAndColour (attributes, range, &font, nullptr);
+    jassert (areInvariantsMaintained (text, attributes));
 }
 
 void AttributedString::setColour (Colour colour)
 {
     setColour ({ 0, getLength (attributes) }, colour);
+    jassert (areInvariantsMaintained (text, attributes));
 }
 
 void AttributedString::setFont (const Font& font)
 {
     setFont ({ 0, getLength (attributes) }, font);
+    jassert (areInvariantsMaintained (text, attributes));
 }
 
 void AttributedString::draw (Graphics& g, const Rectangle<float>& area) const

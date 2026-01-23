@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -43,15 +42,15 @@ public:
     }
 };
 
-void updateButtonTickColour (ToggleButton* button, bool usingDefault)
+static void updateButtonTickColour (ToggleButton* button, bool usingDefault)
 {
     button->setColour (ToggleButton::tickColourId, button->getLookAndFeel().findColour (ToggleButton::tickColourId)
                                                                               .withAlpha (usingDefault ? 0.4f : 1.0f));
 }
 
 //==============================================================================
-class MultiChoicePropertyComponent::MultiChoiceRemapperSource    : public Value::ValueSource,
-                                                                   private Value::Listener
+class MultiChoicePropertyComponent::MultiChoiceRemapperSource final : public Value::ValueSource,
+                                                                      private Value::Listener
 {
 public:
     MultiChoiceRemapperSource (const Value& source, var v, int c)
@@ -108,14 +107,15 @@ private:
 };
 
 //==============================================================================
-class MultiChoicePropertyComponent::MultiChoiceRemapperSourceWithDefault    : public Value::ValueSource,
-                                                                              private Value::Listener
+class MultiChoicePropertyComponent::MultiChoiceRemapperSourceWithDefault final : public Value::ValueSource,
+                                                                                 private Value::Listener
 {
 public:
-    MultiChoiceRemapperSourceWithDefault (ValueWithDefault* vwd, var v, int c, ToggleButton* b)
-        : valueWithDefault (vwd),
+    MultiChoiceRemapperSourceWithDefault (const ValueTreePropertyWithDefault& val,
+                                          var v, int c, ToggleButton* b)
+        : value (val),
           varToControl (v),
-          sourceValue (valueWithDefault->getPropertyAsValue()),
+          sourceValue (value.getPropertyAsValue()),
           maxChoices (c),
           buttonToControl (b)
     {
@@ -124,16 +124,13 @@ public:
 
     var getValue() const override
     {
-        if (valueWithDefault == nullptr)
-            return {};
-
-        auto v = valueWithDefault->get();
+        auto v = value.get();
 
         if (auto* arr = v.getArray())
         {
             if (arr->contains (varToControl))
             {
-                updateButtonTickColour (buttonToControl, valueWithDefault->isUsingDefault());
+                updateButtonTickColour (buttonToControl, value.isUsingDefault());
                 return true;
             }
         }
@@ -143,14 +140,11 @@ public:
 
     void setValue (const var& newValue) override
     {
-        if (valueWithDefault == nullptr)
-            return;
-
-        auto v = valueWithDefault->get();
+        auto v = value.get();
 
         OptionalScopedPointer<Array<var>> arrayToControl;
 
-        if (valueWithDefault->isUsingDefault())
+        if (value.isUsingDefault())
             arrayToControl.set (new Array<var>(), true); // use an empty array so the default values are overwritten
         else
             arrayToControl.set (v.getArray(), false);
@@ -161,7 +155,7 @@ public:
 
             bool newState = newValue;
 
-            if (valueWithDefault->isUsingDefault())
+            if (value.isUsingDefault())
             {
                 if (auto* defaultArray = v.getArray())
                 {
@@ -183,10 +177,10 @@ public:
             StringComparator c;
             temp.sort (c);
 
-            *valueWithDefault = temp;
+            value = temp;
 
             if (temp.size() == 0)
-                valueWithDefault->resetToDefault();
+                value.resetToDefault();
         }
     }
 
@@ -195,7 +189,7 @@ private:
     void valueChanged (Value&) override { sendChangeMessage (true); }
 
     //==============================================================================
-    WeakReference<ValueWithDefault> valueWithDefault;
+    ValueTreePropertyWithDefault value;
     var varToControl;
     Value sourceValue;
 
@@ -208,32 +202,42 @@ private:
 };
 
 //==============================================================================
+int MultiChoicePropertyComponent::getTotalButtonsHeight (int numButtons)
+{
+    return numButtons * buttonHeight + 1;
+}
+
 MultiChoicePropertyComponent::MultiChoicePropertyComponent (const String& propertyName,
                                                             const StringArray& choices,
-                                                            const Array<var>& correspondingValues)
-    : PropertyComponent (propertyName, 70)
+                                                            [[maybe_unused]] const Array<var>& correspondingValues)
+    : PropertyComponent (propertyName, jmin (getTotalButtonsHeight (choices.size()), collapsedHeight))
 {
     // The array of corresponding values must contain one value for each of the items in
     // the choices array!
     jassert (choices.size() == correspondingValues.size());
 
-    ignoreUnused (correspondingValues);
-
     for (auto choice : choices)
         addAndMakeVisible (choiceButtons.add (new ToggleButton (choice)));
 
-    maxHeight = (choiceButtons.size() * 25) + 20;
-
+    if (preferredHeight >= collapsedHeight)
     {
-        Path expandShape;
-        expandShape.addTriangle ({ 0, 0 }, { 5, 10 }, { 10, 0});
-        expandButton.setShape (expandShape, true, true, false);
+        expandable = true;
+        maxHeight = getTotalButtonsHeight (choiceButtons.size()) + expandAreaHeight;
     }
 
-    expandButton.onClick = [this] { setExpanded (! expanded); };
-    addAndMakeVisible (expandButton);
+    if (isExpandable())
+    {
+        {
+            Path expandShape;
+            expandShape.addTriangle ({ 0, 0 }, { 5, 10 }, { 10, 0});
+            expandButton.setShape (expandShape, true, true, false);
+        }
 
-    lookAndFeelChanged();
+        expandButton.onClick = [this] { setExpanded (! expanded); };
+        addAndMakeVisible (expandButton);
+
+        lookAndFeelChanged();
+    }
 }
 
 MultiChoicePropertyComponent::MultiChoicePropertyComponent (const Value& valueToControl,
@@ -252,31 +256,25 @@ MultiChoicePropertyComponent::MultiChoicePropertyComponent (const Value& valueTo
                                                                                                maxChoices)));
 }
 
-MultiChoicePropertyComponent::MultiChoicePropertyComponent (ValueWithDefault& valueToControl,
+MultiChoicePropertyComponent::MultiChoicePropertyComponent (const ValueTreePropertyWithDefault& valueToControl,
                                                             const String& propertyName,
                                                             const StringArray& choices,
                                                             const Array<var>& correspondingValues,
                                                             int maxChoices)
     : MultiChoicePropertyComponent (propertyName, choices, correspondingValues)
 {
-    valueWithDefault = &valueToControl;
+    value = valueToControl;
 
     // The value to control must be an array!
-    jassert (valueWithDefault->get().isArray());
+    jassert (value.get().isArray());
 
     for (int i = 0; i < choiceButtons.size(); ++i)
-        choiceButtons[i]->getToggleStateValue().referTo (Value (new MultiChoiceRemapperSourceWithDefault (valueWithDefault,
+        choiceButtons[i]->getToggleStateValue().referTo (Value (new MultiChoiceRemapperSourceWithDefault (value,
                                                                                                           correspondingValues[i],
                                                                                                           maxChoices,
                                                                                                           choiceButtons[i])));
 
-    valueWithDefault->onDefaultChange = [this] { repaint(); };
-}
-
-MultiChoicePropertyComponent::~MultiChoicePropertyComponent()
-{
-    if (valueWithDefault != nullptr)
-        valueWithDefault->onDefaultChange = nullptr;
+    value.onDefaultChange = [this] { repaint(); };
 }
 
 void MultiChoicePropertyComponent::paint (Graphics& g)
@@ -284,11 +282,11 @@ void MultiChoicePropertyComponent::paint (Graphics& g)
     g.setColour (findColour (TextEditor::backgroundColourId));
     g.fillRect (getLookAndFeel().getPropertyComponentContentPosition (*this));
 
-    if (! expanded)
+    if (isExpandable() && ! isExpanded())
     {
         g.setColour (findColour (TextEditor::backgroundColourId).contrasting().withAlpha (0.4f));
         g.drawFittedText ("+ " + String (numHidden) + " more", getLookAndFeel().getPropertyComponentContentPosition (*this)
-                                                                               .removeFromBottom (20).withTrimmedLeft (10),
+                                                                               .removeFromBottom (expandAreaHeight).withTrimmedLeft (10),
                           Justification::centredLeft, 1);
     }
 
@@ -299,20 +297,23 @@ void MultiChoicePropertyComponent::resized()
 {
     auto bounds = getLookAndFeel().getPropertyComponentContentPosition (*this);
 
-    bounds.removeFromBottom (5);
+    if (isExpandable())
+    {
+        bounds.removeFromBottom (5);
 
-    auto buttonSlice = bounds.removeFromBottom (10);
-    expandButton.setSize (10, 10);
-    expandButton.setCentrePosition (buttonSlice.getCentre());
+        auto buttonSlice = bounds.removeFromBottom (10);
+        expandButton.setSize (10, 10);
+        expandButton.setCentrePosition (buttonSlice.getCentre());
+    }
 
     numHidden = 0;
 
     for (auto* b : choiceButtons)
     {
-        if (bounds.getHeight() >= 25)
+        if (bounds.getHeight() >= buttonHeight)
         {
             b->setVisible (true);
-            b->setBounds (bounds.removeFromTop (25).reduced (5, 2));
+            b->setBounds (bounds.removeFromTop (buttonHeight).reduced (5, 2));
         }
         else
         {
@@ -322,19 +323,18 @@ void MultiChoicePropertyComponent::resized()
     }
 }
 
-void MultiChoicePropertyComponent::setExpanded (bool isExpanded) noexcept
+void MultiChoicePropertyComponent::setExpanded (bool shouldBeExpanded) noexcept
 {
-    if (expanded == isExpanded)
+    if (! isExpandable() || (isExpanded() == shouldBeExpanded))
         return;
 
-    expanded = isExpanded;
-    preferredHeight = expanded ? maxHeight : 70;
+    expanded = shouldBeExpanded;
+    preferredHeight = expanded ? maxHeight : collapsedHeight;
 
     if (auto* propertyPanel = findParentComponentOfClass<PropertyPanel>())
         propertyPanel->resized();
 
-    if (onHeightChange != nullptr)
-        onHeightChange();
+    NullCheckedInvocation::invoke (onHeightChange);
 
     expandButton.setTransform (AffineTransform::rotation (expanded ? MathConstants<float>::pi : MathConstants<float>::twoPi,
                                                           (float) expandButton.getBounds().getCentreX(),
@@ -349,13 +349,10 @@ void MultiChoicePropertyComponent::lookAndFeelChanged()
     auto iconColour = findColour (TextEditor::backgroundColourId).contrasting();
     expandButton.setColours (iconColour, iconColour.darker(), iconColour.darker());
 
-    if (valueWithDefault != nullptr)
-    {
-        auto usingDefault = valueWithDefault->isUsingDefault();
+    const auto usingDefault = value.isUsingDefault();
 
-        for (auto* button : choiceButtons)
-            updateButtonTickColour (button, usingDefault);
-    }
+    for (auto* button : choiceButtons)
+        updateButtonTickColour (button, usingDefault);
 }
 
 } // namespace juce

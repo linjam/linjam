@@ -2,17 +2,16 @@
   ==============================================================================
 
    This file is part of the JUCE library.
-   Copyright (c) 2017 - ROLI Ltd.
+   Copyright (c) 2022 - Raw Material Software Limited
 
    JUCE is an open source library subject to commercial or open-source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 5 End-User License
-   Agreement and JUCE 5 Privacy Policy (both updated and effective as of the
-   27th April 2017).
+   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
+   Agreement and JUCE Privacy Policy.
 
-   End User License Agreement: www.juce.com/juce-5-licence
-   Privacy Policy: www.juce.com/juce-5-privacy-policy
+   End User License Agreement: www.juce.com/juce-7-licence
+   Privacy Policy: www.juce.com/juce-privacy-policy
 
    Or: You may also use this code under the terms of the GPL v3 (see
    www.gnu.org/licenses).
@@ -27,10 +26,10 @@
 namespace juce
 {
 
-struct Button::CallbackHelper  : public Timer,
-                                 public ApplicationCommandManagerListener,
-                                 public Value::Listener,
-                                 public KeyListener
+struct Button::CallbackHelper final : public Timer,
+                                      public ApplicationCommandManagerListener,
+                                      public Value::Listener,
+                                      public KeyListener
 {
     CallbackHelper (Button& b) : button (b)   {}
 
@@ -123,7 +122,7 @@ void Button::updateAutomaticTooltip (const ApplicationCommandInfo& info)
             tt << " [";
 
             if (key.length() == 1)
-                tt << TRANS("shortcut") << ": '" << key << "']";
+                tt << TRANS ("shortcut") << ": '" << key << "']";
             else
                 tt << key << ']';
         }
@@ -142,6 +141,20 @@ void Button::setConnectedEdges (int newFlags)
 }
 
 //==============================================================================
+void Button::checkToggleableState (bool wasToggleable)
+{
+    if (isToggleable() != wasToggleable)
+        invalidateAccessibilityHandler();
+}
+
+void Button::setToggleable (bool isNowToggleable)
+{
+    const auto wasToggleable = isToggleable();
+
+    canBeToggled = isNowToggleable;
+    checkToggleableState (wasToggleable);
+}
+
 void Button::setToggleState (bool shouldBeOn, NotificationType notification)
 {
     setToggleState (shouldBeOn, notification, notification);
@@ -189,6 +202,9 @@ void Button::setToggleState (bool shouldBeOn, NotificationType clickNotification
             sendStateMessage();
         else
             buttonStateChanged();
+
+        if (auto* handler = getAccessibilityHandler())
+            handler->notifyAccessibilityEvent (AccessibilityEvent::valueChanged);
     }
 }
 
@@ -199,18 +215,16 @@ void Button::setToggleState (bool shouldBeOn, bool sendChange)
 
 void Button::setClickingTogglesState (bool shouldToggle) noexcept
 {
+    const auto wasToggleable = isToggleable();
+
     clickTogglesState = shouldToggle;
+    checkToggleableState (wasToggleable);
 
     // if you've got clickTogglesState turned on, you shouldn't also connect the button
     // up to be a command invoker. Instead, your command handler must flip the state of whatever
     // it is that this button represents, and the button will update its state to reflect this
     // in the applicationCommandListChanged() method.
     jassert (commandManagerToUse == nullptr || ! clickTogglesState);
-}
-
-bool Button::getClickingTogglesState() const noexcept
-{
-    return clickTogglesState;
 }
 
 void Button::setRadioGroupId (int newGroupId, NotificationType notification)
@@ -221,6 +235,9 @@ void Button::setRadioGroupId (int newGroupId, NotificationType notification)
 
         if (lastToggleState)
             turnOffOtherButtonsInGroup (notification, notification);
+
+        setToggleable (true);
+        invalidateAccessibilityHandler();
     }
 }
 
@@ -404,8 +421,7 @@ void Button::sendClickMessage (const ModifierKeys& modifiers)
     if (checker.shouldBailOut())
         return;
 
-    if (onClick != nullptr)
-        onClick();
+    NullCheckedInvocation::invoke (onClick);
 }
 
 void Button::sendStateMessage()
@@ -422,8 +438,7 @@ void Button::sendStateMessage()
     if (checker.shouldBailOut())
         return;
 
-    if (onStateChange != nullptr)
-        onStateChange();
+    NullCheckedInvocation::invoke (onStateChange);
 }
 
 //==============================================================================
@@ -459,8 +474,8 @@ void Button::mouseDown (const MouseEvent& e)
 
 void Button::mouseUp (const MouseEvent& e)
 {
-    const bool wasDown = isDown();
-    const bool wasOver = isOver();
+    const auto wasDown = isDown();
+    const auto wasOver = isOver();
     updateState (isMouseSourceOver (e), false);
 
     if (wasDown && wasOver && ! triggerOnMouseDown)
@@ -468,7 +483,12 @@ void Button::mouseUp (const MouseEvent& e)
         if (lastStatePainted != buttonDown)
             flashButtonState();
 
+        WeakReference<Component> deletionWatcher (this);
+
         internalClickCallback (e.mods);
+
+        if (deletionWatcher != nullptr)
+            updateState (isMouseSourceOver (e), false);
     }
 }
 
@@ -691,6 +711,11 @@ void Button::repeatTimerCallback()
     {
         callbackHelper->stopTimer();
     }
+}
+
+std::unique_ptr<AccessibilityHandler> Button::createAccessibilityHandler()
+{
+    return std::make_unique<detail::ButtonAccessibilityHandler> (*this, AccessibilityRole::button);
 }
 
 } // namespace juce
