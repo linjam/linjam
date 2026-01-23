@@ -244,7 +244,9 @@ LocalChannels::LocalChannels()
 RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree blacklist_store)
                               : userStore(user_store) , blacklistStore(blacklist_store)
 {
-  this->loginLabel  ->setText(Id2Str(user_store.getType()) , juce::dontSendNotification) ;
+  String login = LinJamConfig::UserIdDisplay(Id2Str(user_store.getType())) ;
+
+  this->loginLabel  ->setText(login , juce::dontSendNotification) ;
   this->expandButton->addListener(this) ;
   this->ignoreButton->addListener(this) ;
   this->addButton   ->setVisible(false) ;

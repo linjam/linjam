@@ -279,32 +279,43 @@
     NETWORK::NINBOT_2050_URL    + " /><"  + \
     NETWORK::NINBOT_2051_URL    + " /><"  + \
     NETWORK::NINBOT_2052_URL    + " /><"  + \
+    NETWORK::NINBOT_2053_URL    + " /><"  + \
+    NETWORK::NINBOT_2054_URL    + " /><"  + \
     NETWORK::NINJAMER_2049_URL  + " /><"  + \
     NETWORK::NINJAMER_2050_URL  + " /><"  + \
     NETWORK::NINJAMER_2051_URL  + " /><"  + \
-    NETWORK::NINJAMER_2052_URL  + " /></" + \
+    NETWORK::NINJAMER_2052_URL  + " /><"  + \
+    NETWORK::GETAROOM_URL       + " /><"  + \
+    NETWORK::MUSICORNER_URL     + " /><"  + \
+    NETWORK::MUTANTLAB_URL      + " /><"  + \
+    NETWORK::ROOTSOCIETY_URL    + " /><"  + \
+    NETWORK::BOTNU_URL          + " /></" + \
   NETWORK::KNOWN_HOSTS_KEY      + ">"
 
-#define KNOWN_BOTS_XML XML_HEADER                                         + \
-  NETWORK::KNOWN_BOTS_KEY                                         + " "   + \
-    STRING(LinJamConfig::MakeHostId(NETWORK::NINBOT_2049_URL   )) + "=\"" + \
-    STRING(NETWORK::NINBOT_USER)                                  + "\" " + \
-    STRING(LinJamConfig::MakeHostId(NETWORK::NINBOT_2050_URL   )) + "=\"" + \
-    STRING(NETWORK::NINBOT_USER)                                  + "\" " + \
-    STRING(LinJamConfig::MakeHostId(NETWORK::NINBOT_2051_URL   )) + "=\"" + \
-    STRING(NETWORK::NINBOT_USER)                                  + "\" " + \
-    STRING(LinJamConfig::MakeHostId(NETWORK::NINBOT_2052_URL   )) + "=\"" + \
-    STRING(NETWORK::NINBOT_USER)                                  + "\" " + \
-    STRING(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2049_URL )) + "=\"" + \
-    STRING(NETWORK::JAMBOT_USER)                                  + "\" " + \
-    STRING(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2050_URL )) + "=\"" + \
-    STRING(NETWORK::JAMBOT_USER)                                  + "\" " + \
-    STRING(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2051_URL )) + "=\"" + \
-    STRING(NETWORK::JAMBOT_USER)                                  + "\" " + \
-    STRING(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2052_URL )) + "=\"" + \
-    STRING(NETWORK::JAMBOT_USER)                                  + "\" " + \
-    STRING(LinJamConfig::MakeHostId(NETWORK::SERVEBEER_2049_URL)) + "=\"" + \
-    STRING(NETWORK::BEERBOT_USER)                                 + "\" " + \
+#define KNOWN_BOTS_XML XML_HEADER                                        + \
+  NETWORK::KNOWN_BOTS_KEY                                        + " "   + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINBOT_2049_URL  )) + "=\"" + \
+    Id2Str(NETWORK::NINBOT_LOGIN)                                + "\" " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINBOT_2050_URL  )) + "=\"" + \
+    Id2Str(NETWORK::NINBOT_LOGIN)                                + "\" " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINBOT_2051_URL  )) + "=\"" + \
+    Id2Str(NETWORK::NINBOT_LOGIN)                                + "\" " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINBOT_2052_URL  )) + "=\"" + \
+    Id2Str(NETWORK::NINBOT_LOGIN)                                + "\" " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINBOT_2053_URL  )) + "=\"" + \
+    Id2Str(NETWORK::NINBOT_LOGIN)                                + "\" " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINBOT_2054_URL  )) + "=\"" + \
+    Id2Str(NETWORK::NINBOT_LOGIN)                                + "\" " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2049_URL)) + "=\"" + \
+    Id2Str(NETWORK::JAMBOT_LOGIN)                                + "\" " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2050_URL)) + "=\"" + \
+    Id2Str(NETWORK::JAMBOT_LOGIN)                                + "\" " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2051_URL)) + "=\"" + \
+    Id2Str(NETWORK::JAMBOT_LOGIN)                                + "\" " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINJAMER_2052_URL)) + "=\"" + \
+    Id2Str(NETWORK::JAMBOT_LOGIN)                                + "\" " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::ROOTSOCIETY_URL  )) + "=\"" + \
+    Id2Str(NETWORK::NINBOT_LOGIN)                                + "\" " + \
   "/>"
 
 
@@ -352,14 +363,14 @@ public:
         pertaining to NJClient                                       */
 namespace CLIENT
 {
-  // server
-  static const String SERVER_FULL_ERROR = "server full" ;
+  // server - NOTE: the following are canonical, per ninjamsrv
+  static const String SERVER_FULL_RESP  = "server full" ;
   static const int    CHATMSG_TYPE_IDX  = 0 ;
   static const int    CHATMSG_USER_IDX  = 1 ;
   static const int    CHATMSG_MSG_IDX   = 2 ;
   static const int    BOT_CHANNELIDX    = 0 ;
 
-  // chat
+  // chat  - NOTE: the following canonical, per NJClient
   static const String    CHATMSG_TYPE_TOPIC   = "TOPIC" ;
   static const String    CHATMSG_TYPE_MSG     = "MSG" ;
   static const String    CHATMSG_TYPE_PRIVMSG = "PRIVMSG" ;
@@ -408,28 +419,27 @@ public:
   static const String    NICK_CHARS ;
 
   // known hosts and bots
-  static const String      LOCALHOST_HOSTNAME ;
-  static const String      LOCALHOST_2049_URL ;
-  static const String      NINJAM_2049_URL ;
-  static const String      NINJAM_2050_URL ;
-  static const String      NINJAM_2051_URL ;
-  static const String      NINJAM_2052_URL ;
-  static const String      NINJAM_2600_URL ;
-  static const String      NINJAM_2601_URL ;
+  static const String      DEVEL_HOST ;
+  static const String      DEVEL_HOST_URL ;
   static const String      NINBOT_2049_URL ;
   static const String      NINBOT_2050_URL ;
   static const String      NINBOT_2051_URL ;
   static const String      NINBOT_2052_URL ;
+  static const String      NINBOT_2053_URL ;
+  static const String      NINBOT_2054_URL ;
   static const String      NINJAMER_2049_URL ;
   static const String      NINJAMER_2050_URL ;
   static const String      NINJAMER_2051_URL ;
   static const String      NINJAMER_2052_URL ;
-  static const String      SERVEBEER_2049_URL ;
-  static const String      SERVEBEER_2050_URL ;
-  static const String      MUTANTLAB_2049_URL ;
-  static const Identifier  NINBOT_USER ;
-  static const Identifier  JAMBOT_USER ;
-  static const Identifier  BEERBOT_USER ;
+  static const String      GETAROOM_URL ;
+  static const String      MUSICORNER_URL ;
+  static const String      MUTANTLAB_URL ;
+  static const String      ROOTSOCIETY_URL ;
+  static const String      BOTNU_URL ;
+
+
+  static const Identifier  NINBOT_LOGIN ;
+  static const Identifier  JAMBOT_LOGIN ;
   static const String      KNOWN_HOSTS_KEY ;
   static const String      KNOWN_BOTS_KEY ;
   static       ValueTree   KNOWN_HOSTS ;
@@ -451,6 +461,7 @@ public:
 
 
   static bool IsKnownHost(String host) ;
+  static bool IsKnownBot (String host , String login) ;
 } ;
 
 
@@ -759,8 +770,10 @@ namespace CONFIG
   static const String CONFIG_DATATYPES_XML = String(CONFIG_TYPES_XML) ;
 
   // validation
-  static const StringRef VALID_NAME_CHARS   = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- " ; // NOTE: JUCE Identifiers allowed chars are alpha-numeric and underscore
-  static const StringRef USER_IP_SPLIT_CHAR = "@" ;
+  static const String      DIGITS             = "0123456789" ;
+  static const StringRef   VALID_NAME_CHARS   = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- " ; // NOTE: JUCE Identifiers allowed chars are alpha-numeric and underscore
+  static const StringRef   USER_IP_SPLIT_CHAR = "@" ;
+  static const StringArray DECIMAL_STRINGS    = StringArray::fromLines("ZERO\nONE\nTWO\nTHREE\nFOUR\nFIVE\nSIX\nSEVEN\nEIGHT\nNINE") ;
 }
 
 

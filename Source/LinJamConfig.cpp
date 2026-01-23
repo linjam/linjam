@@ -23,11 +23,36 @@ Identifier LinJamConfig::MakeHostId(String host)
   return Identifier(CONFIG::SERVER_KEY + "-" + host.replaceCharacters(".:" , "__")) ;
 }
 
-Identifier LinJamConfig::MakeUserId(String user_name)
+Identifier LinJamConfig::MakeUserId(String login)
 {
-  return user_name.upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , true)
-                  .retainCharacters(CONFIG::VALID_NAME_CHARS)
-                  .replaceCharacters(" -", "__") ;
+  String user_id   = login.upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , true)
+                          .trim()
+                          .retainCharacters(CONFIG::VALID_NAME_CHARS)
+                          .replaceCharacters(" -", "__").trimCharactersAtEnd("_") ;
+  String head_char = user_id.substring(0 , 1) ;
+  bool   is_digit  = head_char.containsAnyOf(CONFIG::DIGITS) ;
+  uint8  digit_n   = CONFIG::DIGITS.indexOf(head_char) ;
+
+  // replace leading decimal digit of login, if present,
+  // to avoid XML tags (derived from logins) beginning with a digit
+  if (is_digit) user_id = CONFIG::DECIMAL_STRINGS[digit_n] + user_id.substring(1) ;
+
+  // return user_id ;
+  return Identifier(user_id) ;
+}
+
+String LinJamConfig::UserIdDisplay(String login)
+{
+  // (brittle) attempt to restore leading digit of logins for presentation
+  for (int digit_n = 0 ; digit_n < CONFIG::DECIMAL_STRINGS.size() ; ++digit_n)
+  {
+    String digit_name = CONFIG::DECIMAL_STRINGS[digit_n] ;
+
+    if (login.startsWith(digit_name))
+      login = String(digit_n) + login.substring(digit_name.length()) ;
+  }
+
+  return login ;
 }
 
 Identifier LinJamConfig::MakeChannelId(int channel_idx)

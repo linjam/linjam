@@ -82,10 +82,11 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  ValueTree              loginStore ;
-  ValueTree              serversStore ;
-  OwnedArray<TextButton> serverButtons ;
-  OwnedArray<Label     > clientsLabels ;
+  ValueTree                   loginStore ;
+  ValueTree                   serversStore ;
+  OwnedArray<TextButton     > serverButtons ;
+  OwnedArray<HyperlinkButton> streamButtons ;
+  OwnedArray<Label          > clientsLabels ;
 
     //[/UserVariables]
 

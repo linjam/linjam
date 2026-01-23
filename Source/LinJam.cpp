@@ -812,7 +812,7 @@ void LinJam::HandleUserInfoChanged()
   return ;
 #endif // NO_UPDATE_REMOTES
 
-  Identifier host = LinJamConfig::MakeHostId(str(Config->server[CONFIG::HOST_ID])) ;
+  String host = Id2Str(Config->MakeHostId(str(Config->server[CONFIG::HOST_ID]))) ;
 
 DEBUG_TRACE_REMOTE_CHANNELS_VB
 
@@ -826,11 +826,12 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
     Identifier  user_id    = Config->MakeUserId(user_name) ;
     std::string nick       = (user_name = Id2Str(user_id)).toStdString() ;
     bool        is_ignored = !!Client->config_autosubscribe_userlist.count(nick) ;
-    bool        is_bot     = str(NETWORK::KNOWN_BOTS.getProperty(host , "")) == user_name ;
+    bool        is_bot     = NETWORK::IsKnownBot(host , user_name) ;
 
-    // cache bot user_idx for recording time updates
+    // store bot user_idx for recording time updates
     if (is_bot) Config->server.setProperty(CONFIG::BOT_USERIDX_ID , user_idx , nullptr) ;
     // TODO: we may be able to bail now without storing bot userdata (issue #64)
+    if (is_bot) continue ;
 
     // get or create remote user storage
     ValueTree user_store = Config->getOrAddRemoteUser(user_name) ;
@@ -883,6 +884,9 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
     // add user to GUI prune list
     active_users.setProperty(user_id , active_channels , nullptr) ;
   }
+
+DEBUG_TRACE_HANDLEUSERINFOCHANGED
+
   // prune user and channel GUIs
   Gui->mixer->pruneRemotes(active_users) ;
 }

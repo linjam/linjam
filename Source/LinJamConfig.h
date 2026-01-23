@@ -27,6 +27,7 @@ public:
   // validation
   static Identifier MakeHostId(       String host) ;
   static Identifier MakeUserId(       String channel_name) ;
+  static String     UserIdDisplay(    String login) ;
   static Identifier MakeChannelId(    int channel_idx) ;
   static String     MakeStereoName(   String channel_name , int stereo_status) ;
   static String     TrimStereoName(   String channel_name) ;

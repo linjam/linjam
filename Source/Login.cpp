@@ -169,27 +169,34 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
   this->passText   ->setTextToShowWhenEmpty(GUI::PASS_PROMPT_TEXT  , GUI::TEXT_EMPTY_COLOR   ) ;
   this->passText   ->setPasswordCharacter('*') ;
 
-  // instantiate known host login buttons
+  // instantiate login and audition buttons for known hosts
   for (int server_n = 0 ; server_n < this->serversStore.getNumChildren() ; ++server_n)
   {
-    ValueTree   server_store  = this->serversStore.getChild(server_n) ;
-    ValueTree   clients_store = server_store      .getChildWithName(CONFIG::CLIENTS_ID) ;
-    String      known_host    = server_store[CONFIG::HOST_ID] ;
-    TextButton* login_button  = new TextButton(known_host + "Button") ;
-    Label*      clients_label = new Label     (known_host + "Label") ;
+    ValueTree        server_store  = this->serversStore.getChild(server_n) ;
+    ValueTree        clients_store = server_store      .getChildWithName(CONFIG::CLIENTS_ID) ;
+    String           known_host    = server_store[CONFIG::HOST_ID] ;
+    String           stream_url    = str(NETWORK::KNOWN_STREAMS[known_host]) ;
+    HyperlinkButton* stream_button = new HyperlinkButton(GUI::STREAM_BUTTON_TEXT , URL(stream_url)) ;
+    TextButton*      login_button  = new TextButton(known_host + "Button") ;
+    Label*           clients_label = new Label     (known_host + "Label" ) ;
 
-    addAndMakeVisible(login_button) ;
+    addAndMakeVisible(login_button ) ;
+    addAndMakeVisible(stream_button) ;
     addAndMakeVisible(clients_label) ;
+
     login_button ->setButtonText(known_host) ;
     login_button ->setExplicitFocusOrder(GUI::N_STATIC_LOGIN_CHILDREN + server_n) ;
     login_button ->setSize(GUI::LOGIN_BUTTON_W , GUI::LOGIN_BUTTON_H) ;
     login_button ->addListener(this) ;
+    stream_button->setTooltip(GUI::STREAM_BUTTON_TOOLTIP + "" + stream_url) ;
     clients_label->setColour(Label::textColourId , Colours::white) ;
     clients_label->setText(GUI::ROOM_VACANT_TOOLTIP , juce::dontSendNotification) ;
 
     this->serverButtons.add(login_button ) ;
+    this->streamButtons.add(stream_button) ;
     this->clientsLabels.add(clients_label) ;
   }
+
   this->serversStore.addListener(this) ;
 
     //[/UserPreSize]
@@ -424,14 +431,14 @@ bool Login::validateHost()
   String port   = host  .fromFirstOccurrenceOf(StringRef(":") , false , true) ;
 
   // validate
-  bool is_localhost   = !NETWORK::LOCALHOST_HOSTNAME.compare(server) ;
+  bool is_devel_host  = !NETWORK::DEVEL_HOST.compare(server) ;
   bool is_known_host  = NETWORK::IsKnownHost(host) ;
   bool has_valid_form = host.matchesWildcard(NETWORK::HOST_MASK , true) ;
   bool is_valid_name  = name.containsOnly(   NETWORK::HOST_CHARS) && name.isNotEmpty() ;
   bool is_valid_tld   = tld .containsOnly(   NETWORK::LETTERS   ) && tld .isNotEmpty() ;
   bool is_valid_port  = port.containsOnly(   NETWORK::DIGITS    ) && port.isNotEmpty() ;
   bool is_custom_host = has_valid_form && is_valid_name && is_valid_tld && is_valid_port ;
-  bool is_valid_host  = is_localhost || is_known_host || is_custom_host ;
+  bool is_valid_host  = is_devel_host || is_known_host || is_custom_host ;
 
 DEBUG_TRACE_LOGIN_HOST_VB
 
@@ -489,9 +496,13 @@ void Login::updateClients(ValueTree clients_store)
     int n_clients = clients_store.getNumChildren() ;
     if (n_clients == 0) clients.add(GUI::ROOM_VACANT_TOOLTIP) ;
     else for (int client_n = 0 ; client_n < n_clients ; ++client_n)
-      clients.add(str(clients_store.getChild(client_n)[CONFIG::LOGIN_ID])) ;
+    {
+      String login = str(clients_store.getChild(client_n)[CONFIG::LOGIN_ID]) ;
 
-    server_button->setTooltip(GUI::LOGIN_BUTTON_TOOLTIP + clients.joinIntoString("\n\t")) ;
+      clients.add(LinJamConfig::UserIdDisplay(login)) ;
+    }
+
+    server_button->setTooltip(GUI::LOGIN_BUTTON_TOOLTIP + "\n\t" + clients.joinIntoString("\n\t")) ;
     clients_label->setText   (clients.joinIntoString(" ") , juce::dontSendNotification) ;
   }
 
@@ -505,25 +516,43 @@ void Login::layoutLoginBtns()
 
 DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS
 
+  int n_occupied = 0 ;
+  int n_vacant   = 0 ;
+
   for (int host_n = 0 ; host_n < this->serversStore.getNumChildren() ; ++host_n)
   {
-    TextButton* server_button = this->serverButtons.getUnchecked(host_n) ;
-    Label*      clients_label = this->clientsLabels.getUnchecked(host_n) ;
-    String      host_name     = server_button->getButtonText() ;
-    ValueTree   server_store  = this->serversStore.getChildWithProperty(CONFIG::HOST_ID , host_name) ;
-    int         sort_order    = this->serversStore.indexOf(server_store) ;
+    TextButton*      login_button  = this->serverButtons.getUnchecked(host_n) ;
+    HyperlinkButton* stream_button = this->streamButtons.getUnchecked(host_n) ;
+    Label*           clients_label = this->clientsLabels.getUnchecked(host_n) ;
+    bool             is_vacant     = clients_label->getText() == GUI::ROOM_VACANT_TOOLTIP ;
+    String           host_name     = login_button->getButtonText() ;
+    bool             has_stream    = ! NETWORK::KNOWN_STREAMS[host_name].isVoid() ;
+    int              sort_order    = (is_vacant) ? n_vacant : n_occupied ;
+    if (is_vacant) ++n_vacant ; else ++n_occupied ;
 
-    int btn_x = GUI::LOGIN_BUTTON_L ;
-    int btn_y = GUI::LOGIN_BUTTON_T + ((GUI::LOGIN_BUTTON_H + GUI::PAD) * sort_order) ;
-    int btn_w = GUI::LOGIN_BUTTON_W ;
-    int btn_h = GUI::LOGIN_BUTTON_H ;
-    int lbl_x = btn_x + btn_w + GUI::PAD2 ;
-    int lbl_y = btn_y ;
-    int lbl_w = getWidth() - lbl_x - GUI::PAD6 ;
-    int lbl_h = btn_h ;
+    int login_x   = GUI::LOGIN_BUTTON_L + ((is_vacant) ? (GUI::LOGIN_BUTTON_W * 3) : 0) ;
+    int login_y   = GUI::LOGIN_BUTTON_T + ((GUI::LOGIN_BUTTON_H + GUI::PAD) * sort_order) ;
+    int stream_x  = login_x  + GUI::LOGIN_BUTTON_W  + GUI::PAD2 ;
+    int clients_x = stream_x + GUI::STREAM_BUTTON_W + GUI::PAD2 ;
+    int clients_w = getWidth() - clients_x - GUI::PAD6 ;
 
-    server_button->setBounds(btn_x , btn_y , btn_w , btn_h) ;
-    clients_label->setBounds(lbl_x , lbl_y , lbl_w , lbl_h) ;
+    // WIP: 2-column layout (though two scroll-boxes may be better)
+    int  login_b      = login_y + GUI::LOGIN_BUTTON_H + GUI::PAD ;
+    int  group_b      = GUI::PAD4 + (getHeight() - 152) ; // ASSERT: sum of groupComponent 'y' + 'h' resize() params
+    bool is_bounded_x = true ;
+    bool is_bounded_y = login_b <= group_b ;
+    bool is_bounded   = is_bounded_x || is_bounded_y ;
+
+    login_button ->setVisible(is_bounded                ) ;
+    stream_button->setVisible(is_bounded &&   has_stream) ;
+    clients_label->setVisible(is_bounded && ! is_vacant ) ;
+
+    if (is_bounded)
+    {
+      login_button ->setBounds(login_x   , login_y , GUI::LOGIN_BUTTON_W  , GUI::LOGIN_BUTTON_H) ;
+      stream_button->setBounds(stream_x  , login_y , GUI::STREAM_BUTTON_W , GUI::LOGIN_BUTTON_H) ;
+      clients_label->setBounds(clients_x , login_y , clients_w            , GUI::LOGIN_BUTTON_H) ;
+    }
   }
 }
 
