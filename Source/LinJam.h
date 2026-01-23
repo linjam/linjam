@@ -119,6 +119,7 @@ private:
   static bool InitializeAudio() ;
   static void ConfigureInitialChannels() ;
   static void Shutdown() ;
+  static void Quit() ;
 
   // NJClient callbacks
   static int  OnLicense(int user32 , char* license_text) ;

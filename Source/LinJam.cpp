@@ -602,6 +602,8 @@ void LinJam::Shutdown()
 DEBUG_TRACE_SHUTDOWN
 }
 
+void LinJam::Quit() { Shutdown() ; ((JUCEApplication*)Client)->quit() ; }
+
 
 /* NJClient callbacks */
 
@@ -704,20 +706,19 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 void LinJam::HandleTimer(int timer_id)
 {
 #ifdef DEBUG_EXIT_IMMEDIATELY
-DBG("[DEBUG]: DEBUG_EXIT_IMMEDIATELY defined - bailing") ; Client->quit() ;
+DBG("[DEBUG]: DEBUG_EXIT_IMMEDIATELY defined - bailing") ; Quit() ;
 #endif // DEBUG_EXIT_IMMEDIATELY
 
   switch (timer_id)
   {
-    case APP::CLIENT_TIMER_ID:     PumpClient() ;            break ;
-    case APP::GUI_LO_TIMER_ID:     UpdateGuiLowPriority() ;  break ;
-//  case APP::GUI_MD_TIMER_ID:     /* unused */              break ;
-    case APP::GUI_HI_TIMER_ID:     UpdateGuiHighPriority() ; break ;
-    case APP::AUDIO_INIT_TIMER_ID: InitializeAudio() ;       break ;
-    default:                                                 break ;
+    case APP::CLIENT_TIMER_ID:     PumpClient() ;                    break ;
+    case APP::GUI_LO_TIMER_ID:     UpdateGuiLowPriority() ;          break ;
+//  case APP::GUI_MD_TIMER_ID:     /* unused */                      break ;
+    case APP::GUI_HI_TIMER_ID:     UpdateGuiHighPriority() ;         break ;
+    case APP::AUDIO_INIT_TIMER_ID: Timer->stopTimer(timer_id) ;
+                                   if (! InitializeAudio()) Quit() ; break ;
+    default:                                                         break ;
   }
-
-  if (timer_id == APP::AUDIO_INIT_TIMER_ID) Timer->stopTimer(timer_id) ;
 }
 
 void LinJam::PumpClient()
