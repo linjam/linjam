@@ -1,7 +1,23 @@
+/*\
+|*|  Copyright 2014,2015,2020,2026 bill-auger <bill-auger@programmer.net>
+|*|
+|*|  This file is part of the LinJam program.
+|*|
+|*|  LinJam is free software: you can redistribute it and/or modify
+|*|  it under the terms of the GNU General Public License version 3
+|*|  as published by the Free Software Foundation.
+|*|
+|*|  LinJam is distributed in the hope that it will be useful,
+|*|  but WITHOUT ANY WARRANTY; without even the implied warranty of
+|*|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|*|  GNU General Public License for more details.
+|*|
+|*|  You should have received a copy of the GNU General Public License
+|*|  along with LinJam.  If not, see <http://www.gnu.org/licenses/>.
+\*/
 
-#ifndef _LINJAM_H_
-#define _LINJAM_H_
 
+#pragma once
 
 /* NOTE: the following refs require libninjam v0.07
              * function NJClient::GetLocalChannelName()
@@ -159,5 +175,3 @@ private:
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LinJam) ;
 } ;
-
-#endif // _LINJAM_H_

@@ -1,12 +1,21 @@
-/*
-  ==============================================================================
+/*\
+|*|  Copyright 2014,2015,2020,2026 bill-auger <bill-auger@programmer.net>
+|*|
+|*|  This file is part of the LinJam program.
+|*|
+|*|  LinJam is free software: you can redistribute it and/or modify
+|*|  it under the terms of the GNU General Public License version 3
+|*|  as published by the Free Software Foundation.
+|*|
+|*|  LinJam is distributed in the hope that it will be useful,
+|*|  but WITHOUT ANY WARRANTY; without even the implied warranty of
+|*|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|*|  GNU General Public License for more details.
+|*|
+|*|  You should have received a copy of the GNU General Public License
+|*|  along with LinJam.  If not, see <http://www.gnu.org/licenses/>.
+\*/
 
-    Linjam.cpp
-    Created: 24 May 2014 5:03:01pm
-    Author:  me
-
-  ==============================================================================
-*/
 
 #include "LinJam.h"
 #include "./Trace/TraceLinJam.h"
@@ -261,15 +270,14 @@ bool LinJam::PrepareSessionDirectory()
 {
   SessionDir = Config->dataDir.getChildFile(CLIENT::SESSION_DIRNAME) ;
 
+  if (SessionDir.isDirectory()) SessionDir.deleteRecursively() ;
   SessionDir.createDirectory() ;
 
 DEBUG_TRACE_SESSIONDIR
 
-  bool does_session_dir_exist = SessionDir.isDirectory() ;
-  if (does_session_dir_exist)
-    Client->SetWorkDir(SessionDir.getFullPathName().toRawUTF8()) ;
+  Client->SetWorkDir(SessionDir.getFullPathName().toRawUTF8()) ;
 
-  return does_session_dir_exist ;
+  return SessionDir.isDirectory() ;
 }
 
 void LinJam::ConfigureNinjam()
@@ -287,7 +295,7 @@ void LinJam::ConfigureNinjam()
 
   // set log file
   if (should_save_log && save_audio_mode > NJClient::SAVE_NONE)
-    Client->SetLogFile((SessionDir.getFullPathName() + CLIENT::LOG_FILENAME).toRawUTF8()) ;
+    Client->SetLogFile((SessionDir.getFullPathName() + CLIENT::CLIPSORT_LOG).toRawUTF8()) ;
 
   // add bots and ignored users to ignore list
   ConfigureBlacklist() ;
@@ -723,10 +731,9 @@ void LinJam::PumpClient()
 void LinJam::UpdateStatus()
 {
   // update status if not in an init, error, or hold state
-  int  status   = int(Status.getValue()) ;
-  bool is_ready = status >= APP::LINJAM_STATUS_READY ;
-  if (is_ready) status = Client->GetStatus() ;
-
+  int    status             = int(Status.getValue()) ;
+  bool   is_ready           = status >= APP::LINJAM_STATUS_READY ;
+  status                    = (! is_ready) ? status : Client->GetStatus() ;
   String error_msg          = CharPointer_UTF8(Client->GetErrorStr()) ;
   bool   is_licence_pending = status == APP::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
   bool   is_room_full       = is_ready && !error_msg.compare(CLIENT::SERVER_FULL_ERROR) ;
@@ -1048,7 +1055,7 @@ void LinJam::UpdateRooms()
   return ;
 #endif // NO_UPDATE_ROOMS_GUI
 
-  SetPollUrl() ; // TODO: shuld be done elsewhere on some state changes
+  SetPollUrl() ; // TODO: should be done elsewhere on some state changes
 
   String      response     = PollUrl.readEntireTextStream() ;
   StringArray rooms        = APP::ParseLines(response) ;

@@ -21,7 +21,7 @@
                       " login(" + String((validateLogin()) ? "ok)" : "nfg)='" + login + "'") + \
                       " pass("  + String((validatePass() ) ? "ok)" : "nfg)"                ) ) ;
 
-#define DEBUG_TRACE_LOGIN_ARRANGE_ROOMS                                          \
+#define DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS                                      \
   for (int i = 0 ; i < this->serversStore.getNumChildren() ; ++i)                \
   { ValueTree server    = this->serversStore.getChild(i) ;                       \
     ValueTree clients   = server.getChildWithName(CONFIG::CLIENTS_ID) ;          \
@@ -57,7 +57,7 @@
 #define DEBUG_TRACE_LOGIN_LOAD          ;
 #define DEBUG_TRACE_LOBBY_QUICKLOGIN    ;
 #define DEBUG_TRACE_LOGIN_VALIDATION    ;
-#define DEBUG_TRACE_LOGIN_ARRANGE_ROOMS ;
+#define DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS ;
 // network
 #define DEBUG_TRACE_LOGIN_HOST_VB       ;
 

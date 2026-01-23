@@ -316,7 +316,7 @@ class APP
 {
 public:
 
-  // app state
+  // state
   enum LinJamStatus { LINJAM_STATUS_INIT           = -10 ,
                       LINJAM_STATUS_AUDIOINIT      = -9  ,
                       LINJAM_STATUS_CONFIGPENDING  = -8  ,
@@ -342,8 +342,8 @@ public:
   static void Initialize() ;
 
   // helpers
-  static StringArray ParseLines(String a_string) ;
-  static StringArray ParseCSV  (String a_string) ;
+  static StringArray ParseLines(String       a_string) ;
+  static StringArray ParseCSV  (String       a_string) ;
   static String      Pluck     (StringArray* a_stringarray , int idx) ;
 } ;
 
@@ -385,11 +385,11 @@ namespace CLIENT
   static const String STORAGE_DIRNAME  = "LinJam\\" ;
   static const String SESSION_DIRNAME  = STORAGE_DIRNAME + "Session" ;
 #else // _WIN32
-  static const String STORAGE_DIRNAME  = ".linjam/" ;
+  static const String STORAGE_DIRNAME  = "linjam/" ;
   static const String SESSION_DIRNAME  = STORAGE_DIRNAME + "session" ;
 #endif // _WIN32
   static const String STORAGE_FILENAME = STORAGE_DIRNAME + "linjam.xml" ;
-  static const String LOG_FILENAME     = STORAGE_DIRNAME + "clipsort.log" ;
+  static const String CLIPSORT_LOG     = STORAGE_DIRNAME + "clipsort.log" ;
 }
 
 

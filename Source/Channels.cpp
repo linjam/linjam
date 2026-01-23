@@ -1,21 +1,21 @@
-/*
-  ==============================================================================
+/*\
+|*|  Copyright 2014,2015,2020,2026 bill-auger <bill-auger@programmer.net>
+|*|
+|*|  This file is part of the LinJam program.
+|*|
+|*|  LinJam is free software: you can redistribute it and/or modify
+|*|  it under the terms of the GNU General Public License version 3
+|*|  as published by the Free Software Foundation.
+|*|
+|*|  LinJam is distributed in the hope that it will be useful,
+|*|  but WITHOUT ANY WARRANTY; without even the implied warranty of
+|*|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|*|  GNU General Public License for more details.
+|*|
+|*|  You should have received a copy of the GNU General Public License
+|*|  along with LinJam.  If not, see <http://www.gnu.org/licenses/>.
+\*/
 
-  This is an automatically generated GUI class created by the Introjucer!
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Created with Introjucer version: 3.1.1
-
-  ------------------------------------------------------------------------------
-
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
-
-  ==============================================================================
-*/
 
 //[Headers] You can add your own extra header files here...
 

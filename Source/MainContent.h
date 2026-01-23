@@ -1,7 +1,23 @@
+/*\
+|*|  Copyright 2014,2015,2020,2026 bill-auger <bill-auger@programmer.net>
+|*|
+|*|  This file is part of the LinJam program.
+|*|
+|*|  LinJam is free software: you can redistribute it and/or modify
+|*|  it under the terms of the GNU General Public License version 3
+|*|  as published by the Free Software Foundation.
+|*|
+|*|  LinJam is distributed in the hope that it will be useful,
+|*|  but WITHOUT ANY WARRANTY; without even the implied warranty of
+|*|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|*|  GNU General Public License for more details.
+|*|
+|*|  You should have received a copy of the GNU General Public License
+|*|  along with LinJam.  If not, see <http://www.gnu.org/licenses/>.
+\*/
 
-#ifndef _MAIN_CONTENT_H_
-#define _MAIN_CONTENT_H_
 
+#pragma once
 
 #include "Background.h"
 #include "Chat.h"
@@ -54,5 +70,3 @@ private:
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContent)
 } ;
-
-#endif // _MAIN_CONTENT_H_

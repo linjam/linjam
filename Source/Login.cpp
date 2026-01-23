@@ -185,7 +185,7 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     login_button ->setSize(GUI::LOGIN_BUTTON_W , GUI::LOGIN_BUTTON_H) ;
     login_button ->addListener(this) ;
     clients_label->setColour(Label::textColourId , Colours::white) ;
-    clients_label->setText("(vacant)" , juce::dontSendNotification) ;
+    clients_label->setText(GUI::ROOM_VACANT_TOOLTIP , juce::dontSendNotification) ;
 
     this->serverButtons.add(login_button ) ;
     this->clientsLabels.add(clients_label) ;
@@ -261,7 +261,7 @@ void Login::resized()
     groupComponent->setBounds (24, 16, getWidth() - 48, getHeight() - 152);
     //[UserResized] Add your own custom resize handling here..
 
-  arrangeRooms() ;
+  layoutLoginBtns() ;
 
     //[/UserResized]
 }
@@ -370,7 +370,7 @@ void Login::valueTreeChildRemoved(ValueTree& parent_node  , ValueTree& /*node*/ 
 void Login::valueTreeChildOrderChanged(ValueTree& parent_node  , int /*prev_idx*/ ,
                                        int        /*curr_idx*/                    )
 {
-  if (parent_node.getType() == CONFIG::SERVERS_ID) arrangeRooms() ;
+  if (parent_node.getType() == CONFIG::SERVERS_ID) layoutLoginBtns() ;
 }
 
 
@@ -477,14 +477,14 @@ void Login::setTextErrorState(TextEditor* a_text_editor , bool is_error_state)
 
 void Login::updateClients(ValueTree clients_store)
 {
-  String      host_name = str(clients_store.getParent()[CONFIG::HOST_ID]) ;
+  String      host = str(clients_store.getParent()[CONFIG::HOST_ID]) ;
   StringArray clients ;
 
   for (int host_n = 0 ; host_n < this->serversStore.getNumChildren() ; ++host_n)
   {
     TextButton* server_button = this->serverButtons.getUnchecked(host_n) ;
     Label*      clients_label = this->clientsLabels.getUnchecked(host_n) ;
-    if (clients_label->getName() != host_name + "Label") continue ;
+    if (clients_label->getName() != host + "Label") continue ;
 
     int n_clients = clients_store.getNumChildren() ;
     if (n_clients == 0) clients.add(GUI::ROOM_VACANT_TOOLTIP) ;
@@ -495,15 +495,15 @@ void Login::updateClients(ValueTree clients_store)
     clients_label->setText   (clients.joinIntoString(" ") , juce::dontSendNotification) ;
   }
 
-  arrangeRooms() ;
+  layoutLoginBtns() ;
 }
 
-void Login::arrangeRooms()
+void Login::layoutLoginBtns()
 {
   if (this->serversStore.getNumChildren() != this->serverButtons.size() ||
       this->serversStore.getNumChildren() != this->clientsLabels.size()  ) return ; // TODO: assert fatal
 
-DEBUG_TRACE_LOGIN_ARRANGE_ROOMS
+DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS
 
   for (int host_n = 0 ; host_n < this->serversStore.getNumChildren() ; ++host_n)
   {

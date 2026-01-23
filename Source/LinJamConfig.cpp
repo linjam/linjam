@@ -55,7 +55,7 @@ String LinJamConfig::TrimStereoName(String channel_name)
 
 int LinJamConfig::ParseStereoStatus(String channel_name)
 {
-  // determine faux-stereo stereo status based on channel name
+  // determine faux-stereo status based on channel name
   String postfix = channel_name.getLastCharacters(CLIENT::STEREO_POSTFIX_N_CHARS) ;
   return (!postfix.compare(CLIENT::STEREO_L_POSTFIX))? CONFIG::STEREO_L :
          (!postfix.compare(CLIENT::STEREO_R_POSTFIX))? CONFIG::STEREO_R :
@@ -79,9 +79,9 @@ ValueTree LinJamConfig::NewChannel(String channel_name , int channel_idx)
          .setProperty(CONFIG::STEREO_ID       , CONFIG::DEFAULT_STEREO_STATUS , nullptr) ;
 }
 
-Value LinJamConfig::GetValueHolder(ValueTree config_store , Identifier a_key)
+Value LinJamConfig::GetValueHolder(ValueTree config_store , Identifier key)
 {
-  return config_store.getPropertyAsValue(a_key , nullptr) ;
+  return config_store.getPropertyAsValue(key , nullptr) ;
 }
 
 
@@ -615,7 +615,7 @@ int LinJamConfig::setRemoteStereo(ValueTree user_store        , ValueTree channe
   if (stereo_status != CONFIG::MONO)
   {
     // find channel with name matching this channel_name + opposite_postfix
-    // to ignore duplicate names this assumes that stereo pairs are contiguous
+    // to ignore duplicate names this assumes that faux-stereo pairs are contiguous
     int    channel_idx = int(channel_store[CONFIG::CHANNEL_IDX_ID]) ;
     String l_pair_name = MakeStereoName(channel_name , CONFIG::STEREO_L) ;
     String r_pair_name = MakeStereoName(channel_name , CONFIG::STEREO_R) ;
@@ -644,14 +644,14 @@ int LinJamConfig::setRemoteStereo(ValueTree user_store        , ValueTree channe
     String    pair_name    = str(pair_store[CONFIG::CHANNEL_NAME_ID]) ;
     bool      is_paired    = !pair_name.compare(expected_pair_name) ;
 
-    // set this and matched pair channel stereo status to stereo
+    // set faux-stereo status of this and its matched pair channel (stereo)
     if (is_paired)
     {
       l_pair_store.setProperty(CONFIG::PAIR_IDX_ID , r_pair_idx , nullptr) ;
       setStereo(channel_store , stereo_status) ;
       setStereo(pair_store    , pair_stereo_status) ;
     }
-    // set this unpaired channel stereo status to mono
+    // reset faux-stereo status of this unpaired channel (mono)
     else setStereo(channel_store , (stereo_status = CONFIG::MONO)) ;
 
 DEBUG_TRACE_STEREO_STATUS
@@ -672,13 +672,13 @@ DEBUG_TRACE_STEREO_STATUS
 
 DEBUG_TRACE_MONO_STATUS
 
-    // set orphaned pair channel stereo status to mono
+    // reset faux-stereo status of orphaned pair channel (mono)
     if (has_orphaned_pair)
     {
       if      (has_l_pair) setStereo(l_pair_channel_store , CONFIG::MONO) ;
       else if (has_r_pair) setStereo(r_pair_channel_store , CONFIG::MONO) ;
     }
-    // set this channel stereo status to mono
+    // reset faux-stereo status of this channel (mono)
     setStereo(channel_store , CONFIG::MONO) ;
   }
 
@@ -696,16 +696,16 @@ DEBUG_TRACE_CONFIG_VALUE_CHANGED
   if (a_value.refersToSameSourceAs(LinJam::Status)) LinJam::HandleStatusChanged() ;
 }
 
-void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier& a_key)
+void LinJamConfig::valueTreePropertyChanged(ValueTree& node , const Identifier& key)
 {
-  Identifier node_id          = a_node     .getType() ;
-  ValueTree  parent_node      = a_node     .getParent() ;
+  Identifier node_id          = node       .getType() ;
+  ValueTree  parent_node      = node       .getParent() ;
   Identifier parent_id        = parent_node.getType() ;
   ValueTree  grandparent_node = parent_node.getParent() ;
 
-  bool       is_gui       = a_node           == this->gui ;
-  bool       is_blacklist = a_node           == this->blacklist ;
-  bool       is_audio     = a_node           == this->audio ;
+  bool       is_gui       = node             == this->gui ;
+  bool       is_blacklist = node             == this->blacklist ;
+  bool       is_audio     = node             == this->audio ;
   bool       is_master    = parent_node      == this->masterChannels &&
                             node_id          == CONFIG::MASTER_ID ;
   bool       is_metro     = parent_node      == this->masterChannels &&
@@ -715,21 +715,21 @@ void LinJamConfig::valueTreePropertyChanged(ValueTree& a_node , const Identifier
 
 DEBUG_TRACE_CONFIG_TREE_CHANGED
 
-  if      (is_gui      ) LinJam::ConfigureGui(a_key) ;
+  if      (is_gui      ) LinJam::ConfigureGui(key) ;
   else if (is_blacklist) LinJam::ConfigureBlacklist() ;
   else if (is_audio    ) LinJam::ConfigureAudio() ;
-  else if (is_master   ) LinJam::ConfigureMasterChannel(a_key) ;
-  else if (is_metro    ) LinJam::ConfigureMetroChannel(a_key) ;
-  else if (is_local    ) LinJam::ConfigureLocalChannel(a_node , a_key) ;
-  else if (is_remote   ) LinJam::ConfigureRemoteChannel(parent_node , a_node , a_key) ;
+  else if (is_master   ) LinJam::ConfigureMasterChannel(key) ;
+  else if (is_metro    ) LinJam::ConfigureMetroChannel(key) ;
+  else if (is_local    ) LinJam::ConfigureLocalChannel(node , key) ;
+  else if (is_remote   ) LinJam::ConfigureRemoteChannel(parent_node , node , key) ;
 }
 
 void LinJamConfig::valueTreeChildAdded(ValueTree& parent_node , ValueTree& node)
 {
-DEBUG_TRACE_CONFIG_TREE_ADDED
-
   Identifier node_id      = node.getType() ;
   bool       is_blacklist = parent_node == this->blacklist ;
+
+DEBUG_TRACE_CONFIG_TREE_ADDED
 
   if (is_blacklist)
   {
@@ -740,10 +740,10 @@ DEBUG_TRACE_CONFIG_TREE_ADDED
 void LinJamConfig::valueTreeChildRemoved(ValueTree& parent_node , ValueTree& node ,
                                          int        /*prev_idx*/                  )
 {
-DEBUG_TRACE_CONFIG_TREE_REMOVED
-
   Identifier node_id      = node.getType() ;
   bool       is_blacklist = parent_node == this->blacklist ;
+
+DEBUG_TRACE_CONFIG_TREE_REMOVED
 
   if (is_blacklist)
   {

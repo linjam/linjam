@@ -165,7 +165,7 @@
   /* query default values */                                                      \
   bool has_valid_version_declaration    = CONFIG::CONFIG_VERSION > 0.0 ;          \
   bool has_valid_sessiondir_declaration = CLIENT::SESSION_DIRNAME.isNotEmpty() ;  \
-  bool has_valid_logfile_declaration    = CLIENT::LOG_FILENAME   .isNotEmpty() ;  \
+  bool has_valid_logfile_declaration    = CLIENT::CLIPSORT_LOG   .isNotEmpty() ;  \
                                                                                   \
   /* trace invalid default values */                                              \
   if (!has_valid_version_declaration)                                             \
@@ -173,7 +173,7 @@
   if (!has_valid_sessiondir_declaration)                                          \
     Trace::TraceInvalidDefault("CLIENT::SESSION_DIRNAME") ;                       \
   if (!has_valid_logfile_declaration)                                             \
-    Trace::TraceInvalidDefault("CLIENT::LOG_FILENAME") ;                          \
+    Trace::TraceInvalidDefault("CLIENT::CLIPSORT_LOG") ;                          \
                                                                                   \
   /* modify return value */                                                       \
   is_valid = is_valid                                                          && \

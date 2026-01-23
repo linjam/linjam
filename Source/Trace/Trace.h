@@ -1,14 +1,17 @@
-
+/* Trace.h
+   this file defines logging and feature switches for debugging
+*/
 #ifndef _TRACE_H_
 #define _TRACE_H_
 
 #if DEBUG
 
 // disable standard features
+//#define NO_UPDATE_REMOTES
 //#define NO_UPDATE_LOOP_PROGRESS_GUI
 //#define NO_UPDATE_VU_METERS_GUI
+//#define NO_UPDATE_ROOMS_GUI
 //#define NO_UPDATE_RECORDING_TIME_GUI
-//#define NO_UPDATE_REMOTES
 // enable buggy features
 //#define ACCEPT_CHAT_COMMANDS         // (issue #19)
 //#define FADE_HIDDEN_REMOTES

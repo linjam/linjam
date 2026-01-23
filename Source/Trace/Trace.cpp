@@ -230,6 +230,7 @@ String Trace::DumpVar(String val_name , var a_var)
 
 String Trace::Status2String(int status)
 {
+  // translate APP::LinJamStatus to user-facing string description
   return (status == -10) ? "LINJAM_STATUS_INIT"                :
          (status ==  -9) ? "LINJAM_STATUS_AUDIOINIT"           :
          (status ==  -8) ? "LINJAM_STATUS_CONFIGPENDING"       :

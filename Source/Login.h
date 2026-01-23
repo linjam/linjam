@@ -69,7 +69,7 @@ public:
   bool validatePass     () ;
   void setTextErrorState(TextEditor* a_text_editor , bool is_error_state) ;
   void updateClients    (ValueTree clients_store) ;
-  void arrangeRooms     () ;
+  void layoutLoginBtns  () ;
 
     //[/UserMethods]
 
