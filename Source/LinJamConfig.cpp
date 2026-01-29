@@ -20,14 +20,14 @@ LinJamConfig::~LinJamConfig() { storeConfig() ; }
 
 Identifier LinJamConfig::MakeHostId(String host)
 {
-  return Identifier(CONFIG::SERVER_KEY + "-" + host.replaceCharacters(".:" , "--")) ;
+  return Identifier(CONFIG::SERVER_KEY + "-" + host.replaceCharacters(".:" , "__")) ;
 }
 
 Identifier LinJamConfig::MakeUserId(String user_name)
 {
   return user_name.upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , true)
                   .retainCharacters(CONFIG::VALID_NAME_CHARS)
-                  .replaceCharacter(' ', '-') ;
+                  .replaceCharacters(" -", "__") ;
 }
 
 Identifier LinJamConfig::MakeChannelId(int channel_idx)

@@ -759,7 +759,7 @@ namespace CONFIG
   static const String CONFIG_DATATYPES_XML = String(CONFIG_TYPES_XML) ;
 
   // validation
-  static const StringRef VALID_NAME_CHARS   = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- " ;
+  static const StringRef VALID_NAME_CHARS   = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_- " ; // NOTE: JUCE Identifiers allowed chars are alpha-numeric and underscore
   static const StringRef USER_IP_SPLIT_CHAR = "@" ;
 }
 
