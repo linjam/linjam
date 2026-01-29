@@ -329,17 +329,18 @@ public:
 
   // state
   enum LinJamStatus { LINJAM_STATUS_INIT           = -10 ,
-                      LINJAM_STATUS_AUDIOINIT      = -9  ,
-                      LINJAM_STATUS_CONFIGPENDING  = -8  ,
-                      LINJAM_STATUS_AUDIOERROR     = -7  ,
-                      LINJAM_STATUS_READY          = -6  ,
-                      LINJAM_STATUS_LICENSEPENDING = -5  ,
-                      LINJAM_STATUS_ROOMFULL       = -4  ,
-                      NJC_STATUS_DISCONNECTED      = -3  ,   // NJClient::ConnectionStatus
-                      NJC_STATUS_INVALIDAUTH       = -2  ,   // NJClient::ConnectionStatus
-                      NJC_STATUS_CANTCONNECT       = -1  ,   // NJClient::ConnectionStatus
-                      NJC_STATUS_OK                =  0  ,   // NJClient::ConnectionStatus
-                      NJC_STATUS_PRECONNECT        =  1  } ; // NJClient::ConnectionStatus
+                      LINJAM_STATUS_AUDIOINIT      = - 9 ,
+                      LINJAM_STATUS_CONFIGPENDING  =  -8 ,
+                      LINJAM_STATUS_AUDIOERROR     =  -7 ,
+                      LINJAM_STATUS_READY          =  -6 ,
+                      LINJAM_STATUS_LICENSEPENDING =  -5 ,
+                      LINJAM_STATUS_ROOMFULL       =  -4 ,
+                      NJC_STATUS_DISCONNECTED      =  -3 , // NJClient::ConnectionStatus
+                      NJC_STATUS_INVALIDAUTH       =  -2 , // NJClient::ConnectionStatus
+                      NJC_STATUS_CANTCONNECT       =  -1 , // NJClient::ConnectionStatus
+                      NJC_STATUS_OK                =   0 , // NJClient::ConnectionStatus
+                      NJC_STATUS_PRECONNECT        =   1 , // NJClient::ConnectionStatus
+                      LINJAM_STATUS_LOGOUTPENDING  =   2 } ;
 
   // timers
   static const int CLIENT_TIMER_ID     = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
@@ -816,10 +817,14 @@ namespace GUI
   static const String APP_NAME     = "LinJam" ;
   static const int    BORDERS_W    = 2 ;
   static const int    TITLEBAR_H   = 24 ;
-  static const int    CONFIG_BTN_X = GUI::PAD ;
+  static const int    LOGOUT_BTN_X = GUI::PAD ;
+  static const int    LOGOUT_BTN_Y = 3 ;
+  static const int    LOGOUT_BTN_H = GUI::TITLEBAR_H - GUI::PAD ;
+  static const int    LOGOUT_BTN_W = LOGOUT_BTN_H * 3 ;
+  static const int    CONFIG_BTN_X = LOGOUT_BTN_X + LOGOUT_BTN_W + GUI::PAD ;
   static const int    CONFIG_BTN_Y = 3 ;
-  static const int    CONFIG_BTN_W = GUI::TITLEBAR_H - GUI::PAD ;
   static const int    CONFIG_BTN_H = GUI::TITLEBAR_H - GUI::PAD ;
+  static const int    CONFIG_BTN_W = CONFIG_BTN_H ;
 
   // MainContent
   static const String CONTENT_GUI_ID = "main-content-gui" ;
@@ -1045,6 +1050,7 @@ namespace GUI
   static const String ROOM_FULL_TEXT         = "Jam room full" ;
   static const String INVALID_AUTH_TEXT      = "Invalid login/pass" ;
   static const String LICENSE_PENDING_TEXT   = "Pending license" ;
+  static const String LOGOUT_PENDING_TEXT    = "Logging out ...." ;
   static const String FAILED_CONNECTION_TEXT = "Connection failed" ;
   static const String CONNECTING_TEXT        = "Connecting to " ;
   static const String CONNECTED_TEXT         = "Connected to " ;

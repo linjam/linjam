@@ -243,6 +243,7 @@ String Trace::Status2String(int status)
          (status ==  -1) ? "NJC_STATUS_CANTCONNECT"            :
          (status ==   0) ? "NJC_STATUS_OK"                     :
          (status ==   1) ? "NJC_STATUS_PRECONNECT"             :
+         (status ==   2) ? "LINJAM_STATUS_LOGOUTPENDING"       :
                            "(unknown: " + String(status) + ")" ;
 }
 

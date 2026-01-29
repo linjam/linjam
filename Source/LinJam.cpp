@@ -767,6 +767,7 @@ DEBUG_TRACE_STATUS_CHANGED
       (status == APP::NJC_STATUS_CANTCONNECT      ) ? GUI::FAILED_CONNECTION_TEXT :
       (status == APP::NJC_STATUS_OK               ) ? GUI::CONNECTED_TEXT + host  :
       (status == APP::NJC_STATUS_PRECONNECT       ) ? GUI::IDLE_TEXT              :
+      (status == APP::LINJAM_STATUS_LOGOUTPENDING ) ? GUI::LOGOUT_PENDING_TEXT    :
                                                       Status.toString()           ;
   Gui->statusbar->setStatusL(status_text) ;
 
@@ -786,7 +787,16 @@ DEBUG_TRACE_STATUS_CHANGED
   top_component  ->toFront(true) ;
   Gui->background->toBehind(top_component) ;
 
-  // responses
+  // enable/disable logout button
+  bool is_lobby = top_component == Gui->login ;
+  Gui->logoutButton->setButtonText(! is_lobby ? "< " : "" + TRANS("Lobby")) ;
+  Gui->logoutButton->setEnabled   (! is_lobby) ; // WIP: replace config cancel button?
+
+
+DBG("LinJam::HandleStatusChanged() status=" + Trace::Status2String(status) + " IN AutoJoinHost=" + AutoJoinHost) ; // AutoJoinHost = "WTF" ; DBG("LinJam::HandleStatusChanged() MID AutoJoinHost=" + AutoJoinHost) ;
+
+
+  // actions
   switch (status)
   {
     // retry login
@@ -802,9 +812,12 @@ DEBUG_TRACE_STATUS_CHANGED
       if (AutoJoinHost.isNotEmpty() && Gui->login->quickLogin(AutoJoinHost))
         Gui->background->toFront(true) ;
       AutoJoinHost = "" ;                                                    break ;
-
+    case APP::LINJAM_STATUS_LOGOUTPENDING: Client->Disconnect() ;            break ;
     default:                                                                 break ;
   }
+
+
+DBG("LinJam::HandleStatusChanged() status=" + Trace::Status2String(status) + " OUT AutoJoinHost=" + AutoJoinHost) ;
 }
 
 void LinJam::HandleUserInfoChanged()

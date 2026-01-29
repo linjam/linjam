@@ -38,7 +38,7 @@ class MainContent : public Component , public Button::Listener
 
 public:
 
-  MainContent (DocumentWindow* main_window , TextButton* config_button) ;
+  MainContent (DocumentWindow* main_window , TextButton* logout_button , TextButton* config_button) ;
   ~MainContent() ;
 
   void paint  (Graphics&) ;
@@ -56,6 +56,7 @@ private:
   UPTR<Loop>       loop ;
   UPTR<Config>     config ;
   DocumentWindow*  mainWindow ;
+  TextButton*      logoutButton ;
   TextButton*      configButton ;
   Value            linjamStatus ;
 

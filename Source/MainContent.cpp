@@ -20,16 +20,23 @@
 #include "LinJam.h"
 
 
-MainContent::MainContent(DocumentWindow* main_window , TextButton* config_button)
+MainContent::MainContent(DocumentWindow* main_window , TextButton* logout_button , TextButton* config_button)
 {
   // MainWindow (parent)
   this->mainWindow   = main_window ;
+  this->logoutButton = logout_button ;
   this->configButton = config_button ;
+  this->logoutButton->setButtonText("< " + TRANS("Lobby")) ;
   this->configButton->setButtonText(TRANS("?")) ;
+  this->logoutButton->setColour(TextButton::buttonColourId   , Colour(0xff553300)) ;
+  this->logoutButton->setColour(TextButton::buttonOnColourId , Colours::olive) ;
+  this->logoutButton->setColour(TextButton::textColourOnId   , Colours::yellow) ;
+  this->logoutButton->setColour(TextButton::textColourOffId  , Colours::yellow) ;
   this->configButton->setColour(TextButton::buttonColourId   , Colour(0xff404000)) ;
   this->configButton->setColour(TextButton::buttonOnColourId , Colours::olive) ;
   this->configButton->setColour(TextButton::textColourOnId   , Colours::yellow) ;
   this->configButton->setColour(TextButton::textColourOffId  , Colours::yellow) ;
+  this->logoutButton->addListener(this) ;
   this->configButton->addListener(this) ;
 
   // MainContent (this)
@@ -58,14 +65,24 @@ void MainContent::paint(Graphics& g)
 
 void MainContent::resized()
 {
-  if (this->configButton == nullptr ||
-      this->background   == nullptr || this->chat      == nullptr ||
-      this->mixer        == nullptr || this->statusbar == nullptr ||
-      this->loop         == nullptr || this->login     == nullptr ||
-      this->license      == nullptr || this->config    == nullptr  ) return ;
+  if (this->logoutButton == nullptr || this->configButton == nullptr ||
+      this->background   == nullptr || this->chat         == nullptr ||
+      this->mixer        == nullptr || this->statusbar    == nullptr ||
+      this->loop         == nullptr || this->login        == nullptr ||
+      this->license      == nullptr || this->config       == nullptr  ) return ;
 
   int window_w = getWidth() ;
   int window_h = getHeight() ;
+
+  // logout button (initially hidden?)
+#ifdef _MAC
+  int logout_x = window_w - GUI::CONFIG_BTN_X - GUI::CONFIG_BTN_W ;
+#else // _MAC
+  int logout_x = GUI::LOGOUT_BTN_X ;
+#endif // _MAC
+  int logout_y = GUI::LOGOUT_BTN_Y ;
+  int logout_w = GUI::LOGOUT_BTN_W ;
+  int logout_h = GUI::LOGOUT_BTN_H ;
 
   // config button
 #ifdef _MAC
@@ -129,6 +146,7 @@ void MainContent::resized()
   int config_w = content_w ;
   int config_h = content_h ;
 
+  this->logoutButton->setBounds(logout_x  , logout_y  , logout_w  , logout_h ) ;
   this->configButton->setBounds(cfg_btn_x , cfg_btn_y , cfg_btn_w , cfg_btn_h) ;
   this->background  ->setBounds(bg_x      , bg_y      , bg_w      , bg_h     ) ;
   this->login       ->setBounds(login_x   , login_y   , login_w   , login_h  ) ;
@@ -195,6 +213,8 @@ void MainContent::setTitle(String title_text)
 
 void MainContent::buttonClicked(Button* a_button)
 {
-  if (a_button == this->configButton)
+  if      (a_button == this->logoutButton)
+    this->linjamStatus = APP::LINJAM_STATUS_LOGOUTPENDING ;
+  else if (a_button == this->configButton)
     this->linjamStatus = APP::LINJAM_STATUS_CONFIGPENDING ;
 }
