@@ -787,11 +787,6 @@ DEBUG_TRACE_STATUS_CHANGED
   top_component  ->toFront(true) ;
   Gui->background->toBehind(top_component) ;
 
-  // enable/disable logout button
-  bool is_lobby = top_component == Gui->login ;
-  Gui->logoutButton->setButtonText(! is_lobby ? "< " : "" + TRANS("Lobby")) ;
-  Gui->logoutButton->setEnabled   (! is_lobby) ; // WIP: replace config cancel button?
-
 
 DBG("LinJam::HandleStatusChanged() status=" + Trace::Status2String(status) + " IN AutoJoinHost=" + AutoJoinHost) ; // AutoJoinHost = "WTF" ; DBG("LinJam::HandleStatusChanged() MID AutoJoinHost=" + AutoJoinHost) ;
 
@@ -801,19 +796,21 @@ DBG("LinJam::HandleStatusChanged() status=" + Trace::Status2String(status) + " I
   {
     // retry login
     case APP::NJC_STATUS_INVALIDAUTH:
-    case APP::NJC_STATUS_CANTCONNECT: // retry login (server occasionally rejects)
-      if (RetryLogin-- > 0) Connect() ;                                      break ;
-    case APP::NJC_STATUS_OK:          // store server credentials and present mixer GUI
+    case APP::NJC_STATUS_CANTCONNECT:
+      // retry login (server occasionally rejects)
+      if (RetryLogin-- > 0) Connect() ;                                     break ;
+    case APP::NJC_STATUS_OK:
+      // store server credentials and present mixer GUI
       Config->storeServer() ;
-      UpdateGuiLowPriority() ;
+      // UpdateGuiLowPriority() ;
       Gui->mixer->toFront(false) ;
-      Gui->loop ->toFront(false) ;                                           break ;
-    case APP::NJC_STATUS_PRECONNECT:  // auto-join
-      if (AutoJoinHost.isNotEmpty() && Gui->login->quickLogin(AutoJoinHost))
-        Gui->background->toFront(true) ;
-      AutoJoinHost = "" ;                                                    break ;
-    case APP::LINJAM_STATUS_LOGOUTPENDING: Client->Disconnect() ;            break ;
-    default:                                                                 break ;
+      Gui->loop ->toFront(false) ;                                          break ;
+    case APP::NJC_STATUS_PRECONNECT:
+      // auto-join
+      if (AutoJoinHost.isNotEmpty()) Gui->login->quickLogin(AutoJoinHost) ;
+      AutoJoinHost = "" ;                                                   break ;
+    case APP::LINJAM_STATUS_LOGOUTPENDING: Disconnect() ;                   break ;
+    default:                                                                break ;
   }
 
 

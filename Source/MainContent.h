@@ -30,7 +30,7 @@
 
 
 /** MainContent is the main view container class */
-class MainContent : public Component , public Button::Listener
+class MainContent : public Component , public Button::Listener , public Value::Listener
 {
   friend class LinJamApplication ;
   friend class LinJam ;
@@ -38,7 +38,7 @@ class MainContent : public Component , public Button::Listener
 
 public:
 
-  MainContent (DocumentWindow* main_window , TextButton* logout_button , TextButton* config_button) ;
+  MainContent (DocumentWindow* main_window , TextButton* mode_btn) ;
   ~MainContent() ;
 
   void paint  (Graphics&) ;
@@ -56,8 +56,7 @@ private:
   UPTR<Loop>       loop ;
   UPTR<Config>     config ;
   DocumentWindow*  mainWindow ;
-  TextButton*      logoutButton ;
-  TextButton*      configButton ;
+  TextButton*      modeButton ;
   Value            linjamStatus ;
 
 
@@ -67,6 +66,7 @@ private:
                      Value     linjam_status                             ) ;
   void setTitle     (String title_text) ;
   void buttonClicked(Button* a_button) ;
+  void valueChanged(Value& a_value) ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContent)

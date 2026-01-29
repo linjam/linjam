@@ -814,52 +814,50 @@ namespace GUI
   static const Colour TEXT_CARET_COLOR      = Colour(0xFFBBBBFF) ;
 
   // MainWindow
-  static const String APP_NAME     = "LinJam" ;
-  static const int    BORDERS_W    = 2 ;
-  static const int    TITLEBAR_H   = 24 ;
-  static const int    LOGOUT_BTN_X = GUI::PAD ;
-  static const int    LOGOUT_BTN_Y = 3 ;
-  static const int    LOGOUT_BTN_H = GUI::TITLEBAR_H - GUI::PAD ;
-  static const int    LOGOUT_BTN_W = LOGOUT_BTN_H * 3 ;
-  static const int    CONFIG_BTN_X = LOGOUT_BTN_X + LOGOUT_BTN_W + GUI::PAD ;
-  static const int    CONFIG_BTN_Y = 3 ;
-  static const int    CONFIG_BTN_H = GUI::TITLEBAR_H - GUI::PAD ;
-  static const int    CONFIG_BTN_W = CONFIG_BTN_H ;
+  static const String APP_NAME   = "LinJam" ;
+  static const int    BORDERS_W  = 2 ;
+  static const int    TITLEBAR_H = 24 ;
+  static const int    MODE_BTN_X = GUI::PAD ;
+  static const int    MODE_BTN_Y = 3 ;
+  static const int    MODE_BTN_H = GUI::TITLEBAR_H - GUI::PAD ;
+  static const int    MODE_BTN_W = MODE_BTN_H * 3 ;
 
   // MainContent
-  static const String CONTENT_GUI_ID = "main-content-gui" ;
-  static const int    CONTENT_W      = 640 - BORDERS_W ;
-  static const int    CONTENT_H      = 480 - BORDERS_W - TITLEBAR_H ;
+  static const String CONTENT_GUI_ID             = "main-content-gui" ;
+  static const int    CONTENT_W                  = 640 - BORDERS_W ;
+  static const int    CONTENT_H                  = 480 - BORDERS_W - TITLEBAR_H ;
+  static const Colour MODE_BTN_OUT_INIT_COLOR    = Colour(0xFF404000) ;
+  static const Colour MODE_BTN_OUT_ERROR_COLOR   = Colour(0xFF400000) ;
+  static const Colour MODE_BTN_OUT_NORMAL_COLOR  = Colour(0xFF004000) ;
+  static const Colour MODE_BTN_IN_INIT_COLOR     = Colour(0xFF808000) ;
+  static const Colour MODE_BTN_IN_ERROR_COLOR    = Colour(0xFF800000) ;
+  static const Colour MODE_BTN_IN_NORMAL_COLOR   = Colour(0xFF008000) ;
+  static const Colour MODE_BTN_TEXT_INIT_COLOR   = Colour(0xFFFFFF00) ;
+  static const Colour MODE_BTN_TEXT_ERROR_COLOR  = Colour(0xFFFF0000) ;
+  static const Colour MODE_BTN_TEXT_NORMAL_COLOR = Colour(0xFF00FF00) ;
+  static const String MODE_BTN_INIT_TEXT         = TRANS("Initializing ....") ;
+  static const String MODE_BTN_ERROR_TEXT        = TRANS("Error") ;
+  static const String MODE_BTN_LOBBY_TEXT        = TRANS("Settings") ;
+  static const String MODE_BTN_CONFIG_TEXT       = TRANS("<-- Lobby") ;
+  static const String MODE_BTN_JAM_TEXT          = TRANS("<-- Lobby") ;
 
   // Background
   static const String BACKGROUND_GUI_ID = "background-gui" ;
 
   // Config
-  static const String CONFIG_GUI_ID                 = "config-gui" ;
-  static const int    AUDIO_TAB_IDX                 = 0 ;
-  static const int    CLIENT_TAB_IDX                = 1 ;
-  static const int    GUI_TAB_IDX                   = 2 ;
-  static const int    BLACKLIST_TAB_IDX             = 3 ;
-  static const String AUDIO_TAB_TEXT                = "audio" ;
-  static const String CLIENT_TAB_TEXT               = "client" ;
-  static const String GUI_TAB_TEXT                  = "gui" ;
-  static const String BLACKLIST_TAB_TEXT            = "ignores" ;
-  static const Colour AUDIO_TAB_COLOR               = Colour(0xFF002000) ;
-  static const Colour CLIENT_TAB_COLOR              = Colour(0xFF202000) ;
-  static const Colour GUI_TAB_COLOR                 = Colour(0xFF000020) ;
-  static const Colour BLACKLIST_TAB_COLOR           = Colour(0xFF200000) ;
-  static const Colour DISMISS_BTN_OUT_INIT_COLOR    = Colour(0xFF404000) ;
-  static const Colour DISMISS_BTN_OUT_ERROR_COLOR   = Colour(0xFF400000) ;
-  static const Colour DISMISS_BTN_OUT_NORMAL_COLOR  = Colour(0xFF004000) ;
-  static const Colour DISMISS_BTN_IN_INIT_COLOR     = Colour(0xFF808000) ;
-  static const Colour DISMISS_BTN_IN_ERROR_COLOR    = Colour(0xFF800000) ;
-  static const Colour DISMISS_BTN_IN_NORMAL_COLOR   = Colour(0xFF008000) ;
-  static const Colour DISMISS_BTN_TEXT_INIT_COLOR   = Colour(0xFFFFFF00) ;
-  static const Colour DISMISS_BTN_TEXT_ERROR_COLOR  = Colour(0xFFFF0000) ;
-  static const Colour DISMISS_BTN_TEXT_NORMAL_COLOR = Colour(0xFF00FF00) ;
-  static const String DISMISS_BTN_INIT_TEXT         = "initializing" ;
-  static const String DISMISS_BTN_ERROR_TEXT        = "error" ;
-  static const String DISMISS_BTN_NORMAL_TEXT       = "done" ;
+  static const String CONFIG_GUI_ID       = "config-gui" ;
+  static const int    AUDIO_TAB_IDX       = 0 ;
+  static const int    CLIENT_TAB_IDX      = 1 ;
+  static const int    GUI_TAB_IDX         = 2 ;
+  static const int    BLACKLIST_TAB_IDX   = 3 ;
+  static const String AUDIO_TAB_TEXT      = "audio" ;
+  static const String CLIENT_TAB_TEXT     = "client" ;
+  static const String GUI_TAB_TEXT        = "gui" ;
+  static const String BLACKLIST_TAB_TEXT  = "ignores" ;
+  static const Colour AUDIO_TAB_COLOR     = Colour(0xFF002000) ;
+  static const Colour CLIENT_TAB_COLOR    = Colour(0xFF202000) ;
+  static const Colour GUI_TAB_COLOR       = Colour(0xFF000020) ;
+  static const Colour BLACKLIST_TAB_COLOR = Colour(0xFF200000) ;
 
   // ConfigAudio
   static const int         DEFAULT_DS_INDEX     = 0 ;

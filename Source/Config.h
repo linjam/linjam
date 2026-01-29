@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.1
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
 
-#ifndef _CONFIG_H_
-#define _CONFIG_H_
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -39,21 +38,19 @@
                                                                     //[/Comments]
 */
 class Config  : public Component,
-                public Value::Listener,
-                public Button::Listener
+                public Value::Listener
 {
 public:
     //==============================================================================
     Config (ValueTree audio_store, ValueTree client_store, ValueTree gui_store, ValueTree blacklist_store, Value linjam_status);
-    ~Config();
+    ~Config() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     //[/UserMethods]
 
-    void paint (Graphics& g);
-    void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
+    void paint (juce::Graphics& g) override;
+    void resized() override;
 
 
 
@@ -78,8 +75,7 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TabbedComponent> configTabs;
-    ScopedPointer<TextButton> dismissButton;
+    std::unique_ptr<juce::TabbedComponent> configTabs;
 
 
     //==============================================================================
@@ -89,4 +85,3 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif // _CONFIG_H_

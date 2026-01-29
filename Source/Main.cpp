@@ -71,16 +71,12 @@ public:
                                   Colour(0xff202020)        ,
                                   DocumentWindow::allButtons)
     {
-      // log-out button (managed and handled by MainContent)
-      this->logoutButton = new TextButton("logoutButton") ;
-      Component::addAndMakeVisible(this->logoutButton) ;
-
-      // config button (managed and handled by MainContent)
-      this->configButton.reset(new TextButton("configButton")) ;
-      Component::addAndMakeVisible(this->configButton.get()) ;
+      // context-dependent nav button (config<->logout<->jam - managed by MainContent)
+      this->modeButton.reset(new TextButton("modeButton")) ;
+      Component::addAndMakeVisible(this->modeButton.get()) ;
 
       // main content (title managed by MainContent)
-      this->mainContent.reset(new MainContent(this , this->logoutButton.get() , this->configButton.get())) ;
+      this->mainContent.reset(new MainContent(this , this->modeButton.get())) ;
       this->mainContent->setComponentID(GUI::CONTENT_GUI_ID) ;
       setContentOwned(this->mainContent.get() , true) ;
 
@@ -96,9 +92,8 @@ public:
 
     ~MainWindow()
     {
-      this->logoutButton = nullptr ;
-      this->configButton = nullptr ;
-      this->mainContent  = nullptr ;
+      this->modeButton  = nullptr ;
+      this->mainContent = nullptr ;
     }
 
     void closeButtonPressed() { JUCEApplication::getInstance()->systemRequestedQuit() ; }
@@ -106,8 +101,7 @@ public:
 
   private:
 
-    UPTR<TextButton>  logoutButton ;
-    UPTR<TextButton>  configButton ;
+    UPTR<TextButton>  modeButton ;
     UPTR<MainContent> mainContent ;
 
 

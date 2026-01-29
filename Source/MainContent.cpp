@@ -20,24 +20,12 @@
 #include "LinJam.h"
 
 
-MainContent::MainContent(DocumentWindow* main_window , TextButton* logout_button , TextButton* config_button)
+MainContent::MainContent(DocumentWindow* main_window , TextButton* mode_btn)
 {
   // MainWindow (parent)
-  this->mainWindow   = main_window ;
-  this->logoutButton = logout_button ;
-  this->configButton = config_button ;
-  this->logoutButton->setButtonText("< " + TRANS("Lobby")) ;
-  this->configButton->setButtonText(TRANS("?")) ;
-  this->logoutButton->setColour(TextButton::buttonColourId   , Colour(0xff553300)) ;
-  this->logoutButton->setColour(TextButton::buttonOnColourId , Colours::olive) ;
-  this->logoutButton->setColour(TextButton::textColourOnId   , Colours::yellow) ;
-  this->logoutButton->setColour(TextButton::textColourOffId  , Colours::yellow) ;
-  this->configButton->setColour(TextButton::buttonColourId   , Colour(0xff404000)) ;
-  this->configButton->setColour(TextButton::buttonOnColourId , Colours::olive) ;
-  this->configButton->setColour(TextButton::textColourOnId   , Colours::yellow) ;
-  this->configButton->setColour(TextButton::textColourOffId  , Colours::yellow) ;
-  this->logoutButton->addListener(this) ;
-  this->configButton->addListener(this) ;
+  this->mainWindow = main_window ;
+  this->modeButton = mode_btn ;
+  this->modeButton->addListener(this) ;
 
   // MainContent (this)
   setName("MainContent") ;
@@ -65,38 +53,30 @@ void MainContent::paint(Graphics& g)
 
 void MainContent::resized()
 {
-  if (this->logoutButton == nullptr || this->configButton == nullptr ||
-      this->background   == nullptr || this->chat         == nullptr ||
-      this->mixer        == nullptr || this->statusbar    == nullptr ||
-      this->loop         == nullptr || this->login        == nullptr ||
-      this->license      == nullptr || this->config       == nullptr  ) return ;
+  if (this->modeButton == nullptr ||
+      this->background == nullptr || this->chat      == nullptr ||
+      this->mixer      == nullptr || this->statusbar == nullptr ||
+      this->loop       == nullptr || this->login     == nullptr ||
+      this->license    == nullptr || this->config    == nullptr  ) return ;
 
   int window_w = getWidth() ;
   int window_h = getHeight() ;
 
-  // logout button (initially hidden?)
-#ifdef _MAC
-  int logout_x = window_w - GUI::CONFIG_BTN_X - GUI::CONFIG_BTN_W ;
-#else // _MAC
-  int logout_x = GUI::LOGOUT_BTN_X ;
-#endif // _MAC
-  int logout_y = GUI::LOGOUT_BTN_Y ;
-  int logout_w = GUI::LOGOUT_BTN_W ;
-  int logout_h = GUI::LOGOUT_BTN_H ;
-
-  // config button
-#ifdef _MAC
-  int cfg_btn_x = window_w - GUI::CONFIG_BTN_X - GUI::CONFIG_BTN_W ;
-#else // _MAC
-  int cfg_btn_x = GUI::CONFIG_BTN_X ;
-#endif // _MAC
-  int cfg_btn_y = GUI::CONFIG_BTN_Y ;
-  int cfg_btn_w = GUI::CONFIG_BTN_W ;
-  int cfg_btn_h = GUI::CONFIG_BTN_H ;
-
-  // main content
+  // main window and content pane
+  int window_w  = getWidth() ;
+  int window_h  = getHeight() ;
   int content_w = window_w - GUI::PAD2 ;
   int content_h = window_h - GUI::STATUSBAR_H - GUI::PAD3 ;
+
+  // mode switch
+#ifdef _MAC
+  int mode_btn_x = window_w - GUI::CONFIG_BTN_X - GUI::CONFIG_BTN_W ;
+#else // _MAC
+  int mode_btn_x = GUI::MODE_BTN_X ;
+#endif // _MAC
+  int mode_btn_y = GUI::MODE_BTN_Y ;
+  int mode_btn_w = GUI::MODE_BTN_W ;
+  int mode_btn_h = GUI::MODE_BTN_H ;
 
   // bg
   int bg_x = 0 ;
@@ -110,23 +90,29 @@ void MainContent::resized()
   int login_w = content_w ;
   int login_h = content_h ;
 
+  // config
+  int config_x = GUI::PAD ;
+  int config_y = GUI::PAD ;
+  int config_w = content_w ;
+  int config_h = content_h ;
+
   // license
   int license_x = GUI::PAD ;
   int license_y = GUI::PAD ;
   int license_w = content_w ;
   int license_h = content_h ;
 
-  // mixer div
-  int mixer_x = GUI::PAD ;
-  int mixer_y = window_h - GUI::STATUSBAR_H - GUI::MIXER_H - GUI::PAD2 ;
-  int mixer_w = content_w ;
-  int mixer_h = GUI::MIXER_H ;
-
   // chat
   int chat_x = GUI::PAD ;
   int chat_y = GUI::PAD ;
   int chat_w = content_w ;
   int chat_h = content_h - GUI::MIXER_H - GUI::PAD ;
+
+  // mixer
+  int mixer_x = GUI::PAD ;
+  int mixer_y = window_h - GUI::STATUSBAR_H - GUI::MIXER_H - GUI::PAD2 ;
+  int mixer_w = content_w ;
+  int mixer_h = GUI::MIXER_H ;
 
   // statusbar
   int status_x = GUI::PAD ;
@@ -140,22 +126,15 @@ void MainContent::resized()
   int loop_w = content_w - GUI::PAD4 - (GUI::STATUS_W * 2) ;
   int loop_h = GUI::LOOP_H ;
 
-  // config
-  int config_x = GUI::PAD ;
-  int config_y = GUI::PAD ;
-  int config_w = content_w ;
-  int config_h = content_h ;
-
-  this->logoutButton->setBounds(logout_x  , logout_y  , logout_w  , logout_h ) ;
-  this->configButton->setBounds(cfg_btn_x , cfg_btn_y , cfg_btn_w , cfg_btn_h) ;
-  this->background  ->setBounds(bg_x      , bg_y      , bg_w      , bg_h     ) ;
-  this->login       ->setBounds(login_x   , login_y   , login_w   , login_h  ) ;
-  this->license     ->setBounds(license_x , license_y , license_w , license_h) ;
-  this->chat        ->setBounds(chat_x    , chat_y    , chat_w    , chat_h   ) ;
-  this->mixer       ->setBounds(mixer_x   , mixer_y   , mixer_w   , mixer_h  ) ;
-  this->statusbar   ->setBounds(status_x  , status_y  , status_w  , status_h ) ;
-  this->loop        ->setBounds(loop_x    , loop_y    , loop_w    , loop_h   ) ;
-  this->config      ->setBounds(config_x  , config_y  , config_w  , config_h ) ;
+  this->modeButton->setBounds(mode_btn_x , mode_btn_y , mode_btn_w  , mode_btn_h) ;
+  this->background->setBounds(bg_x       , bg_y       , bg_w        , bg_h      ) ;
+  this->login     ->setBounds(login_x    , login_y    , login_w     , login_h   ) ;
+  this->license   ->setBounds(license_x  , license_y  , license_w   , license_h ) ;
+  this->chat      ->setBounds(chat_x     , chat_y     , chat_w      , chat_h    ) ;
+  this->mixer     ->setBounds(mixer_x    , mixer_y    , mixer_w     , mixer_h   ) ;
+  this->statusbar ->setBounds(status_x   , status_y   , status_w    , status_h  ) ;
+  this->loop      ->setBounds(loop_x     , loop_y     , loop_w      , loop_h    ) ;
+  this->config    ->setBounds(config_x   , config_y   , config_w    , config_h  ) ;
 }
 
 void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store  ,
@@ -163,7 +142,7 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
                               ValueTree login_store     , ValueTree servers_store ,
                               Value     linjam_status                             )
 {
-  // extract specific values for components that do not require an entire store
+  // cherry-pick component-specific value holders
   Value agreed_value   = LinJamConfig::GetValueHolder(login_store , CONFIG::IS_AGREED_ID   ) ;
   Value agree_value    = LinJamConfig::GetValueHolder(login_store , CONFIG::SHOULD_AGREE_ID) ;
   Value fontsize_value = LinJamConfig::GetValueHolder(gui_store   , CONFIG::FONT_SIZE_ID   ) ;
@@ -202,6 +181,7 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
   this->statusbar->setStatusL(GUI::DISCONNECTED_TEXT) ;
 
   this->linjamStatus.referTo(linjam_status) ;
+  this->linjamStatus.addListener(this) ;
 
   resized() ;
 }
@@ -213,8 +193,78 @@ void MainContent::setTitle(String title_text)
 
 void MainContent::buttonClicked(Button* a_button)
 {
-  if      (a_button == this->logoutButton)
-    this->linjamStatus = APP::LINJAM_STATUS_LOGOUTPENDING ;
-  else if (a_button == this->configButton)
-    this->linjamStatus = APP::LINJAM_STATUS_CONFIGPENDING ;
+  bool is_config = this->linjamStatus == APP::LINJAM_STATUS_CONFIGPENDING ;
+  bool is_jam    = this->linjamStatus == APP::NJC_STATUS_OK ;
+
+  if      (a_button == this->modeButton && is_config) this->linjamStatus = APP::LINJAM_STATUS_READY ;
+  else if (a_button == this->modeButton && is_jam   ) this->linjamStatus = APP::LINJAM_STATUS_LOGOUTPENDING ;
+  else                                                this->linjamStatus = APP::LINJAM_STATUS_CONFIGPENDING ;
+}
+
+void MainContent::valueChanged(Value& a_value)
+{
+  if (!a_value.refersToSameSourceAs(this->linjamStatus)) return ;
+
+  int  linjam_status = int(a_value.getValue()) ;
+  bool is_config     = linjam_status >= APP::LINJAM_STATUS_AUDIOINIT &&
+                       linjam_status <= APP::LINJAM_STATUS_AUDIOERROR ;
+  bool is_jam        = linjam_status == APP::NJC_STATUS_OK ;
+  bool is_lobby      = ! is_config && ! is_jam ; // TODO: sophistimocate me?
+
+
+// DBG("MainContent::valueChanged() status=" + String(linjam_status) + " - updating " + ( (is_lobby) ? "lobby" : ( (is_config) ? "config" : ( (is_jam) ? "jam" : "un-handled" ) ) ) ) ;
+
+
+  // set mode switch text and colors
+  if (is_lobby)
+  {
+    // entering lobby
+    this->modeButton->setColour(TextButton::buttonColourId   , Colour(0xFF404000)) ;
+    this->modeButton->setColour(TextButton::buttonOnColourId , Colour(0xFF808000)) ;
+    this->modeButton->setColour(TextButton::textColourOnId   , Colour(0xFFFFFF00)) ;
+    this->modeButton->setColour(TextButton::textColourOffId  , Colour(0xFFFFFF00)) ;
+    this->modeButton->setButtonText(GUI::MODE_BTN_LOBBY_TEXT) ;
+  }
+  else if (is_config)
+  {
+    // entering config
+    this->modeButton->setColour(TextButton::buttonColourId   , Colour(0xFF004000)) ;
+    this->modeButton->setColour(TextButton::buttonOnColourId , Colour(0xFF008000)) ;
+    this->modeButton->setColour(TextButton::textColourOnId   , Colour(0xFF00FF00)) ;
+    this->modeButton->setColour(TextButton::textColourOffId  , Colour(0xFF00FF00)) ;
+
+    bool   is_audio_init    = linjam_status == APP::LINJAM_STATUS_AUDIOINIT ;
+    bool   is_audio_error   = linjam_status == APP::LINJAM_STATUS_AUDIOERROR ;
+    Colour button_out_color = (is_audio_init ) ? GUI::MODE_BTN_OUT_INIT_COLOR    :
+                              (is_audio_error) ? GUI::MODE_BTN_OUT_ERROR_COLOR   :
+                                                 GUI::MODE_BTN_OUT_NORMAL_COLOR  ;
+    Colour button_in_color  = (is_audio_init ) ? GUI::MODE_BTN_IN_INIT_COLOR     :
+                              (is_audio_error) ? GUI::MODE_BTN_IN_ERROR_COLOR    :
+                                                 GUI::MODE_BTN_IN_NORMAL_COLOR   ;
+    Colour text_out_color   = (is_audio_init ) ? GUI::MODE_BTN_TEXT_INIT_COLOR   :
+                              (is_audio_error) ? GUI::MODE_BTN_TEXT_ERROR_COLOR  :
+                                                 GUI::MODE_BTN_TEXT_NORMAL_COLOR ;
+    Colour text_in_color    = (is_audio_init ) ? GUI::MODE_BTN_TEXT_INIT_COLOR   :
+                              (is_audio_error) ? GUI::MODE_BTN_TEXT_ERROR_COLOR  :
+                                                 GUI::MODE_BTN_TEXT_NORMAL_COLOR ;
+    String button_text      = (is_audio_init ) ? GUI::MODE_BTN_INIT_TEXT         :
+                              (is_audio_error) ? GUI::MODE_BTN_ERROR_TEXT        :
+                                                 GUI::MODE_BTN_CONFIG_TEXT       ;
+
+    this->modeButton->setColour(TextButton::buttonColourId   , button_out_color) ;
+    this->modeButton->setColour(TextButton::buttonOnColourId , button_in_color ) ;
+    this->modeButton->setColour(TextButton::textColourOnId   , text_in_color   ) ;
+    this->modeButton->setColour(TextButton::textColourOffId  , text_out_color  ) ;
+    this->modeButton->setButtonText(button_text) ;
+    this->modeButton->setEnabled(!is_audio_error) ;
+  }
+  else if (is_jam)
+  {
+    // entering jam
+    this->modeButton->setColour(TextButton::buttonColourId   , Colour(0xff403000)) ;
+    this->modeButton->setColour(TextButton::buttonOnColourId , Colour(0xff806000)) ;
+    this->modeButton->setColour(TextButton::textColourOnId   , Colour(0xffFFFF00)) ;
+    this->modeButton->setColour(TextButton::textColourOffId  , Colour(0xffFFFF00)) ;
+    this->modeButton->setButtonText(GUI::MODE_BTN_JAM_TEXT) ;
+  }
 }
