@@ -22,6 +22,7 @@
       <FILE id="xqc9VC" name="License.h" compile="0" resource="0" file="Source/License.h"/>
       <FILE id="rS1R2S" name="LinJam.h" compile="0" resource="0" file="Source/LinJam.h"/>
       <FILE id="rt1VcC" name="LinJamConfig.h" compile="0" resource="0" file="Source/LinJamConfig.h"/>
+      <FILE id="z2aJz7" name="Lobby.h" compile="0" resource="0" file="Source/Lobby.h"/>
       <FILE id="KfXKxz" name="Login.h" compile="0" resource="0" file="Source/Login.h"/>
       <FILE id="QmX4eP" name="Loop.h" compile="0" resource="0" file="Source/Loop.h"/>
       <FILE id="sKUFRy" name="MainContent.h" compile="0" resource="0" file="Source/MainContent.h"/>
@@ -58,6 +59,7 @@
       <FILE id="ZHvRfB" name="LinJam.cpp" compile="1" resource="0" file="Source/LinJam.cpp"/>
       <FILE id="Bgn7uP" name="LinJamConfig.cpp" compile="1" resource="0"
             file="Source/LinJamConfig.cpp"/>
+      <FILE id="eePWUJ" name="Lobby.cpp" compile="1" resource="0" file="Source/Lobby.cpp"/>
       <FILE id="tNjNcS" name="Login.cpp" compile="1" resource="0" file="Source/Login.cpp"/>
       <FILE id="dYhOns" name="Loop.cpp" compile="1" resource="0" file="Source/Loop.cpp"/>
       <FILE id="j4iSrP" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>

@@ -35,13 +35,13 @@ MainContent::MainContent(DocumentWindow* main_window , TextButton* mode_btn)
 MainContent::~MainContent()
 {
   this->background = nullptr ;
-  this->login      = nullptr ;
+  this->config     = nullptr ;
+  this->lobby      = nullptr ;
   this->license    = nullptr ;
   this->chat       = nullptr ;
   this->mixer      = nullptr ;
   this->statusbar  = nullptr ;
   this->loop       = nullptr ;
-  this->config     = nullptr ;
 }
 
 void MainContent::paint(Graphics& g)
@@ -53,14 +53,11 @@ void MainContent::paint(Graphics& g)
 
 void MainContent::resized()
 {
-  if (this->modeButton == nullptr ||
-      this->background == nullptr || this->chat      == nullptr ||
-      this->mixer      == nullptr || this->statusbar == nullptr ||
-      this->loop       == nullptr || this->login     == nullptr ||
-      this->license    == nullptr || this->config    == nullptr  ) return ;
-
-  int window_w = getWidth() ;
-  int window_h = getHeight() ;
+  if ( this->modeButton == nullptr ||
+       this->background == nullptr || this->config  == nullptr ||
+       this->lobby      == nullptr || this->license == nullptr ||
+       this->chat       == nullptr || this->mixer   == nullptr ||
+       this->statusbar  == nullptr || this->loop    == nullptr  ) return ;
 
   // main window and content pane
   int window_w  = getWidth() ;
@@ -84,17 +81,17 @@ void MainContent::resized()
   int bg_w = window_w ;
   int bg_h = window_h ;
 
-  // login
-  int login_x = GUI::PAD ;
-  int login_y = GUI::PAD ;
-  int login_w = content_w ;
-  int login_h = content_h ;
-
   // config
   int config_x = GUI::PAD ;
   int config_y = GUI::PAD ;
   int config_w = content_w ;
   int config_h = content_h ;
+
+  // lobby
+  int lobby_x = GUI::PAD ;
+  int lobby_y = GUI::PAD ;
+  int lobby_w = content_w ;
+  int lobby_h = content_h ;
 
   // license
   int license_x = GUI::PAD ;
@@ -128,13 +125,13 @@ void MainContent::resized()
 
   this->modeButton->setBounds(mode_btn_x , mode_btn_y , mode_btn_w  , mode_btn_h) ;
   this->background->setBounds(bg_x       , bg_y       , bg_w        , bg_h      ) ;
-  this->login     ->setBounds(login_x    , login_y    , login_w     , login_h   ) ;
+  this->config    ->setBounds(config_x   , config_y   , config_w    , config_h  ) ;
+  this->lobby     ->setBounds(lobby_x    , lobby_y    , lobby_w     , lobby_h   ) ;
   this->license   ->setBounds(license_x  , license_y  , license_w   , license_h ) ;
   this->chat      ->setBounds(chat_x     , chat_y     , chat_w      , chat_h    ) ;
   this->mixer     ->setBounds(mixer_x    , mixer_y    , mixer_w     , mixer_h   ) ;
   this->statusbar ->setBounds(status_x   , status_y   , status_w    , status_h  ) ;
   this->loop      ->setBounds(loop_x     , loop_y     , loop_w      , loop_h    ) ;
-  this->config    ->setBounds(config_x   , config_y   , config_w    , config_h  ) ;
 }
 
 void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store  ,
@@ -151,7 +148,7 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
   this->background.reset(new Background(                                           )) ;
   this->config    .reset(new Config    (audio_store     , client_store , gui_store ,
                                         blacklist_store , linjam_status            )) ;
-  this->login     .reset(new Login     (login_store     , servers_store            )) ;
+  this->lobby     .reset(new Lobby     (login_store     , servers_store            )) ;
   this->license   .reset(new License   (agreed_value    , agree_value              )) ;
   this->chat      .reset(new Chat      (fontsize_value                             )) ;
   this->mixer     .reset(new Mixer     (blacklist_store                            )) ;
@@ -160,7 +157,7 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
 
   this->addChildAndSetID(this->background.get() , GUI::BACKGROUND_GUI_ID) ;
   this->addChildAndSetID(this->config    .get() , GUI::CONFIG_GUI_ID    ) ;
-  this->addChildAndSetID(this->login     .get() , GUI::LOGIN_GUI_ID     ) ;
+  this->addChildAndSetID(this->lobby     .get() , GUI::LOBBY_GUI_ID     ) ;
   this->addChildAndSetID(this->license   .get() , GUI::LICENSE_GUI_ID   ) ;
   this->addChildAndSetID(this->chat      .get() , GUI::CHAT_GUI_ID      ) ;
   this->addChildAndSetID(this->mixer     .get() , GUI::MIXER_GUI_ID     ) ;
@@ -169,7 +166,7 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
 
   this->background->toFront(true) ;
   this->config    ->toBack() ;
-  this->login     ->toBack() ;
+  this->lobby     ->toBack() ;
   this->license   ->toBack() ;
   this->chat      ->toBack() ;
   this->mixer     ->toBack() ;

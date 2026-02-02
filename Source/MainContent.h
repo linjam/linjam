@@ -20,13 +20,13 @@
 #pragma once
 
 #include "Background.h"
+#include "Config.h"
+#include "Lobby.h"
+#include "License.h"
 #include "Chat.h"
 #include "Mixer.h"
 #include "StatusBar.h"
 #include "Loop.h"
-#include "Login.h"
-#include "License.h"
-#include "Config.h"
 
 
 /** MainContent is the main view container class */
@@ -48,13 +48,13 @@ public:
 private:
 
   UPTR<Background> background ;
-  UPTR<Login>      login ;
+  UPTR<Config>     config ;
+  UPTR<Lobby>      lobby ;
   UPTR<License>    license ;
   UPTR<Chat>       chat ;
   UPTR<Mixer>      mixer ;
   UPTR<StatusBar>  statusbar ;
   UPTR<Loop>       loop ;
-  UPTR<Config>     config ;
   DocumentWindow*  mainWindow ;
   TextButton*      modeButton ;
   Value            linjamStatus ;

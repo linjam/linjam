@@ -87,6 +87,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/License_de20cc22.o \
   $(JUCE_OBJDIR)/LinJam_a166dece.o \
   $(JUCE_OBJDIR)/LinJamConfig_8af59670.o \
+  $(JUCE_OBJDIR)/Lobby_23dbcc37.o \
   $(JUCE_OBJDIR)/Login_37b1de4a.o \
   $(JUCE_OBJDIR)/Loop_17fb192d.o \
   $(JUCE_OBJDIR)/Main_90ebc5c2.o \
@@ -187,6 +188,11 @@ $(JUCE_OBJDIR)/LinJam_a166dece.o: ../../Source/LinJam.cpp
 $(JUCE_OBJDIR)/LinJamConfig_8af59670.o: ../../Source/LinJamConfig.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling LinJamConfig.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Lobby_23dbcc37.o: ../../Source/Lobby.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling Lobby.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Login_37b1de4a.o: ../../Source/Login.cpp

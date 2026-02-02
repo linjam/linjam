@@ -927,6 +927,9 @@ namespace GUI
   static const int BLACKLIST_ENTRY_W = BLACKLIST_W - CONFIG_SCROLLBAR_W - PAD2 ;
   static const int BLACKLIST_ENTRY_H = 16 ;
 
+  // Lobby
+  static const String LOBBY_GUI_ID = "lobby-gui" ;
+
   // Login
   static const String LOGIN_GUI_ID                   = "login-gui" ;
   static const int    N_STATIC_LOGIN_CHILDREN        = 6 ;

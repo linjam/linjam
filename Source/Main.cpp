@@ -45,7 +45,7 @@ public:
     // When another instance of the app is launched while this one is running,
     // this method is invoked, and the commandLine parameter tells you what
     // the other instance's command-line arguments were.
-    String host = command_line ; this->mainWindow->mainContent->login->quickLogin(host) ;
+    String host = command_line ; this->mainWindow->mainContent->lobby->quickLogin(host) ;
   }
 
   void shutdown() override { LinJam::Shutdown() ; this->mainWindow = nullptr ; }

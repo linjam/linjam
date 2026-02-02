@@ -808,14 +808,11 @@ DEBUG_TRACE_STATUS_CHANGED
       Gui->loop ->toFront(false) ;                                          break ;
     case APP::NJC_STATUS_PRECONNECT:
       // auto-join
-      if (AutoJoinHost.isNotEmpty()) Gui->login->quickLogin(AutoJoinHost) ;
+      if (AutoJoinHost.isNotEmpty()) Gui->lobby->quickLogin(AutoJoinHost) ;
       AutoJoinHost = "" ;                                                   break ;
     case APP::LINJAM_STATUS_LOGOUTPENDING: Disconnect() ;                   break ;
     default:                                                                break ;
   }
-
-
-DBG("LinJam::HandleStatusChanged() status=" + Trace::Status2String(status) + " OUT AutoJoinHost=" + AutoJoinHost) ;
 }
 
 void LinJam::HandleUserInfoChanged()

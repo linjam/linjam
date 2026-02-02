@@ -38,12 +38,13 @@
       (Status == APP::LINJAM_STATUS_AUDIOERROR    ) ? "showing config pane"    : \
       (Status == APP::LINJAM_STATUS_CONFIGPENDING ) ? "showing config pane"    : \
       (Status == APP::LINJAM_STATUS_LICENSEPENDING) ? "showing license pane"   : \
-      (Status == APP::LINJAM_STATUS_ROOMFULL      ) ? "showing login pane"     : \
-      (Status == APP::NJC_STATUS_DISCONNECTED     ) ? "showing login pane"     : \
-      (Status == APP::NJC_STATUS_INVALIDAUTH      ) ? "showing login pane"     : \
-      (Status == APP::NJC_STATUS_CANTCONNECT      ) ? "showing login pane"     : \
+      (Status == APP::LINJAM_STATUS_ROOMFULL      ) ? "showing lobby pane"     : \
+      (Status == APP::NJC_STATUS_DISCONNECTED     ) ? "showing lobby pane"     : \
+      (Status == APP::NJC_STATUS_INVALIDAUTH      ) ? "showing lobby pane"     : \
+      (Status == APP::NJC_STATUS_CANTCONNECT      ) ? "showing lobby pane"     : \
       (Status == APP::NJC_STATUS_OK               ) ? "showing main pane"      : \
-      (Status == APP::NJC_STATUS_PRECONNECT       ) ? "showing login pane"     : \
+      (Status == APP::NJC_STATUS_PRECONNECT       ) ? "showing lobby pane"     : \
+      (Status == APP::LINJAM_STATUS_LOGOUTPENDING ) ? "showing lobby pane"     : \
                                                       "showing background pane") ;
 
 #define DEBUG_TRACE_CONNECT                                                  \
