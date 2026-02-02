@@ -1,24 +1,23 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.1
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
 
-#ifndef _LICENSE_H_
-#define _LICENSE_H_
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -41,7 +40,7 @@ class License  : public Component,
 public:
     //==============================================================================
     License (Value is_agreed, Value always_agree);
-    ~License();
+    ~License() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -50,9 +49,9 @@ public:
 
     //[/UserMethods]
 
-    void paint (Graphics& g);
-    void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
+    void paint (juce::Graphics& g) override;
+    void resized() override;
+    void buttonClicked (juce::Button* buttonThatWasClicked) override;
 
 
 
@@ -69,10 +68,10 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TextEditor> licenseTextEditor;
-    ScopedPointer<TextButton> cancelButton;
-    ScopedPointer<TextButton> agreeButton;
-    ScopedPointer<ToggleButton> alwaysButton;
+    std::unique_ptr<juce::TextEditor> licenseTextEditor;
+    std::unique_ptr<juce::TextButton> cancelButton;
+    std::unique_ptr<juce::TextButton> agreeButton;
+    std::unique_ptr<juce::ToggleButton> alwaysButton;
 
 
     //==============================================================================
@@ -82,4 +81,3 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif // _LICENSE_H_

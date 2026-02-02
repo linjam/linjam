@@ -771,25 +771,26 @@ DEBUG_TRACE_STATUS_CHANGED
                                                       Status.toString()           ;
   Gui->statusbar->setStatusL(status_text) ;
 
+   // WIP: faux-modal license screen (still doent qork quite right)
+   //      this WIP is only to avoid the lobby screen showing again after agree
+  if (status == APP::LINJAM_STATUS_LICENSEPENDING) Gui->chat      ->toFront(true) ; // faux-modal
+  else                                             Gui->background->toFront(true) ;
+
   // set front-most GUI container
-  Component* top_component =
-      (status == APP::LINJAM_STATUS_AUDIOERROR    ) ?             Gui->config     :
-      (status == APP::LINJAM_STATUS_AUDIOINIT     ) ?             Gui->config     :
-      (status == APP::LINJAM_STATUS_CONFIGPENDING ) ?             Gui->config     :
-      (status == APP::LINJAM_STATUS_LICENSEPENDING) ?             Gui->license    :
-      (status == APP::LINJAM_STATUS_ROOMFULL      ) ?             Gui->login      :
-      (status == APP::NJC_STATUS_DISCONNECTED     ) ?             Gui->login      :
-      (status == APP::NJC_STATUS_INVALIDAUTH      ) ?             Gui->login      :
-      (status == APP::NJC_STATUS_CANTCONNECT      ) ?             Gui->login      :
-      (status == APP::NJC_STATUS_OK               ) ?             Gui->chat       :
-      (status == APP::NJC_STATUS_PRECONNECT       ) ?             Gui->login      :
-                                                      (Component*)Gui->background ;
-  top_component  ->toFront(true) ;
-  Gui->background->toBehind(top_component) ;
-
-
-DBG("LinJam::HandleStatusChanged() status=" + Trace::Status2String(status) + " IN AutoJoinHost=" + AutoJoinHost) ; // AutoJoinHost = "WTF" ; DBG("LinJam::HandleStatusChanged() MID AutoJoinHost=" + AutoJoinHost) ;
-
+  switch (status)
+  {
+    case APP::LINJAM_STATUS_LICENSEPENDING: Gui->license   ->toFront(true) ; break ;
+    case APP::LINJAM_STATUS_AUDIOINIT     : Gui->config    ->toFront(true) ; break ;
+    case APP::LINJAM_STATUS_CONFIGPENDING : Gui->config    ->toFront(true) ; break ;
+    case APP::LINJAM_STATUS_AUDIOERROR    : Gui->config    ->toFront(true) ; break ;
+    case APP::LINJAM_STATUS_ROOMFULL      : Gui->login     ->toFront(true) ; break ;
+    case APP::NJC_STATUS_DISCONNECTED     : Gui->login     ->toFront(true) ; break ;
+    case APP::NJC_STATUS_INVALIDAUTH      : Gui->login     ->toFront(true) ; break ;
+    case APP::NJC_STATUS_CANTCONNECT      : Gui->login     ->toFront(true) ; break ;
+    case APP::NJC_STATUS_OK               : Gui->chat      ->toFront(true) ; break ;
+    case APP::NJC_STATUS_PRECONNECT       : Gui->login     ->toFront(true) ; break ;
+    default                               : Gui->background->toFront(true) ; break ;
+  }
 
   // actions
   switch (status)

@@ -1,18 +1,18 @@
 /*
   ==============================================================================
 
-  This is an automatically generated GUI class created by the Introjucer!
+  This is an automatically generated GUI class created by the Projucer!
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
   and re-saved.
 
-  Created with Introjucer version: 3.1.1
+  Created with Projucer version: 7.0.12
 
   ------------------------------------------------------------------------------
 
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
+  The Projucer is part of the JUCE library.
+  Copyright (c) 2020 - Raw Material Software Limited.
 
   ==============================================================================
 */
@@ -37,34 +37,38 @@ License::License (Value is_agreed, Value always_agree)
     //[/Constructor_pre]
 
     setName ("License");
-    addAndMakeVisible (licenseTextEditor = new TextEditor ("licenseTextEditor"));
+    licenseTextEditor.reset (new juce::TextEditor ("licenseTextEditor"));
+    addAndMakeVisible (licenseTextEditor.get());
     licenseTextEditor->setMultiLine (true);
     licenseTextEditor->setReturnKeyStartsNewLine (false);
     licenseTextEditor->setReadOnly (true);
     licenseTextEditor->setScrollbarsShown (true);
     licenseTextEditor->setCaretVisible (false);
     licenseTextEditor->setPopupMenuEnabled (false);
-    licenseTextEditor->setColour (TextEditor::textColourId, Colours::grey);
-    licenseTextEditor->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    licenseTextEditor->setText (String());
+    licenseTextEditor->setColour (juce::TextEditor::textColourId, juce::Colours::silver);
+    licenseTextEditor->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0xff404040));
+    licenseTextEditor->setText (juce::String());
 
-    addAndMakeVisible (cancelButton = new TextButton ("cancelButton"));
-    cancelButton->setTooltip (TRANS("Check this if you do not agree to these above terms. You will not be able to jam here."));
+    cancelButton.reset (new juce::TextButton ("cancelButton"));
+    addAndMakeVisible (cancelButton.get());
+    cancelButton->setTooltip (TRANS ("Check this if you do not agree to these above terms. You will not be able to jam here."));
     cancelButton->setExplicitFocusOrder (2);
-    cancelButton->setButtonText (TRANS("Cancel"));
+    cancelButton->setButtonText (TRANS ("Cancel"));
     cancelButton->addListener (this);
 
-    addAndMakeVisible (agreeButton = new TextButton ("agreeButton"));
-    agreeButton->setTooltip (TRANS("Check this to agree to the above terms for this session only."));
+    agreeButton.reset (new juce::TextButton ("agreeButton"));
+    addAndMakeVisible (agreeButton.get());
+    agreeButton->setTooltip (TRANS ("Check this to agree to the above terms for this session only."));
     agreeButton->setExplicitFocusOrder (1);
-    agreeButton->setButtonText (TRANS("Agree"));
+    agreeButton->setButtonText (TRANS ("Agree"));
     agreeButton->addListener (this);
 
-    addAndMakeVisible (alwaysButton = new ToggleButton ("alwaysButton"));
-    alwaysButton->setTooltip (TRANS("Check this to automatically agree to these terms on this server. You will not see this screen again unless the terms should change."));
-    alwaysButton->setButtonText (TRANS("Always Agree"));
+    alwaysButton.reset (new juce::ToggleButton ("alwaysButton"));
+    addAndMakeVisible (alwaysButton.get());
+    alwaysButton->setTooltip (TRANS ("Check this to automatically agree to these terms on this server. You will not see this screen again unless the terms should change."));
+    alwaysButton->setButtonText (TRANS ("Always Agree"));
     alwaysButton->addListener (this);
-    alwaysButton->setColour (ToggleButton::textColourId, Colours::grey);
+    alwaysButton->setColour (juce::ToggleButton::textColourId, juce::Colours::grey);
 
 
     //[UserPreSize]
@@ -96,22 +100,34 @@ License::~License()
 }
 
 //==============================================================================
-void License::paint (Graphics& g)
+void License::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.setColour (Colour (0xff101010));
-    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
+    {
+        float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = static_cast<float> (getHeight() - 0);
+        juce::Colour fillColour = juce::Colour (0xff101010);
+        juce::Colour strokeColour = juce::Colours::white;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.setColour (strokeColour);
+        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
+    }
 
-    g.setColour (Colours::white);
-    g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f, 1.000f);
-
-    g.setColour (Colours::black);
-    g.fillRoundedRectangle (4.0f, 4.0f, static_cast<float> (getWidth() - 8), static_cast<float> (getHeight() - 36), 10.000f);
-
-    g.setColour (Colours::grey);
-    g.drawRoundedRectangle (4.0f, 4.0f, static_cast<float> (getWidth() - 8), static_cast<float> (getHeight() - 36), 10.000f, 1.000f);
+    {
+        float x = 4.0f, y = 4.0f, width = static_cast<float> (getWidth() - 8), height = static_cast<float> (getHeight() - 36);
+        juce::Colour fillColour = juce::Colours::black;
+        juce::Colour strokeColour = juce::Colours::grey;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRoundedRectangle (x, y, width, height, 10.000f);
+        g.setColour (strokeColour);
+        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
+    }
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -130,12 +146,12 @@ void License::resized()
     //[/UserResized]
 }
 
-void License::buttonClicked (Button* buttonThatWasClicked)
+void License::buttonClicked (juce::Button* buttonThatWasClicked)
 {
     //[UserbuttonClicked_Pre]
     //[/UserbuttonClicked_Pre]
 
-    if (buttonThatWasClicked == cancelButton)
+    if (buttonThatWasClicked == cancelButton.get())
     {
         //[UserButtonCode_cancelButton] -- add your button handler code here..
 
@@ -143,7 +159,7 @@ void License::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_cancelButton]
     }
-    else if (buttonThatWasClicked == agreeButton)
+    else if (buttonThatWasClicked == agreeButton.get())
     {
         //[UserButtonCode_agreeButton] -- add your button handler code here..
 
@@ -151,7 +167,7 @@ void License::buttonClicked (Button* buttonThatWasClicked)
 
         //[/UserButtonCode_agreeButton]
     }
-    else if (buttonThatWasClicked == alwaysButton)
+    else if (buttonThatWasClicked == alwaysButton.get())
     {
         //[UserButtonCode_alwaysButton] -- add your button handler code here..
 
@@ -190,9 +206,9 @@ void License::setLicenseText(String license_text)
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
@@ -203,14 +219,14 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="442">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
-    <ROUNDRECT pos="4 4 8M 36M" cornerSize="10" fill="solid: ff000000" hasStroke="1"
+    <ROUNDRECT pos="4 4 8M 36M" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
   </BACKGROUND>
   <TEXTEDITOR name="licenseTextEditor" id="ba11ad8bfe4752c1" memberName="licenseTextEditor"
-              virtualName="" explicitFocusOrder="0" pos="4 4 8M 36M" textcol="ff808080"
-              bkgcol="0" initialText="" multiline="1" retKeyStartsLine="0"
+              virtualName="" explicitFocusOrder="0" pos="4 4 8M 36M" textcol="ffc0c0c0"
+              bkgcol="ff404040" initialText="" multiline="1" retKeyStartsLine="0"
               readonly="1" scrollbars="1" caret="0" popupmenu="0"/>
   <TEXTBUTTON name="cancelButton" id="e40ccd6a36998aa2" memberName="cancelButton"
               virtualName="" explicitFocusOrder="2" pos="68R 28R 64 24" tooltip="Check this if you do not agree to these above terms. You will not be able to jam here."
@@ -231,3 +247,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+
