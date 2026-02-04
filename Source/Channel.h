@@ -35,8 +35,8 @@
                                                                     //[/Comments]
 */
 class Channel  : public Component,
+                 public Button::Listener,
                  public Value::Listener,
-                 public juce::Button::Listener,
                  public juce::Slider::Listener,
                  public juce::Label::Listener
 {

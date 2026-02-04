@@ -37,7 +37,7 @@ Background::Background ()
     //[UserPreSize]
     //[/UserPreSize]
 
-    setSize (630, 470);
+    setSize (790, 470);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -94,7 +94,7 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="Background" componentName="Background"
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="630" initialHeight="470">
+                 fixedSize="0" initialWidth="790" initialHeight="470">
   <BACKGROUND backgroundColour="ff202020"/>
 </JUCER_COMPONENT>
 

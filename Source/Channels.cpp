@@ -41,7 +41,7 @@ Channels::Channels ()
     loginLabel.reset (new juce::Label ("loginLabel",
                                        juce::String()));
     addAndMakeVisible (loginLabel.get());
-    loginLabel->setFont (juce::Font (12.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    loginLabel->setFont (juce::Font (16.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
     loginLabel->setJustificationType (juce::Justification::centredBottom);
     loginLabel->setEditable (false, false, false);
     loginLabel->setColour (juce::Label::backgroundColourId, juce::Colour (0x00000000));
@@ -136,7 +136,7 @@ void Channels::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    loginLabel->setBounds (4, 4, getWidth() - 8, 12);
+    loginLabel->setBounds (4, 3, getWidth() - 8, 16);
     addButton->setBounds (getWidth() - 15, 0, 15, 16);
     expandButton->setBounds (getWidth() - 15, 0, 15, 16);
     ignoreButton->setBounds (getWidth() - 15, 16, 15, 16);
@@ -324,17 +324,17 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Channels" componentName=""
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 snapPixels="8" snapActive="0" snapShown="0" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="67" initialHeight="276">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <LABEL name="loginLabel" id="11f182b0c62d16d1" memberName="loginLabel"
-         virtualName="" explicitFocusOrder="0" pos="4 4 8M 12" bkgCol="0"
+         virtualName="" explicitFocusOrder="0" pos="4 3 8M 16" bkgCol="0"
          textCol="ff808080" outlineCol="0" edTextCol="0" edBkgCol="0"
          labelText="" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="12.0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="16.0"
          kerning="0.0" bold="0" italic="0" justification="20"/>
   <TEXTBUTTON name="addButton" id="e6ac05f3ca896afc" memberName="addButton"
               virtualName="" explicitFocusOrder="0" pos="15R 0 15 16" bgColOff="ff004000"

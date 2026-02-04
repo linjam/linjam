@@ -875,8 +875,8 @@ namespace GUI
 
   // MainContent
   static const String CONTENT_GUI_ID             = "main-content-gui" ;
-  static const int    CONTENT_W                  = 640 - BORDERS_W ;
-  static const int    CONTENT_H                  = 480 - BORDERS_W - TITLEBAR_H ;
+  static const int    CONTENT_W                  = 1280 - BORDERS_W ;
+  static const int    CONTENT_H                  =  800 - BORDERS_W - TITLEBAR_H ;
   static const Colour MODE_BTN_OUT_INIT_COLOR    = Colour(0xFF404000) ;
   static const Colour MODE_BTN_OUT_ERROR_COLOR   = Colour(0xFF400000) ;
   static const Colour MODE_BTN_OUT_NORMAL_COLOR  = Colour(0xFF004000) ;
@@ -984,11 +984,9 @@ namespace GUI
   // Login
   static const String LOGIN_GUI_ID                   = "login-gui" ;
   static const int    N_STATIC_LOGIN_CHILDREN        = 6 ;
-  static const int    LOGIN_BUTTONS_GROUP_X          = GUI::PAD6 ;
-  static const int    LOGIN_BUTTONS_GROUP_Y          = GUI::PAD6 ;
-  static const int    LOGIN_BUTTON_L                 = LOGIN_BUTTONS_GROUP_X + GUI::PAD4 ;
-  static const int    LOGIN_BUTTON_T                 = LOGIN_BUTTONS_GROUP_Y + GUI::PAD4 ;
-  static const int    LOGIN_BUTTON_W                 = 128 ;
+  static const int    LOGIN_BUTTON_L                 = GUI::PAD2 ;
+  static const int    LOGIN_BUTTON_T                 = GUI::PAD2 ;
+  static const int    LOGIN_BUTTON_W                 = 170 ;
   static const int    LOGIN_BUTTON_H                 = 24 ;
   static const int    STREAM_BUTTON_W                = 12 ;
   static const String LOGIN_BUTTON_TOOLTIP           = TRANS("Jammers:") ;
@@ -1061,6 +1059,11 @@ namespace GUI
   static const int              CHANNEL_Y                  = CHANNEL_LABEL_H + PAD2 ;
   static const int              CHANNEL_W                  = 60 ;
   static const int              CHANNEL_H                  = 252 ;
+  static const int              VU_X                       = 6 ;
+  static const int              VU_Y                       = 92 ;
+  static const int              VU_SM_W                    = 16 ;
+  static const int              VU_LG_W                    = 24 ;
+  static const int              VU_H                       = 128 ;
   static const int              HOVER_BTN_W                = 15 ;
   static const int              HOVER_BTN_H                = 16 ;
   static const int              HOVER_BTN_XC               = HOVER_BTN_W / 2 ;

@@ -67,7 +67,7 @@ StatusBar::StatusBar ()
 
     //[/UserPreSize]
 
-    setSize (622, 24);
+    setSize (782, 32);
 
 
     //[Constructor] You can add your own custom stuff here..

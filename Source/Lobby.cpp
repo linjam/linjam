@@ -77,7 +77,7 @@ void Lobby::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    login->setBounds (8, 8, getWidth() - 8, getHeight() - 8);
+    login->setBounds (0, 0, getWidth() - 0, getHeight() - 0);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -106,7 +106,7 @@ BEGIN_JUCER_METADATA
                  overlayOpacity="0.330" fixedSize="0" initialWidth="622" initialHeight="442">
   <BACKGROUND backgroundColour="ff323e44"/>
   <GENERICCOMPONENT name="login" id="cc229b476f003b83" memberName="login" virtualName=""
-                    explicitFocusOrder="0" pos="8 8 8M 8M" class="Login" params="login_store , servers_store"/>
+                    explicitFocusOrder="0" pos="0 0 0M 0M" class="Login" params="login_store , servers_store"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

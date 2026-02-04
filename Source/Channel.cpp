@@ -44,7 +44,7 @@ Channel::Channel (ValueTree channel_store)
     xmitButton->setButtonText (TRANS ("XMIT"));
     xmitButton->setColour (juce::ToggleButton::textColourId, juce::Colours::grey);
 
-    xmitButton->setBounds (4, 4, 36, 12);
+    xmitButton->setBounds (4, 4, 40, 12);
 
     muteButton.reset (new juce::ToggleButton ("muteButton"));
     addAndMakeVisible (muteButton.get());
@@ -52,7 +52,7 @@ Channel::Channel (ValueTree channel_store)
     muteButton->setButtonText (TRANS ("MUTE"));
     muteButton->setColour (juce::ToggleButton::textColourId, juce::Colours::grey);
 
-    muteButton->setBounds (4, 20, 36, 12);
+    muteButton->setBounds (4, 20, 40, 12);
 
     soloButton.reset (new juce::ToggleButton ("soloButton"));
     addAndMakeVisible (soloButton.get());
@@ -60,7 +60,7 @@ Channel::Channel (ValueTree channel_store)
     soloButton->setButtonText (TRANS ("SOLO"));
     soloButton->setColour (juce::ToggleButton::textColourId, juce::Colours::grey);
 
-    soloButton->setBounds (4, 36, 36, 12);
+    soloButton->setBounds (4, 36, 40, 12);
 
     removeButton.reset (new juce::TextButton ("removeButton"));
     addAndMakeVisible (removeButton.get());
@@ -159,7 +159,7 @@ Channel::Channel (ValueTree channel_store)
     vuLeftLabel.reset (new juce::Label ("vuLeftLabel",
                                         TRANS ("-120")));
     addAndMakeVisible (vuLeftLabel.get());
-    vuLeftLabel->setFont (juce::Font (10.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    vuLeftLabel->setFont (juce::Font (12.00f, juce::Font::plain).withTypefaceStyle ("Bold"));
     vuLeftLabel->setJustificationType (juce::Justification::centred);
     vuLeftLabel->setEditable (false, false, false);
     vuLeftLabel->setColour (juce::Label::textColourId, juce::Colours::grey);
@@ -171,7 +171,7 @@ Channel::Channel (ValueTree channel_store)
     vuRightLabel.reset (new juce::Label ("vuRightLabel",
                                          TRANS ("-120")));
     addAndMakeVisible (vuRightLabel.get());
-    vuRightLabel->setFont (juce::Font (10.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    vuRightLabel->setFont (juce::Font (12.00f, juce::Font::plain).withTypefaceStyle ("Bold"));
     vuRightLabel->setJustificationType (juce::Justification::centred);
     vuRightLabel->setEditable (false, false, false);
     vuRightLabel->setColour (juce::Label::textColourId, juce::Colours::grey);
@@ -190,7 +190,7 @@ Channel::Channel (ValueTree channel_store)
 
     //[/UserPreSize]
 
-    setSize (60, 252);
+    setSize (64, 252);
 
 
     //[Constructor] You can add your own custom stuff here..
@@ -306,12 +306,12 @@ void Channel::resized()
   bool is_mono   = int(this->stereoStatus.getValue()) == CONFIG::MONO ;
   bool is_master = this->channelStore.getParent().getType() == CONFIG::MASTERS_ID &&
                    this->channelStore            .getType() == CONFIG::MASTER_ID   ;
+  bool is_wider  = is_mono && ! is_master ;
+  uint8 vu_w     = ( (is_wider) ? GUI::VU_LG_W : GUI::VU_SM_W ) ;
+  uint8 gain_x   = ( (is_wider) ? GUI::PAD     : 0            ) + GUI::VU_X + vu_w ;
 
-  if (is_mono && !is_master)
-  {
-    vuLeftSlider->setBounds(6  , 92 , 24 , 128) ;
-    gainSlider  ->setBounds(32 , 92 , 24 , 128) ;
-  }
+  vuLeftSlider->setBounds(GUI::VU_X , GUI::VU_Y , vu_w , GUI::VU_H) ;
+  gainSlider  ->setBounds(gain_x    , GUI::VU_Y , vu_w , GUI::VU_H) ;
 
     //[/UserResized]
 }
@@ -576,22 +576,22 @@ BEGIN_JUCER_METADATA
 <JUCER_COMPONENT documentType="Component" className="Channel" componentName="Channel"
                  parentClasses="public Component, public ButtonListener, public SliderListener, public Value::Listener"
                  constructorParams="ValueTree channel_store" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="60" initialHeight="252">
+                 snapPixels="8" snapActive="0" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="64" initialHeight="252">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <TOGGLEBUTTON name="xmitButton" id="f45f759640162c62" memberName="xmitButton"
-                virtualName="" explicitFocusOrder="1" pos="4 4 36 12" txtcol="ff808080"
+                virtualName="" explicitFocusOrder="1" pos="4 4 40 12" txtcol="ff808080"
                 buttonText="XMIT" connectedEdges="0" needsCallback="0" radioGroupId="0"
                 state="0"/>
   <TOGGLEBUTTON name="muteButton" id="263020526add917" memberName="muteButton"
-                virtualName="" explicitFocusOrder="2" pos="4 20 36 12" txtcol="ff808080"
+                virtualName="" explicitFocusOrder="2" pos="4 20 40 12" txtcol="ff808080"
                 buttonText="MUTE" connectedEdges="0" needsCallback="0" radioGroupId="0"
                 state="0"/>
   <TOGGLEBUTTON name="soloButton" id="3b096c8c7df5c792" memberName="soloButton"
-                virtualName="" explicitFocusOrder="3" pos="4 36 36 12" txtcol="ff808080"
+                virtualName="" explicitFocusOrder="3" pos="4 36 40 12" txtcol="ff808080"
                 buttonText="SOLO" connectedEdges="0" needsCallback="0" radioGroupId="0"
                 state="0"/>
   <TEXTBUTTON name="removeButton" id="becd368b728d32c0" memberName="removeButton"
@@ -637,12 +637,14 @@ BEGIN_JUCER_METADATA
          virtualName="" explicitFocusOrder="0" pos="4 224 24 12" textCol="ff808080"
          edTextCol="ff000000" edBkgCol="0" labelText="-120" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="10.0" kerning="0.0" bold="0" italic="0" justification="36"/>
+         fontsize="12.0" kerning="0.0" bold="1" italic="0" justification="36"
+         typefaceStyle="Bold"/>
   <LABEL name="vuRightLabel" id="4bb31261e6795ae1" memberName="vuRightLabel"
          virtualName="" explicitFocusOrder="0" pos="32 224 24 12" textCol="ff808080"
          edTextCol="ff000000" edBkgCol="0" labelText="-120" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="10.0" kerning="0.0" bold="0" italic="0" justification="36"/>
+         fontsize="12.0" kerning="0.0" bold="1" italic="0" justification="36"
+         typefaceStyle="Bold"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -652,3 +654,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+
