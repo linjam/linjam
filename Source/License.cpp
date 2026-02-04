@@ -179,7 +179,7 @@ void License::buttonClicked (juce::Button* buttonThatWasClicked)
 
     //[UserbuttonClicked_Post]
 
-  LinJam::Disconnect() ; if (this->isAgreed == true) LinJam::Connect() ;
+  if (this->isAgreed == true) LinJam::Connect() ; else LinJam::Disconnect() ;
 
     //[/UserbuttonClicked_Post]
 }

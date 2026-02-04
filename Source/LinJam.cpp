@@ -65,7 +65,7 @@ void LinJam::SignIn(String host , String login , String pass , bool is_anonymous
 
 void LinJam::Connect()
 {
-  Client->Disconnect() ;
+  if (Status == APP::NJC_STATUS_OK) Disconnect() ;
 
   String host         = str( Config->server[CONFIG::HOST_ID        ]) ;
   String login        = str( Config->server[CONFIG::LOGIN_ID       ]) ;
@@ -80,7 +80,21 @@ DEBUG_TRACE_CONNECT
   Client->Connect(host.toRawUTF8() , login.toRawUTF8() , pass.toRawUTF8()) ;
 }
 
-void LinJam::Disconnect() { PrevRecordingTime = "" ; Client->Disconnect() ; }
+void LinJam::Disconnect()
+{
+  // stop XMIT all channels - memory corruption otherwise
+  // various faults seen (free, double-free, size corruption) - seem to happen
+  // only after RCV in a channel and a local channel is XMIT upon Disconnect()
+  for (int channel_n = 0 ; channel_n < Config->localChannels.getNumChildren() ; ++channel_n)
+  {
+    ValueTree channel_store = Config->getChannelByIdx(Config->localChannels , channel_n) ;
+
+    if (channel_store.isValid()) channel_store.setProperty(CONFIG::IS_XMIT_RCV_ID , false , nullptr) ;
+  }
+  Client->NotifyServerOfChannelChange() ;
+
+  PrevRecordingTime = "" ; Client->Disconnect() ;
+}
 
 
 /* getters/setters */
@@ -593,11 +607,29 @@ DEBUG_TRACE_INITIAL_CHANNELS
 
 void LinJam::Shutdown()
 {
-  // NJClient teardown
-  JNL::close_socketlib() ;
+  Disconnect() ;
 
   // LinJam teardown
-  RoomSorter = nullptr ; delete Audio ; delete Config ;
+  RoomSorter             = nullptr ;
+  delete Audio ;  Audio  = nullptr ;
+  delete Config ; Config = nullptr ;
+
+  // NJClient teardown
+  if (Client->waveWrite != nullptr) delete Client->waveWrite ;
+  Client->waveWrite      = nullptr ;
+#define CLIENT_LOGOUT_IS_BUGGY
+#ifndef CLIENT_LOGOUT_IS_BUGGY
+  // FIXME: here be dragons - Client and Gui are the same OOP object
+  //        Gui (aJUCEApplication) should clean-up after itself;
+  //        but `delete Client` here is messy
+  //        this may be related to the "leaked Shared objects" error upon shutdown
+  // UPDATE: gninjam deletes it's Gui first, then Audio, then Client->waveWrite,
+  // then Client, then lastly calls JNL::close_socketlib() - still buggy here though :(
+  // UPDATE: the various faults seen (free, double-free, size corruption) seems to happen
+  // after lurking in a channel for some time but only if a local channel is XMIT
+  delete Client ; // Client = nullptr ;
+#endif
+  JNL::close_socketlib() ;
 
   // Constants teardown
 //   delete NETWORK::KNOWN_HOSTS ; delete NETWORK::KNOWN_BOTS ;
@@ -605,7 +637,7 @@ void LinJam::Shutdown()
 DEBUG_TRACE_SHUTDOWN
 }
 
-void LinJam::Quit() { Shutdown() ; ((JUCEApplication*)Client)->quit() ; }
+void LinJam::Quit() { Shutdown() ; ((JUCEApplication*)Gui)->quit() ; }
 
 
 /* NJClient callbacks */
@@ -754,24 +786,24 @@ DEBUG_TRACE_STATUS_CHANGED
 
   APP::LinJamStatus status = (APP::LinJamStatus)int(Status.getValue()) ;
 
-  // ignore sentinel value
-  if (status == APP::LINJAM_STATUS_READY) return ;
+  // ignore sentinel value, but prime lobby jams
+  if (status == APP::LINJAM_STATUS_READY) { UpdateJams() ; return ; }
 
   // set status indicator
   String host        = Client->GetHostName() ;
   String status_text =
-      (status == APP::LINJAM_STATUS_AUDIOERROR    ) ? GUI::AUDIO_INIT_ERROR_MSG   :
-      (status == APP::LINJAM_STATUS_AUDIOINIT     ) ? GUI::AUDIO_INIT_MSG         :
-      (status == APP::LINJAM_STATUS_CONFIGPENDING ) ? GUI::CONFIG_PENDING_MSG     :
-      (status == APP::LINJAM_STATUS_LICENSEPENDING) ? GUI::LICENSE_PENDING_TEXT   :
-      (status == APP::LINJAM_STATUS_ROOMFULL      ) ? GUI::ROOM_FULL_TEXT         :
-      (status == APP::NJC_STATUS_DISCONNECTED     ) ? GUI::DISCONNECTED_TEXT      :
-      (status == APP::NJC_STATUS_INVALIDAUTH      ) ? GUI::INVALID_AUTH_TEXT      :
-      (status == APP::NJC_STATUS_CANTCONNECT      ) ? GUI::FAILED_CONNECTION_TEXT :
-      (status == APP::NJC_STATUS_OK               ) ? GUI::CONNECTED_TEXT + host  :
-      (status == APP::NJC_STATUS_PRECONNECT       ) ? GUI::IDLE_TEXT              :
-      (status == APP::LINJAM_STATUS_LOGOUTPENDING ) ? GUI::LOGOUT_PENDING_TEXT    :
-                                                      Status.toString()           ;
+      (status == APP::LINJAM_STATUS_AUDIOERROR    ) ? GUI::AUDIO_INIT_ERROR_MSG    :
+      (status == APP::LINJAM_STATUS_AUDIOINIT     ) ? GUI::AUDIO_INIT_MSG          :
+      (status == APP::LINJAM_STATUS_CONFIGPENDING ) ? GUI::CONFIG_PENDING_MSG      :
+      (status == APP::LINJAM_STATUS_LICENSEPENDING) ? GUI::LICENSE_PENDING_TEXT    :
+      (status == APP::LINJAM_STATUS_ROOMFULL      ) ? GUI::ROOM_FULL_TEXT          :
+      (status == APP::NJC_STATUS_DISCONNECTED     ) ? GUI::DISCONNECTED_TEXT       :
+      (status == APP::NJC_STATUS_INVALIDAUTH      ) ? GUI::INVALID_AUTH_TEXT       :
+      (status == APP::NJC_STATUS_CANTCONNECT      ) ? GUI::FAILED_CONNECTION_TEXT  :
+      (status == APP::NJC_STATUS_OK               ) ? GUI::CONNECTED_TEXT + host   :
+      (status == APP::NJC_STATUS_PRECONNECT       ) ? GUI::IDLE_TEXT               :
+      (status == APP::LINJAM_STATUS_LOGOUTPENDING ) ? GUI::LOGOUT_PENDING_TEXT     :
+                                                      "Trace::Status2String(status)" ;
   Gui->statusbar->setStatusL(status_text) ;
 
    // WIP: faux-modal license screen (still doent qork quite right)
