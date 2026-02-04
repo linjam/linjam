@@ -779,17 +779,17 @@ DEBUG_TRACE_STATUS_CHANGED
   // set front-most GUI container
   switch (status)
   {
-    case APP::LINJAM_STATUS_LICENSEPENDING: Gui->license   ->toFront(true) ; break ;
-    case APP::LINJAM_STATUS_AUDIOINIT     : Gui->config    ->toFront(true) ; break ;
-    case APP::LINJAM_STATUS_CONFIGPENDING : Gui->config    ->toFront(true) ; break ;
-    case APP::LINJAM_STATUS_AUDIOERROR    : Gui->config    ->toFront(true) ; break ;
-    case APP::LINJAM_STATUS_ROOMFULL      : Gui->login     ->toFront(true) ; break ;
-    case APP::NJC_STATUS_DISCONNECTED     : Gui->login     ->toFront(true) ; break ;
-    case APP::NJC_STATUS_INVALIDAUTH      : Gui->login     ->toFront(true) ; break ;
-    case APP::NJC_STATUS_CANTCONNECT      : Gui->login     ->toFront(true) ; break ;
-    case APP::NJC_STATUS_OK               : Gui->chat      ->toFront(true) ; break ;
-    case APP::NJC_STATUS_PRECONNECT       : Gui->login     ->toFront(true) ; break ;
-    default                               : Gui->background->toFront(true) ; break ;
+    case APP::LINJAM_STATUS_LICENSEPENDING : Gui->license   ->toFront(true) ; break ;
+    case APP::LINJAM_STATUS_AUDIOINIT      : Gui->config    ->toFront(true) ; break ;
+    case APP::LINJAM_STATUS_CONFIGPENDING  : Gui->config    ->toFront(true) ; break ;
+    case APP::LINJAM_STATUS_AUDIOERROR     : Gui->config    ->toFront(true) ; break ;
+    case APP::LINJAM_STATUS_ROOMFULL       : Gui->lobby     ->toFront(true) ; break ;
+    case APP::NJC_STATUS_DISCONNECTED      : Gui->lobby     ->toFront(true) ; break ;
+    case APP::NJC_STATUS_INVALIDAUTH       : Gui->lobby     ->toFront(true) ; break ;
+    case APP::NJC_STATUS_CANTCONNECT       : Gui->lobby     ->toFront(true) ; break ;
+    case APP::NJC_STATUS_OK                : Gui->chat      ->toFront(true) ; break ;
+    case APP::NJC_STATUS_PRECONNECT        : Gui->lobby     ->toFront(true) ; break ;
+    default                                : Gui->background->toFront(true) ; break ;
   }
 
   // actions

@@ -38,6 +38,30 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     //[/Constructor_pre]
 
     setName ("Login");
+    activeGroup.reset (new juce::GroupComponent ("activeGroup",
+                                                 TRANS ("Active Jam Rooms")));
+    addAndMakeVisible (activeGroup.get());
+    activeGroup->setTextLabelPosition (juce::Justification::centred);
+    activeGroup->setColour (juce::GroupComponent::outlineColourId, juce::Colours::grey);
+    activeGroup->setColour (juce::GroupComponent::textColourId, juce::Colours::white);
+
+    activeView.reset (new juce::Viewport ("activeView"));
+    addAndMakeVisible (activeView.get());
+    activeView->setScrollBarsShown (true, false);
+    activeView->setViewedComponent (new Component());
+
+    vacantGroup.reset (new juce::GroupComponent ("vacantGroup",
+                                                 TRANS ("Vacant Jam Rooms")));
+    addAndMakeVisible (vacantGroup.get());
+    vacantGroup->setTextLabelPosition (juce::Justification::centred);
+    vacantGroup->setColour (juce::GroupComponent::outlineColourId, juce::Colours::grey);
+    vacantGroup->setColour (juce::GroupComponent::textColourId, juce::Colours::white);
+
+    vacantView.reset (new juce::Viewport ("vacantView"));
+    addAndMakeVisible (vacantView.get());
+    vacantView->setScrollBarsShown (true, false);
+    vacantView->setViewedComponent (new Component());
+
     hostLabel.reset (new juce::Label ("hostLabel",
                                       TRANS ("Server:")));
     addAndMakeVisible (hostLabel.get());
@@ -137,13 +161,6 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     anonButton->setToggleState (true, juce::dontSendNotification);
     anonButton->setColour (juce::ToggleButton::textColourId, juce::Colours::white);
 
-    groupComponent.reset (new juce::GroupComponent ("new group",
-                                                    TRANS ("Jam Rooms")));
-    addAndMakeVisible (groupComponent.get());
-    groupComponent->setTextLabelPosition (juce::Justification::centredLeft);
-    groupComponent->setColour (juce::GroupComponent::outlineColourId, juce::Colours::grey);
-    groupComponent->setColour (juce::GroupComponent::textColourId, juce::Colours::white);
-
 
     //[UserPreSize]
 
@@ -177,16 +194,11 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     String           known_host    = server_store[CONFIG::HOST_ID] ;
     String           stream_url    = str(NETWORK::KNOWN_STREAMS[known_host]) ;
     HyperlinkButton* stream_button = new HyperlinkButton(GUI::STREAM_BUTTON_TEXT , URL(stream_url)) ;
-    TextButton*      login_button  = new TextButton(known_host + "Button") ;
-    Label*           clients_label = new Label     (known_host + "Label" ) ;
-
-    addAndMakeVisible(login_button ) ;
-    addAndMakeVisible(stream_button) ;
-    addAndMakeVisible(clients_label) ;
+    TextButton*      login_button  = new TextButton     (known_host + "Button") ;
+    Label*           clients_label = new Label          (known_host + "Label" ) ;
 
     login_button ->setButtonText(known_host) ;
     login_button ->setExplicitFocusOrder(GUI::N_STATIC_LOGIN_CHILDREN + server_n) ;
-    login_button ->setSize(GUI::LOGIN_BUTTON_W , GUI::LOGIN_BUTTON_H) ;
     login_button ->addListener(this) ;
     stream_button->setTooltip(GUI::STREAM_BUTTON_TOOLTIP + "" + stream_url) ;
     clients_label->setColour(Label::textColourId , Colours::white) ;
@@ -213,6 +225,10 @@ Login::~Login()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
+    activeGroup = nullptr;
+    activeView = nullptr;
+    vacantGroup = nullptr;
+    vacantView = nullptr;
     hostLabel = nullptr;
     loginLabel = nullptr;
     passLabel = nullptr;
@@ -222,7 +238,6 @@ Login::~Login()
     loginButton = nullptr;
     serverButton = nullptr;
     anonButton = nullptr;
-    groupComponent = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -256,6 +271,10 @@ void Login::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
+    activeGroup->setBounds (24, 16, getWidth() - 248, getHeight() - 152);
+    activeView->setBounds (24 + 8, 16 + 12, (getWidth() - 248) - 12, (getHeight() - 152) - 18);
+    vacantGroup->setBounds (getWidth() - 24 - 200, 16, 200, getHeight() - 152);
+    vacantView->setBounds ((getWidth() - 24 - 200) + 8, 16 + 12, 200 - 12, (getHeight() - 152) - 18);
     hostLabel->setBounds ((getWidth() / 2) + -190, getHeight() - 112, 72, 24);
     loginLabel->setBounds ((getWidth() / 2) + -190, getHeight() - 80, 72, 24);
     passLabel->setBounds ((getWidth() / 2) + -190, getHeight() - 48, 72, 24);
@@ -265,7 +284,6 @@ void Login::resized()
     loginButton->setBounds ((getWidth() / 2) + 85, getHeight() - 112, 96, 24);
     serverButton->setBounds ((getWidth() / 2) + 85, getHeight() - 80, 96, 24);
     anonButton->setBounds ((getWidth() / 2) + 85, getHeight() - 48, 96, 24);
-    groupComponent->setBounds (24, 16, getWidth() - 48, getHeight() - 152);
     //[UserResized] Add your own custom resize handling here..
 
   layoutLoginBtns() ;
@@ -516,9 +534,16 @@ void Login::layoutLoginBtns()
 
 DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS
 
-  int n_occupied = 0 ;
-  int n_vacant   = 0 ;
+  Component* active_pane = this->activeView->getViewedComponent() ;
+  Component* vacant_pane = this->vacantView->getViewedComponent() ;
+  int        n_occupied  = 0 ;
+  int        n_vacant    = 0 ;
+  int        login_x     = GUI::LOGIN_BUTTON_L ;
+  int        login_h     = GUI::LOGIN_BUTTON_H + GUI::PAD ;
+  int        stream_x    = login_x  + GUI::LOGIN_BUTTON_W  + GUI::PAD2 ;
+  int        clients_x   = stream_x + GUI::STREAM_BUTTON_W + GUI::PAD2 ;
 
+  // layout buttons
   for (int host_n = 0 ; host_n < this->serversStore.getNumChildren() ; ++host_n)
   {
     TextButton*      login_button  = this->serverButtons.getUnchecked(host_n) ;
@@ -528,32 +553,34 @@ DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS
     String           host_name     = login_button->getButtonText() ;
     bool             has_stream    = ! NETWORK::KNOWN_STREAMS[host_name].isVoid() ;
     int              sort_order    = (is_vacant) ? n_vacant : n_occupied ;
+    int              login_y       = GUI::LOGIN_BUTTON_T + (login_h * sort_order) ;
+    Component*       sort_pane     = (is_vacant) ? vacant_pane : active_pane ;
+    int              clients_w     = sort_pane->getWidth() - clients_x ;
     if (is_vacant) ++n_vacant ; else ++n_occupied ;
 
-    int login_x   = GUI::LOGIN_BUTTON_L + ((is_vacant) ? (GUI::LOGIN_BUTTON_W * 3) : 0) ;
-    int login_y   = GUI::LOGIN_BUTTON_T + ((GUI::LOGIN_BUTTON_H + GUI::PAD) * sort_order) ;
-    int stream_x  = login_x  + GUI::LOGIN_BUTTON_W  + GUI::PAD2 ;
-    int clients_x = stream_x + GUI::STREAM_BUTTON_W + GUI::PAD2 ;
-    int clients_w = getWidth() - clients_x - GUI::PAD6 ;
-
-    // WIP: 2-column layout (though two scroll-boxes may be better)
-    int  login_b      = login_y + GUI::LOGIN_BUTTON_H + GUI::PAD ;
-    int  group_b      = GUI::PAD4 + (getHeight() - 152) ; // ASSERT: sum of groupComponent 'y' + 'h' resize() params
-    bool is_bounded_x = true ;
-    bool is_bounded_y = login_b <= group_b ;
-    bool is_bounded   = is_bounded_x || is_bounded_y ;
-
-    login_button ->setVisible(is_bounded                ) ;
-    stream_button->setVisible(is_bounded &&   has_stream) ;
-    clients_label->setVisible(is_bounded && ! is_vacant ) ;
-
-    if (is_bounded)
-    {
-      login_button ->setBounds(login_x   , login_y , GUI::LOGIN_BUTTON_W  , GUI::LOGIN_BUTTON_H) ;
-      stream_button->setBounds(stream_x  , login_y , GUI::STREAM_BUTTON_W , GUI::LOGIN_BUTTON_H) ;
-      clients_label->setBounds(clients_x , login_y , clients_w            , GUI::LOGIN_BUTTON_H) ;
-    }
+    AddLoginButton(login_button , stream_button , clients_label , is_vacant) ;
+    stream_button->setVisible(  has_stream) ;
+    clients_label->setVisible(! is_vacant ) ;
+    login_button ->setBounds(login_x   , login_y , GUI::LOGIN_BUTTON_W  , GUI::LOGIN_BUTTON_H) ;
+    stream_button->setBounds(stream_x  , login_y , GUI::STREAM_BUTTON_W , GUI::LOGIN_BUTTON_H) ;
+    clients_label->setBounds(clients_x , login_y , clients_w            , GUI::LOGIN_BUTTON_H) ;
   }
+
+  // resize viewport containers to fit buttons
+  active_pane->setSize(getWidth() , GUI::LOGIN_BUTTON_T + (login_h * n_occupied)) ;
+  vacant_pane->setSize(getWidth() , GUI::LOGIN_BUTTON_T + (login_h * n_vacant  )) ;
+}
+
+void Login::AddLoginButton(TextButton* login_button  , HyperlinkButton* stream_button ,
+                           Label*      clients_label , bool             is_vacant     )
+{
+    // WIP: 2-column layout
+    Viewport*  scroll_view = (is_vacant) ? this->vacantView.get() : this->activeView.get() ;
+    Component* toolbox     = scroll_view->getViewedComponent() ;
+
+    toolbox->addAndMakeVisible(login_button ) ;
+    toolbox->addAndMakeVisible(stream_button) ;
+    toolbox->addAndMakeVisible(clients_label) ;
 }
 
 //[/MiscUserCode]
@@ -572,12 +599,29 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component, public TextEditor::Listener, public ValueTree::Listener"
                  constructorParams="ValueTree login_store, ValueTree servers_store"
                  variableInitialisers="loginStore(login_store), serversStore(servers_store)"
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 snapPixels="8" snapActive="0" snapShown="0" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="442">
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
+  <GROUPCOMPONENT name="activeGroup" id="23aa8a0b33d17718" memberName="activeGroup"
+                  virtualName="" explicitFocusOrder="0" pos="24 16 248M 152M" outlinecol="ff808080"
+                  textcol="ffffffff" title="Active Jam Rooms" textpos="36"/>
+  <VIEWPORT name="activeView" id="86f19de139bb5f3e" memberName="activeView"
+            virtualName="" explicitFocusOrder="0" pos="8 12 12M 18M" posRelativeX="23aa8a0b33d17718"
+            posRelativeY="23aa8a0b33d17718" posRelativeW="23aa8a0b33d17718"
+            posRelativeH="23aa8a0b33d17718" vscroll="1" hscroll="0" scrollbarThickness="8"
+            contentType="2" jucerFile="" contentClass="Background" constructorParams=""/>
+  <GROUPCOMPONENT name="vacantGroup" id="f047af8af9dee9df" memberName="vacantGroup"
+                  virtualName="" explicitFocusOrder="0" pos="24Rr 16 200 152M"
+                  outlinecol="ff808080" textcol="ffffffff" title="Vacant Jam Rooms"
+                  textpos="36"/>
+  <VIEWPORT name="vacantView" id="f671d4c2373d4fd" memberName="vacantView"
+            virtualName="" explicitFocusOrder="0" pos="8 12 12M 18M" posRelativeX="f047af8af9dee9df"
+            posRelativeY="f047af8af9dee9df" posRelativeW="f047af8af9dee9df"
+            posRelativeH="f047af8af9dee9df" vscroll="1" hscroll="0" scrollbarThickness="8"
+            contentType="2" jucerFile="" contentClass="Background" constructorParams=""/>
   <LABEL name="hostLabel" id="916aefc37fc4e730" memberName="hostLabel"
          virtualName="" explicitFocusOrder="0" pos="-190C 112R 72 24"
          textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="Server:"
@@ -622,9 +666,6 @@ BEGIN_JUCER_METADATA
                 virtualName="" explicitFocusOrder="5" pos="85C 48R 96 24" txtcol="ffffffff"
                 buttonText="anonymous" connectedEdges="0" needsCallback="1" radioGroupId="0"
                 state="1"/>
-  <GROUPCOMPONENT name="new group" id="23aa8a0b33d17718" memberName="groupComponent"
-                  virtualName="" explicitFocusOrder="0" pos="24 16 48M 152M" outlinecol="ff808080"
-                  textcol="ffffffff" title="Jam Rooms" textpos="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

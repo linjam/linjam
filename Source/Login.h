@@ -70,6 +70,8 @@ public:
   void setTextErrorState(TextEditor* a_text_editor , bool is_error_state) ;
   void updateClients    (ValueTree clients_store) ;
   void layoutLoginBtns  () ;
+  void AddLoginButton   (TextButton* login_button  , HyperlinkButton* stream_button ,
+                         Label*      clients_label , bool             is_vacant     ) ;
 
     //[/UserMethods]
 
@@ -91,6 +93,10 @@ private:
     //[/UserVariables]
 
     //==============================================================================
+    std::unique_ptr<juce::GroupComponent> activeGroup;
+    std::unique_ptr<juce::Viewport> activeView;
+    std::unique_ptr<juce::GroupComponent> vacantGroup;
+    std::unique_ptr<juce::Viewport> vacantView;
     std::unique_ptr<juce::Label> hostLabel;
     std::unique_ptr<juce::Label> loginLabel;
     std::unique_ptr<juce::Label> passLabel;
@@ -100,7 +106,6 @@ private:
     std::unique_ptr<juce::TextButton> loginButton;
     std::unique_ptr<juce::TextButton> serverButton;
     std::unique_ptr<juce::ToggleButton> anonButton;
-    std::unique_ptr<juce::GroupComponent> groupComponent;
 
 
     //==============================================================================
