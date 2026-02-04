@@ -54,16 +54,17 @@ public:
   static int DbgPrevStatus ;
 
 
-  static void TraceEvent   (String msg) ;
-  static void TraceConfig  (String msg) ;
-  static void TraceConfigVb(String msg) ;
-  static void TraceClient  (String msg) ;
-  static void TraceGui     (String msg) ;
-  static void TraceGuiVb   (String msg) ;
-  static void TraceState   (String msg) ;
-  static void TraceNetwork (String msg) ;
-  static void TraceError   (String msg) ;
-  static void TraceServer  (String msg) ;
+  static void TraceEvent    (String msg) ;
+  static void TraceConfig   (String msg) ;
+  static void TraceConfigVb (String msg) ;
+  static void TraceClient   (String msg) ;
+  static void TraceGui      (String msg) ;
+  static void TraceGuiVb    (String msg) ;
+  static void TraceState    (String msg) ;
+  static void TraceNetwork  (String msg) ;
+  static void TraceNetworkVb(String msg) ;
+  static void TraceError    (String msg) ;
+  static void TraceServer   (String msg) ;
 
   static void   DumpStoreXml      (ValueTree store) ;
   static void   TraceKVP          (String indent , String a_key , String a_value) ;
