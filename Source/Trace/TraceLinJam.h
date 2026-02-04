@@ -365,23 +365,24 @@
   if (chat_user.compare(str(Config->server[CONFIG::LOGIN_ID])))                    \
     Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
 
-#define DEBUG_TRACE_CHAT_OUT                                                    \
-  if ((chat_text = chat_text.trim()).isNotEmpty())                              \
-    Trace::TraceEvent("outgoing chat: " + ((chat_text[0] == '/')?               \
-                      chat_text.upToFirstOccurrenceOf(" " , false , false) :    \
+#define DEBUG_TRACE_CHAT_OUT                                                 \
+  if ((chat_text = chat_text.trim()).isNotEmpty())                           \
+    Trace::TraceEvent("outgoing chat: " + ((chat_text[0] == '/')?            \
+                      chat_text.upToFirstOccurrenceOf(" " , false , false) : \
                       CLIENT::CHATMSG_TYPE_MSG)) ;
 
 /* rooms */
 
-#define DEBUG_UPDATE_ROOMS_RESP ;// Trace::TraceNetworkVb("LinJam::UpdateRooms() resp=" + response) ;
-// e.g. response:
+// DEBUG_UPDATE_ROOMS_RESP e.g. response:
 //   ninbot.com:2049,nick1,nick2,nick3,
 //   ninjamer.com:2049,nick1,
-//   user,THIS_NICK,999,0,false
+//   user,THIS_NICK,999,0,false // <-- WTF? lost upstream producer code
+// #define DEBUG_UPDATE_ROOMS_RESP Trace::TraceNetworkVb("LinJam::UpdateRooms() resp=" + resp.dropLastCharacters(resp.length() - 32)) ;
+#define DEBUG_UPDATE_ROOMS_RESP Trace::TraceNetworkVb("jams=" + (jams.size() > 0 ? "\n\t" + jams.joinIntoString("\n\t") : "none")) ;
 
-#define DEBUG_UPDATE_ROOMS_USERDATA ;//Trace::TraceCofigVb("LinJam::UpdateRooms() Status=" + String(int(Status.getValue())) + " is_ready=" + String(Status == APP::NJC_STATUS_OK) + " n_rooms=" + String(rooms.size()) + " userdata=" + userdata) ;
+#define DEBUG_UPDATE_ROOMS_USERDATA Trace::TraceConfigVb("LinJam::UpdateRooms() Status=" + String(int(Status.getValue())) + " is_ready=" + String(Status == APP::NJC_STATUS_OK) + " n_jams=" + String(jams.size()) + " userdata=" + userdata) ;
 
-#define DEBUG_UPDATE_ROOMS_ROOMDATA ;//Trace::TraceCofigVb("LinJam::UpdateRooms() roomdata=" + rooms[room_n]) ;
+#define DEBUG_UPDATE_ROOMS_ROOMDATA Trace::TraceConfigVb("LinJam::UpdateRooms() jamdata=" + jams[jam_n]) ;
 
 #else // DEBUG
 

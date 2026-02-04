@@ -345,7 +345,7 @@ public:
   // timers
   static const int CLIENT_TIMER_ID     = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
   static const int AUDIO_INIT_TIMER_ID = 1 ; static const int AUDIO_INIT_DELAY  = 250 ;
-  static const int GUI_LO_TIMER_ID     = 2 ; static const int GUI_LO_UPDATE_IVL = 10000 ;
+  static const int GUI_LO_TIMER_ID     = 2 ; static const int GUI_LO_UPDATE_IVL = 60000 ;
   static const int GUI_MD_TIMER_ID     = 3 ; static const int GUI_MD_UPDATE_IVL = 2000 ;
   static const int GUI_HI_TIMER_ID     = 4 ; static const Array<int> GUI_HI_UPDATE_IVLS ;
 
@@ -354,9 +354,10 @@ public:
   static void Initialize() ;
 
   // helpers
-  static StringArray ParseLines(String       a_string) ;
-  static StringArray ParseCSV  (String       a_string) ;
-  static String      Pluck     (StringArray* a_stringarray , int idx) ;
+  static StringArray ParseServerlist(String      html) ;
+  static StringArray ParseLines     (String       a_string) ;
+  static StringArray ParseCSV       (String       a_string) ;
+  static String      Pluck          (StringArray* a_stringarray , int idx) ;
 } ;
 
 
@@ -600,6 +601,16 @@ namespace CONFIG
   static const Identifier SERVERS_ID       = SERVERS_KEY ;
   static const String     HOST_KEY         = "host" ;
   static const Identifier HOST_ID          = HOST_KEY ;
+  static const String     TOPIC_KEY        = "topic" ;
+  static const Identifier TOPIC_ID         = TOPIC_KEY ;
+  static const String     N_SLOTS_KEY      = "n-slots" ;
+  static const Identifier N_SLOTS_ID       = N_SLOTS_KEY ;
+  static const String     N_USERS_KEY      = "n-users" ;
+  static const Identifier N_USERS_ID       = N_USERS_KEY ;
+  static const String     BPI_KEY          = "bpi" ;
+  static const Identifier BPI_ID           = BPI_KEY ;
+  static const String     BPM_KEY          = "bpm" ;
+  static const Identifier BPM_ID           = BPM_KEY ;
   static const String     LOGIN_KEY        = "login" ;
   static const Identifier LOGIN_ID         = LOGIN_KEY ;
   static const String     PASS_KEY         = "pass" ;

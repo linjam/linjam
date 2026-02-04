@@ -590,33 +590,46 @@ ValueTree LinJamConfig::getCredentials(String host)
   return server_copy ;
 }
 
+// copy per-server stats and credentials to persistent storage
 void LinJamConfig::storeServer()
 {
-  // copy volatile login state to persistent storage
   String    host         = str( this->server[CONFIG::HOST_ID        ]) ;
+  String    topic        = str( this->server[CONFIG::TOPIC_ID       ]) ;
+  String    n_slots      = str( this->server[CONFIG::N_SLOTS_ID     ]) ;
+  String    n_users      = str( this->server[CONFIG::N_USERS_ID     ]) ;
+  String    bpi          = str( this->server[CONFIG::BPI_ID         ]) ;
+  String    bpm          = str( this->server[CONFIG::BPM_ID         ]) ;
   String    login        = str( this->server[CONFIG::LOGIN_ID       ]) ;
   String    pass         = str( this->server[CONFIG::PASS_ID        ]) ;
   bool      is_anonymous = bool(this->server[CONFIG::IS_ANONYMOUS_ID]) ;
   bool      should_agree = bool(this->server[CONFIG::SHOULD_AGREE_ID]) ;
   ValueTree server       = getServer(host) ;
 
+DEBUG_TRACE_STORE_SERVER
+
   // create new server entry
   if (!server.isValid())
   {
-DEBUG_TRACE_STORE_SERVER
-
     server = ValueTree(MakeHostId(host)) ;
     this->servers.addChild(server , -1 , nullptr) ;
   }
-  // create clients list
-  server.getOrCreateChildWithName(CONFIG::CLIENTS_ID , nullptr) ;
 
-  // set per server credentials
+  // set per-server stats
   server.setProperty(CONFIG::HOST_ID         , host         , nullptr)
-        .setProperty(CONFIG::LOGIN_ID        , login        , nullptr)
+        .setProperty(CONFIG::TOPIC_ID        , topic        , nullptr)
+        .setProperty(CONFIG::N_SLOTS_ID      , n_slots      , nullptr)
+        .setProperty(CONFIG::N_USERS_ID      , n_users      , nullptr)
+        .setProperty(CONFIG::BPI_ID          , bpi          , nullptr)
+        .setProperty(CONFIG::BPM_ID          , bpm          , nullptr) ;
+
+  // set per-server credentials
+  server.setProperty(CONFIG::LOGIN_ID        , login        , nullptr)
         .setProperty(CONFIG::PASS_ID         , pass         , nullptr)
         .setProperty(CONFIG::IS_ANONYMOUS_ID , is_anonymous , nullptr)
         .setProperty(CONFIG::SHOULD_AGREE_ID , should_agree , nullptr) ;
+
+  // create clients list
+  server.getOrCreateChildWithName(CONFIG::CLIENTS_ID , nullptr) ;
 }
 
 ValueTree LinJamConfig::getServer(String host)

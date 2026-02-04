@@ -1,6 +1,7 @@
 
 #include "Constants.h"
 #include "LinJamConfig.h"
+#include "Trace/Trace.h"
 
 
 // timers
@@ -52,7 +53,8 @@ ValueTree        NETWORK::KNOWN_BOTS ;     // APP::Initialize()
 // const String NETWORK::VERSION_URL = WEBSITE_URL + "/version.txt" ;      // WIP: new stats
 // const String NETWORK::CLIENTS_URL = WEBSITE_URL + "/clients.text" ;     // WIP: new stats
 // const URL    NETWORK::POLL_URL    = URL(CLIENTS_URL) ;                  // WIP: new stats
-const URL    NETWORK::POLL_URL    = URL("http://192.168.254.1/jammers.csv") ; // WIP: new stats
+// const URL    NETWORK::POLL_URL    = URL("http://192.168.254.1/jammers.csv") ; // WIP: new stats
+const URL    NETWORK::POLL_URL    = URL("http://autosong.ninjam.com/server-list.php") ; // WIP: new stats
 // outbound control messages
 const String NETWORK::LOGIN_KEY   = "login" ;
 const String NETWORK::HOST_KEY    = "server" ;
@@ -76,6 +78,77 @@ void APP::Initialize()
 
 
 /* helpers */
+
+StringArray APP::ParseServerlist(String html)
+{
+  StringArray lines = APP::ParseLines(html) ;
+  int         line_n ;
+  String      line ;
+  StringArray jams ;
+  String      host ;
+  String      stats ;
+  String      topic ;
+  String      bpi ;
+  String      bpm ;
+  String      n_users ;
+  String      n_slots ;
+  String      login ;
+  String      host_id  ;
+  bool        is_bot ;
+  int         jam_n ;
+  String      jam_csv ;
+
+  for (line_n = 0 ; line_n < lines.size() ; ++line_n)
+  {
+    line = lines[line_n] ;
+
+    // parse channel stats
+    if (line.contains("<ul>"))
+    {
+      if (line.startsWith("</ul>"))
+        line  = line   .fromFirstOccurrenceOf("</ul>" , false , false) ;
+      host    = line   .upToFirstOccurrenceOf(" <"    , false , false) ;
+      stats   = line   .fromFirstOccurrenceOf("<ul>"  , false , false)
+                       .upToFirstOccurrenceOf("<UL>"  , false , false) ;
+      topic   = stats  .upToFirstOccurrenceOf("<BR>"  , false , false) ;
+      bpm     = stats  .fromFirstOccurrenceOf("<BR>"  , false , false)
+                       .upToFirstOccurrenceOf(" BPM/" , false , false) ;
+      bpi     = stats  .fromFirstOccurrenceOf(" BPM/" , false , false)
+                       .upToFirstOccurrenceOf("<BR>"  , false , false) ;
+      n_users = stats  .fromLastOccurrenceOf ("<BR>"  , false , false)
+                       .upToFirstOccurrenceOf(" "     , false , false) ;
+      n_slots = n_users.fromFirstOccurrenceOf("/"     , false , false) ;
+      n_users = n_users.upToFirstOccurrenceOf("/"     , false , false) ;
+      jam_csv = StringArray(host , topic , n_slots , n_users , bpi , bpm).joinIntoString(",") ;
+
+      if (! topic.startsWith("Server down:")) jams.add(jam_csv) ; // hide offline servers
+
+      Trace::TraceNetworkVb("collecting jammers at: " + host) ;
+    }
+
+    // parse channel users
+    else if (! line.contains("<UL>") && ! line.contains("</UL>"))
+    {
+      if (host.isEmpty()                 ) continue ;
+      if (line.contains(">Last updated ")) break ;
+
+      login   = line.upToFirstOccurrenceOf("<" , false , false) ;
+      host_id = Id2Str(LinJamConfig::MakeHostId(host)) ;
+      is_bot  = NETWORK::IsKnownBot(host_id , login) ;
+
+      if (! is_bot)
+      {
+        jam_n   = jams.size() - 1 ;
+        jam_csv = jams[jam_n] + "," + login ;
+        jams.set(jam_n , jam_csv) ;
+      }
+
+      Trace::TraceNetworkVb("\tjammer: " + login + (is_bot ? " (known bot)" : "")) ;
+    }
+  }
+
+  return jams ;
+}
 
 StringArray APP::ParseLines(String a_string)
 {

@@ -22,14 +22,14 @@ void Trace::TraceGuiVb   (String msg) { if (DEBUG_TRACE_GUI_VB   ) DBG("[GUI]:  
 #ifndef DEBUG_ANSI_COLORS
 void Trace::TraceState   (String msg) { if (DEBUG_TRACE_STATE    ) DBG("[STATE]:   " + msg) ; }
 void Trace::TraceError   (String msg) { if (DEBUG_TRACE_STATE    ) DBG("[ERROR]:   " + msg) ; }
-// void Trace::TraceNetwork(String msg) { if (DEBUG_TRACE_EVENTS) DBG("[NETWORK]: " + msg) ; }
+void Trace::TraceNetwork (String msg) { if (DEBUG_TRACE_NETWORK  ) DBG("[NETWORK]: " + msg) ; }
 #else // DEBUG_ANSI_COLORS
 void Trace::TraceState   (String msg)
-  { if (DEBUG_TRACE_STATE)  DBG("\033[1;33m[STATE]:   " + msg + "\033[0m") ; }
+  { if (DEBUG_TRACE_STATE  ) DBG("\033[1;33m[STATE]:   " + msg + "\033[0m") ; }
 void Trace::TraceError   (String msg)
-  { if (DEBUG_TRACE_STATE)  DBG("\033[0;31m[ERROR]:   " + msg + "\033[0m") ; }
-// void Trace::TraceNetwork(String msg)
-//   { if (DEBUG_TRACE_EVENTS) DBG("\033[0;32m[NETWORK]: " + msg + "\033[0m") ; }
+  { if (DEBUG_TRACE_STATE  ) DBG("\033[0;31m[ERROR]:   " + msg + "\033[0m") ; }
+void Trace::TraceNetwork(String msg)
+  { if (DEBUG_TRACE_NETWORK) DBG("\033[0;32m[NETWORK]: " + msg + "\033[0m") ; }
 #endif // DEBUG_ANSI_COLORS
 void Trace::DumpStoreXml(ValueTree store)
 {

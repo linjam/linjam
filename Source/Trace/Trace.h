@@ -24,6 +24,7 @@
 #define DEBUG_TRACE              (DEBUG              &&              1)
 #define DEBUG_TRACE_EVENTS       (DEBUG_TRACE        &&              1)
 #define DEBUG_TRACE_STATE        (DEBUG_TRACE        &&              1)
+#define DEBUG_TRACE_NETWORK      (DEBUG_TRACE        &&              0)
 #define DEBUG_TRACE_VB           (DEBUG_TRACE        &&              0)
 #define DEBUG_TRACE_CONFIG       (DEBUG_TRACE_STATE                   )
 #define DEBUG_TRACE_CONFIG_VB    (DEBUG_TRACE_CONFIG && DEBUG_TRACE_VB)
@@ -59,7 +60,7 @@ public:
   static void TraceGui     (String msg) ;
   static void TraceGuiVb   (String msg) ;
   static void TraceState   (String msg) ;
-//   static void TraceNetwork(String msg) ;
+  static void TraceNetwork (String msg) ;
   static void TraceError   (String msg) ;
   static void TraceServer  (String msg) ;
 

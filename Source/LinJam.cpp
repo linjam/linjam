@@ -1070,32 +1070,52 @@ void LinJam::UpdateRooms()
 
   SetPollUrl() ; // TODO: should be done elsewhere on some state changes
 
-  String      response     = PollUrl.readEntireTextStream() ;
-  StringArray rooms        = APP::ParseLines(response) ;
-  int         userdata_idx = (Status == APP::NJC_STATUS_OK) ? rooms.size() - 1 : -1 ;
-  String      userdata     = APP::Pluck(&rooms , userdata_idx) ;
+  String      html = PollUrl.readEntireTextStream() ;
+  StringArray jams = APP::ParseServerlist(html) ; jams.sort(true) ;
+
+  // int         userdata_idx = (Status == APP::NJC_STATUS_OK) ? rooms.size() - 1 : -1 ;
+  // String      userdata     = APP::Pluck(&rooms , userdata_idx) ;
 
 DEBUG_UPDATE_ROOMS_RESP
-DEBUG_UPDATE_ROOMS_USERDATA
+// DEBUG_UPDATE_ROOMS_USERDATA
 
   for (int room_n = 0 ; room_n < rooms.size() ; ++room_n)
   {
-    StringArray nicks   = APP::ParseCSV(rooms[room_n]) ;
-    String      host    = APP::Pluck(&nicks , 0) ;
-    ValueTree   clients = ValueTree(CONFIG::CLIENTS_ID) ;
-    nicks.trim() ; nicks.removeEmptyStrings() ;
+    StringArray jam_data      = APP::ParseCSV(jams[jam_n]) ;
+    String      host          = APP::Pluck(&jam_data , 0) ;
+    String      topic         = APP::Pluck(&jam_data , 0) ; // unused
+    String      n_slots       = APP::Pluck(&jam_data , 0) ;
+    String      n_users       = APP::Pluck(&jam_data , 0) ; // unused
+    String      bpi           = APP::Pluck(&jam_data , 0) ;
+    String      bpm           = APP::Pluck(&jam_data , 0) ;
+    ValueTree   server_store  = Config->getServer(host) ;
+    ValueTree   clients_store = server_store.getChildWithName(CONFIG::CLIENTS_ID) ;
+    ValueTree   clients       = ValueTree(CONFIG::CLIENTS_ID) ;
+    jam_data.trim() ; jam_data.removeEmptyStrings() ;
+
+    // cache transient room stats
+    if (server_store.isValid())
+    {
+      server_store.setProperty(CONFIG::TOPIC_ID   , var(topic  ) , nullptr) ;
+      server_store.setProperty(CONFIG::N_SLOTS_ID , var(n_slots) , nullptr) ;
+      server_store.setProperty(CONFIG::N_USERS_ID , var(n_users) , nullptr) ;
+      server_store.setProperty(CONFIG::BPI_ID     , var(bpi    ) , nullptr) ;
+      server_store.setProperty(CONFIG::BPM_ID     , var(bpm    ) , nullptr) ;
+    }
+    else Trace::TraceError("unknown server: '" + host + "' parsing server-list.php " +
+                           "- add it to NETWORK::KNOWN_HOSTS"                        ) ;
+         // TODO: dont warn, just add it now?
 
 DEBUG_UPDATE_ROOMS_ROOMDATA
 
-    while (nicks.size() > 0)
+    while (jam_data.size() > 0)
     {
-      String    nick       = APP::Pluck(&nicks , 0) ;
-      ValueTree nick_store = ValueTree(Config->MakeUserId(nick)) ;
-      nick_store.setProperty(CONFIG::LOGIN_ID , var(nick) , nullptr) ;
+      Identifier nick       = Config->MakeUserId(APP::Pluck(&jam_data , 0)) ;
+      ValueTree  nick_store = ValueTree(nick) ;
+
+      nick_store.setProperty(CONFIG::LOGIN_ID , var(Id2Str(nick)) , nullptr) ;
       clients.addChild(nick_store , -1 , nullptr) ;
     }
-
-    ValueTree clients_store = Config->getServer(host).getChildWithName(CONFIG::CLIENTS_ID) ;
 
     for (int client_n = 0 ; client_n < clients_store.getNumChildren() ; ++client_n)
     {

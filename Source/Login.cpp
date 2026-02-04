@@ -507,9 +507,24 @@ void Login::updateClients(ValueTree clients_store)
 
   for (int host_n = 0 ; host_n < this->serversStore.getNumChildren() ; ++host_n)
   {
-    TextButton* server_button = this->serverButtons.getUnchecked(host_n) ;
+    ValueTree   server_store  = this->serversStore .getChild(host_n) ;
+    TextButton* login_button  = this->serverButtons.getUnchecked(host_n) ;
     Label*      clients_label = this->clientsLabels.getUnchecked(host_n) ;
+    String      known_host    = login_button->getButtonText() ;
+    // String      slots_msg ;
+    // String      bpibpm_msg ;
+
+    // find these clients' server
     if (clients_label->getName() != host + "Label") continue ;
+
+    // WIP: display server stats
+    // clients = StringArray( str(server_store[CONFIG::TOPIC_ID   ]) ,
+    clients.add( ( str(server_store[CONFIG::N_USERS_ID ]) + "/"       +
+                   str(server_store[CONFIG::N_SLOTS_ID ]) + " Slots"  ).paddedLeft(' ' , 11) ) ;
+    clients.add( " | " ) ;
+    clients.add( ( str(server_store[CONFIG::BPI_ID     ]) + " BPI @ " +
+                   str(server_store[CONFIG::BPM_ID     ]) + " BPM"    ).paddedLeft(' ' , 16) ) ;
+    clients.add( " | " ) ;
 
     int n_clients = clients_store.getNumChildren() ;
     if (n_clients == 0) clients.add(GUI::ROOM_VACANT_TOOLTIP) ;
@@ -520,7 +535,8 @@ void Login::updateClients(ValueTree clients_store)
       clients.add(LinJamConfig::UserIdDisplay(login)) ;
     }
 
-    server_button->setTooltip(GUI::LOGIN_BUTTON_TOOLTIP + "\n\t" + clients.joinIntoString("\n\t")) ;
+    // login_button ->setButtonText(known_host + "\n" + clients.joinIntoString("\n")) ;
+    login_button ->setTooltip(GUI::LOGIN_BUTTON_TOOLTIP + "\n\t" + clients.joinIntoString("\n\t")) ;
     clients_label->setText   (clients.joinIntoString(" ") , juce::dontSendNotification) ;
   }
 
