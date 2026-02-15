@@ -31,8 +31,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-Chat::Chat (Value font_size)
-    : fontSize(font_size)
+Chat::Chat (Value font_size, Value linjam_status)
+    : fontSize(font_size) , linjamStatus(linjam_status)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -131,6 +131,7 @@ Chat::Chat (Value font_size)
 
   // local event handlers
   this->fontSize      .addListener(this) ;
+  this->linjamStatus  .addListener(this) ;
   this->chatEntryText->addListener(this) ;
 
     //[/Constructor]
@@ -385,7 +386,11 @@ void Chat::addChatLine(String chat_user , String chat_text)
 
 void Chat::valueChanged(Value& a_value)
 {
-  if (a_value.refersToSameSourceAs(this->fontSize)) setFontSize() ;
+  if      (a_value.refersToSameSourceAs(this->fontSize    )) setFontSize() ;
+  else if (a_value.refersToSameSourceAs(this->linjamStatus))
+  {
+    if (this->linjamStatus == APP::NJC_STATUS_PRECONNECT) this->chatText->clear() ;
+  }
 }
 
 void Chat::textEditorReturnKeyPressed(TextEditor& a_text_editor)
