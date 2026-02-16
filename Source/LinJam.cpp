@@ -276,7 +276,7 @@ DEBUG_TRACE_INIT
   // start NJClient pump and GUI update timers
   Timer->startTimer(APP::CLIENT_TIMER_ID , APP::CLIENT_DRIVER_IVL) ;
   Timer->startTimer(APP::GUI_LO_TIMER_ID , APP::GUI_LO_UPDATE_IVL) ;
-//Timer->startTimer(APP::GUI_MD_TIMER_ID , APP::GUI_MD_UPDATE_IVL) ; // unused
+  Timer->startTimer(APP::GUI_MD_TIMER_ID , APP::GUI_MD_UPDATE_IVL) ;
   Timer->startTimer(APP::GUI_HI_TIMER_ID , APP::GUI_LO_UPDATE_IVL) ;
   ConfigureGui(CONFIG::UPDATE_IVL_ID) ;
 
@@ -684,7 +684,15 @@ DEBUG_TRACE_CHAT_IN
   {
     if (chat_text.isEmpty()) return ;
 
-    if      (chat_user.isEmpty()) chat_user = GUI::SERVER_NICK ;
+    if (chat_user.isEmpty())
+    {
+      chat_user      = GUI::SERVER_NICK ;
+      int bpi_or_bpm = chat_text.fromLastOccurrenceOf(" " , false , false).getIntValue() ;
+
+      // handle BPI/BPM change
+      if      (chat_text.startsWith(CLIENT::CHATMSG_BPI)) Gui->chat->setBpi(bpi_or_bpm , true) ;
+      else if (chat_text.startsWith(CLIENT::CHATMSG_BPM)) Gui->chat->setBpm(bpi_or_bpm , true) ;
+    }
     else if (chat_text.startsWith(CLIENT::CHATMSG_CMD_VOTE))
     {
       // customize voting messages
@@ -746,13 +754,12 @@ DBG("[DEBUG]: DEBUG_EXIT_IMMEDIATELY defined - bailing") ; Quit() ;
 
   switch (timer_id)
   {
-    case APP::CLIENT_TIMER_ID:     PumpClient() ;                    break ;
-    case APP::GUI_LO_TIMER_ID:     UpdateGuiLowPriority() ;          break ;
-//  case APP::GUI_MD_TIMER_ID:     /* unused */                      break ;
-    case APP::GUI_HI_TIMER_ID:     UpdateGuiHighPriority() ;         break ;
-    case APP::AUDIO_INIT_TIMER_ID: Timer->stopTimer(timer_id) ;
-                                   if (! InitializeAudio()) Quit() ; break ;
-    default:                                                         break ;
+    case APP::CLIENT_TIMER_ID:     PumpClient() ;                 break ;
+    case APP::GUI_LO_TIMER_ID:     UpdateGuiLowPriority() ;       break ;
+    case APP::GUI_MD_TIMER_ID:     UpdateGuiMedPriority() ;       break ;
+    case APP::GUI_HI_TIMER_ID:     UpdateGuiHighPriority() ;      break ;
+    case APP::AUDIO_INIT_TIMER_ID: if (Audio == nullptr) Quit() ; break ;
+    default:                                                      break ;
   }
 }
 
@@ -937,7 +944,9 @@ DEBUG_TRACE_HANDLEUSERINFOCHANGED
 
 void LinJam::UpdateGuiHighPriority() { UpdateLoopProgress() ; UpdateVuMeters() ; }
 
-void LinJam::UpdateGuiLowPriority() { UpdateJams() ; UpdateRecordingTime() ; }
+void LinJam::UpdateGuiMedPriority() { UpdateBpiBpm() ; UpdateRecordingTime() ; }
+
+void LinJam::UpdateGuiLowPriority() { UpdateJams() ;  }
 
 void LinJam::UpdateLoopProgress()
 {
@@ -1174,22 +1183,42 @@ DEBUG_UPDATE_ROOMS_JAMDATA
   Config->servers.sort(*RoomSorter , nullptr , true) ;
 }
 
-void LinJam::UpdateRecordingTime()
+void LinJam::UpdateBpiBpm()
 {
-#ifdef NO_UPDATE_RECORDING_TIME_GUI
+  int  status         = int(Status.getValue()) ;
+  bool is_jam_mode    = status == APP::NJC_STATUS_OK ;
+  bool is_bpi_timeout = Gui->chat->voteBpiPending == 1 ;
+  bool is_bpm_timeout = Gui->chat->voteBpmPending == 1 ;
+
+  if (! is_jam_mode) return ;
+
+DEBUG_TRACE_UPDATEBPIBPM
+
+  // update BPI/BPM display - decrement or cancel vote time-out as necessary
+  if (Gui->chat->voteBpiPending >  0) --Gui->chat->voteBpiPending ;
+  if (Gui->chat->voteBpmPending >  0) --Gui->chat->voteBpmPending ;
+  if (Gui->chat->voteBpiPending == 0) Gui->chat->setBpi(GetBpi() , is_bpi_timeout) ;
+  if (Gui->chat->voteBpmPending == 0) Gui->chat->setBpm(GetBpm() , is_bpm_timeout) ;
+}
+
+void LinJam::UpdateRecordingTime()
+// void LinJam::UpdateSessionTime()
+{
+#ifdef NO_UPDATE_SESSION_TIME_GUI
   return ;
-#endif // NO_UPDATE_RECORDING_TIME_GUI
+#endif // NO_UPDATE_SESSION_TIME_GUI
 
   if (Status != APP::NJC_STATUS_OK) return ;
 
   // NOTE: parsing recording time is somewhat brittle - (issue #64)
   //       dependent on constants such as NETWORK::KNOWN_BOTS and CLIENT::BOT_CHANNELIDX
   //       though these values are more conventional than canonical
-  int    bot_useridx    = Config->server[CONFIG::BOT_USERIDX_ID] ;
-  String host           = String(Client->GetHostName()) ;
-  String bpi            = String(Client->GetBPI()) ;
-  String bpm            = String((int)Client->GetActualBPM()) ;
-  String recording_time = String() ;
+  int    bot_useridx = Config->server[CONFIG::BOT_USERIDX_ID] ;
+  String host        = String(Client->GetHostName()) ;
+  uint8  bpi         = Client->GetBPI() ;
+  uint8  bpm         = Client->GetActualBPM() ;
+  String title       = host + " - " + String(bpi) + "bpi / " + String(bpm) + "bpm" ;
+  String recording_time ;
 
   if (~bot_useridx)
   {
@@ -1515,6 +1544,10 @@ float LinJam::ClientPan(float pan , int stereo_status)
 
 
 /* NJClient config helpers */
+
+uint8 LinJam::GetBpi() { return String(Client->GetBPI()).getIntValue() ; }
+
+uint8 LinJam::GetBpm() { return String(Client->GetActualBPM()).getIntValue() ; }
 
 int LinJam::GetNumAudioSources()
 {

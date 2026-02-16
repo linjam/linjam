@@ -364,8 +364,9 @@ public:
   static const int CLIENT_TIMER_ID     = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
   static const int AUDIO_INIT_TIMER_ID = 1 ; static const int AUDIO_INIT_DELAY  = 250 ;
   static const int GUI_LO_TIMER_ID     = 2 ; static const int GUI_LO_UPDATE_IVL = 60000 ;
-  static const int GUI_MD_TIMER_ID     = 3 ; static const int GUI_MD_UPDATE_IVL = 2000 ;
+  static const int GUI_MD_TIMER_ID     = 3 ; static const int GUI_MD_UPDATE_IVL = 1000 ;
   static const int GUI_HI_TIMER_ID     = 4 ; static const Array<int> GUI_HI_UPDATE_IVLS ;
+  static const int VOTE_TIMEOUT        = 60 ; // ASSERT: Linjam::UpdateBpiBpm() expects this interval to be one second
 
 
   // runtime initialization of static constants
@@ -405,6 +406,8 @@ namespace CLIENT
   static const String    CHATMSG_CMD_BPI      = "/bpi " ;
   static const String    CHATMSG_CMD_ADMIN    = "/admin " ;
   static const StringRef CHATMSG_CMD_VOTE     = "!vote " ;
+  static const StringRef CHATMSG_BPI          = "[voting system] setting BPI to " ;
+  static const StringRef CHATMSG_BPM          = "[voting system] setting BPM to " ;
 
   // configuration
   static const String STEREO_L_POSTFIX       = "-L" ;
@@ -1017,9 +1020,8 @@ namespace GUI
   static const float  TOPIC_BORDER_PADW     = PAD4F ;
   static const float  TOPIC_BORDER_H        = TOPIC_H + PADF ;
   static const int    TOPIC_X               = TOPIC_BORDER_X + PAD ;
-  static const int    TOPIC_PADW            = TOPIC_X * 2 ;
-  static const int    TOPIC_PADH            = PAD / 2 ;
-  static const int    TOPIC_Y               = TOPIC_BORDER_Y + TOPIC_PADH ;
+  static const int    TOPIC_Y               = TOPIC_BORDER_Y + (PAD / 2) ;
+  static const int    VOTE_W                = 36 ;
   static const int    CHAT_X                = PAD2 ;
   static const int    CHAT_Y                = PAD2 ;
   static const int    CHAT_WITH_TOPIC_Y     = CHAT_Y + TOPIC_H + PAD2 ;

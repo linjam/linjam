@@ -68,6 +68,8 @@ public:
   static bool           IsAgreed() ;
   static SortedSet<int> GetFreeSources() ;
   static SortedSet<int> GetFreeSourcePairs() ;
+  static uint8          GetBpi() ;
+  static uint8          GetBpm() ;
 
   // GUI event handlers
   static bool AddLocalChannel(   ValueTree channel_store) ;
@@ -136,11 +138,14 @@ private:
   static void HandleStatusChanged() ;
   static void HandleUserInfoChanged() ;
   static void UpdateGuiHighPriority() ;
+  static void UpdateGuiMedPriority() ;
   static void UpdateGuiLowPriority() ;
   static void UpdateLoopProgress() ;
   static void UpdateVuMeters() ;
   static void UpdateJams() ;
+  static void UpdateBpiBpm() ;
   static void UpdateRecordingTime() ;
+  // static void UpdateSessionTime() ;
 
   // NJClient configuration
   static void ConfigureAudio() ;

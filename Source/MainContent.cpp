@@ -150,7 +150,7 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
                                         blacklist_store , linjam_status            )) ;
   this->lobby     .reset(new Lobby     (login_store     , servers_store            )) ;
   this->license   .reset(new License   (agreed_value    , agree_value              )) ;
-  this->chat      .reset(new Chat      (fontsize_value                             )) ;
+  this->chat      .reset(new Chat      (fontsize_value  , linjam_status            )) ;
   this->mixer     .reset(new Mixer     (blacklist_store                            )) ;
   this->statusbar .reset(new StatusBar (                                           )) ;
   this->loop      .reset(new Loop      (                                           )) ;
