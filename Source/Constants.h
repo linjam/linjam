@@ -1,6 +1,23 @@
-/* Constants.h
-   this file defines global configuration/persistence and runtime constants
-*/
+/*\
+|*|  Constants.h
+|*|  this file defines global configuration/persistence and runtime constants
+|*|
+|*|  Copyright 2014,2015,2020,2026 bill-auger <bill-auger@programmer.net>
+|*|
+|*|  This file is part of the LinJam program.
+|*|
+|*|  LinJam is free software: you can redistribute it and/or modify
+|*|  it under the terms of the GNU General Public License version 3
+|*|  as published by the Free Software Foundation.
+|*|
+|*|  LinJam is distributed in the hope that it will be useful,
+|*|  but WITHOUT ANY WARRANTY; without even the implied warranty of
+|*|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|*|  GNU General Public License for more details.
+|*|
+|*|  You should have received a copy of the GNU General Public License
+|*|  along with LinJam.  If not, see <http://www.gnu.org/licenses/>.
+\*/
 
 
 #pragma once
@@ -991,6 +1008,20 @@ namespace GUI
   // License
   static const String LICENSE_GUI_ID = "license-gui" ;
 
+  // Toolbox
+  static const String TOOLBOX_GUI_ID        = "toolbox-gui" ;
+  static const int    TOOLBOX_H             = 24 ; // ASSERT: jucer hard-coded
+  static const float  TOPIC_FONT_H          = 16.0f ;
+  static const int    TOPIC_H               = TOPIC_FONT_H ;
+  static const float  TOPIC_BORDER_X        = PAD2F ;
+  static const float  TOPIC_BORDER_Y        = PAD2F ;
+  static const float  TOPIC_BORDER_PADW     = PAD4F ;
+  static const float  TOPIC_BORDER_H        = TOPIC_H + PADF ;
+  static const int    TOPIC_X               = TOPIC_BORDER_X + PAD ;
+  static const int    TOPIC_Y               = TOPIC_BORDER_Y + (PAD / 2) ;
+  static const int    VOTE_W                = 36 ;
+  static const Colour TOPIC_TEXT_COLOR      = Colour(0xFF8080FF) ;
+
   // Chat
   static const String CHAT_GUI_ID           = "chat-gui" ;
   static const String SERVER_NICK           = "NINJAM" ;
@@ -1004,27 +1035,12 @@ namespace GUI
   static const String UNKNOWN_COMMAND_MSG   = "Error: unknown command" ;
   static const String INVALID_PM_MSG        = "Error: /msg requires a username and a message" ;
   static const String CHAT_PROMPT_TEXT      = "<type some chat here - then press ENTER key to send>" ;
-  static const Colour TOPIC_TEXT_COLOR      = Colour(0xFF8080FF) ;
-  static const Colour CHAT_TEXT_COLOR       = Colour(0xFF808080) ;
-  static const Colour CHAT_OUTLINE_COLOR    = Colour(0x00000000) ;
-  static const Colour CHAT_FOCUS_COLOR      = Colour(0x00000000) ;
-  static const Colour CHAT_SHADOW_COLOR     = Colour(0x00000000) ;
-  static const Colour CHAT_TEXT_BG_COLOR    = Colour(0x00000000) ;
+
   static const int    MIN_SHOW_TOPIC_CHAT_H = 200 ;
   static const float  CHAT_PANE_BORDER_X    = 0.0f ;
   static const float  CHAT_PANE_BORDER_Y    = 0.0f ;
-  static const float  TOPIC_FONT_H          = 16.0f ;
-  static const int    TOPIC_H               = TOPIC_FONT_H ;
-  static const float  TOPIC_BORDER_X        = PAD2F ;
-  static const float  TOPIC_BORDER_Y        = PAD2F ;
-  static const float  TOPIC_BORDER_PADW     = PAD4F ;
-  static const float  TOPIC_BORDER_H        = TOPIC_H + PADF ;
-  static const int    TOPIC_X               = TOPIC_BORDER_X + PAD ;
-  static const int    TOPIC_Y               = TOPIC_BORDER_Y + (PAD / 2) ;
-  static const int    VOTE_W                = 36 ;
   static const int    CHAT_X                = PAD2 ;
   static const int    CHAT_Y                = PAD2 ;
-  static const int    CHAT_WITH_TOPIC_Y     = CHAT_Y + TOPIC_H + PAD2 ;
   static const int    CHAT_PADH             = PAD3 ;
   static const int    CHAT_PADW             = CHAT_X * 2 ;
   static const float  CHAT_ENTRY_PADH       = PADF / 2.0 ;
@@ -1032,6 +1048,11 @@ namespace GUI
   static const float  CHAT_BORDER_X         = PADF ;
   static const float  CHAT_BORDER_Y         = PADF ;
   static const float  CHAT_BORDER_PADW      = CHAT_BORDER_X * 2.0 ;
+  static const Colour CHAT_TEXT_COLOR       = Colour(0xFF808080) ;
+  static const Colour CHAT_OUTLINE_COLOR    = Colour(0x00000000) ;
+  static const Colour CHAT_FOCUS_COLOR      = Colour(0x00000000) ;
+  static const Colour CHAT_SHADOW_COLOR     = Colour(0x00000000) ;
+  static const Colour CHAT_TEXT_BG_COLOR    = Colour(0x00000000) ;
 
   // Channel
   static const Identifier       MASTER_GUI_ID              = CONFIG::MASTER_ID ;
@@ -1095,8 +1116,6 @@ namespace GUI
   static const int    STATUSBAR_H            = 24 ;
   static const int    STATUS_W               = 160 ;
   static const int    STATUS_H               = 16 ;
-  static const int    STATUS_PAD_X           = 8 ;
-  static const int    STATUS_PAD_Y           = 2 ;
 
   // Loop
   static const String LOOP_GUI_ID = "loop-gui" ;

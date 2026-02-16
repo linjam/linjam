@@ -38,6 +38,7 @@ MainContent::~MainContent()
   this->config     = nullptr ;
   this->lobby      = nullptr ;
   this->license    = nullptr ;
+  this->toolbox    = nullptr ;
   this->chat       = nullptr ;
   this->mixer      = nullptr ;
   this->statusbar  = nullptr ;
@@ -53,11 +54,18 @@ void MainContent::paint(Graphics& g)
 
 void MainContent::resized()
 {
-  if ( this->modeButton == nullptr ||
-       this->background == nullptr || this->config  == nullptr ||
-       this->lobby      == nullptr || this->license == nullptr ||
-       this->chat       == nullptr || this->mixer   == nullptr ||
-       this->statusbar  == nullptr || this->loop    == nullptr  ) return ;
+  if ( /* global controls */
+       this->modeButton == nullptr ||
+
+       /* main screens */
+       this->background == nullptr || this->config    == nullptr ||
+       this->lobby      == nullptr || this->license   == nullptr ||
+
+       /* panels */
+       this->toolbox    == nullptr || this->chat      == nullptr ||
+       this->mixer      == nullptr || this->statusbar == nullptr ||
+       this->loop       == nullptr                                )
+    return ;
 
   // main window and content pane
   int window_w  = getWidth() ;
@@ -74,6 +82,9 @@ void MainContent::resized()
   int mode_btn_y = GUI::MODE_BTN_Y ;
   int mode_btn_w = GUI::MODE_BTN_W ;
   int mode_btn_h = GUI::MODE_BTN_H ;
+
+
+  /* main screens */
 
   // bg
   int bg_x = 0 ;
@@ -99,11 +110,20 @@ void MainContent::resized()
   int license_w = content_w ;
   int license_h = content_h ;
 
+
+  /* panels */
+
+  // toolbox
+  int toolbox_x = GUI::PAD ;
+  int toolbox_y = GUI::PAD ;
+  int toolbox_w = content_w ;
+  int toolbox_h = GUI::TOOLBOX_H ;
+
   // chat
   int chat_x = GUI::PAD ;
-  int chat_y = GUI::PAD ;
+  int chat_y = toolbox_y + toolbox_h + GUI::PAD ;
   int chat_w = content_w ;
-  int chat_h = content_h - GUI::MIXER_H - GUI::PAD ;
+  int chat_h = content_h - GUI::TOOLBOX_H - GUI::MIXER_H - GUI::PAD2 ;
 
   // mixer
   int mixer_x = GUI::PAD ;
@@ -128,6 +148,7 @@ void MainContent::resized()
   this->config    ->setBounds(config_x   , config_y   , config_w    , config_h  ) ;
   this->lobby     ->setBounds(lobby_x    , lobby_y    , lobby_w     , lobby_h   ) ;
   this->license   ->setBounds(license_x  , license_y  , license_w   , license_h ) ;
+  this->toolbox   ->setBounds(toolbox_x  , toolbox_y  , toolbox_w   , toolbox_h ) ;
   this->chat      ->setBounds(chat_x     , chat_y     , chat_w      , chat_h    ) ;
   this->mixer     ->setBounds(mixer_x    , mixer_y    , mixer_w     , mixer_h   ) ;
   this->statusbar ->setBounds(status_x   , status_y   , status_w    , status_h  ) ;
@@ -150,6 +171,7 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
                                         blacklist_store , linjam_status            )) ;
   this->lobby     .reset(new Lobby     (login_store     , servers_store            )) ;
   this->license   .reset(new License   (agreed_value    , agree_value              )) ;
+  this->toolbox   .reset(new Toolbox   (                                           )) ;
   this->chat      .reset(new Chat      (fontsize_value  , linjam_status            )) ;
   this->mixer     .reset(new Mixer     (blacklist_store                            )) ;
   this->statusbar .reset(new StatusBar (                                           )) ;
@@ -159,24 +181,15 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
   this->addChildAndSetID(this->config    .get() , GUI::CONFIG_GUI_ID    ) ;
   this->addChildAndSetID(this->lobby     .get() , GUI::LOBBY_GUI_ID     ) ;
   this->addChildAndSetID(this->license   .get() , GUI::LICENSE_GUI_ID   ) ;
+  this->addChildAndSetID(this->toolbox   .get() , GUI::TOOLBOX_GUI_ID   ) ;
   this->addChildAndSetID(this->chat      .get() , GUI::CHAT_GUI_ID      ) ;
   this->addChildAndSetID(this->mixer     .get() , GUI::MIXER_GUI_ID     ) ;
   this->addChildAndSetID(this->statusbar .get() , GUI::STATUS_GUI_ID    ) ;
   this->addChildAndSetID(this->loop      .get() , GUI::LOOP_GUI_ID      ) ;
 
-  this->background->toFront(true) ;
-  this->config    ->toBack() ;
-  this->lobby     ->toBack() ;
-  this->license   ->toBack() ;
-  this->chat      ->toBack() ;
-  this->mixer     ->toBack() ;
-  this->loop      ->toFront(false) ;
-
-  this->statusbar->setAlwaysOnTop(true) ;
-  this->loop     ->setAlwaysOnTop(true) ;
-
   this->statusbar->setStatusL(GUI::DISCONNECTED_TEXT) ;
 
+  // configure listeners
   this->linjamStatus.referTo(linjam_status) ;
   this->linjamStatus.addListener(this) ;
 

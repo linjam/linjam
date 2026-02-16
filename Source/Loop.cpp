@@ -1,21 +1,21 @@
-/*
-  ==============================================================================
+/*\
+|*|  Copyright 2014,2015,2020,2026 bill-auger <bill-auger@programmer.net>
+|*|
+|*|  This file is part of the LinJam program.
+|*|
+|*|  LinJam is free software: you can redistribute it and/or modify
+|*|  it under the terms of the GNU General Public License version 3
+|*|  as published by the Free Software Foundation.
+|*|
+|*|  LinJam is distributed in the hope that it will be useful,
+|*|  but WITHOUT ANY WARRANTY; without even the implied warranty of
+|*|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|*|  GNU General Public License for more details.
+|*|
+|*|  You should have received a copy of the GNU General Public License
+|*|  along with LinJam.  If not, see <http://www.gnu.org/licenses/>.
+\*/
 
-  This is an automatically generated GUI class created by the Introjucer!
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Created with Introjucer version: 3.1.0
-
-  ------------------------------------------------------------------------------
-
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
-
-  ==============================================================================
-*/
 
 //[Headers] You can add your own extra header files here...
 //[/Headers]
@@ -29,21 +29,29 @@
 //==============================================================================
 Loop::Loop ()
 {
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
+
     setName ("Loop");
-    addAndMakeVisible (progressBar = new ProgressBar (this->loopProgress = 0.0));
+    progressBar.reset (new ProgressBar (this->loopProgress , ProgressBar::Style::linear));
+    addAndMakeVisible (progressBar.get());
     progressBar->setName ("progressBar");
 
 
     //[UserPreSize]
 
-  progressBar->setColour(ProgressBar::backgroundColourId , Colour(0x00000000));
-
     //[/UserPreSize]
 
-    setSize (256, 16);
+    setSize (256, 24);
 
 
     //[Constructor] You can add your own custom stuff here..
+
+  this->progressBar->setColour(ProgressBar::foregroundColourId , Colour(0xFF8080FF)) ;
+  this->progressBar->setColour(ProgressBar::backgroundColourId , Colour(0x00000000)) ;
+
+  this->progressBar->setPercentageDisplay(false) ;
+
     //[/Constructor]
 }
 
@@ -60,7 +68,7 @@ Loop::~Loop()
 }
 
 //==============================================================================
-void Loop::paint (Graphics& g)
+void Loop::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
   UNUSED(g) ;
@@ -72,7 +80,10 @@ void Loop::paint (Graphics& g)
 
 void Loop::resized()
 {
-    progressBar->setBounds (0, 0, getWidth() - 0, getHeight() - 0);
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
+    progressBar->setBounds (0, 0, getWidth() - 0, 16);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -81,8 +92,14 @@ void Loop::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+/* Loop private instance methods */
+
 void Loop::updateBeatN(int beat_n)
 {
+  // NOTE: text is barely visible - setPercentageDisplay() disables text updates
+  //       but only until setTextToDisplay() is called
+  // return ;
+
   this->progressBar->setTextToDisplay(String(beat_n)) ;
 }
 
@@ -91,21 +108,21 @@ void Loop::updateBeatN(int beat_n)
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Loop" componentName="Loop"
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="256" initialHeight="16">
+                 snapPixels="8" snapActive="0" snapShown="0" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="256" initialHeight="24">
   <BACKGROUND backgroundColour="0"/>
   <GENERICCOMPONENT name="progressBar" id="de373a8913a42503" memberName="progressBar"
-                    virtualName="" explicitFocusOrder="0" pos="0 0 0M 0M" class="ProgressBar"
-                    params="this-&gt;loopProgress = 0.0"/>
+                    virtualName="" explicitFocusOrder="0" pos="0 0 0M 16" class="ProgressBar"
+                    params="this-&gt;loopProgress , ProgressBar::Style::linear"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -115,3 +132,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

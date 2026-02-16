@@ -23,6 +23,7 @@
 #include "Config.h"
 #include "Lobby.h"
 #include "License.h"
+#include "Toolbox.h"
 #include "Chat.h"
 #include "Mixer.h"
 #include "StatusBar.h"
@@ -51,6 +52,7 @@ private:
   UPTR<Config>     config ;
   UPTR<Lobby>      lobby ;
   UPTR<License>    license ;
+  UPTR<Toolbox>    toolbox ;
   UPTR<Chat>       chat ;
   UPTR<Mixer>      mixer ;
   UPTR<StatusBar>  statusbar ;

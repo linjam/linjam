@@ -29,28 +29,35 @@
 //==============================================================================
 StatusBar::StatusBar ()
 {
-    setName ("StatusBar");
-    addAndMakeVisible (statusLLabel = new Label ("statusLLabel",
-                                                 String()));
-    statusLLabel->setFont (Font (15.00f, Font::plain));
-    statusLLabel->setJustificationType (Justification::centredLeft);
-    statusLLabel->setEditable (false, false, false);
-    statusLLabel->setColour (Label::backgroundColourId, Colours::black);
-    statusLLabel->setColour (Label::textColourId, Colours::grey);
-    statusLLabel->setColour (Label::outlineColourId, Colours::white);
-    statusLLabel->setColour (TextEditor::textColourId, Colours::black);
-    statusLLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    //[Constructor_pre] You can add your own custom stuff here..
+    //[/Constructor_pre]
 
-    addAndMakeVisible (statusRLabel = new Label ("statusRLabel",
-                                                 String()));
-    statusRLabel->setFont (Font (15.00f, Font::plain));
-    statusRLabel->setJustificationType (Justification::centredRight);
+    setName ("StatusBar");
+    statusLLabel.reset (new juce::Label ("statusLLabel",
+                                         juce::String()));
+    addAndMakeVisible (statusLLabel.get());
+    statusLLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    statusLLabel->setJustificationType (juce::Justification::centredLeft);
+    statusLLabel->setEditable (false, false, false);
+    statusLLabel->setColour (juce::Label::backgroundColourId, juce::Colours::black);
+    statusLLabel->setColour (juce::Label::textColourId, juce::Colours::grey);
+    statusLLabel->setColour (juce::Label::outlineColourId, juce::Colours::white);
+    statusLLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    statusLLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
+    statusLLabel->setBounds (0, 0, 160, 24);
+
+    statusRLabel.reset (new juce::Label ("statusRLabel",
+                                         juce::String()));
+    addAndMakeVisible (statusRLabel.get());
+    statusRLabel->setFont (juce::Font (15.00f, juce::Font::plain).withTypefaceStyle ("Regular"));
+    statusRLabel->setJustificationType (juce::Justification::centredRight);
     statusRLabel->setEditable (false, false, false);
-    statusRLabel->setColour (Label::backgroundColourId, Colours::black);
-    statusRLabel->setColour (Label::textColourId, Colours::grey);
-    statusRLabel->setColour (Label::outlineColourId, Colours::white);
-    statusRLabel->setColour (TextEditor::textColourId, Colours::black);
-    statusRLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
+    statusRLabel->setColour (juce::Label::backgroundColourId, juce::Colours::black);
+    statusRLabel->setColour (juce::Label::textColourId, juce::Colours::grey);
+    statusRLabel->setColour (juce::Label::outlineColourId, juce::Colours::white);
+    statusRLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    statusRLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
 
 
     //[UserPreSize]
@@ -81,22 +88,23 @@ StatusBar::~StatusBar()
 }
 
 //==============================================================================
-void StatusBar::paint (Graphics& g)
+void StatusBar::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.setColour (Colour (0xff101010));
-    g.fillRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f);
+    {
+        int x = 164, y = 0, width = getWidth() - 328, height = 24;
+        juce::Colour fillColour = juce::Colours::black;
+        juce::Colour strokeColour = juce::Colours::white;
+        //[UserPaintCustomArguments] Customize the painting arguments here..
+        //[/UserPaintCustomArguments]
+        g.setColour (fillColour);
+        g.fillRect (x, y, width, height);
+        g.setColour (strokeColour);
+        g.drawRect (x, y, width, height, 1);
 
-    g.setColour (Colours::white);
-    g.drawRoundedRectangle (0.0f, 0.0f, static_cast<float> (getWidth() - 0), static_cast<float> (getHeight() - 0), 10.000f, 1.000f);
-
-    g.setColour (Colours::black);
-    g.fillRect (168, 4, getWidth() - 336, 16);
-
-    g.setColour (Colours::white);
-    g.drawRect (168, 4, getWidth() - 336, 16, 1);
+    }
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
@@ -104,8 +112,10 @@ void StatusBar::paint (Graphics& g)
 
 void StatusBar::resized()
 {
-    statusLLabel->setBounds (4, 4, 160, 16);
-    statusRLabel->setBounds (getWidth() - 164, 4, 160, 16);
+    //[UserPreResize] Add your own custom resize code here..
+    //[/UserPreResize]
+
+    statusRLabel->setBounds (getWidth() - 160, 0, 160, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -125,35 +135,33 @@ void StatusBar::setStatusR(String statusText)
 
 //==============================================================================
 #if 0
-/*  -- Introjucer information section --
+/*  -- Projucer information section --
 
-    This is where the Introjucer stores the metadata that describe this GUI layout, so
+    This is where the Projucer stores the metadata that describe this GUI layout, so
     make changes in here at your peril!
 
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="StatusBar" componentName="StatusBar"
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="622" initialHeight="24">
+                 snapPixels="8" snapActive="0" snapShown="0" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="782" initialHeight="32">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10" fill="solid: ff101010" hasStroke="1"
-               stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
-    <RECT pos="168 4 336M 16" fill="solid: ff000000" hasStroke="1" stroke="1, mitered, butt"
+    <RECT pos="164 0 328M 24" fill="solid: ff000000" hasStroke="1" stroke="1, mitered, butt"
           strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <LABEL name="statusLLabel" id="2b89e84fd708c8e0" memberName="statusLLabel"
-         virtualName="" explicitFocusOrder="0" pos="4 4 160 16" bkgCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="0 0 160 24" bkgCol="ff000000"
          textCol="ff808080" outlineCol="ffffffff" edTextCol="ff000000"
          edBkgCol="0" labelText="" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="33"/>
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="33"/>
   <LABEL name="statusRLabel" id="d9ab2c99c74ba401" memberName="statusRLabel"
-         virtualName="" explicitFocusOrder="0" pos="164R 4 160 16" bkgCol="ff000000"
+         virtualName="" explicitFocusOrder="0" pos="160R 0 160 24" bkgCol="ff000000"
          textCol="ff808080" outlineCol="ffffffff" edTextCol="ff000000"
          edBkgCol="0" labelText="" editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="15"
-         bold="0" italic="0" justification="34"/>
+         focusDiscardsChanges="0" fontname="Default font" fontsize="15.0"
+         kerning="0.0" bold="0" italic="0" justification="34"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
@@ -163,3 +171,4 @@ END_JUCER_METADATA
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

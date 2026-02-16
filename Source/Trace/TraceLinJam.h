@@ -391,13 +391,14 @@
     Trace::TraceEvent("outgoing chat: " + chattext) ;                                       \
   }
 
-#define DEBUG_TRACE_UPDATEBPIBPM                                                                                  \
-  uint8  bpi_s          = Gui->chat->voteBpiPending ; uint8 bpm_s         = Gui->chat->voteBpmPending ;           \
-  String bpi_cancel_msg = "cancelling vote BPI" ;     String bpi_wait_msg = " in " + String(bpi_s) + " seconds" ; \
-  String bpm_cancel_msg = "cancelling vote BPM" ;     String bpm_wait_msg = " in " + String(bpm_s) + " seconds" ; \
-  if      (bpi_s == 1) Trace::TraceGui  (bpi_cancel_msg) ;                                                        \
-  else if (bpi_s >  1) Trace::TraceGuiVb(bpi_cancel_msg + bpi_wait_msg) ;                                         \
-  if      (bpm_s == 1) Trace::TraceGui  (bpm_cancel_msg) ;                                                        \
+#define DEBUG_TRACE_UPDATEBPIBPM                                                                              \
+  uint8  bpi_s          = Gui->toolbox->vote->voteBpiPending ;                                                \
+  uint8  bpm_s          = Gui->toolbox->vote->voteBpmPending ;                                                \
+  String bpi_cancel_msg = "cancelling vote BPI" ; String bpi_wait_msg = " in " + String(bpi_s) + " seconds" ; \
+  String bpm_cancel_msg = "cancelling vote BPM" ; String bpm_wait_msg = " in " + String(bpm_s) + " seconds" ; \
+  if      (bpi_s == 1) Trace::TraceGui  (bpi_cancel_msg) ;                                                    \
+  else if (bpi_s >  1) Trace::TraceGuiVb(bpi_cancel_msg + bpi_wait_msg) ;                                     \
+  if      (bpm_s == 1) Trace::TraceGui  (bpm_cancel_msg) ;                                                    \
   else if (bpm_s >  1) Trace::TraceGuiVb(bpm_cancel_msg + bpm_wait_msg) ;
 
 

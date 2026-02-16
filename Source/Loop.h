@@ -1,24 +1,23 @@
-/*
-  ==============================================================================
+/*\
+|*|  Copyright 2014,2015,2020,2026 bill-auger <bill-auger@programmer.net>
+|*|
+|*|  This file is part of the LinJam program.
+|*|
+|*|  LinJam is free software: you can redistribute it and/or modify
+|*|  it under the terms of the GNU General Public License version 3
+|*|  as published by the Free Software Foundation.
+|*|
+|*|  LinJam is distributed in the hope that it will be useful,
+|*|  but WITHOUT ANY WARRANTY; without even the implied warranty of
+|*|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|*|  GNU General Public License for more details.
+|*|
+|*|  You should have received a copy of the GNU General Public License
+|*|  along with LinJam.  If not, see <http://www.gnu.org/licenses/>.
+\*/
 
-  This is an automatically generated GUI class created by the Introjucer!
 
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Created with Introjucer version: 3.1.0
-
-  ------------------------------------------------------------------------------
-
-  The Introjucer is part of the JUCE library - "Jules' Utility Class Extensions"
-  Copyright 2004-13 by Raw Material Software Ltd.
-
-  ==============================================================================
-*/
-
-#ifndef _LOOP_H_
-#define _LOOP_H_
+#pragma once
 
 //[Headers]     -- You can add your own extra header files here --
 
@@ -39,29 +38,31 @@ class Loop  : public Component
 public:
     //==============================================================================
     Loop ();
-    ~Loop();
+    ~Loop() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  void updateBeatN(int beat_n) ;
-
-
-  double loopProgress ;
+  friend class LinJam ;
 
     //[/UserMethods]
 
-    void paint (Graphics& g);
-    void resized();
+    void paint (juce::Graphics& g) override;
+    void resized() override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+  double loopProgress = 0.0 ;
+
+  void updateBeatN(int beat_n) ;
+
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<ProgressBar> progressBar;
+    std::unique_ptr<ProgressBar> progressBar;
 
 
     //==============================================================================
@@ -71,4 +72,3 @@ private:
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif // _LOOP_H_

@@ -690,8 +690,8 @@ DEBUG_TRACE_CHAT_IN
       int bpi_or_bpm = chat_text.fromLastOccurrenceOf(" " , false , false).getIntValue() ;
 
       // handle BPI/BPM change
-      if      (chat_text.startsWith(CLIENT::CHATMSG_BPI)) Gui->chat->setBpi(bpi_or_bpm , true) ;
-      else if (chat_text.startsWith(CLIENT::CHATMSG_BPM)) Gui->chat->setBpm(bpi_or_bpm , true) ;
+      if      (chat_text.startsWith(CLIENT::CHATMSG_BPI)) Gui->toolbox->vote->setBpi(bpi_or_bpm , true) ;
+      else if (chat_text.startsWith(CLIENT::CHATMSG_BPM)) Gui->toolbox->vote->setBpm(bpi_or_bpm , true) ;
     }
     else if (chat_text.startsWith(CLIENT::CHATMSG_CMD_VOTE))
     {
@@ -818,20 +818,25 @@ DEBUG_TRACE_STATUS_CHANGED
   if (status == APP::LINJAM_STATUS_LICENSEPENDING) Gui->chat      ->toFront(true) ; // faux-modal
   else                                             Gui->background->toFront(true) ;
 
-  // set front-most GUI container
+  // set visible GUI components for current mode (config, lobby, or jam)
+  Gui->background->toFront(false) ;
+  Gui->statusbar ->toFront(false) ;
   switch (status)
   {
-    case APP::LINJAM_STATUS_LICENSEPENDING : Gui->license   ->toFront(true) ; break ;
-    case APP::LINJAM_STATUS_AUDIOINIT      : Gui->config    ->toFront(true) ; break ;
-    case APP::LINJAM_STATUS_CONFIGPENDING  : Gui->config    ->toFront(true) ; break ;
-    case APP::LINJAM_STATUS_AUDIOERROR     : Gui->config    ->toFront(true) ; break ;
-    case APP::LINJAM_STATUS_ROOMFULL       : Gui->lobby     ->toFront(true) ; break ;
-    case APP::NJC_STATUS_DISCONNECTED      : Gui->lobby     ->toFront(true) ; break ;
-    case APP::NJC_STATUS_INVALIDAUTH       : Gui->lobby     ->toFront(true) ; break ;
-    case APP::NJC_STATUS_CANTCONNECT       : Gui->lobby     ->toFront(true) ; break ;
-    case APP::NJC_STATUS_OK                : Gui->chat      ->toFront(true) ; break ;
-    case APP::NJC_STATUS_PRECONNECT        : Gui->lobby     ->toFront(true) ; break ;
-    default                                : Gui->background->toFront(true) ; break ;
+    case APP::LINJAM_STATUS_LICENSEPENDING : Gui->license   ->toFront(true ) ; break ;
+    case APP::LINJAM_STATUS_AUDIOINIT      : Gui->config    ->toFront(true ) ; break ;
+    case APP::LINJAM_STATUS_CONFIGPENDING  : Gui->config    ->toFront(true ) ; break ;
+    case APP::LINJAM_STATUS_AUDIOERROR     : Gui->config    ->toFront(true ) ; break ;
+    case APP::LINJAM_STATUS_ROOMFULL       : Gui->lobby     ->toFront(true ) ; break ;
+    case APP::NJC_STATUS_DISCONNECTED      : Gui->lobby     ->toFront(true ) ; break ;
+    case APP::NJC_STATUS_INVALIDAUTH       : Gui->lobby     ->toFront(true ) ; break ;
+    case APP::NJC_STATUS_CANTCONNECT       : Gui->lobby     ->toFront(true ) ; break ;
+    case APP::NJC_STATUS_OK                : Gui->toolbox   ->toFront(false) ;
+                                             Gui->chat      ->toFront(true ) ;
+                                             Gui->mixer     ->toFront(false) ;
+                                             Gui->loop      ->toFront(false) ; break ;
+    case APP::NJC_STATUS_PRECONNECT        : Gui->lobby     ->toFront(true ) ; break ;
+    default                                : Gui->background->toFront(true ) ; break ;
   }
 
   // actions
@@ -843,11 +848,8 @@ DEBUG_TRACE_STATUS_CHANGED
       // retry login (server occasionally rejects)
       if (RetryLogin-- > 0) Connect() ;                                     break ;
     case APP::NJC_STATUS_OK:
-      // store server credentials and present mixer GUI
-      Config->storeServer() ;
-      // UpdateGuiLowPriority() ;
-      Gui->mixer->toFront(false) ;
-      Gui->loop ->toFront(false) ;                                          break ;
+      // store server credentials
+      Config->storeServer() ;                                               break ;
     case APP::NJC_STATUS_PRECONNECT:
       // auto-join
       if (AutoJoinHost.isNotEmpty()) Gui->lobby->quickLogin(AutoJoinHost) ;
@@ -1185,20 +1187,21 @@ DEBUG_UPDATE_ROOMS_JAMDATA
 
 void LinJam::UpdateBpiBpm()
 {
-  int  status         = int(Status.getValue()) ;
-  bool is_jam_mode    = status == APP::NJC_STATUS_OK ;
-  bool is_bpi_timeout = Gui->chat->voteBpiPending == 1 ;
-  bool is_bpm_timeout = Gui->chat->voteBpmPending == 1 ;
+  int   status         = int(Status.getValue()) ;
+  bool  is_jam_mode    = status == APP::NJC_STATUS_OK ;
+  Vote* vote           = Gui->toolbox->vote.get() ;
+  bool  is_bpm_timeout = vote->voteBpmPending == 1 ;
+  bool  is_bpi_timeout = vote->voteBpiPending == 1 ;
 
   if (! is_jam_mode) return ;
 
 DEBUG_TRACE_UPDATEBPIBPM
 
   // update BPI/BPM display - decrement or cancel vote time-out as necessary
-  if (Gui->chat->voteBpiPending >  0) --Gui->chat->voteBpiPending ;
-  if (Gui->chat->voteBpmPending >  0) --Gui->chat->voteBpmPending ;
-  if (Gui->chat->voteBpiPending == 0) Gui->chat->setBpi(GetBpi() , is_bpi_timeout) ;
-  if (Gui->chat->voteBpmPending == 0) Gui->chat->setBpm(GetBpm() , is_bpm_timeout) ;
+  if (vote->voteBpiPending >  0) --vote->voteBpiPending ;
+  if (vote->voteBpmPending >  0) --vote->voteBpmPending ;
+  if (vote->voteBpiPending == 0)   vote->setBpi(GetBpi() , is_bpi_timeout) ;
+  if (vote->voteBpmPending == 0)   vote->setBpm(GetBpm() , is_bpm_timeout) ;
 }
 
 void LinJam::UpdateRecordingTime()

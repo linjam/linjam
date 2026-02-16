@@ -41,7 +41,7 @@ class StatusBar  : public Component
 public:
     //==============================================================================
     StatusBar ();
-    ~StatusBar();
+    ~StatusBar() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -51,8 +51,8 @@ public:
 
     //[/UserMethods]
 
-    void paint (Graphics& g);
-    void resized();
+    void paint (juce::Graphics& g) override;
+    void resized() override;
 
 
 
@@ -61,8 +61,8 @@ private:
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> statusLLabel;
-    ScopedPointer<Label> statusRLabel;
+    std::unique_ptr<juce::Label> statusLLabel;
+    std::unique_ptr<juce::Label> statusRLabel;
 
 
     //==============================================================================

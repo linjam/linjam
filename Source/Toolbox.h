@@ -22,7 +22,10 @@
 
 //[Headers]     -- You can add your own extra header files here --
 
-#include "JuceHeader.h"
+#include <JuceHeader.h>
+
+#include "Constants.h"
+#include "Vote.h"
 
 //[/Headers]
 
@@ -31,55 +34,50 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-  Chat is a sub-section of the main jam "screen"
-  it displays incoming chat text and handles outgoing chat entry
+  Toolbox is a sub-section of the main jam "screen"
+  it displays the room topic and hosts controls to
+  change the topic and to vote for BPM/BPI change
                                                                     //[/Comments]
 */
-class Chat  : public Component,
-              public TextEditor::Listener,
-              public Value::Listener
+class Toolbox  : public juce::Component,
+                 public juce::Label::Listener
 {
 public:
     //==============================================================================
-    Chat (Value font_size, Value linjam_status);
-    ~Chat() override;
+    Toolbox ();
+    ~Toolbox() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  void addChatLine(String chat_user , String chat_text) ;
+  friend class LinJam ;
 
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
+    void labelTextChanged (juce::Label* labelThatHasChanged) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
-  Value fontSize ;
-  Value linjamStatus ;
+  String prevTopicText ;
 
-
-  void valueChanged(              Value& a_value)            override ;
-  void textEditorReturnKeyPressed(TextEditor& a_text_editor) override ;
-
-  void setFontSize() ;
-  int  getFontSize() ;
-  bool shouldShowTopic() ;
+  void setTopic(String topic_text) ;
 
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::TextEditor> chatText;
-    std::unique_ptr<juce::TextEditor> chatEntryText;
+    std::unique_ptr<juce::Label> topicLabel;
+    std::unique_ptr<Vote> vote;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Chat)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Toolbox)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
+

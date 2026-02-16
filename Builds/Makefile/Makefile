@@ -96,6 +96,7 @@ OBJECTS_APP := \
   $(JUCE_OBJDIR)/StatusBar_3fb23a2.o \
   $(JUCE_OBJDIR)/Toolbox_88ca0c14.o \
   $(JUCE_OBJDIR)/Trace_fd3024bc.o \
+  $(JUCE_OBJDIR)/Vote_2eb41273.o \
   $(JUCE_OBJDIR)/include_juce_core_f26d17db.o \
   $(JUCE_OBJDIR)/include_juce_data_structures_7471b1e3.o \
   $(JUCE_OBJDIR)/include_juce_events_fd7d695.o \
@@ -233,6 +234,11 @@ $(JUCE_OBJDIR)/Toolbox_88ca0c14.o: ../../Source/Toolbox.cpp
 $(JUCE_OBJDIR)/Trace_fd3024bc.o: ../../Source/Trace/Trace.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling Trace.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/Vote_2eb41273.o: ../../Source/Vote.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling Vote.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_core_f26d17db.o: ../../JuceLibraryCode/include_juce_core.cpp

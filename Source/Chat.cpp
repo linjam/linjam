@@ -68,26 +68,11 @@ Chat::Chat (Value font_size, Value linjam_status)
     chatEntryText->setColour (juce::CaretComponent::caretColourId, juce::Colours::white);
     chatEntryText->setText (juce::String());
 
-
-    addAndMakeVisible (topicLabel = new Label ("topicLabel",
-                                               String()));
-    topicLabel->setFont (Font (Font::getDefaultMonospacedFontName(), 15.00f, Font::bold));
-    topicLabel->setJustificationType (Justification::centredTop);
-    topicLabel->setEditable (true, true, true);
-    topicLabel->setColour (Label::backgroundColourId, Colour (0x00000000));
-    topicLabel->setColour (Label::textColourId, Colours::grey);
-    topicLabel->setColour (TextEditor::textColourId, Colours::grey);
-    topicLabel->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-    topicLabel->setColour (TextEditor::highlightColourId, Colour (0xffbbbbff));
-    topicLabel->addListener (this);
-
-
     //[UserPreSize]
 
   // set fonts and sizes
-  Font  topic_font    = this->topicLabel->getFont().withHeight(GUI::TOPIC_FONT_H) ;
-  this->prevTopicText = String() ;
-  this->topicLabel->setFont(topic_font) ;
+  Font chat_font = Font(Font::getDefaultMonospacedFontName() , 16.00f, Font::plain) ;
+  this->chatText->setFont(chat_font) ;
   setFontSize() ;
 
     //[/UserPreSize]
@@ -98,30 +83,19 @@ Chat::Chat (Value font_size, Value linjam_status)
     //[Constructor] You can add your own custom stuff here..
 
   // set text editor colors
-  this->topicLabel   ->setColour(Label::backgroundColourId           , GUI::CHAT_TEXT_BG_COLOR ) ;
-  this->topicLabel   ->setColour(Label::textColourId                 , GUI::TOPIC_TEXT_COLOR   ) ;
-  this->topicLabel   ->setColour(Label::outlineColourId              , Colour(0xffff0000));//GUI::CHAT_OUTLINE_COLOR ) ;
-  this->topicLabel   ->setColour(CaretComponent::caretColourId       , GUI::TEXT_CARET_COLOR   ) ;
   this->chatEntryText->setColour(CaretComponent::caretColourId       , GUI::TEXT_CARET_COLOR   ) ;
-  this->topicLabel   ->setColour(TextEditor::textColourId            , GUI::CHAT_TEXT_COLOR    ) ;
   this->chatText     ->setColour(TextEditor::textColourId            , GUI::CHAT_TEXT_COLOR    ) ;
   this->chatEntryText->setColour(TextEditor::textColourId            , GUI::CHAT_TEXT_COLOR    ) ;
-  this->topicLabel   ->setColour(TextEditor::highlightColourId       , GUI::TEXT_HILITEBG_COLOR) ;
   this->chatText     ->setColour(TextEditor::highlightColourId       , GUI::TEXT_HILITEBG_COLOR) ;
   this->chatEntryText->setColour(TextEditor::highlightColourId       , GUI::TEXT_HILITEBG_COLOR) ;
-  this->topicLabel   ->setColour(TextEditor::highlightedTextColourId , GUI::TEXT_HILITE_COLOR  ) ;
   this->chatText     ->setColour(TextEditor::highlightedTextColourId , GUI::TEXT_HILITE_COLOR  ) ;
   this->chatEntryText->setColour(TextEditor::highlightedTextColourId , GUI::TEXT_HILITE_COLOR  ) ;
-  this->topicLabel   ->setColour(TextEditor::outlineColourId         , GUI::CHAT_OUTLINE_COLOR ) ;
   this->chatText     ->setColour(TextEditor::outlineColourId         , GUI::CHAT_OUTLINE_COLOR ) ;
   this->chatEntryText->setColour(TextEditor::outlineColourId         , GUI::CHAT_OUTLINE_COLOR ) ;
-  this->topicLabel   ->setColour(TextEditor::focusedOutlineColourId  , GUI::CHAT_FOCUS_COLOR   ) ;
   this->chatText     ->setColour(TextEditor::focusedOutlineColourId  , GUI::CHAT_FOCUS_COLOR   ) ;
   this->chatEntryText->setColour(TextEditor::focusedOutlineColourId  , GUI::CHAT_FOCUS_COLOR   ) ;
-  this->topicLabel   ->setColour(TextEditor::shadowColourId          , GUI::CHAT_SHADOW_COLOR  ) ;
   this->chatText     ->setColour(TextEditor::shadowColourId          , GUI::CHAT_SHADOW_COLOR  ) ;
   this->chatEntryText->setColour(TextEditor::shadowColourId          , GUI::CHAT_SHADOW_COLOR  ) ;
-  this->topicLabel   ->setColour(TextEditor::backgroundColourId      , GUI::CHAT_TEXT_BG_COLOR ) ;
   this->chatText     ->setColour(TextEditor::backgroundColourId      , GUI::CHAT_TEXT_BG_COLOR ) ;
   this->chatEntryText->setColour(TextEditor::backgroundColourId      , GUI::CHAT_TEXT_BG_COLOR ) ;
 
@@ -144,7 +118,6 @@ Chat::~Chat()
 
     chatText = nullptr;
     chatEntryText = nullptr;
-    topicLabel = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -156,8 +129,8 @@ void Chat::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
 
-#define JUCER_DRAW_BORDERS
-#ifdef JUCER_DRAW_BORDERS
+#define JUCER_DRAW_CHAT_PAINT
+#ifdef JUCER_DRAW_CHAT_PAINT
 
     //[/UserPrePaint]
 
@@ -186,48 +159,6 @@ void Chat::paint (juce::Graphics& g)
     }
 
     {
-        float x = 8.0f, y = 8.0f, width = static_cast<float> (getWidth() - 16), height = 20.0f;
-        juce::Colour fillColour = juce::Colour (0xff101010);
-        juce::Colour strokeColour = juce::Colours::grey;
-        //[UserPaintCustomArguments] Customize the painting arguments here..
-        //[/UserPaintCustomArguments]
-        g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 10.000f);
-        g.setColour (strokeColour);
-        g.drawRoundedRectangle (x, y, width, height, 10.000f, 1.000f);
-    }
-
-    {
-        float x = 12.0f, y = 12.0f, width = 36.0f, height = 12.0f;
-        juce::Colour fillColour = juce::Colour (0xff442288);
-        //[UserPaintCustomArguments] Customize the painting arguments here..
-        //[/UserPaintCustomArguments]
-        g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 10.000f);
-    }
-
-    {
-        int x = 50, y = 9, width = 12, height = 16;
-        juce::String text (TRANS ("@"));
-        juce::Colour fillColour = juce::Colours::white;
-        //[UserPaintCustomArguments] Customize the painting arguments here..
-        //[/UserPaintCustomArguments]
-        g.setColour (fillColour);
-        g.setFont (juce::Font (juce::Font::getDefaultMonospacedFontName(), 12.00f, juce::Font::plain));
-        g.drawText (text, x, y, width, height,
-                    juce::Justification::centred, true);
-    }
-
-    {
-        float x = 64.0f, y = 12.0f, width = 36.0f, height = 12.0f;
-        juce::Colour fillColour = juce::Colour (0xff442288);
-        //[UserPaintCustomArguments] Customize the painting arguments here..
-        //[/UserPaintCustomArguments]
-        g.setColour (fillColour);
-        g.fillRoundedRectangle (x, y, width, height, 10.000f);
-    }
-
-    {
         float x = 4.0f, y = static_cast<float> (getHeight() - 28), width = static_cast<float> (getWidth() - 8), height = 24.0f;
         juce::Colour fillColour = juce::Colours::black;
         juce::Colour strokeColour = juce::Colours::grey;
@@ -241,11 +172,11 @@ void Chat::paint (juce::Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 
-#else // JUCER_DRAW_BORDERS
+#else // JUCER_DRAW_CHAT_PAINT
+
   UNUSED(g) ;
 
 
-  bool  should_show_topic   = shouldShowTopic() ;
   float chat_pane_w         = static_cast<float>(getWidth()) ;
   float chat_pane_h         = static_cast<float>(getHeight()) ;
   float font_size           = static_cast<float>(getFontSize()) ;
@@ -253,7 +184,6 @@ void Chat::paint (juce::Graphics& g)
   float chat_entry_y        = chat_pane_h  - chat_entry_h - GUI::PAD2F ;
   float chat_entry_border_y = chat_entry_y                - GUI::PADF ;
   float chat_h              = chat_entry_y                - GUI::PAD5F ;
-  float topic_border_w      = chat_pane_w                 - GUI::TOPIC_BORDER_PADW ;
   float chat_border_w       = chat_pane_w                 - GUI::CHAT_BORDER_PADW ;
   float chat_border_h       = chat_h                      + GUI::PAD2F ;
   float chat_entry_border_h = chat_entry_h                + GUI::PAD2F ;
@@ -262,10 +192,6 @@ void Chat::paint (juce::Graphics& g)
   Colour panel_border_color     = GUI::BORDER_L1_COLOR ;
   Colour chat_background_color  = GUI::BACKGROUND_LTOP_COLOR ;
   Colour chat_border_color      = GUI::BORDER_L2_COLOR ;
-  Colour topic_background_color = (should_show_topic) ? GUI::BACKGROUND_L1_COLOR :
-                                                        chat_background_color    ;
-  Colour topic_border_color     = (should_show_topic) ? GUI::BORDER_L3_COLOR  :
-                                                        chat_background_color ;
 
   // chat panel border and fill
   g.setColour(panel_background_color) ;
@@ -283,14 +209,6 @@ void Chat::paint (juce::Graphics& g)
   g.drawRoundedRectangle(GUI::CHAT_BORDER_X , GUI::CHAT_BORDER_Y , chat_border_w ,
                          chat_border_h      , GUI::BORDER_RADIUS , GUI::BORDER_PX) ;
 
-  // topic border and fill
-  g.setColour(topic_background_color) ;
-  g.fillRoundedRectangle(GUI::TOPIC_BORDER_X , GUI::TOPIC_BORDER_Y , topic_border_w ,
-                         GUI::TOPIC_BORDER_H , GUI::BORDER_RADIUS                   ) ;
-  g.setColour(topic_border_color) ;
-  g.drawRoundedRectangle(GUI::TOPIC_BORDER_X , GUI::TOPIC_BORDER_Y , topic_border_w ,
-                         GUI::TOPIC_BORDER_H , GUI::BORDER_RADIUS  , GUI::BORDER_PX ) ;
-
   // chat entry border and fill
   g.setColour(chat_background_color) ;
   g.fillRoundedRectangle(GUI::CHAT_BORDER_X  , chat_entry_border_y , chat_border_w ,
@@ -299,7 +217,7 @@ void Chat::paint (juce::Graphics& g)
   g.drawRoundedRectangle(GUI::CHAT_BORDER_X  , chat_entry_border_y , chat_border_w ,
                          chat_entry_border_h , GUI::BORDER_RADIUS  , GUI::BORDER_PX) ;
 
-#endif // JUCER_DRAW_BORDERS
+#endif // JUCER_DRAW_CHAT_PAINT
 
     //[/UserPaint]
 }
@@ -308,69 +226,40 @@ void Chat::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
 
-#ifdef JUCER_DRAW_CHAT_RESIZE
+#define JUCER_DRAW_CHAT_RESIZED
+#ifdef JUCER_DRAW_CHAT_RESIZED
 
     //[/UserPreResize]
 
     chatText->setBounds (8, 8, getWidth() - 16, getHeight() - 44);
     chatEntryText->setBounds (8, getHeight() - 24, getWidth() - 16, 16);
-    topicLabel->setBounds (12, 10, getWidth() - 24, 16);
     //[UserResized] Add your own custom resize handling here..
 
-#else // JUCER_DRAW_CHAT_RESIZE
+#else // JUCER_DRAW_CHAT_RESIZED
 
-  bool should_show_topic = shouldShowTopic() ;
-  int  chat_y            = ((should_show_topic) ? GUI::CHAT_WITH_TOPIC_Y : GUI::CHAT_Y) ;
-  int  chat_entry_h      = getFontSize()                + GUI::CHAT_ENTRY_PADH ;
-  int  chat_entry_y      = getHeight()   - chat_entry_h - GUI::CHAT_ENTRY_PADY ;
-  int  chat_w            = getWidth()                   - GUI::CHAT_PADW ;
-  int  chat_h            = chat_entry_y  - chat_y       - GUI::CHAT_PADH ;
-  int  topic_w           = getWidth()                   - GUI::TOPIC_PADW ;
+  int chat_x       = GUI::CHAT_X
+  int chat_y       = GUI::CHAT_WITH_TOPIC_Y ;
+  int chat_entry_x = GUI::CHAT_X ;
+  int chat_entry_h = getFontSize()                + GUI::CHAT_ENTRY_PADH ;
+  int chat_entry_y = getHeight()   - chat_entry_h - GUI::CHAT_ENTRY_PADY ;
+  int chat_w       = getWidth()                   - GUI::CHAT_PADW ;
+  int chat_h       = chat_entry_y  - chat_y       - GUI::CHAT_PADH ;
 
-  // resize components according to topic visibility and font size
-  this->topicLabel   ->setVisible(should_show_topic) ;
-  this->topicLabel   ->setBounds(GUI::TOPIC_X , GUI::TOPIC_Y , topic_w , GUI::TOPIC_H);
-  this->chatText     ->setBounds(GUI::CHAT_X  , chat_y       , chat_w  , chat_h      ) ;
-  this->chatEntryText->setBounds(GUI::CHAT_X  , chat_entry_y , chat_w  , chat_entry_h) ;
+  // resize components according to font size
+  this->chatText     ->setBounds(chat_x       , chat_y       , chat_w , chat_h      ) ;
+  this->chatEntryText->setBounds(chat_entry_x , chat_entry_y , chat_w , chat_entry_h) ;
 
   repaint() ;
 
-#endif // JUCER_DRAW_CHAT_RESIZE
+#endif // JUCER_DRAW_CHAT_RESIZED
 
     //[/UserResized]
 }
-
-void Chat::labelTextChanged (juce::Label* labelThatHasChanged)
-{
-    //[UserlabelTextChanged_Pre]
-    //[/UserlabelTextChanged_Pre]
-
-    if (labelThatHasChanged == topicLabel)
-    {
-        //[UserLabelCode_topicLabel] -- add your label text handling code here..
-
-      // post topic change message to server but defer updating GUI until ack
-      LinJam::SendChat(CLIENT::CHATMSG_CMD_TOPIC + " " + this->topicLabel->getText()) ;
-      this->topicLabel->setText(this->prevTopicText , juce::dontSendNotification) ;
-
-        //[/UserLabelCode_topicLabel]
-    }
-
-    //[UserlabelTextChanged_Post]
-    //[/UserlabelTextChanged_Post]
-}
-
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
 /* Chat public instance methods */
-
-void Chat::setTopic(String topic_text)
-{
-  this->topicLabel->setText(topic_text , juce::dontSendNotification) ;
-  this->prevTopicText = topic_text ;
-}
 
 void Chat::addChatLine(String chat_user , String chat_text)
 {
@@ -400,6 +289,9 @@ void Chat::textEditorReturnKeyPressed(TextEditor& a_text_editor)
   LinJam::SendChat(this->chatEntryText->getText()) ;
   this->chatEntryText->clear() ;
 }
+
+
+/* helpers */
 
 void Chat::setFontSize()
 {
@@ -446,13 +338,6 @@ BEGIN_JUCER_METADATA
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
     <ROUNDRECT pos="4 4 8M 36M" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
-    <ROUNDRECT pos="8 8 16M 20" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
-               stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
-    <ROUNDRECT pos="12 12 36 12" cornerSize="10.0" fill="solid: ff442288" hasStroke="0"/>
-    <TEXT pos="50 9 12 16" fill="solid: ffffffff" hasStroke="0" text="@"
-          fontname="Default monospaced font" fontsize="12.0" kerning="0.0"
-          bold="0" italic="0" justification="36"/>
-    <ROUNDRECT pos="64 12 36 12" cornerSize="10.0" fill="solid: ff442288" hasStroke="0"/>
     <ROUNDRECT pos="4 28R 8M 24" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
   </BACKGROUND>
