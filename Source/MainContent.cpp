@@ -234,6 +234,7 @@ void MainContent::valueChanged(Value& a_value)
     this->modeButton->setColour(TextButton::textColourOffId  , Colour(0xFFFFFF00)) ;
     this->modeButton->setButtonText(GUI::MODE_BTN_LOBBY_TEXT) ;
   }
+
   else if (is_config)
   {
     // entering config
@@ -267,6 +268,7 @@ void MainContent::valueChanged(Value& a_value)
     this->modeButton->setButtonText(button_text) ;
     this->modeButton->setEnabled(!is_audio_error) ;
   }
+
   else if (is_jam)
   {
     // entering jam

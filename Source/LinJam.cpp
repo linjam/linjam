@@ -620,7 +620,7 @@ void LinJam::Shutdown()
 #define CLIENT_LOGOUT_IS_BUGGY
 #ifndef CLIENT_LOGOUT_IS_BUGGY
   // FIXME: here be dragons - Client and Gui are the same OOP object
-  //        Gui (aJUCEApplication) should clean-up after itself;
+  //        Gui (aJUCEApplication) should clean-up after itself lastly;
   //        but `delete Client` here is messy
   //        this may be related to the "leaked Shared objects" error upon shutdown
   // UPDATE: gninjam deletes it's Gui first, then Audio, then Client->waveWrite,
@@ -631,7 +631,7 @@ void LinJam::Shutdown()
 #endif
   JNL::close_socketlib() ;
 
-  // Constants teardown
+  // JUCE teardown
 //   delete NETWORK::KNOWN_HOSTS ; delete NETWORK::KNOWN_BOTS ; delete NETWORK::KNOWN_STREAMS ;
 
 DEBUG_TRACE_SHUTDOWN
@@ -653,9 +653,8 @@ DEBUG_TRACE_LICENSE
   return IsAgreed() ;
 }
 
-void LinJam::OnChatmsg(int user32 , NJClient* instance , const char** parms , int nparms)
+void LinJam::OnChatmsg(int /*user32*/ , NJClient* /*instance*/ , const char** parms , int /*nparms*/)
 {
-  UNUSED(user32) ; UNUSED(instance) ; UNUSED(nparms) ;
   if (!parms[0]) return ;
 
   String chat_type    = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
@@ -719,8 +718,7 @@ DEBUG_TRACE_CHAT_IN
   {
     if (chat_user.isEmpty()) return ;
 
-    chat_text = chat_user + GUI::JOINPART_TEXTa +
-                ((is_join_msg) ? GUI::JOIN_TEXT : GUI::PART_TEXT) + GUI::JOINPART_TEXTb ;
+    chat_text = chat_user + ((is_join_msg) ? GUI::JOIN_TEXT : GUI::PART_TEXT) ;
     chat_user = GUI::SERVER_NICK ;
   }
 
@@ -1332,8 +1330,7 @@ void LinJam::ConfigureLocalChannel(ValueTree channel_store , Identifier a_key)
   int    source_n      = int(  channel_store[CONFIG::SOURCE_N_ID    ]) ;
   int    bit_depth     = int(  channel_store[CONFIG::BIT_DEPTH_ID   ]) ;
   int    stereo_status = int(  channel_store[CONFIG::STEREO_ID      ]) ;
-
-         channel_name  = Config->MakeStereoName(channel_name , stereo_status) ;
+  channel_name         = Config->MakeStereoName(channel_name , stereo_status) ;
 
 DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
 

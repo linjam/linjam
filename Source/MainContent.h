@@ -31,7 +31,9 @@
 
 
 /** MainContent is the main view container class */
-class MainContent : public Component , public Button::Listener , public Value::Listener
+class MainContent : public Component        ,
+                    public Button::Listener ,
+                    public Value::Listener
 {
   friend class LinJamApplication ;
   friend class LinJam ;
@@ -60,7 +62,6 @@ private:
   DocumentWindow*  mainWindow ;
   TextButton*      modeButton ;
   Value            linjamStatus ;
-
 
   void instantiate  (ValueTree gui_store       , ValueTree client_store  ,
                      ValueTree blacklist_store , ValueTree audio_store   ,

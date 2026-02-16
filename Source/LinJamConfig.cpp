@@ -34,7 +34,7 @@ Identifier LinJamConfig::MakeUserId(String login)
   uint8  digit_n   = CONFIG::DIGITS.indexOf(head_char) ;
 
   // replace leading decimal digit of login, if present,
-  // to avoid XML tags (derived from logins) beginning with a digit
+  // to avoid XML tags beginning with a digit (eg: logins may)
   if (is_digit) user_id = CONFIG::DECIMAL_STRINGS[digit_n] + user_id.substring(1) ;
 
   // return user_id ;
@@ -308,7 +308,7 @@ ValueTree LinJamConfig::sanitizeConfig(ValueTree default_config , ValueTree stor
 
 void LinJamConfig::validateServers()
 {
-  ValueTree volatile_server = this->server.createCopy() ;
+  // ValueTree volatile_server = this->server.createCopy() ; // hmm?
 
   for (int server_n = 0 ; server_n < NETWORK::KNOWN_HOSTS.getNumChildren() ; ++server_n)
   {
@@ -500,8 +500,8 @@ ValueTree LinJamConfig::getOrAddRemoteChannel(Identifier user_id      ,
                                               String     channel_name ,
                                               int        channel_idx  )
 {
-  ValueTree  user_store    = getUserById(user_id) ;
-  ValueTree  channel_store = getChannelByIdx(user_store , channel_idx) ;
+  ValueTree user_store    = getUserById(user_id) ;
+  ValueTree channel_store = getChannelByIdx(user_store , channel_idx) ;
 
   if (user_store.isValid() && !channel_store.isValid())
   {
@@ -523,6 +523,7 @@ ValueTree LinJamConfig::getUserById(Identifier user_id)
 ValueTree LinJamConfig::getChannelById(Identifier channels_id , Identifier channel_id)
 {
   ValueTree channels_store ;
+
   if      (channels_id == CONFIG::MASTERS_ID) channels_store = this->masterChannels ;
   else if (channels_id == CONFIG::LOCALS_ID)  channels_store = this->localChannels ;
   else                                        channels_store = getUserById(channels_id) ;

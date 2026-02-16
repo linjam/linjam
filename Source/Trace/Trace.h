@@ -1,8 +1,27 @@
-/* Trace.h
-   this file defines logging and feature switches for debugging
-*/
-#ifndef _TRACE_H_
-#define _TRACE_H_
+/*\
+|*|  Trace.h
+|*|  this file manages logging and defines feature switches for debugging
+|*|
+|*|  Copyright 2014,2015,2020,2026 bill-auger <bill-auger@programmer.net>
+|*|
+|*|  This file is part of the LinJam program.
+|*|
+|*|  LinJam is free software: you can redistribute it and/or modify
+|*|  it under the terms of the GNU General Public License version 3
+|*|  as published by the Free Software Foundation.
+|*|
+|*|  LinJam is distributed in the hope that it will be useful,
+|*|  but WITHOUT ANY WARRANTY; without even the implied warranty of
+|*|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|*|  GNU General Public License for more details.
+|*|
+|*|  You should have received a copy of the GNU General Public License
+|*|  along with LinJam.  If not, see <http://www.gnu.org/licenses/>.
+\*/
+
+
+#pragma once
+
 
 #if DEBUG
 
@@ -22,7 +41,7 @@
 
 // tracing
 #define DEBUG_TRACE              (DEBUG               &&                    1 )
-#define DEBUG_TRACE_VB           (DEBUG_TRACE         &&                    1 )
+#define DEBUG_TRACE_VB           (DEBUG_TRACE         &&                    0 )
 #define DEBUG_TRACE_EVENTS       (DEBUG_TRACE         &&                    1 )
 #define DEBUG_TRACE_STATE        (DEBUG_TRACE         &&                    1 )
 #define DEBUG_TRACE_NETWORK      (DEBUG_TRACE         &&                    1 )
@@ -32,7 +51,7 @@
 #define DEBUG_TRACE_CLIENT       (DEBUG_TRACE_STATE                           )
 #define DEBUG_TRACE_SERVER       (DEBUG_TRACE_STATE                           )
 #define DEBUG_TRACE_GUI          (DEBUG_TRACE_EVENTS                          )
-#define DEBUG_TRACE_GUI_VB       (DEBUG_TRACE_GUI     && (DEBUG_TRACE_VB || 1))
+#define DEBUG_TRACE_GUI_VB       (DEBUG_TRACE_GUI     && (DEBUG_TRACE_VB || 0))
 #define TRACE_DUMP_CONFIG        (DEBUG_TRACE_VB      &&                    0 ) // full compare default<->stored
 #define TRACE_CONFIG_TYPES       (DEBUG_TRACE_VB      &&                    0 ) // per property datatype info
 #define TRACE_STORE_CONFIG_VB    (DEBUG_TRACE_VB      &&                    0 ) // dump output XML
@@ -90,4 +109,3 @@ public:
 } ;
 
 #endif // DEBUG
-#endif // _TRACE_H_

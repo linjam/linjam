@@ -169,9 +169,6 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
   this->hostText   ->setVisible(false) ;
   this->passLabel  ->setVisible(false) ;
   this->passText   ->setVisible(false) ;
-  this->hostText   ->addListener(this) ;
-  this->loginText  ->addListener(this) ;
-  this->passText   ->addListener(this) ;
   this->hostText   ->setColour(TextEditor::textColourId            , GUI::TEXT_NORMAL_COLOR  ) ;
   this->loginText  ->setColour(TextEditor::textColourId            , GUI::TEXT_NORMAL_COLOR  ) ;
   this->passText   ->setColour(TextEditor::textColourId            , GUI::TEXT_NORMAL_COLOR  ) ;
@@ -210,6 +207,9 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
   }
 
   this->serversStore.addListener(this) ;
+  this->hostText   ->addListener(this) ;
+  this->loginText  ->addListener(this) ;
+  this->passText   ->addListener(this) ;
 
     //[/UserPreSize]
 

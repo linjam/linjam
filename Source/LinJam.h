@@ -125,8 +125,8 @@ private:
 
   // NJClient callbacks
   static int  OnLicense(int user32 , char* license_text) ;
-  static void OnChatmsg(int          user32 , NJClient* instance ,
-                        const char** parms  , int       nparms   ) ;
+  static void OnChatmsg(int          /*user32*/ , NJClient* /*instance*/ ,
+                        const char** parms      , int       /*nparms*/   ) ;
   static void OnSamples(float** input_buffer  , int n_input_channels  ,
                         float** output_buffer , int n_output_channels ,
                         int     n_samples     , int sample_rate       ) ;

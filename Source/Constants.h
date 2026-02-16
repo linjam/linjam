@@ -914,21 +914,21 @@ namespace GUI
   static const int         DEFAULT_DS_INDEX     = 0 ;
   static const int         DEFAULT_CA_INDEX     = 0 ;
   static const int         DEFAULT_ALSA_INDEX   = 0 ;
-  static const String      BUFFERS_GROUP_TEXT   = "buffers" ;
-  static const String      NSOURCES_LABEL_TEXT  = "# of sources" ;
-  static const String      NCHANNELS_LABEL_TEXT = "# of channels" ;
-  static const String      ASIO_DEVICE_TYPE     = "ASIO" ;
-  static const String      KS_DEVICE_TYPE       = "KernelStreaming" ; // non-juce
-  static const String      DS_DEVICE_TYPE       = "DirectSound" ;
-  static const String      WAVE_DEVICE_TYPE     = "Wave" ;            // non-juce
-  static const String      WASAPI_DEVICE_TYPE   = "WASAPI" ;
-  static const String      CA_DEVICE_TYPE       = "CoreAudio" ;
-  static const String      JACK_DEVICE_TYPE     = "JACK" ;
-  static const String      ALSA_DEVICE_TYPE     = "ALSA" ;
-  static const String      ROID_DEVICE_TYPE     = "Android" ;
-  static const String      SLES_DEVICE_TYPE     = "OpenSLES" ;
-  static const String      IOS_DEVICE_TYPE      = "iOSAudio" ;
-  static const String      NFG_DEVICE_TYPE      = "unknown" ;         // non-juce
+  static const String      BUFFERS_GROUP_TEXT   = TRANS("buffers") ;
+  static const String      NSOURCES_LABEL_TEXT  = TRANS("# of sources") ;
+  static const String      NCHANNELS_LABEL_TEXT = TRANS("# of channels") ;
+  static const String      ASIO_DEVICE_TYPE     = TRANS("ASIO") ;
+  static const String      KS_DEVICE_TYPE       = TRANS("KernelStreaming") ; // non-juce
+  static const String      DS_DEVICE_TYPE       = TRANS("DirectSound") ;
+  static const String      WAVE_DEVICE_TYPE     = TRANS("Wave") ;            // non-juce
+  static const String      WASAPI_DEVICE_TYPE   = TRANS("WASAPI") ;
+  static const String      CA_DEVICE_TYPE       = TRANS("CoreAudio") ;
+  static const String      JACK_DEVICE_TYPE     = TRANS("JACK") ;
+  static const String      ALSA_DEVICE_TYPE     = TRANS("ALSA") ;
+  static const String      ROID_DEVICE_TYPE     = TRANS("Android") ;
+  static const String      SLES_DEVICE_TYPE     = TRANS("OpenSLES") ;
+  static const String      IOS_DEVICE_TYPE      = TRANS("iOSAudio") ;
+  static const String      NFG_DEVICE_TYPE      = TRANS("unknown") ;         // non-juce
 #define WINAUDIOAPIS ASIO_DEVICE_TYPE + "\n" + KS_DEVICE_TYPE   + "\n" + \
                      DS_DEVICE_TYPE   + "\n" + WAVE_DEVICE_TYPE
 #define MACAUDIOAPIS CA_DEVICE_TYPE
@@ -1024,19 +1024,15 @@ namespace GUI
 
   // Chat
   static const String CHAT_GUI_ID           = "chat-gui" ;
-  static const String SERVER_NICK           = "NINJAM" ;
-  static const String TOPIC_TEXT            = "Topic is: " ;
-  static const String SET_TOPIC_TEXT        = " sets topic to: " ;
-  static const String PM_TEXT               = " (whispers)" ;
-  static const String JOINPART_TEXTa        = " has " ;
-  static const String JOIN_TEXT             = "joined" ;
-  static const String PART_TEXT             = "left" ;
-  static const String JOINPART_TEXTb        = " the jam" ;
-  static const String UNKNOWN_COMMAND_MSG   = "Error: unknown command" ;
-  static const String INVALID_PM_MSG        = "Error: /msg requires a username and a message" ;
-  static const String CHAT_PROMPT_TEXT      = "<type some chat here - then press ENTER key to send>" ;
-
-  static const int    MIN_SHOW_TOPIC_CHAT_H = 200 ;
+  static const String SERVER_NICK           = TRANS("NINJAM") ;
+  static const String TOPIC_TEXT            = TRANS("Topic is: ") ;
+  static const String SET_TOPIC_TEXT        = TRANS(" sets topic to: ") ;
+  static const String PM_TEXT               = TRANS(" (whispers)") ;
+  static const String JOIN_TEXT             = TRANS(" has joined the jam session") ;
+  static const String PART_TEXT             = TRANS(" has left the jam session") ;
+  static const String UNKNOWN_COMMAND_MSG   = TRANS("Error: unknown command") ;
+  static const String INVALID_PM_MSG        = TRANS("Error: /msg requires a username and a message") ;
+  static const String CHAT_PROMPT_TEXT      = TRANS("(Type some chat here, then press the <ENTER> key to send)") ;
   static const float  CHAT_PANE_BORDER_X    = 0.0f ;
   static const float  CHAT_PANE_BORDER_Y    = 0.0f ;
   static const int    CHAT_X                = PAD2 ;
@@ -1075,8 +1071,8 @@ namespace GUI
   // Channels
   static const  Identifier MASTERS_GUI_ID     = CONFIG::MASTERS_ID ;
   static const  Identifier LOCALS_GUI_ID      = CONFIG::LOCALS_ID ;
-  static const  String     MASTERS_LABEL_TEXT = "Master" ;
-  static const  String     LOCALS_LABEL_TEXT  = "Local" ;
+  static const  String     MASTERS_LABEL_TEXT = TRANS("Master") ;
+  static const  String     LOCALS_LABEL_TEXT  = TRANS("Local") ;
   static const  int        CHANNEL_CONFIG_W   = 200 ;
   static const  int        CHANNEL_CONFIG_H   = 200 ;
   static const  int        MIXERGROUP_Y       = PAD ;
@@ -1101,18 +1097,18 @@ namespace GUI
 
   // StatusBar
   static const String STATUS_GUI_ID          = "statusbar-gui" ;
-  static const String AUDIO_INIT_MSG         = "Initializing audio" ;
-  static const String AUDIO_INIT_ERROR_MSG   = "Audio Device error" ;
+  static const String AUDIO_INIT_MSG         = TRANS("Initializing audio") ;
+  static const String AUDIO_INIT_ERROR_MSG   = TRANS("Audio Device error") ;
   static const String CONFIG_PENDING_MSG     = TRANS("Press 'Lobby' to exit Settings screen") ;
-  static const String DISCONNECTED_TEXT      = "Disconnected" ;
-  static const String ROOM_FULL_TEXT         = "Jam room full" ;
-  static const String INVALID_AUTH_TEXT      = "Invalid login/pass" ;
-  static const String LICENSE_PENDING_TEXT   = "Pending license" ;
-  static const String LOGOUT_PENDING_TEXT    = "Logging out ...." ;
-  static const String FAILED_CONNECTION_TEXT = "Connection failed" ;
-  static const String CONNECTING_TEXT        = "Connecting to " ;
-  static const String CONNECTED_TEXT         = "Connected to " ;
-  static const String IDLE_TEXT              = "Ready" ;
+  static const String DISCONNECTED_TEXT      = TRANS("Disconnected") ;
+  static const String ROOM_FULL_TEXT         = TRANS("Jam room full") ;
+  static const String INVALID_AUTH_TEXT      = TRANS("Invalid login/pass") ;
+  static const String LICENSE_PENDING_TEXT   = TRANS("Pending license") ;
+  static const String LOGOUT_PENDING_TEXT    = TRANS("Logging out ....") ;
+  static const String FAILED_CONNECTION_TEXT = TRANS("Connection failed") ;
+  static const String CONNECTING_TEXT        = TRANS("Connecting to ") ;
+  static const String CONNECTED_TEXT         = TRANS("Connected to ") ;
+  static const String IDLE_TEXT              = TRANS("Ready") ;
   static const int    STATUSBAR_H            = 24 ;
   static const int    STATUS_W               = 160 ;
   static const int    STATUS_H               = 16 ;

@@ -71,7 +71,9 @@ Loop::~Loop()
 void Loop::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
+
   UNUSED(g) ;
+
     //[/UserPrePaint]
 
     //[UserPaint] Add your own custom painting code here..
