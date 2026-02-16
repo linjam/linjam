@@ -131,10 +131,14 @@ private:
                         float** output_buffer , int n_output_channels ,
                         int     n_samples     , int sample_rate       ) ;
 
-  // NJClient runtime routines
-  static void HandleTimer(int timer_id) ;
-  static void UpdateStatus() ;
+  // NJClient runtime routines and event handlers
   static void PumpClient() ;
+  static void HandleTimer(   int timer_id) ;
+  static void HandleTopicMsg(String chat_user , String chat_text) ;
+  static void HandleBcastMsg(String chat_user , String chat_text) ;
+  static void HandlePrivMsg( String chat_user , String chat_text) ;
+  static void HandleJoinMsg( String chat_user) ;
+  static void HandlePartMsg( String chat_user) ;
   static void HandleStatusChanged() ;
   static void HandleUserInfoChanged() ;
   static void UpdateGuiHighPriority() ;
@@ -144,6 +148,7 @@ private:
   static void UpdateVuMeters() ;
   static void UpdateJams() ;
   static void UpdateBpiBpm() ;
+  static void UpdateStatus() ;
   static void UpdateRecordingTime() ;
   // static void UpdateSessionTime() ;
 

@@ -658,71 +658,22 @@ void LinJam::OnChatmsg(int /*user32*/ , NJClient* /*instance*/ , const char** pa
   if (!parms[0]) return ;
 
   String chat_type    = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
-  String chat_user    = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_USER_IDX]))
-                        .upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , false) ;
-  String chat_text    = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_MSG_IDX])) ;
-  bool   is_topic_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_TOPIC)) ;
-  bool   is_bcast_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_MSG)) ;
+  String chat_user    = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_USER_IDX])) ;
+  String chat_text    = String(CharPointer_UTF8(parms[CLIENT::CHATMSG_MSG_IDX ])) ;
+  chat_user           = chat_user.upToFirstOccurrenceOf(CONFIG::USER_IP_SPLIT_CHAR , false , false) ;
+  bool   is_topic_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_TOPIC  )) ;
+  bool   is_bcast_msg = (!chat_type.compare(CLIENT::CHATMSG_TYPE_MSG    )) ;
   bool   is_priv_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PRIVMSG)) ;
-  bool   is_join_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_JOIN)) ;
-  bool   is_part_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PART)) ;
+  bool   is_join_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_JOIN   )) ;
+  bool   is_part_msg  = (!chat_type.compare(CLIENT::CHATMSG_TYPE_PART   )) ;
 
 DEBUG_TRACE_CHAT_IN
 
-  if (is_topic_msg)
-  {
-    if (chat_text.isEmpty()) return ;
-
-    Gui->chat->setTopic(chat_text) ;
-
-    if (chat_user.isEmpty()) chat_text = GUI::TOPIC_TEXT                 + chat_text ;
-    else                     chat_text = chat_user + GUI::SET_TOPIC_TEXT + chat_text ;
-    chat_user = GUI::SERVER_NICK ;
-  }
-  else if (is_bcast_msg)
-  {
-    if (chat_text.isEmpty()) return ;
-
-    if (chat_user.isEmpty())
-    {
-      chat_user      = GUI::SERVER_NICK ;
-      int bpi_or_bpm = chat_text.fromLastOccurrenceOf(" " , false , false).getIntValue() ;
-
-      // handle BPI/BPM change
-      if      (chat_text.startsWith(CLIENT::CHATMSG_BPI)) Gui->toolbox->vote->setBpi(bpi_or_bpm , true) ;
-      else if (chat_text.startsWith(CLIENT::CHATMSG_BPM)) Gui->toolbox->vote->setBpm(bpi_or_bpm , true) ;
-    }
-    else if (chat_text.startsWith(CLIENT::CHATMSG_CMD_VOTE))
-    {
-      // customize voting messages
-      StringArray tokens = StringArray::fromTokens(StringRef(chat_text) , false) ;
-      String bpi_bpm_cmd = tokens[1] ;
-      String bpi_bpm_val = tokens[2] ;
-
-      bool is_bpi_msg = !bpi_bpm_cmd.compare(CLIENT::CHATMSG_CMD_BPI.substring(1).trim()) ;
-      bool is_bpm_msg = !bpi_bpm_cmd.compare(CLIENT::CHATMSG_CMD_BPM.substring(1).trim()) ;
-      if ((is_bpi_msg || is_bpm_msg) && bpi_bpm_val.containsOnly(NETWORK::DIGITS))
-      {
-        chat_text = chat_user + " votes to set " + bpi_bpm_cmd + " to " + bpi_bpm_val ;
-        chat_user = GUI::SERVER_NICK ;
-      }
-    }
-  }
-  else if (is_priv_msg)
-  {
-    if (chat_user.isEmpty() || chat_text.isEmpty()) return ;
-
-    chat_user += GUI::PM_TEXT ;
-  }
-  else if (is_join_msg || is_part_msg)
-  {
-    if (chat_user.isEmpty()) return ;
-
-    chat_text = chat_user + ((is_join_msg) ? GUI::JOIN_TEXT : GUI::PART_TEXT) ;
-    chat_user = GUI::SERVER_NICK ;
-  }
-
-  Gui->chat->addChatLine(chat_user , chat_text) ;
+  if      (is_topic_msg) HandleTopicMsg(chat_user , chat_text) ;
+  else if (is_bcast_msg) HandleBcastMsg(chat_user , chat_text) ;
+  else if (is_priv_msg ) HandlePrivMsg (chat_user , chat_text) ;
+  else if (is_join_msg ) HandleJoinMsg (chat_user) ;
+  else if (is_part_msg ) HandlePartMsg (chat_user) ;
 }
 
 void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
@@ -742,7 +693,15 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
 }
 
 
-/* NJClient runtime routines */
+/* NJClient runtime routines and event handlers */
+
+void LinJam::PumpClient()
+{
+  UpdateStatus() ;
+
+  if (Client->HasUserInfoChanged()             ) HandleUserInfoChanged() ;
+  if (Client->GetStatus() >= APP::NJC_STATUS_OK) while (!Client->Run()) ;
+}
 
 void LinJam::HandleTimer(int timer_id)
 {
@@ -761,28 +720,79 @@ DBG("[DEBUG]: DEBUG_EXIT_IMMEDIATELY defined - bailing") ; Quit() ;
   }
 }
 
-void LinJam::PumpClient()
+void LinJam::HandleTopicMsg(String chat_user , String chat_text)
 {
-  UpdateStatus() ;
+  if (chat_text.isEmpty()) return ;
 
-  if (Client->HasUserInfoChanged()             ) HandleUserInfoChanged() ;
-  if (Client->GetStatus() >= APP::NJC_STATUS_OK) while (!Client->Run()) ;
+  Gui->toolbox->setTopic(chat_text) ;
+
+  if (chat_user.isEmpty()) chat_text = GUI::TOPIC_TEXT                 + chat_text ;
+  else                     chat_text = chat_user + GUI::SET_TOPIC_TEXT + chat_text ;
+
+  Gui->chat->addChatLine(GUI::SERVER_NICK , chat_text) ;
 }
 
-void LinJam::UpdateStatus()
+void LinJam::HandleBcastMsg(String chat_user , String chat_text)
 {
-  // update status if not in an init, error, or hold state
-  int    status             = int(Status.getValue()) ;
-  bool   is_ready           = status >= APP::LINJAM_STATUS_READY ;
-  status                    = (! is_ready) ? status : Client->GetStatus() ;
-  String error_msg          = CharPointer_UTF8(Client->GetErrorStr()) ;
-  bool   is_licence_pending = status == APP::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
-  bool   is_jam_full        = is_ready && !error_msg.compare(CLIENT::SERVER_FULL_ERROR) ;
+  if (chat_text.isEmpty()) return ;
 
-  if      (is_licence_pending) status = APP::LINJAM_STATUS_LICENSEPENDING ;
-  else if (is_jam_full       ) status = APP::LINJAM_STATUS_ROOMFULL ;
+  // BPI/BPM change message
+  if (chat_user.isEmpty())
+  {
+    Vote* vote       = Gui->toolbox->vote.get() ;
+    int   bpi_or_bpm = chat_text.fromLastOccurrenceOf(" " , false , false).getIntValue() ;
 
-  Status = status ;
+    if      (chat_text.startsWith(CLIENT::CHATMSG_BPI)) vote->setBpi(bpi_or_bpm , true) ;
+    else if (chat_text.startsWith(CLIENT::CHATMSG_BPM)) vote->setBpm(bpi_or_bpm , true) ;
+
+    Gui->chat->addChatLine(GUI::SERVER_NICK , chat_text) ;
+  }
+
+  // BPI/BPM vote message
+  else if (chat_text.startsWith(CLIENT::CHATMSG_CMD_VOTE))
+  {
+    // customize voting messages
+    StringArray tokens = StringArray::fromTokens(StringRef(chat_text) , false) ;
+    String bpi_bpm_cmd = tokens[1] ;
+    String bpi_bpm_val = tokens[2] ;
+
+    bool is_bpi_msg = !bpi_bpm_cmd.compare(CLIENT::CHATMSG_CMD_BPI.substring(1).trim()) ;
+    bool is_bpm_msg = !bpi_bpm_cmd.compare(CLIENT::CHATMSG_CMD_BPM.substring(1).trim()) ;
+    if ((is_bpi_msg || is_bpm_msg) && bpi_bpm_val.containsOnly(NETWORK::DIGITS))
+    {
+      chat_text = chat_user + " votes to set " + bpi_bpm_cmd + " to " + bpi_bpm_val ;
+      Gui->chat->addChatLine(GUI::SERVER_NICK , chat_text) ;
+    }
+  }
+
+  // plain chat message
+  else Gui->chat->addChatLine(chat_user , chat_text) ;
+}
+
+void LinJam::HandlePrivMsg(String chat_user , String chat_text)
+{
+  if (chat_user.isEmpty() || chat_text.isEmpty()) return ;
+
+  // normalize ninbot welcome message
+  String host     = Id2Str(LinJamConfig::MakeHostId(String(Client->GetHostName()))) ;
+  String bot_nick = NETWORK::KNOWN_BOTS.getProperty(host , "") ;
+  if (chat_user == "*" && bot_nick.isNotEmpty()) chat_user = bot_nick ;
+
+  Gui->chat->addChatLine(chat_user , GUI::PM_TEXT + chat_text) ;
+}
+
+void LinJam::HandleJoinMsg(String chat_user)
+{
+  if (chat_user.isEmpty()) return ;
+
+  Gui->chat->addChatLine(GUI::SERVER_NICK , chat_user + GUI::JOIN_TEXT) ;
+}
+
+void LinJam::HandlePartMsg(String chat_user)
+{
+  if (chat_user.isEmpty()) return ;
+
+  Gui->chat->addChatLine(GUI::SERVER_NICK , chat_user + GUI::PART_TEXT) ;
 }
 
 void LinJam::HandleStatusChanged()
@@ -1200,6 +1210,22 @@ DEBUG_TRACE_UPDATEBPIBPM
   if (vote->voteBpmPending >  0) --vote->voteBpmPending ;
   if (vote->voteBpiPending == 0)   vote->setBpi(GetBpi() , is_bpi_timeout) ;
   if (vote->voteBpmPending == 0)   vote->setBpm(GetBpm() , is_bpm_timeout) ;
+}
+
+void LinJam::UpdateStatus()
+{
+  // update status if not in an init, error, or hold state
+  int    status             = int(Status.getValue()) ;
+  bool   is_ready           = status >= APP::LINJAM_STATUS_READY ;
+  status                    = (! is_ready) ? status : Client->GetStatus() ;
+  String error_msg          = CharPointer_UTF8(Client->GetErrorStr()) ;
+  bool   is_licence_pending = status == APP::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
+  bool   is_jam_full        = is_ready && !error_msg.compare(CLIENT::SERVER_FULL_ERROR) ;
+
+  if      (is_licence_pending) status = APP::LINJAM_STATUS_LICENSEPENDING ;
+  else if (is_jam_full       ) status = APP::LINJAM_STATUS_ROOMFULL ;
+
+  Status = status ;
 }
 
 void LinJam::UpdateRecordingTime()
