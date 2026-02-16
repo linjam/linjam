@@ -567,7 +567,8 @@ DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS
     Label*           clients_label = this->clientsLabels.getUnchecked(host_n) ;
     bool             is_vacant     = clients_label->getText() == GUI::ROOM_VACANT_TOOLTIP ;
     String           host_name     = login_button->getButtonText() ;
-    bool             has_stream    = ! NETWORK::KNOWN_STREAMS[host_name].isVoid() ;
+//     bool             has_stream    = ! NETWORK::KNOWN_STREAMS[host_name].isVoid() ;
+bool has_stream                       = false ;  // WIP: stream preview - JUCE Assertion failure in juce_Identifier.cpp:49
     int              sort_order    = (is_vacant) ? n_vacant : n_occupied ;
     int              login_y       = GUI::LOGIN_BUTTON_T + (login_h * sort_order) ;
     Component*       sort_pane     = (is_vacant) ? vacant_pane : active_pane ;

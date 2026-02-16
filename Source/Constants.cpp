@@ -45,8 +45,10 @@ const Identifier NETWORK::NINBOT_LOGIN      = "ninbot_" ;
 const Identifier NETWORK::JAMBOT_LOGIN      = "Jambot" ;
 const String     NETWORK::KNOWN_HOSTS_KEY   = "known-hosts" ;
 const String     NETWORK::KNOWN_BOTS_KEY    = "known-bots" ;
-ValueTree        NETWORK::KNOWN_HOSTS ; // APP::Initialize()
-ValueTree        NETWORK::KNOWN_BOTS ;  // APP::Initialize()
+const String     NETWORK::KNOWN_STREAMS_KEY = "known-streams" ;
+ValueTree        NETWORK::KNOWN_HOSTS ;    // APP::Initialize()
+ValueTree        NETWORK::KNOWN_BOTS ;     // APP::Initialize()
+ValueTree        NETWORK::KNOWN_STREAMS ;  // APP::Initialize()
 
 // http requests
 // const String NETWORK::WEBSITE_URL = "http://teamstream.herokuapp.com" ; // WIP: new stats
@@ -70,10 +72,12 @@ const String NETWORK::USER_KEY    = "user" ;
 void APP::Initialize()
 {
   // NOTE: destruction in LinJam::Shutdown()
-  UPTR<XmlElement> known_hosts = XmlDocument::parse(String(KNOWN_HOSTS_XML)) ;
-  NETWORK::KNOWN_HOSTS         = ValueTree::fromXml(*known_hosts) ;
-  UPTR<XmlElement> known_bots  = XmlDocument::parse(String(KNOWN_BOTS_XML)) ;
-  NETWORK::KNOWN_BOTS          = ValueTree::fromXml(*known_bots) ;
+  UPTR<XmlElement> known_hosts   = XmlDocument::parse(String(KNOWN_HOSTS_XML  )) ;
+  UPTR<XmlElement> known_bots    = XmlDocument::parse(String(KNOWN_BOTS_XML   )) ;
+  // UPTR<XmlElement> known_streams = XmlDocument::parse(String(KNOWN_STREAMS_XML)) ; // WIP: stream audition
+  NETWORK::KNOWN_HOSTS           = ValueTree::fromXml(*known_hosts  ) ;
+  NETWORK::KNOWN_BOTS            = ValueTree::fromXml(*known_bots   ) ;
+  // NETWORK::KNOWN_STREAMS         = ValueTree::fromXml(*known_streams) ;            // WIP: stream audition
 }
 
 

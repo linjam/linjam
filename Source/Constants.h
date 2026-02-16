@@ -318,6 +318,24 @@
     Id2Str(NETWORK::NINBOT_LOGIN)                                + "\" " + \
   "/>"
 
+#define NINBOT_STREAM_URL "https://ninbot.com/radio/"
+#define BOTNU_STREAM_URL "http:/ninjam.bot.nu:8001/stream" // TODO: jam port :2049
+#define KNOWN_STREAMS_XML XML_HEADER                                 + \
+  NETWORK::KNOWN_STREAMS_KEY                                   + " " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINBOT_2049_URL)) + "=" + \
+    NINBOT_STREAM_URL + "2049"                                 + " " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINBOT_2050_URL)) + "=" + \
+    NINBOT_STREAM_URL + "2050"                                 + " " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINBOT_2051_URL)) + "=" + \
+    NINBOT_STREAM_URL + "2051"                                 + " " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINBOT_2052_URL)) + "=" + \
+    NINBOT_STREAM_URL + "2052"                                 + " " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINBOT_2053_URL)) + "=" + \
+    NINBOT_STREAM_URL + "2053"                                 + " " + \
+    Id2Str(LinJamConfig::MakeHostId(NETWORK::NINBOT_2054_URL)) + "=" + \
+    NINBOT_STREAM_URL + "2054"                                 + " " + \
+  "/>"
+
 
 /* global constants */
 
@@ -444,8 +462,10 @@ public:
   static const Identifier  JAMBOT_LOGIN ;
   static const String      KNOWN_HOSTS_KEY ;
   static const String      KNOWN_BOTS_KEY ;
+  static const String      KNOWN_STREAMS_KEY ;
   static       ValueTree   KNOWN_HOSTS ;
   static       ValueTree   KNOWN_BOTS ;
+  static       ValueTree   KNOWN_STREAMS ;
 
   // http requests
   static const String WEBSITE_URL ;
@@ -950,8 +970,11 @@ namespace GUI
   static const int    LOGIN_BUTTON_T                 = LOGIN_BUTTONS_GROUP_Y + GUI::PAD4 ;
   static const int    LOGIN_BUTTON_W                 = 128 ;
   static const int    LOGIN_BUTTON_H                 = 24 ;
+  static const int    STREAM_BUTTON_W                = 12 ;
   static const String LOGIN_BUTTON_TOOLTIP           = TRANS("Jammers:") ;
+  static const String STREAM_BUTTON_TOOLTIP          = TRANS("Listen to ") ;
   static const String ROOM_VACANT_TOOLTIP            = TRANS("(vacant)") ;
+  static const String STREAM_BUTTON_TEXT             = TRANS("(listen)") ;
   static const Colour PROMPT_BACKGROUND_NORMAL_COLOR = Colour(0xFF000000) ;
   static const Colour PROMPT_BORDER_NORMAL_COLOR     = Colour(0xFFFFFFFF) ;
   static const Colour PROMPT_FOCUS_NORMAL_COLOR      = Colour(0xFFFFFFFF) ;

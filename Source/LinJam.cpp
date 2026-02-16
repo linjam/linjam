@@ -632,7 +632,7 @@ void LinJam::Shutdown()
   JNL::close_socketlib() ;
 
   // Constants teardown
-//   delete NETWORK::KNOWN_HOSTS ; delete NETWORK::KNOWN_BOTS ;
+//   delete NETWORK::KNOWN_HOSTS ; delete NETWORK::KNOWN_BOTS ; delete NETWORK::KNOWN_STREAMS ;
 
 DEBUG_TRACE_SHUTDOWN
 }
