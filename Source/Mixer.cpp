@@ -308,7 +308,7 @@ void Mixer::addChannels(Channels* channels , Identifier channels_id)
 
 void Mixer::removeChannels(Channels* channels)
 {
-DEBUG_REMOVE_CHANNELS
+DEBUG_TRACE_REMOVE_CHANNELS
 
   // destroy channels group and update mixer layout
   delete channels ; resized() ;

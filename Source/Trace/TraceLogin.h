@@ -21,13 +21,14 @@
                       " login(" + String((validateLogin()) ? "ok)" : "nfg)='" + login + "'") + \
                       " pass("  + String((validatePass() ) ? "ok)" : "nfg)"                ) ) ;
 
-#define DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS                                      \
-  for (int i = 0 ; i < this->serversStore.getNumChildren() ; ++i)                \
-  { ValueTree server    = this->serversStore.getChild(i) ;                       \
-    ValueTree clients   = server.getChildWithName(CONFIG::CLIENTS_ID) ;          \
-    String    n_clients = String(clients.getNumChildren()) ;                     \
-    Trace::TraceGuiVb("button order: server[" + String(i) + "](" + n_clients +   \
-                      " clients)="            + Id2Str(server.getType())     ) ; }
+#define DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS                                     \
+  for (int i = 0 ; i < this->serversStore.getNumChildren() ; ++i)               \
+  { ValueTree server    = this->serversStore.getChild(i) ;                      \
+    ValueTree clients   = server.getChildWithName(CONFIG::CLIENTS_ID) ;         \
+    String    n_clients = String(clients.getNumChildren()) ;                    \
+    String    server_n  = String(i).paddedLeft('0' , 2) ;                       \
+    Trace::TraceGuiVb("button order: server[" + server_n + "](" + n_clients +   \
+                      " clients)="            + Id2Str(server.getType())    ) ; }
 
 
 /* network */

@@ -289,6 +289,23 @@
 #  define DEBUG_TRACE_REMOTE_CHANNELS_VB ;
 #endif // TRACE_REMOTE_CHANNELS_VB
 
+#define DEBUG_TRACE_HANDLEUSERINFOCHANGED                                            \
+  int n_users = Gui->mixer->getNumDynamicMixers() ;                                  \
+  for (int user_n = GUI::FIRST_REMOTE_IDX ; user_n < n_users ; ++user_n)             \
+  {                                                                                  \
+    Component*  channels    = Gui->mixer->getChildComponent(user_n) ;                \
+    String      user_name   = channels->getComponentID() ;                           \
+    Identifier  user_id     = Identifier(user_name) ;                                \
+    bool        user_exists = active_users.hasProperty(user_id) ;                    \
+                                                                                     \
+    if (user_exists) continue ;                                                      \
+                                                                                     \
+    bool is_user_part = Status == APP::NJC_STATUS_OK ;                               \
+                                                                                     \
+    /* distinguish remote user part from LINJAM_STATUS_LOGOUTPENDING mass cleanup */ \
+    if (! is_user_part) Trace::TraceState("user parted => '" + user_name + "'") ;    \
+  }
+
 #define DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL                                             \
   String user_name   = Id2Str(user_store.getType()) ;                                    \
   bool   is_mono     = stereo_status == CONFIG::MONO ;                                   \
@@ -354,21 +371,35 @@
     String dbg = "ignore_list =>" ; int n_users = subs.getNumChildren() ;             \
     for (int user_n = 0 ; user_n < n_users ; ++user_n)                                \
       dbg += "\n  " + Id2Str(subs.getChild(user_n).getType()) ;                       \
-    Trace::TraceClient(dbg + ((!n_users)? " (none)" : "")) ;                          \
+    Trace::TraceClient(dbg + ((!n_users) ? " (none)" : "")) ;                         \
   }
 
 
 /* chat */
 
-#define DEBUG_TRACE_CHAT_IN                                                        \
-  if (chat_user.compare(str(Config->server[CONFIG::LOGIN_ID])))                    \
-    Trace::TraceEvent("incoming chat: " + String(parms[CLIENT::CHATMSG_TYPE_IDX])) ;
+#define DEBUG_TRACE_CHAT_IN                                                                  \
+  String chattext = (DEBUG_TRACE_VB) ? chat_text : String(parms[CLIENT::CHATMSG_TYPE_IDX]) ; \
+  if (chat_user.compare(str(Config->server[CONFIG::LOGIN_ID])))                              \
+    Trace::TraceEvent("incoming chat: " + chattext) ;
 
-#define DEBUG_TRACE_CHAT_OUT                                                 \
-  if ((chat_text = chat_text.trim()).isNotEmpty())                           \
-    Trace::TraceEvent("outgoing chat: " + ((chat_text[0] == '/')?            \
-                      chat_text.upToFirstOccurrenceOf(" " , false , false) : \
-                      CLIENT::CHATMSG_TYPE_MSG)) ;
+#define DEBUG_TRACE_CHAT_OUT                                                                \
+  String chattext = chat_text.trim() ; if (chattext.isNotEmpty())                           \
+  {                                                                                         \
+    if (! DEBUG_TRACE_VB) chattext = ((chat_text[0] == '/') ?                               \
+                                     chat_text.upToFirstOccurrenceOf(" " , false , false) : \
+                                     CLIENT::CHATMSG_TYPE_MSG) ;                            \
+    Trace::TraceEvent("outgoing chat: " + chattext) ;                                       \
+  }
+
+#define DEBUG_TRACE_UPDATEBPIBPM                                                                                  \
+  uint8  bpi_s          = Gui->chat->voteBpiPending ; uint8 bpm_s         = Gui->chat->voteBpmPending ;           \
+  String bpi_cancel_msg = "cancelling vote BPI" ;     String bpi_wait_msg = " in " + String(bpi_s) + " seconds" ; \
+  String bpm_cancel_msg = "cancelling vote BPM" ;     String bpm_wait_msg = " in " + String(bpm_s) + " seconds" ; \
+  if      (bpi_s == 1) Trace::TraceGui  (bpi_cancel_msg) ;                                                        \
+  else if (bpi_s >  1) Trace::TraceGuiVb(bpi_cancel_msg + bpi_wait_msg) ;                                         \
+  if      (bpm_s == 1) Trace::TraceGui  (bpm_cancel_msg) ;                                                        \
+  else if (bpm_s >  1) Trace::TraceGuiVb(bpm_cancel_msg + bpm_wait_msg) ;
+
 
 /* rooms */
 
@@ -379,9 +410,10 @@
 // #define DEBUG_UPDATE_ROOMS_RESP Trace::TraceNetworkVb("LinJam::UpdateRooms() resp=" + resp.dropLastCharacters(resp.length() - 32)) ;
 #define DEBUG_UPDATE_ROOMS_RESP Trace::TraceNetworkVb("jams=" + (jams.size() > 0 ? "\n\t" + jams.joinIntoString("\n\t") : "none")) ;
 
-#define DEBUG_UPDATE_ROOMS_USERDATA Trace::TraceConfigVb("LinJam::UpdateRooms() Status=" + String(int(Status.getValue())) + " is_ready=" + String(Status == APP::NJC_STATUS_OK) + " n_jams=" + String(jams.size()) + " userdata=" + userdata) ;
+#define DEBUG_UPDATE_ROOMS_USERDATA Trace::TraceConfigVb("Status=" + String(int(Status.getValue())) + " is_ready=" + String(Status == APP::NJC_STATUS_OK) + " n_jams=" + String(jams.size()) + " userdata=" + userdata) ;
 
-#define DEBUG_UPDATE_ROOMS_JAMDATA  Trace::TraceConfigVb("LinJam::UpdateRooms() jamdata=" + jams[jam_n]) ;
+#define DEBUG_UPDATE_ROOMS_JAMDATA  Trace::TraceConfigVb("jamdata=" + jams[jam_n]) ;
+
 
 #else // DEBUG
 
@@ -410,12 +442,14 @@
 #define DEBUG_TRACE_DUMP_FREE_INPUTS_VB       ;
 #define DEBUG_TRACE_REMOTE_CHANNELS           ;
 #define DEBUG_TRACE_REMOTE_CHANNELS_VB        ;
+#define DEBUG_TRACE_HANDLEUSERINFOCHANGED     ;
 #define DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL  ;
 // blacklist
 #define DEBUG_TRACE_BLACKLIST                 ;
 // chat
 #define DEBUG_TRACE_CHAT_IN                   ;
 #define DEBUG_TRACE_CHAT_OUT                  ;
+#define DEBUG_TRACE_UPDATEBPIBPM              ;
 // rooms
 #define DEBUG_UPDATE_ROOMS_RESP               ;
 #define DEBUG_UPDATE_ROOMS_USERDATA           ;

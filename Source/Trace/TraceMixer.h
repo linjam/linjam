@@ -8,10 +8,9 @@
 #define DEBUG_TRACE_ADD_REMOTE_USER                                        \
   Trace::TraceGui("added remote channels group '" + Id2Str(user_id) + "'") ;
 
-#define DEBUG_REMOVE_CHANNELS                                 \
-  String user_id = channels->getComponentID() ;               \
-  Trace::TraceState("user parted => '" + user_id + "'") ;     \
-  Trace::TraceEvent("removing remote user '" + user_id + "'") ;
+#define DEBUG_TRACE_REMOVE_CHANNELS                             \
+  String user_name = channels->getComponentID() ;               \
+  Trace::TraceEvent("removing remote user '" + user_name + "'") ;
 
 
 /* mixer */
