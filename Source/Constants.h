@@ -989,6 +989,8 @@ namespace GUI
   static const int    LOGIN_BUTTON_W                 = 170 ;
   static const int    LOGIN_BUTTON_H                 = 24 ;
   static const int    STREAM_BUTTON_W                = 12 ;
+  static const uint8  SLOTS_PAD                      = 11 ;
+  static const uint8  BPIBPM_PAD                     = 8 ;
   static const String LOGIN_BUTTON_TOOLTIP           = TRANS("Jammers:") ;
   static const String STREAM_BUTTON_TOOLTIP          = TRANS("Listen to ") ;
   static const String ROOM_VACANT_TOOLTIP            = TRANS("(vacant)") ;
@@ -1031,6 +1033,7 @@ namespace GUI
   static const String UNKNOWN_COMMAND_MSG   = TRANS("Error: unknown command") ;
   static const String INVALID_PM_MSG        = TRANS("Error: /msg requires a username and a message") ;
   static const String CHAT_PROMPT_TEXT      = TRANS("(Type some chat here, then press the <ENTER> key to send)") ;
+  static const int    SENDER_MAX_CHARS      = 29 ; // truncate nicks >16 chars
   static const float  CHAT_PANE_BORDER_X    = 0.0f ;
   static const float  CHAT_PANE_BORDER_Y    = 0.0f ;
   static const int    CHAT_X                = PAD2 ;

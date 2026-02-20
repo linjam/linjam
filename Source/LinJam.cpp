@@ -373,8 +373,8 @@ DEBUG_TRACE_BLACKLIST
   if (should_hide_bots)
     for (int bot_n = 0 ; bot_n < NETWORK::KNOWN_BOTS.getNumChildren() ; ++bot_n)
     {
-      Identifier bot_name = NETWORK::KNOWN_BOTS.getChild(bot_n).getType() ;
-      blacklist.getOrCreateChildWithName(bot_name , nullptr) ;
+      Identifier bot_nick = NETWORK::KNOWN_BOTS.getChild(bot_n).getType() ;
+      blacklist.getOrCreateChildWithName(bot_nick , nullptr) ;
     }
 
   for (int user_n = 0 ; user_n < blacklist.getNumChildren() ; ++user_n)
@@ -956,7 +956,7 @@ void LinJam::UpdateGuiHighPriority() { UpdateLoopProgress() ; UpdateVuMeters() ;
 
 void LinJam::UpdateGuiMedPriority() { UpdateBpiBpm() ; UpdateRecordingTime() ; }
 
-void LinJam::UpdateGuiLowPriority() { UpdateJams() ;  }
+void LinJam::UpdateGuiLowPriority() { UpdateJams() ; }
 
 void LinJam::UpdateLoopProgress()
 {

@@ -31,6 +31,7 @@
 //#define NO_UPDATE_VU_METERS_GUI
 //#define NO_UPDATE_ROOMS_GUI
 //#define NO_UPDATE_RECORDING_TIME_GUI
+// #define NO_CHAT_TIMESTAMPS
 // enable buggy features
 //#define ACCEPT_CHAT_COMMANDS         // (issue #19)
 //#define FADE_HIDDEN_REMOTES

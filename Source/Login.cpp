@@ -565,7 +565,8 @@ DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS
     TextButton*      login_button  = this->serverButtons.getUnchecked(host_n) ;
     HyperlinkButton* stream_button = this->streamButtons.getUnchecked(host_n) ;
     Label*           clients_label = this->clientsLabels.getUnchecked(host_n) ;
-    bool             is_vacant     = clients_label->getText() == GUI::ROOM_VACANT_TOOLTIP ;
+//     bool             is_vacant     = clients_label->getText() == GUI::ROOM_VACANT_TOOLTIP ;
+bool is_vacant                        = clients_label->getText().endsWith(GUI::ROOM_VACANT_TOOLTIP) ; // WIP: IRC-style chat
     String           host_name     = login_button->getButtonText() ;
 //     bool             has_stream    = ! NETWORK::KNOWN_STREAMS[host_name].isVoid() ;
 bool has_stream                       = false ;  // WIP: stream preview - JUCE Assertion failure in juce_Identifier.cpp:49

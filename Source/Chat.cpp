@@ -226,7 +226,7 @@ void Chat::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
 
-#define JUCER_DRAW_CHAT_RESIZED
+// #define JUCER_DRAW_CHAT_RESIZED
 #ifdef JUCER_DRAW_CHAT_RESIZED
 
     //[/UserPreResize]
@@ -237,17 +237,14 @@ void Chat::resized()
 
 #else // JUCER_DRAW_CHAT_RESIZED
 
-  int chat_x       = GUI::CHAT_X
-  int chat_y       = GUI::CHAT_WITH_TOPIC_Y ;
-  int chat_entry_x = GUI::CHAT_X ;
   int chat_entry_h = getFontSize()                + GUI::CHAT_ENTRY_PADH ;
   int chat_entry_y = getHeight()   - chat_entry_h - GUI::CHAT_ENTRY_PADY ;
   int chat_w       = getWidth()                   - GUI::CHAT_PADW ;
-  int chat_h       = chat_entry_y  - chat_y       - GUI::CHAT_PADH ;
+  int chat_h       = chat_entry_y  - GUI::CHAT_Y  - GUI::CHAT_PADH ;
 
   // resize components according to font size
-  this->chatText     ->setBounds(chat_x       , chat_y       , chat_w , chat_h      ) ;
-  this->chatEntryText->setBounds(chat_entry_x , chat_entry_y , chat_w , chat_entry_h) ;
+  this->chatText     ->setBounds(GUI::CHAT_X , GUI::CHAT_Y  , chat_w , chat_h      ) ;
+  this->chatEntryText->setBounds(GUI::CHAT_Y , chat_entry_y , chat_w , chat_entry_h) ;
 
   repaint() ;
 
@@ -263,8 +260,14 @@ void Chat::resized()
 
 void Chat::addChatLine(String chat_user , String chat_text)
 {
+  // IRC chat style - timestamp is fixed length - logins longer than 16 chars are truncated
+  uint8  n_chars     = GUI::SENDER_MAX_CHARS ;
+  String sender_text = timestamp() + "<" + chat_user + ">" ;
+  sender_text        = sender_text.paddedRight(' ' , n_chars).substring(0 , n_chars) ;
+  chat_text          = sender_text + " " + chat_text + "\n" ;
+
   this->chatText->moveCaretToEnd() ;
-  this->chatText->insertTextAtCaret(chat_user + ": " + chat_text + "\n") ;
+  this->chatText->insertTextAtCaret(chat_text) ;
   this->chatText->moveCaretToEnd() ;
 }
 
@@ -314,7 +317,14 @@ int Chat::getFontSize()
   return font_size ;
 }
 
-bool Chat::shouldShowTopic() { return (getHeight() > GUI::MIN_SHOW_TOPIC_CHAT_H) ; }
+String Chat::timestamp()
+{
+#ifndef NO_CHAT_TIMESTAMPS
+  return "[" + Time::getCurrentTime().formatted("%T") + "] "  ; // ("%Y-%m-%d_%T") ;
+#else
+  return "" ;
+#endif
+}
 
 //[/MiscUserCode]
 

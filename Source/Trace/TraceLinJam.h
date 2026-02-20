@@ -379,8 +379,9 @@
 
 #define DEBUG_TRACE_CHAT_IN                                                                  \
   String chattext = (DEBUG_TRACE_VB) ? chat_text : String(parms[CLIENT::CHATMSG_TYPE_IDX]) ; \
+  String sender   = (chat_user.isEmpty()) ? "" : " from '" + chat_user + "'" ;               \
   if (chat_user.compare(str(Config->server[CONFIG::LOGIN_ID])))                              \
-    Trace::TraceEvent("incoming chat: " + chattext) ;
+    Trace::TraceEvent("incoming chat: " + chattext + sender) ;
 
 #define DEBUG_TRACE_CHAT_OUT                                                                \
   String chattext = chat_text.trim() ; if (chattext.isNotEmpty())                           \

@@ -66,9 +66,10 @@ private:
   void valueChanged(              Value& a_value)            override ;
   void textEditorReturnKeyPressed(TextEditor& a_text_editor) override ;
 
-  void setFontSize() ;
-  int  getFontSize() ;
-  bool shouldShowTopic() ;
+  void   setFontSize() ;
+  int    getFontSize() ;
+  bool   shouldShowTopic() ;
+  String timestamp() ;
 
     //[/UserVariables]
 
