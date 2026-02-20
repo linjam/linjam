@@ -159,7 +159,7 @@ Blacklist::~Blacklist() { deleteAllChildren() ; }
 void Blacklist::resized()
 {
   bool is_scrollbar_visible = getHeight() > GUI::BLACKLIST_H ;
-  int  blacklist_entry_w    = (is_scrollbar_visible)?
+  int  blacklist_entry_w    = (is_scrollbar_visible)                                ?
                               GUI::BLACKLIST_W - GUI::CONFIG_SCROLLBAR_W - GUI::PAD :
                               GUI::BLACKLIST_W ;
   int  blacklist_entry_x    = 0 ;

@@ -252,8 +252,8 @@ String ConfigChannel::makeStereoSelectOption(int channel_n)
 
 void ConfigChannel::createChannelSelectOptions()
 {
-  this->freeAudioSourceNs     = LinJam::GetFreeAudioSources() ;
-  this->freeAudioSourcePairNs = LinJam::GetFreeAudioSourcePairs() ;
+  this->freeAudioSourceNs     = LinJam::GetFreeSources() ;
+  this->freeAudioSourcePairNs = LinJam::GetFreeSourcePairs() ;
 
   int n_channels      = this->freeAudioSourceNs.size() ;
   int n_channel_pairs = this->freeAudioSourcePairNs.size() ;

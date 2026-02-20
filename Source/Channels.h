@@ -31,9 +31,8 @@
 /**
                                                                     //[Comments]
   Channels is the abstract superclass of channel mixergroups:
-      LocalChannels, RemoteChannels, MaseterChannels
-      which are containers for related Channel mixer slices
-
+      LocalChannels, RemoteChannels, MasterChannels
+      which are containers for related Channel slices of Mixer
                                                                     //[/Comments]
 */
 class Channels  : public Component

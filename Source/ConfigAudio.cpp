@@ -536,12 +536,12 @@ void ConfigAudio::buttonClicked (juce::Button* buttonThatWasClicked)
 #  endif // _MAC
 #endif // _WIN32
 
-  int bit_depth   = (this->bps16Button->getToggleState())? GUI::BIT_DEPTH_16 :
-                    (this->bps24Button->getToggleState())? GUI::BIT_DEPTH_24 :
-                    (this->bps32Button->getToggleState())? GUI::BIT_DEPTH_32 : 0 ;
-  int sample_rate = (this->kHz44Button->getToggleState())? GUI::SAMPLE_RATE_44100 :
-                    (this->kHz48Button->getToggleState())? GUI::SAMPLE_RATE_48000 :
-                    (this->kHz96Button->getToggleState())? GUI::SAMPLE_RATE_96000 : 0 ;
+  int bit_depth   = (this->bps16Button->getToggleState()) ? GUI::BIT_DEPTH_16 :
+                    (this->bps24Button->getToggleState()) ? GUI::BIT_DEPTH_24 :
+                    (this->bps32Button->getToggleState()) ? GUI::BIT_DEPTH_32 : 0 ;
+  int sample_rate = (this->kHz44Button->getToggleState()) ? GUI::SAMPLE_RATE_44100 :
+                    (this->kHz48Button->getToggleState()) ? GUI::SAMPLE_RATE_48000 :
+                    (this->kHz96Button->getToggleState()) ? GUI::SAMPLE_RATE_96000 : 0 ;
 
   Identifier config_key ;
   var        value ;

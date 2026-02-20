@@ -21,8 +21,8 @@
 #endif // TRACE_DUMP_CHANNELS_GUI
 
 #define DEBUG_TRACE_ADD_CHANNEL_GUI_FAIL                                 \
-  String ch_id        = str(channel_store.getType()) ;                   \
-  String ch_name      = str(channel_store[CONFIG::CHANNEL_NAME_ID]) ;    \
+  String ch_id        = Id2Str(channel_store.getType()) ;                \
+  String ch_name      = str(   channel_store[CONFIG::CHANNEL_NAME_ID]) ; \
   int    stereo_state = int(   channel_store[CONFIG::STEREO_ID      ]) ; \
   String dbg   = "adding channel slice " + ch_id + " '" + ch_name +      \
                  "' to '" + getComponentID() + "' channels" ;            \
@@ -71,7 +71,7 @@
 #define DEBUG_TRACE_REMOVE_CHANNEL_GUI                                                     \
   Channel* ch           = getChannel(channel_id) ;                                         \
   bool     is_stereo    = ch && int(ch->channelStore[CONFIG::STEREO_ID]) != CONFIG::MONO ; \
-  String   channel_type = (ch) ? ((!is_stereo)? "mono" : "stereo") : "unknown" ;           \
+  String   channel_type = (ch) ? ((!is_stereo) ? "mono" : "stereo") : "unknown" ;          \
   String   channel_name = (ch) ? str(ch->channelStore[CONFIG::CHANNEL_NAME_ID]) : "" ;     \
   String   dbg          = "removing " + channel_type                            +          \
                           " channel " + Id2Str(channel_id) + " '" + channel_name +         \
@@ -85,10 +85,10 @@
                          Id2Str(this->channelStore.getParent().getType()) ;           \
   Trace::TraceGui(parent_id + " channel '" + this->nameLabel->getText()             + \
                   "' stereo status is "                                             + \
-                  ((stereo_status == CONFIG::MONO)    ? "MONO"     :                  \
-                   (stereo_status == CONFIG::STEREO_L)? "STEREO_L" :                  \
-                   (stereo_status == CONFIG::STEREO_R)? "STEREO_R" :                  \
-                   (stereo_status == CONFIG::STEREO)  ? "STEREO"   : "NFG")) ;
+                  ((stereo_status == CONFIG::MONO)     ? "MONO"     :                 \
+                   (stereo_status == CONFIG::STEREO_L) ? "STEREO_L" :                 \
+                   (stereo_status == CONFIG::STEREO_R) ? "STEREO_R" :                 \
+                   (stereo_status == CONFIG::STEREO)   ? "STEREO"   : "NFG")) ;
 
 #else // DEBUG
 

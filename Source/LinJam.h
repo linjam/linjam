@@ -66,8 +66,8 @@ public:
   // getters/setters
   static ValueTree      GetCredentials(String host_name) ;
   static bool           IsAgreed() ;
-  static SortedSet<int> GetFreeAudioSources() ;
-  static SortedSet<int> GetFreeAudioSourcePairs() ;
+  static SortedSet<int> GetFreeSources() ;
+  static SortedSet<int> GetFreeSourcePairs() ;
 
   // GUI event handlers
   static bool AddLocalChannel(   ValueTree channel_store) ;
@@ -92,22 +92,22 @@ private:
     }
   } ;
 
-  static NJClient*               Client ;
-  static MainContent*            Gui ;
-  static MultiTimer*             Timer ;
-  static LinJamConfig*           Config ;
-  static audioStreamer*          Audio ;
-  static String                  AutoJoinHost ;
-  static Value                   Status ;
-  static bool                    IsAudioInitialized ;
-  static SortedSet<int>          FreeAudioSources ;
-  static SortedSet<int>          FreeAudioSourcePairs ;
-  static double                  GuiBeatOffset ;
-  static File                    SessionDir ;
-  static int                     RetryLogin ;
-  static String                  PrevRecordingTime ;
-  static URL                     PollUrl ;
-  static ScopedPointer<RoomSort> RoomSorter ;
+  static NJClient*      Client ;
+  static MainContent*   Gui ;
+  static MultiTimer*    Timer ;
+  static LinJamConfig*  Config ;
+  static audioStreamer* Audio ;
+  static String         AutoJoinHost ;
+  static Value          Status ;
+  static bool           IsAudioInitialized ;
+  static SortedSet<int> FreeSources ;
+  static SortedSet<int> FreeSourcePairs ;
+  static double         GuiBeatOffset ;
+  static File           SessionDir ;
+  static int            RetryLogin ;
+  static String         PrevRecordingTime ;
+  static UPTR<RoomSort> RoomSorter ;
+  static URL            PollUrl ;
 
   // setup
   static bool Initialize(NJClient*   nj_client   , MainContent*  main_content ,
@@ -139,7 +139,7 @@ private:
   static void UpdateGuiLowPriority() ;
   static void UpdateLoopProgress() ;
   static void UpdateVuMeters() ;
-  static void UpdateRooms() ;
+  static void UpdateJams() ;
   static void UpdateRecordingTime() ;
 
   // NJClient configuration

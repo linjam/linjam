@@ -31,7 +31,7 @@
 /**
                                                                     //[Comments]
   Login is the initial lobby "screen" that contains quick-login buttons
-      and custom server/login configuration
+      and custom server/login credentials
                                                                     //[/Comments]
 */
 class Login  : public Component,

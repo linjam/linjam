@@ -991,7 +991,7 @@
 
 #define DEBUG_TRACE_CONFIG_VALUE_CHANGED                                 \
   bool is_status_change = a_value.refersToSameSourceAs(LinJam::Status) ; \
-  String a_var  = (is_status_change)? "Status" : "unknown" ;             \
+  String a_var  = (is_status_change) ? "Status" : "unknown" ;            \
   String status = Trace::Status2String(int(LinJam::Status.getValue())) ; \
   if (DEBUG_TRACE_VB && is_status_change)                                \
     Trace::TraceEvent("value changed => " + a_var + " => " + status)     ;
@@ -1032,7 +1032,7 @@
 
 #define DEBUG_TRACE_MONO_STATUS                                                 \
   String dbgA = "setting remote channel '" ; String dbgB = "' status to MONO" ; \
-  String pair_name = (has_l_pair)? l_pair_name : r_pair_name ;                  \
+  String pair_name = (has_l_pair) ? l_pair_name : r_pair_name ;                 \
   if (has_orphaned_pair)                                                        \
     Trace::TraceConfig(dbgA + pair_name    + dbgB + " (orphaned)") ;            \
   if (ParseStereoStatus(channel_name) == CONFIG::MONO)                          \
@@ -1044,7 +1044,7 @@
   String channel_id   = Id2Str(MakeChannelId(ch_idx)) ;                             \
   String channel_name = LinJam::GetStoredChannelName(new_channel_node) ;            \
   bool   is_local     = channels_store == this->localChannels ;                     \
-  String group        = (is_local)? "local" : "remote" ;                            \
+  String group        = (is_local) ? "local" : "remote" ;                           \
   String dbgA         = "created storage for new " ;                                \
   String dbgB         = group + " " + channel_id + " '" + channel_name + "'" ;      \
   if      (!channels_store.isValid())                                               \

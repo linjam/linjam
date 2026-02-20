@@ -51,6 +51,7 @@ public:
   void removeChannel(   Identifier channels_id , Identifier channel_id) ;
   void positionResizers() ;
   void pruneRemotes(    ValueTree active_users) ;
+  int  getNumDynamicMixers() ;
 
     //[/UserMethods]
 
@@ -79,7 +80,6 @@ private:
   void      addScrollButton(       TextButton* scroll_button , String button_text) ;
   void      addResizer(            ResizableEdgeComponent* resizer) ;
   Channels* getChannels(           Identifier channels_id) ;
-  int       getNumDynamicMixers() ;
   int       getLocalsResizerNextX() ;
   int       getMastersResizerNextX() ;
 

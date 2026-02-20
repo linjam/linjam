@@ -202,10 +202,9 @@ void MainContent::valueChanged(Value& a_value)
 {
   if (!a_value.refersToSameSourceAs(this->linjamStatus)) return ;
 
-  int  linjam_status = int(a_value.getValue()) ;
-  bool is_config     = linjam_status >= APP::LINJAM_STATUS_AUDIOINIT &&
-                       linjam_status <= APP::LINJAM_STATUS_AUDIOERROR ;
-  bool is_jam        = linjam_status == APP::NJC_STATUS_OK ;
+  bool is_config     = this->linjamStatus >= APP::LINJAM_STATUS_AUDIOINIT &&
+                       this->linjamStatus <= APP::LINJAM_STATUS_AUDIOERROR ;
+  bool is_jam        = this->linjamStatus == APP::NJC_STATUS_OK ;
   bool is_lobby      = ! is_config && ! is_jam ; // TODO: sophistimocate me?
 
 
@@ -230,8 +229,8 @@ void MainContent::valueChanged(Value& a_value)
     this->modeButton->setColour(TextButton::textColourOnId   , Colour(0xFF00FF00)) ;
     this->modeButton->setColour(TextButton::textColourOffId  , Colour(0xFF00FF00)) ;
 
-    bool   is_audio_init    = linjam_status == APP::LINJAM_STATUS_AUDIOINIT ;
-    bool   is_audio_error   = linjam_status == APP::LINJAM_STATUS_AUDIOERROR ;
+    bool   is_audio_init    = this->linjamStatus == APP::LINJAM_STATUS_AUDIOINIT ;
+    bool   is_audio_error   = this->linjamStatus == APP::LINJAM_STATUS_AUDIOERROR ;
     Colour button_out_color = (is_audio_init ) ? GUI::MODE_BTN_OUT_INIT_COLOR    :
                               (is_audio_error) ? GUI::MODE_BTN_OUT_ERROR_COLOR   :
                                                  GUI::MODE_BTN_OUT_NORMAL_COLOR  ;

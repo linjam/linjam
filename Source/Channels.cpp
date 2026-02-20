@@ -153,7 +153,7 @@ void Channels::resized()
 
   // resize this container
   int n_channels = getNumChannels() ;
-  int channels_w = GUI::MIXERGROUP_W((n_channels)? n_channels : 1) ;
+  int channels_w = GUI::MIXERGROUP_W((n_channels) ? n_channels : 1) ;
   int channels_h = GUI::MIXERGROUP_H ;
   setSize(channels_w , channels_h) ;
 

@@ -21,29 +21,30 @@
 
 
 // tracing
-#define DEBUG_TRACE              (DEBUG              &&              1)
-#define DEBUG_TRACE_EVENTS       (DEBUG_TRACE        &&              1)
-#define DEBUG_TRACE_STATE        (DEBUG_TRACE        &&              1)
-#define DEBUG_TRACE_NETWORK      (DEBUG_TRACE        &&              0)
-#define DEBUG_TRACE_VB           (DEBUG_TRACE        &&              0)
-#define DEBUG_TRACE_CONFIG       (DEBUG_TRACE_STATE                   )
-#define DEBUG_TRACE_CONFIG_VB    (DEBUG_TRACE_CONFIG && DEBUG_TRACE_VB)
-#define DEBUG_TRACE_CLIENT       (DEBUG_TRACE_STATE                   )
-#define DEBUG_TRACE_SERVER       (DEBUG_TRACE_STATE                   )
-#define DEBUG_TRACE_GUI          (DEBUG_TRACE_EVENTS                  )
-#define DEBUG_TRACE_GUI_VB       (DEBUG_TRACE_GUI    && DEBUG_TRACE_VB)
-#define TRACE_DUMP_CONFIG        (DEBUG_TRACE_VB && 0) // full compare default<->stored
-#define TRACE_CONFIG_TYPES       (DEBUG_TRACE_VB && 0) // per property datatype info
-#define TRACE_STORE_CONFIG_VB    (DEBUG_TRACE_VB && 0) // dump output XML
-#define TRACE_AUDIO_INIT_VB      (DEBUG_TRACE_VB && 1) // full audio initialization params
-#define TRACE_LOGIN_HOST         (DEBUG_TRACE_VB && 0) // credentials
-#define TRACE_LOCAL_CHANNELS_VB  (DEBUG_TRACE_VB && 0) // full dump params for all channels
-#define TRACE_REMOTE_CHANNELS_VB (DEBUG_TRACE_VB && 0) // full dump params for all channels
-#define TRACE_ADD_CHANNEL_GUI_VB (DEBUG_TRACE_VB && 0)
-#define TRACE_DUMP_FREE_INPUTS   (DEBUG_TRACE_VB && 0) // dump input device free list
-#define TRACE_DUMP_CHANNELS_GUI  (DEBUG_TRACE_VB && 0)
-#define TRACE_DUMP_BLACKLIST     (DEBUG_TRACE_VB && 0) // dump blacklist
-#define TRACE_MIXER_COMPONENTS   (DEBUG_TRACE_VB && 0)
+#define DEBUG_TRACE              (DEBUG               &&                    1 )
+#define DEBUG_TRACE_VB           (DEBUG_TRACE         &&                    1 )
+#define DEBUG_TRACE_EVENTS       (DEBUG_TRACE         &&                    1 )
+#define DEBUG_TRACE_STATE        (DEBUG_TRACE         &&                    1 )
+#define DEBUG_TRACE_NETWORK      (DEBUG_TRACE         &&                    1 )
+#define DEBUG_TRACE_NETWORK_VB   (DEBUG_TRACE_NETWORK && (DEBUG_TRACE_VB || 0))
+#define DEBUG_TRACE_CONFIG       (DEBUG_TRACE_STATE                           )
+#define DEBUG_TRACE_CONFIG_VB    (DEBUG_TRACE_CONFIG  && (DEBUG_TRACE_VB || 0))
+#define DEBUG_TRACE_CLIENT       (DEBUG_TRACE_STATE                           )
+#define DEBUG_TRACE_SERVER       (DEBUG_TRACE_STATE                           )
+#define DEBUG_TRACE_GUI          (DEBUG_TRACE_EVENTS                          )
+#define DEBUG_TRACE_GUI_VB       (DEBUG_TRACE_GUI     && (DEBUG_TRACE_VB || 1))
+#define TRACE_DUMP_CONFIG        (DEBUG_TRACE_VB      &&                    0 ) // full compare default<->stored
+#define TRACE_CONFIG_TYPES       (DEBUG_TRACE_VB      &&                    0 ) // per property datatype info
+#define TRACE_STORE_CONFIG_VB    (DEBUG_TRACE_VB      &&                    0 ) // dump output XML
+#define TRACE_AUDIO_INIT_VB      (DEBUG_TRACE_VB      &&                    0 ) // full audio initialization params
+#define TRACE_LOGIN_HOST         (DEBUG_TRACE_VB      &&                    0 ) // credentials
+#define TRACE_LOCAL_CHANNELS_VB  (DEBUG_TRACE_VB      &&                    0 ) // full dump params for all channels
+#define TRACE_REMOTE_CHANNELS_VB (DEBUG_TRACE_VB      &&                    0 ) // full dump params for all channels
+#define TRACE_ADD_CHANNEL_GUI_VB (DEBUG_TRACE_VB      &&                    0 )
+#define TRACE_DUMP_FREE_INPUTS   (DEBUG_TRACE_VB      &&                    0 ) // dump input device free list
+#define TRACE_DUMP_CHANNELS_GUI  (DEBUG_TRACE_VB      &&                    0 )
+#define TRACE_DUMP_BLACKLIST     (DEBUG_TRACE_VB      &&                    0 ) // dump blacklist
+#define TRACE_MIXER_COMPONENTS   (DEBUG_TRACE_VB      &&                    0 )
 
 
 class Trace

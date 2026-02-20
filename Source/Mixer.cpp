@@ -277,6 +277,11 @@ void Mixer::pruneRemotes(ValueTree active_users)
   }
 }
 
+int Mixer::getNumDynamicMixers()
+{
+  return getNumChildComponents() - GUI::N_STATIC_MIXER_CHILDREN ;
+}
+
 
 /* Mixer class private instance methods */
 
@@ -331,11 +336,6 @@ Channels* Mixer::getChannels(Identifier channels_id)
 {
   // return (Channels*)findChildWithID(StringRef(STRING(channels_id))) ;
   return (Channels*)findChildWithID(StringRef(channels_id)) ;
-}
-
-int Mixer::getNumDynamicMixers()
-{
-  return getNumChildComponents() - GUI::N_STATIC_MIXER_CHILDREN ;
 }
 
 int Mixer::getLocalsResizerNextX() { return localChannels->getRight() - 1 ; }

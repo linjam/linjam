@@ -468,7 +468,7 @@ public:
 
 
 /** the CONFIG namespace defines keys/value pairs and default value constants
-        pertaining to the configuration/persistence model                     */
+        and validations pertaining to the configuration/persistence model<->XML */
 namespace CONFIG
 {
   /* config XML and ValueTree keys */
@@ -950,17 +950,17 @@ namespace GUI
   static const int    LOGIN_BUTTON_T                 = LOGIN_BUTTONS_GROUP_Y + GUI::PAD4 ;
   static const int    LOGIN_BUTTON_W                 = 128 ;
   static const int    LOGIN_BUTTON_H                 = 24 ;
-  static const String LOGIN_BUTTON_TOOLTIP           = "Jammers:\n\t" ;
-  static const String ROOM_VACANT_TOOLTIP            = "(vacant)" ;
+  static const String LOGIN_BUTTON_TOOLTIP           = TRANS("Jammers:") ;
+  static const String ROOM_VACANT_TOOLTIP            = TRANS("(vacant)") ;
   static const Colour PROMPT_BACKGROUND_NORMAL_COLOR = Colour(0xFF000000) ;
   static const Colour PROMPT_BORDER_NORMAL_COLOR     = Colour(0xFFFFFFFF) ;
   static const Colour PROMPT_FOCUS_NORMAL_COLOR      = Colour(0xFFFFFFFF) ;
   static const Colour PROMPT_BACKGROUND_ERROR_COLOR  = Colour(0xFF200000) ;
   static const Colour PROMPT_BORDER_ERROR_COLOR      = Colour(0xFF800000) ;
   static const Colour PROMPT_FOCUS_ERROR_COLOR       = Colour(0xFFFF0000) ;
-  static const String HOST_PROMPT_TEXT               = "<type a server url here>" ;
-  static const String LOGIN_PROMPT_TEXT              = "<type a nickname here>" ;
-  static const String PASS_PROMPT_TEXT               = "<type a password here>" ;
+  static const String HOST_PROMPT_TEXT               = TRANS("<type a server url here>") ;
+  static const String LOGIN_PROMPT_TEXT              = TRANS("<type a nickname here>") ;
+  static const String PASS_PROMPT_TEXT               = TRANS("<type a password here>") ;
 
   // License
   static const String LICENSE_GUI_ID = "license-gui" ;
@@ -1055,9 +1055,9 @@ namespace GUI
 
   // StatusBar
   static const String STATUS_GUI_ID          = "statusbar-gui" ;
-  static const String AUDIO_INIT_MSG         = "initializing audio" ;
-  static const String AUDIO_INIT_ERROR_MSG   = "audio device error" ;
-  static const String CONFIG_PENDING_MSG     = "press '" + DISMISS_BTN_NORMAL_TEXT + "' to continue" ;
+  static const String AUDIO_INIT_MSG         = "Initializing audio" ;
+  static const String AUDIO_INIT_ERROR_MSG   = "Audio Device error" ;
+  static const String CONFIG_PENDING_MSG     = TRANS("Press 'Lobby' to exit Settings screen") ;
   static const String DISCONNECTED_TEXT      = "Disconnected" ;
   static const String ROOM_FULL_TEXT         = "Jam room full" ;
   static const String INVALID_AUTH_TEXT      = "Invalid login/pass" ;

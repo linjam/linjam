@@ -47,13 +47,13 @@
       (Status == APP::LINJAM_STATUS_LOGOUTPENDING ) ? "showing lobby pane"     : \
                                                       "showing background pane") ;
 
-#define DEBUG_TRACE_CONNECT                                                  \
-  Trace::TraceState((!IsAgreed())? "connecting to " + host :                 \
-                                   "joining "       + host + " as " + login) ;
+#define DEBUG_TRACE_CONNECT                                                   \
+  Trace::TraceState((!IsAgreed()) ? "connecting to " + host :                 \
+                                    "joining "       + host + " as " + login) ;
 
-#define DEBUG_TRACE_LICENSE                                          \
-  Trace::TraceState((IsAgreed())? "agreeing to license" :            \
-                                  "prompting for license agreement") ;
+#define DEBUG_TRACE_LICENSE                                           \
+  Trace::TraceState((IsAgreed()) ? "agreeing to license" :            \
+                                   "prompting for license agreement") ;
 
 #define DEBUG_TRACE_SHUTDOWN Trace::TraceState("clean shutdown - bye") ;
 
@@ -160,29 +160,29 @@
   if (!n_chs) Trace::TraceConfig("no stored channels found") ;                     \
   else Trace::TraceConfig("restoring " + String(n_chs) + " stored local channels") ;
 
-#define DEBUG_TRACE_ADD_LOCAL_CHANNEL                                                     \
-  String channel_name = str(channel_store[CONFIG::CHANNEL_NAME_ID]) ;                     \
-  int    ch_idx       = int(channel_store[CONFIG::CHANNEL_IDX_ID ]) ;                     \
-  int    source       = int(channel_store[CONFIG::SOURCE_N_ID    ]) ;                     \
-  bool   stereo       = int(channel_store[CONFIG::STEREO_ID      ]) != CONFIG::MONO ;     \
-  String type         = (!stereo)? "mono" : "stereo" ;                                    \
-  bool   is_new       = ch_idx == CONFIG::DEFAULT_CHANNEL_IDX ;                           \
-  bool   exists       = IsConfiguredChannel(ch_idx) ;                                     \
-  bool   valid_source = source >= 0 && source < GetNumAudioSources() ;                    \
-  int    n_vacant     = GetNumVacantChannels() ;                                          \
-  bool   no_free_chs  = (!stereo && n_vacant < 1) || (stereo && n_vacant < 2) ;           \
-  String dbg          = "when adding " + String((is_new)? "new" : "stored") + " local " + \
-                        type + " input[" + String(source) + "] '" + channel_name + "'" ;  \
-  if (exists)                                                                             \
-    Trace::TraceError("channel already exists " + dbg) ;                                  \
-  else if (!valid_source)                                                                 \
-    Trace::TraceError("non-existent source " + dbg) ;                                     \
-  else if (no_free_chs)                                                                   \
-  {                                                                                       \
-    Trace::TraceError("insufficient free channels " + dbg) ;                              \
-    if (TRACE_LOCAL_CHANNELS_VB)                                                          \
-      DBG(Trace::DumpStoredChannels() + Trace::DumpClientChannels()) ;                    \
-  }                                                                                       \
+#define DEBUG_TRACE_ADD_LOCAL_CHANNEL                                                      \
+  String channel_name = str(channel_store[CONFIG::CHANNEL_NAME_ID]) ;                      \
+  int    ch_idx       = int(channel_store[CONFIG::CHANNEL_IDX_ID ]) ;                      \
+  int    source       = int(channel_store[CONFIG::SOURCE_N_ID    ]) ;                      \
+  bool   stereo       = int(channel_store[CONFIG::STEREO_ID      ]) != CONFIG::MONO ;      \
+  String type         = (!stereo) ? "mono" : "stereo" ;                                    \
+  bool   is_new       = ch_idx == CONFIG::DEFAULT_CHANNEL_IDX ;                            \
+  bool   exists       = IsConfiguredChannel(ch_idx) ;                                      \
+  bool   valid_source = source >= 0 && source < GetNumAudioSources() ;                     \
+  int    n_vacant     = GetNumVacantChannels() ;                                           \
+  bool   no_free_chs  = (!stereo && n_vacant < 1) || (stereo && n_vacant < 2) ;            \
+  String dbg          = "when adding " + String((is_new) ? "new" : "stored") + " local " + \
+                        type + " input[" + String(source) + "] '" + channel_name + "'" ;   \
+  if (exists)                                                                              \
+    Trace::TraceError("channel already exists " + dbg) ;                                   \
+  else if (!valid_source)                                                                  \
+    Trace::TraceError("non-existent source " + dbg) ;                                      \
+  else if (no_free_chs)                                                                    \
+  {                                                                                        \
+    Trace::TraceError("insufficient free channels " + dbg) ;                               \
+    if (TRACE_LOCAL_CHANNELS_VB)                                                           \
+      DBG(Trace::DumpStoredChannels() + Trace::DumpClientChannels()) ;                     \
+  }                                                                                        \
   else Trace::TraceEvent(dbg) ;
 
 #define DEBUG_TRACE_INSTANTIATE_LOCAL_CHANNEL                                    \
@@ -230,14 +230,14 @@
                     Id2Str(channel_store.getType()) + "'"                    ) ;
 
 #if TRACE_DUMP_FREE_INPUTS
-#  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB                                          \
-  SortedSet<int> monos   = FreeAudioSources ;     int n_monos   = monos.size() ;   \
-  SortedSet<int> stereos = FreeAudioSourcePairs ; int n_stereos = stereos.size() ; \
-  String dump = String(n_monos)   + " FreeAudioSources     = [" ;                  \
-  for (int i = 0 ; i < n_monos ; ++i)   dump += String(monos[i])   + " " ;         \
-  Trace::TraceConfigVb(dump.trim() + "]") ;                                        \
-  dump       = String(n_stereos)  + " FreeAudioSourcePairs = [" ;                  \
-  for (int i = 0 ; i < n_stereos ; ++i) dump += String(stereos[i]) + " " ;         \
+#  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB                                     \
+  SortedSet<int> monos   = FreeSources ;     int n_monos   = monos.size() ;   \
+  SortedSet<int> stereos = FreeSourcePairs ; int n_stereos = stereos.size() ; \
+  String dump = String(n_monos)   + " FreeSources     = [" ;                  \
+  for (int i = 0 ; i < n_monos ; ++i)   dump += String(monos[i])   + " " ;    \
+  Trace::TraceConfigVb(dump.trim() + "]") ;                                   \
+  dump       = String(n_stereos)  + " FreeSourcePairs = [" ;                  \
+  for (int i = 0 ; i < n_stereos ; ++i) dump += String(stereos[i]) + " " ;    \
   Trace::TraceConfigVb(dump.trim() + "]") ;
 #else // TRACE_DUMP_FREE_INPUTS
 #  define DEBUG_TRACE_DUMP_FREE_INPUTS_VB ;
@@ -274,17 +274,16 @@
     Trace::TraceState(dbg) ;
 
 #if TRACE_REMOTE_CHANNELS_VB
-#  define                                                                    \
-  bool has_bot = NETWORK::KNOWN_BOTS.getChildWithName(host).isValid() ;      \
-  bool hide_bots = has_bot && bool(Config->shouldHideBots.getValue()) ;      \
-  Trace::TraceServer("user info changed - " +                                \
-                     String(Client->GetNumUsers()) + " users") ;             \
-  int u_idx = -1 ; String u_name ; float u_vol ; float u_pan ; bool u_mute ; \
-  while ((u_name = GetRemoteUserName(++u_idx)).isNotEmpty())                 \
-  {                                                                          \
-    Client->GetUserState(u_idx , &u_vol , &u_pan , &u_mute) ;                \
-    Identifier u_id = Config->encodeUserId(String(u_name) , u_idx) ;         \
-    DEBUG_TRACE_REMOTE_CHANNELS                                              \
+#  define DEBUG_TRACE_REMOTE_CHANNELS_VB                                                  \
+  bool has_bot = NETWORK::KNOWN_BOTS.getChildWithName(host).isValid() ;                   \
+  bool hide_bots = has_bot && bool(Config->client[CONFIG::SHOULD_HIDE_BOTS_ID]) ;         \
+  Trace::TraceServer("user info changed - " + String(Client->GetNumUsers()) + " users") ; \
+  int u_idx = -1 ; String u_name ; float u_vol ; float u_pan ; bool u_mute ;              \
+  while ((u_name = GetRemoteUserName(++u_idx)).isNotEmpty())                              \
+  {                                                                                       \
+    Client->GetUserState(u_idx , &u_vol , &u_pan , &u_mute) ;                             \
+    Identifier u_id = LinJamConfig::MakeUserId(u_name) ;                                  \
+    DEBUG_TRACE_REMOTE_CHANNELS                                                           \
   }
 #else // TRACE_REMOTE_CHANNELS_VB
 #  define DEBUG_TRACE_REMOTE_CHANNELS_VB ;
@@ -322,9 +321,9 @@
   else if (TRACE_REMOTE_CHANNELS_VB) Trace::TraceClient(dbg                    +         \
       ((should_set_volume  ) ? "\n  volume      => " + String(volume)    : "") +         \
       ((should_set_pan     ) ? "\n  pan         => " + pan_msg           : "") +         \
-      ((should_set_is_rcv  ) ? "\n  is_rcv      => " + Bool2Str(is_rcv)   : "") +         \
-      ((should_set_is_muted) ? "\n  is_muted    => " + Bool2Str(is_muted) : "") +         \
-      ((should_set_is_solo ) ? "\n  is_solo     => " + Bool2Str(is_solo)  : "") +         \
+      ((should_set_is_rcv  ) ? "\n  is_rcv      => " + Bool2Str(is_rcv)   : "") +        \
+      ((should_set_is_muted) ? "\n  is_muted    => " + Bool2Str(is_muted) : "") +        \
+      ((should_set_is_solo ) ? "\n  is_solo     => " + Bool2Str(is_solo)  : "") +        \
       ((should_init_all    ) ? "\n  sink_n      => " + String(sink_n)    : "") +         \
       ((should_init_all    ) ? "\n  is_pannable => " + pannable          : "") ) ;       \
   if (is_master && !should_set_volume && !should_set_pan && !should_set_is_muted &&      \
@@ -382,9 +381,10 @@
 
 #define DEBUG_UPDATE_ROOMS_USERDATA Trace::TraceConfigVb("LinJam::UpdateRooms() Status=" + String(int(Status.getValue())) + " is_ready=" + String(Status == APP::NJC_STATUS_OK) + " n_jams=" + String(jams.size()) + " userdata=" + userdata) ;
 
-#define DEBUG_UPDATE_ROOMS_ROOMDATA Trace::TraceConfigVb("LinJam::UpdateRooms() jamdata=" + jams[jam_n]) ;
+#define DEBUG_UPDATE_ROOMS_JAMDATA  Trace::TraceConfigVb("LinJam::UpdateRooms() jamdata=" + jams[jam_n]) ;
 
 #else // DEBUG
+
 
 // state
 #define DEBUG_TRACE_INIT                      ;

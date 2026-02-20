@@ -45,8 +45,8 @@ const Identifier NETWORK::NINBOT_LOGIN      = "ninbot_" ;
 const Identifier NETWORK::JAMBOT_LOGIN      = "Jambot" ;
 const String     NETWORK::KNOWN_HOSTS_KEY   = "known-hosts" ;
 const String     NETWORK::KNOWN_BOTS_KEY    = "known-bots" ;
-ValueTree        NETWORK::KNOWN_HOSTS ;    // APP::Initialize()
-ValueTree        NETWORK::KNOWN_BOTS ;     // APP::Initialize()
+ValueTree        NETWORK::KNOWN_HOSTS ; // APP::Initialize()
+ValueTree        NETWORK::KNOWN_BOTS ;  // APP::Initialize()
 
 // http requests
 // const String NETWORK::WEBSITE_URL = "http://teamstream.herokuapp.com" ; // WIP: new stats

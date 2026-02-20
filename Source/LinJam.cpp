@@ -33,21 +33,24 @@ LinJamConfig* LinJam::Config ;
 
 /* LinJam class private class variables */
 
-NJClient*                       LinJam::Client               = nullptr ;          // Initialize()
-MainContent*                    LinJam::Gui                  = nullptr ;          // Initialize()
-MultiTimer*                     LinJam::Timer                = nullptr ;          // Initialize()
-audioStreamer*                  LinJam::Audio                = nullptr ;          // Initialize()
-String                          LinJam::AutoJoinHost ;                            // Initialize()
-Value                           LinJam::Status               = Value() ;          // Initialize()
-bool                            LinJam::IsAudioInitialized   = false ;            // InitializeAudio()
-SortedSet<int>                  LinJam::FreeAudioSources     = SortedSet<int>() ; // InitializeAudio()
-SortedSet<int>                  LinJam::FreeAudioSourcePairs = SortedSet<int>() ; // InitializeAudio()
-double                          LinJam::GuiBeatOffset ;                           // InitializeAudio()
-File                            LinJam::SessionDir ;                              // PrepareSessionDirectory()
-int                             LinJam::RetryLogin ;                              // Connect()
-String                          LinJam::PrevRecordingTime ;                       // Disconnect()
-URL                             LinJam::PollUrl ;
-ScopedPointer<LinJam::RoomSort> LinJam::RoomSorter           = new LinJam::RoomSort() ;
+// setup/teardown
+NJClient*              LinJam::Client             = nullptr ;          // Initialize()
+MainContent*           LinJam::Gui                = nullptr ;          // Initialize()
+MultiTimer*            LinJam::Timer              = nullptr ;          // Initialize()
+audioStreamer*         LinJam::Audio              = nullptr ;          // Initialize()
+String                 LinJam::AutoJoinHost ;                          // Initialize()
+Value                  LinJam::Status             = Value() ;          // Initialize()
+bool                   LinJam::IsAudioInitialized = false ;            // InitializeAudio()
+SortedSet<int>         LinJam::FreeSources        = SortedSet<int>() ; // InitializeAudio()
+SortedSet<int>         LinJam::FreeSourcePairs    = SortedSet<int>() ; // InitializeAudio()
+double                 LinJam::GuiBeatOffset ;                         // InitializeAudio()
+File                   LinJam::SessionDir ;                            // PrepareSessionDirectory()
+// networking (NINJAM client)
+int                    LinJam::RetryLogin ;                            // Connect()
+String                 LinJam::PrevRecordingTime ;                     // Disconnect()
+// update jams
+UPTR<LinJam::RoomSort> LinJam::RoomSorter ;                            // Initialize()
+URL                    LinJam::PollUrl ;                               // SetPollUrl()
 
 
 /* LinJam class public class methods */
@@ -77,7 +80,7 @@ DEBUG_TRACE_CONNECT
   Client->Connect(host.toRawUTF8() , login.toRawUTF8() , pass.toRawUTF8()) ;
 }
 
-void LinJam::Disconnect() { Client->Disconnect() ; PrevRecordingTime = "" ; }
+void LinJam::Disconnect() { PrevRecordingTime = "" ; Client->Disconnect() ; }
 
 
 /* getters/setters */
@@ -86,9 +89,9 @@ ValueTree LinJam::GetCredentials(String host) { return Config->getCredentials(ho
 
 bool LinJam::IsAgreed() { return bool(Config->server[CONFIG::IS_AGREED_ID]) ; }
 
-SortedSet<int> LinJam::GetFreeAudioSources() { return FreeAudioSources ; }
+SortedSet<int> LinJam::GetFreeSources()     { return FreeSources     ; }
 
-SortedSet<int> LinJam::GetFreeAudioSourcePairs() { return FreeAudioSourcePairs ; }
+SortedSet<int> LinJam::GetFreeSourcePairs() { return FreeSourcePairs ; }
 
 
 /* GUI event handlers */
@@ -542,11 +545,11 @@ DEBUG_TRACE_AUDIO_INIT
 
     // populate input source names arrays for ChannelConfig GUI
     int n_audio_sources = GetNumAudioSources() ;
-    FreeAudioSources.clear() ; FreeAudioSourcePairs.clear() ;
+    FreeSources.clear() ; FreeSourcePairs.clear() ;
     for (int source_n = 0 ; source_n < n_audio_sources ; ++source_n)
     {
-      FreeAudioSources.add(source_n) ;
-      if (source_n % 2) FreeAudioSourcePairs.add(source_n - 1) ;
+      if (true        ) FreeSources    .add(source_n    ) ;
+      if (source_n % 2) FreeSourcePairs.add(source_n - 1) ;
     }
 
     // create master and stored local input channels
@@ -677,7 +680,7 @@ DEBUG_TRACE_CHAT_IN
     if (chat_user.isEmpty()) return ;
 
     chat_text = chat_user + GUI::JOINPART_TEXTa +
-                ((is_join_msg)? GUI::JOIN_TEXT : GUI::PART_TEXT) + GUI::JOINPART_TEXTb ;
+                ((is_join_msg) ? GUI::JOIN_TEXT : GUI::PART_TEXT) + GUI::JOINPART_TEXTb ;
     chat_user = GUI::SERVER_NICK ;
   }
 
@@ -737,10 +740,10 @@ void LinJam::UpdateStatus()
   status                    = (! is_ready) ? status : Client->GetStatus() ;
   String error_msg          = CharPointer_UTF8(Client->GetErrorStr()) ;
   bool   is_licence_pending = status == APP::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
-  bool   is_room_full       = is_ready && !error_msg.compare(CLIENT::SERVER_FULL_ERROR) ;
+  bool   is_jam_full        = is_ready && !error_msg.compare(CLIENT::SERVER_FULL_ERROR) ;
 
   if      (is_licence_pending) status = APP::LINJAM_STATUS_LICENSEPENDING ;
-  else if (is_room_full      ) status = APP::LINJAM_STATUS_ROOMFULL ;
+  else if (is_jam_full       ) status = APP::LINJAM_STATUS_ROOMFULL ;
 
   Status = status ;
 }
@@ -902,7 +905,7 @@ DEBUG_TRACE_HANDLEUSERINFOCHANGED
 
 void LinJam::UpdateGuiHighPriority() { UpdateLoopProgress() ; UpdateVuMeters() ; }
 
-void LinJam::UpdateGuiLowPriority() { UpdateRooms() ; UpdateRecordingTime() ; }
+void LinJam::UpdateGuiLowPriority() { UpdateJams() ; UpdateRecordingTime() ; }
 
 void LinJam::UpdateLoopProgress()
 {
@@ -1062,7 +1065,7 @@ void LinJam::UpdateVuMeters()
   master_store.setProperty(CONFIG::VU_RIGHT_ID , master_vu_r , nullptr) ;
 }
 
-void LinJam::UpdateRooms()
+void LinJam::UpdateJams()
 {
 #ifdef NO_UPDATE_ROOMS_GUI
   return ;
@@ -1073,13 +1076,14 @@ void LinJam::UpdateRooms()
   String      html = PollUrl.readEntireTextStream() ;
   StringArray jams = APP::ParseServerlist(html) ; jams.sort(true) ;
 
-  // int         userdata_idx = (Status == APP::NJC_STATUS_OK) ? rooms.size() - 1 : -1 ;
-  // String      userdata     = APP::Pluck(&rooms , userdata_idx) ;
+  // WTF: was this for?
+  // int         userdata_idx = (Status == APP::NJC_STATUS_OK) ? jam_n : -1 ;
+  // String      userdata     = APP::Pluck(&jams , userdata_idx) ;
 
 DEBUG_UPDATE_ROOMS_RESP
 // DEBUG_UPDATE_ROOMS_USERDATA
 
-  for (int room_n = 0 ; room_n < rooms.size() ; ++room_n)
+  for (int jam_n = 0 ; jam_n < jams.size() ; ++jam_n)
   {
     StringArray jam_data      = APP::ParseCSV(jams[jam_n]) ;
     String      host          = APP::Pluck(&jam_data , 0) ;
@@ -1106,7 +1110,7 @@ DEBUG_UPDATE_ROOMS_RESP
                            "- add it to NETWORK::KNOWN_HOSTS"                        ) ;
          // TODO: dont warn, just add it now?
 
-DEBUG_UPDATE_ROOMS_ROOMDATA
+DEBUG_UPDATE_ROOMS_JAMDATA
 
     while (jam_data.size() > 0)
     {
@@ -1134,7 +1138,7 @@ DEBUG_UPDATE_ROOMS_ROOMDATA
     }
   }
 
-  // sort rooms by occupancy
+  // sort jams by occupancy
   Config->servers.sort(*RoomSorter , nullptr , true) ;
 }
 
@@ -1164,10 +1168,11 @@ void LinJam::UpdateRecordingTime()
     bool should_show_time           = (has_recording_time_changed && !is_this_first_pass) ;
 
     PrevRecordingTime = recording_time ;
-    recording_time    = (should_show_time)? " - " + recording_time : String() ;
+    recording_time    = (should_show_time) ? " - " + recording_time : String() ;
+    title             = title + recording_time ;
   }
 
-  Gui->setTitle(host + " - " + bpi + "bpi / " + bpm + "bpm" + recording_time) ;
+  Gui->setTitle(title) ;
 }
 
 
@@ -1269,7 +1274,7 @@ void LinJam::ConfigureLocalChannel(ValueTree channel_store , Identifier a_key)
 DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
 
   // handle channel name change
-  const char* new_name = (should_set_name)? channel_name.toRawUTF8() : nullptr ;
+  const char* new_name = (should_set_name) ? channel_name.toRawUTF8() : nullptr ;
 
   // handle faux-stereo panning
   if (should_set_pan) pan = ClientPan(pan , stereo_status) ;
@@ -1471,9 +1476,9 @@ float LinJam::ClientPan(float pan , int stereo_status)
   // interpret faux-stereo pan for a real NJClient channel
   bool is_mono_channel = stereo_status == CONFIG::MONO ;
   bool is_pair_channel = stereo_status == CONFIG::STEREO_R ;
-  return (is_mono_channel)? pan : (!is_pair_channel)                             ?
-                                  ((pan <= 0.0f) ? -1.0f : -1.0f + (pan * 2.0f)) :
-                                  ((pan >= 0.0f) ? +1.0f : +1.0f + (pan * 2.0f)) ;
+  return (is_mono_channel) ? pan : (!is_pair_channel)                             ?
+                                   ((pan <= 0.0f) ? -1.0f : -1.0f + (pan * 2.0f)) :
+                                   ((pan >= 0.0f) ? +1.0f : +1.0f + (pan * 2.0f)) ;
 }
 
 
@@ -1481,7 +1486,7 @@ float LinJam::ClientPan(float pan , int stereo_status)
 
 int LinJam::GetNumAudioSources()
 {
-  return (Audio != nullptr)? Audio->getNInputChannels() : 0 ;
+  return (Audio != nullptr) ? Audio->getNInputChannels() : 0 ;
 }
 
 int LinJam::GetNumLocalChannels()
@@ -1492,7 +1497,7 @@ int LinJam::GetNumLocalChannels()
 
 int LinJam::GetNumVacantChannels()
 {
-  return (Audio != nullptr)? GetNumAudioSources() - GetNumLocalChannels() : 0 ;
+  return (Audio != nullptr) ? GetNumAudioSources() - GetNumLocalChannels() : 0 ;
 }
 
 int LinJam::GetVacantLocalChannelIdx()
@@ -1501,7 +1506,7 @@ int LinJam::GetVacantLocalChannelIdx()
   int channel_idx = -1 ; while (IsConfiguredChannel(++channel_idx)) ;
   bool is_vacant_slot = (channel_idx < GetNumAudioSources()) ;
 
-  return (is_vacant_slot)? channel_idx : -1 ;
+  return (is_vacant_slot) ? channel_idx : -1 ;
 }
 
 String LinJam::GetStoredChannelName(ValueTree channel_store)

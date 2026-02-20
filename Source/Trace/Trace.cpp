@@ -153,7 +153,7 @@ String Trace::DumpConfig(ValueTree default_config , ValueTree stored_config , St
       if (default_child.isValid() || n_children) continue ;
 
       dbg += "\n" + pad + "  stored node => " + Id2Str(node_name) + " (" +
-              ((n_properties)? String(n_properties) + " properties" : "empty") + ")" ;
+              ((n_properties) ? String(n_properties) + " properties" : "empty") + ")" ;
 
       for (int property_n = 0 ; property_n < n_properties ; ++property_n)
       {
