@@ -778,7 +778,7 @@ void LinJam::HandlePrivMsg(String chat_user , String chat_text)
   String bot_nick = NETWORK::KNOWN_BOTS.getProperty(host , "") ;
   if (chat_user == "*" && bot_nick.isNotEmpty()) chat_user = bot_nick ;
 
-  Gui->chat->addChatLine(chat_user , GUI::PM_TEXT + chat_text) ;
+  Gui->chat->addChatLine(chat_user , GUI::PM_TEXT + " " + chat_text) ;
 }
 
 void LinJam::HandleJoinMsg(String chat_user)

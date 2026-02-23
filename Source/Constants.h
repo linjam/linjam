@@ -878,13 +878,13 @@ namespace GUI
   static const int    CONTENT_W                  = 1280 - BORDERS_W ;
   static const int    CONTENT_H                  =  800 - BORDERS_W - TITLEBAR_H ;
   static const Colour MODE_BTN_OUT_INIT_COLOR    = Colour(0xFF404000) ;
-  static const Colour MODE_BTN_OUT_ERROR_COLOR   = Colour(0xFF400000) ;
+  static const Colour MODE_BTN_OUT_ERROR_COLOR   = Colour(0xFF800000) ;
   static const Colour MODE_BTN_OUT_NORMAL_COLOR  = Colour(0xFF004000) ;
   static const Colour MODE_BTN_IN_INIT_COLOR     = Colour(0xFF808000) ;
-  static const Colour MODE_BTN_IN_ERROR_COLOR    = Colour(0xFF800000) ;
+  static const Colour MODE_BTN_IN_ERROR_COLOR    = MODE_BTN_OUT_ERROR_COLOR ; // mode btn disabled on error
   static const Colour MODE_BTN_IN_NORMAL_COLOR   = Colour(0xFF008000) ;
   static const Colour MODE_BTN_TEXT_INIT_COLOR   = Colour(0xFFFFFF00) ;
-  static const Colour MODE_BTN_TEXT_ERROR_COLOR  = Colour(0xFFFF0000) ;
+  static const Colour MODE_BTN_TEXT_ERROR_COLOR  = Colour(0xFFFFFFFF) ;
   static const Colour MODE_BTN_TEXT_NORMAL_COLOR = Colour(0xFF00FF00) ;
   static const String MODE_BTN_INIT_TEXT         = TRANS("Initializing ....") ;
   static const String MODE_BTN_ERROR_TEXT        = TRANS("Error") ;
@@ -1027,7 +1027,7 @@ namespace GUI
   static const String SERVER_NICK           = TRANS("NINJAM") ;
   static const String TOPIC_TEXT            = TRANS("Topic is: ") ;
   static const String SET_TOPIC_TEXT        = TRANS(" sets topic to: ") ;
-  static const String PM_TEXT               = TRANS(" (whispers)") ;
+  static const String PM_TEXT               = TRANS("(whispers)") ;
   static const String JOIN_TEXT             = TRANS(" has joined the jam session") ;
   static const String PART_TEXT             = TRANS(" has left the jam session") ;
   static const String UNKNOWN_COMMAND_MSG   = TRANS("Error: unknown command") ;
