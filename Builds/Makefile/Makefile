@@ -27,6 +27,17 @@ ifndef CONFIG
   CONFIG=Release
 endif
 
+ifndef DESTDIR
+  DESTDIR=
+endif
+
+ifndef PREFIX
+  PREFIX=/usr
+endif
+
+INSTALLDIR=$(DESTDIR)$(PREFIX)
+
+
 JUCE_ARCH_LABEL := $(shell uname -m)
 
 ifeq ($(CONFIG),Release)
@@ -39,7 +50,7 @@ ifeq ($(CONFIG),Release)
     TARGET_ARCH := 
   endif
 
-  JUCE_CPPFLAGS := $(DEPFLAGS) "-DLINUX=1" "-DNDEBUG=1" "-DJUCER_LINUX_MAKE_9CCEB774=1" "-DJUCE_APP_VERSION=0.31.2" "-DJUCE_APP_VERSION_HEX=0x1f02" $(shell $(PKG_CONFIG) --cflags freetype2 zlib libjpeg libpng) -pthread -I../../JuceLibraryCode -I../../JuceLibraryCode/modules $(CPPFLAGS)
+  JUCE_CPPFLAGS := $(DEPFLAGS) "-DLINUX=1" "-DNDEBUG=1" "-DJUCER_LINUX_MAKE_9CCEB774=1" "-DJUCE_APP_VERSION=0.34" "-DJUCE_APP_VERSION_HEX=0x2200" $(shell $(PKG_CONFIG) --cflags freetype2 zlib libjpeg libpng) -pthread -I../../JuceLibraryCode -I../../JuceLibraryCode/modules $(CPPFLAGS)
   JUCE_CPPFLAGS_APP :=  "-DJucePlugin_Build_VST=0" "-DJucePlugin_Build_VST3=0" "-DJucePlugin_Build_AU=0" "-DJucePlugin_Build_AUv3=0" "-DJucePlugin_Build_AAX=0" "-DJucePlugin_Build_Standalone=0" "-DJucePlugin_Build_Unity=0" "-DJucePlugin_Build_LV2=0"
   JUCE_TARGET_APP := linjam
 
@@ -60,7 +71,7 @@ ifeq ($(CONFIG),Debug)
     TARGET_ARCH := 
   endif
 
-  JUCE_CPPFLAGS := $(DEPFLAGS) "-DLINUX=1" "-DDEBUG=1" "-D_DEBUG=1" "-DJUCER_LINUX_MAKE_9CCEB774=1" "-DJUCE_APP_VERSION=0.31.2" "-DJUCE_APP_VERSION_HEX=0x1f02" $(shell $(PKG_CONFIG) --cflags freetype2 zlib libjpeg libpng) -pthread -I../../JuceLibraryCode -I../../JuceLibraryCode/modules $(CPPFLAGS)
+  JUCE_CPPFLAGS := $(DEPFLAGS) "-DLINUX=1" "-DDEBUG=1" "-D_DEBUG=1" "-DJUCER_LINUX_MAKE_9CCEB774=1" "-DJUCE_APP_VERSION=0.34" "-DJUCE_APP_VERSION_HEX=0x2200" $(shell $(PKG_CONFIG) --cflags freetype2 zlib libjpeg libpng) -pthread -I../../JuceLibraryCode -I../../JuceLibraryCode/modules $(CPPFLAGS)
   JUCE_CPPFLAGS_APP :=  "-DJucePlugin_Build_VST=0" "-DJucePlugin_Build_VST3=0" "-DJucePlugin_Build_AU=0" "-DJucePlugin_Build_AUv3=0" "-DJucePlugin_Build_AAX=0" "-DJucePlugin_Build_Standalone=0" "-DJucePlugin_Build_Unity=0" "-DJucePlugin_Build_LV2=0"
   JUCE_TARGET_APP := linjam-dbg
 
@@ -275,6 +286,14 @@ $(JUCE_OBJDIR)/cxxfs.cmd:
 	-$(V_AT)mkdir -p $(@D)
 	-@if [ -z "$(V_AT)" ]; then echo "Checking if we need to link stdc++fs"; fi
 	$(V_AT)printf "int main() { return 0; }" | $(CXX) -x c++ -o $(@D)/cxxfs.x -lstdc++fs - >/dev/null 2>&1 && printf -- "-lstdc++fs" > "$@" || touch "$@"
+
+install:
+	@echo Installing $(JUCE_TARGET_APP)
+	@install -m 755 $(OUTDIR)/$(TARGET) $(INSTALLDIR)/bin/
+
+uninstall:
+	@echo Uninstalling $(JUCE_TARGET_APP)
+	@rm $(INSTALLDIR)/bin/$(TARGET) > /dev/null
 
 clean:
 	@echo Cleaning LinJam

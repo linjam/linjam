@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="V5yqRw" name="LinJam" projectType="guiapp" version="0.31.2"
+<JUCERPROJECT id="V5yqRw" name="LinJam" projectType="guiapp" version="0.34"
               bundleIdentifier="bill-auger.LinJam" includeBinaryInAppConfig="1"
               companyWebsite="https://github.com/linjam/linjam/issues" projectLineFeed="&#10;"
               jucerFormatVersion="1">
