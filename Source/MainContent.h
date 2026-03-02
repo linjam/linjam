@@ -70,9 +70,10 @@ private:
   void setTitle     (String title_text) ;
 
   // event handlers
-  void childrenChanged()                 override ;
-  void buttonClicked  (Button* a_button) override ;
-  void valueChanged   (Value& a_value)   override ;
+  void childrenChanged()                         override ;
+  void buttonClicked  (Button* a_button)         override ;
+  void valueChanged   (Value& a_value)           override ;
+  bool keyPressed     (const KeyPress& keypress) override ;
   void updateModeBtn  () ;
 
 

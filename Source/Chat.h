@@ -64,6 +64,7 @@ private:
 
 
   void valueChanged(              Value& a_value)            override ;
+  void textEditorEscapeKeyPressed(TextEditor& a_text_editor) override ;
   void textEditorReturnKeyPressed(TextEditor& a_text_editor) override ;
   void broughtToFront            ()                          override ;
 

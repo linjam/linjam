@@ -894,6 +894,7 @@ namespace GUI
   static const String MODE_BTN_LOBBY_TEXT        = TRANS("Settings") ;
   static const String MODE_BTN_CONFIG_TEXT       = TRANS("<-- Lobby") ;
   static const String MODE_BTN_JAM_TEXT          = TRANS("<-- Lobby") ;
+  static const int    SLASH_KEY                  = 47 ;
 
   // Background
   static const String BACKGROUND_GUI_ID   = "background-gui" ;

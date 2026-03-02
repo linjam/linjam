@@ -27,6 +27,7 @@ MainContent::MainContent(DocumentWindow* main_window , TextButton* mode_btn)
   this->mainWindow = main_window ;
   this->modeButton = mode_btn ;
   this->modeButton->addListener(this) ;
+  this->modeButton->addShortcut(KeyPress(KeyPress::escapeKey)) ;
 
   // MainContent (this)
   setName("MainContent") ;
@@ -301,4 +302,24 @@ DEBUG_TRACE_UPDATEMODEBTN
     this->modeButton->setColour(TextButton::textColourOffId  , Colour(0xffFFFF00)) ;
     this->modeButton->setButtonText(GUI::MODE_BTN_JAM_TEXT) ;
   }
+}
+
+bool MainContent::keyPressed(const KeyPress& keypress)
+{
+// WIP: eg:
+// if (keypress.getModifiers().isAltDown() && (keypress.getKeyCode() == 97) ;
+DBG("key pressed: " + String(keypress.getKeyCode())) ;
+
+  if      (keypress.isKeyCode(KeyPress::escapeKey))
+    return true ; // handled by modeButton
+  else if ( keypress.isKeyCode(KeyPress::spaceKey ) ||
+            keypress.isKeyCode(GUI::SLASH_KEY     )  )
+  {
+DBG("MainContent::keyPressed() tis spaceKey") ;
+    this->chat->grabFocus() ;
+
+    return true ;
+  }
+
+  return false ; // false -> un-handled
 }

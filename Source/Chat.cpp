@@ -294,6 +294,13 @@ void Chat::valueChanged(Value& a_value)
   }
 }
 
+void Chat::textEditorEscapeKeyPressed(TextEditor& a_text_editor)
+{
+  if (&a_text_editor != this->chatEntryText.get()) return ;
+
+  this->chatEntryText->giveAwayKeyboardFocus() ;
+}
+
 void Chat::textEditorReturnKeyPressed(TextEditor& a_text_editor)
 {
   if (&a_text_editor != this->chatEntryText.get()) return ;
