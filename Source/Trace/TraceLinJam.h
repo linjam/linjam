@@ -3,49 +3,56 @@
 #include "Trace.h"
 
 
-// enable debug features
-// #define DEBUG_EXIT_IMMEDIATELY
-// #define DEBUG_AUTOJOIN_HOST if (cli_args.isEmpty()) cli_args = "localhost:2049"
-// #define DEBUG_AUTOJOIN_HOST if (cli_args.isEmpty()) cli_args = "ninbot.com:2049"
-// #define DEBUG_AUTOJOIN_HOST if (cli_args.isEmpty()) cli_args = "ninjamer.com:2051"
-
-
 /* state */
 
 #ifdef DEBUG_AUTOJOIN_HOST
-#define DEBUG_TRACE_INIT Trace::TraceState("initializing") ; \
-        DEBUG_AUTOJOIN_HOST                                  ;
+#  define DEBUG_TRACE_INIT Trace::TraceState("initializing") ; DEBUG_AUTOJOIN_HOST ;
 #else // DEBUG_AUTOJOIN_HOST
-#define DEBUG_TRACE_INIT Trace::TraceState("initializing") ;
+#  define DEBUG_TRACE_INIT Trace::TraceState("initializing") ;
 #endif // DEBUG_AUTOJOIN_HOST
 
-#define DEBUG_TRACE_SESSIONDIR                                                          \
-  Trace::TraceClient("preparing session dir '" + SessionDir.getFullPathName() + "'- " + \
-                     (SessionDir.isDirectory() ? "already exists" : "created")        ) ;
+#define DEBUG_TRACE_SESSIONDIR                                                                \
+  Trace::TraceClient("preparing " + String(SessionDir.isDirectory() ? "existing" : "fresh") + \
+                     " session dir: '" + SessionDir.getFullPathName() + "'"                 ) ;
 
-#define DEBUG_TRACE_STATUS_CHANGED                                               \
-  int    prev_status   = Trace::DbgPrevStatus ;                                  \
-  int    curr_status   = Trace::DbgPrevStatus = int(Status.getValue()) ;         \
-  String prev_state    = Trace::Status2String(prev_status) ;                     \
-  String curr_state    = Trace::Status2String(curr_status) ;                     \
-  char*  client_error  = Client->GetErrorStr() ;                                 \
-  Trace::TraceState(prev_state + " -> " + curr_state) ;                          \
-  if (curr_status == APP::NJC_STATUS_OK)                                         \
-    Trace::TraceServer("connected to host: " + String(Client->GetHostName())) ;  \
-  if (client_error[0])                                                           \
-    Trace::TraceServer("Error: " + String(CharPointer_UTF8(client_error))) ;     \
-  Trace::TraceGui(                                                               \
-      (Status == APP::LINJAM_STATUS_AUDIOERROR    ) ? "showing config pane"    : \
-      (Status == APP::LINJAM_STATUS_CONFIGPENDING ) ? "showing config pane"    : \
-      (Status == APP::LINJAM_STATUS_LICENSEPENDING) ? "showing license pane"   : \
-      (Status == APP::LINJAM_STATUS_ROOMFULL      ) ? "showing lobby pane"     : \
-      (Status == APP::NJC_STATUS_DISCONNECTED     ) ? "showing lobby pane"     : \
-      (Status == APP::NJC_STATUS_INVALIDAUTH      ) ? "showing lobby pane"     : \
-      (Status == APP::NJC_STATUS_CANTCONNECT      ) ? "showing lobby pane"     : \
-      (Status == APP::NJC_STATUS_OK               ) ? "showing main pane"      : \
-      (Status == APP::NJC_STATUS_PRECONNECT       ) ? "showing lobby pane"     : \
-      (Status == APP::LINJAM_STATUS_LOGOUTPENDING ) ? "showing lobby pane"     : \
-                                                      "showing background pane") ;
+#define DEBUG_TRACE_UPDATESTATUS                                                \
+  Trace::TraceStateVb("Status="              + String(int(Status.getValue())) + \
+                      " GetStatus()="        + String(Client->GetStatus()   ) + \
+                      " is_ready="           + Bool2Str(is_ready            ) + \
+                      " is_logout_pending="  + Bool2Str(is_logout_pending   ) + \
+                      " is_licence_pending=" + Bool2Str(is_licence_pending  ) + \
+                      " is_jam_full="        + Bool2Str(is_jam_full         ) + \
+                      " should_refresh="     + Bool2Str(should_refresh      ) ) ;
+
+#define DEBUG_TRACE_STATUS_CHANGED                                                    \
+  int    prev_status  = Trace::DbgPrevStatus ;                                        \
+  int    curr_status  = Trace::DbgPrevStatus = int(Status.getValue()) ;               \
+  String prev_state   = Trace::Status2String(prev_status) ;                           \
+  String curr_state   = Trace::Status2String(curr_status) ;                           \
+  char*  client_error = Client->GetErrorStr() ;                                       \
+  bool   is_retry     = RetryLogin > 0 && RetryLogin < NETWORK::N_LOGIN_RETRIES - 1 ; \
+  String retry_msg    = "retrying login"                                  +           \
+                        ((RetryLogin > 1)                               ?             \
+                        " (" + String(RetryLogin) + ") tries remaining" :             \
+                        " final attempt"                                ) ;           \
+  Trace::TraceState(prev_state + " -> " + curr_state) ;                               \
+  if (curr_status == APP::NJC_STATUS_OK)                                              \
+    Trace::TraceServer("connected to host: " + String(Client->GetHostName())) ;       \
+  if (client_error[0])                                                                \
+    Trace::TraceServer("Error: " + String(CharPointer_UTF8(client_error))) ;          \
+  if (is_retry)                                                                       \
+    Trace::TraceState(retry_msg) ;                                                    \
+  Trace::TraceGui(                                                                    \
+      (Status == APP::LINJAM_STATUS_AUDIOERROR    ) ? "showing config pane"    :      \
+      (Status == APP::LINJAM_STATUS_CONFIGPENDING ) ? "showing config pane"    :      \
+      (Status == APP::LINJAM_STATUS_LICENSEPENDING) ? "showing license pane"   :      \
+      (Status == APP::LINJAM_STATUS_ROOMFULL      ) ? "showing lobby pane"     :      \
+      (Status == APP::NJC_STATUS_DISCONNECTED     ) ? "showing lobby pane"     :      \
+      (Status == APP::NJC_STATUS_INVALIDAUTH      ) ? "showing lobby pane"     :      \
+      (Status == APP::NJC_STATUS_CANTCONNECT      ) ? "showing lobby pane"     :      \
+      (Status == APP::NJC_STATUS_OK               ) ? "showing main pane"      :      \
+      (Status == APP::NJC_STATUS_PRECONNECT       ) ? "showing lobby pane"     :      \
+                                                      "showing background pane")      ;
 
 #define DEBUG_TRACE_CONNECT                                                   \
   Trace::TraceState((!IsAgreed()) ? "connecting to " + host :                 \

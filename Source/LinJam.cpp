@@ -243,13 +243,13 @@ void LinJam::CleanSessionDir() { SessionDir.deleteRecursively() ; }
 bool LinJam::Initialize(NJClient*   nj_client   , MainContent*  main_content ,
                         MultiTimer* multi_timer , const String& cli_args     )
 {
-DEBUG_TRACE_INIT
-
   Client       = nj_client ;
   Gui          = main_content ;
   Timer        = multi_timer ;
   AutoJoinHost = cli_args ; // TODO: parse/validate command line for auto-join (issue #9)
   Status       = APP::LINJAM_STATUS_INIT ;
+
+DEBUG_TRACE_INIT
 
   // prepare runtime initialized constants
   APP::Initialize() ;

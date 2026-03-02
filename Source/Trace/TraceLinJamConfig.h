@@ -21,7 +21,7 @@
   String fail_msg    = "stored config not found" ;                                      \
   Trace::TraceConfig(((has_stored_config) ? success_msg : fail_msg              ) +     \
                      ((do_versions_match) ? ""                                  :       \
-                     " (latest is v" + latest_version + " - restoring defualts)") ) ;   \
+                     " (latest is v" + latest_version + " - applying defualts)") ) ;    \
   if (TRACE_DUMP_CONFIG && has_stored_config)                                           \
     Trace::TraceConfig(Trace::DumpConfig(ValueTree::fromXml(*default_xml) ,             \
                                          ValueTree::fromXml(*stored_xml)  , "  "))      ;
@@ -987,7 +987,9 @@
   Trace::TraceConfig("storing config xml '" + configXmlFile.getFullPathName() + "'") ;
 #endif // TRACE_STORE_CONFIG_VB
 
-#define DEBUG_TRACE_STORE_SERVER Trace::TraceConfig("creating storage for host '" + host +"'") ;
+#define DEBUG_TRACE_STORE_SERVER                                            \
+  Trace::TraceConfig(String(!server.isValid() ? "creating" : "updating" ) + \
+                     " storage for host: " + host                         ) ;
 
 #define DEBUG_TRACE_CONFIG_VALUE_CHANGED                                 \
   bool is_status_change = a_value.refersToSameSourceAs(LinJam::Status) ; \

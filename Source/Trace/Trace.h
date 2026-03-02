@@ -25,22 +25,31 @@
 
 #if DEBUG
 
-// disable standard features
-//#define NO_UPDATE_REMOTES
-//#define NO_UPDATE_LOOP_PROGRESS_GUI
-//#define NO_UPDATE_VU_METERS_GUI
-//#define NO_UPDATE_ROOMS_GUI
-//#define NO_UPDATE_RECORDING_TIME_GUI
+/* disable standard features */
+
+// #define NO_UPDATE_REMOTES
+// #define NO_UPDATE_LOOP_PROGRESS_GUI
+// #define NO_UPDATE_VU_METERS_GUI
+// #define NO_UPDATE_JAMS
+// #define NO_UPDATE_RECORDING_TIME_GUI
 // #define NO_CHAT_TIMESTAMPS
-// enable buggy features
-//#define ACCEPT_CHAT_COMMANDS         // (issue #19)
-//#define FADE_HIDDEN_REMOTES
 
-// enable debug features
+
+/* enable buggy features */
+
+// #define ACCEPT_CHAT_COMMANDS         // (issue #19)
+// #define FADE_HIDDEN_REMOTES
+
+
+/* enable debug features */
+
 #define DEBUG_ANSI_COLORS
+// #define DEBUG_EXIT_IMMEDIATELY
+// #define DEBUG_AUTOJOIN_HOST if (cli_args.isEmpty()) AutoJoinHost = NETWORK::DEVEL_HOST_URL ;
 
 
-// tracing
+/* logging */
+
 #define DEBUG_TRACE              (DEBUG               &&                    1 )
 #define DEBUG_TRACE_VB           (DEBUG_TRACE         &&                    0 )
 #define DEBUG_TRACE_EVENTS       (DEBUG_TRACE         &&                    1 )
