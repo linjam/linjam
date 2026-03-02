@@ -47,6 +47,7 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
   void addChatLine(String chat_user , String chat_text) ;
+  void grabFocus  () ;
 
     //[/UserMethods]
 
@@ -64,6 +65,7 @@ private:
 
   void valueChanged(              Value& a_value)            override ;
   void textEditorReturnKeyPressed(TextEditor& a_text_editor) override ;
+  void broughtToFront            ()                          override ;
 
   void   setFontSize() ;
   int    getFontSize() ;

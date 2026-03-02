@@ -272,10 +272,18 @@ void Chat::addChatLine(String chat_user , String chat_text)
   this->chatText->moveCaretToEnd() ;
 }
 
+void Chat::grabFocus() { this->chatEntryText->grabKeyboardFocus() ; }
+
 
 /* Chat private instance methods */
 
 /* event handlers */
+
+void Chat::broughtToFront()
+{
+  // WIP: this does not trigger de-focus as expected
+  this->chatEntryText->giveAwayKeyboardFocus() ; // present GUI::CHAT_PROMPT_TEXT normally
+}
 
 void Chat::valueChanged(Value& a_value)
 {
