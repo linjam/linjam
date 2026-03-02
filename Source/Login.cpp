@@ -498,6 +498,8 @@ void Login::setTextErrorState(TextEditor* a_text_editor , bool is_error_state)
   a_text_editor->setColour(TextEditor::backgroundColourId     , background_color) ;
   a_text_editor->setColour(TextEditor::outlineColourId        , border_color    ) ;
   a_text_editor->setColour(TextEditor::focusedOutlineColourId , focus_color     ) ;
+
+  repaint() ;
 }
 
 void Login::updateClients(ValueTree clients_store)
