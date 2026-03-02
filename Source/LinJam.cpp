@@ -853,6 +853,7 @@ DEBUG_TRACE_STATUS_CHANGED
     // retry login
     case APP::NJC_STATUS_INVALIDAUTH:
     case APP::NJC_STATUS_CANTCONNECT:
+    case APP::LINJAM_STATUS_ROOMFULL:
       // retry login (server occasionally rejects)
       if (RetryLogin-- > 0) Connect() ;                                     break ;
     case APP::NJC_STATUS_OK:
@@ -1220,7 +1221,7 @@ void LinJam::UpdateStatus()
   status                    = (! is_ready) ? status : Client->GetStatus() ;
   String error_msg          = CharPointer_UTF8(Client->GetErrorStr()) ;
   bool   is_licence_pending = status == APP::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
-  bool   is_jam_full        = is_ready && !error_msg.compare(CLIENT::SERVER_FULL_ERROR) ;
+  bool   is_jam_full        = is_ready && !error_msg.compare(CLIENT::SERVER_FULL_RESP) ;
 
   if      (is_licence_pending) status = APP::LINJAM_STATUS_LICENSEPENDING ;
   else if (is_jam_full       ) status = APP::LINJAM_STATUS_ROOMFULL ;
