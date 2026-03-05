@@ -159,6 +159,25 @@
                                           String(Audio->getSampleRate()     ) + "Hz "  +  \
                                           String(Audio->getBitDepth()       ) + "bit"  )  ;
 
+/* prev called from AreAnyXmit() - throttle loggin
+static unsigned int SessionSecs = 0 ; // DELETEME: DEBUG
+#define DEBUG_TRACE_AUDIO_SHUTDOWN                                                                   \
+  unsigned int session_seconds = Client->GetSessionPosition() / 1000 ;                               \
+  if (session_seconds != SessionSecs)                                                                \
+    Trace::TraceState("Status: "             + Trace::Status2String(int(Status.getValue()))      +   \
+                      " are_any_xmit="       + Bool2Str(are_any_xmit)                            +   \
+                      " IsAudioRunning="     + String(Client->IsAudioRunning())                  +   \
+                      " GetLoopCount="       + String(Client->GetLoopCount())                    +   \
+                      " GetSessionPosition=" + String(Client->GetSessionPosition())              +   \
+                      " loopProgress="       + String(Gui->loop->loopProgress * Client->GetBPI())) ; \
+  SessionSecs = session_seconds ; // increments in DEBUG later
+*/
+
+#define DEBUG_TRACE_AUDIO_SHUTDOWN                                             \
+  bool is_rollover = Client->GetLoopCount() != LogoutLoopCount ;               \
+  if      (! LogoutLoopCount) Trace::TraceState("waiting to disconnect ...") ; \
+  else if (is_rollover      ) Trace::TraceState("disconnecting ...")           ;
+
 
 /* channels */
 
@@ -300,17 +319,16 @@
   int n_users = Gui->mixer->getNumDynamicMixers() ;                                  \
   for (int user_n = GUI::FIRST_REMOTE_IDX ; user_n < n_users ; ++user_n)             \
   {                                                                                  \
-    Component*  channels    = Gui->mixer->getChildComponent(user_n) ;                \
-    String      user_name   = channels->getComponentID() ;                           \
-    Identifier  user_id     = Identifier(user_name) ;                                \
-    bool        user_exists = active_users.hasProperty(user_id) ;                    \
+    Component*  channels     = Gui->mixer->getChildComponent(user_n) ;               \
+    String      user_name    = channels->getComponentID() ;                          \
+    Identifier  user_id      = Identifier(user_name) ;                               \
+    bool        user_exists  = active_users.hasProperty(user_id) ;                   \
+    bool        is_user_part = Client->GetStatus() == APP::NJC_STATUS_OK ;           \
                                                                                      \
     if (user_exists) continue ;                                                      \
                                                                                      \
-    bool is_user_part = Status == APP::NJC_STATUS_OK ;                               \
-                                                                                     \
     /* distinguish remote user part from LINJAM_STATUS_LOGOUTPENDING mass cleanup */ \
-    if (! is_user_part) Trace::TraceState("user parted => '" + user_name + "'") ;    \
+    if (is_user_part) Trace::TraceState("user parted => '" + user_name + "'") ;      \
   }
 
 #define DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL                                             \
@@ -435,6 +453,7 @@
 // state
 #define DEBUG_TRACE_INIT                      ;
 #define DEBUG_TRACE_SESSIONDIR                ;
+#define DEBUG_TRACE_UPDATESTATUS              ;
 #define DEBUG_TRACE_STATUS_CHANGED            ;
 #define DEBUG_TRACE_CONNECT                   ;
 #define DEBUG_TRACE_LICENSE                   ;
@@ -447,6 +466,7 @@
 #define DEBUG_TRACE_AUDIO_INIT_JACK_FAIL      ;
 #define DEBUG_TRACE_AUDIO_INIT_NIX            ;
 #define DEBUG_TRACE_AUDIO_INIT                ;
+#define DEBUG_TRACE_AUDIO_SHUTDOWN            ;
 // channels
 #define DEBUG_TRACE_INITIAL_CHANNELS          ;
 #define DEBUG_TRACE_ADD_LOCAL_CHANNEL         ;

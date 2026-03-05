@@ -302,6 +302,8 @@ Channel* MasterChannels::newChannel(ValueTree channel_store)
 
 Channel* LocalChannels::newChannel(ValueTree channel_store)
 {
+  channel_store.setProperty(CONFIG::IS_XMIT_RCV_ID , false , nullptr) ;
+
   return new LocalChannel(channel_store) ;
 }
 

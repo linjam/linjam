@@ -21,7 +21,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 
-#include "Channel.h"
+#include <JuceHeader.h>
 
 //[/Headers]
 
@@ -30,102 +30,61 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-  Channels is the abstract superclass of channel mixergroups:
-      LocalChannels, RemoteChannels, MasterChannels
-      which are containers for related Channel slices of Mixer
+    An auto-generated component, created by the Projucer.
+
+    Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class Channels  : public Component
+class Vote  : public juce::Component,
+              public juce::Label::Listener
 {
 public:
     //==============================================================================
-    Channels ();
-    ~Channels() override;
+    Vote ();
+    ~Vote() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
-  bool addChannel(    ValueTree  channel_store) ;
-  void removeChannel( Identifier channel_id) ;
-  int  getNumChannels() ;
+  friend class LinJam ;
 
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
     void resized() override;
+    void labelTextChanged (juce::Label* labelThatHasChanged) override;
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 
+  bool  isVoting       = false ;
+  uint8 voteBpiPending = 0 ;
+  uint8 voteBpmPending = 0 ;
 
-protected:
+  // business
+  void setBpi(uint8 bpi , bool should_cancel_vote) ;
+  void setBpm(uint8 bpm , bool should_cancel_vote) ;
 
-  virtual Channel* newChannel(ValueTree  channel_store) = 0 ;
-          Channel* getChannel(Identifier channel_id) ;
+  // event handlers
+  void editorShown( Label* vote_label , TextEditor& /*unused*/) override ;
+  void editorHidden(Label* vote_label , TextEditor& /*unused*/) override ;
+
+  // helpers
+  void vote(String vote , Label* vote_label) ;
 
     //[/UserVariables]
 
     //==============================================================================
-    std::unique_ptr<juce::Label> loginLabel;
-    std::unique_ptr<juce::TextButton> addButton;
-    std::unique_ptr<juce::TextButton> expandButton;
-    std::unique_ptr<juce::TextButton> ignoreButton;
+    std::unique_ptr<juce::Label> bpiLabel;
+    std::unique_ptr<juce::Label> bpmLabel;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Channels)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Vote)
 };
 
 //[EndFile] You can add extra defines here...
-
-class MasterChannels : public Channels
-{
-public:
-
-  MasterChannels() ;
-
-
-private:
-
-  void     buttonClicked(Button* buttonThatWasClicked) ;
-  Channel* newChannel(   ValueTree channel_store) override ;
-} ;
-
-
-class LocalChannels : public Channels , public Button::Listener
-{
-public:
-
-  LocalChannels() ;
-
-
-private:
-
-  void     buttonClicked(Button* buttonThatWasClicked) ;
-  Channel* newChannel(   ValueTree channel_store) override ;
-} ;
-
-
-class RemoteChannels : public Channels , public Button::Listener
-{
-public:
-
-  RemoteChannels(ValueTree user_store , ValueTree blacklist_store) ;
-
-
-private:
-
-  ValueTree userStore ;
-  ValueTree blacklistStore ;
-  bool      isExpanded ;
-
-
-  void     buttonClicked(       Button* buttonThatWasClicked) ;
-  void     toggleExpandChannels() ;
-  void     addUserToBlacklist() ;
-  Channel* newChannel(          ValueTree channel_store) override ;
-} ;
-
 //[/EndFile]
+

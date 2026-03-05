@@ -195,28 +195,6 @@ Channel::Channel (ValueTree channel_store)
 
     //[Constructor] You can add your own custom stuff here..
 
-  String channel_name = str(   channel_store[CONFIG::CHANNEL_NAME_ID]) ;
-  double volume       = double(channel_store[CONFIG::VOLUME_ID      ]) ;
-  double pan          = double(channel_store[CONFIG::PAN_ID         ]) ;
-  bool   is_xmit      = bool(  channel_store[CONFIG::IS_XMIT_RCV_ID ]) ;
-  bool   is_muted     = bool(  channel_store[CONFIG::IS_MUTED_ID    ]) ;
-  bool   is_solo      = bool(  channel_store[CONFIG::IS_SOLO_ID     ]) ;
-  double vu_min       = 0.0 ;
-  double vu_max       = GUI::VU_DB_RANGE ;
-  double gain_min     = GUI::VU_DB_MIN ;
-  double gain_max     = GUI::VU_DB_MIN + GUI::VU_DB_RANGE ;
-
-  this->gainSlider->setValue(      volume) ;
-  this->panSlider ->setValue(      pan) ;
-  this->xmitButton->setToggleState(is_xmit      , juce::dontSendNotification) ;
-  this->muteButton->setToggleState(is_muted     , juce::dontSendNotification) ;
-  this->soloButton->setToggleState(is_solo      , juce::dontSendNotification) ;
-  this->nameLabel ->setText(       channel_name , juce::dontSendNotification) ;
-
-  setTickColor(this->xmitButton.get()) ;
-  setTickColor(this->muteButton.get()) ;
-  setTickColor(this->soloButton.get()) ;
-
   this->gainSlider   ->setDoubleClickReturnValue(true , 0.0) ;
   this->panSlider    ->setDoubleClickReturnValue(true , 0.0) ;
   this->vuLeftSlider ->setInterceptsMouseClicks(false , false) ;
@@ -234,18 +212,23 @@ Channel::Channel (ValueTree channel_store)
 
   // establish shared config value holders and listeners
   this->channelStore = channel_store ;
-  this->channelName  .referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
-                                                           CONFIG::CHANNEL_NAME_ID)) ;
-  this->stereoStatus .referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
-                                                           CONFIG::STEREO_ID      )) ;
-  this->vuLeft       .referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
-                                                           CONFIG::VU_LEFT_ID     )) ;
-  this->vuRight      .referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
-                                                           CONFIG::VU_RIGHT_ID    )) ;
-  this->channelName  .addListener(this) ;
-  this->stereoStatus .addListener(this) ;
-  this->vuLeft       .addListener(this) ;
-  this->vuRight      .addListener(this) ;
+  this->channelName .referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
+                                                          CONFIG::CHANNEL_NAME_ID)) ;
+  this->stereoStatus.referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
+                                                          CONFIG::STEREO_ID      )) ;
+  this->vuLeft      .referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
+                                                          CONFIG::VU_LEFT_ID     )) ;
+  this->vuRight     .referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
+                                                          CONFIG::VU_RIGHT_ID    )) ;
+  this->isXmit      .referTo(LinJamConfig::GetValueHolder(this->channelStore     ,
+                                                          CONFIG::IS_XMIT_RCV_ID )) ;
+  this->channelName .addListener(this) ;
+  this->stereoStatus.addListener(this) ;
+  this->vuLeft      .addListener(this) ;
+  this->vuRight     .addListener(this) ;
+  this->isXmit      .addListener(this) ;
+
+  refreshGui() ;
 
     //[/Constructor]
 }
@@ -403,11 +386,13 @@ void Channel::valueChanged(Value& a_value)
   bool is_vu_left  = a_value.refersToSameSourceAs(this->vuLeft      ) ;
   bool is_vu_right = a_value.refersToSameSourceAs(this->vuRight     ) ;
   bool is_stereo   = a_value.refersToSameSourceAs(this->stereoStatus) ;
+  bool is_xmit     = a_value.refersToSameSourceAs(this->isXmit      ) ;
   bool is_name     = a_value.refersToSameSourceAs(this->channelName ) ;
 
   if      (is_vu_left ) updateVU(this->vuLeftSlider .get() , this->vuLeftLabel .get() , this->vuLeft ) ;
   else if (is_vu_right) updateVU(this->vuRightSlider.get() , this->vuRightLabel.get() , this->vuRight) ;
   else if (is_stereo  ) setStereoState() ;
+  else if (is_xmit    ) refreshGui() ;
   else if (is_name    )
   {
 DEBUG_TRACE_RENAME_CHANNEL_GUI_VIA_CALLOUTBOX
@@ -440,6 +425,27 @@ void Channel::updateVU(Slider* a_vu_slider , Label* a_vu_label , Value vu_var)
 void Channel::setConfig(Identifier a_key , var a_value)
 {
   if (a_key.isValid()) this->channelStore.setProperty(a_key , a_value , nullptr) ;
+}
+
+void Channel::refreshGui()
+{
+  String channel_name = str(   this->channelStore[CONFIG::CHANNEL_NAME_ID]) ;
+  double volume       = double(this->channelStore[CONFIG::VOLUME_ID      ]) ;
+  double pan          = double(this->channelStore[CONFIG::PAN_ID         ]) ;
+  bool   is_xmit      = bool(  this->channelStore[CONFIG::IS_XMIT_RCV_ID ]) ;
+  bool   is_muted     = bool(  this->channelStore[CONFIG::IS_MUTED_ID    ]) ;
+  bool   is_solo      = bool(  this->channelStore[CONFIG::IS_SOLO_ID     ]) ;
+
+  this->xmitButton->setToggleState(is_xmit      , juce::dontSendNotification) ;
+  this->muteButton->setToggleState(is_muted     , juce::dontSendNotification) ;
+  this->soloButton->setToggleState(is_solo      , juce::dontSendNotification) ;
+  this->panSlider ->setValue      (pan) ;
+  this->gainSlider->setValue      (volume) ;
+  this->nameLabel ->setText       (channel_name , juce::dontSendNotification) ;
+
+  setTickColor(this->xmitButton.get()) ;
+  setTickColor(this->muteButton.get()) ;
+  setTickColor(this->soloButton.get()) ;
 }
 
 

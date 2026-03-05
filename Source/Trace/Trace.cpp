@@ -21,12 +21,15 @@ void Trace::TraceGui      (String msg) { if (DEBUG_TRACE_GUI       ) DBG("[GUI]:
 void Trace::TraceGuiVb    (String msg) { if (DEBUG_TRACE_GUI_VB    ) DBG("[GUI]:     " + msg) ; }
 #ifndef DEBUG_ANSI_COLORS
 void Trace::TraceState    (String msg) { if (DEBUG_TRACE_STATE     ) DBG("[STATE]:   " + msg) ; }
+void Trace::TraceStateVb  (String msg) { if (DEBUG_TRACE_STATE_VB  ) DBG("[STATE]:   " + msg) ; }
 void Trace::TraceError    (String msg) { if (DEBUG_TRACE_STATE     ) DBG("[ERROR]:   " + msg) ; }
 void Trace::TraceNetwork  (String msg) { if (DEBUG_TRACE_NETWORK   ) DBG("[NETWORK]: " + msg) ; }
 void Trace::TraceNetworkVb(String msg) { if (DEBUG_TRACE_NETWORK_VB) DBG("[NETWORK]: " + msg) ; }
 #else // DEBUG_ANSI_COLORS
 void Trace::TraceState    (String msg)
   { if (DEBUG_TRACE_STATE     ) DBG("\033[1;33m[STATE]:   " + msg + "\033[0m") ; }
+void Trace::TraceStateVb  (String msg)
+  { if (DEBUG_TRACE_STATE_VB  ) DBG("\033[1;33m[STATE]:   " + msg + "\033[0m") ; }
 void Trace::TraceError    (String msg)
   { if (DEBUG_TRACE_STATE     ) DBG("\033[0;31m[ERROR]:   " + msg + "\033[0m") ; }
 void Trace::TraceNetwork  (String msg)
@@ -234,6 +237,7 @@ String Trace::DumpVar(String val_name , var a_var)
 String Trace::Status2String(int status)
 {
   // translate APP::LinJamStatus to user-facing string description
+  // ASSERT: must track/reflect enum APP::LinJamStatus
   return (status == -10) ? "LINJAM_STATUS_INIT"                :
          (status ==  -9) ? "LINJAM_STATUS_AUDIOINIT"           :
          (status ==  -8) ? "LINJAM_STATUS_CONFIGPENDING"       :
@@ -247,6 +251,7 @@ String Trace::Status2String(int status)
          (status ==   0) ? "NJC_STATUS_OK"                     :
          (status ==   1) ? "NJC_STATUS_PRECONNECT"             :
          (status ==   2) ? "LINJAM_STATUS_LOGOUTPENDING"       :
+         (status ==   3) ? "LINJAM_STATUS_LOGOUTDONE"          :
                            "(unknown: " + String(status) + ")" ;
 }
 

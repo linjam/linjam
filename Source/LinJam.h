@@ -62,6 +62,7 @@ public:
   static void SignIn(String host_name , String login , String pass , bool is_anonymous) ;
   static void Connect() ;
   static void Disconnect() ;
+  static void DisconnectNow() ;
 
   // getters/setters
   static ValueTree      GetCredentials(String host_name) ;
@@ -111,11 +112,13 @@ private:
   // update jams
   static URL            PollJamsUrl ;
   static UPTR<RoomSort> RoomSorter ;
+  // logout
+  static int            LogoutLoopCount ;
   // signalling
   static URL            PollSignalsUrl ;
 
 
-  // setup
+  // setup/teardown
   static bool Initialize(NJClient*   nj_client   , MainContent*  main_content ,
                          MultiTimer* multi_timer , const String& cli_args     ) ;
   static bool PrepareSessionDirectory() ;
@@ -156,6 +159,7 @@ private:
   static void UpdateStatus() ;
   static void UpdateRecordingTime() ;
   // static void UpdateSessionTime() ;
+  static void Logout() ;
 
   // NJClient configuration
   static void ConfigureAudio() ;
@@ -175,6 +179,7 @@ private:
   // NJClient/audioStreamer helpers
   static int    GetNumAudioSources() ;
   static int    GetNumLocalChannels() ;
+  // static uint8  GetNumRemoteChannels() ; // WIP: graceful disconnect - may not need
   static int    GetNumVacantChannels() ;
   static int    GetVacantLocalChannelIdx() ;
   static String GetStoredChannelName(      ValueTree channel_store) ;
@@ -184,6 +189,7 @@ private:
   static bool   IsConfiguredChannel(       int channel_idx) ;
   static double GetChannelDb(              int channel_idx) ;
   static double GetChannelDb(              int user_idx , int channel_idx) ;
+  // static bool   AreAnyXmit() ; // WIP: graceful disconnect - may not need
 
   // signalling
   static void SetPollUrl() ;

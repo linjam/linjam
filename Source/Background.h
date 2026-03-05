@@ -30,16 +30,16 @@
 //==============================================================================
 /**
                                                                     //[Comments]
-  Background is simply the backdrop for other "screens"
-  although it may eventually sport a logo or spinner
+  Blank a plain backdrop or container for other widgets,
+  although it may sport a logo or spinner
                                                                     //[/Comments]
 */
-class Background  : public Component
+class Blank  : public Component
 {
 public:
     //==============================================================================
-    Background ();
-    ~Background() override;
+    Blank ();
+    ~Blank() override;
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
@@ -67,7 +67,7 @@ private:
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Background)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (Blank)
 };
 
 //[EndFile] You can add extra defines here...

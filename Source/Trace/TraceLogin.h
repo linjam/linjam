@@ -57,6 +57,34 @@
 
 /* network */
 
+#  define DEBUG_TRACE_SERVERLIST                                                               \
+  uint8       n_servers     = servers_data.size() ;                                            \
+  uint8       n_lobby_hosts = 0 ;                                                              \
+  StringArray serverdata ;                                                                     \
+  for (server_n = 0 ; server_n < servers_data.size() ; ++server_n)                             \
+  {                                                                                            \
+    serverdata    = StringArray::fromTokens(servers_data[server_n] , true) ;                   \
+    host          = serverdata[0].removeCharacters("\"") ;                                     \
+    n_lobby_hosts = n_lobby_hosts + (NETWORK::IsLobbyHost(host) ? 1 : 0) ;                     \
+  }                                                                                            \
+  if (! servers_data.isEmpty())                                                                \
+    Trace::TraceNetwork("updated (" + String(n_servers - n_lobby_hosts) + ") jam servers " +   \
+                        "("         + String(            n_lobby_hosts) + ") lobby servers") ; \
+  else Trace::TraceError("PollJamsUrl failed to update servers") ;
+
+#  define DEBUG_TRACE_SERVERLIST_SERVER                                                      \
+  String err_msg       = "parsing serverlist: " + NETWORK::POLL_JAMS_URL.toString(false) ;   \
+  String n_logins      = String(logins.size()) ;                                             \
+  bool   is_lobby_host = NETWORK::IsLobbyHost(host) ;                                        \
+  if      (host.isEmpty()) Trace::TraceError("invalid host - " + err_msg) ;                  \
+  else if (is_known_host ) Trace::TraceNetworkVb("("  + n_logins + ") jammers at: " + host + \
+                                                 " (" + logins_csv + ")"                 ) ; \
+  else if (!is_lobby_host) Trace::TraceError("invalid or unknown server: '" + host + "' " +  \
+                                             err_msg + " - add it to NETWORK::KNOWN_HOSTS")  ;
+
+#  define DEBUG_TRACE_SERVERLIST_CLIENT                                        \
+  Trace::TraceNetworkVb("\tjammer: " + login + (is_bot ? " (known bot)" : "")) ;
+
 #if TRACE_LOGIN_HOST
 #  define DEBUG_TRACE_LOGIN_HOST_VB                                              \
   if (is_valid_host) Trace::TraceGuiVb("validated host '"        + host + "'") ; \
@@ -79,11 +107,14 @@
 #else // DEBUG
 
 // state
-#define DEBUG_TRACE_LOGIN_LOAD          ;
-#define DEBUG_TRACE_LOBBY_QUICKLOGIN    ;
-#define DEBUG_TRACE_LOGIN_VALIDATION    ;
-#define DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS ;
+#  define DEBUG_TRACE_LOGIN_LOAD            ;
+#  define DEBUG_TRACE_LOBBY_QUICKLOGIN      ;
+#  define DEBUG_TRACE_LOGIN_VALIDATION      ;
+#  define DEBUG_TRACE_LOGIN_LAYOUTLOGINBTNS ;
 // network
-#define DEBUG_TRACE_LOGIN_HOST_VB       ;
+#  define DEBUG_TRACE_SERVERLIST        ;
+#  define DEBUG_TRACE_SERVERLIST_SERVER ;
+#  define DEBUG_TRACE_SERVERLIST_CLIENT ;
+#  define DEBUG_TRACE_LOGIN_HOST_VB     ;
 
 #endif // DEBUG

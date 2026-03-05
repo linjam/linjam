@@ -68,6 +68,7 @@ Chat::Chat (Value font_size, Value linjam_status)
     chatEntryText->setColour (juce::CaretComponent::caretColourId, juce::Colours::white);
     chatEntryText->setText (juce::String());
 
+
     //[UserPreSize]
 
   // set fonts and sizes

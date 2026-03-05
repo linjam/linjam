@@ -20,19 +20,19 @@
 //[Headers] You can add your own extra header files here...
 //[/Headers]
 
-#include "Background.h"
+#include "Blank.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-Background::Background ()
+Blank::Blank ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
 
-    setName ("Background");
+    setName ("Blank");
     progressBar.reset (new ProgressBar (this->spinnerProgress, ProgressBar::Style::circular));
     addAndMakeVisible (progressBar.get());
     progressBar->setName ("progressBar");
@@ -67,7 +67,7 @@ Background::Background ()
     //[/Constructor]
 }
 
-Background::~Background()
+Blank::~Blank()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
@@ -81,18 +81,18 @@ Background::~Background()
 }
 
 //==============================================================================
-void Background::paint (juce::Graphics& g)
+void Blank::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
 
-    g.fillAll (juce::Colour (0xff202020));
+    g.fillAll (juce::Colour (0xff080808));
 
     //[UserPaint] Add your own custom painting code here..
     //[/UserPaint]
 }
 
-void Background::resized()
+void Blank::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
@@ -118,11 +118,11 @@ void Background::resized()
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="Background" componentName="Background"
+<JUCER_COMPONENT documentType="Component" className="Blank" componentName="Blank"
                  parentClasses="public Component" constructorParams="" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="790" initialHeight="470">
-  <BACKGROUND backgroundColour="ff202020"/>
+  <BACKGROUND backgroundColour="ff080808"/>
   <GENERICCOMPONENT name="progressBar" id="de373a8913a42503" memberName="progressBar"
                     virtualName="" explicitFocusOrder="0" pos="0Cc 0Cc 256 256" class="ProgressBar"
                     params="this-&gt;spinnerProgress, ProgressBar::Style::circular"/>

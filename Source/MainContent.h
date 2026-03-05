@@ -73,6 +73,7 @@ private:
   void childrenChanged()                 override ;
   void buttonClicked  (Button* a_button) override ;
   void valueChanged   (Value& a_value)   override ;
+  void updateModeBtn  () ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContent)

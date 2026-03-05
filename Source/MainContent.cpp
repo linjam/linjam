@@ -18,6 +18,7 @@
 
 
 #include "LinJam.h"
+#include "./Trace/TraceMainContent.h"
 
 
 MainContent::MainContent(DocumentWindow* main_window , TextButton* mode_btn)
@@ -232,16 +233,19 @@ void MainContent::buttonClicked(Button* a_button)
 
 void MainContent::valueChanged(Value& a_value)
 {
-  if (!a_value.refersToSameSourceAs(this->linjamStatus)) return ;
+  if (a_value.refersToSameSourceAs(this->linjamStatus)) updateModeBtn() ;
+}
 
-  bool is_config     = this->linjamStatus >= APP::LINJAM_STATUS_AUDIOINIT &&
-                       this->linjamStatus <= APP::LINJAM_STATUS_AUDIOERROR ;
-  bool is_jam        = this->linjamStatus == APP::NJC_STATUS_OK ;
-  bool is_lobby      = ! is_config && ! is_jam ; // TODO: sophistimocate me?
+void MainContent::updateModeBtn()
+{
+  bool is_config = this->linjamStatus >= APP::LINJAM_STATUS_AUDIOINIT &&
+                   this->linjamStatus <= APP::LINJAM_STATUS_AUDIOERROR ;
+  bool is_jam    = this->linjamStatus == APP::NJC_STATUS_OK ;
+  bool is_logout = this->linjamStatus >= APP::LINJAM_STATUS_LOGOUTPENDING &&
+                   this->linjamStatus <= APP::LINJAM_STATUS_LOGOUTDONE     ;
+  bool is_lobby  = ! is_config && ! is_jam && ! is_logout ; // TODO: sophistimocate me?
 
-
-// DBG("MainContent::valueChanged() status=" + String(linjam_status) + " - updating " + ( (is_lobby) ? "lobby" : ( (is_config) ? "config" : ( (is_jam) ? "jam" : "un-handled" ) ) ) ) ;
-
+DEBUG_TRACE_UPDATEMODEBTN
 
   // set mode switch text and colors
   if (is_lobby)

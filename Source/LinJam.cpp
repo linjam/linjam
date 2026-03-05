@@ -51,6 +51,8 @@ String                 LinJam::PrevRecordingTime ;                     // Discon
 // update jams
 URL                    LinJam::PollJamsUrl ;                           // Initialize()
 UPTR<LinJam::RoomSort> LinJam::RoomSorter ;                            // Initialize()
+// logout
+int                    LinJam::LogoutLoopCount = 0 ;                   // Logout()
 // signalling
 URL                    LinJam::PollSignalsUrl ;                        // SetPollSignalsUrl()
 
@@ -84,18 +86,30 @@ DEBUG_TRACE_CONNECT
 
 void LinJam::Disconnect()
 {
-  // stop XMIT all channels - memory corruption otherwise
-  // various faults seen (free, double-free, size corruption) - seem to happen
-  // only after RCV in a channel and a local channel is XMIT upon Disconnect()
+#ifndef DEBUG_EXIT_IMMEDIATELY
+  // stop XMIT all channels and wait until current loop completes before disconnect
+  // various memory corruption faults seen (free, double-free, size)
+  // if local channel is XMIT upon njclient Disconnect()
   for (int channel_n = 0 ; channel_n < Config->localChannels.getNumChildren() ; ++channel_n)
   {
     ValueTree channel_store = Config->getChannelByIdx(Config->localChannels , channel_n) ;
 
-    if (channel_store.isValid()) channel_store.setProperty(CONFIG::IS_XMIT_RCV_ID , false , nullptr) ;
+    if (channel_store.isValid())
+      channel_store.setProperty(CONFIG::IS_XMIT_RCV_ID , false , nullptr) ;
   }
-  Client->NotifyServerOfChannelChange() ;
+#endif // DEBUG_EXIT_IMMEDIATELY
 
-  PrevRecordingTime = "" ; Client->Disconnect() ;
+  // defer disconnect to Logout()
+  Timer->startTimer(APP::AUDIO_INIT_TIMER_ID , APP::AUDIO_INIT_DELAY) ;
+}
+
+void LinJam::DisconnectNow()
+{
+  Client->Disconnect() ;
+
+  Status            = APP::LINJAM_STATUS_LOGOUTDONE ;
+  LogoutLoopCount   = 0 ;
+  PrevRecordingTime = "" ;
 }
 
 
@@ -618,8 +632,8 @@ void LinJam::Shutdown()
   delete Config ; Config = nullptr ;
 
   // NJClient teardown
-  if (Client->waveWrite != nullptr) delete Client->waveWrite ;
-  Client->waveWrite      = nullptr ;
+  // if (Client->waveWrite != nullptr) delete Client->waveWrite ;
+  // Client->waveWrite      = nullptr ;
 #define CLIENT_LOGOUT_IS_BUGGY
 #ifndef CLIENT_LOGOUT_IS_BUGGY
   // FIXME: here be dragons - Client and Gui are the same OOP object
@@ -714,12 +728,13 @@ DBG("[DEBUG]: DEBUG_EXIT_IMMEDIATELY defined - bailing") ; Quit() ;
 
   switch (timer_id)
   {
-    case APP::CLIENT_TIMER_ID:     PumpClient() ;                 break ;
-    case APP::GUI_LO_TIMER_ID:     UpdateGuiLowPriority() ;       break ;
-    case APP::GUI_MD_TIMER_ID:     UpdateGuiMedPriority() ;       break ;
-    case APP::GUI_HI_TIMER_ID:     UpdateGuiHighPriority() ;      break ;
-    case APP::AUDIO_INIT_TIMER_ID: if (Audio == nullptr) Quit() ; break ;
-    default:                                                      break ;
+    case APP::CLIENT_TIMER_ID:     PumpClient() ;                       break ;
+    case APP::GUI_LO_TIMER_ID:     UpdateGuiLowPriority() ;             break ;
+    case APP::GUI_MD_TIMER_ID:     UpdateGuiMedPriority() ;             break ;
+    case APP::GUI_HI_TIMER_ID:     UpdateGuiHighPriority() ;            break ;
+    case APP::AUDIO_INIT_TIMER_ID: if (Audio == nullptr) Quit() ;
+                                   else                  WaitLogout() ; break ;
+    default:                                                            break ;
   }
 }
 
@@ -828,7 +843,7 @@ DEBUG_TRACE_STATUS_CHANGED
       (status == APP::NJC_STATUS_OK               ) ? GUI::CONNECTED_TEXT + host   :
       (status == APP::NJC_STATUS_PRECONNECT       ) ? GUI::IDLE_TEXT               :
       (status == APP::LINJAM_STATUS_LOGOUTPENDING ) ? GUI::LOGOUT_PENDING_TEXT     :
-                                                      "Trace::Status2String(status)" ;
+                                                      Trace::Status2String(status) ;
   Gui->statusbar->setStatusL(status_text) ;
 
    // WIP: faux-modal license screen (still doent qork quite right)
@@ -854,6 +869,7 @@ DEBUG_TRACE_STATUS_CHANGED
                                              Gui->mixer     ->toFront(false) ;
                                              Gui->loop      ->toFront(false) ; break ;
     case APP::NJC_STATUS_PRECONNECT        : Gui->lobby     ->toFront(true ) ; break ;
+    case APP::LINJAM_STATUS_LOGOUTPENDING  : Gui->background->setAlpha(0.5)  ; break ;
     default                                : Gui->background->toFront(true ) ; break ;
   }
 
@@ -1224,11 +1240,18 @@ void LinJam::UpdateStatus()
   bool   is_ready           = status >= APP::LINJAM_STATUS_READY ;
   status                    = (! is_ready) ? status : Client->GetStatus() ;
   String error_msg          = CharPointer_UTF8(Client->GetErrorStr()) ;
-  bool   is_licence_pending = status == APP::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
-  bool   is_jam_full        = is_ready && !error_msg.compare(CLIENT::SERVER_FULL_RESP) ;
+  int    status             = int(Status.getValue()) ;
+  bool   is_ready           = status              >= APP::LINJAM_STATUS_READY ;
+  bool   is_logout_pending  = status              == APP::LINJAM_STATUS_LOGOUTPENDING ;
+  bool   is_licence_pending = status              == APP::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
+  bool   is_jam_full        = is_ready && ! error_msg.compare(CLIENT::SERVER_FULL_RESP) ;
+  bool   should_refresh     = is_ready && ! is_logout_pending ;
 
   if      (is_licence_pending) status = APP::LINJAM_STATUS_LICENSEPENDING ;
   else if (is_jam_full       ) status = APP::LINJAM_STATUS_ROOMFULL ;
+  else if (should_refresh    ) status = Client->GetStatus() ;
+
+DEBUG_TRACE_UPDATESTATUS
 
   Status = status ;
 }
@@ -1266,6 +1289,23 @@ void LinJam::UpdateRecordingTime()
   }
 
   Gui->setTitle(title) ;
+}
+
+void LinJam::WaitLogout()
+{
+  // wait for stop XMIT
+  if (Status != APP::LINJAM_STATUS_LOGOUTPENDING) return ;
+
+DEBUG_TRACE_AUDIO_SHUTDOWN
+
+  // wait for current loop tp complete allowing time for XMIT streams to flush
+  if      (! LogoutLoopCount) { LogoutLoopCount = Client->GetLoopCount() ; }
+  else if (Client->GetLoopCount() != LogoutLoopCount)
+  {
+      Timer->stopTimer(APP::AUDIO_INIT_TIMER_ID) ;
+
+      DisconnectNow() ;
+  }
 }
 
 
@@ -1580,6 +1620,26 @@ uint8 LinJam::GetBpi() { return String(Client->GetBPI()).getIntValue() ; }
 
 uint8 LinJam::GetBpm() { return String(Client->GetActualBPM()).getIntValue() ; }
 
+/*
+bool LinJam::AreAnyXmit()
+{
+  int  channel_n    = -1 ;
+  bool are_any_xmit = false ;
+  int  channel_idx ;
+  bool is_xmit ;
+
+  while (~(channel_idx = Client->EnumLocalChannels(++channel_n)))
+  {
+    Client->GetLocalChannelInfo(channel_idx , nullptr , nullptr , &is_xmit) ;
+    are_any_xmit = are_any_xmit || is_xmit ;
+  }
+
+DEBUG_TRACE_AUDIO_SHUTDOWN
+
+  return are_any_xmit ;
+}
+*/
+
 int LinJam::GetNumAudioSources()
 {
   return (Audio != nullptr) ? Audio->getNInputChannels() : 0 ;
@@ -1588,8 +1648,26 @@ int LinJam::GetNumAudioSources()
 int LinJam::GetNumLocalChannels()
 {
   int n_occupied_slots = -1 ; while (~Client->EnumLocalChannels(++n_occupied_slots)) ;
+
   return n_occupied_slots ;
 }
+
+/*
+uint8 LinJam::GetNumRemoteChannels()
+{
+  int user_idx   = -1 ;
+  int n_channels = 0 ;
+
+  while ((GetRemoteUserName(++user_idx)).isNotEmpty())
+  {
+    n_channels = -1 ;
+
+    while (~(Client->EnumUserChannels(user_idx , ++n_channels))) ;
+  }
+
+  return n_channels ;
+}
+*/
 
 int LinJam::GetNumVacantChannels()
 {

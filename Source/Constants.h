@@ -374,19 +374,20 @@ public:
                       LINJAM_STATUS_READY          =  -6 ,
                       LINJAM_STATUS_LICENSEPENDING =  -5 ,
                       LINJAM_STATUS_ROOMFULL       =  -4 ,
-                      NJC_STATUS_DISCONNECTED      =  -3 , // NJClient::ConnectionStatus
-                      NJC_STATUS_INVALIDAUTH       =  -2 , // NJClient::ConnectionStatus
-                      NJC_STATUS_CANTCONNECT       =  -1 , // NJClient::ConnectionStatus
-                      NJC_STATUS_OK                =   0 , // NJClient::ConnectionStatus
-                      NJC_STATUS_PRECONNECT        =   1 , // NJClient::ConnectionStatus
-                      LINJAM_STATUS_LOGOUTPENDING  =   2 } ;
+                      NJC_STATUS_DISCONNECTED      =  -3 ,   // NJClient::ConnectionStatus
+                      NJC_STATUS_INVALIDAUTH       =  -2 ,   // NJClient::ConnectionStatus
+                      NJC_STATUS_CANTCONNECT       =  -1 ,   // NJClient::ConnectionStatus
+                      NJC_STATUS_OK                =   0 ,   // NJClient::ConnectionStatus
+                      NJC_STATUS_PRECONNECT        =   1 ,   // NJClient::ConnectionStatus
+                      LINJAM_STATUS_LOGOUTPENDING  =   2 ,   // via mode button -> shutdown streams and wait
+                      LINJAM_STATUS_LOGOUTDONE     =   3 } ; // disconnect ninjam client - re-sync Status with ninjam client (-> NJC_STATUS_PRECONNECT -> Lobby GUI)
 
   // timers
-  static const int CLIENT_TIMER_ID     = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;
-  static const int AUDIO_INIT_TIMER_ID = 1 ; static const int AUDIO_INIT_DELAY  = 250 ;
-  static const int GUI_LO_TIMER_ID     = 2 ; static const int GUI_LO_UPDATE_IVL = 60000 ;
-  static const int GUI_MD_TIMER_ID     = 3 ; static const int GUI_MD_UPDATE_IVL = 1000 ;
-  static const int GUI_HI_TIMER_ID     = 4 ; static const Array<int> GUI_HI_UPDATE_IVLS ;
+  static const int CLIENT_TIMER_ID     = 0 ; static const int CLIENT_DRIVER_IVL = 50 ;    // njclient pump
+  static const int AUDIO_INIT_TIMER_ID = 1 ; static const int AUDIO_INIT_DELAY  = 250 ;   // njclient audio streams setup/teardown
+  static const int GUI_LO_TIMER_ID     = 2 ; static const int GUI_LO_UPDATE_IVL = 60000 ; // serverlist update
+  static const int GUI_MD_TIMER_ID     = 3 ; static const int GUI_MD_UPDATE_IVL = 1000 ;  // statusbar and bot time update
+  static const int GUI_HI_TIMER_ID     = 4 ; static const Array<int> GUI_HI_UPDATE_IVLS ; // loop progress, VUs, etc
   static const int VOTE_TIMEOUT        = 60 ; // ASSERT: Linjam::UpdateBpiBpm() expects this interval to be one second
 
 
