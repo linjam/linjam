@@ -108,8 +108,12 @@ private:
   static File           SessionDir ;
   static int            RetryLogin ;
   static String         PrevRecordingTime ;
+  // update jams
+  static URL            PollJamsUrl ;
   static UPTR<RoomSort> RoomSorter ;
-  static URL            PollUrl ;
+  // signalling
+  static URL            PollSignalsUrl ;
+
 
   // setup
   static bool Initialize(NJClient*   nj_client   , MainContent*  main_content ,

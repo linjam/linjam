@@ -302,11 +302,15 @@
     NETWORK::NINJAMER_2050_URL  + " /><"  + \
     NETWORK::NINJAMER_2051_URL  + " /><"  + \
     NETWORK::NINJAMER_2052_URL  + " /><"  + \
-    NETWORK::GETAROOM_URL       + " /><"  + \
     NETWORK::MUSICORNER_URL     + " /><"  + \
     NETWORK::MUTANTLAB_URL      + " /><"  + \
     NETWORK::ROOTSOCIETY_URL    + " /><"  + \
     NETWORK::BOTNU_URL          + " /></" + \
+  NETWORK::KNOWN_HOSTS_KEY      + ">"
+
+#define LOBBY_HOSTS_XML XML_HEADER        + \
+  NETWORK::LOBBY_HOSTS_KEY      + "><"    + \
+    NETWORK::GETAROOM_URL       + " /></" + \
   NETWORK::KNOWN_HOSTS_KEY      + ">"
 
 #define KNOWN_BOTS_XML XML_HEADER                                        + \
@@ -389,8 +393,8 @@ public:
   // runtime initialization of static constants
   static void Initialize() ;
 
-  // helpers
-  static StringArray ParseServerlist(String      html) ;
+  // remote jams data parsing helpers
+  static StringArray ParseServerlist(String       serverlist) ;
   static StringArray ParseLines     (String       a_string) ;
   static StringArray ParseCSV       (String       a_string) ;
   static String      Pluck          (StringArray* a_stringarray , int idx) ;
@@ -459,33 +463,33 @@ public:
   static const String    NICK_CHARS ;
 
   // known hosts and bots
-  static const String      DEVEL_HOST ;
-  static const String      DEVEL_HOST_URL ;
-  static const String      NINBOT_2049_URL ;
-  static const String      NINBOT_2050_URL ;
-  static const String      NINBOT_2051_URL ;
-  static const String      NINBOT_2052_URL ;
-  static const String      NINBOT_2053_URL ;
-  static const String      NINBOT_2054_URL ;
-  static const String      NINJAMER_2049_URL ;
-  static const String      NINJAMER_2050_URL ;
-  static const String      NINJAMER_2051_URL ;
-  static const String      NINJAMER_2052_URL ;
-  static const String      GETAROOM_URL ;
-  static const String      MUSICORNER_URL ;
-  static const String      MUTANTLAB_URL ;
-  static const String      ROOTSOCIETY_URL ;
-  static const String      BOTNU_URL ;
-
-
-  static const Identifier  NINBOT_LOGIN ;
-  static const Identifier  JAMBOT_LOGIN ;
-  static const String      KNOWN_HOSTS_KEY ;
-  static const String      KNOWN_BOTS_KEY ;
-  static const String      KNOWN_STREAMS_KEY ;
-  static       ValueTree   KNOWN_HOSTS ;
-  static       ValueTree   KNOWN_BOTS ;
-  static       ValueTree   KNOWN_STREAMS ;
+  static const String     DEVEL_HOST ;
+  static const String     DEVEL_HOST_URL ;
+  static const String     NINBOT_2049_URL ;
+  static const String     NINBOT_2050_URL ;
+  static const String     NINBOT_2051_URL ;
+  static const String     NINBOT_2052_URL ;
+  static const String     NINBOT_2053_URL ;
+  static const String     NINBOT_2054_URL ;
+  static const String     NINJAMER_2049_URL ;
+  static const String     NINJAMER_2050_URL ;
+  static const String     NINJAMER_2051_URL ;
+  static const String     NINJAMER_2052_URL ;
+  static const String     GETAROOM_URL ; // "lobby" chat - no audio
+  static const String     MUSICORNER_URL ;
+  static const String     MUTANTLAB_URL ;
+  static const String     ROOTSOCIETY_URL ;
+  static const String     BOTNU_URL ;
+  static const Identifier NINBOT_LOGIN ;
+  static const Identifier JAMBOT_LOGIN ;
+  static const String     KNOWN_HOSTS_KEY ;
+  static const String     LOBBY_HOSTS_KEY ;
+  static const String     KNOWN_BOTS_KEY ;
+  static const String     KNOWN_STREAMS_KEY ;
+  static       ValueTree  KNOWN_HOSTS ;
+  static       ValueTree  LOBBY_HOSTS ;
+  static       ValueTree  KNOWN_BOTS ;
+  static       ValueTree  KNOWN_STREAMS ;
 
   // http requests
   static const String WEBSITE_URL ;
@@ -641,8 +645,6 @@ namespace CONFIG
   static const Identifier SERVERS_ID       = SERVERS_KEY ;
   static const String     HOST_KEY         = "host" ;
   static const Identifier HOST_ID          = HOST_KEY ;
-  static const String     TOPIC_KEY        = "topic" ;
-  static const Identifier TOPIC_ID         = TOPIC_KEY ;
   static const String     N_SLOTS_KEY      = "n-slots" ;
   static const Identifier N_SLOTS_ID       = N_SLOTS_KEY ;
   static const String     N_USERS_KEY      = "n-users" ;
@@ -995,6 +997,7 @@ namespace GUI
   static const String STREAM_BUTTON_TOOLTIP          = TRANS("Listen to ") ;
   static const String ROOM_VACANT_TOOLTIP            = TRANS("(vacant)") ;
   static const String STREAM_BUTTON_TEXT             = TRANS("(listen)") ;
+  static const String CHATONLY_LABEL_TEXT            = "(Chat only, no audio)" ;
   static const Colour PROMPT_BACKGROUND_NORMAL_COLOR = Colour(0xFF000000) ;
   static const Colour PROMPT_BORDER_NORMAL_COLOR     = Colour(0xFFFFFFFF) ;
   static const Colour PROMPT_FOCUS_NORMAL_COLOR      = Colour(0xFFFFFFFF) ;

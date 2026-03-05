@@ -21,14 +21,38 @@
                       " login(" + String((validateLogin()) ? "ok)" : "nfg)='" + login + "'") + \
                       " pass("  + String((validatePass() ) ? "ok)" : "nfg)"                ) ) ;
 
-#define DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS                                     \
-  for (int i = 0 ; i < this->serversStore.getNumChildren() ; ++i)               \
-  { ValueTree server    = this->serversStore.getChild(i) ;                      \
-    ValueTree clients   = server.getChildWithName(CONFIG::CLIENTS_ID) ;         \
-    String    n_clients = String(clients.getNumChildren()) ;                    \
-    String    server_n  = String(i).paddedLeft('0' , 2) ;                       \
-    Trace::TraceGuiVb("button order: server[" + server_n + "](" + n_clients +   \
-                      " clients)="            + Id2Str(server.getType())    ) ; }
+#define DEBUG_TRACE_LOGIN_UPDATECLIENTS                                       \
+  { StringArray logins ; String log_msg ;                                     \
+    uint8 n_clients = changed_clients.getNumChildren() ;                      \
+    for (int client_n = 0 ; client_n < n_clients ; ++client_n)                \
+      logins.add(str(changed_clients.getChild(client_n)[CONFIG::LOGIN_ID])) ; \
+    log_msg = "updating host: " + client_host                +                \
+              " ("              + String(n_clients)          +                \
+              ") clients: "     + logins.joinIntoString(",") ;                \
+    Trace::TraceConfig(log_msg) ;                                             }
+
+#define DEBUG_TRACE_LOGIN_LAYOUTLOGINBTNS StringArray hosts ;                           \
+  for (int host_n = 0 ; host_n < serversStore.getNumChildren() ; ++host_n)              \
+  {                                                                                     \
+    ValueTree   server_store  = serversStore.getChild(host_n) ;                         \
+    ValueTree   clients_store = server_store.getChildWithName(CONFIG::CLIENTS_ID) ;     \
+    String      host          = Id2Str(server_store.getType()) ;                        \
+    String      server_n      = String(host_n).paddedLeft('0' , 2) ;                    \
+    uint8       n_clients     = clients_store.getNumChildren() ;                        \
+    Trace::TraceGuiVb("button order: server[" + server_n + "](" + String(n_clients) +   \
+                      " clients)="            + host                                ) ; \
+                                                                                        \
+    StringArray logins ; String log_msgvb ;                                             \
+    for (int client_n = 0 ; client_n < n_clients ; ++client_n)                          \
+      logins.add(str(clients_store.getChild(client_n)[CONFIG::LOGIN_ID])) ;             \
+    log_msgvb = "sorted login button for jam at host: " + host +                        \
+                " " + logins.joinIntoString(",")               ;                        \
+    if (n_clients) { hosts.add(host) ; Trace::TraceGuiVb(log_msgvb) ; }                 \
+  }                                                                                     \
+  if (hosts.size()) Trace::TraceGui( "sorted (" + String(hosts.size()) + "/" +          \
+                                       String(serversStore.getNumChildren())   +        \
+                                       ") login buttons for jams at hosts: "   +        \
+                                       hosts.joinIntoString(",")               )        ;
 
 
 /* network */

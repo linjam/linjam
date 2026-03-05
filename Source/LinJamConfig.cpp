@@ -595,7 +595,6 @@ ValueTree LinJamConfig::getCredentials(String host)
 void LinJamConfig::storeServer()
 {
   String    host         = str( this->server[CONFIG::HOST_ID        ]) ;
-  String    topic        = str( this->server[CONFIG::TOPIC_ID       ]) ;
   String    n_slots      = str( this->server[CONFIG::N_SLOTS_ID     ]) ;
   String    n_users      = str( this->server[CONFIG::N_USERS_ID     ]) ;
   String    bpi          = str( this->server[CONFIG::BPI_ID         ]) ;
@@ -617,7 +616,6 @@ DEBUG_TRACE_STORE_SERVER
 
   // set per-server stats
   server.setProperty(CONFIG::HOST_ID         , host         , nullptr)
-        .setProperty(CONFIG::TOPIC_ID        , topic        , nullptr)
         .setProperty(CONFIG::N_SLOTS_ID      , n_slots      , nullptr)
         .setProperty(CONFIG::N_USERS_ID      , n_users      , nullptr)
         .setProperty(CONFIG::BPI_ID          , bpi          , nullptr)

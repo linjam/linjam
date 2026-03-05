@@ -37,7 +37,7 @@
 
 /* enable buggy features */
 
-// #define ACCEPT_CHAT_COMMANDS         // (issue #19)
+// #define ACCEPT_CHAT_COMMANDS // (issue #19)
 // #define FADE_HIDDEN_REMOTES
 
 

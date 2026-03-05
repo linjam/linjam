@@ -49,8 +49,10 @@ File                   LinJam::SessionDir ;                            // Prepar
 int                    LinJam::RetryLogin ;                            // Connect()
 String                 LinJam::PrevRecordingTime ;                     // Disconnect()
 // update jams
+URL                    LinJam::PollJamsUrl ;                           // Initialize()
 UPTR<LinJam::RoomSort> LinJam::RoomSorter ;                            // Initialize()
-URL                    LinJam::PollUrl ;                               // SetPollUrl()
+// signalling
+URL                    LinJam::PollSignalsUrl ;                        // SetPollSignalsUrl()
 
 
 /* LinJam class public class methods */
@@ -248,6 +250,7 @@ bool LinJam::Initialize(NJClient*   nj_client   , MainContent*  main_content ,
   Timer        = multi_timer ;
   AutoJoinHost = cli_args ; // TODO: parse/validate command line for auto-join (issue #9)
   Status       = APP::LINJAM_STATUS_INIT ;
+  PollJamsUrl  = NETWORK::POLL_JAMS_URL ;
 
 DEBUG_TRACE_INIT
 
@@ -632,7 +635,7 @@ void LinJam::Shutdown()
   JNL::close_socketlib() ;
 
   // JUCE teardown
-//   delete NETWORK::KNOWN_HOSTS ; delete NETWORK::KNOWN_BOTS ; delete NETWORK::KNOWN_STREAMS ;
+//   delete NETWORK::KNOWN_HOSTS ; delete NETWORK::LOBBY_HOSTS ; delete NETWORK::KNOWN_BOTS ; delete NETWORK::KNOWN_STREAMS ;
 
 DEBUG_TRACE_SHUTDOWN
 }
@@ -1119,29 +1122,21 @@ void LinJam::UpdateVuMeters()
 
 void LinJam::UpdateJams()
 {
-#ifdef NO_UPDATE_ROOMS_GUI
+#ifdef NO_UPDATE_JAMS
   return ;
-#endif // NO_UPDATE_ROOMS_GUI
+#endif // NO_UPDATE_JAMS
 
-  SetPollUrl() ; // TODO: should be done elsewhere on some state changes
+  String      serverlist = PollJamsUrl.readEntireTextStream() ;
+  StringArray jams       = APP::ParseServerlist(serverlist) ; jams.sort(true) ;
 
-  String      html = PollUrl.readEntireTextStream() ;
-  StringArray jams = APP::ParseServerlist(html) ; jams.sort(true) ;
-
-  // WTF: was this for?
-  // int         userdata_idx = (Status == APP::NJC_STATUS_OK) ? jam_n : -1 ;
-  // String      userdata     = APP::Pluck(&jams , userdata_idx) ;
-
-DEBUG_UPDATE_ROOMS_RESP
-// DEBUG_UPDATE_ROOMS_USERDATA
+DEBUG_TRACE_UPDATEJAMS
 
   for (int jam_n = 0 ; jam_n < jams.size() ; ++jam_n)
   {
     StringArray jam_data      = APP::ParseCSV(jams[jam_n]) ;
     String      host          = APP::Pluck(&jam_data , 0) ;
-    String      topic         = APP::Pluck(&jam_data , 0) ; // unused
+    String      n_users       = APP::Pluck(&jam_data , 0) ;
     String      n_slots       = APP::Pluck(&jam_data , 0) ;
-    String      n_users       = APP::Pluck(&jam_data , 0) ; // unused
     String      bpi           = APP::Pluck(&jam_data , 0) ;
     String      bpm           = APP::Pluck(&jam_data , 0) ;
     ValueTree   server_store  = Config->getServer(host) ;
@@ -1149,21 +1144,15 @@ DEBUG_UPDATE_ROOMS_RESP
     ValueTree   clients       = ValueTree(CONFIG::CLIENTS_ID) ;
     jam_data.trim() ; jam_data.removeEmptyStrings() ;
 
+    if (! server_store.isValid() || ! clients_store.isValid()) continue ;
+
     // cache transient room stats
-    if (server_store.isValid())
-    {
-      server_store.setProperty(CONFIG::TOPIC_ID   , var(topic  ) , nullptr) ;
-      server_store.setProperty(CONFIG::N_SLOTS_ID , var(n_slots) , nullptr) ;
-      server_store.setProperty(CONFIG::N_USERS_ID , var(n_users) , nullptr) ;
-      server_store.setProperty(CONFIG::BPI_ID     , var(bpi    ) , nullptr) ;
-      server_store.setProperty(CONFIG::BPM_ID     , var(bpm    ) , nullptr) ;
-    }
-    else Trace::TraceError("unknown server: '" + host + "' parsing server-list.php " +
-                           "- add it to NETWORK::KNOWN_HOSTS"                        ) ;
-         // TODO: dont warn, just add it now?
+    server_store.setProperty(CONFIG::N_SLOTS_ID , var(n_slots) , nullptr) ;
+    server_store.setProperty(CONFIG::N_USERS_ID , var(n_users) , nullptr) ;
+    server_store.setProperty(CONFIG::BPI_ID     , var(bpi    ) , nullptr) ;
+    server_store.setProperty(CONFIG::BPM_ID     , var(bpm    ) , nullptr) ;
 
-DEBUG_UPDATE_ROOMS_JAMDATA
-
+    // collect present clients
     while (jam_data.size() > 0)
     {
       Identifier nick       = Config->MakeUserId(APP::Pluck(&jam_data , 0)) ;
@@ -1173,17 +1162,23 @@ DEBUG_UPDATE_ROOMS_JAMDATA
       clients.addChild(nick_store , -1 , nullptr) ;
     }
 
+    // prune parted clients from storage
     for (int client_n = 0 ; client_n < clients_store.getNumChildren() ; ++client_n)
     {
       ValueTree client_store = clients_store.getChild(client_n) ;
+
+DEBUG_TRACE_UPDATEJAMS_PRUNE
 
       if (!clients.getChildWithName(client_store.getType()).isValid())
         clients_store.removeChild(client_store , nullptr) ;
     }
 
+    // store newly joined clients
     while (clients.getNumChildren() > 0)
     {
       ValueTree client = clients.getChild(0) ; clients.removeChild(client , nullptr) ;
+
+DEBUG_TRACE_UPDATEJAMS_APPEND
 
       if (!clients_store.getChildWithName(client.getType()).isValid())
         clients_store.addChild(client , -1 , nullptr) ;
@@ -1641,7 +1636,9 @@ double LinJam::GetChannelDb(int user_idx , int channel_idx)
 
 void LinJam::SetPollUrl()
 {
-  // TODO: server should handle empty params
+  // NYI: re-implement former (lost) heroku service
+  return ; // no callers anyways
+
 //   String          current_user = Client->GetUserName() ;
 //   String          current_user = Config->server[CONFIG::LOGIN_ID] ;
   String          current_user = "sumdood" ;
@@ -1651,5 +1648,5 @@ void LinJam::SetPollUrl()
   if (current_host.isNotEmpty()) poll_params.set   (NETWORK::HOST_KEY , current_host) ;
   else                           poll_params.remove(StringRef(NETWORK::HOST_KEY)) ;
 
-  PollUrl = NETWORK::POLL_URL.withParameters(poll_params) ;
+  PollSignalsUrl = NETWORK::POLL_SIGNALS_URL.withParameters(poll_params) ;
 }

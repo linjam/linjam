@@ -1,7 +1,7 @@
 
 #include "Constants.h"
 #include "LinJamConfig.h"
-#include "Trace/Trace.h"
+#include "Trace/TraceLogin.h"
 
 
 // timers
@@ -17,7 +17,7 @@ const String    NETWORK::HOST_CHARS      = NINJAM::HOST_CHARS ;
 const String    NETWORK::NICK_CHARS      = NINJAM::NICK_CHARS ;
 
 // known hosts and bots
-// NOTE: The following servers are indexed by ninjam,com (NETWORK::POLL_URL)
+// NOTE: The following servers are indexed by ninjam,com (NETWORK::POLL_JAMS_URL)
 //       but are usually (or perhaps always) offine.
 //       For this reason, no *_URL constant is defined for these
 //       and these are not declared in KNOWN_HOSTS_XML or KNOWN_BOTS_XML.
@@ -36,7 +36,7 @@ const String     NETWORK::NINJAMER_2049_URL = "ninjamer.com:2049" ;
 const String     NETWORK::NINJAMER_2050_URL = "ninjamer.com:2050" ;
 const String     NETWORK::NINJAMER_2051_URL = "ninjamer.com:2051" ;
 const String     NETWORK::NINJAMER_2052_URL = "ninjamer.com:2052" ;
-const String     NETWORK::GETAROOM_URL      = "getaroom-na.ninjam.com:2049" ;
+const String     NETWORK::GETAROOM_URL      = "getaroom-na.ninjam.com:2049" ; // "lobby" chat - no audio
 const String     NETWORK::MUSICORNER_URL    = "musicorner.redirectme.net:2050" ;
 const String     NETWORK::MUTANTLAB_URL     = "mutantlab.com:2049" ;
 const String     NETWORK::ROOTSOCIETY_URL   = "ninbot.rootsociety.nl:8001" ;
@@ -44,19 +44,17 @@ const String     NETWORK::BOTNU_URL         = "ninjam.bot.nu:2049" ;
 const Identifier NETWORK::NINBOT_LOGIN      = "ninbot_" ;
 const Identifier NETWORK::JAMBOT_LOGIN      = "Jambot" ;
 const String     NETWORK::KNOWN_HOSTS_KEY   = "known-hosts" ;
+const String     NETWORK::LOBBY_HOSTS_KEY   = "lobby-hosts" ;
 const String     NETWORK::KNOWN_BOTS_KEY    = "known-bots" ;
 const String     NETWORK::KNOWN_STREAMS_KEY = "known-streams" ;
-ValueTree        NETWORK::KNOWN_HOSTS ;    // APP::Initialize()
-ValueTree        NETWORK::KNOWN_BOTS ;     // APP::Initialize()
-ValueTree        NETWORK::KNOWN_STREAMS ;  // APP::Initialize()
+ValueTree        NETWORK::KNOWN_HOSTS ;   // APP::Initialize()
+ValueTree        NETWORK::LOBBY_HOSTS ;   // APP::Initialize()
+ValueTree        NETWORK::KNOWN_BOTS ;    // APP::Initialize()
+ValueTree        NETWORK::KNOWN_STREAMS ; // APP::Initialize()
 
 // http requests
-// const String NETWORK::WEBSITE_URL = "http://teamstream.herokuapp.com" ; // WIP: new stats
-// const String NETWORK::VERSION_URL = WEBSITE_URL + "/version.txt" ;      // WIP: new stats
-// const String NETWORK::CLIENTS_URL = WEBSITE_URL + "/clients.text" ;     // WIP: new stats
-// const URL    NETWORK::POLL_URL    = URL(CLIENTS_URL) ;                  // WIP: new stats
-// const URL    NETWORK::POLL_URL    = URL("http://192.168.254.1/jammers.csv") ; // WIP: new stats
-const URL    NETWORK::POLL_URL    = URL("http://autosong.ninjam.com/server-list.php") ; // WIP: new stats
+const URL    NETWORK::POLL_JAMS_URL    = URL("http://autosong.ninjam.com/serverlist.php") ; // WIP: new stats
+const URL    NETWORK::POLL_SIGNALS_URL = URL("http://" + DEVEL_HOST + "/jammers.csv") ; // WIP: heroku server is long gone - re-implement signalling
 // outbound control messages
 const String NETWORK::LOGIN_KEY   = "login" ;
 const String NETWORK::HOST_KEY    = "server" ;
@@ -73,9 +71,11 @@ void APP::Initialize()
 {
   // NOTE: destruction in LinJam::Shutdown()
   UPTR<XmlElement> known_hosts   = XmlDocument::parse(String(KNOWN_HOSTS_XML  )) ;
+  UPTR<XmlElement> lobby_hosts   = XmlDocument::parse(String(LOBBY_HOSTS_XML  )) ;
   UPTR<XmlElement> known_bots    = XmlDocument::parse(String(KNOWN_BOTS_XML   )) ;
   // UPTR<XmlElement> known_streams = XmlDocument::parse(String(KNOWN_STREAMS_XML)) ; // WIP: stream audition
   NETWORK::KNOWN_HOSTS           = ValueTree::fromXml(*known_hosts  ) ;
+  NETWORK::LOBBY_HOSTS           = ValueTree::fromXml(*lobby_hosts  ) ;
   NETWORK::KNOWN_BOTS            = ValueTree::fromXml(*known_bots   ) ;
   // NETWORK::KNOWN_STREAMS         = ValueTree::fromXml(*known_streams) ;            // WIP: stream audition
 }
@@ -83,72 +83,67 @@ void APP::Initialize()
 
 /* helpers */
 
-StringArray APP::ParseServerlist(String html)
+StringArray APP::ParseServerlist(String serverlist)
 {
-  StringArray lines = APP::ParseLines(html) ;
-  int         line_n ;
-  String      line ;
-  StringArray jams ;
-  String      host ;
-  String      stats ;
-  String      topic ;
-  String      bpi ;
-  String      bpm ;
-  String      n_users ;
-  String      n_slots ;
-  String      login ;
-  String      host_id  ;
-  bool        is_bot ;
-  int         jam_n ;
-  String      jam_csv ;
+  // example serverlist (http://autosong.ninjam.com/serverlist.php)
+  //   jam   servers eg: SERVER "hostname.tld:2049" "100 BPM/32" "1/8:(empty)" SERVER ... END
+  //   lobby servers eg: SERVER "hostname.tld:2049" "lobby"      "Public/private NINJAM room server North America : 0/30 rooms occupied 0 users total in rooms 0 users in lobby" END
+  serverlist               = serverlist.replace("SERVER" , "\n").replace("END" , "") ;
+ 	StringArray servers_data = APP::ParseLines(serverlist) ;
+  uint8       server_n      ; String      server_data ;
+  String      logins_csv    ; StringArray logins ;
+  String      jam_csv       ; StringArray jams ;
+  uint8       login_n       ; String      login ;
+  StringArray tokens        ;
+  String      host          ;
+  String      bpi           ;
+  String      bpm           ;
+  String      n_users       ;
+  String      n_slots       ;
+  String      host_id       ;
+  bool        is_known_host ;
+  bool        is_bot        ;
 
-  for (line_n = 0 ; line_n < lines.size() ; ++line_n)
+DEBUG_TRACE_SERVERLIST
+
+  for (server_n = 0 ; server_n < servers_data.size() ; ++server_n)
   {
-    line = lines[line_n] ;
+    server_data = servers_data[server_n] ;
 
     // parse channel stats
-    if (line.contains("<ul>"))
+    tokens        = StringArray::fromTokens(server_data , true) ;
+    tokens.set(0  , tokens[0].removeCharacters("\"")) ;
+    tokens.set(1  , tokens[1].removeCharacters("\"")) ;
+    tokens.set(2  , tokens[2].removeCharacters("\"")) ;
+    host          = tokens[0] ;
+    bpi           = tokens[1].fromLastOccurrenceOf ("/" , false , false) ;
+    bpm           = tokens[1].upToFirstOccurrenceOf(" " , false , false) ;
+    n_users       = tokens[2].upToFirstOccurrenceOf("/" , false , false) ;
+    n_slots       = tokens[2].fromLastOccurrenceOf ("/" , false , false)
+                             .upToFirstOccurrenceOf(":" , false , false) ;
+    logins_csv    = tokens[2].fromLastOccurrenceOf (":" , false , false).replace("(empty)" , "") ;
+    is_known_host = NETWORK::IsKnownHost(host) ;
+    logins        = APP::ParseCSV(logins_csv) ;
+    host_id       = Id2Str(LinJamConfig::MakeHostId(host)) ;
+    jam_csv       = StringArray(host , n_users , n_slots , bpi , bpm).joinIntoString(",") ;
+
+DEBUG_TRACE_SERVERLIST_SERVER
+
+    // filter unknown hosts
+    if (! is_known_host) continue ;
+
+    // filter known bots
+    for (login_n = 0 ; login_n < logins.size() ; ++login_n)
     {
-      if (line.startsWith("</ul>"))
-        line  = line   .fromFirstOccurrenceOf("</ul>" , false , false) ;
-      host    = line   .upToFirstOccurrenceOf(" <"    , false , false) ;
-      stats   = line   .fromFirstOccurrenceOf("<ul>"  , false , false)
-                       .upToFirstOccurrenceOf("<UL>"  , false , false) ;
-      topic   = stats  .upToFirstOccurrenceOf("<BR>"  , false , false) ;
-      bpm     = stats  .fromFirstOccurrenceOf("<BR>"  , false , false)
-                       .upToFirstOccurrenceOf(" BPM/" , false , false) ;
-      bpi     = stats  .fromFirstOccurrenceOf(" BPM/" , false , false)
-                       .upToFirstOccurrenceOf("<BR>"  , false , false) ;
-      n_users = stats  .fromLastOccurrenceOf ("<BR>"  , false , false)
-                       .upToFirstOccurrenceOf(" "     , false , false) ;
-      n_slots = n_users.fromFirstOccurrenceOf("/"     , false , false) ;
-      n_users = n_users.upToFirstOccurrenceOf("/"     , false , false) ;
-      jam_csv = StringArray(host , topic , n_slots , n_users , bpi , bpm).joinIntoString(",") ;
+      login  = logins[login_n] ;
+      is_bot = NETWORK::IsKnownBot(host_id , login) ;
 
-      if (! topic.startsWith("Server down:")) jams.add(jam_csv) ; // hide offline servers
+      if (! is_bot) jam_csv = jam_csv + "," + login ;
 
-      Trace::TraceNetworkVb("collecting jammers at: " + host) ;
+DEBUG_TRACE_SERVERLIST_CLIENT
     }
 
-    // parse channel users
-    else if (! line.contains("<UL>") && ! line.contains("</UL>"))
-    {
-      if (host.isEmpty()                 ) continue ;
-      if (line.contains(">Last updated ")) break ;
-
-      login   = line.upToFirstOccurrenceOf("<" , false , false) ;
-      host_id = Id2Str(LinJamConfig::MakeHostId(host)) ;
-      is_bot  = NETWORK::IsKnownBot(host_id , login) ;
-
-      if (! is_bot)
-      {
-        jam_n   = jams.size() - 1 ;
-        jam_csv = jams[jam_n] + "," + login ;
-        jams.set(jam_n , jam_csv) ;
-      }
-
-      Trace::TraceNetworkVb("\tjammer: " + login + (is_bot ? " (known bot)" : "")) ;
-    }
+    jams.add(jam_csv) ;
   }
 
   return jams ;
@@ -177,6 +172,11 @@ String APP::Pluck(StringArray* a_stringarray , int idx)
 bool NETWORK::IsKnownHost(String host)
 {
   return host.isNotEmpty() && KNOWN_HOSTS.getChildWithName(Identifier(host)).isValid() ;
+}
+
+bool NETWORK::IsLobbyHost(String host)
+{
+  return host.isNotEmpty() && LOBBY_HOSTS.getChildWithName(Identifier(host)).isValid() ;
 }
 
 bool NETWORK::IsKnownBot(String host , String login)

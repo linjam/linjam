@@ -39,7 +39,7 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
 
     setName ("Login");
     activeGroup.reset (new juce::GroupComponent ("activeGroup",
-                                                 TRANS ("Active Jam Rooms")));
+                                                 TRANS ("Live Jams")));
     addAndMakeVisible (activeGroup.get());
     activeGroup->setTextLabelPosition (juce::Justification::centred);
     activeGroup->setColour (juce::GroupComponent::outlineColourId, juce::Colours::grey);
@@ -48,10 +48,10 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     activeView.reset (new juce::Viewport ("activeView"));
     addAndMakeVisible (activeView.get());
     activeView->setScrollBarsShown (true, false);
-    activeView->setViewedComponent (new Component());
+    activeView->setViewedComponent (new Background());
 
     vacantGroup.reset (new juce::GroupComponent ("vacantGroup",
-                                                 TRANS ("Vacant Jam Rooms")));
+                                                 TRANS ("Recent Jams")));
     addAndMakeVisible (vacantGroup.get());
     vacantGroup->setTextLabelPosition (juce::Justification::centred);
     vacantGroup->setColour (juce::GroupComponent::outlineColourId, juce::Colours::grey);
@@ -60,7 +60,7 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     vacantView.reset (new juce::Viewport ("vacantView"));
     addAndMakeVisible (vacantView.get());
     vacantView->setScrollBarsShown (true, false);
-    vacantView->setViewedComponent (new Component());
+    vacantView->setViewedComponent (new Background());
 
     hostLabel.reset (new juce::Label ("hostLabel",
                                       TRANS ("Server:")));
@@ -164,6 +164,8 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
 
     //[UserPreSize]
 
+  populateJamsGui() ;
+
   this->loginButton->setVisible(false) ;
   this->hostLabel  ->setVisible(false) ;
   this->hostText   ->setVisible(false) ;
@@ -182,29 +184,6 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
   this->loginText  ->setTextToShowWhenEmpty(GUI::LOGIN_PROMPT_TEXT , GUI::TEXT_EMPTY_COLOR   ) ;
   this->passText   ->setTextToShowWhenEmpty(GUI::PASS_PROMPT_TEXT  , GUI::TEXT_EMPTY_COLOR   ) ;
   this->passText   ->setPasswordCharacter('*') ;
-
-  // instantiate login and audition buttons for known hosts
-  for (int server_n = 0 ; server_n < this->serversStore.getNumChildren() ; ++server_n)
-  {
-    ValueTree        server_store  = this->serversStore.getChild(server_n) ;
-    ValueTree        clients_store = server_store      .getChildWithName(CONFIG::CLIENTS_ID) ;
-    String           known_host    = server_store[CONFIG::HOST_ID] ;
-    String           stream_url    = str(NETWORK::KNOWN_STREAMS[known_host]) ;
-    HyperlinkButton* stream_button = new HyperlinkButton(GUI::STREAM_BUTTON_TEXT , URL(stream_url)) ;
-    TextButton*      login_button  = new TextButton     (known_host + "Button") ;
-    Label*           clients_label = new Label          (known_host + "Label" ) ;
-
-    login_button ->setButtonText(known_host) ;
-    login_button ->setExplicitFocusOrder(GUI::N_STATIC_LOGIN_CHILDREN + server_n) ;
-    login_button ->addListener(this) ;
-    stream_button->setTooltip(GUI::STREAM_BUTTON_TOOLTIP + "" + stream_url) ;
-    clients_label->setColour(Label::textColourId , Colours::white) ;
-    clients_label->setText(GUI::ROOM_VACANT_TOOLTIP , juce::dontSendNotification) ;
-
-    this->serverButtons.add(login_button ) ;
-    this->streamButtons.add(stream_button) ;
-    this->clientsLabels.add(clients_label) ;
-  }
 
   this->serversStore.addListener(this) ;
   this->hostText   ->addListener(this) ;
@@ -502,44 +481,94 @@ void Login::setTextErrorState(TextEditor* a_text_editor , bool is_error_state)
   repaint() ;
 }
 
-void Login::updateClients(ValueTree clients_store)
+void Login::populateJamsGui()
 {
-  String      host = str(clients_store.getParent()[CONFIG::HOST_ID]) ;
-  StringArray clients ;
+  // NOTE: addAndMakeVisible()does not re-parent widgets via Viewport
+  //       this procedure was previously done in the constructor
+  //       but for now, clobber and recreate existing widgets upon each reload
+  this->activeView->setViewedComponent(new Blank()) ;
+  this->vacantView->setViewedComponent(new Blank()) ;
+  this->serverButtons.clearQuick(true) ;
+  this->streamButtons.clearQuick(true) ;
+  this->clientsLabels.clearQuick(true) ;
+
+  // instantiate login and audition buttons for known hosts
+  for (int server_n = 0 ; server_n < this->serversStore.getNumChildren() ; ++server_n)
+  {
+    ValueTree        server_store  = this->serversStore.getChild(server_n) ;
+    ValueTree        clients_store = server_store      .getChildWithName(CONFIG::CLIENTS_ID) ;
+    String           known_host    = server_store[CONFIG::HOST_ID] ;
+    String           stream_url    = str(NETWORK::KNOWN_STREAMS[known_host]) ;
+    HyperlinkButton* stream_button = new HyperlinkButton(GUI::STREAM_BUTTON_TEXT , URL(stream_url)) ;
+    TextButton*      login_button  = new TextButton     (known_host + "Button") ;
+    Label*           clients_label = new Label          (known_host + "Label" ) ;
+
+    login_button ->setButtonText(known_host) ;
+    login_button ->setExplicitFocusOrder(GUI::N_STATIC_LOGIN_CHILDREN + server_n) ;
+    login_button ->addListener(this) ;
+    stream_button->setTooltip(GUI::STREAM_BUTTON_TOOLTIP + "" + stream_url) ;
+    clients_label->setColour(Label::textColourId , Colours::white) ;
+    clients_label->setText(GUI::ROOM_VACANT_TOOLTIP , juce::dontSendNotification) ;
+
+    this->serverButtons.add(login_button ) ;
+    this->streamButtons.add(stream_button) ;
+    this->clientsLabels.add(clients_label) ;
+  }
+}
+
+void Login::updateClients(ValueTree changed_clients)
+{
+  populateJamsGui() ;
+
+  String client_host = str(changed_clients.getParent()[CONFIG::HOST_ID]) ;
+
+DEBUG_TRACE_LOGIN_UPDATECLIENTS
 
   for (int host_n = 0 ; host_n < this->serversStore.getNumChildren() ; ++host_n)
   {
-    ValueTree   server_store  = this->serversStore .getChild(host_n) ;
-    TextButton* login_button  = this->serverButtons.getUnchecked(host_n) ;
-    Label*      clients_label = this->clientsLabels.getUnchecked(host_n) ;
-    String      known_host    = login_button->getButtonText() ;
-    // String      slots_msg ;
-    // String      bpibpm_msg ;
+    ValueTree   server_store    = this->serversStore .getChild(host_n) ;
+    TextButton* login_button    = this->serverButtons.getUnchecked(host_n) ;
+    Label*      clients_label   = this->clientsLabels.getUnchecked(host_n) ;
+    ValueTree   stored_clients  = server_store.getChildWithName(CONFIG::CLIENTS_ID) ;
+    String      known_host      = str(server_store[CONFIG::HOST_ID    ]) ;
+    String      bpi             = str(server_store[CONFIG::BPI_ID     ]) ;
+    String      bpm             = str(server_store[CONFIG::BPM_ID     ]) ;
+    String      n_users         = str(server_store[CONFIG::N_USERS_ID ]) ;
+    String      n_slots         = str(server_store[CONFIG::N_SLOTS_ID ]) ;
+    String      chatonly_msg    = GUI::CHATONLY_LABEL_TEXT                  .paddedLeft(' ' , GUI::SLOTS_PAD + GUI::BPIBPM_PAD) ;
+    String      slots_msg       = (n_users + "/"       + n_slots + " Slots").paddedLeft(' ' , GUI::SLOTS_PAD ) ;
+    String      bpibpm_msg      = (      bpi + " BPI @"                    ).paddedLeft(' ' , GUI::BPIBPM_PAD) +
+                                  (" " + bpm + " BPM"                      ).paddedLeft(' ' , GUI::BPIBPM_PAD) ;
+    bool        is_changed_host = known_host == client_host ;                            // WIP: AddLoginButton() does not re-parent widgets properly
+    ValueTree   clients_store   = (is_changed_host) ? changed_clients : stored_clients ; // WIP: AddLoginButton() does not re-parent widgets properly
+    uint8       n_clients       = clients_store.getNumChildren() ;                       // WIP: AddLoginButton() does not re-parent widgets properly
+    StringArray logins ;
 
-    // find these clients' server
-    if (clients_label->getName() != host + "Label") continue ;
+    // validate lists alignment
+    if (login_button ->getName() != known_host + "Button" ||
+        clients_label->getName() != known_host + "Label"   ) continue ;
 
-    // WIP: display server stats
-    // clients = StringArray( str(server_store[CONFIG::TOPIC_ID   ]) ,
-    clients.add( ( str(server_store[CONFIG::N_USERS_ID ]) + "/"       +
-                   str(server_store[CONFIG::N_SLOTS_ID ]) + " Slots"  ).paddedLeft(' ' , 11) ) ;
-    clients.add( " | " ) ;
-    clients.add( ( str(server_store[CONFIG::BPI_ID     ]) + " BPI @ " +
-                   str(server_store[CONFIG::BPM_ID     ]) + " BPM"    ).paddedLeft(' ' , 16) ) ;
-    clients.add( " | " ) ;
+    chatonly_msg = chatonly_msg + " |" ; // WIP: new server stats - TODO: separate labels?
+    slots_msg    = slots_msg    + " |" ; // WIP: new server stats - TODO: separate labels?
+    bpibpm_msg   = bpibpm_msg   + " |" ; // WIP: new server stats - TODO: separate labels?
 
-    int n_clients = clients_store.getNumChildren() ;
-    if (n_clients == 0) clients.add(GUI::ROOM_VACANT_TOOLTIP) ;
-    else for (int client_n = 0 ; client_n < n_clients ; ++client_n)
+    // collect server stats - finesse for "lobby" chats (no audio)
+    if (NETWORK::IsLobbyHost(client_host)) { logins.add(chatonly_msg) ; }
+    else                                   { logins.add(slots_msg   ) ;
+                                             logins.add(bpibpm_msg  ) ; }
+
+    // collect clinets
+    if (n_clients > 0) for (int client_n = 0 ; client_n < n_clients ; ++client_n)
     {
       String login = str(clients_store.getChild(client_n)[CONFIG::LOGIN_ID]) ;
 
-      clients.add(LinJamConfig::UserIdDisplay(login)) ;
+      logins.add(LinJamConfig::UserIdDisplay(login)) ;
     }
+    else logins.add(GUI::ROOM_VACANT_TOOLTIP) ;
 
-    // login_button ->setButtonText(known_host + "\n" + clients.joinIntoString("\n")) ;
-    login_button ->setTooltip(GUI::LOGIN_BUTTON_TOOLTIP + "\n\t" + clients.joinIntoString("\n\t")) ;
-    clients_label->setText   (clients.joinIntoString(" ") , juce::dontSendNotification) ;
+    // presentation
+    login_button ->setTooltip(GUI::LOGIN_BUTTON_TOOLTIP + "\n\t" + logins.joinIntoString("\n\t")) ;
+    clients_label->setText   (logins.joinIntoString(" ") , juce::dontSendNotification) ;
   }
 
   layoutLoginBtns() ;
@@ -547,10 +576,7 @@ void Login::updateClients(ValueTree clients_store)
 
 void Login::layoutLoginBtns()
 {
-  if (this->serversStore.getNumChildren() != this->serverButtons.size() ||
-      this->serversStore.getNumChildren() != this->clientsLabels.size()  ) return ; // TODO: assert fatal
-
-DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS
+DEBUG_TRACE_LOGIN_LAYOUTLOGINBTNS
 
   Component* active_pane = this->activeView->getViewedComponent() ;
   Component* vacant_pane = this->vacantView->getViewedComponent() ;
@@ -567,10 +593,9 @@ DEBUG_TRACE_LOGIN_LAYOUT_LOGIN_BTNS
     TextButton*      login_button  = this->serverButtons.getUnchecked(host_n) ;
     HyperlinkButton* stream_button = this->streamButtons.getUnchecked(host_n) ;
     Label*           clients_label = this->clientsLabels.getUnchecked(host_n) ;
-//     bool             is_vacant     = clients_label->getText() == GUI::ROOM_VACANT_TOOLTIP ;
-bool is_vacant                        = clients_label->getText().endsWith(GUI::ROOM_VACANT_TOOLTIP) ; // WIP: IRC-style chat
-    String           host_name     = login_button->getButtonText() ;
-//     bool             has_stream    = ! NETWORK::KNOWN_STREAMS[host_name].isVoid() ;
+    bool             is_vacant     = clients_label->getText().endsWith(GUI::ROOM_VACANT_TOOLTIP) ;
+    String           host          = login_button->getButtonText() ;
+//     bool             has_stream    = ! NETWORK::KNOWN_STREAMS[host].isVoid() ;
 bool has_stream                       = false ;  // WIP: stream preview - JUCE Assertion failure in juce_Identifier.cpp:49
     int              sort_order    = (is_vacant) ? n_vacant : n_occupied ;
     int              login_y       = GUI::LOGIN_BUTTON_T + (login_h * sort_order) ;
@@ -594,13 +619,13 @@ bool has_stream                       = false ;  // WIP: stream preview - JUCE A
 void Login::AddLoginButton(TextButton* login_button  , HyperlinkButton* stream_button ,
                            Label*      clients_label , bool             is_vacant     )
 {
-    // WIP: 2-column layout
+    // 2-column layout
     Viewport*  scroll_view = (is_vacant) ? this->vacantView.get() : this->activeView.get() ;
-    Component* toolbox     = scroll_view->getViewedComponent() ;
+    Component* servers_box = scroll_view->getViewedComponent() ;
 
-    toolbox->addAndMakeVisible(login_button ) ;
-    toolbox->addAndMakeVisible(stream_button) ;
-    toolbox->addAndMakeVisible(clients_label) ;
+    servers_box->addAndMakeVisible(login_button ) ;
+    servers_box->addAndMakeVisible(stream_button) ;
+    servers_box->addAndMakeVisible(clients_label) ;
 }
 
 //[/MiscUserCode]
@@ -621,13 +646,16 @@ BEGIN_JUCER_METADATA
                  variableInitialisers="loginStore(login_store), serversStore(servers_store)"
                  snapPixels="8" snapActive="0" snapShown="0" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="442">
+  <METHODS>
+    <METHOD name="visibilityChanged()"/>
+  </METHODS>
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <GROUPCOMPONENT name="activeGroup" id="23aa8a0b33d17718" memberName="activeGroup"
                   virtualName="" explicitFocusOrder="0" pos="24 16 248M 152M" outlinecol="ff808080"
-                  textcol="ffffffff" title="Active Jam Rooms" textpos="36"/>
+                  textcol="ffffffff" title="Live Jams" textpos="36"/>
   <VIEWPORT name="activeView" id="86f19de139bb5f3e" memberName="activeView"
             virtualName="" explicitFocusOrder="0" pos="8 12 12M 18M" posRelativeX="23aa8a0b33d17718"
             posRelativeY="23aa8a0b33d17718" posRelativeW="23aa8a0b33d17718"
@@ -635,7 +663,7 @@ BEGIN_JUCER_METADATA
             contentType="2" jucerFile="" contentClass="Background" constructorParams=""/>
   <GROUPCOMPONENT name="vacantGroup" id="f047af8af9dee9df" memberName="vacantGroup"
                   virtualName="" explicitFocusOrder="0" pos="24Rr 16 200 152M"
-                  outlinecol="ff808080" textcol="ffffffff" title="Vacant Jam Rooms"
+                  outlinecol="ff808080" textcol="ffffffff" title="Recent Jams"
                   textpos="36"/>
   <VIEWPORT name="vacantView" id="f671d4c2373d4fd" memberName="vacantView"
             virtualName="" explicitFocusOrder="0" pos="8 12 12M 18M" posRelativeX="f047af8af9dee9df"

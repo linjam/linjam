@@ -68,6 +68,7 @@ public:
   bool validateLogin    () ;
   bool validatePass     () ;
   void setTextErrorState(TextEditor* a_text_editor , bool is_error_state) ;
+  void populateJamsGui  () ;
   void updateClients    (ValueTree clients_store) ;
   void layoutLoginBtns  () ;
   void AddLoginButton   (TextButton* login_button  , HyperlinkButton* stream_button ,

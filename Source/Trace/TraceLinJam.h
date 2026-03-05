@@ -412,16 +412,21 @@
 
 /* rooms */
 
-// DEBUG_UPDATE_ROOMS_RESP e.g. response:
-//   ninbot.com:2049,nick1,nick2,nick3,
-//   ninjamer.com:2049,nick1,
-//   user,THIS_NICK,999,0,false // <-- WTF? lost upstream producer code
-// #define DEBUG_UPDATE_ROOMS_RESP Trace::TraceNetworkVb("LinJam::UpdateRooms() resp=" + resp.dropLastCharacters(resp.length() - 32)) ;
-#define DEBUG_UPDATE_ROOMS_RESP Trace::TraceNetworkVb("jams=" + (jams.size() > 0 ? "\n\t" + jams.joinIntoString("\n\t") : "none")) ;
+#define DEBUG_TRACE_UPDATEJAMS                                           \
+  String log_msg = "jams: " + ( (jams.isEmpty())                     ?   \
+                                "none"                               :   \
+                                "\n\t" + jams.joinIntoString("\n\t") ) ; \
+  Trace::TraceNetworkVb(log_msg) ;
 
-#define DEBUG_UPDATE_ROOMS_USERDATA Trace::TraceConfigVb("Status=" + String(int(Status.getValue())) + " is_ready=" + String(Status == APP::NJC_STATUS_OK) + " n_jams=" + String(jams.size()) + " userdata=" + userdata) ;
+#define DEBUG_TRACE_UPDATEJAMS_PRUNE                                         \
+  if (!clients.getChildWithName(client_store.getType()).isValid())           \
+    Trace::TraceConfig("pruning client: " + Id2Str(client_store.getType()) + \
+                       " from host: "     + host                           ) ;
 
-#define DEBUG_UPDATE_ROOMS_JAMDATA  Trace::TraceConfigVb("jamdata=" + jams[jam_n]) ;
+#define DEBUG_TRACE_UPDATEJAMS_APPEND                                 \
+  if (!clients_store.getChildWithName(client.getType()).isValid())    \
+    Trace::TraceConfig("adding client: " + Id2Str(client.getType()) + \
+                       " to host: "      + host                     ) ;
 
 
 #else // DEBUG
@@ -460,8 +465,9 @@
 #define DEBUG_TRACE_CHAT_OUT                  ;
 #define DEBUG_TRACE_UPDATEBPIBPM              ;
 // rooms
-#define DEBUG_UPDATE_ROOMS_RESP               ;
-#define DEBUG_UPDATE_ROOMS_USERDATA           ;
-#define DEBUG_UPDATE_ROOMS_ROOMDATA           ;
+#define DEBUG_TRACE_UPDATEJAMS                ;
+#define DEBUG_TRACE_UPDATEJAMS_PRUNE          ;
+#define DEBUG_TRACE_UPDATEJAMS_APPEND         ;
+
 
 #endif // DEBUG
