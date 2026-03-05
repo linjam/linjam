@@ -79,16 +79,17 @@
   if (ch) Trace::TraceGui(dbg) ; else Trace::TraceError(dbg) ;                             \
   DEBUG_TRACE_DUMP_CHANNELS_GUI_VB
 
-#define DEBUG_TRACE_STEREO_STATE_GUI                                                  \
-  int    stereo_status = int(this->stereoStatus.getValue()) ;                         \
-  String parent_id     = (!this->channelStore.getParent().isValid()) ? "orphan" :     \
-                         Id2Str(this->channelStore.getParent().getType()) ;           \
-  Trace::TraceGui(parent_id + " channel '" + this->nameLabel->getText()             + \
-                  "' stereo status is "                                             + \
-                  ((stereo_status == CONFIG::MONO)     ? "MONO"     :                 \
-                   (stereo_status == CONFIG::STEREO_L) ? "STEREO_L" :                 \
-                   (stereo_status == CONFIG::STEREO_R) ? "STEREO_R" :                 \
-                   (stereo_status == CONFIG::STEREO)   ? "STEREO"   : "NFG")) ;
+#define DEBUG_TRACE_STEREO_STATE_GUI                                              \
+  int       stereo_status = int(this->stereoStatus.getValue()) ;                  \
+  ValueTree parent        = this->channelStore.getParent() ;                      \
+  Trace::TraceGui( ( (!parent.isValid()) ? "orphan"                        :      \
+                     LinJamConfig::UserIdDisplay(Id2Str(parent.getType())) )  +   \
+                  " channel '" + this->nameLabel->getText()                   +   \
+                  "' stereo status is "                                       +   \
+                  ( (stereo_status == CONFIG::MONO)     ? "MONO"     :            \
+                    (stereo_status == CONFIG::STEREO_L) ? "STEREO_L" :            \
+                    (stereo_status == CONFIG::STEREO_R) ? "STEREO_R" :            \
+                    (stereo_status == CONFIG::STEREO)   ? "STEREO"   : "NFG"  ) ) ;
 
 #else // DEBUG
 

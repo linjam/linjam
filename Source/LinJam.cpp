@@ -175,19 +175,18 @@ DEBUG_TRACE_REMOVE_LOCAL_CHANNEL
 
   Identifier channel_id  = channel_store.getType() ;
   int        channel_idx = int(channel_store[CONFIG::CHANNEL_IDX_ID]) ;
-  int        pair_idx    = int(channel_store[CONFIG::PAIR_IDX_ID]) ;
-
-  // configure NJClient
-  Client->DeleteLocalChannel(channel_idx) ;
-  Client->DeleteLocalChannel(pair_idx) ;
-
-  Client->NotifyServerOfChannelChange() ;
+  int        pair_idx    = int(channel_store[CONFIG::PAIR_IDX_ID   ]) ;
 
   // destroy channel GUI
   Gui->mixer->removeChannel(GUI::LOCALS_GUI_ID , channel_id) ;
 
   // destroy channel storage
   Config->removeChannel(Config->localChannels , channel_store) ;
+
+  // configure NJClient
+  Client->DeleteLocalChannel(channel_idx) ;
+  Client->DeleteLocalChannel(pair_idx   ) ;
+  Client->NotifyServerOfChannelChange() ;
 
 DEBUG_TRACE_DUMP_FREE_INPUTS_VB
 }
@@ -1235,10 +1234,7 @@ DEBUG_TRACE_UPDATEBPIBPM
 
 void LinJam::UpdateStatus()
 {
-  // update status if not in an init, error, or hold state
-  int    status             = int(Status.getValue()) ;
-  bool   is_ready           = status >= APP::LINJAM_STATUS_READY ;
-  status                    = (! is_ready) ? status : Client->GetStatus() ;
+  // update state var if not in an init, error, or hold state
   String error_msg          = CharPointer_UTF8(Client->GetErrorStr()) ;
   int    status             = int(Status.getValue()) ;
   bool   is_ready           = status              >= APP::LINJAM_STATUS_READY ;

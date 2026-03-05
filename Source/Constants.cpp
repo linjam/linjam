@@ -56,13 +56,13 @@ ValueTree        NETWORK::KNOWN_STREAMS ; // APP::Initialize()
 const URL    NETWORK::POLL_JAMS_URL    = URL("http://autosong.ninjam.com/serverlist.php") ; // WIP: new stats
 const URL    NETWORK::POLL_SIGNALS_URL = URL("http://" + DEVEL_HOST + "/jammers.csv") ; // WIP: heroku server is long gone - re-implement signalling
 // outbound control messages
-const String NETWORK::LOGIN_KEY   = "login" ;
-const String NETWORK::HOST_KEY    = "server" ;
-// const String NETWORK::MODE_KEY    = "mode" ;
-// const String NETWORK::LINKS_KEY   = "links" ;
-// const String NETWORK::COLOR_KEY   = "color" ;
+const String NETWORK::LOGIN_KEY        = "login" ;
+const String NETWORK::HOST_KEY         = "server" ;
+// const String NETWORK::MODE_KEY         = "mode" ;
+// const String NETWORK::LINKS_KEY        = "links" ;
+// const String NETWORK::COLOR_KEY        = "color" ;
 // inbound control messages
-const String NETWORK::USER_KEY    = "user" ;
+// const String NETWORK::USER_KEY        = "user" ;
 
 
 /* setup */

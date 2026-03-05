@@ -63,11 +63,13 @@ private:
   TextButton*      modeButton ;
   Value            linjamStatus ;
 
-  void instantiate  (ValueTree gui_store       , ValueTree client_store  ,
-                     ValueTree blacklist_store , ValueTree audio_store   ,
-                     ValueTree login_store     , ValueTree servers_store ,
-                     Value     linjam_status                             ) ;
-  void setTitle     (String title_text) ;
+
+  // setup/teardow
+  void instantiate(ValueTree gui_store       , ValueTree client_store  ,
+                   ValueTree blacklist_store , ValueTree audio_store   ,
+                   ValueTree login_store     , ValueTree servers_store ,
+                   Value     linjam_status                             ) ;
+  void setTitle   (String title_text) ;
 
   // event handlers
   void childrenChanged()                         override ;

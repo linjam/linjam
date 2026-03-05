@@ -504,34 +504,36 @@ public:
   // static const String COLOR_KEY :
   // inbound control messages
   static const String USER_KEY ;
-  static const URL    POLL_URL ;
+  static const URL    POLL_JAMS_URL ;
+  static const URL    POLL_SIGNALS_URL ;
 
 
   static bool IsKnownHost(String host) ;
+  static bool IsLobbyHost(String host) ;
   static bool IsKnownBot (String host , String login) ;
 } ;
 
 
-/** the CONFIG namespace defines keys/value pairs and default value constants
+/** the CONFIG namespace defines keys/value pairs and default-value constants
         and validations pertaining to the configuration/persistence model<->XML */
 namespace CONFIG
 {
   /* config XML and ValueTree keys */
 
   // config root keys
-  static const String     STORAGE_KEY           = "linjam-data" ;
-  static const Identifier STORAGE_ID            = STORAGE_KEY ;
-  static const String     STORAGE_TYPES_KEY     = STORAGE_KEY + "-types" ;
-  static const String     CONFIG_VERSION_KEY    = "config-version" ;
-  static const Identifier CONFIG_VERSION_ID     = CONFIG_VERSION_KEY ;
+  static const String     STORAGE_KEY        = "linjam-data" ;
+  static const Identifier STORAGE_ID         = STORAGE_KEY ;
+  static const String     STORAGE_TYPES_KEY  = STORAGE_KEY + "-types" ;
+  static const String     CONFIG_VERSION_KEY = "config-version" ;
+  static const Identifier CONFIG_VERSION_ID  = CONFIG_VERSION_KEY ;
 
   // gui config keys
-  static const String     GUI_KEY              = "gui" ;
-  static const Identifier GUI_ID               = GUI_KEY ;
-  static const String     FONT_SIZE_KEY        = "chat-font-size" ;
-  static const Identifier FONT_SIZE_ID         = FONT_SIZE_KEY ;
-  static const String     UPDATE_IVL_KEY       = "gui-update-ivl" ;
-  static const Identifier UPDATE_IVL_ID        = UPDATE_IVL_KEY ;
+  static const String     GUI_KEY        = "gui" ;
+  static const Identifier GUI_ID         = GUI_KEY ;
+  static const String     FONT_SIZE_KEY  = "chat-font-size" ;
+  static const Identifier FONT_SIZE_ID   = FONT_SIZE_KEY ;
+  static const String     UPDATE_IVL_KEY = "gui-update-ivl" ;
+  static const Identifier UPDATE_IVL_ID  = UPDATE_IVL_KEY ;
 
   // client config keys
   static const String     CLIENT_KEY           = "client" ;
@@ -917,6 +919,11 @@ namespace GUI
   static const Colour BLACKLIST_TAB_COLOR = Colour(0xFF200000) ;
 
   // ConfigAudio
+#define WINAUDIOAPIS ASIO_DEVICE_TYPE + "\n" + KS_DEVICE_TYPE   + "\n" + \
+                     DS_DEVICE_TYPE   + "\n" + WAVE_DEVICE_TYPE
+#define MACAUDIOAPIS CA_DEVICE_TYPE
+#define NIXAUDIOAPIS JACK_DEVICE_TYPE + "\n" + ALSA_DEVICE_TYPE
+#define BUFFERSIZES  "32\n64\n128\n256\n512\n1024\n2048\n4096\n8192"
   static const int         DEFAULT_DS_INDEX     = 0 ;
   static const int         DEFAULT_CA_INDEX     = 0 ;
   static const int         DEFAULT_ALSA_INDEX   = 0 ;
@@ -935,11 +942,6 @@ namespace GUI
   static const String      SLES_DEVICE_TYPE     = TRANS("OpenSLES") ;
   static const String      IOS_DEVICE_TYPE      = TRANS("iOSAudio") ;
   static const String      NFG_DEVICE_TYPE      = TRANS("unknown") ;         // non-juce
-#define WINAUDIOAPIS ASIO_DEVICE_TYPE + "\n" + KS_DEVICE_TYPE   + "\n" + \
-                     DS_DEVICE_TYPE   + "\n" + WAVE_DEVICE_TYPE
-#define MACAUDIOAPIS CA_DEVICE_TYPE
-#define NIXAUDIOAPIS JACK_DEVICE_TYPE + "\n" + ALSA_DEVICE_TYPE
-#define BUFFERSIZES  "32\n64\n128\n256\n512\n1024\n2048\n4096\n8192"
 #ifdef _WIN32
   static const StringArray AUDIO_APIS           = StringArray::fromLines(WINAUDIOAPIS) ;
 #else // _WIN32
@@ -964,13 +966,13 @@ namespace GUI
   static const int         MAX_N_SINKS          = 16 ;
 
   // ConfigClient
+#define SAVEMODES "delete asap\ndo not save\nsave ogg\nsave ogg and wav"
+#define DEBUGLEVELS "silent\naudio\naudio and network\nlinjam trace"
   static const int CONFIG_SCROLLBAR_W   = 12 ;
   static const int BLACKLIST_X          = 24 ;
   static const int BLACKLIST_Y          = 68 ;
   static const int BLACKLIST_W          = 144 ;
   static const int BLACKLIST_H          = 76 ;
-#define SAVEMODES "delete asap\ndo not save\nsave ogg\nsave ogg and wav"
-#define DEBUGLEVELS "silent\naudio\naudio and network\nlinjam trace"
   static const StringArray SAVE_MODES   = StringArray::fromLines(SAVEMODES  ) ;
   static const StringArray DEBUG_LEVELS = StringArray::fromLines(DEBUGLEVELS) ;
 
@@ -1016,47 +1018,47 @@ namespace GUI
   static const String LICENSE_GUI_ID = "license-gui" ;
 
   // Toolbox
-  static const String TOOLBOX_GUI_ID        = "toolbox-gui" ;
-  static const int    TOOLBOX_H             = 24 ; // ASSERT: jucer hard-coded
-  static const float  TOPIC_FONT_H          = 16.0f ;
-  static const int    TOPIC_H               = TOPIC_FONT_H ;
-  static const float  TOPIC_BORDER_X        = PAD2F ;
-  static const float  TOPIC_BORDER_Y        = PAD2F ;
-  static const float  TOPIC_BORDER_PADW     = PAD4F ;
-  static const float  TOPIC_BORDER_H        = TOPIC_H + PADF ;
-  static const int    TOPIC_X               = TOPIC_BORDER_X + PAD ;
-  static const int    TOPIC_Y               = TOPIC_BORDER_Y + (PAD / 2) ;
-  static const int    VOTE_W                = 36 ;
-  static const Colour TOPIC_TEXT_COLOR      = Colour(0xFF8080FF) ;
+  static const String TOOLBOX_GUI_ID    = "toolbox-gui" ;
+  static const int    TOOLBOX_H         = 24 ; // ASSERT: jucer hard-coded
+  static const float  TOPIC_FONT_H      = 16.0f ;
+  static const int    TOPIC_H           = TOPIC_FONT_H ;
+  static const float  TOPIC_BORDER_X    = PAD2F ;
+  static const float  TOPIC_BORDER_Y    = PAD2F ;
+  static const float  TOPIC_BORDER_PADW = PAD4F ;
+  static const float  TOPIC_BORDER_H    = TOPIC_H + PADF ;
+  static const int    TOPIC_X           = TOPIC_BORDER_X + PAD ;
+  static const int    TOPIC_Y           = TOPIC_BORDER_Y + (PAD / 2) ;
+  static const int    VOTE_W            = 36 ;
+  static const Colour TOPIC_TEXT_COLOR  = Colour(0xFF8080FF) ;
 
   // Chat
-  static const String CHAT_GUI_ID           = "chat-gui" ;
-  static const String SERVER_NICK           = TRANS("NINJAM") ;
-  static const String TOPIC_TEXT            = TRANS("Topic is: ") ;
-  static const String SET_TOPIC_TEXT        = TRANS(" sets topic to: ") ;
-  static const String PM_TEXT               = TRANS("(whispers)") ;
-  static const String JOIN_TEXT             = TRANS(" has joined the jam session") ;
-  static const String PART_TEXT             = TRANS(" has left the jam session") ;
-  static const String UNKNOWN_COMMAND_MSG   = TRANS("Error: unknown command") ;
-  static const String INVALID_PM_MSG        = TRANS("Error: /msg requires a username and a message") ;
-  static const String CHAT_PROMPT_TEXT      = TRANS("(Type some chat here, then press the <ENTER> key to send)") ;
-  static const int    SENDER_MAX_CHARS      = 29 ; // truncate nicks >16 chars
-  static const float  CHAT_PANE_BORDER_X    = 0.0f ;
-  static const float  CHAT_PANE_BORDER_Y    = 0.0f ;
-  static const int    CHAT_X                = PAD2 ;
-  static const int    CHAT_Y                = PAD2 ;
-  static const int    CHAT_PADH             = PAD3 ;
-  static const int    CHAT_PADW             = CHAT_X * 2 ;
-  static const float  CHAT_ENTRY_PADH       = PADF / 2.0 ;
-  static const int    CHAT_ENTRY_PADY       = (CHAT_ENTRY_PADH * 2) + PAD ;
-  static const float  CHAT_BORDER_X         = PADF ;
-  static const float  CHAT_BORDER_Y         = PADF ;
-  static const float  CHAT_BORDER_PADW      = CHAT_BORDER_X * 2.0 ;
-  static const Colour CHAT_TEXT_COLOR       = Colour(0xFF808080) ;
-  static const Colour CHAT_OUTLINE_COLOR    = Colour(0x00000000) ;
-  static const Colour CHAT_FOCUS_COLOR      = Colour(0x00000000) ;
-  static const Colour CHAT_SHADOW_COLOR     = Colour(0x00000000) ;
-  static const Colour CHAT_TEXT_BG_COLOR    = Colour(0x00000000) ;
+  static const String CHAT_GUI_ID         = "chat-gui" ;
+  static const String SERVER_NICK         = TRANS("NINJAM") ;
+  static const String TOPIC_TEXT          = TRANS("Topic is: ") ;
+  static const String SET_TOPIC_TEXT      = TRANS(" sets topic to: ") ;
+  static const String PM_TEXT             = TRANS("(whispers)") ;
+  static const String JOIN_TEXT           = TRANS(" has joined the jam session") ;
+  static const String PART_TEXT           = TRANS(" has left the jam session") ;
+  static const String UNKNOWN_COMMAND_MSG = TRANS("Error: unknown command") ;
+  static const String INVALID_PM_MSG      = TRANS("Error: /msg requires a username and a message") ;
+  static const String CHAT_PROMPT_TEXT    = TRANS("(Type some chat here, then press the <ENTER> key to send)") ;
+  static const int    SENDER_MAX_CHARS    = 29 ; // truncate nicks >16 chars
+  static const float  CHAT_PANE_BORDER_X  = 0.0f ;
+  static const float  CHAT_PANE_BORDER_Y  = 0.0f ;
+  static const int    CHAT_X              = PAD2 ;
+  static const int    CHAT_Y              = PAD2 ;
+  static const int    CHAT_PADH           = PAD3 ;
+  static const int    CHAT_PADW           = CHAT_X * 2 ;
+  static const float  CHAT_ENTRY_PADH     = PADF / 2.0 ;
+  static const int    CHAT_ENTRY_PADY     = (CHAT_ENTRY_PADH * 2) + PAD ;
+  static const float  CHAT_BORDER_X       = PADF ;
+  static const float  CHAT_BORDER_Y       = PADF ;
+  static const float  CHAT_BORDER_PADW    = CHAT_BORDER_X * 2.0 ;
+  static const Colour CHAT_TEXT_COLOR     = Colour(0xFF808080) ;
+  static const Colour CHAT_OUTLINE_COLOR  = Colour(0x00000000) ;
+  static const Colour CHAT_FOCUS_COLOR    = Colour(0x00000000) ;
+  static const Colour CHAT_SHADOW_COLOR   = Colour(0x00000000) ;
+  static const Colour CHAT_TEXT_BG_COLOR  = Colour(0x00000000) ;
 
   // Channel
   static const Identifier       MASTER_GUI_ID              = CONFIG::MASTER_ID ;

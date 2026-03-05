@@ -95,6 +95,7 @@ private:
     }
   } ;
 
+  // setup/teardown
   static NJClient*      Client ;
   static MainContent*   Gui ;
   static MultiTimer*    Timer ;
@@ -107,6 +108,7 @@ private:
   static SortedSet<int> FreeSourcePairs ;
   static double         GuiBeatOffset ;
   static File           SessionDir ;
+  // networking (NINJAM client)
   static int            RetryLogin ;
   static String         PrevRecordingTime ;
   // update jams
@@ -158,8 +160,8 @@ private:
   static void UpdateBpiBpm() ;
   static void UpdateStatus() ;
   static void UpdateRecordingTime() ;
-  // static void UpdateSessionTime() ;
-  static void Logout() ;
+  // static void UpdateSessionTime() ; // WIP: robust session time? Client->GetSessionPosition() and friends?
+  static void WaitLogout() ;
 
   // NJClient configuration
   static void ConfigureAudio() ;

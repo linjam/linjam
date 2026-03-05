@@ -428,7 +428,7 @@ static unsigned int SessionSecs = 0 ; // DELETEME: DEBUG
   else if (bpm_s >  1) Trace::TraceGuiVb(bpm_cancel_msg + bpm_wait_msg) ;
 
 
-/* rooms */
+/* jams */
 
 #define DEBUG_TRACE_UPDATEJAMS                                           \
   String log_msg = "jams: " + ( (jams.isEmpty())                     ?   \
