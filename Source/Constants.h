@@ -895,7 +895,9 @@ namespace GUI
   static const String MODE_BTN_JAM_TEXT          = TRANS("<-- Lobby") ;
 
   // Background
-  static const String BACKGROUND_GUI_ID = "background-gui" ;
+  static const String BACKGROUND_GUI_ID   = "background-gui" ;
+  static const String SPINNER_INIT_TEXT   = TRANS("Starting Up ...") ;
+  static const String SPINNER_LOGOUT_TEXT = TRANS("Logging Out ...") ;
 
   // Config
   static const String CONFIG_GUI_ID       = "config-gui" ;

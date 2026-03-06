@@ -805,7 +805,14 @@ DEBUG_TRACE_STATUS_CHANGED
   APP::LinJamStatus status = (APP::LinJamStatus)int(Status.getValue()) ;
 
   // ignore sentinel value, but prime lobby jams
-  if (status == APP::LINJAM_STATUS_READY) { UpdateJams() ; return ; }
+  if (status <  APP::LINJAM_STATUS_READY)
+    Gui->background->spinnerLabel->setText(GUI::SPINNER_INIT_TEXT   , juce::dontSendNotification) ;
+  if (status == APP::LINJAM_STATUS_READY)
+  {
+    Gui->background->spinnerLabel->setText(GUI::SPINNER_LOGOUT_TEXT , juce::dontSendNotification) ;
+    UpdateJams() ;
+    return ;
+  }
 
   // set status indicator
   String host        = Client->GetHostName() ;
@@ -956,7 +963,7 @@ DEBUG_TRACE_HANDLEUSERINFOCHANGED
   Gui->mixer->pruneRemotes(active_users) ;
 }
 
-void LinJam::UpdateGuiHighPriority() { UpdateLoopProgress() ; UpdateVuMeters() ; }
+void LinJam::UpdateGuiHighPriority() { UpdateLoopProgress() ; UpdateVuMeters() ; PumpSpinner() ; }
 
 void LinJam::UpdateGuiMedPriority() { UpdateBpiBpm() ; UpdateRecordingTime() ; }
 
@@ -1119,6 +1126,8 @@ void LinJam::UpdateVuMeters()
   master_store.setProperty(CONFIG::VU_LEFT_ID  , master_vu_l , nullptr) ;
   master_store.setProperty(CONFIG::VU_RIGHT_ID , master_vu_r , nullptr) ;
 }
+
+void LinJam::PumpSpinner() { Gui->background->spinnerProgress = 1.0 ; }
 
 void LinJam::UpdateJams()
 {

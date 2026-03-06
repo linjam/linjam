@@ -33,6 +33,19 @@ Background::Background ()
     //[/Constructor_pre]
 
     setName ("Background");
+    progressBar.reset (new ProgressBar (this->spinnerProgress, ProgressBar::Style::circular));
+    addAndMakeVisible (progressBar.get());
+    progressBar->setName ("progressBar");
+
+    spinnerLabel.reset (new juce::Label ("spinnerLabel",
+                                         TRANS ("Logging Out ...")));
+    addAndMakeVisible (spinnerLabel.get());
+    spinnerLabel->setFont (juce::Font (24.00f, juce::Font::plain).withTypefaceStyle ("Bold"));
+    spinnerLabel->setJustificationType (juce::Justification::centred);
+    spinnerLabel->setEditable (false, false, false);
+    spinnerLabel->setColour (juce::TextEditor::textColourId, juce::Colours::black);
+    spinnerLabel->setColour (juce::TextEditor::backgroundColourId, juce::Colour (0x00000000));
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -41,6 +54,16 @@ Background::Background ()
 
 
     //[Constructor] You can add your own custom stuff here..
+
+  this->progressBar->setColour(ProgressBar::foregroundColourId , Colour(0xFF8080FF)) ;
+  this->progressBar->setColour(ProgressBar::backgroundColourId , Colour(0xFFFF0000)) ;
+
+  this->progressBar->setPercentageDisplay(false) ;
+
+  // hide spinner by default
+  this->progressBar ->setVisible(false) ;
+  this->spinnerLabel->setVisible(false) ;
+
     //[/Constructor]
 }
 
@@ -49,6 +72,8 @@ Background::~Background()
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
 
+    progressBar = nullptr;
+    spinnerLabel = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -72,6 +97,8 @@ void Background::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
+    progressBar->setBounds ((getWidth() / 2) - (256 / 2), (getHeight() / 2) - (256 / 2), 256, 256);
+    spinnerLabel->setBounds ((getWidth() / 2) - (256 / 2), (getHeight() / 2) - (24 / 2), 256, 24);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -96,6 +123,15 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="790" initialHeight="470">
   <BACKGROUND backgroundColour="ff202020"/>
+  <GENERICCOMPONENT name="progressBar" id="de373a8913a42503" memberName="progressBar"
+                    virtualName="" explicitFocusOrder="0" pos="0Cc 0Cc 256 256" class="ProgressBar"
+                    params="this-&gt;spinnerProgress, ProgressBar::Style::circular"/>
+  <LABEL name="spinnerLabel" id="1fff84ce88afe330" memberName="spinnerLabel"
+         virtualName="" explicitFocusOrder="0" pos="0Cc 0Cc 256 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Logging Out ..." editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="24.0" kerning="0.0" bold="1" italic="0" justification="36"
+         typefaceStyle="Bold"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

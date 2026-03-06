@@ -68,8 +68,11 @@ private:
                      ValueTree login_store     , ValueTree servers_store ,
                      Value     linjam_status                             ) ;
   void setTitle     (String title_text) ;
-  void buttonClicked(Button* a_button) ;
-  void valueChanged(Value& a_value) ;
+
+  // event handlers
+  void childrenChanged()                 override ;
+  void buttonClicked  (Button* a_button) override ;
+  void valueChanged   (Value& a_value)   override ;
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContent)

@@ -201,6 +201,25 @@ void MainContent::setTitle(String title_text)
   this->mainWindow->setName(GUI::APP_NAME + " - " + title_text) ;
 }
 
+
+/* event handlers */
+
+void MainContent::childrenChanged()
+{
+DBG("MainContent::childrenChanged()") ;
+  // WIP: show/hide spinner widget based on parent z-order/visibility
+  //      z-order (.toFront(),.toBack()) is fiddly to work with
+  //      it may be best to ignore z-order and manage panes per visibility instead
+
+  uint8      z_idx     = getIndexOfChildComponent(this->background.get()) ;
+  uint8      front_idx = (getNumChildComponents() - 1) ;
+  Component* spinner   = this->background->progressBar.get() ;
+
+  // if      (z_idx == front_idx && ! spinner.isVisible()) spinner->setVisible(true ) ;
+  // else if (z_idx != front_idx &&   spinner.isVisible()) spinner->setVisible(false) ;
+  spinner->setVisible(z_idx == front_idx) ;
+}
+
 void MainContent::buttonClicked(Button* a_button)
 {
   bool is_config = this->linjamStatus == APP::LINJAM_STATUS_CONFIGPENDING ;

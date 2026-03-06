@@ -43,6 +43,10 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+  friend class LinJam ;
+  friend class MainContent ;
+
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
@@ -52,9 +56,14 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+  double spinnerProgress = 0.0 ;
+
     //[/UserVariables]
 
     //==============================================================================
+    std::unique_ptr<ProgressBar> progressBar;
+    std::unique_ptr<juce::Label> spinnerLabel;
 
 
     //==============================================================================

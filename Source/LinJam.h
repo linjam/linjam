@@ -150,6 +150,7 @@ private:
   static void UpdateGuiLowPriority() ;
   static void UpdateLoopProgress() ;
   static void UpdateVuMeters() ;
+  static void PumpSpinner() ;
   static void UpdateJams() ;
   static void UpdateBpiBpm() ;
   static void UpdateStatus() ;
