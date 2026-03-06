@@ -319,14 +319,10 @@ void Login::buttonClicked (juce::Button* buttonThatWasClicked)
     //[/UserbuttonClicked_Post]
 }
 
-
-
-//[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-
-/* event handlers */
-
-void Login::broughtToFront()
+void Login::visibilityChanged()
 {
+    //[UserCode_visibilityChanged] -- Add your code here...
+
   // load previous login state
   String host         = str (this->loginStore[CONFIG::HOST_ID        ]) ;
   String login        = str (this->loginStore[CONFIG::LOGIN_ID       ]) ;
@@ -351,7 +347,15 @@ DEBUG_TRACE_LOGIN_LOAD
   this->loginText  ->setText((validateLogin()) ? login : "") ;
   this->passText   ->setText((validatePass ()) ? pass  : "") ;
   this->anonButton ->setToggleState(is_anonymous , juce::dontSendNotification) ;
+
+    //[/UserCode_visibilityChanged]
 }
+
+
+
+//[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+/* event handlers */
 
 void Login::textEditorTextChanged(TextEditor& text_editor)
 {

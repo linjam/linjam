@@ -156,6 +156,7 @@ private:
   static void HandlePartMsg( String chat_user) ;
   static void HandleStatusChanged() ;
   static void HandleUserInfoChanged() ;
+  static void UpdateGuiMode(Component* pane) ;
   static void UpdateGuiHighPriority() ;
   static void UpdateGuiMedPriority() ;
   static void UpdateGuiLowPriority() ;

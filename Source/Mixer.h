@@ -46,6 +46,8 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 
+  friend class LinJam ;
+
   bool addRemoteUser(   ValueTree user_store) ;
   bool addChannel(      Identifier channels_id , ValueTree channel_store) ;
   void removeChannel(   Identifier channels_id , Identifier channel_id) ;

@@ -90,6 +90,8 @@ void LinJam::Disconnect()
   // stop XMIT all channels and wait until current loop completes before disconnect
   // various memory corruption faults seen (free, double-free, size)
   // if local channel is XMIT upon njclient Disconnect()
+
+// /* WIP: the widget does not respond and (probably) NotifyServerOfChannelChange() is not called
   for (int channel_n = 0 ; channel_n < Config->localChannels.getNumChildren() ; ++channel_n)
   {
     ValueTree channel_store = Config->getChannelByIdx(Config->localChannels , channel_n) ;
@@ -845,31 +847,20 @@ DEBUG_TRACE_STATUS_CHANGED
                                                       Trace::Status2String(status) ;
   Gui->statusbar->setStatusL(status_text) ;
 
-   // WIP: faux-modal license screen (still doent qork quite right)
-   //      this WIP is only to avoid the lobby screen showing again after agree
-  if (status == APP::LINJAM_STATUS_LICENSEPENDING) Gui->chat      ->toFront(true) ; // faux-modal
-  else                                             Gui->background->toFront(true) ;
-
   // set visible GUI components for current mode (config, lobby, or jam)
-  Gui->background->toFront(false) ;
-  Gui->statusbar ->toFront(false) ;
   switch (status)
   {
-    case APP::LINJAM_STATUS_AUDIOINIT      : Gui->config    ->toFront(true ) ; break ;
-    case APP::LINJAM_STATUS_CONFIGPENDING  : Gui->config    ->toFront(true ) ; break ;
-    case APP::LINJAM_STATUS_AUDIOERROR     : Gui->config    ->toFront(true ) ; break ;
-    case APP::LINJAM_STATUS_LICENSEPENDING : Gui->license   ->toFront(true ) ; break ;
-    case APP::LINJAM_STATUS_ROOMFULL       : Gui->lobby     ->toFront(true ) ; break ;
-    case APP::NJC_STATUS_DISCONNECTED      : Gui->lobby     ->toFront(true ) ; break ;
-    case APP::NJC_STATUS_INVALIDAUTH       : Gui->lobby     ->toFront(true ) ; break ;
-    case APP::NJC_STATUS_CANTCONNECT       : Gui->lobby     ->toFront(true ) ; break ;
-    case APP::NJC_STATUS_OK                : Gui->toolbox   ->toFront(false) ;
-                                             Gui->chat      ->toFront(true ) ;
-                                             Gui->mixer     ->toFront(false) ;
-                                             Gui->loop      ->toFront(false) ; break ;
-    case APP::NJC_STATUS_PRECONNECT        : Gui->lobby     ->toFront(true ) ; break ;
-    case APP::LINJAM_STATUS_LOGOUTPENDING  : Gui->background->setAlpha(0.5)  ; break ;
-    default                                : Gui->background->toFront(true ) ; break ;
+    case APP::LINJAM_STATUS_AUDIOINIT      :
+    case APP::LINJAM_STATUS_CONFIGPENDING  :
+    case APP::LINJAM_STATUS_AUDIOERROR     : UpdateGuiMode(Gui->config    .get()) ; break ;
+    case APP::LINJAM_STATUS_LICENSEPENDING : UpdateGuiMode(Gui->license   .get()) ; break ;
+    case APP::LINJAM_STATUS_ROOMFULL       :
+    case APP::NJC_STATUS_DISCONNECTED      :
+    case APP::NJC_STATUS_INVALIDAUTH       :
+    case APP::NJC_STATUS_CANTCONNECT       :
+    case APP::NJC_STATUS_PRECONNECT        : UpdateGuiMode(Gui->lobby     .get()) ; break ;
+    case APP::NJC_STATUS_OK                : UpdateGuiMode(Gui->mixer     .get()) ; break ;
+    default                                : UpdateGuiMode(Gui->background.get()) ; break ;
   }
 
   // actions
@@ -976,6 +967,22 @@ DEBUG_TRACE_HANDLEUSERINFOCHANGED
 
   // prune user and channel GUIs
   Gui->mixer->pruneRemotes(active_users) ;
+}
+
+void LinJam::UpdateGuiMode(Component* pane)
+{
+  bool is_licence_pending = Status == APP::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
+
+  if (pane == Gui->lobby.get() && is_licence_pending) return ;
+
+  Gui->background->setVisible(pane == Gui->background.get()) ;
+  Gui->config    ->setVisible(pane == Gui->config    .get()) ;
+  Gui->lobby     ->setVisible(pane == Gui->lobby     .get()) ;
+  Gui->license   ->setVisible(pane == Gui->license   .get()) ;
+  Gui->toolbox   ->setVisible(pane == Gui->mixer     .get()) ;
+  Gui->chat      ->setVisible(pane == Gui->mixer     .get()) ;
+  Gui->mixer     ->setVisible(pane == Gui->mixer     .get()) ;
+  Gui->loop      ->setVisible(pane == Gui->mixer     .get()) ;
 }
 
 void LinJam::UpdateGuiHighPriority() { UpdateLoopProgress() ; UpdateVuMeters() ; PumpSpinner() ; }
@@ -1237,9 +1244,10 @@ void LinJam::UpdateStatus()
   // update state var if not in an init, error, or hold state
   String error_msg          = CharPointer_UTF8(Client->GetErrorStr()) ;
   int    status             = int(Status.getValue()) ;
-  bool   is_ready           = status              >= APP::LINJAM_STATUS_READY ;
-  bool   is_logout_pending  = status              == APP::LINJAM_STATUS_LOGOUTPENDING ;
-  bool   is_licence_pending = status              == APP::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
+  bool   is_ready           = status >= APP::LINJAM_STATUS_READY ;
+  bool   is_licence_pending = ( status == APP::LINJAM_STATUS_LICENSEPENDING ||
+                                status == APP::NJC_STATUS_INVALIDAUTH        ) && !IsAgreed() ;
+  bool   is_logout_pending  = status == APP::LINJAM_STATUS_LOGOUTPENDING ;
   bool   is_jam_full        = is_ready && ! error_msg.compare(CLIENT::SERVER_FULL_RESP) ;
   bool   should_refresh     = is_ready && ! is_logout_pending ;
 

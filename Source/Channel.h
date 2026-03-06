@@ -49,7 +49,7 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
 #if DEBUG
-friend class Channels ;
+  friend class Channels ;
 #endif // DEBUG
 
     //[/UserMethods]
@@ -114,21 +114,30 @@ class MasterChannel : public Channel
 {
   friend class MasterChannels ;
 
+
   MasterChannel(ValueTree channel_store) ;
 } ;
+
 
 class LocalChannel  : public Channel
 {
   friend class LocalChannels ;
+  friend class Mixer ;
+
 
   LocalChannel(ValueTree channel_store) ;
 
-  void buttonClicked(Button* a_button) ;
+
+private:
+
+  void buttonClicked(Button* a_button) override ;
 } ;
+
 
 class RemoteChannel : public Channel
 {
   friend class RemoteChannels ;
+
 
   RemoteChannel(ValueTree channel_store) ;
 } ;

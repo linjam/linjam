@@ -199,9 +199,9 @@ Channel::Channel (ValueTree channel_store)
   this->panSlider    ->setDoubleClickReturnValue(true , 0.0) ;
   this->vuLeftSlider ->setInterceptsMouseClicks(false , false) ;
   this->vuRightSlider->setInterceptsMouseClicks(false , false) ;
-  this->gainSlider   ->setRange(gain_min , gain_max , 0) ;
-  this->vuLeftSlider ->setRange(vu_min   , vu_max   , 0) ;
-  this->vuRightSlider->setRange(vu_min   , vu_max   , 0) ;
+  this->gainSlider   ->setRange(GUI::VU_DB_MIN , GUI::VU_DB_MIN + GUI::VU_DB_RANGE , 0) ;
+  this->vuLeftSlider ->setRange(0.0            , GUI::VU_DB_RANGE                  , 0) ;
+  this->vuRightSlider->setRange(0.0            , GUI::VU_DB_RANGE                  , 0) ;
 
   // local event handlers
   this->removeButton->addListener(this) ;

@@ -53,6 +53,7 @@ public:
 
     void paint (juce::Graphics& g) override;
     void resized() override;
+    void visibilityChanged() override;
 
 
 
@@ -63,10 +64,9 @@ private:
   Value linjamStatus ;
 
 
-  void valueChanged(              Value& a_value)            override ;
+  void valueChanged              (Value& a_value)            override ;
   void textEditorEscapeKeyPressed(TextEditor& a_text_editor) override ;
   void textEditorReturnKeyPressed(TextEditor& a_text_editor) override ;
-  void broughtToFront            ()                          override ;
 
   void   setFontSize() ;
   int    getFontSize() ;

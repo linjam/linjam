@@ -100,6 +100,8 @@ public:
 
   LocalChannels() ;
 
+  // void StopAllXmit() ;
+
 
 private:
 

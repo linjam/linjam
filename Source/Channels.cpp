@@ -253,6 +253,33 @@ RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree blacklist_store)
 
   this->isExpanded = false ;
 }
+/*
+void LocalChannels::StopAllXmit()
+{
+  // const Array<Component*> local_channels = local_group->getChildren() ;
+// DBG("LinJam::Disconnect() n_local_channels=" + String(local_channels->getNumChildren())) ;
+DBG("LocalChannels::StopAllXmit() n_local_channels=" + String(getNumChildComponents())) ;
+  // for (int channel_n = 0 ; channel_n < local_channels->getNumChildComponents() ; ++channel_n)
+   // Component* local_channel = local_channels->getChild(channel_n) ;
+  for (int channel_n = 0 ; channel_n < getNumChildComponents() ; ++channel_n)
+  {
+    LocalChannel* local_channel = (LocalChannel*)getChildComponent(channel_n) ;
+    ToggleButton* xmit_button   = local_channel->xmitButton.get() ;
+
+if (local_channel && xmit_button) {
+bool is_xmit = xmit_button->getToggleState() ;
+DBG("LocalChannels::StopAllXmit() " + String((is_xmit) ? "" : "not ") +
+    "clicking local_channels[" + String(channel_n) + "]=" + str(local_channel->channelStore[CONFIG::CHANNEL_NAME_ID])) ;
+    // "clicking local_channels[" + String(channel_n) + "]=" + local_channel->nameLabel->getText()) ;
+
+    // if (xmit_button->getToggleState()) xmit_button->triggerClick() ;
+    // this->xmitButton->setToggleState(is_xmit      , juce::dontSendNotification) ;
+    if (is_xmit) xmit_button->triggerClick() ;
+
+} else DBG("LocalChannels::StopAllXmit() local_channel or xmit_button NFG") ;
+  }
+}
+*/
 
 
 /* MasterChannels , LocalChannels , RemoteChannels classes private instance methods */

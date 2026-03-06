@@ -254,6 +254,16 @@ void Chat::resized()
     //[/UserResized]
 }
 
+void Chat::visibilityChanged()
+{
+    //[UserCode_visibilityChanged] -- Add your code here...
+
+  // WIP: this does not trigger de-focus as expected
+  this->chatEntryText->giveAwayKeyboardFocus() ; // present GUI::CHAT_PROMPT_TEXT normally
+
+    //[/UserCode_visibilityChanged]
+}
+
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
@@ -278,12 +288,6 @@ void Chat::grabFocus() { this->chatEntryText->grabKeyboardFocus() ; }
 /* Chat private instance methods */
 
 /* event handlers */
-
-void Chat::broughtToFront()
-{
-  // WIP: this does not trigger de-focus as expected
-  this->chatEntryText->giveAwayKeyboardFocus() ; // present GUI::CHAT_PROMPT_TEXT normally
-}
 
 void Chat::valueChanged(Value& a_value)
 {
@@ -355,10 +359,13 @@ String Chat::timestamp()
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Chat" componentName="Chat"
-                 parentClasses="public Component, public TextEditor::Listener, public ValueListener"
+                 parentClasses="public Component, public TextEditor::Listener, public Value::Listener"
                  constructorParams="Value font_size, Value linjam_status" variableInitialisers="fontSize(font_size) , linjamStatus(linjam_status)"
                  snapPixels="8" snapActive="0" snapShown="0" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="138">
+  <METHODS>
+    <METHOD name="visibilityChanged()"/>
+  </METHODS>
   <BACKGROUND backgroundColour="0">
     <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>

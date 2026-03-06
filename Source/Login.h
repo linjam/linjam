@@ -48,7 +48,6 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
   // event handlers
-  void broughtToFront            ()                                           override ;
   void textEditorTextChanged     (TextEditor& text_editor)                    override ;
   void valueTreeChildAdded       (ValueTree& parent_node  , ValueTree& node)  override ;
   void valueTreeChildRemoved     (ValueTree& parent_node  , ValueTree& node ,
@@ -79,6 +78,7 @@ public:
     void paint (juce::Graphics& g) override;
     void resized() override;
     void buttonClicked (juce::Button* buttonThatWasClicked) override;
+    void visibilityChanged() override;
 
 
 
