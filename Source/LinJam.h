@@ -34,6 +34,12 @@
 #include <ninjam/audiostream.h>
 #include <ninjam/njclient.h>
 #include <ninjam/njmisc.h> // VAL2DB and DB2VAL
+#ifndef LIBNINJAM_VERSION
+#define LIBNINJAM_VERSION_MAJ 0
+#define LIBNINJAM_VERSION_MIN 07
+#define LIBNINJAM_VERSION_REV 0
+#define LIBNINJAM_VERSION LIBNINJAM_VERSION_MAJ.LIBNINJAM_VERSION_MIN.LIBNINJAM_VERSION_REV
+#endif
 
 #include "JuceHeader.h"
 #include <array>

@@ -855,10 +855,10 @@ DEBUG_TRACE_STATUS_CHANGED
   Gui->statusbar ->toFront(false) ;
   switch (status)
   {
-    case APP::LINJAM_STATUS_LICENSEPENDING : Gui->license   ->toFront(true ) ; break ;
     case APP::LINJAM_STATUS_AUDIOINIT      : Gui->config    ->toFront(true ) ; break ;
     case APP::LINJAM_STATUS_CONFIGPENDING  : Gui->config    ->toFront(true ) ; break ;
     case APP::LINJAM_STATUS_AUDIOERROR     : Gui->config    ->toFront(true ) ; break ;
+    case APP::LINJAM_STATUS_LICENSEPENDING : Gui->license   ->toFront(true ) ; break ;
     case APP::LINJAM_STATUS_ROOMFULL       : Gui->lobby     ->toFront(true ) ; break ;
     case APP::NJC_STATUS_DISCONNECTED      : Gui->lobby     ->toFront(true ) ; break ;
     case APP::NJC_STATUS_INVALIDAUTH       : Gui->lobby     ->toFront(true ) ; break ;
@@ -1686,7 +1686,16 @@ String LinJam::GetStoredChannelName(ValueTree channel_store)
 
 String LinJam::GetLocalChannelClientName(int channel_idx)
 {
+#if     LIBNINJAM_VERSION_MAJ == 0
+#  if   LIBNINJAM_VERSION_MIN <  7
+  return CharPointer_UTF8(Client->GetLocalChannelInfo(channel_idx , NULL , NULL , NULL)) ;
+#  elif LIBNINJAM_VERSION_MIN == 7
   return CharPointer_UTF8(Client->GetLocalChannelName(channel_idx)) ;
+#  elif LIBNINJAM_VERSION_MIN >  7
+  return // CharPointer_UTF8(Client->GetLocalChannelInfo(channel_idx , NULL , NULL , NULL)) ;
+         "unkown LIBNINJAM_VERSION" ;
+#  endif // LIBNINJAM_VERSION
+#endif // LIBNINJAM_VERSION
 }
 
 String LinJam::GetRemoteUserName(int user_idx)

@@ -157,6 +157,9 @@ void MainContent::resized()
   this->loop      ->setBounds(loop_x     , loop_y     , loop_w      , loop_h    ) ;
 }
 
+
+/* setup/teardown */
+
 void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store  ,
                               ValueTree blacklist_store , ValueTree audio_store   ,
                               ValueTree login_store     , ValueTree servers_store ,
@@ -197,6 +200,9 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
 
   resized() ;
 }
+
+
+/* accessors */
 
 void MainContent::setTitle(String title_text)
 {
