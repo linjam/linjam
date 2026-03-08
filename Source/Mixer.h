@@ -36,11 +36,12 @@
                                                                     //[/Comments]
 */
 class Mixer  : public Component,
-               public Button::Listener
+               public Button::Listener,
+               public Value::Listener
 {
 public:
     //==============================================================================
-    Mixer (ValueTree blacklist_store);
+    Mixer (ValueTree blacklist_store, Value gui_layout);
     ~Mixer() override;
 
     //==============================================================================
@@ -73,10 +74,13 @@ private:
   ScopedPointer<ResizableEdgeComponent> mastersResizer ;
 
   ValueTree blacklistStore ;
+  Value     guiLayout ;
   uint8     scrollZ ;
 
 
   void      buttonClicked(         Button* buttonThatWasClicked) override ;
+  void      valueChanged(          Value& a_value)               override ;
+
   void      addChannels(           Channels* channels , Identifier channels_id) ;
   void      removeChannels(        Channels* channels) ;
   void      addScrollButton(       TextButton* scroll_button , String button_text) ;

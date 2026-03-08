@@ -33,7 +33,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-Channels::Channels ()
+Channels::Channels (Value gui_layout)
+    : guiLayout(gui_layout)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -82,6 +83,7 @@ Channels::Channels ()
   this->expandButton->setAlwaysOnTop(true) ;
   this->ignoreButton->setAlwaysOnTop(true) ;
 
+
     //[/UserPreSize]
 
     setSize (67, 276);
@@ -117,7 +119,7 @@ void Channels::paint (juce::Graphics& g)
 
     {
         float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = static_cast<float> (getHeight() - 0);
-        juce::Colour fillColour = juce::Colour (0xff101010);
+        juce::Colour fillColour = juce::Colour (0xff131313);
         juce::Colour strokeColour = juce::Colours::white;
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -151,21 +153,34 @@ void Channels::resized()
   this->expandButton->setBounds(btn_x , btn_y , btn_w , btn_h) ;
   this->ignoreButton->setBounds(btn_x , btn_y , btn_w , btn_h) ;
 
-  // resize this container
-  int n_channels = getNumChannels() ;
-  int channels_w = GUI::MIXERGROUP_W((n_channels) ? n_channels : 1) ;
-  int channels_h = GUI::MIXERGROUP_H ;
+  // resize this container (width <- n_channels , height <- guiLayout)
+  int n_channels   = getNumChannels() ;
+  int channels_w   = GUI::MIXERGROUP_W((n_channels) ? n_channels : 1) ;
+  int channels_h   = GUI::MIXERGROUP_H(this->guiLayout) ;
+  int channel_h    = channels_h   - GUI::PAD6 ;
+  int vu_sliders_h = channel_h    - 124;//GUI::CHANNEL_STATIC_H ;
+  int name_label_y = channel_h    - GUI::CHANNEL_LABEL_H - GUI::PAD ;
+  int vu_labels_y  = name_label_y - GUI::VU_LABEL_H ;
   setSize(channels_w , channels_h) ;
 
-  // shift child channels
+  // shift and resize child channels (height <- guiLayout)
   for (int channel_n = 0 ; channel_n < n_channels ; ++channel_n)
   {
-    int channel_x = GUI::MIXERGROUP_W(channel_n) ;
-    getChildComponent(channel_n)->setTopLeftPosition(channel_x , GUI::CHANNEL_Y) ;
+    int      channel_x    = GUI::MIXERGROUP_W(channel_n) ;
+    Channel* channel      = (Channel*)getChildComponent(channel_n) ;
+
+    channel->setBounds(channel_x , GUI::CHANNEL_Y , GUI::CHANNEL_W , channel_h) ;
+
+    channel->gainSlider   ->setSize           (channel->gainSlider   ->getWidth() , vu_sliders_h) ;
+    channel->vuLeftSlider ->setSize           (channel->vuLeftSlider ->getWidth() , vu_sliders_h) ;
+    channel->vuRightSlider->setSize           (channel->vuRightSlider->getWidth() , vu_sliders_h) ;
+    channel->vuLeftLabel  ->setTopLeftPosition(channel->vuLeftLabel  ->getX()     , vu_labels_y ) ;
+    channel->vuRightLabel ->setTopLeftPosition(channel->vuRightLabel ->getX()     , vu_labels_y ) ;
+    channel->nameLabel    ->setTopLeftPosition(channel->nameLabel    ->getX()     , name_label_y) ;
   }
 
   // update mixer layout
-  Mixer* mixer = (Mixer*)getParentComponent() ; if (mixer) mixer->resized() ;
+  // Mixer* mixer = (Mixer*)getParentComponent() ; if (mixer) mixer->resized() ;
 
     //[/UserResized]
 }
@@ -225,7 +240,8 @@ Channel* Channels::getChannel(Identifier channel_id)
 
 /* MasterChannels , LocalChannels , RemoteChannels classes public class methods */
 
-MasterChannels::MasterChannels()
+MasterChannels::MasterChannels(Value gui_layout)
+                              : Channels(gui_layout)
 {
   this->loginLabel  ->setText(GUI::MASTERS_LABEL_TEXT , juce::dontSendNotification) ;
   this->addButton   ->setVisible(false) ;
@@ -233,7 +249,8 @@ MasterChannels::MasterChannels()
   this->ignoreButton->setVisible(false) ;
 }
 
-LocalChannels::LocalChannels()
+LocalChannels::LocalChannels(Value gui_layout)
+                            : Channels(gui_layout)
 {
   this->loginLabel  ->setText(GUI::LOCALS_LABEL_TEXT , juce::dontSendNotification) ;
   this->addButton   ->addListener(this) ;
@@ -241,8 +258,11 @@ LocalChannels::LocalChannels()
   this->ignoreButton->setVisible(false) ;
 }
 
-RemoteChannels::RemoteChannels(ValueTree user_store , ValueTree blacklist_store)
-                              : userStore(user_store) , blacklistStore(blacklist_store)
+RemoteChannels::RemoteChannels(Value gui_layout , ValueTree user_store , ValueTree blacklist_store)
+                              : Channels      (gui_layout     ) ,
+                                userStore     (user_store     ) ,
+                                blacklistStore(blacklist_store)
+
 {
   String login = LinJamConfig::UserIdDisplay(Id2Str(user_store.getType())) ;
 
@@ -352,11 +372,12 @@ Channel* RemoteChannels::newChannel(ValueTree channel_store)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Channels" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="0" snapShown="0" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="67" initialHeight="276">
+                 parentClasses="public Component" constructorParams="Value gui_layout"
+                 variableInitialisers="guiLayout(gui_layout)" snapPixels="8" snapActive="0"
+                 snapShown="0" overlayOpacity="0.330" fixedSize="0" initialWidth="67"
+                 initialHeight="276">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff131313" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
   <LABEL name="loginLabel" id="11f182b0c62d16d1" memberName="loginLabel"

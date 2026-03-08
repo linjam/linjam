@@ -39,7 +39,7 @@ class Channels  : public Component
 {
 public:
     //==============================================================================
-    Channels ();
+    Channels (Value gui_layout);
     ~Channels() override;
 
     //==============================================================================
@@ -58,6 +58,8 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+
+  Value guiLayout ;
 
 
 protected:
@@ -84,7 +86,7 @@ class MasterChannels : public Channels
 {
 public:
 
-  MasterChannels() ;
+  MasterChannels(Value gui_layout) ;
 
 
 private:
@@ -98,7 +100,7 @@ class LocalChannels : public Channels , public Button::Listener
 {
 public:
 
-  LocalChannels() ;
+  LocalChannels(Value gui_layout) ;
 
   // void StopAllXmit() ;
 
@@ -114,7 +116,7 @@ class RemoteChannels : public Channels , public Button::Listener
 {
 public:
 
-  RemoteChannels(ValueTree user_store , ValueTree blacklist_store) ;
+  RemoteChannels(Value gui_layout , ValueTree user_store , ValueTree blacklist_store) ;
 
 
 private:
@@ -131,3 +133,4 @@ private:
 } ;
 
 //[/EndFile]
+

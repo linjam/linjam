@@ -394,9 +394,11 @@ void LinJamConfig::sanitizeGui()
 {
   int font_size_n  = int(this->gui[CONFIG::FONT_SIZE_ID ]) ;
   int update_ivl_n = int(this->gui[CONFIG::UPDATE_IVL_ID]) ;
+  int gui_layout_n = int(this->gui[CONFIG::GUI_LAYOUT_ID]) ;
 
   bool is_invalid_font_size  = font_size_n  < 0 || font_size_n  >= GUI::FONT_SIZES .size() ;
   bool is_invalid_update_ivl = update_ivl_n < 0 || update_ivl_n >= GUI::UPDATE_IVLS.size() ;
+  bool is_invalid_gui_layout = gui_layout_n < 0 || gui_layout_n >= GUI::GUI_LAYOUTS.size() ;
 
 DEBUG_TRACE_SANITIZE_GUI
 
@@ -404,6 +406,8 @@ DEBUG_TRACE_SANITIZE_GUI
     this->gui.setProperty(CONFIG::FONT_SIZE_ID  , CONFIG::DEFAULT_FONT_SIZE_N  , nullptr) ;
   if (is_invalid_update_ivl)
     this->gui.setProperty(CONFIG::UPDATE_IVL_ID , CONFIG::DEFAULT_UPDATE_IVL_N , nullptr) ;
+  if (is_invalid_gui_layout)
+    this->gui.setProperty(CONFIG::GUI_LAYOUT_ID , CONFIG::DEFAULT_GUI_LAYOUT_N , nullptr) ;
 }
 
 bool LinJamConfig::validateConfig()

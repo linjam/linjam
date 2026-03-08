@@ -31,8 +31,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-Mixer::Mixer (ValueTree blacklist_store)
-    : blacklistStore(blacklist_store)
+Mixer::Mixer (ValueTree blacklist_store, Value gui_layout)
+    : blacklistStore(blacklist_store), guiLayout(gui_layout)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -41,8 +41,8 @@ Mixer::Mixer (ValueTree blacklist_store)
 
     //[UserPreSize]
 
-  this->masterChannels   = new MasterChannels() ;
-  this->localChannels    = new LocalChannels() ;
+  this->masterChannels   = new MasterChannels(this->guiLayout) ;
+  this->localChannels    = new LocalChannels (this->guiLayout) ;
   this->prevScrollButton = new TextButton("prevScrollButton") ;
   this->nextScrollButton = new TextButton("nextScrollButton") ;
   this->localsResizer    = new ResizableEdgeComponent(this->localChannels  , nullptr   ,
@@ -71,6 +71,9 @@ Mixer::Mixer (ValueTree blacklist_store)
     //[Constructor] You can add your own custom stuff here..
 
   this->scrollZ = 1 ;
+
+  // configure listeners
+  this->guiLayout.addListener(this) ;
 
     //[/Constructor]
 }
@@ -103,7 +106,7 @@ void Mixer::paint (juce::Graphics& g)
 
     {
         float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = static_cast<float> (getHeight() - 0);
-        juce::Colour fillColour = juce::Colour (0xff101010);
+        juce::Colour fillColour = juce::Colour (0xff070707);
         juce::Colour strokeColour = juce::Colours::white;
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -130,16 +133,20 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
   int masters_x = getWidth() - this->masterChannels->getWidth() - GUI::PAD ;
   int masters_y = GUI::MIXERGROUP_Y ;
   int masters_w = this->masterChannels->getWidth() ;
-  int masters_h = GUI::MIXERGROUP_H ;
+  int masters_h = GUI::MIXERGROUP_H(this->guiLayout) ;
   this->masterChannels->setBounds(masters_x , masters_y , masters_w , masters_h) ;
 
   // local and remote channels
   int channels_x = GUI::PAD ;
   int channels_y = GUI::MIXERGROUP_Y ;
+  int channels_h = GUI::MIXERGROUP_H(this->guiLayout) - GUI::PAD3 ;
   int n_groups   = getNumDynamicMixers() ;
   for (int group_n = GUI::LOCALS_IDX ; group_n < n_groups ; ++group_n)
   {
     Channels* channels = (Channels*)getChildComponent(group_n) ;
+
+    // apply dynamic height
+    channels->setSize(channels->getWidth() , channels_h) ;
 
 #ifndef FADE_HIDDEN_REMOTES
     // hide scrolled previous remotes
@@ -215,7 +222,7 @@ bool Mixer::addRemoteUser(ValueTree user_store)
   Identifier user_id = user_store.getType() ; if (getChannels(user_id)) return false ;
 
   // create remote user GUI
-  addChannels(new RemoteChannels(user_store , this->blacklistStore) , user_id) ;
+  addChannels(new RemoteChannels(this->guiLayout , user_store , this->blacklistStore) , user_id) ;
 
 DEBUG_TRACE_ADD_REMOTE_USER
 
@@ -297,6 +304,13 @@ void Mixer::buttonClicked(Button* a_button)
   resized() ;
 }
 
+void Mixer::valueChanged(Value& a_value)
+{
+  if (! a_value.refersToSameSourceAs(this->guiLayout)) return ;
+
+  setSize(getWidth() , GUI::MIXERGROUP_H(this->guiLayout)) ;
+}
+
 void Mixer::addChannels(Channels* channels , Identifier channels_id)
 {
   // add channels group to the mixer
@@ -328,8 +342,10 @@ void Mixer::addScrollButton(TextButton* scroll_button , String button_text)
 
 void Mixer::addResizer(ResizableEdgeComponent* resizer)
 {
+  int mixergroup_h = GUI::MIXERGROUP_H(this->guiLayout) ;
+
   addAndMakeVisible(resizer) ;
-  resizer->setSize(GUI::RESIZER_W , GUI::MIXERGROUP_H) ;
+  resizer->setSize(GUI::RESIZER_W , mixergroup_h) ;
 }
 
 Channels* Mixer::getChannels(Identifier channels_id)
@@ -355,12 +371,13 @@ int Mixer::getMastersResizerNextX() { return masterChannels->getX() - GUI::RESIZ
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="Mixer" componentName="Mixer"
-                 parentClasses="public Component, public ButtonListener" constructorParams="ValueTree blacklist_store"
-                 variableInitialisers="blacklistStore(blacklist_store)" snapPixels="8"
-                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
-                 initialWidth="622" initialHeight="284">
+                 parentClasses="public Component, public Button::Listener, public Value::Listener"
+                 constructorParams="ValueTree blacklist_store, Value gui_layout"
+                 variableInitialisers="blacklistStore(blacklist_store), guiLayout(gui_layout)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="622" initialHeight="284">
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff070707" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
   </BACKGROUND>
 </JUCER_COMPONENT>

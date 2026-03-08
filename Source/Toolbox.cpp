@@ -56,7 +56,6 @@ Toolbox::Toolbox ()
     //[UserPreSize]
     //[/UserPreSize]
 
-
     setSize (622, 24);
 
 
@@ -105,7 +104,7 @@ void Toolbox::paint (juce::Graphics& g)
 
     {
         float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = 24.0f;
-        juce::Colour fillColour = juce::Colour (0xff101010);
+        juce::Colour fillColour = juce::Colour (0xff202020);
         juce::Colour strokeColour = juce::Colours::grey;
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -117,7 +116,7 @@ void Toolbox::paint (juce::Graphics& g)
 
     {
         float x = 4.0f, y = 4.0f, width = static_cast<float> (getWidth() - 162), height = 16.0f;
-        juce::Colour fillColour = juce::Colour (0xff101010);
+        juce::Colour fillColour = juce::Colours::black;
         juce::Colour strokeColour = juce::Colours::grey;
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -201,9 +200,9 @@ BEGIN_JUCER_METADATA
                  snapPixels="8" snapActive="0" snapShown="0" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="24">
   <BACKGROUND backgroundColour="ff323e44">
-    <ROUNDRECT pos="0 0 0M 24" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
+    <ROUNDRECT pos="0 0 0M 24" cornerSize="10.0" fill="solid: ff202020" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
-    <ROUNDRECT pos="4 4 162M 16" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
+    <ROUNDRECT pos="4 4 162M 16" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
   </BACKGROUND>
   <LABEL name="topicLabel" id="3544f00ed11410e1" memberName="topicLabel"

@@ -49,7 +49,7 @@ MainContent::~MainContent()
 
 void MainContent::paint(Graphics& g)
 {
-  g.fillAll (Colour (0xff202020));
+  g.fillAll (Colour (0xFF080808));
   g.setFont (Font (16.0f));
   g.setColour (Colours::black);
 }
@@ -115,6 +115,9 @@ void MainContent::resized()
 
   /* panels */
 
+  // common
+  int mixer_h = GUI::MIXERGROUP_H(this->guiLayout) + GUI::PAD2 ;
+
   // toolbox
   int toolbox_x = GUI::PAD ;
   int toolbox_y = GUI::PAD ;
@@ -125,13 +128,12 @@ void MainContent::resized()
   int chat_x = GUI::PAD ;
   int chat_y = toolbox_y + toolbox_h + GUI::PAD ;
   int chat_w = content_w ;
-  int chat_h = content_h - GUI::TOOLBOX_H - GUI::MIXER_H - GUI::PAD2 ;
+  int chat_h = content_h - GUI::TOOLBOX_H - mixer_h - GUI::PAD2 ;
 
   // mixer
   int mixer_x = GUI::PAD ;
-  int mixer_y = window_h - GUI::STATUSBAR_H - GUI::MIXER_H - GUI::PAD2 ;
+  int mixer_y = window_h - GUI::STATUSBAR_H - mixer_h - GUI::PAD2 ;
   int mixer_w = content_w ;
-  int mixer_h = GUI::MIXER_H ;
 
   // statusbar
   int status_x = GUI::PAD ;
@@ -166,9 +168,10 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
                               Value     linjam_status                             )
 {
   // cherry-pick component-specific value holders
-  Value agreed_value   = LinJamConfig::GetValueHolder(login_store , CONFIG::IS_AGREED_ID   ) ;
-  Value agree_value    = LinJamConfig::GetValueHolder(login_store , CONFIG::SHOULD_AGREE_ID) ;
-  Value fontsize_value = LinJamConfig::GetValueHolder(gui_store   , CONFIG::FONT_SIZE_ID   ) ;
+  Value agreed_value     = LinJamConfig::GetValueHolder(login_store , CONFIG::IS_AGREED_ID   ) ;
+  Value agree_value      = LinJamConfig::GetValueHolder(login_store , CONFIG::SHOULD_AGREE_ID) ;
+  Value fontsize_value   = LinJamConfig::GetValueHolder(gui_store   , CONFIG::FONT_SIZE_ID   ) ;
+  Value gui_layout_value = LinJamConfig::GetValueHolder(gui_store   , CONFIG::GUI_LAYOUT_ID  ) ;
 
   // instantiate components requiring model hooks
   this->background.reset(new Background(                                           )) ;
@@ -178,7 +181,7 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
   this->license   .reset(new License   (agreed_value    , agree_value              )) ;
   this->toolbox   .reset(new Toolbox   (                                           )) ;
   this->chat      .reset(new Chat      (fontsize_value  , linjam_status            )) ;
-  this->mixer     .reset(new Mixer     (blacklist_store                            )) ;
+  this->mixer     .reset(new Mixer     (blacklist_store , gui_layout_value         )) ;
   this->statusbar .reset(new StatusBar (                                           )) ;
   this->loop      .reset(new Loop      (                                           )) ;
 
@@ -192,11 +195,18 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
   this->addChildAndSetID(this->statusbar .get() , GUI::STATUS_GUI_ID    ) ;
   this->addChildAndSetID(this->loop      .get() , GUI::LOOP_GUI_ID      ) ;
 
+  // show spinner
+  this->background->progressBar ->setVisible(true) ;
+  this->background->spinnerLabel->setVisible(true) ;
+
+  // pre-load statusbar
   this->statusbar->setStatusL(GUI::DISCONNECTED_TEXT) ;
 
   // configure listeners
-  this->linjamStatus.referTo(linjam_status) ;
+  this->linjamStatus.referTo(linjam_status   ) ;
+  this->guiLayout   .referTo(gui_layout_value) ;
   this->linjamStatus.addListener(this) ;
+  this->guiLayout   .addListener(this) ;
 
   resized() ;
 }
@@ -224,7 +234,8 @@ void MainContent::buttonClicked(Button* a_button)
 
 void MainContent::valueChanged(Value& a_value)
 {
-  if (a_value.refersToSameSourceAs(this->linjamStatus)) updateModeBtn() ;
+  if      (a_value.refersToSameSourceAs(this->linjamStatus)) updateModeBtn() ;
+  else if (a_value.refersToSameSourceAs(this->guiLayout   )) updateLayout() ;
 }
 
 bool MainContent::keyPressed(const KeyPress& keypress)
@@ -313,3 +324,5 @@ DEBUG_TRACE_UPDATEMODEBTN
     this->modeButton->setButtonText(GUI::MODE_BTN_JAM_TEXT) ;
   }
 }
+
+void MainContent::updateLayout() { resized() ; }

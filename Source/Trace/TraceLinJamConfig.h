@@ -204,15 +204,19 @@
   /* query gui properties */                                                      \
   bool gui_has_fontsize_property  = gui.hasProperty(CONFIG::FONT_SIZE_ID ) ;      \
   bool gui_has_updateivl_property = gui.hasProperty(CONFIG::UPDATE_IVL_ID) ;      \
+  bool gui_has_guilayout_property = gui.hasProperty(CONFIG::GUI_LAYOUT_ID) ;      \
                                                                                   \
   /* query gui datatypes */                                                       \
   bool fontsize_is_int  = gui[CONFIG::FONT_SIZE_ID ].isInt() ;                    \
   bool updateivl_is_int = gui[CONFIG::UPDATE_IVL_ID].isInt() ;                    \
+  bool guilayout_is_int = gui[CONFIG::GUI_LAYOUT_ID].isInt() ;                    \
                                                                                   \
   /* trace missing gui properties */                                              \
   if (!gui_has_fontsize_property)                                                 \
     Trace::TraceMissingProperty(CONFIG::GUI_KEY , CONFIG::FONT_SIZE_KEY ) ;       \
   if (!gui_has_updateivl_property)                                                \
+    Trace::TraceMissingProperty(CONFIG::GUI_KEY , CONFIG::UPDATE_IVL_KEY) ;       \
+  if (!gui_has_guilayout_property)                                                \
     Trace::TraceMissingProperty(CONFIG::GUI_KEY , CONFIG::UPDATE_IVL_KEY) ;       \
                                                                                   \
   /* trace gui datatypes */                                                       \
@@ -222,6 +226,9 @@
   if (!updateivl_is_int)                                                          \
     Trace::TraceTypeMismatch(gui              ,        CONFIG::UPDATE_IVL_KEY ,   \
                              CONFIG::INT_TYPE , client[CONFIG::UPDATE_IVL_ID] ) ; \
+  if (!guilayout_is_int)                                                          \
+    Trace::TraceTypeMismatch(gui              ,        CONFIG::GUI_LAYOUT_KEY ,   \
+                             CONFIG::INT_TYPE , client[CONFIG::GUI_LAYOUT_ID] ) ; \
                                                                                   \
   /* modify return value */                                                       \
   is_valid = is_valid                                       &&                    \
@@ -963,11 +970,10 @@
   DEBUG_VALIDATE_CONFIG_SERVER                                                     \
   DEBUG_VALIDATE_CONFIG_MASTERS
 
-#define DEBUG_TRACE_SANITIZE_GUI                                 \
-  if (is_invalid_font_size )                                     \
-    Trace::TraceInvalidValue(this->gui , CONFIG::FONT_SIZE_ID) ; \
-  if (is_invalid_update_ivl)                                     \
-    Trace::TraceInvalidValue(this->gui , CONFIG::UPDATE_IVL_ID)  ;
+#define DEBUG_TRACE_SANITIZE_GUI                                                           \
+  if (is_invalid_font_size ) Trace::TraceInvalidValue(this->gui , CONFIG::FONT_SIZE_ID ) ; \
+  if (is_invalid_update_ivl) Trace::TraceInvalidValue(this->gui , CONFIG::UPDATE_IVL_ID) ; \
+  if (is_invalid_gui_layout) Trace::TraceInvalidValue(this->gui , CONFIG::GUI_LAYOUT_ID)   ;
 //#define DEBUG_TRACE_SANITIZE_CLIENT    // TODO: (issue #61)
 //#define DEBUG_TRACE_SANITIZE_BLACKLIST // TODO: (issue #61)
 //#define DEBUG_TRACE_SANITIZE_AUDIO     // TODO: (issue #61)

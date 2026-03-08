@@ -62,6 +62,7 @@ private:
   DocumentWindow*  mainWindow ;
   TextButton*      modeButton ;
   Value            linjamStatus ;
+  Value            guiLayout ;
 
 
   // setup/teardow
@@ -72,11 +73,12 @@ private:
   void setTitle   (String title_text) ;
 
   // event handlers
-  void childrenChanged()                         override ;
-  void buttonClicked  (Button* a_button)         override ;
-  void valueChanged   (Value& a_value)           override ;
-  bool keyPressed     (const KeyPress& keypress) override ;
-  void updateModeBtn  () ;
+  void buttonClicked(Button* a_button)         override ;
+  void valueChanged (Value& a_value)           override ;
+  bool keyPressed   (const KeyPress& keypress) override ;
+  void updateModeBtn() ;
+  void updateLayout () ;
+
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContent)

@@ -130,14 +130,14 @@ void Chat::paint (juce::Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
 
-#define JUCER_DRAW_CHAT_PAINT
-#ifdef JUCER_DRAW_CHAT_PAINT
+#define VARIABLE_FONT_SIZE
+#ifndef VARIABLE_FONT_SIZE
 
     //[/UserPrePaint]
 
     {
         float x = 0.0f, y = 0.0f, width = static_cast<float> (getWidth() - 0), height = static_cast<float> (getHeight() - 0);
-        juce::Colour fillColour = juce::Colour (0xff101010);
+        juce::Colour fillColour = juce::Colour (0xff202020);
         juce::Colour strokeColour = juce::Colours::white;
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
@@ -148,9 +148,9 @@ void Chat::paint (juce::Graphics& g)
     }
 
     {
-        float x = 4.0f, y = 4.0f, width = static_cast<float> (getWidth() - 8), height = static_cast<float> (getHeight() - 36);
+        float x = 8.0f, y = 8.0f, width = static_cast<float> (getWidth() - 16), height = static_cast<float> (getHeight() - 44);
         juce::Colour fillColour = juce::Colours::black;
-        juce::Colour strokeColour = juce::Colours::grey;
+        juce::Colour strokeColour = juce::Colour (0xffa0a0a0);
         //[UserPaintCustomArguments] Customize the painting arguments here..
         //[/UserPaintCustomArguments]
         g.setColour (fillColour);
@@ -160,7 +160,7 @@ void Chat::paint (juce::Graphics& g)
     }
 
     {
-        float x = 4.0f, y = static_cast<float> (getHeight() - 28), width = static_cast<float> (getWidth() - 8), height = 24.0f;
+        float x = 8.0f, y = static_cast<float> (getHeight() - 32), width = static_cast<float> (getWidth() - 16), height = 24.0f;
         juce::Colour fillColour = juce::Colours::black;
         juce::Colour strokeColour = juce::Colours::grey;
         //[UserPaintCustomArguments] Customize the painting arguments here..
@@ -173,52 +173,55 @@ void Chat::paint (juce::Graphics& g)
 
     //[UserPaint] Add your own custom painting code here..
 
-#else // JUCER_DRAW_CHAT_PAINT
+#else // VARIABLE_FONT_SIZE
 
-  UNUSED(g) ;
-
-
-  float chat_pane_w         = static_cast<float>(getWidth()) ;
-  float chat_pane_h         = static_cast<float>(getHeight()) ;
+  float chat_pane_w         = static_cast<float>(getWidth   ()) ;
+  float chat_pane_h         = static_cast<float>(getHeight  ()) ;
   float font_size           = static_cast<float>(getFontSize()) ;
   float chat_entry_h        = font_size                   + GUI::CHAT_ENTRY_PADH ;
   float chat_entry_y        = chat_pane_h  - chat_entry_h - GUI::PAD2F ;
-  float chat_entry_border_y = chat_entry_y                - GUI::PADF ;
-  float chat_h              = chat_entry_y                - GUI::PAD5F ;
-  float chat_border_w       = chat_pane_w                 - GUI::CHAT_BORDER_PADW ;
-  float chat_border_h       = chat_h                      + GUI::PAD2F ;
+  float chat_entry_border_y = chat_entry_y                - GUI::PAD2F ;
+  float chat_border_w       = chat_pane_w                 - GUI::PAD4F ;
+  float chat_border_h       = chat_entry_y                - GUI::PAD6F ;
   float chat_entry_border_h = chat_entry_h                + GUI::PAD2F ;
 
-  Colour panel_background_color = GUI::BACKGROUND_L1_COLOR ;
-  Colour panel_border_color     = GUI::BORDER_L1_COLOR ;
-  Colour chat_background_color  = GUI::BACKGROUND_LTOP_COLOR ;
+  Colour panel_background_color = GUI::BACKGROUND_LTOP_COLOR ;
+  Colour panel_border_color     = GUI::BORDER_LBOTTOM_COLOR ;
+  Colour chat_background_color  = GUI::BACKGROUND_L0_COLOR ;
   Colour chat_border_color      = GUI::BORDER_L2_COLOR ;
 
-  // chat panel border and fill
+  // chat panel borders and fills
   g.setColour(panel_background_color) ;
-  g.fillRoundedRectangle(GUI::CHAT_PANE_BORDER_X , GUI::CHAT_PANE_BORDER_Y , chat_pane_w ,
-                         chat_pane_h             , GUI::BORDER_RADIUS                    ) ;
+  g.fillRoundedRectangle(GUI::CHAT_BORDER_X , GUI::CHAT_BORDER_Y ,
+                         chat_pane_w        , chat_pane_h        ,
+                         GUI::BORDER_RADIUS                      ) ;
   g.setColour(panel_border_color) ;
-  g.drawRoundedRectangle(GUI::CHAT_PANE_BORDER_X , GUI::CHAT_PANE_BORDER_Y , chat_pane_w   ,
-                         chat_pane_h             , GUI::BORDER_RADIUS      , GUI::BORDER_PX) ;
+  g.drawRoundedRectangle(GUI::CHAT_BORDER_X , GUI::CHAT_BORDER_Y ,
+                         chat_pane_w        , chat_pane_h        ,
+                         GUI::BORDER_RADIUS , GUI::BORDER_PX     ) ;
+  g.setColour(panel_background_color) ;
 
   // chat border and fill
   g.setColour(chat_background_color) ;
-  g.fillRoundedRectangle(GUI::CHAT_BORDER_X , GUI::CHAT_BORDER_Y , chat_border_w ,
-                         chat_border_h      , GUI::BORDER_RADIUS                 ) ;
+  g.fillRoundedRectangle(GUI::CHAT_BORDER_X + GUI::PAD2F , GUI::CHAT_BORDER_Y + GUI::PAD2F ,
+                         chat_border_w                   , chat_border_h                   ,
+                         GUI::BORDER_RADIUS                                                ) ;
   g.setColour(chat_border_color) ;
-  g.drawRoundedRectangle(GUI::CHAT_BORDER_X , GUI::CHAT_BORDER_Y , chat_border_w ,
-                         chat_border_h      , GUI::BORDER_RADIUS , GUI::BORDER_PX) ;
+  g.drawRoundedRectangle(GUI::CHAT_BORDER_X + GUI::PAD2F , GUI::CHAT_BORDER_Y + GUI::PAD2F ,
+                         chat_border_w                   , chat_border_h                   ,
+                         GUI::BORDER_RADIUS              , GUI::BORDER_PX                  ) ;
 
   // chat entry border and fill
   g.setColour(chat_background_color) ;
-  g.fillRoundedRectangle(GUI::CHAT_BORDER_X  , chat_entry_border_y , chat_border_w ,
-                         chat_entry_border_h , GUI::BORDER_RADIUS                  ) ;
+  g.fillRoundedRectangle(GUI::CHAT_BORDER_X + GUI::PAD2F , chat_entry_border_y             ,
+                         chat_border_w                   , chat_entry_border_h             ,
+                         GUI::BORDER_RADIUS                                                ) ;
   g.setColour(chat_border_color) ;
-  g.drawRoundedRectangle(GUI::CHAT_BORDER_X  , chat_entry_border_y , chat_border_w ,
-                         chat_entry_border_h , GUI::BORDER_RADIUS  , GUI::BORDER_PX) ;
+  g.drawRoundedRectangle(GUI::CHAT_BORDER_X + GUI::PAD2F , chat_entry_border_y             ,
+                         chat_border_w                   , chat_entry_border_h             ,
+                         GUI::BORDER_RADIUS              , GUI::BORDER_PX                  ) ;
 
-#endif // JUCER_DRAW_CHAT_PAINT
+#endif // VARIABLE_FONT_SIZE
 
     //[/UserPaint]
 }
@@ -227,29 +230,29 @@ void Chat::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
 
-// #define JUCER_DRAW_CHAT_RESIZED
-#ifdef JUCER_DRAW_CHAT_RESIZED
+// #ifndef VARIABLE_FONT_SIZE
+#if ! defined(VARIABLE_FONT_SIZE) || 0
 
     //[/UserPreResize]
 
-    chatText->setBounds (8, 8, getWidth() - 16, getHeight() - 44);
-    chatEntryText->setBounds (8, getHeight() - 24, getWidth() - 16, 16);
+    chatText->setBounds (8, 8, getWidth() - 16, getHeight() - 48);
+    chatEntryText->setBounds (8, getHeight() - 28, getWidth() - 16, 16);
     //[UserResized] Add your own custom resize handling here..
 
-#else // JUCER_DRAW_CHAT_RESIZED
+#else // VARIABLE_FONT_SIZE
 
   int chat_entry_h = getFontSize()                + GUI::CHAT_ENTRY_PADH ;
-  int chat_entry_y = getHeight()   - chat_entry_h - GUI::CHAT_ENTRY_PADY ;
+  int chat_entry_y = getHeight()   - chat_entry_h - GUI::CHAT_ENTRY_PADY + 2 ;
   int chat_w       = getWidth()                   - GUI::CHAT_PADW ;
   int chat_h       = chat_entry_y  - GUI::CHAT_Y  - GUI::CHAT_PADH ;
 
   // resize components according to font size
   this->chatText     ->setBounds(GUI::CHAT_X , GUI::CHAT_Y  , chat_w , chat_h      ) ;
-  this->chatEntryText->setBounds(GUI::CHAT_Y , chat_entry_y , chat_w , chat_entry_h) ;
+  this->chatEntryText->setBounds(GUI::CHAT_X , chat_entry_y , chat_w , chat_entry_h) ;
 
   repaint() ;
 
-#endif // JUCER_DRAW_CHAT_RESIZED
+#endif // VARIABLE_FONT_SIZE
 
     //[/UserResized]
 }
@@ -263,6 +266,7 @@ void Chat::visibilityChanged()
 
     //[/UserCode_visibilityChanged]
 }
+
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
@@ -367,19 +371,19 @@ BEGIN_JUCER_METADATA
     <METHOD name="visibilityChanged()"/>
   </METHODS>
   <BACKGROUND backgroundColour="0">
-    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff101010" hasStroke="1"
+    <ROUNDRECT pos="0 0 0M 0M" cornerSize="10.0" fill="solid: ff202020" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ffffffff"/>
-    <ROUNDRECT pos="4 4 8M 36M" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
-               stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
-    <ROUNDRECT pos="4 28R 8M 24" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
+    <ROUNDRECT pos="8 8 16M 44M" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
+               stroke="1, mitered, butt" strokeColour="solid: ffa0a0a0"/>
+    <ROUNDRECT pos="8 32R 16M 24" cornerSize="10.0" fill="solid: ff000000" hasStroke="1"
                stroke="1, mitered, butt" strokeColour="solid: ff808080"/>
   </BACKGROUND>
   <TEXTEDITOR name="chatText" id="ba11ad8bfe4752c1" memberName="chatText" virtualName=""
-              explicitFocusOrder="0" pos="8 8 16M 44M" textcol="ff808080" bkgcol="0"
+              explicitFocusOrder="0" pos="8 8 16M 48M" textcol="ff808080" bkgcol="0"
               hilitecol="0" outlinecol="0" initialText="" multiline="1" retKeyStartsLine="0"
               readonly="1" scrollbars="1" caret="0" popupmenu="1"/>
   <TEXTEDITOR name="chatEntryText" id="412133d948ede027" memberName="chatEntryText"
-              virtualName="" explicitFocusOrder="1" pos="8 24R 16M 16" textcol="ff808080"
+              virtualName="" explicitFocusOrder="1" pos="8 28R 16M 16" textcol="ff808080"
               bkgcol="0" hilitecol="0" outlinecol="0" caretcol="ffffffff" initialText=""
               multiline="0" retKeyStartsLine="0" readonly="0" scrollbars="0"
               caret="1" popupmenu="1"/>

@@ -143,6 +143,7 @@
     GUI_KEY                +                                              " "   + \
       FONT_SIZE_KEY        + "=\"" + String(DEFAULT_FONT_SIZE_N       ) + "\" " + \
       UPDATE_IVL_KEY       + "=\"" + String(DEFAULT_UPDATE_IVL_N      ) + "\" " + \
+      GUI_LAYOUT_KEY       + "=\"" + String(DEFAULT_GUI_LAYOUT_N      ) + "\" " + \
     "/><"                                                                       + \
     CLIENT_KEY             +                                              " "   + \
       SAVE_AUDIO_MODE_KEY  + "=\"" + String(DEFAULT_SAVE_AUDIO_MODE   ) + "\" " + \
@@ -207,6 +208,7 @@
     GUI_KEY                +                       " "    + \
       FONT_SIZE_KEY        + "=\"" + INT_TYPE    + "\" "  + \
       UPDATE_IVL_KEY       + "=\"" + INT_TYPE    + "\" "  + \
+      GUI_LAYOUT_KEY       + "=\"" + INT_TYPE    + "\" "  + \
     "/><"                                                 + \
     CLIENT_KEY             +                       " "    + \
       SAVE_AUDIO_MODE_KEY  + "=\"" + INT_TYPE    + "\" "  + \
@@ -534,6 +536,8 @@ namespace CONFIG
   static const Identifier FONT_SIZE_ID   = FONT_SIZE_KEY ;
   static const String     UPDATE_IVL_KEY = "gui-update-ivl" ;
   static const Identifier UPDATE_IVL_ID  = UPDATE_IVL_KEY ;
+  static const String     GUI_LAYOUT_KEY = "gui-layout" ;
+  static const Identifier GUI_LAYOUT_ID  = GUI_LAYOUT_KEY ;
 
   // client config keys
   static const String     CLIENT_KEY           = "client" ;
@@ -717,11 +721,15 @@ namespace CONFIG
   /* config XML and ValueTree default values */
 
   // config root defaults
-  static const double CONFIG_VERSION = 0.27 ; // major.minor at last schema change
+  static const double CONFIG_VERSION = 0.34 ; // major.minor at last schema change <- $ grep '<JUCERPROJECT ' LinJam.jucer | sed 's|.*version="\([0-9\.]*\)"|"\1"|'
 
   // gui config defaults
   static const int  DEFAULT_FONT_SIZE_N  = 2 ;
   static const int  DEFAULT_UPDATE_IVL_N = 3 ;
+  static const int  DEFAULT_GUI_LAYOUT_N = 1 ; // selects default GUI_LAYOUTS (<-GUILAYOUTS):
+                                               //   0 -> 'minimal' -> MIXERGROUP_SM_H - large chat, tiny mixer // NYI: <= ~48
+                                               //   1 -> 'compact' -> MIXERGROUP_MD_H - larger chat, smaller mixer
+                                               //   2 -> 'full'    -> MIXERGROUP_LG_H - smaller chat, larger mixer
 
   // client config defaults
   static const int  SAVE_AUDIO_ENUM_OFFSET   = 2 ;
@@ -850,20 +858,19 @@ namespace GUI
   static const int    PAD5                  = PAD  * 5 ;
   static const float  PAD5F                 = PADF * 5.0f ;
   static const int    PAD6                  = PAD  * 6 ;
+  static const float  PAD6F                 = PADF * 6.0f ;
   static const float  BORDER_PX             = 1.0f ;
   static const float  BORDER2_PX            = 2.0f ;
   static const float  BORDER_RADIUS         = 10.0f ;
-  static const Colour BORDER_L0_COLOR       = Colour(0xFF808080) ; // nest level 0
-  static const Colour BORDER_L1_COLOR       = Colour(0xFFA0A0A0) ; // ...
-  static const Colour BORDER_L2_COLOR       = Colour(0xFFC0C0C0) ; // ...
-  static const Colour BORDER_L3_COLOR       = Colour(0xFFE0E0E0) ; // ...
-  static const Colour BORDER_L4_COLOR       = Colour(0xFFFFFFFF) ; // nest level 4
-  static const Colour BACKGROUND_L0_COLOR   = Colour(0xFF404040) ; // nest level 0
-  static const Colour BACKGROUND_L1_COLOR   = Colour(0xFF303030) ; // ...
-  static const Colour BACKGROUND_L2_COLOR   = Colour(0xFF202020) ; // ...
-  static const Colour BACKGROUND_L3_COLOR   = Colour(0xFF101010) ; // ...
-  static const Colour BACKGROUND_LTOP_COLOR = Colour(0xFF000000) ; // innermost nest level
-  static const Colour TEXT_EMPTY_COLOR      = Colour(0x80808080) ;
+  static const Colour BORDER_LBOTTOM_COLOR  = Colour(0xFFFFFFFF) ; // outermost nest level
+  static const Colour BORDER_L1_COLOR       = Colour(0xFFC0C0C0) ; // ...
+  static const Colour BORDER_L2_COLOR       = Colour(0xFFA0A0A0) ; // ...
+  static const Colour BORDER_L3_COLOR       = Colour(0xFF808080) ; // innermost nest level
+  static const Colour BACKGROUND_L0_COLOR   = Colour(0xFF000000) ; // outermost nest level
+  static const Colour BACKGROUND_L1_COLOR   = Colour(0xFF070707) ; // ...
+  static const Colour BACKGROUND_L2_COLOR   = Colour(0xFF131313) ; // ...
+  static const Colour BACKGROUND_LTOP_COLOR = Colour(0xFF202020) ; // innermost nest level
+  static const Colour TEXT_EMPTY_COLOR      = Colour(0x808080FF) ;
   static const Colour TEXT_NORMAL_COLOR     = Colour(0xFFFFFFFF) ;
   static const Colour TEXT_HILITE_COLOR     = Colour(0xFFFFFFFF) ;
   static const Colour TEXT_HILITEBG_COLOR   = Colour(0xFF000040) ;
@@ -979,8 +986,10 @@ namespace GUI
   // ConfigGui
 #define FONTSIZES  "12\n16\n20\n24\n36\n48"
 #define UPDATEIVLS "none\nslow\nnormal\nfast"
+#define GUILAYOUTS "minimal\ncompact\nfull"
   static const StringArray FONT_SIZES  = StringArray::fromLines(FONTSIZES ) ;
   static const StringArray UPDATE_IVLS = StringArray::fromLines(UPDATEIVLS) ;
+  static const StringArray GUI_LAYOUTS = StringArray::fromLines(GUILAYOUTS) ;
 
   // ConfigBlacklist
   static const int BLACKLIST_ENTRY_W = BLACKLIST_W - CONFIG_SCROLLBAR_W - PAD2 ;
@@ -1043,36 +1052,66 @@ namespace GUI
   static const String INVALID_PM_MSG      = TRANS("Error: /msg requires a username and a message") ;
   static const String CHAT_PROMPT_TEXT    = TRANS("(Type some chat here, then press the <ENTER> key to send)") ;
   static const int    SENDER_MAX_CHARS    = 29 ; // truncate nicks >16 chars
-  static const float  CHAT_PANE_BORDER_X  = 0.0f ;
-  static const float  CHAT_PANE_BORDER_Y  = 0.0f ;
+  static const float  CHAT_BORDER_X       = 0.0f ;
+  static const float  CHAT_BORDER_Y       = 0.0f ;
   static const int    CHAT_X              = PAD2 ;
   static const int    CHAT_Y              = PAD2 ;
   static const int    CHAT_PADH           = PAD3 ;
   static const int    CHAT_PADW           = CHAT_X * 2 ;
-  static const float  CHAT_ENTRY_PADH     = PADF / 2.0 ;
-  static const int    CHAT_ENTRY_PADY     = (CHAT_ENTRY_PADH * 2) + PAD ;
-  static const float  CHAT_BORDER_X       = PADF ;
-  static const float  CHAT_BORDER_Y       = PADF ;
-  static const float  CHAT_BORDER_PADW    = CHAT_BORDER_X * 2.0 ;
+  static const float  CHAT_ENTRY_PADH     = 2.0f ;
+  static const int    CHAT_ENTRY_PADY     = CHAT_PADH + (CHAT_ENTRY_PADH * 2) ;
   static const Colour CHAT_TEXT_COLOR     = Colour(0xFF808080) ;
   static const Colour CHAT_OUTLINE_COLOR  = Colour(0x00000000) ;
   static const Colour CHAT_FOCUS_COLOR    = Colour(0x00000000) ;
   static const Colour CHAT_SHADOW_COLOR   = Colour(0x00000000) ;
   static const Colour CHAT_TEXT_BG_COLOR  = Colour(0x00000000) ;
 
+  // Channels
+  static const  Identifier MASTERS_GUI_ID     = CONFIG::MASTERS_ID ;
+  static const  Identifier LOCALS_GUI_ID      = CONFIG::LOCALS_ID ;
+  static const  String     MASTERS_LABEL_TEXT = TRANS("Master") ;
+  static const  String     LOCALS_LABEL_TEXT  = TRANS("Local" ) ;
+  static const  int        CHANNEL_CONFIG_W   = 200 ;
+  static const  int        CHANNEL_CONFIG_H   = 200 ;
+  static const  int        MIXERGROUP_Y       = PAD ;
+  static const  int        MIXER_CHANNEL_W    = 72 ; // NOTE: pivotal value - per jucer Channels
+  static const  int        MIXERGROUP_SM_H    = 24 ;
+  static const  int        MIXERGROUP_MD_H    = 276 ;
+  static const  int        MIXERGROUP_LG_H    = 512 ;
+  static const  int        MIXERGROUP_DEF_H   = (CONFIG::DEFAULT_GUI_LAYOUT_N == 0) ? MIXERGROUP_SM_H :
+                                                (CONFIG::DEFAULT_GUI_LAYOUT_N == 1) ? MIXERGROUP_MD_H :
+                                                (CONFIG::DEFAULT_GUI_LAYOUT_N == 2) ? MIXERGROUP_LG_H : MIXERGROUP_MD_H ;
+  static inline int        MIXERGROUP_W       (int n_channels) { return (n_channels * (MIXER_CHANNEL_W + PAD)) + PAD ; }
+  static inline int        MIXERGROUP_H       (Value gui_layout_value)
+  {
+    int    gui_layout_n = int(gui_layout_value.getValue()) ;
+    String gui_layout   = GUI_LAYOUTS[gui_layout_n] ;
+
+// DBG("MIXERGROUP_H() gui_layout_n=" + String(gui_layout_n) + " gui_layout=" + gui_layout) ;
+
+    return (~gui_layout_n          ) ?
+           (gui_layout == "minimal") ? MIXERGROUP_SM_H  :
+           (gui_layout == "compact") ? MIXERGROUP_MD_H  :
+           (gui_layout == "full"   ) ? MIXERGROUP_LG_H  :
+           MIXERGROUP_DEF_H          : MIXERGROUP_DEF_H ;
+  }
+
   // Channel
   static const Identifier       MASTER_GUI_ID              = CONFIG::MASTER_ID ;
   static const Identifier       METRO_GUI_ID               = CONFIG::METRO_ID ;
   static const String           XMIT_LABEL_TEXT            = "XMIT" ;
   static const String           RCV_LABEL_TEXT             = "RCV" ;
+  static const String           MIX_CHANNEL_NAME           = "mix" ;
   static const CharPointer_UTF8 INFINITY_CHAR              = CharPointer_UTF8("\xe2\x88\x9e") ;
   static const int              N_STATIC_CHANNELS_CHILDREN = 4 ;
-  static const int              CHANNEL_LABEL_H            = 12 ;
-  static const int              CHANNEL_Y                  = CHANNEL_LABEL_H + PAD2 ;
-  static const int              CHANNEL_W                  = 60 ;
-  static const int              CHANNEL_H                  = 252 ;
-  static const int              VU_X                       = 6 ;
-  static const int              VU_Y                       = 92 ;
+  static const int              CHANNEL_STATIC_H           = 128 ;
+  static const int              VU_LABEL_H                 = 12 ;
+  static const int              CHANNEL_LABEL_H            = 16 ;
+  static const int              CHANNEL_Y                  = CHANNEL_LABEL_H + PAD ;
+  static const int              CHANNEL_W                  = MIXER_CHANNEL_W ;
+  static const int              CHANNEL_H                  = MIXERGROUP_DEF_H - PAD3 ;
+  static const int              VU_X                       = 12 ; // NOTE: pivotal value - per jucer Channels
+  static const int              VU_Y                       = 88 ;
   static const int              VU_SM_W                    = 16 ;
   static const int              VU_LG_W                    = 24 ;
   static const int              VU_H                       = 128 ;
@@ -1080,34 +1119,19 @@ namespace GUI
   static const int              HOVER_BTN_H                = 16 ;
   static const int              HOVER_BTN_XC               = HOVER_BTN_W / 2 ;
   static const int              HOVER_BTN_YC               = HOVER_BTN_H / 2 ;
-  static const double           VU_DB_RANGE                = 140.0 ;
+  static const double           VU_DB_RANGE                =  140.0 ;
   static const double           VU_DB_MIN                  = -120.0 ;
-
-  // Channels
-  static const  Identifier MASTERS_GUI_ID     = CONFIG::MASTERS_ID ;
-  static const  Identifier LOCALS_GUI_ID      = CONFIG::LOCALS_ID ;
-  static const  String     MASTERS_LABEL_TEXT = TRANS("Master") ;
-  static const  String     LOCALS_LABEL_TEXT  = TRANS("Local") ;
-  static const  int        CHANNEL_CONFIG_W   = 200 ;
-  static const  int        CHANNEL_CONFIG_H   = 200 ;
-  static const  int        MIXERGROUP_Y       = PAD ;
-  static const  int        MIXERGROUP_H       = CHANNEL_H + CHANNEL_LABEL_H + PAD3 ;
-  static inline int        MIXERGROUP_W(int n_channels)
-  {
-    return PAD + (n_channels * (CHANNEL_W + PAD)) ;
-  }
 
   // Mixer
   static const String MIXER_GUI_ID            = "mixer-gui" ;
-  static const int    MIXER_H                 = PAD2 + MIXERGROUP_H ;
-  static const int    RESIZER_W               = PAD  + 2 ;
+  static const int    RESIZER_W               = PAD + 2 ;
   static const int    N_STATIC_MIXER_CHILDREN = 5 ;
   static const int    LOCALS_IDX              = 0 ;
   static const int    FIRST_REMOTE_IDX        = 1 ;
-  static const int    CHANNEL_SCROLL_BTN_H    = MIXERGROUP_H / 4 ;
+  static const int    CHANNEL_SCROLL_BTN_H    = MIXERGROUP_MD_H / 4 ;        // WIP: switchable layout - this may need to become a function per MIXERGROUP_H()
   static const int    CHANNEL_SCROLL_BTN_W    = 24 ;
   static const int    CHANNEL_SCROLL_BTN_Y    = MIXERGROUP_Y               +
-                                                (MIXERGROUP_H / 2)         -
+                                                (MIXERGROUP_MD_H      / 2) - // WIP: switchable layout - this may need to become a function per MIXERGROUP_H()
                                                 (CHANNEL_SCROLL_BTN_H / 2) ;
 
   // StatusBar

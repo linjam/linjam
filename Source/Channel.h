@@ -95,13 +95,13 @@ protected:
     std::unique_ptr<juce::TextButton> removeButton;
     std::unique_ptr<juce::TextButton> configButton;
     std::unique_ptr<juce::Slider> panSlider;
-    std::unique_ptr<juce::Slider> gainSlider;
-    std::unique_ptr<juce::Label> nameLabel;
     std::unique_ptr<juce::Label> stereoLabel;
     std::unique_ptr<juce::Slider> vuLeftSlider;
     std::unique_ptr<juce::Slider> vuRightSlider;
     std::unique_ptr<juce::Label> vuLeftLabel;
     std::unique_ptr<juce::Label> vuRightLabel;
+    std::unique_ptr<juce::Slider> gainSlider;
+    std::unique_ptr<juce::Label> nameLabel;
 
 
     //==============================================================================
@@ -109,6 +109,7 @@ protected:
 };
 
 //[EndFile] You can add extra defines here...
+
 
 class MasterChannel : public Channel
 {
@@ -141,6 +142,7 @@ class RemoteChannel : public Channel
 
   RemoteChannel(ValueTree channel_store) ;
 } ;
+
 
 //[/EndFile]
 

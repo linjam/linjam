@@ -107,10 +107,11 @@
 #else // DEBUG
 
 // state
-#  define DEBUG_TRACE_LOGIN_LOAD            ;
-#  define DEBUG_TRACE_LOBBY_QUICKLOGIN      ;
-#  define DEBUG_TRACE_LOGIN_VALIDATION      ;
-#  define DEBUG_TRACE_LOGIN_LAYOUTLOGINBTNS ;
+#  define DEBUG_TRACE_LOGIN_LOAD                 ;
+#  define DEBUG_TRACE_LOBBY_QUICKLOGIN           ;
+#  define DEBUG_TRACE_LOGIN_VALIDATION           ;
+#  define DEBUG_TRACE_LOGIN_LAYOUTLOGINBTNS      ;
+#  define DEBUG_TRACE_LOGIN_LAYOUTLOGINBTNS_HOST ;
 // network
 #  define DEBUG_TRACE_SERVERLIST        ;
 #  define DEBUG_TRACE_SERVERLIST_SERVER ;
