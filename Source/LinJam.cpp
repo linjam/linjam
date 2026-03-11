@@ -1449,6 +1449,22 @@ int source_type           =  n_channels_per_stream | CLIENT::FLAG_IS_STEREO ;
 g_client_mutex.Leave() ;
 */
 
+/* WIP: control room voice channel
+// see: jmde/fx/reaninjam/locchn.cpp LOC: 227
+CLIENT::FLAG_VOICE_CHANNEL = 2 ;
+CLIENT::FLAG_SESSION_MODE  = 4 ;
+g_client_mutex.Enter() ;
+int flags = 0 ;
+bool is_voice_channel = false ;
+bool is_session_mode = false ;
+g_client->GetLocalChannelInfo(channel_idx , nullptr , nullptr , nullptr , &flags) ;
+flags &= ~(CLIENT::FLAG_VOICE_CHANNEL | CLIENT::FLAG_SESSION_MODE) ;
+flags |= (is_voice_channel) ? CLIENT::FLAG_VOICE_CHANNEL :
+         (is_session_mode ) ? CLIENT::FLAG_SESSION_MODE  : 0 ;
+g_client->SetLocalChannelInfo(channel_idx  , nullptr , false , 0 , false , 0 , false , false , false , 0 , true , flags);
+g_client->NotifyServerOfChannelChange() ;
+g_client_mutex.Leave() ;
+*/
 
   if (should_set_volume || should_set_pan || should_set_is_muted || should_set_is_solo)
     Client->SetLocalChannelMonitoring(channel_idx                                 ,
