@@ -1432,6 +1432,24 @@ DEBUG_TRACE_CONFIGURE_LOCAL_CHANNEL
                                 should_set_source_n  , source_n  ,
                                 should_set_bit_depth , bit_depth ,
                                 should_set_is_xmit   , is_xmit   ) ;
+
+
+// upstream 0.06
+// void SetLocalChannelInfo(int ch, const char *name, bool setsrcch, int srcch, bool setbitrate, int bitrate, bool setbcast, bool broadcast);
+// upstream 0.08
+// void SetLocalChannelInfo(int ch, const char *name, bool setsrcch, int srcch, bool setbitrate, int bitrate, bool setbcast, bool broadcast,
+//                          bool setoutch=false, int outch=0, bool setflags=false, int flags=0);
+/* WIP: stereo streams
+// see: jmde/fx/reaninjam/locchn.cpp LOC: 194
+// CLIENT::FLAG_STEREO = 1024 ;
+g_client_mutex.Enter() ;
+g_client->SetLocalChannelInfo(channel_idx , nullptr , true , n_channels_per_stream , false , 0 , false , false) ;
+int n_channels_per_stream = 2 ;
+int source_type           =  n_channels_per_stream | CLIENT::FLAG_IS_STEREO ;
+g_client_mutex.Leave() ;
+*/
+
+
   if (should_set_volume || should_set_pan || should_set_is_muted || should_set_is_solo)
     Client->SetLocalChannelMonitoring(channel_idx                                 ,
                                       should_set_volume   , (float)DB2VAL(volume) ,
@@ -1667,7 +1685,17 @@ int LinJam::GetNumLocalChannels()
   return n_occupied_slots ;
 }
 
-/*
+/* WIP: stereo streams
+bool LinJam::IsStereo(uint8 channel_idx)
+{
+  int sch ;
+  Client->GetLocalChannelInfo(channel_idx , &sch , nullptr , nullptr) ;
+  bool is_stereo = (sch & 1024) ;
+DBG("LinJam::IsStereo() is_stereo=" + Bool2Str(is_stereo)) ;
+  return is_stereo ;
+}
+*/
+/* WIP:
 uint8 LinJam::GetNumRemoteChannels()
 {
   int user_idx   = -1 ;

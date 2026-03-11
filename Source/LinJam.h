@@ -198,6 +198,7 @@ private:
   // NJClient/audioStreamer helpers
   static int    GetNumAudioSources() ;
   static int    GetNumLocalChannels() ;
+  // static bool   IsStereo                  (uint8 channel_idx) ;
   // static uint8  GetNumRemoteChannels() ; // WIP: graceful disconnect - may not need
   static int    GetNumVacantChannels() ;
   static int    GetVacantLocalChannelIdx() ;

@@ -298,6 +298,14 @@ static unsigned int SessionSecs = 0 ; // DELETEME: DEBUG
              "\n    is_pannable    => "  + Bool2Str(ch_pannable) ;                    \
     }                                                                                 \
     Trace::TraceState(dbg) ;
+/* WIP: stereo streams
+char *GetUserChannelState(int useridx, int channelidx, bool *sub=0, float *vol=0, float *pan=0, bool *mute=0, bool *solo=0, int *outch=0, bool *stereoout=0);
+// upstream 0.08
+char *GetUserChannelState(int useridx, int channelidx, bool *sub=0, float *vol=0, float *pan=0, bool *mute=0, bool *solo=0, int *outchannel=0, int *flags=0);
+
+bool sub=0,m=0,s=0; float v=0,p=0; int flags=0;
+char *cn=g_client->GetUserChannelState(user,chan,&sub,&v,&p,&m,&s,NULL,&flags);
+*/
 
 #if TRACE_REMOTE_CHANNELS_VB
 #  define DEBUG_TRACE_REMOTE_CHANNELS_VB                                                  \
