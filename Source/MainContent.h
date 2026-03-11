@@ -65,7 +65,7 @@ private:
   Value            guiLayout ;
 
 
-  // setup/teardow
+  // setup/teardown
   void instantiate(ValueTree gui_store       , ValueTree client_store  ,
                    ValueTree blacklist_store , ValueTree audio_store   ,
                    ValueTree login_store     , ValueTree servers_store ,
@@ -78,7 +78,6 @@ private:
   bool keyPressed   (const KeyPress& keypress) override ;
   void updateModeBtn() ;
   void updateLayout () ;
-
 
 
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainContent)

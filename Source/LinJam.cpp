@@ -601,9 +601,9 @@ void LinJam::ConfigureInitialChannels()
 
   // add master and metro channel GUI mixers and configure NJClient master channels
   ValueTree master_store = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::MASTER_ID) ;
-  ValueTree metro_store  = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID) ;
+  ValueTree metro_store  = Config->getChannelById(CONFIG::MASTERS_ID , CONFIG::METRO_ID ) ;
   Gui->mixer->addChannel(GUI::MASTERS_GUI_ID , master_store) ;
-  Gui->mixer->addChannel(GUI::MASTERS_GUI_ID , metro_store) ;
+  Gui->mixer->addChannel(GUI::MASTERS_GUI_ID , metro_store ) ;
   ConfigureMasterChannel(CONFIG::CONFIG_INIT_ID) ;
   ConfigureMetroChannel( CONFIG::CONFIG_INIT_ID) ;
 
@@ -1509,7 +1509,7 @@ void LinJam::ConfigureRemoteChannel(ValueTree  user_store , ValueTree channel_st
   bool  is_muted      = bool( channel_store[CONFIG::IS_MUTED_ID   ]) ;
   bool  is_solo       = bool( channel_store[CONFIG::IS_SOLO_ID    ]) ;
   int   sink_n        = 0 ; // TODO: not yet clear how to handle remote sink_n
-  int   stereo_status = int(  channel_store[CONFIG::STEREO_ID     ]) ;                           \
+  int   stereo_status = int(  channel_store[CONFIG::STEREO_ID     ]) ;
   bool  is_pannable   = true ;
 
 DEBUG_TRACE_CONFIGURE_REMOTE_CHANNEL

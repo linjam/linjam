@@ -48,17 +48,15 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
 
   // event handlers
-  void textEditorTextChanged     (TextEditor& text_editor)                    override ;
-  void valueTreeChildAdded       (ValueTree& parent_node  , ValueTree& node)  override ;
+  void textEditorTextChanged     (TextEditor& text_editor)                         override ;
+  void valueTreeChildAdded       (ValueTree& parent_node  , ValueTree& node)       override ;
   void valueTreeChildRemoved     (ValueTree& parent_node  , ValueTree& node ,
-                                  int        /*prev_idx*/                   ) override ;
-  void valueTreeChildOrderChanged(ValueTree& parent_node  ,
-                                  int        /*prev_idx*/ , int /*curr_idx*/) override ;
-
-  // unused ValueTree::Listener interface implementations
-  void valueTreePropertyChanged(ValueTree& /*node*/ , const Identifier& /*key*/) override {} ;
-  void valueTreeParentChanged  (ValueTree& /*node*/                            ) override {} ;
-  void valueTreeRedirected     (ValueTree& /*node*/                            ) override {} ;
+                                  int        /*prev_idx*/                   )      override ;
+  void valueTreeChildOrderChanged(ValueTree& parent_node                    ,
+                                  int        /*prev_idx*/ , int /*curr_idx*/)      override ;
+  void valueTreePropertyChanged  (ValueTree& /*node*/ , const Identifier& /*key*/) override {} ; // unused
+  void valueTreeParentChanged    (ValueTree& /*node*/                            ) override {} ; // unused
+  void valueTreeRedirected       (ValueTree& /*node*/                            ) override {} ; // unused
 
   // helpers
   bool quickLogin       (String host) ;

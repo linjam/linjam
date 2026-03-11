@@ -273,6 +273,25 @@ RemoteChannels::RemoteChannels(Value gui_layout , ValueTree user_store , ValueTr
 
   this->isExpanded = false ;
 }
+
+Channel* MasterChannels::newChannel(ValueTree channel_store)
+{
+  return new MasterChannel(channel_store) ;
+}
+
+Channel* LocalChannels::newChannel(ValueTree channel_store)
+{
+  channel_store.setProperty(CONFIG::IS_XMIT_RCV_ID , false , nullptr) ;
+
+  return new LocalChannel(channel_store) ;
+}
+
+Channel* RemoteChannels::newChannel(ValueTree channel_store)
+{
+  return new RemoteChannel(channel_store) ;
+}
+
+
 /*
 void LocalChannels::StopAllXmit()
 {
@@ -325,6 +344,7 @@ void LocalChannels::buttonClicked(Button* a_button)
 
 void RemoteChannels::buttonClicked(Button* a_button)
 {
+
   if      (a_button == this->expandButton.get()) toggleExpandChannels() ;
   else if (a_button == this->ignoreButton.get()) addUserToBlacklist() ;
 }
@@ -340,23 +360,6 @@ void RemoteChannels::addUserToBlacklist()
 {
   ValueTree blacklist_entry_store = ValueTree(this->userStore.getType()) ;
   this->blacklistStore.addChild(blacklist_entry_store , -1  , nullptr) ;
-}
-
-Channel* MasterChannels::newChannel(ValueTree channel_store)
-{
-  return new MasterChannel(channel_store) ;
-}
-
-Channel* LocalChannels::newChannel(ValueTree channel_store)
-{
-  channel_store.setProperty(CONFIG::IS_XMIT_RCV_ID , false , nullptr) ;
-
-  return new LocalChannel(channel_store) ;
-}
-
-Channel* RemoteChannels::newChannel(ValueTree channel_store)
-{
-  return new RemoteChannel(channel_store) ;
 }
 
 //[/MiscUserCode]

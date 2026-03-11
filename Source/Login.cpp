@@ -166,6 +166,13 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
 
   populateJamsGui() ;
 
+    //[/UserPreSize]
+
+    setSize (622, 442);
+
+
+    //[Constructor] You can add your own custom stuff here..
+
   this->loginButton->setVisible(false) ;
   this->hostLabel  ->setVisible(false) ;
   this->hostText   ->setVisible(false) ;
@@ -190,12 +197,6 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
   this->loginText  ->addListener(this) ;
   this->passText   ->addListener(this) ;
 
-    //[/UserPreSize]
-
-    setSize (622, 442);
-
-
-    //[Constructor] You can add your own custom stuff here..
     //[/Constructor]
 }
 

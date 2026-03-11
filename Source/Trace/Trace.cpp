@@ -19,23 +19,19 @@ void Trace::TraceClient   (String msg) { if (DEBUG_TRACE_CLIENT    ) DBG("[CLIEN
 void Trace::TraceServer   (String msg) { if (DEBUG_TRACE_SERVER    ) DBG("[SERVER]:  " + msg) ; }
 void Trace::TraceGui      (String msg) { if (DEBUG_TRACE_GUI       ) DBG("[GUI]:     " + msg) ; }
 void Trace::TraceGuiVb    (String msg) { if (DEBUG_TRACE_GUI_VB    ) DBG("[GUI]:     " + msg) ; }
+void Trace::TraceStateVb  (String msg) { if (DEBUG_TRACE_STATE_VB  ) DBG("[STATE]:   " + msg) ; }
+void Trace::TraceNetworkVb(String msg) { if (DEBUG_TRACE_NETWORK_VB) DBG("[NETWORK]: " + msg) ; }
 #ifndef DEBUG_ANSI_COLORS
 void Trace::TraceState    (String msg) { if (DEBUG_TRACE_STATE     ) DBG("[STATE]:   " + msg) ; }
-void Trace::TraceStateVb  (String msg) { if (DEBUG_TRACE_STATE_VB  ) DBG("[STATE]:   " + msg) ; }
 void Trace::TraceError    (String msg) { if (DEBUG_TRACE_STATE     ) DBG("[ERROR]:   " + msg) ; }
 void Trace::TraceNetwork  (String msg) { if (DEBUG_TRACE_NETWORK   ) DBG("[NETWORK]: " + msg) ; }
-void Trace::TraceNetworkVb(String msg) { if (DEBUG_TRACE_NETWORK_VB) DBG("[NETWORK]: " + msg) ; }
 #else // DEBUG_ANSI_COLORS
 void Trace::TraceState    (String msg)
-  { if (DEBUG_TRACE_STATE     ) DBG("\033[1;33m[STATE]:   " + msg + "\033[0m") ; }
-void Trace::TraceStateVb  (String msg)
-  { if (DEBUG_TRACE_STATE_VB  ) DBG("\033[1;33m[STATE]:   " + msg + "\033[0m") ; }
+  { if (DEBUG_TRACE_STATE  ) DBG("\033[1;33m[STATE]:   " + msg + "\033[0m") ; }
 void Trace::TraceError    (String msg)
-  { if (DEBUG_TRACE_STATE     ) DBG("\033[0;31m[ERROR]:   " + msg + "\033[0m") ; }
+  { if (DEBUG_TRACE_STATE  ) DBG("\033[0;31m[ERROR]:   " + msg + "\033[0m") ; }
 void Trace::TraceNetwork  (String msg)
-  { if (DEBUG_TRACE_NETWORK   ) DBG("\033[0;32m[NETWORK]: " + msg + "\033[0m") ; }
-void Trace::TraceNetworkVb(String msg)
-  { if (DEBUG_TRACE_NETWORK_VB) DBG("\033[0;32m[NETWORK]: " + msg + "\033[0m") ; }
+  { if (DEBUG_TRACE_NETWORK) DBG("\033[0;32m[NETWORK]: " + msg + "\033[0m") ; }
 #endif // DEBUG_ANSI_COLORS
 void Trace::DumpStoreXml(ValueTree store)
 {

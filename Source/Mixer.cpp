@@ -1,21 +1,21 @@
-/*
-  ==============================================================================
+/*\
+|*|  Copyright 2014,2015,2020,2026 bill-auger <bill-auger@programmer.net>
+|*|
+|*|  This file is part of the LinJam program.
+|*|
+|*|  LinJam is free software: you can redistribute it and/or modify
+|*|  it under the terms of the GNU General Public License version 3
+|*|  as published by the Free Software Foundation.
+|*|
+|*|  LinJam is distributed in the hope that it will be useful,
+|*|  but WITHOUT ANY WARRANTY; without even the implied warranty of
+|*|  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+|*|  GNU General Public License for more details.
+|*|
+|*|  You should have received a copy of the GNU General Public License
+|*|  along with LinJam.  If not, see <http://www.gnu.org/licenses/>.
+\*/
 
-  This is an automatically generated GUI class created by the Projucer!
-
-  Be careful when adding custom code to these files, as only the code within
-  the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
-  and re-saved.
-
-  Created with Projucer version: 7.0.12
-
-  ------------------------------------------------------------------------------
-
-  The Projucer is part of the JUCE library.
-  Copyright (c) 2020 - Raw Material Software Limited.
-
-  ==============================================================================
-*/
 
 //[Headers] You can add your own extra header files here...
 
@@ -168,12 +168,15 @@ DEBUG_TRACE_MIXER_COMPONENTS_VB
     channels->setVisible(channels_x <= masters_resizer_x) ;
 #else // FADE_HIDDEN_REMOTES
     // hide scrolled previous remotes
+    int channels_w = GUI::CHANNEL_SCROLL_BTN_W + GUI::RESIZER_W - GUI::PAD2 + channels->getWidth() ;
     if (group_n > GUI::LOCALS_IDX && group_n < this->scrollZ)
     {
-      if (group_n < this->scrollZ - 1)
-        channels_x += GUI::CHANNEL_SCROLL_BTN_W + GUI::RESIZER_W - GUI::PAD
-- GUI::PAD + channels->getWidth() ;
-      else{ channels->setVisible(false) ; continue ; }
+      bool is_onscreen = group_n < this->scrollZ - 1 ;
+
+      channels->setVisible(is_onscreen) ;
+
+      if (is_onscreen) channels_x += channels_w ;
+      else             continue ;
     }
 
     // hide scrolled next remotes
@@ -350,7 +353,6 @@ void Mixer::addResizer(ResizableEdgeComponent* resizer)
 
 Channels* Mixer::getChannels(Identifier channels_id)
 {
-  // return (Channels*)findChildWithID(StringRef(STRING(channels_id))) ;
   return (Channels*)findChildWithID(StringRef(channels_id)) ;
 }
 

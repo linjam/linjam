@@ -242,20 +242,16 @@ bool MainContent::keyPressed(const KeyPress& keypress)
 {
 // WIP: eg:
 // if (keypress.getModifiers().isAltDown() && (keypress.getKeyCode() == 97) ;
-DBG("key pressed: " + String(keypress.getKeyCode())) ;
+  bool is_escape   = keypress.isKeyCode(KeyPress::escapeKey) ; // handled by modeButton
+  bool is_space    = keypress.isKeyCode(KeyPress::spaceKey ) ; // focus chat entry
+  bool is_slash    = keypress.isKeyCode(GUI::SLASH_KEY     ) ; // focus chat entry
+  bool was_handled = is_escape || is_space || is_slash ;
 
-  if      (keypress.isKeyCode(KeyPress::escapeKey))
-    return true ; // handled by modeButton
-  else if ( keypress.isKeyCode(KeyPress::spaceKey ) ||
-            keypress.isKeyCode(GUI::SLASH_KEY     )  )
-  {
-DBG("MainContent::keyPressed() tis spaceKey") ;
-    this->chat->grabFocus() ;
+DEBUG_TRACE_KEYPRESSED
 
-    return true ;
-  }
+  if (is_space || is_slash) this->chat->grabFocus() ;
 
-  return false ; // false -> un-handled
+  return was_handled ; // false -> un-handled
 }
 
 void MainContent::updateModeBtn()

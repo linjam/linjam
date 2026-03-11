@@ -33,7 +33,8 @@
 |*|  when adding GUI components to Channels be sure to update N_STATIC_CHANNELS_CHILDREN
 |*|    and when adding GUI components to Mixer be sure to update N_STATIC_MIXER_CHILDREN
 |*|
-|*|  when adding nodes or properties to CONFIG_XML be sure to
+|*|  when adding nodes or properties to CONFIG_XML be sure to:
+|*|    * update CONFIG_VERSION to the current LinJam version as defined in LinJam.jucer
 |*|    * if new property - denote datatype in #define CONFIG_TYPES_XML
 |*|                      - sanitize data in   LinJamConfig::sanitizeGui()
 |*|                                           LinJamConfig::sanitizeClient()    // TODO: nyi
@@ -135,7 +136,7 @@
 
 /** CONFIG_XML, WIN_AUDIO_XML, NIX_AUDIO_XML, MAC_AUDIO_XML define the schema
         and default values for the configuration/persistence model
-    this data is instantiated below as DEFAULT_CONFIG_XML                     */
+    this data is instantiated below as DEFAULT_CONFIG_XML                     **/
 #define CONFIG_XML XML_HEADER                                                   + \
   STORAGE_KEY              +                                              " "   + \
     CONFIG_VERSION_KEY     + "=\"" + String(CONFIG_VERSION            ) + "\""  + \
@@ -363,7 +364,7 @@
 /* global constants */
 
 /** the APP namespace defines configuration and runtime constants
-        pertaining to the core LinJam application and business logic */
+        pertaining to the core LinJam application and business logic **/
 class APP
 {
 public:
@@ -405,7 +406,7 @@ public:
 
 
 /** the CLIENT namespace defines configuration and runtime constants
-        pertaining to NJClient                                       */
+        pertaining to NJClient                                       **/
 namespace CLIENT
 {
   // server - NOTE: the following are canonical, per ninjamsrv
@@ -452,7 +453,7 @@ namespace CLIENT
 
 
 /** the NETWORK namespace defines configuration and runtime constants
-        pertaining to login and communications                        */
+        pertaining to login and communications                        **/
 class NETWORK
 {
 public:
@@ -517,7 +518,7 @@ public:
 
 
 /** the CONFIG namespace defines keys/value pairs and default-value constants
-        and validations pertaining to the configuration/persistence model<->XML */
+        and validations pertaining to the configuration/persistence model<->XML **/
 namespace CONFIG
 {
   /* config XML and ValueTree keys */
@@ -843,7 +844,7 @@ namespace CONFIG
 
 
 /** the GUI namespace defines configuration and runtime constants
-        pertaining to graphical elements                          */
+        pertaining to graphical elements                          **/
 namespace GUI
 {
   // common
@@ -880,9 +881,9 @@ namespace GUI
   static const String APP_NAME   = "LinJam" ;
   static const int    BORDERS_W  = 2 ;
   static const int    TITLEBAR_H = 24 ;
-  static const int    MODE_BTN_X = GUI::PAD ;
+  static const int    MODE_BTN_X = PAD ;
   static const int    MODE_BTN_Y = 3 ;
-  static const int    MODE_BTN_H = GUI::TITLEBAR_H - GUI::PAD ;
+  static const int    MODE_BTN_H = TITLEBAR_H - PAD ;
   static const int    MODE_BTN_W = MODE_BTN_H * 3 ;
 
   // MainContent
@@ -1001,8 +1002,8 @@ namespace GUI
   // Login
   static const String LOGIN_GUI_ID                   = "login-gui" ;
   static const int    N_STATIC_LOGIN_CHILDREN        = 6 ;
-  static const int    LOGIN_BUTTON_L                 = GUI::PAD2 ;
-  static const int    LOGIN_BUTTON_T                 = GUI::PAD2 ;
+  static const int    LOGIN_BUTTON_L                 = PAD2 ;
+  static const int    LOGIN_BUTTON_T                 = PAD2 ;
   static const int    LOGIN_BUTTON_W                 = 170 ;
   static const int    LOGIN_BUTTON_H                 = 24 ;
   static const int    STREAM_BUTTON_W                = 12 ;

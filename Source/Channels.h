@@ -91,8 +91,9 @@ public:
 
 private:
 
-  void     buttonClicked(Button* buttonThatWasClicked) ;
-  Channel* newChannel(   ValueTree channel_store) override ;
+  Channel* newChannel(ValueTree channel_store) override ;
+
+  void buttonClicked(Button* buttonThatWasClicked) ;
 } ;
 
 
@@ -107,8 +108,9 @@ public:
 
 private:
 
-  void     buttonClicked(Button* buttonThatWasClicked) ;
   Channel* newChannel(   ValueTree channel_store) override ;
+
+  void buttonClicked(Button* buttonThatWasClicked) ;
 } ;
 
 
@@ -126,10 +128,12 @@ private:
   bool      isExpanded ;
 
 
-  void     buttonClicked(       Button* buttonThatWasClicked) ;
+  Channel* newChannel(ValueTree channel_store)     override ;
+
+  void buttonClicked(Button* buttonThatWasClicked) override ;
+
   void     toggleExpandChannels() ;
-  void     addUserToBlacklist() ;
-  Channel* newChannel(          ValueTree channel_store) override ;
+  void     addUserToBlacklist  () ;
 } ;
 
 //[/EndFile]
