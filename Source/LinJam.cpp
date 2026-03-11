@@ -322,6 +322,7 @@ void LinJam::ConfigureNinjam()
 
   Client->LicenseAgreementCallback = OnLicense ;
   Client->ChatMessage_Callback     = OnChatmsg ;
+  Client->ChannelMixer             = OnChanmix ; // WIP:
   Client->config_savelocalaudio    = save_audio_mode ;
   Client->config_debug_level       = debug_level ;
   Client->config_autosubscribe     = subscribe_mode ;
@@ -705,6 +706,16 @@ void LinJam::OnSamples(float** input_buffer  , int n_input_channels  ,
                          output_buffer , n_output_channels ,
                          n_samples     , sample_rate       ) ;
 }
+
+#if     LIBNINJAM_VERSION_MAJ == 0
+#  if   LIBNINJAM_VERSION_MIN <  8
+int LinJam::OnChanmix(int /*user32*/ , float** input_buffer , int offset , int n_input_channels , int channel_idx , float* output_buffer , int n_samples) // WIP: stereo streams
+#  elif LIBNINJAM_VERSION_MIN == 8
+int LinJam::OnChanmix(void* /*user64*/ , float** input_buffer , int offset , int n_input_channels , int channel_idx , float* output_buffer , int n_samples) // WIP: stereo streams
+#  endif // LIBNINJAM_VERSION
+#endif // LIBNINJAM_VERSION
+{ UNUSED(input_buffer) ; UNUSED(offset) ; UNUSED(n_input_channels) ; UNUSED(channel_idx) ; UNUSED(output_buffer) ; UNUSED(n_samples) ; // WIP: stereo streams
+  /*DBG("LinJam::OnChanmix()") ; */return 0 ; } // WIP:stereo streams // return 0 if you want the default behavior
 
 
 /* NJClient runtime routines and event handlers */

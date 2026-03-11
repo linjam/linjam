@@ -145,6 +145,16 @@ private:
   static void OnSamples(float** input_buffer  , int n_input_channels  ,
                         float** output_buffer , int n_output_channels ,
                         int     n_samples     , int sample_rate       ) ;
+#if     LIBNINJAM_VERSION_MAJ == 0
+#  if   LIBNINJAM_VERSION_MIN <  8
+  static int OnChanmix (int   /*user32*/  , float** input_buffer     ,   // WIP: stereo streams
+#  elif LIBNINJAM_VERSION_MIN == 8
+  static int OnChanmix (void* /*user64*/  , float** input_buffer     ,   // WIP: stereo streams
+#  endif // LIBNINJAM_VERSION
+#endif // LIBNINJAM_VERSION
+                        int   offset      , int     n_input_channels ,   // WIP: stereo streams
+                        int   channel_idx , float*  output_buffer    ,   // WIP: stereo streams
+                        int   n_samples                              ) ; // WIP: stereo streams
 
   // NJClient runtime routines and event handlers
   static void PumpClient() ;
