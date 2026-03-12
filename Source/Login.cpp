@@ -48,7 +48,7 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     activeView.reset (new juce::Viewport ("activeView"));
     addAndMakeVisible (activeView.get());
     activeView->setScrollBarsShown (true, false);
-    activeView->setViewedComponent (new Background());
+    activeView->setViewedComponent (new Blank());
 
     vacantGroup.reset (new juce::GroupComponent ("vacantGroup",
                                                  TRANS ("Recent Jams")));
@@ -60,7 +60,7 @@ Login::Login (ValueTree login_store, ValueTree servers_store)
     vacantView.reset (new juce::Viewport ("vacantView"));
     addAndMakeVisible (vacantView.get());
     vacantView->setScrollBarsShown (true, false);
-    vacantView->setViewedComponent (new Background());
+    vacantView->setViewedComponent (new Blank());
 
     hostLabel.reset (new juce::Label ("hostLabel",
                                       TRANS ("Server:")));
@@ -665,7 +665,7 @@ BEGIN_JUCER_METADATA
             virtualName="" explicitFocusOrder="0" pos="8 12 12M 18M" posRelativeX="23aa8a0b33d17718"
             posRelativeY="23aa8a0b33d17718" posRelativeW="23aa8a0b33d17718"
             posRelativeH="23aa8a0b33d17718" vscroll="1" hscroll="0" scrollbarThickness="8"
-            contentType="2" jucerFile="" contentClass="Background" constructorParams=""/>
+            contentType="2" jucerFile="" contentClass="Blank" constructorParams=""/>
   <GROUPCOMPONENT name="vacantGroup" id="f047af8af9dee9df" memberName="vacantGroup"
                   virtualName="" explicitFocusOrder="0" pos="24Rr 16 200 152M"
                   outlinecol="ff808080" textcol="ffffffff" title="Recent Jams"
@@ -674,7 +674,7 @@ BEGIN_JUCER_METADATA
             virtualName="" explicitFocusOrder="0" pos="8 12 12M 18M" posRelativeX="f047af8af9dee9df"
             posRelativeY="f047af8af9dee9df" posRelativeW="f047af8af9dee9df"
             posRelativeH="f047af8af9dee9df" vscroll="1" hscroll="0" scrollbarThickness="8"
-            contentType="2" jucerFile="" contentClass="Background" constructorParams=""/>
+            contentType="2" jucerFile="" contentClass="Blank" constructorParams=""/>
   <LABEL name="hostLabel" id="916aefc37fc4e730" memberName="hostLabel"
          virtualName="" explicitFocusOrder="0" pos="-190C 112R 72 24"
          textCol="ffffffff" edTextCol="ff000000" edBkgCol="0" labelText="Server:"

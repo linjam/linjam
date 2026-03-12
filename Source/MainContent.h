@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Background.h"
+#include "Blank.h"
 #include "Config.h"
 #include "Lobby.h"
 #include "License.h"
@@ -50,19 +50,19 @@ public:
 
 private:
 
-  UPTR<Background> background ;
-  UPTR<Config>     config ;
-  UPTR<Lobby>      lobby ;
-  UPTR<License>    license ;
-  UPTR<Toolbox>    toolbox ;
-  UPTR<Chat>       chat ;
-  UPTR<Mixer>      mixer ;
-  UPTR<StatusBar>  statusbar ;
-  UPTR<Loop>       loop ;
-  DocumentWindow*  mainWindow ;
-  TextButton*      modeButton ;
-  Value            linjamStatus ;
-  Value            guiLayout ;
+  UPTR<Blank>     blank ;
+  UPTR<Config>    config ;
+  UPTR<Lobby>     lobby ;
+  UPTR<License>   license ;
+  UPTR<Toolbox>   toolbox ;
+  UPTR<Chat>      chat ;
+  UPTR<Mixer>     mixer ;
+  UPTR<StatusBar> statusbar ;
+  UPTR<Loop>      loop ;
+  DocumentWindow* mainWindow ;
+  TextButton*     modeButton ;
+  Value           linjamStatus ;
+  Value           guiLayout ;
 
 
   // setup/teardown

@@ -822,10 +822,10 @@ DEBUG_TRACE_STATUS_CHANGED
 
   // ignore sentinel value, but prime lobby jams
   if (status <  APP::LINJAM_STATUS_READY)
-    Gui->background->spinnerLabel->setText(GUI::SPINNER_INIT_TEXT   , juce::dontSendNotification) ;
+    Gui->blank->spinnerLabel->setText(GUI::SPINNER_INIT_TEXT   , juce::dontSendNotification) ;
   if (status == APP::LINJAM_STATUS_READY)
   {
-    Gui->background->spinnerLabel->setText(GUI::SPINNER_LOGOUT_TEXT , juce::dontSendNotification) ;
+    Gui->blank->spinnerLabel->setText(GUI::SPINNER_LOGOUT_TEXT , juce::dontSendNotification) ;
     UpdateJams() ;
     return ;
   }
@@ -852,15 +852,15 @@ DEBUG_TRACE_STATUS_CHANGED
   {
     case APP::LINJAM_STATUS_AUDIOINIT      :
     case APP::LINJAM_STATUS_CONFIGPENDING  :
-    case APP::LINJAM_STATUS_AUDIOERROR     : UpdateGuiMode(Gui->config    .get()) ; break ;
-    case APP::LINJAM_STATUS_LICENSEPENDING : UpdateGuiMode(Gui->license   .get()) ; break ;
+    case APP::LINJAM_STATUS_AUDIOERROR     : UpdateGuiMode(Gui->config .get()) ; break ;
+    case APP::LINJAM_STATUS_LICENSEPENDING : UpdateGuiMode(Gui->license.get()) ; break ;
     case APP::LINJAM_STATUS_ROOMFULL       :
     case APP::NJC_STATUS_DISCONNECTED      :
     case APP::NJC_STATUS_INVALIDAUTH       :
     case APP::NJC_STATUS_CANTCONNECT       :
-    case APP::NJC_STATUS_PRECONNECT        : UpdateGuiMode(Gui->lobby     .get()) ; break ;
-    case APP::NJC_STATUS_OK                : UpdateGuiMode(Gui->mixer     .get()) ; break ;
-    default                                : UpdateGuiMode(Gui->background.get()) ; break ;
+    case APP::NJC_STATUS_PRECONNECT        : UpdateGuiMode(Gui->lobby  .get()) ; break ;
+    case APP::NJC_STATUS_OK                : UpdateGuiMode(Gui->mixer  .get()) ; break ;
+    default                                : UpdateGuiMode(Gui->blank  .get()) ; break ;
   }
 
   // actions
@@ -923,7 +923,7 @@ DEBUG_TRACE_REMOTE_CHANNELS_VB
     if (Gui->mixer->addRemoteUser(user_store))
     {
       // create remote master channel storage
-      ValueTree master_store = Config->getOrAddRemoteChannel(user_id , CONFIG::MASTER_KEY) ;
+      ValueTree master_store = Config->getOrAddRemoteChannel(user_id , GUI::MIX_CHANNEL_NAME) ;
       if (!master_store.isValid()) continue ;
 
       // create remote master channel GUI and restore stored NJClient user state
@@ -975,14 +975,14 @@ void LinJam::UpdateGuiMode(Component* pane)
 
   if (pane == Gui->lobby.get() && is_licence_pending) return ;
 
-  Gui->background->setVisible(pane == Gui->background.get()) ;
-  Gui->config    ->setVisible(pane == Gui->config    .get()) ;
-  Gui->lobby     ->setVisible(pane == Gui->lobby     .get()) ;
-  Gui->license   ->setVisible(pane == Gui->license   .get()) ;
-  Gui->toolbox   ->setVisible(pane == Gui->mixer     .get()) ;
-  Gui->chat      ->setVisible(pane == Gui->mixer     .get()) ;
-  Gui->mixer     ->setVisible(pane == Gui->mixer     .get()) ;
-  Gui->loop      ->setVisible(pane == Gui->mixer     .get()) ;
+  Gui->blank  ->setVisible(pane == Gui->blank  .get()) ;
+  Gui->config ->setVisible(pane == Gui->config .get()) ;
+  Gui->lobby  ->setVisible(pane == Gui->lobby  .get()) ;
+  Gui->license->setVisible(pane == Gui->license.get()) ;
+  Gui->toolbox->setVisible(pane == Gui->mixer  .get()) ;
+  Gui->chat   ->setVisible(pane == Gui->mixer  .get()) ;
+  Gui->mixer  ->setVisible(pane == Gui->mixer  .get()) ;
+  Gui->loop   ->setVisible(pane == Gui->mixer  .get()) ;
 }
 
 void LinJam::UpdateGuiHighPriority() { UpdateLoopProgress() ; UpdateVuMeters() ; PumpSpinner() ; }
@@ -1149,7 +1149,7 @@ void LinJam::UpdateVuMeters()
   master_store.setProperty(CONFIG::VU_RIGHT_ID , master_vu_r , nullptr) ;
 }
 
-void LinJam::PumpSpinner() { Gui->background->spinnerProgress = 1.0 ; }
+void LinJam::PumpSpinner() { Gui->blank->spinnerProgress = 1.0 ; }
 
 void LinJam::UpdateJams()
 {

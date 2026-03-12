@@ -36,15 +36,15 @@ MainContent::MainContent(DocumentWindow* main_window , TextButton* mode_btn)
 
 MainContent::~MainContent()
 {
-  this->background = nullptr ;
-  this->config     = nullptr ;
-  this->lobby      = nullptr ;
-  this->license    = nullptr ;
-  this->toolbox    = nullptr ;
-  this->chat       = nullptr ;
-  this->mixer      = nullptr ;
-  this->statusbar  = nullptr ;
-  this->loop       = nullptr ;
+  this->blank     = nullptr ;
+  this->config    = nullptr ;
+  this->lobby     = nullptr ;
+  this->license   = nullptr ;
+  this->toolbox   = nullptr ;
+  this->chat      = nullptr ;
+  this->mixer     = nullptr ;
+  this->statusbar = nullptr ;
+  this->loop      = nullptr ;
 }
 
 void MainContent::paint(Graphics& g)
@@ -60,13 +60,13 @@ void MainContent::resized()
        this->modeButton == nullptr ||
 
        /* main screens */
-       this->background == nullptr || this->config    == nullptr ||
-       this->lobby      == nullptr || this->license   == nullptr ||
+       this->blank == nullptr || this->config    == nullptr ||
+       this->lobby == nullptr || this->license   == nullptr ||
 
        /* panels */
-       this->toolbox    == nullptr || this->chat      == nullptr ||
-       this->mixer      == nullptr || this->statusbar == nullptr ||
-       this->loop       == nullptr                                )
+       this->toolbox == nullptr || this->chat      == nullptr ||
+       this->mixer   == nullptr || this->statusbar == nullptr ||
+       this->loop    == nullptr                                )
     return ;
 
   // main window and content pane
@@ -148,7 +148,7 @@ void MainContent::resized()
   int loop_h = GUI::LOOP_H ;
 
   this->modeButton->setBounds(mode_btn_x , mode_btn_y , mode_btn_w  , mode_btn_h) ;
-  this->background->setBounds(bg_x       , bg_y       , bg_w        , bg_h      ) ;
+  this->blank     ->setBounds(bg_x       , bg_y       , bg_w        , bg_h      ) ;
   this->config    ->setBounds(config_x   , config_y   , config_w    , config_h  ) ;
   this->lobby     ->setBounds(lobby_x    , lobby_y    , lobby_w     , lobby_h   ) ;
   this->license   ->setBounds(license_x  , license_y  , license_w   , license_h ) ;
@@ -174,30 +174,30 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
   Value gui_layout_value = LinJamConfig::GetValueHolder(gui_store   , CONFIG::GUI_LAYOUT_ID  ) ;
 
   // instantiate components requiring model hooks
-  this->background.reset(new Background(                                           )) ;
-  this->config    .reset(new Config    (audio_store     , client_store , gui_store ,
-                                        blacklist_store , linjam_status            )) ;
-  this->lobby     .reset(new Lobby     (login_store     , servers_store            )) ;
-  this->license   .reset(new License   (agreed_value    , agree_value              )) ;
-  this->toolbox   .reset(new Toolbox   (                                           )) ;
-  this->chat      .reset(new Chat      (fontsize_value  , linjam_status            )) ;
-  this->mixer     .reset(new Mixer     (blacklist_store , gui_layout_value         )) ;
-  this->statusbar .reset(new StatusBar (                                           )) ;
-  this->loop      .reset(new Loop      (                                           )) ;
+  this->blank    .reset(new Blank    (                                           )) ;
+  this->config   .reset(new Config   (audio_store     , client_store , gui_store ,
+                                      blacklist_store , linjam_status            )) ;
+  this->lobby    .reset(new Lobby    (login_store     , servers_store            )) ;
+  this->license  .reset(new License  (agreed_value    , agree_value              )) ;
+  this->toolbox  .reset(new Toolbox  (                                           )) ;
+  this->chat     .reset(new Chat     (fontsize_value  , linjam_status            )) ;
+  this->mixer    .reset(new Mixer    (blacklist_store , gui_layout_value         )) ;
+  this->statusbar.reset(new StatusBar(                                           )) ;
+  this->loop     .reset(new Loop     (                                           )) ;
 
-  this->addChildAndSetID(this->background.get() , GUI::BACKGROUND_GUI_ID) ;
-  this->addChildAndSetID(this->config    .get() , GUI::CONFIG_GUI_ID    ) ;
-  this->addChildAndSetID(this->lobby     .get() , GUI::LOBBY_GUI_ID     ) ;
-  this->addChildAndSetID(this->license   .get() , GUI::LICENSE_GUI_ID   ) ;
-  this->addChildAndSetID(this->toolbox   .get() , GUI::TOOLBOX_GUI_ID   ) ;
-  this->addChildAndSetID(this->chat      .get() , GUI::CHAT_GUI_ID      ) ;
-  this->addChildAndSetID(this->mixer     .get() , GUI::MIXER_GUI_ID     ) ;
-  this->addChildAndSetID(this->statusbar .get() , GUI::STATUS_GUI_ID    ) ;
-  this->addChildAndSetID(this->loop      .get() , GUI::LOOP_GUI_ID      ) ;
+  this->addChildAndSetID(this->blank    .get() , GUI::BLANK_GUI_ID  ) ;
+  this->addChildAndSetID(this->config   .get() , GUI::CONFIG_GUI_ID ) ;
+  this->addChildAndSetID(this->lobby    .get() , GUI::LOBBY_GUI_ID  ) ;
+  this->addChildAndSetID(this->license  .get() , GUI::LICENSE_GUI_ID) ;
+  this->addChildAndSetID(this->toolbox  .get() , GUI::TOOLBOX_GUI_ID) ;
+  this->addChildAndSetID(this->chat     .get() , GUI::CHAT_GUI_ID   ) ;
+  this->addChildAndSetID(this->mixer    .get() , GUI::MIXER_GUI_ID  ) ;
+  this->addChildAndSetID(this->statusbar.get() , GUI::STATUS_GUI_ID ) ;
+  this->addChildAndSetID(this->loop     .get() , GUI::LOOP_GUI_ID   ) ;
 
   // show spinner
-  this->background->progressBar ->setVisible(true) ;
-  this->background->spinnerLabel->setVisible(true) ;
+  this->blank->progressBar ->setVisible(true) ;
+  this->blank->spinnerLabel->setVisible(true) ;
 
   // pre-load statusbar
   this->statusbar->setStatusL(GUI::DISCONNECTED_TEXT) ;

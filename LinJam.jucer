@@ -6,7 +6,7 @@
               jucerFormatVersion="1">
   <MAINGROUP id="dT83m5" name="LinJam">
     <GROUP id="{51F23963-7F0B-17B4-72A3-B564BDD36515}" name="Headers">
-      <FILE id="A4xouB" name="Background.h" compile="0" resource="0" file="Source/Background.h"/>
+      <FILE id="A4xouB" name="Blank.h" compile="0" resource="0" file="Source/Blank.h"/>
       <FILE id="gV1wc4" name="Blacklist.h" compile="0" resource="0" file="Source/Blacklist.h"/>
       <FILE id="XeDmZL" name="Channel.h" compile="0" resource="0" file="Source/Channel.h"/>
       <FILE id="SBrFCQ" name="Channels.h" compile="0" resource="0" file="Source/Channels.h"/>
@@ -42,7 +42,7 @@
       <FILE id="wwbGhU" name="Vote.h" compile="0" resource="0" file="Source/Vote.h"/>
     </GROUP>
     <GROUP id="{F298109F-8531-F160-2BC9-F72C3764B7EF}" name="Source">
-      <FILE id="WuNCUn" name="Background.cpp" compile="1" resource="0" file="Source/Background.cpp"/>
+      <FILE id="WuNCUn" name="Blank.cpp" compile="1" resource="0" file="Source/Blank.cpp"/>
       <FILE id="uu2nmQ" name="Blacklist.cpp" compile="1" resource="0" file="Source/Blacklist.cpp"/>
       <FILE id="pasbMc" name="Channel.cpp" compile="1" resource="0" file="Source/Channel.cpp"/>
       <FILE id="BwFSNp" name="Channels.cpp" compile="1" resource="0" file="Source/Channels.cpp"/>

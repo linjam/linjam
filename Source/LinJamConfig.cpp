@@ -568,7 +568,7 @@ void LinJamConfig::updateRemoteUserState(ValueTree user_store , int user_idx ,
                                          bool should_rcv                     )
 {
   Identifier user_id      = user_store.getType() ;
-  ValueTree  master_store = this->getOrAddRemoteChannel(user_id , CONFIG::MASTER_KEY) ;
+  ValueTree  master_store = this->getOrAddRemoteChannel(user_id , GUI::MIX_CHANNEL_NAME) ;
 
   user_store  .setProperty(CONFIG::USER_IDX_ID    , user_idx   , nullptr) ;
   master_store.setProperty(CONFIG::IS_XMIT_RCV_ID , should_rcv , nullptr) ;

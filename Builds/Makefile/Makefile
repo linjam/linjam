@@ -37,7 +37,6 @@ endif
 
 INSTALLDIR=$(DESTDIR)$(PREFIX)
 
-
 JUCE_ARCH_LABEL := $(shell uname -m)
 
 ifeq ($(CONFIG),Release)
@@ -50,7 +49,7 @@ ifeq ($(CONFIG),Release)
     TARGET_ARCH := 
   endif
 
-  JUCE_CPPFLAGS := $(DEPFLAGS) "-DLINUX=1" "-DNDEBUG=1" "-DJUCER_LINUX_MAKE_9CCEB774=1" "-DJUCE_APP_VERSION=0.34" "-DJUCE_APP_VERSION_HEX=0x2200" $(shell $(PKG_CONFIG) --cflags freetype2 zlib libjpeg libpng) -pthread -I../../JuceLibraryCode -I../../JuceLibraryCode/modules $(CPPFLAGS)
+  JUCE_CPPFLAGS := $(DEPFLAGS) "-DLINUX=1" "-DNDEBUG=1" "-DJUCER_LINUX_MAKE_9CCEB774=1" "-DJUCE_APP_VERSION=0.34" "-DJUCE_APP_VERSION_HEX=0x2300" $(shell $(PKG_CONFIG) --cflags freetype2 zlib libjpeg libpng) -pthread -I../../JuceLibraryCode -I../../JuceLibraryCode/modules $(CPPFLAGS)
   JUCE_CPPFLAGS_APP :=  "-DJucePlugin_Build_VST=0" "-DJucePlugin_Build_VST3=0" "-DJucePlugin_Build_AU=0" "-DJucePlugin_Build_AUv3=0" "-DJucePlugin_Build_AAX=0" "-DJucePlugin_Build_Standalone=0" "-DJucePlugin_Build_Unity=0" "-DJucePlugin_Build_LV2=0"
   JUCE_TARGET_APP := linjam
 
@@ -71,7 +70,7 @@ ifeq ($(CONFIG),Debug)
     TARGET_ARCH := 
   endif
 
-  JUCE_CPPFLAGS := $(DEPFLAGS) "-DLINUX=1" "-DDEBUG=1" "-D_DEBUG=1" "-DJUCER_LINUX_MAKE_9CCEB774=1" "-DJUCE_APP_VERSION=0.34" "-DJUCE_APP_VERSION_HEX=0x2200" $(shell $(PKG_CONFIG) --cflags freetype2 zlib libjpeg libpng) -pthread -I../../JuceLibraryCode -I../../JuceLibraryCode/modules $(CPPFLAGS)
+  JUCE_CPPFLAGS := $(DEPFLAGS) "-DLINUX=1" "-DDEBUG=1" "-D_DEBUG=1" "-DJUCER_LINUX_MAKE_9CCEB774=1" "-DJUCE_APP_VERSION=0.34" "-DJUCE_APP_VERSION_HEX=0x2300" $(shell $(PKG_CONFIG) --cflags freetype2 zlib libjpeg libpng) -pthread -I../../JuceLibraryCode -I../../JuceLibraryCode/modules $(CPPFLAGS)
   JUCE_CPPFLAGS_APP :=  "-DJucePlugin_Build_VST=0" "-DJucePlugin_Build_VST3=0" "-DJucePlugin_Build_AU=0" "-DJucePlugin_Build_AUv3=0" "-DJucePlugin_Build_AAX=0" "-DJucePlugin_Build_Standalone=0" "-DJucePlugin_Build_Unity=0" "-DJucePlugin_Build_LV2=0"
   JUCE_TARGET_APP := linjam-dbg
 
@@ -83,7 +82,7 @@ ifeq ($(CONFIG),Debug)
 endif
 
 OBJECTS_APP := \
-  $(JUCE_OBJDIR)/Background_ba4a3b7.o \
+  $(JUCE_OBJDIR)/Blank_5a92b5.o \
   $(JUCE_OBJDIR)/Blacklist_42ebe7fe.o \
   $(JUCE_OBJDIR)/Channel_14ad93e4.o \
   $(JUCE_OBJDIR)/Channels_84b8f659.o \
@@ -127,9 +126,9 @@ $(JUCE_OUTDIR)/$(JUCE_TARGET_APP) : $(OBJECTS_APP) $(JUCE_OBJDIR)/execinfo.cmd $
 	-$(V_AT)mkdir -p $(JUCE_OUTDIR)
 	$(V_AT)$(CXX) -o $(JUCE_OUTDIR)/$(JUCE_TARGET_APP) $(OBJECTS_APP) $(JUCE_LDFLAGS) $(shell cat $(JUCE_OBJDIR)/execinfo.cmd) $(JUCE_LDFLAGS_APP) $(RESOURCES) $(TARGET_ARCH)
 
-$(JUCE_OBJDIR)/Background_ba4a3b7.o: ../../Source/Background.cpp
+$(JUCE_OBJDIR)/Blank_5a92b5.o: ../../Source/Blank.cpp
 	-$(V_AT)mkdir -p $(@D)
-	@echo "Compiling Background.cpp"
+	@echo "Compiling Blank.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_APP) $(JUCE_CFLAGS_APP) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/Blacklist_42ebe7fe.o: ../../Source/Blacklist.cpp
