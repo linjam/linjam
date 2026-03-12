@@ -69,8 +69,6 @@ void LinJam::SignIn(String host , String login , String pass , bool is_anonymous
 
 void LinJam::Connect()
 {
-  if (Status == APP::NJC_STATUS_OK) Disconnect() ;
-
   String host         = str( Config->server[CONFIG::HOST_ID        ]) ;
   String login        = str( Config->server[CONFIG::LOGIN_ID       ]) ;
   String pass         = str( Config->server[CONFIG::PASS_ID        ]) ;
@@ -660,10 +658,8 @@ void LinJam::Quit() { Shutdown() ; ((JUCEApplication*)Gui)->quit() ; }
 
 /* NJClient callbacks */
 
-int LinJam::OnLicense(int user32 , char* license_text)
+int LinJam::OnLicense(int /*user32*/ , char* license_text)
 {
-  UNUSED(user32) ;
-
   if (!IsAgreed()) Gui->license->setLicenseText(CharPointer_UTF8(license_text)) ;
 
 DEBUG_TRACE_LICENSE
@@ -854,6 +850,7 @@ DEBUG_TRACE_STATUS_CHANGED
     case APP::LINJAM_STATUS_CONFIGPENDING  :
     case APP::LINJAM_STATUS_AUDIOERROR     : UpdateGuiMode(Gui->config .get()) ; break ;
     case APP::LINJAM_STATUS_LICENSEPENDING : UpdateGuiMode(Gui->license.get()) ; break ;
+    case 42: //APP::LINJAM_STATUS_LICENCE_CANCEL ;
     case APP::LINJAM_STATUS_ROOMFULL       :
     case APP::NJC_STATUS_DISCONNECTED      :
     case APP::NJC_STATUS_INVALIDAUTH       :
@@ -879,6 +876,7 @@ DEBUG_TRACE_STATUS_CHANGED
       // auto-join
       if (AutoJoinHost.isNotEmpty()) Gui->lobby->quickLogin(AutoJoinHost) ;
       AutoJoinHost = "" ;                                                   break ;
+    case 42/*APP::LINJAM_STATUS_LICENCE_CANCEL*/: Client->Disconnect() ; break ;
     case APP::LINJAM_STATUS_LOGOUTPENDING: Disconnect() ;                   break ;
     default:                                                                break ;
   }
@@ -971,9 +969,10 @@ DEBUG_TRACE_HANDLEUSERINFOCHANGED
 
 void LinJam::UpdateGuiMode(Component* pane)
 {
-  bool is_licence_pending = Status == APP::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
+  // bool is_licence_pending = Status == APP::NJC_STATUS_INVALIDAUTH && !IsAgreed() ;
 
-  if (pane == Gui->lobby.get() && is_licence_pending) return ;
+  // if (pane == Gui->lobby.get() && is_licence_pending) return ;
+  // if (pane == Gui->lobby.get() && is_licence_pending) pane = Gui->license.get() ;
 
   Gui->blank  ->setVisible(pane == Gui->blank  .get()) ;
   Gui->config ->setVisible(pane == Gui->config .get()) ;
@@ -1247,9 +1246,10 @@ void LinJam::UpdateStatus()
   bool   is_ready           = status >= APP::LINJAM_STATUS_READY ;
   bool   is_licence_pending = ( status == APP::LINJAM_STATUS_LICENSEPENDING ||
                                 status == APP::NJC_STATUS_INVALIDAUTH        ) && !IsAgreed() ;
+  bool   is_licence_cancel  = status == 42;//APP::LINJAM_STATUS_LICENCE_CANCEL ;
   bool   is_logout_pending  = status == APP::LINJAM_STATUS_LOGOUTPENDING ;
   bool   is_jam_full        = is_ready && ! error_msg.compare(CLIENT::SERVER_FULL_RESP) ;
-  bool   should_refresh     = is_ready && ! is_logout_pending ;
+  bool   should_refresh     = is_ready && ! is_logout_pending && ! is_licence_cancel ;
 
   if      (is_licence_pending) status = APP::LINJAM_STATUS_LICENSEPENDING ;
   else if (is_jam_full       ) status = APP::LINJAM_STATUS_ROOMFULL ;

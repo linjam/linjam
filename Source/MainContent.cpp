@@ -174,16 +174,16 @@ void MainContent::instantiate(ValueTree gui_store       , ValueTree client_store
   Value gui_layout_value = LinJamConfig::GetValueHolder(gui_store   , CONFIG::GUI_LAYOUT_ID  ) ;
 
   // instantiate components requiring model hooks
-  this->blank    .reset(new Blank    (                                           )) ;
-  this->config   .reset(new Config   (audio_store     , client_store , gui_store ,
-                                      blacklist_store , linjam_status            )) ;
-  this->lobby    .reset(new Lobby    (login_store     , servers_store            )) ;
-  this->license  .reset(new License  (agreed_value    , agree_value              )) ;
-  this->toolbox  .reset(new Toolbox  (                                           )) ;
-  this->chat     .reset(new Chat     (fontsize_value  , linjam_status            )) ;
-  this->mixer    .reset(new Mixer    (blacklist_store , gui_layout_value         )) ;
-  this->statusbar.reset(new StatusBar(                                           )) ;
-  this->loop     .reset(new Loop     (                                           )) ;
+  this->blank    .reset(new Blank    (                                                   )) ;
+  this->config   .reset(new Config   (audio_store     , client_store     , gui_store     ,
+                                      blacklist_store , linjam_status                    )) ;
+  this->lobby    .reset(new Lobby    (login_store     , servers_store                    )) ;
+  this->license  .reset(new License  (agreed_value    , agree_value      , linjam_status )) ;
+  this->toolbox  .reset(new Toolbox  (                                                   )) ;
+  this->chat     .reset(new Chat     (fontsize_value  , linjam_status                    )) ;
+  this->mixer    .reset(new Mixer    (blacklist_store , gui_layout_value                 )) ;
+  this->statusbar.reset(new StatusBar(                                                   )) ;
+  this->loop     .reset(new Loop     (                                                   )) ;
 
   this->addChildAndSetID(this->blank    .get() , GUI::BLANK_GUI_ID  ) ;
   this->addChildAndSetID(this->config   .get() , GUI::CONFIG_GUI_ID ) ;

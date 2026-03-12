@@ -39,7 +39,7 @@ class License  : public Component,
 {
 public:
     //==============================================================================
-    License (Value is_agreed, Value always_agree);
+    License (Value is_agreed, Value always_agree, Value linjam_status);
     ~License() override;
 
     //==============================================================================
@@ -60,9 +60,11 @@ private:
 
   Value isAgreed ;
   Value alwaysAgree ;
+  Value linjamStatus ;
 
 
-  void valueChanged(  Value& a_value) override ;
+  void valueChanged(Value& a_value) override ;
+
   void setLicenseText(String license_text) ;
 
     //[/UserVariables]

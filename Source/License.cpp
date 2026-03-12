@@ -30,8 +30,8 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-License::License (Value is_agreed, Value always_agree)
-    : isAgreed(is_agreed), alwaysAgree(always_agree)
+License::License (Value is_agreed, Value always_agree, Value linjam_status)
+    : isAgreed(is_agreed), alwaysAgree(always_agree), linjamStatus(linjam_status)
 {
     //[Constructor_pre] You can add your own custom stuff here..
     //[/Constructor_pre]
@@ -155,7 +155,7 @@ void License::buttonClicked (juce::Button* buttonThatWasClicked)
     {
         //[UserButtonCode_cancelButton] -- add your button handler code here..
 
-      this->isAgreed = false ;
+      this->linjamStatus = 42;//APP::LINJAM_STATUS_LICENCE_CANCEL ;
 
         //[/UserButtonCode_cancelButton]
     }
@@ -214,8 +214,8 @@ void License::setLicenseText(String license_text)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="License" componentName="License"
-                 parentClasses="public Component, public ValueListener" constructorParams="Value is_agreed, Value always_agree"
-                 variableInitialisers="isAgreed(is_agreed), alwaysAgree(always_agree)"
+                 parentClasses="public Component, public Value::Listener" constructorParams="Value is_agreed, Value always_agree, Value linjam_status"
+                 variableInitialisers="isAgreed(is_agreed), alwaysAgree(always_agree), linjamStatus(linjam_status)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="622" initialHeight="442">
   <BACKGROUND backgroundColour="0">
