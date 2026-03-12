@@ -722,7 +722,7 @@ namespace CONFIG
   /* config XML and ValueTree default values */
 
   // config root defaults
-  static const double CONFIG_VERSION = 0.34 ; // major.minor at last schema change <- $ grep '<JUCERPROJECT ' LinJam.jucer | sed 's|.*version="\([0-9\.]*\)"|"\1"|'
+  static const double CONFIG_VERSION = 0.35 ; // major.minor at last schema change <- $ grep '<JUCERPROJECT ' LinJam.jucer | sed 's|.*version="\([0-9\.]*\)"|"\1"|'
 
   // gui config defaults
   static const int  DEFAULT_FONT_SIZE_N  = 2 ;
