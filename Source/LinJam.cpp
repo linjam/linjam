@@ -726,6 +726,8 @@ void LinJam::PumpClient()
 
   if (Client->HasUserInfoChanged()             ) HandleUserInfoChanged() ;
   if (Client->GetStatus() >= APP::NJC_STATUS_OK) while (!Client->Run()) ;
+
+  UpdateStatus() ; // ???
 }
 
 void LinJam::HandleTimer(int timer_id)
