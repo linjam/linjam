@@ -391,7 +391,8 @@ public:
   static const int GUI_LO_TIMER_ID     = 2 ; static const int GUI_LO_UPDATE_IVL = 60000 ; // serverlist update
   static const int GUI_MD_TIMER_ID     = 3 ; static const int GUI_MD_UPDATE_IVL = 1000 ;  // statusbar and bot time update
   static const int GUI_HI_TIMER_ID     = 4 ; static const Array<int> GUI_HI_UPDATE_IVLS ; // loop progress, VUs, etc
-  static const int VOTE_TIMEOUT        = 60 ; // ASSERT: Linjam::UpdateBpiBpm() expects this interval to be one second
+  static const int GUI_INPUT_DELAY     = 100 ; // WIP: suppress input bouce - prevent eg: double-iggie
+  static const int VOTE_TIMEOUT        = 60 ;  // ASSERT: Linjam::UpdateBpiBpm() expects this interval to be one second
 
 
   // runtime initialization of static constants

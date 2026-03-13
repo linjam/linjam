@@ -344,10 +344,14 @@ void LocalChannels::buttonClicked(Button* a_button)
 
 void RemoteChannels::buttonClicked(Button* a_button)
 {
+  if (! isTimerRunning()) startTimer(APP::GUI_INPUT_DELAY) ; // WIP: suppress input bouce - prevent eg: double-iggie
+  else                    return ;                           // WIP: suppress input bouce - prevent eg: double-iggie
 
   if      (a_button == this->expandButton.get()) toggleExpandChannels() ;
   else if (a_button == this->ignoreButton.get()) addUserToBlacklist() ;
 }
+
+void RemoteChannels::timerCallback() { stopTimer() ; } // WIP: suppress input bouce - prevent eg: double-iggie
 
 void RemoteChannels::toggleExpandChannels()
 {

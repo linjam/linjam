@@ -114,7 +114,7 @@ private:
 } ;
 
 
-class RemoteChannels : public Channels , public Button::Listener
+class RemoteChannels : public Channels , public Button::Listener, public Timer
 {
 public:
 
@@ -131,6 +131,7 @@ private:
   Channel* newChannel(ValueTree channel_store)     override ;
 
   void buttonClicked(Button* buttonThatWasClicked) override ;
+  void timerCallback()                             override ; // WIP: prevent accidental double-iggie
 
   void     toggleExpandChannels() ;
   void     addUserToBlacklist  () ;
